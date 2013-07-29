@@ -597,7 +597,10 @@ void connection::run()
 
 	    ber::berpdu pdu;
 
-	    pdu.read_pdu(s);
+	    bool got = pdu.read_pdu(s);
+
+	    // Error or end of stream.
+	    if (!got) break;
 
 	    // Decode header and payloads.
 	    ber::berpdu& hdr_p = pdu.get_element(1);

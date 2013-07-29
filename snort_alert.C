@@ -24,9 +24,6 @@
 // Message length;
 const int alert_message_len = 256;
 
-// Capture packet length.
-const int capl = 1514;
-
 // Snort event
 struct snort_event {
     uint32_t sig_generator;	// Signature generator.
@@ -36,19 +33,30 @@ struct snort_event {
     uint32_t priority;		// Priority from signature.
     uint32_t event_id;		// Event ID
     uint32_t event_ref;		// Event reference.
-    struct timeval ref_time;	// Event time.
+
+    // Timeval of event time
+    uint32_t sec;
+    uint32_t usec;
+};
+
+struct snort_pcap_header {
+    // PCAP header, everything's 32-bit.
+    uint32_t sec;
+    uint32_t usec;
+    uint32_t caplen;
+    uint32_t reallen;
 };
 
 // Snort alert
 struct snort_alert {
     unsigned char message[alert_message_len]; // Message from rule
-    pcap_pkthdr pcaphdr;	// PCAP header
+    snort_pcap_header pcaphdr;	// PCAP header
     uint32_t dlt_hdr;		// Data link header start
     uint32_t net_hdr;		// Network header start.
     uint32_t trans_hdr;		// Transport header start.
     uint32_t data;		// Data start.
     uint32_t flags;		// Flags, 1 = no packet, 2 = no transport hdr
-    unsigned char packet[capl];	// Packet data.
+    unsigned char pkt[65535];	// Packet data.
     snort_event event;		// Snort event.
 };
 
@@ -102,7 +110,7 @@ void snort_alerter::run()
 	    if (alert.flags & 1) continue;
 	    
 	    // Locate the IP header
-	    unsigned char* ip_hdr = alert.packet + alert.net_hdr;
+	    unsigned char* ip_hdr = alert.pkt + alert.net_hdr;
 
 	    tcpip::ip4_address src4;
 	    tcpip::ip6_address src6;

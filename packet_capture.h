@@ -133,18 +133,20 @@ class pcap_writer {
     }
     void write(const std::vector<unsigned char>::iterator& begin,
 	       const std::vector<unsigned char>::iterator& end) {
+
 	struct pcap_pkthdr h;
 
-	// FIXME: Time info?
-	h.ts.tv_sec = 0;
-	h.ts.tv_usec = 0;
+	// Get time
+	gettimeofday(&h.ts, 0);
 
+	// Set packet lengths in header
 	h.caplen = end - begin;
 	h.len = end - begin;
 
 	unsigned char buf[end - begin];
 	std::copy(begin, end, buf);
 
+	// Output in PCAP.
 	pcap_dump((unsigned char *) dumper, &h, buf);
 
     }

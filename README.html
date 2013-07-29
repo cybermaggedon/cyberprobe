@@ -29,7 +29,7 @@ network interfaces, and any packets which match on a address map are
 forwarded to an endpoint in a packet-streaming protocol.</p>
 
 <p>
-Optionally, the simple probe can be configured to receive alerts from
+Optionally, the probe can be configured to receive alerts from
 snort. In this configuration, when an alert is received from Snort, the IP
 source address associated with the alert is dynamically targeted for a period
 of time.
@@ -86,16 +86,17 @@ which is used in Europe and wider.  The protocol is described using an ASN.1
 specification which can be downloaded from the ETSI web-site.  <a href="http://www.google.com/search?q=etsi+ts+102+232+filetype:pdf">Google can find the standards</a>.</p>
 
 <p>Those adverse to the use of ASN.1 technology may prefer the
-second format, NHIS 1.1 which has been defined for use in the UK.
-The protocol is a much simpler header protocol, and is easier to decode.
+second format, NHIS 1.1 which was defined for use in the UK in the late 90s.
+The protocol is a much simpler header protocol, and needs less work to decode.
 </p>
 
-<p>The probe automatically reconnects to failed destinations.  When
-destinations fail, the packets are buffered in a small queue.  Once the queue
-fills, packets will start to be dropped.  There is only one queue, so the
-loss of a single endpoint will result in data loss to all endpoints.
-Thus, it is not likely that the simple probe will be useful for operational 
-scenarios where high data availability is required.
+<p>The probe automatically reconnects to failed destinations, but the
+buffering strategy is very simple.  When destinations fail, the packets are
+buffered in a small queue, but there is limited buffering, so once the queue
+fills, packets will start to be dropped.  The locking strategy is simple, so
+loss of a single endpoint will currently result in data loss to all endpoints.
+This may be a problem for operational  scenarios where high data availability
+is required.
 </p>
 
 <p>
