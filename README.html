@@ -130,10 +130,13 @@ Usage:
 file use the supplied <code>config.xml</code> as a starting point.</p></li>
 
 <li><p>Hack the <code>interfaces</code> block and configure the name of an
-interface to study:</p>
+interface to study.  Note the delay attribute.  This specifies that
+packets are held for a small amount of time before processing.  This gives
+snort a chance to hit a signature and fire an alert at as, before the
+offending packet gets handled by cyberprobe:</p>
 <pre>
   &lt;interfaces>
-    &lt;interface name="eth0"/>
+    &lt;interface name="eth0" delay="1"/>
   &lt;/interfaces>
 </pre>
 </li>
@@ -216,7 +219,9 @@ Sample configuration:
          sniff the outbound streams. -->
     &lt;interface name="eth0" filter="not port 10001 and not port 10002"/>
 
-    &lt;interface name="eth1"/>
+    &lt;-- The delay attribute can be used to specify a delay before packets
+           are processed.  In seconds. --> 
+    &lt;interface name="eth1" delay="1"/>
 
   &lt;/interfaces>
 
