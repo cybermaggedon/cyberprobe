@@ -41,15 +41,24 @@ of time.
 
 <p>Cyberprobe started out as a research tool to study networked applications
 to find out what they were doing, as we all know how software suppliers
-sometimes like to add some "extras" to their software :).  But, the biggest
+sometimes like to add some "extras" to their software :).  So, a simple tool
+to configure how packets are captured from a network was produced.  But as
+you are probably aware, the biggest
 threat to the safety of your information is from <u>outside</u> of
 your network.  Thus, the ability to trigger collection of packets upon
 detection of a Snort rule hit was added.
 </p>
 
+<p>Snort is a powerful IDS system which studies packets on your network,
+analyses them against a set of signatures and creates logs and alerts.
+We felt there was a need to harness the Snort alerts, but use them to
+trigger collection and forwarding of packets from the address which caused
+the alert.
+</p>
+
 <p>
 You may be asking why you'd want to use Cyberprobe?  
-Monitoring networks with tcpdump and Snort and collecting alerts and
+After all, monitoring networks with tcpdump and Snort and collecting alerts and
 packet data for analysis is a straightforward process for many networks.
 However, real-time analysis is not possible if everything is file based.
 Collecting the data and forwarding over the network to a central
@@ -73,8 +82,8 @@ which interface with these protocols.
 </p>
 
 <p>The first of the formats supported is the ETSI LI format (ETSI TS 102 232),
-which is used in Europe.  The protocol is described using an ASN.1
-specification.</p>
+which is used in Europe and wider.  The protocol is described using an ASN.1
+specification which can be downloaded from the ETSI web-site.  <a href="http://www.google.com/search?q=etsi+ts+102+232+filetype:pdf">Google can find the standards</a>.</p>
 
 <p>Those adverse to the use of ASN.1 technology may prefer the
 second format, NHIS 1.1 which has been defined for use in the UK.
@@ -90,7 +99,8 @@ scenarios where high data availability is required.
 </p>
 
 <p>
-Two test utilities are supplier, <code>etsi_rcvr</code> and
+Cyberprobe includes some code to decode the ETSI and NHIS streams, and
+also includes two test utilities, <code>etsi_rcvr</code> and
 <code>nhis11_rcvr</code> which listen on a specified port number, decode
 the stream data, and forward in PCAP format on standard output.
 Example usage would be:
@@ -135,7 +145,7 @@ to use Snort to trigger forwarding of packets:</p>
 </pre>
 </li>
 
-<li><p>Hack the <code>endpoints</code>, and deliver packets to a local
+<li><p>Hack the <code>endpoints</code> block, and deliver packets to a local
 service on port 10000:</p></li>
 <pre>
   &lt;endpoints>
@@ -340,6 +350,20 @@ enabled. e.g.</p>
 <pre>
   snort -A unsock -N -l /var/log/snort/ -c snort.conf 
 </pre>
+
+<h2>Code</h2>
+
+<p>Get the code using <code>git</code>:
+<pre>
+git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+</pre>
+</p>
+
+<p>Have a play, and let us <a href="https://sourceforge.net/p/cyberprobe/discussion/">know what you think</a>.  We'd love to here questions, comments, what's good, what disappointed you etc. etc.
+</p>
+
+<p>Powered by SourceForge, project page is <a href="https://sourceforge.net/p/cyberprobe">here</a>.
+
 <h2>For improvement</h2>
 
 <p>
@@ -349,6 +373,7 @@ delivery.</li>
 <li>Endpoint failure affects all endpoints.  (Not worth changing?)</li>
 <li>The ETSI LI support is bare basics, for instance, doesn't support 
 keep-alive.</li>
+<li>The IPv6 matching has had little testing.</li>
 </ul>
 </p>
 
