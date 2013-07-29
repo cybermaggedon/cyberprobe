@@ -1,0 +1,53 @@
+
+Here's some test cases I've tried...
+
+- Interface configuration change affecting capture:
+
+  1) Run, so that packets are targeted and forward.
+  2) Change configuration, removing an interface entry, check packet
+     forwarding stops.
+  3) Re-enable interface entry, check forwarding starts again.
+
+- Interface change affecting capture.
+
+  1) Run, so that packets are targeted and forward.
+  2) Change configuration, removing a target line, check packet forwarding
+     stops.
+  3) Add the target back in, check forwarding starts again.
+  4) Change LIID associated with a target, check new connection is
+     set up, and forwarding starts on new LIID.
+
+- Endpoint failure
+
+  1) Run, so that packets are targeted and forward.
+  2) Stop the endpoint.  Forwarding stops.
+  3) Restart the endpoint, check forward resumes.
+
+- Invalid INTERFACE configuration 
+
+  1) Run, so that packets are targeted and forward.
+  2) Add an interface line for an interface which doesn't exist.
+  3) Remove line.
+  4) Check forwarding is not affected.
+
+- Total configuration change
+
+  1) Run, so that packets are targeted and forward.
+  2) Replace configuration file with empty file.  Check all resources are
+     stopped.
+  3) Return the original configuration file.  Check all resources restarted,
+     and forwarding returns.
+
+- Multiple active TARGET lines
+
+- Multiple active interfaces
+
+- Badly scrambled config file
+
+  1) Run, so that packets are targeted and forward.
+  2) Copy the Linux kernel over the config file (/boot/vmlinuz-...).  The
+     output is probably a little haywire.
+  3) Wait a few seconds.
+  4) Return the normal configuration file.  Check everything returns to normal
+     operation.
+

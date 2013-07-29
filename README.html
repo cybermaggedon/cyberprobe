@@ -1,0 +1,358 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>cyberprobe</title>
+
+<style type="text/css">
+
+    body {  font: 10pt helvetica; background: white; }
+
+    table { border-collapse: collapse; margin: 12px; }
+    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
+    td { border: 1px solid black; padding: 6px; }
+
+    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
+
+    .xmlcomment { color: #4040ff; }
+
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe</h1>
+
+<h2>Overview</h2>
+
+<p>This is a software-based probe, collects packets from a set of
+network interfaces, and any packets which match on a address map are
+forwarded to an endpoint in a packet-streaming protocol.</p>
+
+<p>
+Optionally, the simple probe can be configured to receive alerts from
+snort. In this configuration, when an alert is received from Snort, the IP
+source address associated with the alert is dynamically targeted for a period
+of time.
+</p>
+
+<img style="align: center" src="cyberprobe.png"/>
+
+<h2>Motivation</h2>
+
+<p>Cyberprobe started out as a research tool to study networked applications
+to find out what they were doing, as we all know how software suppliers
+sometimes like to add some "extras" to their software :).  But, the biggest
+threat to the safety of your information is from <u>outside</u> of
+your network.  Thus, the ability to trigger collection of packets upon
+detection of a Snort rule hit was added.
+</p>
+
+<p>
+You may be asking why you'd want to use Cyberprobe?  
+Monitoring networks with tcpdump and Snort and collecting alerts and
+packet data for analysis is a straightforward process for many networks.
+However, real-time analysis is not possible if everything is file based.
+Collecting the data and forwarding over the network to a central
+collection point allows for a much more "industrialized" approach to intrusion
+detection.  If you detect an attack attempt, and then observe vast quantities
+of data leaving your network from the credit card accounts database, then
+you know you need to act quickly.
+</p>
+
+<p>There's a war coming... The enemy is resourceful, they can use your 
+networks and systems as their own weapon.  But with the right tools, you
+can prepare a defence.  It's time to get ready for Cybermaggedon.
+</p>
+
+<h2>Stream protocols</h2>
+
+<p>Cyberprobe supports packet output in one of two LI formats.  LI formats
+were chosen as they set good, open standards for streaming packets to
+a destination.  There are also existing security products and analysis tools
+which interface with these protocols.
+</p>
+
+<p>The first of the formats supported is the ETSI LI format (ETSI TS 102 232),
+which is used in Europe.  The protocol is described using an ASN.1
+specification.</p>
+
+<p>Those adverse to the use of ASN.1 technology may prefer the
+second format, NHIS 1.1 which has been defined for use in the UK.
+The protocol is a much simpler header protocol, and is easier to decode.
+</p>
+
+<p>The probe automatically reconnects to failed destinations.  When
+destinations fail, the packets are buffered in a small queue.  Once the queue
+fills, packets will start to be dropped.  There is only one queue, so the
+loss of a single endpoint will result in data loss to all endpoints.
+Thus, it is not likely that the simple probe will be useful for operational 
+scenarios where high data availability is required.
+</p>
+
+<p>
+Two test utilities are supplier, <code>etsi_rcvr</code> and
+<code>nhis11_rcvr</code> which listen on a specified port number, decode
+the stream data, and forward in PCAP format on standard output.
+Example usage would be:
+<pre>
+etsi_rcvr 10001 | tcpdump -n -r-
+nhis11_rcvr 10000 | tcpdump -n -r-
+</pre>
+</p>
+
+<h2>Usage</h2>
+
+<p>
+Usage:
+</p>
+
+<pre>
+    cyberprobe &lt;config-file>
+</pre>
+
+<h2>Getting started with minimal fuss</h2>
+
+<p>Bascially:
+<ul>
+
+<li><p>Compile <code>cyberprobe</code>, and start hacking the configuration
+file use the supplied <code>config.xml</code> as a starting point.</p></li>
+
+<li><p>Hack the <code>interfaces</code> block and configure the name of an
+interface to study:</p>
+<pre>
+  &lt;interfaces>
+    &lt;interface name="eth0"/>
+  &lt;/interfaces>
+</pre>
+</li>
+
+<li><p>Hack the <code>targets</code> block, and leave it empty - we're going
+to use Snort to trigger forwarding of packets:</p>
+<pre>
+  &lt;targets>
+  &lt;/targets>
+</pre>
+</li>
+
+<li><p>Hack the <code>endpoints</code>, and deliver packets to a local
+service on port 10000:</p></li>
+<pre>
+  &lt;endpoints>
+    &lt;endpoint hostname="localhost" port="10000" type="etsi"/>
+  &lt;/endpoints>
+</pre>
+</li>
+
+<li><p>Configure reception of Snort alerts.  A Snort alert will trigger
+collection for 20 seconds.</p></li>
+<pre>
+   &lt;snort_alert socket="/var/log/snort/snort_alert" duration="20"/>
+</pre>
+</li>
+
+<li><p>Refer to the Snort documentation, and get snort up and running, and
+generating alerts.  A rule such as the one below will detect any activity on
+port 80, might be a good starting point to check everything is working:
+<pre>
+alert tcp any any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
+</pre>
+</li>
+
+<li>
+<p>Start a test receiver on port 10000:</p>
+<pre>
+etsi_rcvr 10000 | tcpdump -n -r-
+</pre>
+</li>
+
+<li><p>Start Cyberprobe, specifying the configuration file:</p>
+<pre>
+cyberprobe config.xml
+</pre>
+</li>
+
+<li><p>Start Snort, generating UNIX socket alerts.  You need to specify
+your Snort configuration file.</p>
+<pre>
+snort -A unsock -N -l /var/log/snort/ -c snort.conf 
+</pre>
+</li>
+
+</ul>
+</p>
+
+<h2>Configuration</h2>
+
+<p>
+The configuration file is re-read when it changes, and changes are
+immediately actioned.
+</p>
+
+<p>
+Sample configuration:
+</p>
+
+<pre>
+&lt;?xml version="1.0" encoding="ISO-8859-1"?>
+
+&lt;configuration>
+
+  &lt;!-- Set of interfaces to use for collection. -->
+  &lt;interfaces>
+
+    &lt;!-- filter element is optional.  Can be used to make sure you don't
+         sniff the outbound streams. -->
+    &lt;interface name="eth0" filter="not port 10001 and not port 10002"/>
+
+    &lt;interface name="eth1"/>
+
+  &lt;/interfaces>
+
+  &lt;!-- Statically targeted addresses. -->
+  &lt;targets>
+    &lt;target address="192.168.1.1" liid="123456"/>
+    &lt;target address="192.168.1.2" liid="123981"/>
+    &lt;target address="10.1.1.1" liid="9123780"/>
+    &lt;target address="10.1.1.0" liid="591875"/>
+    &lt;target address="10.1.1.2" liid="492895"/>
+    &lt;target address="10.1.1.3" liid="591875"/>
+    &lt;target address="10.1.1.4" liid="591875"/>
+    &lt;target address="10.1.1.5" liid="591875"/>
+    &lt;target address="10.1.1.6" liid="591875"/>
+    &lt;target address="10.1.1.7" liid="591875"/>
+    &lt;target address="10.1.1.8" liid="591875"/>
+    &lt;target address="10.1.1.9" liid="591875"/>
+    &lt;target address="10.1.1.10" liid="591875"/>
+    &lt;target address="::4:5:6" liid="983898"/>
+  &lt;/targets>
+
+  &lt;!-- Endpoints for delivery of collected packets. -->
+  &lt;endpoints>
+
+    &lt;!-- Send collected packets to monitor1:10001 in NHIS 1.1 stream. -->
+    &lt;endpoint hostname="monitor1" port="10001" type="nhis1.1"/>
+
+    &lt;!-- Send collected packets to monitor2:10002 in ETSI LI stream. -->
+    &lt;endpoint hostname="monitor2" port="10002" type="etsi"/>
+
+  &lt;/endpoints>
+
+  &lt;!-- Set of parameters, primarily used to configure the metadata in
+       ETSI LI metadata. -->
+  &lt;parameters>
+
+    &lt;!-- Value used for deliveryCountryCode and authorizationCountryCode
+         in LI PS PDU. Should be 2-character string. -->
+    &lt;parameter key="country" value="DE"/>
+
+    &lt;!-- Value used for operatorIdentifier in LI PS PDU. A string up to 16
+         characters. -->
+    &lt;parameter key="operator" value="Cyber"/>
+
+    &lt;!-- Value used for networkElementIdentifier in LI PS PDU. String up
+         to 16 characters in length. -->
+    &lt;parameter key="network_element" value="10.8.2.4"/>
+
+    &lt;!-- Value used for interceptionPointID in LI PS PDU. String up
+         to 8 characters in length. -->
+    &lt;parameter key="interception_point" value="abcd1234"/>
+
+    &lt;!-- Username values used in IPIRI connection.  Key form is
+         "username." plus the LIID -->
+    &lt;parameter key="username.123456" value="user01@example.org"/>
+    &lt;parameter key="username.123981" value="user02@example.org"/>
+    &lt;parameter key="username.981235" value="user03@example.org"/>
+
+    &lt;!-- Parameters in this form are used select the LIID which is used
+         when packets are collected on Snort alerts.  Basically, this maps
+	 the Snort signature ID to a LIID. -->
+    &lt;parameter key="snort.1.liid" value="SNORT1"/>
+    &lt;parameter key="snort.2.liid" value="SNORT2"/>
+
+   &lt;/parameters>
+
+   &lt;!-- Optional element.  Listens for Snort alerts, and dynamically targets
+        addresses for 60 seconds. -->
+   &lt;!--
+   &lt;snort_alert socket="/var/log/snort/snort_alert" duration="60"/>
+   -->
+
+&lt;/configuration>
+</pre>
+
+<p>
+The <code>interfaces</code> block defines a set of interfaces to sniff.
+The <code>name</code> attribute is mandatory, the <code>filter</code>
+element is optional.  The <code>delay</code> element can be used to
+specify, in seconds, the duration to wait before packets are processed.
+</p>
+
+<p>
+The <code>targets</code> block defines an IP address to LIID mapping.
+The <code>address</code> attribute defines the IP address used to match
+on, and the <code>liid</code> attribute defines the LIID which will be
+applied if this particular IP address is detected.  The address must be
+an IP address, and not a hostname.  The address can be an IPv6 address if
+the <code>class</code> attribute is included, and set to <code>ipv6</code>.
+</p>
+
+<p>
+LIIDs can occur in multiple places in the target block, but 
+an IP address should only occur once in the target block.
+</p>
+
+<p>
+The <code>endpoints</code> block defines a set of addresses for delivery.
+The <code>hostname</code> and <code>port</code> attributes should be used to
+describe the endpoint address.  Type <code>type</code> attribute should be
+<code>nhis1.1</code> or <code>etsi</code> to specify which output stream
+format to use.
+</p>
+
+<p>
+The optional <code>parameters</code> block defines a set of parameters which
+are only used in ETSI delivery.  Each <code>parameter</code> element
+should have a <code>key</code> and a <code>value</code> attribute.
+The parameter values for <code>country</code>, <code>operator</code>,
+<code>network_element</code> and <code>interception_point</code> describe
+values which are used in the PSHeader and IRI constructs.
+The parameters with prefix <code>username.</code> describe values for the
+username values in the IPIRI construct in ETSI LI.  The key value is the
+<code>username.</code> suffixed with the LIID.  If such an entry is present,
+it is used for the username.  All parameters are optional, meaningless
+defaults (e.g. <code>unknown</code>) will be used if not specified.
+</p>
+
+<h2>Snort integration</h2>
+
+<p>If the <code>snort_alert</code> element is specified, Cyberprobe will
+receive Snort alerts on a UNIX socket.  When an alert is received, the
+source address of the IP is dynamically targeted for a short period of time.
+The duration of targeting can be specified with the <code>duration</code>
+element.  Note: when using Snort alerts, a delay should be specified with
+the interface, to allow for the Snort processing latency.  1 second should
+be fine.
+</p>
+
+<p>Snort should be run in IDS mode, with the UNIX socket alerting mode
+enabled. e.g.</p>
+<pre>
+  snort -A unsock -N -l /var/log/snort/ -c snort.conf 
+</pre>
+<h2>For improvement</h2>
+
+<p>
+<ul>
+<li>While the system supports IPv6 match, it only supports IPv4 for
+delivery.</li>
+<li>Endpoint failure affects all endpoints.  (Not worth changing?)</li>
+<li>The ETSI LI support is bare basics, for instance, doesn't support 
+keep-alive.</li>
+</ul>
+</p>
+
+</body>
+
+</html>
+

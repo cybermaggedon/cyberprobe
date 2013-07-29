@@ -1,0 +1,62 @@
+
+////////////////////////////////////////////////////////////////////////////
+//
+// PACKET CAPTURE
+//
+////////////////////////////////////////////////////////////////////////////
+
+#ifndef CAPTURE_H
+#define CAPTURE_H
+
+#include "packet_capture.h"
+#include "delivery.h"
+
+#include <queue>
+
+// Packet capture.  Captures on an interface, and then submits captured
+// packets to the delivery engine.
+class capture_dev : public interface_capture {
+private:
+
+    struct delayed_packet {
+	std::vector<unsigned char> packet;
+	struct timeval exit_time;
+    };
+
+    std::queue<delayed_packet> delay_line;
+
+    // Handle to the deliver engine.
+    delivery& deliv;
+
+    // Filter applied to packets.
+    std::string filter;
+
+    // PCAP's datalink enumerator - describes the type of layer 2 wrapping
+    // on the IP packet.
+    int datalink;
+
+    // Seconds of delay
+    int delay;
+
+public:
+
+    // Going to need support for a delay line in the run method.
+    virtual void run();
+
+    // Constructor.  i=interface name, d=delivery engine.
+    capture_dev(const std::string& i, delivery& d, int delay) : 
+	interface_capture(i), deliv(d) { 
+	datalink = pcap_datalink(p); 
+	this->delay = delay;
+    }
+
+    // Destructor.
+    virtual ~capture_dev() {}
+
+    // Packet handler.
+    virtual void handle(unsigned long len, unsigned long captured, 
+			const unsigned char* bytes);
+};
+
+#endif
+
