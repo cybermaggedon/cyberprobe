@@ -1,0 +1,74 @@
+
+PS-PDU (16) CONSTRUCT
+|
++-- pSHeader (1) CONSTRUCT
+|   |
+|   +-- li-psDomainId (0) OID
+|   |
+|   +-- lawfulInterceptionIdentifier (1) STRING
+|   |
+|   +-- authorizationCountryCode (2) STRING[2]
+|   |
+|   +-- communicationIdentifier (3) CONSTRUCT
+|   |   |
+|   |   +-- networkIdentifier (0) CONSTRUCT
+|   |   |   |
+|   |   |   +-- operatorIdentifier (0) STRING[1..16]
+|   |   |   |
+|   |   |   +-- networkElementIdentifier (1) STRING[1..16]
+|   |   |
+|   |   +-- communicationIdentityNumber (1) INTEGER
+|   |   |
+|   |   +-- deliveryCountryCode (2) STRING[2]
+|   |
+|   +-- sequenceNumber (4) INTEGER
+|   |
+|   +-- timeStamp (5) STRING
+|   |
+|   +-- interceptPointID (6) STRING[1..8]
+|
++-- payload (2)
+    |
+    +-- iriPayloadSequence (0) SEQUENCE
+    |   |
+    |   +-- IRIPayload
+    |       |
+    |       +-- iRIType (0) INTEGER
+    |       |
+    |       +-- iRIContents(2)
+    |           |
+    |           +-- iPIRI (2)
+    |               |
+    |               +-- iPIRIObjId (0) OID
+    |               |
+    |               +-- iPIRIContents (1)
+    |                   |
+    |                   +-- accessEventType (0) INTEGER
+    |                   |
+    |			+-- targetUsername (1) STRING
+    |			|
+    |			+-- internetAccessType (2) INTEGER
+    |			|
+    |			+-- iPVersion (3) INTEGER
+    |			|
+    |			+-- targetIpAddress (4)
+    |			    |
+    |			    +-- iP-type (1) INTEGER
+    |			    |
+    |			    +-- ip-Value (2)
+    |			        |
+    |			        +-- iPBinaryAddress (1) STRING
+    |
+    +-- cCPayloadSequence (1) SEQUENCE
+        |
+        +-- CCPayload
+            |
+            +-- cCContents (2)
+                |
+                +-- iPCC (2)
+                    |
+		    +-- ipCCObjId (0) OID
+		    |
+		    +-- ipCCContents (1)
+		        |
+			+-- iPPackets (0) STRING
