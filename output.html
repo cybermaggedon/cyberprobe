@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>cyberprobe - output stream protocols</title>
+
+<style type="text/css">
+
+    body {  font: 10pt helvetica; background: white; }
+
+    table { border-collapse: collapse; margin: 12px; }
+    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
+    td { border: 1px solid black; padding: 6px; }
+
+    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
+
+    .xmlcomment { color: #4040ff; }
+
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe - Output Stream Protocols</h1>
+
+<h2>Table of contents</h2>
+
+<ul>
+<li><a href="index.html">Index</a></li>
+<li><a href="quickstart.html">Quick Start</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="output.html">Output streaming protocols</a></li>
+</ul>
+
+<h2>Output Stream protocols</h2>
+
+<p>Cyberprobe supports packet output in one of two output formats, which
+are both LI formats.  LI formats
+were chosen as they set good, open standards for streaming packets to
+a destination.  There are also existing security products such as firewalls,
+and analysis tools
+which understand with these protocols.  The two formats are ETSI LI and
+NHIS 1.1.
+</p>
+
+<h2>ETSI</h2>
+
+<p>The first of the formats supported is the ETSI LI format
+(see ETSI TS 102 232), which is used in Europe and internationally.
+The protocol is described using an ASN.1 specification which can be
+downloaded from the ETSI web-site.
+<a href="http://www.google.com/search?q=etsi+ts+102+232+filetype:pdf">Google
+can find the standards</a>.  The over-arching TS 102 232-1 standard describes
+the transport, while the TS 102 232-3 standard describes putting the IP
+packets in the transport.</p>
+
+<p>Those adverse to the use of ASN.1 technology may prefer the
+second format.</p>
+
+<h2>NHIS 1</h2>
+
+<p>NHIS 1.1 which was defined for use in the UK in the late 90s, based
+on GLIC in ETSI TS 101 671.
+The protocol is a much simpler header protocol than ETSI LI, and needs less
+work to decode.
+</p>
+
+<p>The standard was available on the internet on the
+<a href="http://www.gliif.org">gliif.org</a> website, but that web-site has
+recently gone offline.
+</p>
+
+<p>The bluffers guide to decoding goes...
+<ul>
+<li>
+The first 32 bytes after TCP connection are a header.  Ignore the first 4 bytes, the latter 28 bytes are the LIID, represented as an ASCII string.  Unused bytes following the LIID are set to zero to pad out to 32 bytes.</li>
+<li>Once the start header is sent, the following data consists of IP packets pre-fixed by a 20 byte header.  The only information of note in each 20 byte
+header is a 2-byte length field at offset 2 (network byte order).  This tells
+you the length of the IP packet.</li>
+<li>The IP packets are transmitted until the TCP connection closes.
+</li>
+<li>
+A separate TCP connection is used for each LIID.</li>
+</ul>
+</p>
+
+<h2>Output semantics</h2>
+
+<p>The probe automatically reconnects to failed destinations, but the
+buffering strategy is very simple.  When destinations fail, the packets are
+buffered in a small queue, but there is limited buffering, so once the queue
+fills, packets will start to be dropped.  The locking strategy is simple, so
+loss of a single endpoint will currently result in data loss to all endpoints.
+This may be a problem for operational  scenarios where high data availability
+is required.
+</p>
+
+<p>
+Cyberprobe includes some code to decode the ETSI and NHIS streams, and
+also includes two test utilities, <code>etsi_rcvr</code> and
+<code>nhis11_rcvr</code> which listen on a specified port number, decode
+the stream data, and forward in PCAP format on standard output.
+Example usage would be:
+<pre>
+etsi_rcvr 10001 | tcpdump -n -r-
+nhis11_rcvr 10000 | tcpdump -n -r-
+</pre>
+</p>
+
+</body>
+
+</html>
+

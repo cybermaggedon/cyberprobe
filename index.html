@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>cyberprobe</title>
+
+<style type="text/css">
+
+    body {  font: 10pt helvetica; background: white; }
+
+    table { border-collapse: collapse; margin: 12px; }
+    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
+    td { border: 1px solid black; padding: 6px; }
+
+    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
+
+    .xmlcomment { color: #4040ff; }
+
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe</h1>
+
+<h2>Table of contents</h2>
+
+<ul>
+<li><a href="index.html">Index</a></li>
+<li><a href="quickstart.html">Quick Start</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="output.html">Output streaming protocols</a></li>
+</ul>
+
+<h2>Overview</h2>
+
+<p>This is a software-based probe, collects packets from a set of
+network interfaces, and any packets which match on a address map are
+forwarded to an endpoint in a packet-streaming protocol.</p>
+
+<p>
+Optionally, the probe can be configured to receive alerts from
+snort. In this configuration, when an alert is received from Snort, the IP
+source address associated with the alert is dynamically targeted for a period
+of time.
+</p>
+
+<img style="align: center" src="cyberprobe.png"/>
+
+<h2>Motivation</h2>
+
+<p>Cyberprobe started out as a research tool to study networked applications
+to find out what they were doing, as we all know how software suppliers
+sometimes like to add some "extras" to their software :).  So, a simple tool
+to configure how packets are captured from a network was produced.  But as
+you are probably aware, the biggest
+threat to the safety of your information is from <u>outside</u> of
+your network.  Thus, the ability to trigger collection of packets upon
+detection of a Snort rule hit was added.
+</p>
+
+<p>Snort is a powerful IDS system which studies packets on your network,
+analyses them against a set of signatures and creates logs and alerts.
+We felt there was a need to harness the Snort alerts, but use them to
+trigger collection and forwarding of packets from the address which caused
+the alert.
+</p>
+
+<p>
+You may be asking why you'd want to use Cyberprobe?  
+After all, monitoring networks with tcpdump and Snort and collecting alerts and
+packet data for analysis is a straightforward process for many networks.
+However, real-time analysis is not possible if everything is file based.
+Collecting the data and forwarding over the network to a central
+collection point allows for a much more "industrialized" approach to intrusion
+detection.  If you detect an attack attempt, and then observe vast quantities
+of data leaving your network from the credit card accounts database, then
+you know you need to act quickly.
+</p>
+
+<p>There's a war coming... The enemy is resourceful, they can use your 
+networks and systems as their own weapon.  But with the right tools, you
+can prepare a defence.  It's time to get ready for Cybermaggedon.
+</p>
+
+<h2>Usage</h2>
+
+<p>
+Usage:
+</p>
+
+<pre>
+    cyberprobe &lt;config-file>
+</pre>
+
+<h2>Snort integration</h2>
+
+<p>If the <code>snort_alert</code> element is specified in the configuration
+file, Cyberprobe will
+receive Snort alerts on a UNIX socket.  When an alert is received, the
+source address of the IP is dynamically targeted for a short period of time.
+The duration of targeting can be specified with the <code>duration</code>
+element.  Note: when using Snort alerts, a delay should be specified with
+the interface, to allow for the Snort processing latency.  1 second should
+be fine.
+</p>
+
+<p>Snort should be run in IDS mode, with the UNIX socket alerting mode
+enabled. e.g.</p>
+<pre>
+  snort -A unsock -N -l /var/log/snort/ -c snort.conf 
+</pre>
+
+<h2>Code</h2>
+
+
+<p>You can either download the latest release on the 
+<a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>
+page, or checkout the latest code using git:
+<pre>
+git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+</pre>
+</p>
+
+<p>Have a play, and let us <a href="https://sourceforge.net/p/cyberprobe/discussion/">know what you think</a>.  We'd love to hear questions, comments, what's good, what disappointed you etc. etc.
+</p>
+
+<p>Powered by SourceForge, project page is <a href="https://sourceforge.net/p/cyberprobe">here</a>.
+
+<h2>Licence</h2>
+
+Is <a href="http://www.gnu.org/licenses/gpl.html">GPLv3</a>.
+
+<pre>
+Cyberprobe - Software probe for capturing cyber attacks 
+Copyright (C) 2013 Cyber MacGeddon
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+</pre>
+
+<h2>For improvement</h2>
+
+<p>
+<ul>
+<li>While the system supports IPv6 match, it only supports IPv4 for
+delivery.</li>
+<li>Endpoint failure affects all endpoints.  (Not worth changing?)</li>
+<li>The ETSI LI support is bare basics, for instance, doesn't support 
+keep-alive.</li>
+<li>The IPv6 matching has had little testing.</li>
+</ul>
+</p>
+
+</body>
+
+</html>
+

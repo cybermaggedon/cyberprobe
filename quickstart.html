@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>cyberprobe - Quick Start</title>
+
+<style type="text/css">
+
+    body {  font: 10pt helvetica; background: white; }
+
+    table { border-collapse: collapse; margin: 12px; }
+    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
+    td { border: 1px solid black; padding: 6px; }
+
+    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
+
+    .xmlcomment { color: #4040ff; }
+
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe - Quick Start</h1>
+
+<h2>Table of contents</h2>
+
+<ul>
+<li><a href="index.html">Index</a></li>
+<li><a href="quickstart.html">Quick Start</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="output.html">Output streaming protocols</a></li>
+</ul>
+
+<p>This page covers how to get started with minimal fuss.</p>
+
+<h2>Get software</h2>
+
+<p>You can either download the latest release on the 
+<a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>
+page, or checkout the latest code from git:
+</p>
+<pre>
+git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+</pre>
+
+<p>Unpack the code, and then run <code>make</code>.  This compiles
+the following executables:
+</p>
+
+<table>
+<tr><td><code>cyberprobe</code></td><td>The Cyber Probe executable.</td></tr>
+<tr><td><code>etsi_rcvr</code></td><td>Test decoder for ETSI format data.</td></tr>
+<tr><td><code>nhis11_rcvr</code></td><td>Test decoder for NHIS1.1 format data.</td></tr>
+</table>
+
+<p>We haven't added installation or packaging to the code yet.</p>
+
+<h2>Starting it up</h2>
+
+<p>Bascially:
+<ul>
+
+<li><p>Compile <code>cyberprobe</code>, and start hacking the configuration
+file use the supplied <code>config.xml</code> as a starting point.</p></li>
+
+<li><p>Hack the <code>interfaces</code> block and configure the name of an
+interface to study.  Note the delay attribute.  This specifies that
+packets are held for a small amount of time before processing.  This gives
+snort a chance to hit a signature and fire an alert at as, before the
+offending packet gets handled by cyberprobe:</p>
+<pre>
+  &lt;interfaces>
+    &lt;interface name="eth0" delay="1"/>
+  &lt;/interfaces>
+</pre>
+</li>
+
+<li><p>Hack the <code>targets</code> block, and leave it empty - we're going
+to use Snort to trigger forwarding of packets:</p>
+<pre>
+  &lt;targets>
+  &lt;/targets>
+</pre>
+</li>
+
+<li><p>Hack the <code>endpoints</code> block, and deliver packets to a local
+service on port 10000:</p></li>
+<pre>
+  &lt;endpoints>
+    &lt;endpoint hostname="localhost" port="10000" type="etsi"/>
+  &lt;/endpoints>
+</pre>
+</li>
+
+<li><p>Configure reception of Snort alerts.  A Snort alert will trigger
+collection for 20 seconds.</p></li>
+<pre>
+   &lt;snort_alert socket="/var/log/snort/snort_alert" duration="20"/>
+</pre>
+</li>
+
+<li><p>Refer to the Snort documentation, and get snort up and running, and
+generating alerts.  A rule such as the one below will detect any activity on
+port 80, might be a good starting point to check everything is working:
+<pre>
+alert tcp any any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
+</pre>
+</li>
+
+<li>
+<p>Start a test receiver on port 10000:</p>
+<pre>
+etsi_rcvr 10000 | tcpdump -n -r-
+</pre>
+</li>
+
+<li><p>Start Cyberprobe, specifying the configuration file:</p>
+<pre>
+cyberprobe config.xml
+</pre>
+</li>
+
+<li><p>Start Snort, generating UNIX socket alerts.  You need to specify
+your Snort configuration file.</p>
+<pre>
+snort -A unsock -N -l /var/log/snort/ -c snort.conf 
+</pre>
+</li>
+
+<li>
+<p>Generate something which hits on a Snort rule, and Cyberprobe will report,
+on standard output, the rule hit.  At this point, you should also see
+output connections set up, and data output from <code>etsi_rcvr</code>.
+</p>
+</li>
+
+</ul>
+</p>
+
+</body>
+
+</html>
+
