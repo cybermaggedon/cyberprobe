@@ -223,6 +223,20 @@ namespace ber {
 	}
 
 	/** Encodes a string. */
+	void encode_string(tag_class cls, long tag, 
+			   const std::vector<unsigned char>::const_iterator& s,
+			   const std::vector<unsigned char>::const_iterator& e) {
+	    data.clear();
+	    encode_tag(cls, tag);
+	    encode_length(e - s);
+
+	    // Encode string.
+	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
+	    std::copy(s, e, iter);
+
+	}
+
+	/** Encodes a string. */
 	void encode_oid(tag_class cls, long tag, 
 			int* oid, int len) {
 	    data.clear();

@@ -49,12 +49,14 @@ class delivery : public parameters {
     // IPv4 header to LIID
     bool ipv4_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
-		    std::string& liid);
+		    std::string& liid,
+		    tcpip::ip4_address& match);
 
     // IPv6 header to LIID
     bool ipv6_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
-		    std::string& liid);
+		    std::string& liid,
+		    tcpip::ip6_address& match);
 
   public:
 

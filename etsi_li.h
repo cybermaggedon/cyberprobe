@@ -79,6 +79,7 @@ class sender {
 
     static void encode_ipiri(ber::berpdu& ipiri_p,
 			    const std::string& username,
+			     const tcpip::address* address,
 			    int ipversion,
 			    int accessevent);
 
@@ -89,16 +90,17 @@ class sender {
 
     // IA Acct start
     void ia_acct_start_request(const std::string& liid,
-			       const std::string& oper,
 			       long seq, long cin,
+			       const std::string& oper,
 			       const std::string& country = "XX",
 			       const std::string& net_element = "unknown",
 			       const std::string& int_pt = "unknown",
 			       const std::string& username = "unknown");
 			       
     void ia_acct_start_response(const std::string& liid,
-				const std::string& oper,
+				const tcpip::address& target_addr,
 				long seq, long cin,
+				const std::string& oper,
 				const std::string& country = "XX",
 				const std::string& net_element = "unknown",
 				const std::string& int_pt = "unknown",
@@ -147,6 +149,7 @@ class mux {
     mux(sender& t) : transport(t) { }
 
     void target_connect(const std::string& liid,
+			const tcpip::address& target_addr,
 			const std::string& oper = "unknown",
 			const std::string& country = "XX",
 			const std::string& net_elt = "unknown",

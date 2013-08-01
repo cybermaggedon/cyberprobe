@@ -27,6 +27,12 @@ public:
 	lock.unlock();
     }
 
+    void discovered(const std::string& liid,
+		    const tcpip::address& addr) {
+	std::cerr << "Target " << liid << " discovered on IP " << addr
+		  << std::endl;
+    }
+
 };
 
 int main(int argc, char** argv)

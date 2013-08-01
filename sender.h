@@ -14,6 +14,7 @@ class pdu {
   public:
     std::string liid;
     std::vector<unsigned char> pdu;
+    const tcpip::address* addr;
 };
 
 // Sender base class.  Provides a queue input into a thread.
@@ -48,7 +49,8 @@ class sender : public threads::thread {
     // Called to push a packet down the sender transport.
     void deliver(const std::string& liid,
 		 const_iterator& start,
-		 const_iterator& end);
+		 const_iterator& end,
+		 const tcpip::address& hit);
 
     // Called to stop the thread.
     virtual void stop() {

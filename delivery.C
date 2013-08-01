@@ -77,7 +77,8 @@ void delivery::identify_link(const_iterator& start,
 // address.  Returns true for a match, and 'liid' returns the target LIID.
 bool delivery::ipv4_match(const_iterator& start,
 			  const_iterator& end,
-			  std::string& liid)
+			  std::string& liid,
+			  tcpip::ip4_address& hit)
 {
 
     // Too small to be an IP packet?
@@ -104,7 +105,8 @@ bool delivery::ipv4_match(const_iterator& start,
     }
 	
     // At this point 'it' definitely points at a target entry.
-    // Convert to a corresponding LIID.
+    // Get LIID and address information.
+    hit = it->first;
     liid = it->second;
 
     lock.unlock();
@@ -117,7 +119,8 @@ bool delivery::ipv4_match(const_iterator& start,
 // address.  Returns true for a match, and 'liid' returns the target LIID.
 bool delivery::ipv6_match(const_iterator& start,
 			  const_iterator& end,
-			  std::string& liid)
+			  std::string& liid,
+			  tcpip::ip6_address& hit)
 {
 
     // Too small to be an IPv6 packet?
@@ -142,9 +145,9 @@ bool delivery::ipv6_match(const_iterator& start,
 	lock.unlock();
 	return false;
     }
-	
     // At this point 'it' definitely points at a target entry.
-    // Convert to a corresponding LIID.
+    // Get LIID and address information.
+    hit = it->first;
     liid = it->second;
 
     lock.unlock();
@@ -178,8 +181,10 @@ void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
 
 	// IPv4 case
 
+	tcpip::ip4_address hit;
+
 	// Match the IP addresses.
-	bool match = ipv4_match(start, end, liid);
+	bool match = ipv4_match(start, end, liid, hit);
 
 	// No target match?
 	if (!match) return;
@@ -191,7 +196,7 @@ void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
 	for(std::list<sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    (*it)->deliver(liid, start, end);
+	    (*it)->deliver(liid, start, end, hit);
 	}
 	
 	// Unlock, we're done.
@@ -203,8 +208,10 @@ void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
 
 	// IPv6 case
 
+	tcpip::ip6_address hit;
+
 	// Match the IP addresses.
-	bool match = ipv6_match(start, end, liid);
+	bool match = ipv6_match(start, end, liid, hit);
 
 	// No target match?
 	if (!match) return;
@@ -216,7 +223,7 @@ void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
 	for(std::list<sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    (*it)->deliver(liid, start, end);
+	    (*it)->deliver(liid, start, end, hit);
 	}
 	
 	// Unlock, we're done.

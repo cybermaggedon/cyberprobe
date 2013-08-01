@@ -18,6 +18,7 @@
 
 namespace tcpip {
 
+    // Legacy?
     class ip_address {
       private:
 	uint32_t a;
@@ -37,6 +38,7 @@ namespace tcpip {
 	static ip_address my_address();
     };
 
+    // IP address base class.
     class address {
       public:
 	enum {ipv4, ipv6 } universe;
@@ -44,6 +46,9 @@ namespace tcpip {
 	virtual void to_string(std::string&) const = 0;
 	virtual bool operator<(const address& a) const {
 	    return addr < a.addr;
+	}
+	virtual bool operator==(const address& a) const {
+	    return addr == a.addr;
 	}
     };
 
@@ -53,6 +58,10 @@ namespace tcpip {
 	ip4_address() {
 	    addr.resize(4);
 	    universe = ipv4;
+	}
+	ip4_address(const std::string& a) {
+	    ip4_address();
+	    from_string(a);
 	}
 	void from_string(const std::string& str) {
 	    struct in_addr a;
@@ -83,6 +92,10 @@ namespace tcpip {
 	ip6_address() {
 	    addr.resize(16);
 	    universe = ipv6;
+	}
+	ip6_address(const std::string& a) {
+	    ip6_address();
+	    from_string(a);
 	}
 	void from_string(const std::string& str) {
 	    struct in6_addr a;

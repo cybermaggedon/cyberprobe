@@ -4,7 +4,8 @@
 // Called to add packets to the queue.
 void sender::deliver(const std::string& liid, // LIID
 		     const_iterator& start,   // Start of packet
-		     const_iterator& end)     // End of packet
+		     const_iterator& end,     // End of packet
+		     const tcpip::address& addr)
 {
 
     // Get lock.
@@ -31,6 +32,16 @@ void sender::deliver(const std::string& liid, // LIID
     packets.push_back(pdu());
     packets.back().pdu.assign(start, end);
     packets.back().liid = liid;
+
+    if (addr.universe == addr.ipv4) {
+	const tcpip::ip4_address& addr4 = 
+	    static_cast<const tcpip::ip4_address&>(addr);
+	packets.back().addr = new tcpip::ip4_address(addr4);
+    } else {	    
+	const tcpip::ip6_address& addr6 = 
+	    static_cast<const tcpip::ip6_address&>(addr);
+	packets.back().addr = new tcpip::ip6_address(addr6);
+    }
 
     // Wake up the sender's run method.
     cond.signal();
@@ -62,6 +73,9 @@ void nhis11_sender::run()
 
 	    // Short-hand.
 	    std::string& liid = next.liid;
+
+	    // Don't need this IP address.
+	    delete next.addr;
 
 	    // Got the packet, so the queue can unlock.
 	    lock.unlock();
@@ -201,7 +215,8 @@ void etsi_li_sender::run()
 							  "unknown");
 
 			    // Send connect IRI stuff.
-			    mux.target_connect(liid, oper, country, net_elt,
+			    mux.target_connect(liid, *next.addr, 
+					       oper, country, net_elt,
 					       int_pt, username);
 
 			    // Setup successful, we're in business to send

@@ -112,10 +112,46 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 
 void sender::encode_ipiri(ber::berpdu& ipiri_p,
 			  const std::string& username,
+			  const tcpip::address* address,
 			  int ipversion,
 			  int accessevent)
 {
 
+    // ----------------------------------------------------------------------
+    // Encode IPaddress
+    // ----------------------------------------------------------------------
+
+    std::list<ber::berpdu*> pdus;
+    ber::berpdu ipaddress_p;
+
+    if (address != 0) {
+
+	// Binary address
+	ber::berpdu binary_p;
+	binary_p.encode_string(ber::context_specific, 1, address->addr.begin(), 
+			       address->addr.end());
+	
+	// IPtype
+	ber::berpdu iptype_p;
+	if (address->universe == address->ipv4)
+	    iptype_p.encode_int(ber::context_specific, 1, 0); // IPv4 = 0
+	else
+	    iptype_p.encode_int(ber::context_specific, 1, 1); // IPv6 = 1
+	
+	// IPvalue
+	ber::berpdu ipvalue_p;
+	pdus.clear();
+	pdus.push_back(&binary_p);
+	ipvalue_p.encode_construct(ber::context_specific, 2, pdus);
+
+	// IPAddress
+	pdus.clear();
+	pdus.push_back(&iptype_p);
+	pdus.push_back(&ipvalue_p);
+	ipaddress_p.encode_construct(ber::context_specific, 4, pdus);
+
+    }
+	
     // ----------------------------------------------------------------------
     // Encode IPIRI
     // ----------------------------------------------------------------------
@@ -138,11 +174,13 @@ void sender::encode_ipiri(ber::berpdu& ipiri_p,
 
     // IPIRIContents
     ber::berpdu ipiricontents_p;
-    std::list<ber::berpdu*> pdus;
+    pdus.clear();
     pdus.push_back(&accesseventtype_p);
     pdus.push_back(&targetusername_p);
     pdus.push_back(&internetaccess_p);
     pdus.push_back(&ipversion_p);
+    if (address != 0)
+	pdus.push_back(&ipaddress_p);
     ipiricontents_p.encode_construct(ber::context_specific, 1, pdus);
 
     // iPIRIObjId
@@ -159,8 +197,8 @@ void sender::encode_ipiri(ber::berpdu& ipiri_p,
 }
 
 void sender::ia_acct_start_request(const std::string& liid,
-				   const std::string& oper,
 				   long seq, long cin,
+				   const std::string& oper,
 				   const std::string& country,
 				   const std::string& net_element,
 				   const std::string& int_pt,
@@ -176,7 +214,7 @@ void sender::ia_acct_start_request(const std::string& liid,
     // IPIRI, IP version 3 means IPv4 and IPv6.
     // Access event type = accessAttempt(0).
     ber::berpdu ipiri_p;
-    encode_ipiri(ipiri_p, username, 3, 0);
+    encode_ipiri(ipiri_p, username, 0, 3, 0);
 
     // ----------------------------------------------------------------------
     // Encode IRIPayload
@@ -238,8 +276,9 @@ void sender::ia_acct_start_request(const std::string& liid,
 }
 
 void sender::ia_acct_start_response(const std::string& liid,
-				    const std::string& oper,
+				    const tcpip::address& target_addr,
 				    long seq, long cin,
+				    const std::string& oper,
 				    const std::string& country,
 				    const std::string& net_element,
 				    const std::string& int_pt,
@@ -255,7 +294,7 @@ void sender::ia_acct_start_response(const std::string& liid,
     // IPIRI, IP version 3 means IPv4 and IPv6.
     // Access event type = accessAccept(1).
     ber::berpdu ipiri_p;
-    encode_ipiri(ipiri_p, username, 3, 1);
+    encode_ipiri(ipiri_p, username, &target_addr, 3, 1);
 
     // ----------------------------------------------------------------------
     // Encode IRIPayload
@@ -335,7 +374,7 @@ void sender::ia_acct_stop(const std::string& liid,
     // IPIRI, IP version 3 means IPv4 and IPv6.
     // Access event type = accessEnd(8).
     ber::berpdu ipiri_p;
-    encode_ipiri(ipiri_p, username, 3, 8);
+    encode_ipiri(ipiri_p, username, 0, 3, 8);
 
     // ----------------------------------------------------------------------
     // Encode IRIPayload
@@ -397,6 +436,7 @@ void sender::ia_acct_stop(const std::string& liid,
 
 }
 
+// Transmit an IP packet
 void sender::send_ip(const std::string& liid,
 		     const std::string& oper,
 		     long seq, long cin,
@@ -490,6 +530,7 @@ void sender::send_ip(const std::string& liid,
 
 // Called when target "connects" to the IP access network.
 void mux::target_connect(const std::string& liid,     // LIID
+			 const tcpip::address& target_addr, // Target IP addr
 			 const std::string& oper,     // Operator ID
 			 const std::string& country,  // Country e.g. GB
 			 const std::string& net_elt,  // Net element
@@ -502,12 +543,13 @@ void mux::target_connect(const std::string& liid,     // LIID
     cin[liid] = next_cin++;
 
     // Describes connetion request.
-    transport.ia_acct_start_request(liid, oper, seq[liid]++, cin[liid],
+    transport.ia_acct_start_request(liid, seq[liid]++, cin[liid], oper,
 				    country, net_elt, int_pt, username);
 
     // Describes connection response.
-    transport.ia_acct_start_response(liid, oper, seq[liid]++, cin[liid],
-				    country, net_elt, int_pt, username);
+    transport.ia_acct_start_response(liid, target_addr, 
+				     seq[liid]++, cin[liid], oper,
+				     country, net_elt, int_pt, username);
 
 }
 
@@ -555,6 +597,7 @@ void mux::target_ip(const std::string& liid,               // LIID
 
 }
 
+// ETSI LI master receiver body, handles connections.
 void receiver::run()
 {
 
@@ -588,6 +631,7 @@ void receiver::run()
 
 }
 
+// ETSI LI connection body, handles a single connection.
 void connection::run()
 {
 
@@ -620,6 +664,8 @@ void connection::run()
 		it++) {
 
 		if (it->get_tag() == 1) {
+		  
+		    // CC case
 
 		    std::list<ber::berpdu> seq_pdus;
 		    it->decode_construct(seq_pdus);
@@ -629,11 +675,8 @@ void connection::run()
 			it2++) {
 
 			ber::berpdu& ccc_p = it2->get_element(2);
-
 			ber::berpdu& ipcc_p = ccc_p.get_element(2);
-
 			ber::berpdu& ipccontents_p = ipcc_p.get_element(1);
-
 			ber::berpdu& packet_p = ipccontents_p.get_element(0);
 
 			std::vector<unsigned char> pkt;
@@ -642,6 +685,58 @@ void connection::run()
 
 			p(liid, pkt.begin(), pkt.end());
 
+		    }
+
+		} else if (it->get_tag() == 0) {
+
+		    try {
+
+			// IRI case
+			std::list<ber::berpdu> seq_pdus;
+			it->decode_construct(seq_pdus);
+
+			for(std::list<ber::berpdu>::iterator it2 = 
+				seq_pdus.begin();
+			    it2 != seq_pdus.end();
+			    it2++) {
+
+			    ber::berpdu& iricontents_p = it2->get_element(2);
+			    ber::berpdu& ipiri_p = iricontents_p.get_element(2);
+
+			    ber::berpdu& ipiricontents_p = 
+				ipiri_p.get_element(1);
+
+			    ber::berpdu& targetipaddress_p = 
+				ipiricontents_p.get_element(4);
+
+			    ber::berpdu& iptype_p = 
+				targetipaddress_p.get_element(1);
+
+			    ber::berpdu& ipvalue_p = 
+				targetipaddress_p.get_element(2);
+
+			    ber::berpdu& ipbinary_p = ipvalue_p.get_element(1);
+
+			    std::vector<unsigned char> vec;
+			    ipbinary_p.decode_vector(vec);
+
+			    if (vec.size() == 4) {
+				tcpip::ip4_address a;
+				for(int i = 0; i < 4; i++)
+				    a.addr[i] = vec[i];
+				p.discovered(liid, a);
+			    }
+			
+			    if (vec.size() == 16) {
+				tcpip::ip6_address a;
+				for(int i = 0; i < 16; i++)
+				    a.addr[i] = vec[i];
+				p.discovered(liid, a);
+			    }
+
+			}
+
+		    } catch (...) {
 		    }
 
 		}
