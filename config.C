@@ -6,6 +6,7 @@
 #include "endpoint.h"
 #include "parameter.h"
 #include "snort_alert.h"
+#include "control.h"
 
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
@@ -201,6 +202,38 @@ void config_manager::read(const std::string& file,
 	}
 
 	/////////////////////////////////////////////////////////////
+	// Control parameters.
+	/////////////////////////////////////////////////////////////
+
+	try {
+
+	    xml::element& s_elt = dec.root.locate("control");
+	    
+	    if (s_elt.attributes.find("port") != s_elt.attributes.end() &&
+		s_elt.attributes.find("username") != s_elt.attributes.end() &&
+		s_elt.attributes.find("password") != s_elt.attributes.end()) {
+
+		std::istringstream buf(s_elt.attributes["port"]);
+		int port;
+		buf >> port;
+		std::string username = s_elt.attributes["username"];
+		std::string password = s_elt.attributes["password"];
+
+		// Create alerter
+		control::spec* sp = 
+		    new control::spec(port, username, password);
+
+		lst.push_back(sp);
+
+	    }
+
+	} catch (...) {
+	    
+	    // Silently ignore broken configuration.
+
+	}
+
+	/////////////////////////////////////////////////////////////
 	// Scan the snort alert receiver
 	/////////////////////////////////////////////////////////////
 
@@ -270,6 +303,12 @@ resource* config_manager::create(specification& spec)
     if (spec.get_type() == "snort_alerter") {
 	snort_alerter_spec& s = dynamic_cast<snort_alerter_spec&>(spec);
 	return new snort_alerter(s, deliv);
+    }
+
+    // Control.
+    if (spec.get_type() == "control") {
+	control::spec& s = dynamic_cast<control::spec&>(spec);
+	return new control::service(s, deliv);
     }
 
     // This REALLY shouldn't happen, because config_manager::read only

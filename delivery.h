@@ -4,6 +4,7 @@
 
 #include "sender.h"
 #include "parameters.h"
+#include "targeting.h"
 
 #include <map>
 #include <list>
@@ -17,7 +18,7 @@
 //
 // Note an IP address can only can be mapped to a single LIID.
 
-class delivery : public parameters {
+class delivery : public parameters, public targeting {
   private:
     
     // Lock for senders and targets maps.
@@ -118,6 +119,13 @@ class delivery : public parameters {
 	lock.unlock();
     }
 
+    // Fetch current target list.
+    virtual void get_targets(std::map<tcpip::ip4_address, std::string>& t4,
+			     std::map<tcpip::ip6_address, std::string>& t6) {
+	t4 = targets;
+	t6 = targets6;
+    }
+
     // Adds an endpoint
     void add_endpoint(sender* s) {
 	lock.lock();
@@ -129,6 +137,22 @@ class delivery : public parameters {
     void remove_endpoint(sender* s) {
 	lock.lock();
 	senders.remove(s);
+	lock.unlock();
+    }
+
+    // Fetch current target list.
+    virtual void get_endpoints(std::list<sender_info>& info) {
+	lock.lock();
+
+	info.clear();
+	for(std::list<sender*>::iterator it = senders.begin();
+	    it != senders.end();
+	    it++) {
+	    sender_info inf;
+	    (*it)->get_info(inf);
+	    info.push_back(inf);
+	}
+
 	lock.unlock();
     }
 

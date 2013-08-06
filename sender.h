@@ -17,6 +17,15 @@ class pdu {
     const tcpip::address* addr;
 };
 
+// Sender status
+class sender_info {
+  public:
+    std::string hostname;
+    unsigned short port;
+    std::string type;
+    std::string description;
+};
+
 // Sender base class.  Provides a queue input into a thread.
 class sender : public threads::thread {
   protected:
@@ -39,6 +48,8 @@ class sender : public threads::thread {
     sender(parameters& p) : pars(p) {
 	running = true;
     }
+
+    virtual void get_info(sender_info& info) = 0;
 
     // Destructor.
     virtual ~sender() {}
@@ -94,6 +105,17 @@ class nhis11_sender : public sender {
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
+    virtual void get_info(sender_info& info) {
+	info.hostname = h;
+	info.port = p;
+	info.type = "nhis1.1";
+	
+	std::ostringstream buf;
+	buf << "NHIS 1.1 endpoint on " << h << ":" << p;
+	info.description = buf.str();
+
+    }
+
 };
 
 // Implements an ETSI LI sender plus input queue.  This manages the
@@ -139,6 +161,17 @@ class etsi_li_sender : public sender {
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
+
+    virtual void get_info(sender_info& info) {
+	info.hostname = h;
+	info.port = p;
+	info.type = "etsi";
+	
+	std::ostringstream buf;
+	buf << "ETSI LI endpoint on " << h << ":" << p;
+	info.description = buf.str();
+
+    }
 
 };
 

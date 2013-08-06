@@ -60,7 +60,8 @@ namespace tcpip {
 	    universe = ipv4;
 	}
 	ip4_address(const std::string& a) {
-	    ip4_address();
+	    addr.resize(4);
+	    universe = ipv4;
 	    from_string(a);
 	}
 	void from_string(const std::string& str) {
@@ -94,7 +95,8 @@ namespace tcpip {
 	    universe = ipv6;
 	}
 	ip6_address(const std::string& a) {
-	    ip6_address();
+	    addr.resize(16);
+	    universe = ipv6;
 	    from_string(a);
 	}
 	void from_string(const std::string& str) {
