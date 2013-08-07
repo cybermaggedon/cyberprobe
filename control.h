@@ -71,6 +71,7 @@ namespace control {
 	void cmd_endpoints();
 	void cmd_targets();
 	void cmd_interfaces();
+	void cmd_parameters();
 	void cmd_add_interface(const std::vector<std::string>& lst);
 	void cmd_remove_interface(const std::vector<std::string>& lst);
 	void cmd_add_target(const std::vector<std::string>& lst);
@@ -79,6 +80,8 @@ namespace control {
 	void cmd_remove_endpoint(const std::vector<std::string>& lst);
 	void cmd_help();
 	void cmd_auth(const std::vector<std::string>& lst);
+	void cmd_add_parameter(const std::vector<std::string>& lst);
+	void cmd_remove_parameter(const std::vector<std::string>& lst);
 
 	// Command line tokenisation.
 	static void tokenise(const std::string& line, 

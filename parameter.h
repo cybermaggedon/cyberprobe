@@ -59,7 +59,7 @@ public:
 
     // Stop method, remove the mapping.
     virtual void stop() { 
-	deliv.remove_parameter(spec.key, spec.val);
+	deliv.remove_parameter(spec.key);
 	std::cerr << "Removed parameter " << spec.key << "=" << spec.val 
 		  << std::endl;
     }

@@ -61,6 +61,16 @@ class management {
     // Fetch current target list.
     virtual void get_endpoints(std::list<sender_info>& info) = 0;
 
+    // Add parameter.
+    virtual void add_parameter(const std::string& key, const std::string& val)
+	= 0;
+
+    // Remove parameter.
+    virtual void remove_parameter(const std::string& key) = 0;
+
+    // Get all parameters.
+    virtual void get_parameters(std::map<std::string,std::string>& params) = 0;
+
 };
 
 #endif

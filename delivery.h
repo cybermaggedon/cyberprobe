@@ -187,18 +187,26 @@ class delivery : public parameters, public management, public packet_consumer {
     virtual void get_endpoints(std::list<sender_info>& info);
 
     // Add a parameter
-    void add_parameter(const std::string& key, const std::string& val) {
+    virtual void add_parameter(const std::string& key, const std::string& val) {
 	parameters_lock.lock();
 	parameters[key] = val;
 	parameters_lock.unlock();
     }
 
     // Remove a parameter
-    void remove_parameter(const std::string& key, const std::string& val) {
+    virtual void remove_parameter(const std::string& key) {
 	parameters_lock.lock();
 	parameters.erase(key);
 	parameters_lock.unlock();
     }
+
+    // Get all parameters.
+    virtual void get_parameters(std::map<std::string,std::string>& params) {
+	parameters_lock.lock();
+	params = parameters;
+	parameters_lock.unlock();
+    }
+
 
 };
 

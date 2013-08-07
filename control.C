@@ -141,18 +141,6 @@ void connection::cmd_endpoints()
 
 }
 
-// Return an OK response with payload (should be status=201).
-void connection::response(int status, const std::string& msg,
-			  const std::string& resp)
-{
-    std::ostringstream buf;
-    buf << status << " " << msg << "\n" 
-	<< resp.size() << "\n";
-    s.write(buf.str());
-    s.write(resp);
-    std::cerr << "Reply: " << status << " " << msg << std::endl;
-}
-
 // 'interfaces' command.
 void connection::cmd_interfaces()
 {
@@ -176,6 +164,26 @@ void connection::cmd_interfaces()
     }
     
     response(201, "Interfaces list follows.", buf.str());
+
+}
+
+// 'parameters' command.
+void connection::cmd_parameters()
+{
+
+    std::map<std::string,std::string> p;
+    
+    d.get_parameters(p);
+
+    std::ostringstream buf;
+    
+    for(std::map<std::string,std::string>::iterator it = p.begin();
+	it != p.end();
+	it++) {
+	buf << it->first << ":" << it->second << "\n";
+    }
+    
+    response(201, "Paramter list follows.", buf.str());
 
 }
 
@@ -405,6 +413,47 @@ void connection::cmd_remove_endpoint(const std::vector<std::string>& lst)
     
 }
 
+// 'add_endpoint' command.
+void connection::cmd_add_parameter(const std::vector<std::string>& lst)
+{
+
+    if (lst.size() != 3) {
+	error(301, "Usage: add_parameter <key> <value>");
+	return;
+    }
+    
+    std::string key = lst[1];
+    std::string val = lst[2];
+    
+    try {
+	d.add_parameter(key, val);
+	ok(200, "Added parameter.");
+    } catch (...) {
+	error(500, "Failed to add parameter.");
+    }
+
+}
+
+// 'add_endpoint' command.
+void connection::cmd_remove_parameter(const std::vector<std::string>& lst)
+{
+
+    if (lst.size() != 2) {
+	error(301, "Usage: remove_parameter <key>");
+	return;
+    }
+    
+    std::string key = lst[1];
+    
+    try {
+	d.remove_parameter(key);
+	ok(200, "Removed parameter.");
+    } catch (...) {
+	error(500, "Failed to remove parameter.");
+    }
+
+}
+
 // 'auth' command.
 void connection::cmd_auth(const std::vector<std::string>& lst)
 {
@@ -464,6 +513,15 @@ void connection::cmd_help()
 	<< "\n"
 	<< "  targets\n"
 	<< "      Lists targets, format is liid:class:address\n"
+	<< "\n"
+	<< "  add_parameter <key> <val>\n"
+	<< "      Adds a new parameter, or changes a parameter value.\n"
+	<< "\n"
+	<< "  remove_target <key>\n"
+	<< "      Removes a parameter value.\n"
+	<< "\n"
+	<< "  parameters\n"
+	<< "      Lists parameters, format is key:value\n"
 	<< "\n";
 
     response(201, "Help information follows.", buf.str());
@@ -510,6 +568,11 @@ void connection::run()
 		    continue;
 		}
 
+		if (lst.front() == "quit") {
+		    ok(200, "Tra, then.");
+		    break;
+		}
+
 		// This is the authentication gate.  Can only do 'help' and
 		// 'auth' until we've authenticated.
 		if (!auth) {
@@ -529,6 +592,11 @@ void connection::run()
   
 		if (lst.front() == "interfaces") {
 		    cmd_interfaces();
+		    continue;
+		}
+  
+		if (lst.front() == "parameters") {
+		    cmd_parameters();
 		    continue;
 		}
   
@@ -557,16 +625,20 @@ void connection::run()
 		    continue;
 		} 
 
-		if (lst.front() == "remove_target") {
+		if (lst.front() == "remove_endpoint") {
 		    cmd_remove_endpoint(lst);
 		    continue;
 		} 
 
-		if (lst.front() == "quit") {
-		    ok(200, "Tra, then.");
-		    break;
-		}
-			
+		if (lst.front() == "add_parameter") {
+		    cmd_add_parameter(lst);
+		    continue;
+		} 
+
+		if (lst.front() == "remove_parameter") {
+		    cmd_remove_parameter(lst);
+		    continue;
+		} 
 
 		error(301, "Command not known.");
 
