@@ -29,7 +29,7 @@ void service::run()
 	    tcpip::tcp_socket cn;
 	    svr.accept(cn);
 
-	    connection* c = new connection(cn, d, *this);
+	    connection* c = new connection(cn, d, *this, sp);
 	    c->start();
 
 	}
@@ -367,6 +367,68 @@ void connection::cmd_remove_endpoint(const std::vector<std::string>& lst)
     
 }
 
+void connection::cmd_auth(const std::vector<std::string>& lst)
+{
+    if (lst.size() != 3) {
+	error(301, "Usage: auth <user> <password>");
+	return;
+    }
+
+    if (lst[1] == sp.username && lst[2] == sp.password) {
+	auth = true;
+	ok(200, "Authenticated.");
+	return;
+    }
+
+    error(331, "Authentication failure.");
+
+}
+
+void connection::cmd_help()
+{
+    std::ostringstream buf;
+
+    buf << "Commands:\n"
+	<< "\n"
+	<< "  auth <user> <password>\n"
+	<< "\n"
+	<< "  help\n"
+	<< "\n"
+	<< "  add_interface <iface> <delay> [<filter>]\n"
+	<< "      Starts packet capture from an interface.\n"
+	<< "\n"
+	<< "  remove_interface <iface> <delay> [<filter>]\n"
+	<< "      Removes a previously enabled packet capture.\n"
+	<< "\n"
+	<< "  interfaces\n"
+	<< "      Lists all interfaces, output is format iface:delay:filter\n"
+	<< "\n"
+	<< "  add_endpoint <host> <port> <type>\n"
+	<< "      Adds an endpoint to delivery data to.\n"
+	<< "      where type is one of: etsi nhis1.1\n"
+	<< "\n"
+	<< "  remove_endpoint <host> <port> <type>\n"
+	<< "      Removes a previously enabled endpoint.\n"
+	<< "      where type is one of: etsi nhis1.1\n"
+	<< "\n"
+	<< "  endpoints\n"
+	<< "      Lists endpoints, format is host:port:type:description\n"
+	<< "\n"
+	<< "  add_target <liid> <class> <address>\n"
+	<< "      Adds a new targeted IP address.\n"
+	<< "      where class is one of: ipv4 ipv6\n"
+	<< "\n"
+	<< "  remove_target <liid> <class> <address>\n"
+	<< "      Removes a previously targeted IP address.\n"
+	<< "      where class is one of: ipv4 ipv6\n"
+	<< "\n"
+	<< "  targets\n"
+	<< "      Lists targets, format is liid:class:address\n"
+	<< "\n";
+
+    response(201, "Help information follows.", buf.str());
+}
+
 // ETSI LI connection body, handles a single connection.
 void connection::run()
 {
@@ -396,7 +458,21 @@ void connection::run()
 		    ok(200, "Nothing to do.");
 		    continue;
 		}
-		    
+
+		if (lst.front() == "help") {
+		    cmd_help();
+		    continue;
+		}
+
+		if (lst.front() == "auth") {
+		    cmd_auth(lst);
+		    continue;
+		}
+
+		if (!auth) {
+		    error(330, "Authenticate before continuing.");
+		    continue;
+		}
 
 		if (lst.front() == "endpoints") {
 		    cmd_endpoints();
@@ -442,6 +518,12 @@ void connection::run()
 		    cmd_remove_endpoint(lst);
 		    continue;
 		} 
+
+		if (lst.front() == "quit") {
+		    ok(200, "Tra, then.");
+		    break;
+		}
+			
 
 		error(301, "Command not known.");
 

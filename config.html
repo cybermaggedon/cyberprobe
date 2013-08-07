@@ -29,6 +29,7 @@
 <li><a href="quickstart.html">Quick Start</a></li>
 <li><a href="config.html">Configuration</a></li>
 <li><a href="output.html">Output streaming protocols</a></li>
+<li><a href="management.html">Management interface</a></li>
 </ul>
 
 <h2>Configuration</h2>
@@ -46,6 +47,9 @@ Sample configuration:
 &lt;?xml version="1.0" encoding="ISO-8859-1"?>
 
 &lt;configuration>
+
+  &lt;!-- Start a control interface on port 8888. -->
+  &lt;control port="8888" username="admin" password="horse_battery_staple">
 
   &lt;!-- Set of interfaces to use for collection. -->
   &lt;interfaces>
@@ -131,6 +135,14 @@ Sample configuration:
 
 &lt;/configuration>
 </pre>
+
+<p>
+The <code>control</code> element is optional, if it exists, cyberprobe
+runs a management interface on the specified port.  The port, username and
+password attributes must be specified.
+See <a href="management.html">management interface</a> for how to communicate
+with that interface.
+</p>
 
 <p>
 The <code>interfaces</code> block defines a set of interfaces to sniff.

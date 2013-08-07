@@ -36,6 +36,7 @@ void capture_dev::handle(unsigned long len, unsigned long captured,
 
 }
 
+// Capture device, main thread body.
 void capture_dev::run()
 {
 

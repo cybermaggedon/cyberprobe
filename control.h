@@ -50,6 +50,9 @@ namespace control {
 	management& d;
 	bool running;
 	service& svc;
+	spec& sp;
+	
+	bool auth;
 
       public:
 
@@ -62,6 +65,8 @@ namespace control {
 	void cmd_remove_target(const std::vector<std::string>& lst);
 	void cmd_add_endpoint(const std::vector<std::string>& lst);
 	void cmd_remove_endpoint(const std::vector<std::string>& lst);
+	void cmd_help();
+	void cmd_auth(const std::vector<std::string>& lst);
 
 	static void tokenise(const std::string& line, 
 			     std::vector<std::string>& tok);
@@ -72,8 +77,9 @@ namespace control {
 		      const std::string& response);
 
         connection(tcpip::tcp_socket s, management& d,
-		 service& svc) : s(s), d(d), svc(svc) {
+		   service& svc, spec& sp) : s(s), d(d), svc(svc), sp(sp) {
 	    running = true;
+	    auth = false;
 	}
 	virtual ~connection() {}
 	virtual void run();

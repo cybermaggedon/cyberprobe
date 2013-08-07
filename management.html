@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>cyberprobe - management interface</title>
+
+<style type="text/css">
+
+    body {  font: 10pt helvetica; background: white; }
+
+    table { border-collapse: collapse; margin: 12px; }
+    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
+    td { border: 1px solid black; padding: 6px; }
+
+    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
+
+    .xmlcomment { color: #4040ff; }
+
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe - Management interfaces</h1>
+
+<h2>Table of contents</h2>
+
+<ul>
+<li><a href="index.html">Index</a></li>
+<li><a href="quickstart.html">Quick Start</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="output.html">Output streaming protocols</a></li>
+<li><a href="management.html">Management interface</a></li>
+</ul>
+
+<h2>Overview</h2>
+
+<p>The management interface is a simple interface which supports studying and
+dynamically changing the cyberprobe configuration: endpoints, targets and
+interfaces.
+</p>
+
+<p>The configuration file specifies a port number, and username and password
+for the interface.</p>
+
+<p>The interface is intended to be used programmatically, but it is usable
+using a basic telnet.  It is a command-response interface, similar in style
+to SMTP.</p>
+
+<h2>Command</h2>
+
+<p>
+Commands are sent, one at a time, as a string terminated by a newline.
+The following commands are supported:
+</p>
+
+<pre>
+
+  auth &lt;user> &lt;password>
+
+  help
+
+  add_interface &lt;iface> &lt;delay> [&lt;filter>]
+      Starts packet capture from an interface.
+
+  remove_interface &lt;iface> &lt;delay> [&lt;filter>]
+      Removes a previously enabled packet capture.
+
+  interfaces
+      Lists all interfaces, output is format iface:delay:filter
+
+  add_endpoint &lt;host> &lt;port> &lt;type>
+      Adds an endpoint to delivery data to.
+      where type is one of: etsi nhis1.1
+
+  remove_endpoint &lt;host> &lt;port> &lt;type>
+      Removes a previously enabled endpoint.
+      where type is one of: etsi nhis1.1
+
+  endpoints
+      Lists endpoints, format is host:port:type:description
+
+  add_target &lt;liid> &lt;class> &lt;address>
+      Adds a new targeted IP address.
+      where class is one of: ipv4 ipv6
+
+  remove_target &lt;liid> &lt;class> &lt;address>
+      Removes a previously targeted IP address.
+      where class is one of: ipv4 ipv6
+
+  targets
+
+</pre>
+
+<p>In response to a command, one of the following responses may occur:</p>
+
+<ul>
+<li>
+<p>An OK response, which is a 200 status code and message. e.g.</p>
+<pre>200 Endpoint added.</pre>
+</li>
+<li><p>An error message, which is also a status code and message.
+e.g.</p>
+<pre>301 Command not known.</pre>
+Error codes always start with 3 or 5.  A 3xx error code results from something
+which is your fault e.g. procedural or syntactic violation, 5xx error codes
+result from errors internal to the system.  This is still probably your
+fault :) e.g. specifying an interface which doesn't exist.</p>
+</li>
+<li><p>A response with a body, which is a 201 status code and message.  This is
+followed by a single line containing a response size in bytes, followed by the
+response itself. e.g.</p>
+<pre>
+201 Interfaces list follows.
+8
+eth0:1:
+</pre>
+</li>
+</ul>
+
+<h2>Example session</h2>
+
+<p>Stuff I type is in red, the responses are shown in blue.
+</p>
+
+<pre>
+<span style="color: blue"><span style="color: red">interfaces</span>
+330 Authenticate before continuing.
+<span style="color: red">auth user password</span>
+200 Authenticated.
+<span style="color: red">interfaces</span>
+201 Interfaces list follows.
+8
+p4p1:1:
+<span style="color: red">remove_interface p4p1 1</span>
+200 Removed interface.
+<span style="color: red">add_interface p4p1 8</span>
+200 Added interface.
+<span style="color: red">add_target 123456 ipv4 1.2.3.4</span>
+200 Added target.
+<span style="color: red">targets</span>
+201 Targets list follows.
+65
+123456:ipv4:1.2.3.4
+123456:ipv4:192.168.1.80
+123456:ipv6:::4:5:6
+<span style="color: red">quit</span>
+200 Tra, then.</span>
+</pre>
+
+</body>
+
+</html>
+
