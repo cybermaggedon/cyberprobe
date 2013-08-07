@@ -161,8 +161,8 @@ class delivery : public parameters, public management, public packet_consumer {
     virtual ~delivery() {}
 
     // Allows caller to provide an IP packet for delivery.
-    virtual void consume(const std::vector<unsigned char>& packet, 
-			 int datalink);
+    virtual void receive_packet(const std::vector<unsigned char>& packet, 
+				int datalink);
 
     // Modifies the target map to include a mapping from address to target.
     void add_target(const tcpip::address& addr, 

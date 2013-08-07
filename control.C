@@ -82,6 +82,7 @@ void connection::ok(int status, const std::string& msg)
     std::ostringstream buf;
     buf << status << " " << msg << "\n";
     s.write(buf.str());
+    std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
 void connection::error(int status, const std::string& msg)
@@ -89,6 +90,7 @@ void connection::error(int status, const std::string& msg)
     std::ostringstream buf;
     buf << status << " " << msg << "\n";
     s.write(buf.str());
+    std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
 void connection::response(int status, const std::string& msg,
@@ -99,6 +101,7 @@ void connection::response(int status, const std::string& msg,
 	<< resp.size() << "\n";
     s.write(buf.str());
     s.write(resp);
+    std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
 void connection::cmd_endpoints()
@@ -126,14 +129,11 @@ void connection::cmd_interfaces()
     std::list<interface_info> ii;
     
     try {
-    std::cerr << "GETTING" << std::endl;
 	d.get_interfaces(ii);
     } catch (std::exception& e) {
-    std::cerr << "BLASY" << std::endl;
 	error(500, e.what());
 	return;
     }
-    std::cerr << "GOT INTERFACES" << std::endl;
 
     std::ostringstream buf;
     
@@ -386,7 +386,7 @@ void connection::run()
 		    break;
 		}
 
-		std::cerr << "control: " << line << std::endl;
+		std::cerr << "Command: " << line << std::endl;
 
 		std::vector<std::string> lst;
 

@@ -15,7 +15,7 @@ void capture_dev::handle(unsigned long len, unsigned long captured,
 	packet.assign(payload, payload + captured);
 
 	// Submit to the delivery engine.
-	deliv.consume(packet, datalink);
+	deliv.receive_packet(packet, datalink);
 
     } else {
 
@@ -63,7 +63,7 @@ void capture_dev::run()
 		break;
 
 	    // Packet ready to go.
-	    deliv.consume(delay_line.front().packet, datalink);
+	    deliv.receive_packet(delay_line.front().packet, datalink);
 	    delay_line.pop();
 
 

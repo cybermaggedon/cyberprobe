@@ -158,7 +158,8 @@ bool delivery::ipv6_match(const_iterator& start,
 
 // The 'main' packet handling method.  This is what the caller calls when
 // they have a packet.  datalink = the PCAP datalink value.
-void delivery::consume(const std::vector<unsigned char>& packet, int datalink)
+void delivery::receive_packet(const std::vector<unsigned char>& packet, 
+			      int datalink)
 {
 
     // Iterators, initially point at the start and end of the packet.
@@ -257,6 +258,8 @@ void delivery::add_interface(const std::string& iface,
 	c = new capture_dev(iface, delay, *this);
 	if (filter != "")
 	    c->add_filter(filter);
+
+	c->start();
 	
 	interfaces[i] = c;
 
@@ -381,6 +384,7 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
     } else
 	throw std::runtime_error("Endpoint type not known.");
 
+    s->start();
     senders[e] = s;
 
     lock.unlock();

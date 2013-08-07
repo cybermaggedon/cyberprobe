@@ -10,12 +10,13 @@
 
 #include "packet_capture.h"
 #include "packet_consumer.h"
+#include "thread.h"
 
 #include <queue>
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class capture_dev : public interface_capture {
+class capture_dev : public interface_capture, public threads::thread {
 private:
 
     struct delayed_packet {
