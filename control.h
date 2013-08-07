@@ -3,10 +3,11 @@
 #define CONTROL_H
 
 #include <vector>
+#include <queue>
 
 #include "socket.h"
 #include "thread.h"
-#include "targeting.h"
+#include "management.h"
 #include "specification.h"
 #include "resource.h"
 
@@ -46,20 +47,31 @@ namespace control {
 
       private:
 	tcpip::tcp_socket s;
-	targeting& d;
+	management& d;
 	bool running;
 	service& svc;
 
       public:
 
+	void cmd_endpoints();
+	void cmd_targets();
+	void cmd_interfaces();
+	void cmd_add_interface(const std::vector<std::string>& lst);
+	void cmd_remove_interface(const std::vector<std::string>& lst);
+	void cmd_add_target(const std::vector<std::string>& lst);
+	void cmd_remove_target(const std::vector<std::string>& lst);
+	void cmd_add_endpoint(const std::vector<std::string>& lst);
+	void cmd_remove_endpoint(const std::vector<std::string>& lst);
+
 	static void tokenise(const std::string& line, 
 			     std::vector<std::string>& tok);
 
-	void ok(const std::string& response);
+	void ok(int status, const std::string& msg);
+	void error(int status, const std::string& msg);
+	void response(int status, const std::string& msg,
+		      const std::string& response);
 
-	void error(const std::string& response);
-
-        connection(tcpip::tcp_socket s, targeting& d,
+        connection(tcpip::tcp_socket s, management& d,
 		 service& svc) : s(s), d(d), svc(svc) {
 	    running = true;
 	}
@@ -71,7 +83,7 @@ namespace control {
 
       private:
 	tcpip::tcp_socket svr;
-	targeting& d;
+	management& d;
 	spec& sp;
 	bool running;
 
@@ -79,7 +91,7 @@ namespace control {
 	std::queue<connection*> close_mes;
 
       public:
-        service(spec& s, targeting& d) : sp(s), d(d) {
+        service(spec& s, management& d) : sp(s), d(d) {
             running = true;
         }
 
@@ -102,5 +114,4 @@ namespace control {
 };
 
 #endif
-
 

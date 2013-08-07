@@ -9,7 +9,7 @@
 #define CAPTURE_H
 
 #include "packet_capture.h"
-#include "delivery.h"
+#include "packet_consumer.h"
 
 #include <queue>
 
@@ -26,10 +26,10 @@ private:
     std::queue<delayed_packet> delay_line;
 
     // Handle to the deliver engine.
-    delivery& deliv;
+    packet_consumer& deliv;
 
     // Filter applied to packets.
-    std::string filter;
+    //    std::string filter;
 
     // PCAP's datalink enumerator - describes the type of layer 2 wrapping
     // on the IP packet.
@@ -43,8 +43,8 @@ public:
     // Going to need support for a delay line in the run method.
     virtual void run();
 
-    // Constructor.  i=interface name, d=delivery engine.
-    capture_dev(const std::string& i, delivery& d, int delay) : 
+    // Constructor.  i=interface name, d=packet consumer.
+    capture_dev(const std::string& i, int delay, packet_consumer& d) : 
 	interface_capture(i), deliv(d) { 
 	datalink = pcap_datalink(p); 
 	this->delay = delay;

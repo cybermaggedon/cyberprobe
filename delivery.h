@@ -4,11 +4,71 @@
 
 #include "sender.h"
 #include "parameters.h"
-#include "targeting.h"
+#include "management.h"
+#include "capture.h"
+#include "packet_consumer.h"
 
 #include <map>
 #include <list>
 #include <algorithm>
+
+// Defines an endpoint.
+class ep {
+  public:
+    std::string hostname;
+    unsigned int port;
+    std::string type;
+
+    bool operator<(const ep& e) const {
+
+	if (hostname < e.hostname)
+	    return true;
+	else
+	    if (hostname > e.hostname)
+		return false;
+
+	// hostname == e.hostname
+	if (port < e.port)
+	    return true;
+	else
+	    if (port > e.port)
+		return false;
+
+	if (type < e.type) 
+	    return true;
+	else
+	    return false;
+
+    }
+
+};
+
+// Defines an interface.
+class intf {
+  public:
+    std::string interface;
+    std::string filter;
+    int delay;
+
+    // FIXME: I haven't checked this works?!?!?!
+    bool operator<(const intf& i) const {
+
+	if (interface < i.interface)
+	    return true;
+	else if (interface > i.interface) return false;
+
+	if (filter < i.filter)
+	    return true;
+	else if (filter > i.filter) return false;
+
+	if (delay < i.delay)
+	    return true;
+	else 
+	    return false;
+
+    }
+
+};
 
 // Delivery manager class.  You feed it IP packets, and it works out what to
 // do with the IP packets.  The 'delivery' class owns the NHIS connections
@@ -18,7 +78,7 @@
 //
 // Note an IP address can only can be mapped to a single LIID.
 
-class delivery : public parameters, public targeting {
+class delivery : public parameters, public management, public packet_consumer {
   private:
     
     // Lock for senders and targets maps.
@@ -31,7 +91,10 @@ class delivery : public parameters, public targeting {
     std::map<tcpip::ip6_address, std::string> targets6;
 
     // Endpoints
-    std::list<sender*> senders;
+    std::map<ep, sender*> senders;
+
+    // Interfaces
+    std::map<intf, capture_dev*> interfaces;
 
     // Parameters and lock
     threads::mutex parameters_lock;
@@ -61,7 +124,20 @@ class delivery : public parameters, public targeting {
 
   public:
 
-    // Parameter stuff.  No parameters defined yet.
+    // Modifies interface capture
+    virtual void add_interface(const std::string& iface,
+			       const std::string& filter,
+			       int delay);
+
+    // Modifies interface capture
+    virtual void remove_interface(const std::string& iface,
+				  const std::string& filter,
+				  int delay);
+    
+    // Returns the interfaces list.
+    virtual void get_interfaces(std::list<interface_info>& ii);
+
+    // Fetch a parameter.
     std::string get_parameter(const std::string& key,
 			      const std::string& dflt) {
 
@@ -85,76 +161,30 @@ class delivery : public parameters, public targeting {
     virtual ~delivery() {}
 
     // Allows caller to provide an IP packet for delivery.
-    virtual void deliver(const std::vector<unsigned char>& packet, 
+    virtual void consume(const std::vector<unsigned char>& packet, 
 			 int datalink);
 
     // Modifies the target map to include a mapping from address to target.
     void add_target(const tcpip::address& addr, 
-		    const std::string& liid) {
-	lock.lock();
-	if (addr.universe == addr.ipv4) {
-	    const tcpip::ip4_address& a =
-		reinterpret_cast<const tcpip::ip4_address&>(addr);
-	    targets[a] = liid;
-	} else {
-	    const tcpip::ip6_address& a =
-		reinterpret_cast<const tcpip::ip6_address&>(addr);
-	    targets6[a] = liid;
-	}
-	lock.unlock();
-    }
+		    const std::string& liid);
 
     // Removes a target mapping.
-    void remove_target(const tcpip::address& addr) {
-	lock.lock();
-	if (addr.universe == addr.ipv4) {
-	    const tcpip::ip4_address& a =
-		reinterpret_cast<const tcpip::ip4_address&>(addr);
-	    targets.erase(a);
-	} else {
-	    const tcpip::ip6_address& a =
-		reinterpret_cast<const tcpip::ip6_address&>(addr);
-	    targets6.erase(a);
-	}
-	lock.unlock();
-    }
+    void remove_target(const tcpip::address& addr);
 
     // Fetch current target list.
     virtual void get_targets(std::map<tcpip::ip4_address, std::string>& t4,
-			     std::map<tcpip::ip6_address, std::string>& t6) {
-	t4 = targets;
-	t6 = targets6;
-    }
+			     std::map<tcpip::ip6_address, std::string>& t6);
 
     // Adds an endpoint
-    void add_endpoint(sender* s) {
-	lock.lock();
-	senders.push_back(s);
-	lock.unlock();
-    }
+    virtual void add_endpoint(const std::string& host, unsigned int port,
+			      const std::string& type);
 
     // Removes an endpoint
-    void remove_endpoint(sender* s) {
-	lock.lock();
-	senders.remove(s);
-	lock.unlock();
-    }
+    virtual void remove_endpoint(const std::string& host, unsigned int port,
+				 const std::string& type);
 
     // Fetch current target list.
-    virtual void get_endpoints(std::list<sender_info>& info) {
-	lock.lock();
-
-	info.clear();
-	for(std::list<sender*>::iterator it = senders.begin();
-	    it != senders.end();
-	    it++) {
-	    sender_info inf;
-	    (*it)->get_info(inf);
-	    info.push_back(inf);
-	}
-
-	lock.unlock();
-    }
+    virtual void get_endpoints(std::list<sender_info>& info);
 
     // Add a parameter
     void add_parameter(const std::string& key, const std::string& val) {

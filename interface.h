@@ -41,14 +41,11 @@ public:
 
 // An interface resources, basically wraps the 'cap' class in a thread
 // which can started and stopped.
-class iface : public resource, public threads::thread {
+class iface : public resource {
 private:
 
     // Specification.
     const iface_spec& spec;
-
-    // Interface capture.
-    capture_dev* c;
 
     // Reference to the delivery engine.
     delivery& deliv;
@@ -57,37 +54,27 @@ public:
 
     // Constructor.
     iface(const iface_spec& spec, delivery& d) : 
-	spec(spec), deliv(d) { c = 0; }
+	spec(spec), deliv(d) {}
 
     // Start method.
     virtual void start() { 
-      c = new capture_dev(spec.ifa, deliv, spec.delay);
-	if (spec.filter != "")
-	    c->add_filter(spec.filter);
-	
-	thread::start(); 
+
+	deliv.add_interface(spec.ifa, spec.filter, spec.delay);
+
 	std::cerr << "Capture on interface " << spec.ifa << " started."
 		  << std::endl;
 	if (spec.filter != "")
 	    std::cerr << "  filter: " << spec.filter << std::endl;
 	if (spec.delay != 0)
 	    std::cerr << "  delay: " << spec.delay << std::endl;
+
     }
 
     // Stop method.
     virtual void stop() { 
-	if (c) {
-	    c->stop();
-	    join();
-	    delete c;
-	}
+	deliv.remove_interface(spec.ifa, spec.filter, spec.delay);
 	std::cerr << "Capture on interface " << spec.ifa << " stopped."
 		  << std::endl;
-    }
-
-    // Thread body, just invoke the capture.
-    virtual void run() {
-	c->run();
     }
 
 };

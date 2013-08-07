@@ -4,6 +4,7 @@
 
 #include <deque>
 
+#include "management.h"
 #include "thread.h"
 #include "nhis11.h"
 #include "etsi_li.h"
@@ -15,15 +16,6 @@ class pdu {
     std::string liid;
     std::vector<unsigned char> pdu;
     const tcpip::address* addr;
-};
-
-// Sender status
-class sender_info {
-  public:
-    std::string hostname;
-    unsigned short port;
-    std::string type;
-    std::string description;
 };
 
 // Sender base class.  Provides a queue input into a thread.
@@ -88,16 +80,11 @@ class nhis11_sender : public sender {
   public:
 
     // Constructor.
-    nhis11_sender(parameters& p) : sender(p) {}
+    nhis11_sender(const std::string& h, unsigned short p,
+		  parameters& par) : h(h), p(p), sender(par) {}
 
     // Destructor.
     virtual ~nhis11_sender() {}
-
-    // Doesn't actually connect, just defines the connection parameters.
-    // Should be called before the 'deliver' method is called.
-    void connect(const std::string& h, unsigned short p) {
-	this->h = h; this->p = p;
-    }
 
     // Thread method.
     virtual void run();
@@ -143,7 +130,8 @@ class etsi_li_sender : public sender {
   public:
 
     // Constructor.
-    etsi_li_sender(parameters& p) : sender(p), mux(transport) { 
+    etsi_li_sender(const std::string& h, unsigned int short p, 
+		   parameters& par) : h(h), p(p), sender(par), mux(transport) { 
 	initialise(); 
     }
 

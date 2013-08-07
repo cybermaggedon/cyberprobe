@@ -47,39 +47,16 @@ private:
     // Delivery engine reference.
     delivery& deliv;
 
-    // NHIS sender
-    sender* sndr;
-    
-
 public:
 
     // Constructor.
     endpoint(const endpoint_spec& spec, delivery& d) : 
-	spec(spec), deliv(d) { sndr = 0; }
+	spec(spec), deliv(d) { }
 
     // Start method, change the delivery engine mapping.
     virtual void start() { 
 
-	if (spec.type == "nhis1.1") {
-	    nhis11_sender* s;
-	    s = new nhis11_sender(deliv);
-	    s->connect(spec.hostname, spec.port);
-	    s->start();
-	    sndr = s;
-	} else if (spec.type == "etsi") {
-	    etsi_li_sender* s;
-	    s = new etsi_li_sender(deliv);
-	    s->connect(spec.hostname, spec.port);
-	    s->start();
-	    sndr = s;
-	} else {
-	    std::cerr << "Endpoint type '" << spec.type
-		      << "' is not known." << std::endl;
-	    sndr = 0;
-	    return;
-	}
-
-	deliv.add_endpoint(sndr);
+	deliv.add_endpoint(spec.hostname, spec.port, spec.type);
 
 	std::cerr << "Added endpoint " << spec.hostname << ":" << spec.port 
 		  << " of type " << spec.type << std::endl;
@@ -89,15 +66,9 @@ public:
     // Stop method, remove the mapping.
     virtual void stop() { 
 
-	if (sndr) {
-	    deliv.remove_endpoint(sndr);
-	    sndr->stop();
-	    sndr->join();
-	    std::cerr << "Removed endpoint " << spec.hostname << ":" 
-		      << spec.port << std::endl;
-	    sndr = 0;
-
-	}
+	deliv.remove_endpoint(spec.hostname, spec.port, spec.type);
+	std::cerr << "Removed endpoint " << spec.hostname << ":" 
+		  << spec.port << std::endl;
 
     }
 

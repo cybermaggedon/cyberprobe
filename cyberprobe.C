@@ -13,28 +13,14 @@ Usage:
 
 ****************************************************************************/
 
-#include <nhis11.h>
 #include <sstream>
 #include <fstream>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <signal.h>
 
-#include "socket.h"
-
-#include "thread.h"
-#include "packet_capture.h"
-#include "resource.h"
-#include "specification.h"
-#include "delivery.h"
-#include "sender.h"
-#include "xml.h"
-#include "target.h"
-#include "capture.h"
-#include "interface.h"
-#include "endpoint.h"
 #include "config.h"
-#include "parameter.h"
+#include "delivery.h"
 
 
 ////////////////////////////////////////////////////////////////////////////

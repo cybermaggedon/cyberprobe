@@ -158,7 +158,7 @@ bool delivery::ipv6_match(const_iterator& start,
 
 // The 'main' packet handling method.  This is what the caller calls when
 // they have a packet.  datalink = the PCAP datalink value.
-void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
+void delivery::consume(const std::vector<unsigned char>& packet, int datalink)
 {
 
     // Iterators, initially point at the start and end of the packet.
@@ -193,10 +193,10 @@ void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
 	lock.lock();
 
 	// Now invoke destinations, and send packet to destinations.
-	for(std::list<sender*>::iterator it = senders.begin();
+	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    (*it)->deliver(liid, start, end, hit);
+	    it->second->deliver(liid, start, end, hit);
 	}
 	
 	// Unlock, we're done.
@@ -220,10 +220,10 @@ void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
 	lock.lock();
 
 	// Now invoke destinations, and send packet to destinations.
-	for(std::list<sender*>::iterator it = senders.begin();
+	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    (*it)->deliver(liid, start, end, hit);
+	    it->second->deliver(liid, start, end, hit);
 	}
 	
 	// Unlock, we're done.
@@ -233,3 +233,195 @@ void delivery::deliver(const std::vector<unsigned char>& packet, int datalink)
 
 }
 
+// Modifies interface capture
+void delivery::add_interface(const std::string& iface,
+			     const std::string& filter,
+			     int delay) 
+{
+    
+    lock.lock();
+    
+    intf i;
+    i.interface = iface;
+    i.filter = filter;
+    i.delay = delay;
+    capture_dev* c;
+
+    if (interfaces.find(i) != interfaces.end()) {
+	interfaces[i]->stop();
+	interfaces.erase(i);
+    }
+
+    try {
+
+	c = new capture_dev(iface, delay, *this);
+	if (filter != "")
+	    c->add_filter(filter);
+	
+	interfaces[i] = c;
+
+    } catch (std::exception& e) {
+	lock.unlock();
+	throw e;
+    }
+
+    lock.unlock();
+
+}
+
+// Modifies interface capture
+void delivery::remove_interface(const std::string& iface,
+				const std::string& filter,
+				int delay)
+{
+
+    lock.lock();
+
+    intf i;
+    i.interface = iface;
+    i.filter = filter;
+    i.delay = delay;
+
+    if (interfaces.find(i) != interfaces.end()) {
+	interfaces[i]->stop();
+	interfaces.erase(i);
+    }
+
+    lock.unlock();
+
+}
+
+void delivery::get_interfaces(std::list<interface_info>& ii)
+{
+
+    ii.clear();
+    
+    lock.lock();
+    
+    for(std::map<intf,capture_dev*>::iterator it = interfaces.begin();
+	it != interfaces.end();
+	it++) {
+	interface_info inf;
+	inf.interface = it->first.interface;
+	inf.filter = it->first.filter;
+	inf.delay = it->first.delay;
+	ii.push_back(inf);
+    }
+    
+    lock.unlock();
+
+}
+
+// Modifies the target map to include a mapping from address to target.
+void delivery::add_target(const tcpip::address& addr, 
+			  const std::string& liid) 
+{
+
+    lock.lock();
+    if (addr.universe == addr.ipv4) {
+	const tcpip::ip4_address& a =
+	    reinterpret_cast<const tcpip::ip4_address&>(addr);
+	targets[a] = liid;
+    } else {
+	const tcpip::ip6_address& a =
+	    reinterpret_cast<const tcpip::ip6_address&>(addr);
+	targets6[a] = liid;
+    }
+    lock.unlock();
+
+}
+
+// Removes a target mapping.
+void delivery::remove_target(const tcpip::address& addr) 
+{
+    lock.lock();
+    if (addr.universe == addr.ipv4) {
+	const tcpip::ip4_address& a =
+	    reinterpret_cast<const tcpip::ip4_address&>(addr);
+	targets.erase(a);
+    } else {
+	const tcpip::ip6_address& a =
+	    reinterpret_cast<const tcpip::ip6_address&>(addr);
+	targets6.erase(a);
+    }
+    lock.unlock();
+
+}
+
+// Fetch current target list.
+void delivery::get_targets(std::map<tcpip::ip4_address, std::string>& t4,
+			   std::map<tcpip::ip6_address, std::string>& t6) 
+{
+    t4 = targets;
+    t6 = targets6;
+}
+
+// Adds an endpoint
+void delivery::add_endpoint(const std::string& host, unsigned int port,
+			    const std::string& type) 
+{
+    lock.lock();
+    
+    ep e;
+    e.hostname = host;
+    e.port = port;
+    e.type = type;
+    sender* s;
+
+    if (senders.find(e) != senders.end()) {
+	senders[e]->stop();
+	senders.erase(e);
+    }
+
+    if (type == "nhis1.1") {
+	// FIXME: Constructor could handle host and port.
+	s = new nhis11_sender(host, port, *this);
+    } else if (type == "etsi") {
+	s = new etsi_li_sender(host, port, *this);
+    } else
+	throw std::runtime_error("Endpoint type not known.");
+
+    senders[e] = s;
+
+    lock.unlock();
+}
+
+// Removes an endpoint
+void delivery::remove_endpoint(const std::string& host, unsigned int port,
+			       const std::string& type)
+
+{
+    lock.lock();
+
+    ep e;
+    e.hostname = host;
+    e.port = port;
+    e.type = type;
+
+    if (senders.find(e) != senders.end()) {
+	senders[e]->stop();
+	senders.erase(e);
+    }
+
+    lock.unlock();
+
+}
+
+// Fetch current target list.
+void delivery::get_endpoints(std::list<sender_info>& info) 
+{
+
+    lock.lock();
+
+    info.clear();
+    for(std::map<ep,sender*>::iterator it = senders.begin();
+	it != senders.end();
+	it++) {
+	sender_info inf;
+	it->second->get_info(inf);
+	info.push_back(inf);
+    }
+
+    lock.unlock();
+
+}
