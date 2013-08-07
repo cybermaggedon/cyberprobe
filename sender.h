@@ -41,6 +41,7 @@ class sender : public threads::thread {
 	running = true;
     }
 
+    // Return information about the sender for the management interface.
     virtual void get_info(sender_info& info) = 0;
 
     // Destructor.
@@ -92,6 +93,7 @@ class nhis11_sender : public sender {
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
+    // Return information about the sender for the management interface.
     virtual void get_info(sender_info& info) {
 	info.hostname = h;
 	info.port = p;
@@ -150,6 +152,7 @@ class etsi_li_sender : public sender {
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
+    // Return information about the sender for the management interface.
     virtual void get_info(sender_info& info) {
 	info.hostname = h;
 	info.port = p;
