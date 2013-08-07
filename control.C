@@ -6,11 +6,15 @@
 
 using namespace control;
 
+// Called by a connection when it terminates to request tidy-up.
 void service::close_me(connection* c)
 {
+
+    // Just puts the connection on a list to clear up.
     close_me_lock.lock();
     close_mes.push(c);
     close_me_lock.unlock();
+
 }
 
 // service body, handles connections.
@@ -22,23 +26,31 @@ void service::run()
 
     while (running) {
 
+	// Wait for connection.
 	bool activ = svr.poll(1.0);
 
 	if (activ) {
 
+	    // Accept the connection
 	    tcpip::tcp_socket cn;
 	    svr.accept(cn);
 
+	    // Spawn a connection thread.
 	    connection* c = new connection(cn, d, *this, sp);
 	    c->start();
 
 	}
 
+	// Tidy up any connections which need clearing up.
 	close_me_lock.lock();
-
 	while (!close_mes.empty()) {
+
+	    // Wait for thread to close.
 	    close_mes.front()->join();
+
+	    // Delete resource.
 	    delete close_mes.front();
+
 	    close_mes.pop();
 	}
 	close_me_lock.unlock();
@@ -47,6 +59,8 @@ void service::run()
 
 }
 
+// Command line tokenisation.  Looks for space-separated tokens, just
+// returns a list of tokens.
 void connection::tokenise(const std::string& line, 
 			  std::vector<std::string>& tok)
 {
@@ -77,6 +91,7 @@ void connection::tokenise(const std::string& line,
 
 }
 
+// Return an OK response (should be status=200).
 void connection::ok(int status, const std::string& msg)
 {
     std::ostringstream buf;
@@ -85,6 +100,7 @@ void connection::ok(int status, const std::string& msg)
     std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
+// Return an ERROR response (should be status=3xx or 5xx).
 void connection::error(int status, const std::string& msg)
 {
     std::ostringstream buf;
@@ -93,6 +109,7 @@ void connection::error(int status, const std::string& msg)
     std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
+// Return an OK response with payload (should be status=201).
 void connection::response(int status, const std::string& msg,
 			  const std::string& resp)
 {
@@ -104,6 +121,7 @@ void connection::response(int status, const std::string& msg,
     std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
+// 'endpoints' command.
 void connection::cmd_endpoints()
 {
 
@@ -123,6 +141,19 @@ void connection::cmd_endpoints()
 
 }
 
+// Return an OK response with payload (should be status=201).
+void connection::response(int status, const std::string& msg,
+			  const std::string& resp)
+{
+    std::ostringstream buf;
+    buf << status << " " << msg << "\n" 
+	<< resp.size() << "\n";
+    s.write(buf.str());
+    s.write(resp);
+    std::cerr << "Reply: " << status << " " << msg << std::endl;
+}
+
+// 'interfaces' command.
 void connection::cmd_interfaces()
 {
 
@@ -148,6 +179,7 @@ void connection::cmd_interfaces()
 
 }
 
+// 'targets' command.
 void connection::cmd_targets()
 {
 
@@ -178,6 +210,7 @@ void connection::cmd_targets()
 
 }
 
+// 'add_interface' command.
 void connection::cmd_add_interface(const std::vector<std::string>& lst)
 {
 
@@ -204,6 +237,7 @@ void connection::cmd_add_interface(const std::vector<std::string>& lst)
 
 }
 
+// 'remove_interface' command.
 void connection::cmd_remove_interface(const std::vector<std::string>& lst)
 {
 
@@ -231,6 +265,7 @@ void connection::cmd_remove_interface(const std::vector<std::string>& lst)
     
 }
 
+// 'add_target' command.
 void connection::cmd_add_target(const std::vector<std::string>& lst)
 {
 
@@ -276,6 +311,7 @@ void connection::cmd_add_target(const std::vector<std::string>& lst)
     
 }
 
+// 'remove_target' command.
 void connection::cmd_remove_target(const std::vector<std::string>& lst)
 {
 
@@ -320,6 +356,7 @@ void connection::cmd_remove_target(const std::vector<std::string>& lst)
     
 }
 
+// 'add_endpoint' command.
 void connection::cmd_add_endpoint(const std::vector<std::string>& lst)
 {
 
@@ -343,6 +380,7 @@ void connection::cmd_add_endpoint(const std::vector<std::string>& lst)
 
 }
 
+// 'remove_endpoint' command.
 void connection::cmd_remove_endpoint(const std::vector<std::string>& lst)
 {
 
@@ -367,6 +405,7 @@ void connection::cmd_remove_endpoint(const std::vector<std::string>& lst)
     
 }
 
+// 'auth' command.
 void connection::cmd_auth(const std::vector<std::string>& lst)
 {
     if (lst.size() != 3) {
@@ -384,6 +423,7 @@ void connection::cmd_auth(const std::vector<std::string>& lst)
 
 }
 
+// 'help' command.
 void connection::cmd_help()
 {
     std::ostringstream buf;
@@ -441,6 +481,7 @@ void connection::run()
 
 	    try {
 
+		// Get the next command.
 		try {
 		    s.readline(line);
 		} catch (...) {
@@ -450,8 +491,8 @@ void connection::run()
 
 		std::cerr << "Command: " << line << std::endl;
 
+		// Tokenise.
 		std::vector<std::string> lst;
-
 		tokenise(line, lst);
 
 		if (lst.empty()) {
@@ -469,6 +510,8 @@ void connection::run()
 		    continue;
 		}
 
+		// This is the authentication gate.  Can only do 'help' and
+		// 'auth' until we've authenticated.
 		if (!auth) {
 		    error(330, "Authenticate before continuing.");
 		    continue;
@@ -537,8 +580,10 @@ void connection::run()
 	std::cerr << e.what() << std::endl;
     }
 
+    // Close the connection.
     s.close();
 
+    // Add me to the tidy-up-list.
     svc.close_me(this);
 
 }

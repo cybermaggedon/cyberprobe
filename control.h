@@ -13,6 +13,7 @@
 
 namespace control {
 
+    // Management interface specification.
     class spec : public specification {
       public:
 
@@ -43,19 +44,30 @@ namespace control {
     
     class service;
 
+    // A single connection to the management interface.
     class connection : public threads::thread {
 
       private:
+
+	// Connected socket.
 	tcpip::tcp_socket s;
+
+	// The thing that actually implements the management commands.
 	management& d;
+
+	// True = running.
 	bool running;
+
+	// The management service which spawned this connection.
 	service& svc;
+
+	// Resource specification.
 	spec& sp;
 	
+	// True = A successful authentication.
 	bool auth;
 
-      public:
-
+	// Methods which implement the commands.
 	void cmd_endpoints();
 	void cmd_targets();
 	void cmd_interfaces();
@@ -68,51 +80,86 @@ namespace control {
 	void cmd_help();
 	void cmd_auth(const std::vector<std::string>& lst);
 
+	// Command line tokenisation.
 	static void tokenise(const std::string& line, 
 			     std::vector<std::string>& tok);
 
+	// OK response.
 	void ok(int status, const std::string& msg);
+
+	// Error response.
 	void error(int status, const std::string& msg);
+
+	// Response with payload.
 	void response(int status, const std::string& msg,
 		      const std::string& response);
 
+	// Thread body.
+	virtual void run();
+
+      public:
+
+	// Constructor.
         connection(tcpip::tcp_socket s, management& d,
 		   service& svc, spec& sp) : s(s), d(d), svc(svc), sp(sp) {
 	    running = true;
 	    auth = false;
 	}
+
+	// Desctructor.
 	virtual ~connection() {}
-	virtual void run();
+
     };
 
+    // Management service.
     class service : public resource, public threads::thread {
 
       private:
+	
+	// TCP socket, accepting connections.
 	tcpip::tcp_socket svr;
+
+	// Thing which implements the management commands.
 	management& d;
+
+	// Resource specification.
 	spec& sp;
+
+	// True = running, false = closing down.
 	bool running;
 
+	// Lock for threads list.
 	threads::mutex close_me_lock;
+
+	// Connection threads.
 	std::queue<connection*> close_mes;
 
+	// Thread body.
+	virtual void run();
+
       public:
+
+	// Constructor.
         service(spec& s, management& d) : sp(s), d(d) {
             running = true;
         }
 
+	// Start the thread body.
 	virtual void start() {
 	    std::cerr << "Starting control on port " << sp.port << std::endl;
 	    threads::thread::start();
 	}
 
+	// Stop.
 	virtual void stop() {
 	    running = false;
 	    join();
 	}
 
+	// Destructor.
 	virtual ~service() {}
-	virtual void run();
+
+	// Called by a connection when it terminates to request tidy-up.
 	virtual void close_me(connection* c);
     
     };
