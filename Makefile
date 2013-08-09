@@ -5,10 +5,15 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 	resource_manager.o sender.o delivery.o xml.o ber.o capture.o config.o \
 	control.o snort_alert.o
 
-all: cyberprobe nhis11_rcvr etsi_rcvr
+CYBERMON_OBJECTS=cybermon.o analyser.o etsi_li.o socket.o ber.o
+
+all: cyberprobe cybermon nhis11_rcvr etsi_rcvr
 
 cyberprobe: ${CYBERPROBE_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERPROBE_OBJECTS} -o $@ -lpcap -lpthread -lexpat
+
+cybermon: ${CYBERMON_OBJECTS}
+	${CXX} ${CXXFLAGS} ${CYBERMON_OBJECTS} -o $@ -lpcap -lpthread -lexpat
 
 nhis11_rcvr: nhis11_rcvr.o nhis11.o socket.o
 	${CXX} ${CXXFLAGS} nhis11_rcvr.o nhis11.o socket.o -o $@ -lpthread \
@@ -23,6 +28,7 @@ depend:
 
 # DO NOT DELETE
 
+analyser.o: thread.h analyser.h
 ber.o: ./ber.h ./socket.h
 capture.o: capture.h packet_capture.h packet_consumer.h thread.h
 config.o: config.h resource.h thread.h specification.h delivery.h sender.h
@@ -31,6 +37,8 @@ config.o: parameters.h capture.h packet_capture.h packet_consumer.h xml.h
 config.o: interface.h target.h endpoint.h parameter.h snort_alert.h control.h
 control.o: control.h ./socket.h thread.h management.h specification.h
 control.o: resource.h
+cybermon.o: analyser.h thread.h monitor.h ./socket.h etsi_li.h ./ber.h
+cybermon.o: packet_capture.h
 cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
 cyberprobe.o: sender.h management.h ./socket.h nhis11.h monitor.h etsi_li.h
 cyberprobe.o: ./ber.h parameters.h capture.h packet_capture.h
