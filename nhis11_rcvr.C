@@ -7,13 +7,13 @@ NHIS 1.1 test receiver.  Usage:
 
 ****************************************************************************/
 
-#include "packet.h"
+#include "monitor.h"
 #include "nhis11.h"
 
 #include "thread.h"
 #include "packet_capture.h"
 
-class output : public packet_processor {
+class output : public monitor {
 private:
     pcap_writer& p;
     threads::mutex lock;

@@ -30,7 +30,7 @@ need to be called on the etsi_li object are connect and close.
 
 #include "ber.h"
 #include "thread.h"
-#include "packet.h"
+#include "monitor.h"
 
 namespace etsi_li {
 
@@ -179,12 +179,12 @@ class connection : public threads::thread {
 
   private:
     tcpip::tcp_socket s;
-    packet_processor& p;
+    monitor& p;
     receiver &r;
     bool running;
 
   public:
-    connection(tcpip::tcp_socket s, packet_processor& p,
+    connection(tcpip::tcp_socket s, monitor& p,
 	       receiver& r) : s(s), p(p), r(r) {
 	running = true;
     }
@@ -197,7 +197,7 @@ class receiver : public threads::thread {
 
   private:
     tcpip::tcp_socket svr;
-    packet_processor& p;
+    monitor& p;
     int port;
     bool running;
 
@@ -205,7 +205,7 @@ class receiver : public threads::thread {
     std::queue<connection*> close_mes;
 
   public:
-    receiver(int port, packet_processor& p) : port(port), p(p) {
+    receiver(int port, monitor& p) : port(port), p(p) {
 	running = true;
     }
     virtual ~receiver() {}
