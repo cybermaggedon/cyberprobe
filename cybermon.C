@@ -1,9 +1,16 @@
 
 /****************************************************************************
 
-Monitor thing.
+****************************************************************************
+*** OVERVIEW
+****************************************************************************
 
-  cybermon <portnum> | tcpdump -n -r-
+Simple monitor.  Takes ETSI streams from cyberprobe, and reports on various
+occurances.
+
+Usage:
+
+    cyberprobe <port-number>
 
 ****************************************************************************/
 
@@ -32,19 +39,19 @@ void obs::data(const analyser::context_ptr f, const analyser::pdu_iter& s,
     analyser::context_ptr p = f;
 
     std::string liid;
-    analyser::address target_address;
+    analyser::address trigger_address;
 
     analyser::address src, dest;
     
-    get_root_info(f, liid, target_address);
+    get_root_info(f, liid, trigger_address);
     get_network_info(f, src, dest);
 
     std::cerr << "Target " << liid << " ";
 
-    if (src == target_address)
+    if (src == trigger_address)
 	std::cerr << " - data from target";
 
-    if (dest == target_address)
+    if (dest == trigger_address)
 	std::cerr << " - data to target";
 
     std::cout << std::endl;
@@ -81,10 +88,10 @@ void cybermon::discovered(const std::string& liid,
 {
 
     analyser::context_ptr c = an.get_root_context(liid);
-    analyser::target_context* tc = 
-	dynamic_cast<analyser::target_context*>(c.get());
+    analyser::root_context* tc = 
+	dynamic_cast<analyser::root_context*>(c.get());
 
-    tc->set_target_address(addr);
+    c->root().set_trigger_address(addr);
 
     std::cerr << "Target " << liid << " discovered on IP " << addr
 	      << std::endl << std::endl;

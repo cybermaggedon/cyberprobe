@@ -13,7 +13,7 @@ context_ptr engine::get_root_context(const std::string& liid)
     context_ptr c;
 
     if (contexts.find(liid) == contexts.end()) {
-	c = target_context::create(liid);
+	c = root_context::create(liid);
 	contexts[liid] = c;
     } else
 	c = contexts[liid];
@@ -75,10 +75,8 @@ void engine::get_root_info(context_ptr p, std::string& liid, address& a)
 
     while (p) {
 	if (p->get_type() == "target") {
-	    analyser::target_context* ta = 
-		dynamic_cast<analyser::target_context*>(p.get());
-	    liid = ta->get_liid();
-	    a = ta->get_target_address();
+	    liid = p->root().get_liid();
+	    a = p->root().get_trigger_address();
 	}
 	p = p->parent.lock();
     }

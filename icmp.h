@@ -7,6 +7,8 @@
 
 namespace analyser {
     
+    // ICMP context.  No address information, just flagging the presence of
+    // ICMP.
     class icmp_context : public transport_context {
       public:
 	icmp_context() {}
@@ -16,7 +18,9 @@ namespace analyser {
     
     class icmp {
 
-      public:
+    public:
+	
+	// ICMP processing function.
 	static void process(engine& eng, context_ptr c, 
 			    const pdu_iter& s, const pdu_iter& e);
 

@@ -14,6 +14,7 @@ namespace analyser {
     // An IP identifier.
     typedef uint32_t ip4_id;
 
+    // A fragment hole.
     class fragment_hole {
     public:
 
@@ -25,6 +26,7 @@ namespace analyser {
 
     };
 
+    // A fragment.
     class fragment {
 	
     public:
@@ -45,8 +47,11 @@ namespace analyser {
 
     // List of fragment holes.
     typedef std::list<fragment_hole> hole_list;
+
+    // List of fragment pointers.
     typedef std::list<fragment*> fragment_list;
 
+    // IPv4 context
     class ip4_context : public network_context {
 
 	friend ip;
@@ -54,7 +59,8 @@ namespace analyser {
 	// IP frag re-assembly hole list.
 	std::map<ip4_id, hole_list> h_list;
 
-	// IP frag index
+	// IP fragment index.  These are pointers into fragments which are
+	// owned by the 'frags' variable.
 	std::map<ip4_id, std::list<fragment*> > f_list;
 
 	// IP headers for frags.
@@ -65,26 +71,40 @@ namespace analyser {
 	std::deque<fragment> frags;
 
       public:
+
+	// Constructor.
 	ip4_context() {}
+
+	// Constructor, specifying flow address and parent.
         ip4_context(const flow& a, context_ptr par) { 
 	    parent = par;
 	    addr = a; 
 	}
+
+	// Type is "ip4".
 	virtual std::string get_type() { return "ip4"; }
+
     };
-    
+
+    // Processing
     class ip {
 
       public:
 	
-	// IP header cksum
+	// Calculate IP header cksum
 	static unsigned short calculate_cksum(const pdu_iter& s, 
 					      const pdu_iter& e);
 
+	// Process an IP packet.  Works out the version, and calls appropriate
+	// function.
 	static void process(engine&, context_ptr c, 
 			    const pdu_iter& s, const pdu_iter& e);
+
+	// IPv4 processing.
 	static void process_ip4(engine&, context_ptr c, const pdu_iter& s, 
 				const pdu_iter& e);
+
+	// IPv6 processing.
 	static void process_ip6(engine&, context_ptr c, const pdu_iter& s, 
 				const pdu_iter& e);
 

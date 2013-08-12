@@ -7,11 +7,13 @@
 
 using namespace analyser;
 
+
+// Describe the address in human-readable on an output-stream.
 void address::describe(std::ostream& out)
 {
 
     if (proto == NO_PROTOCOL) {
-	out << "NO_PROTOCOL";
+	out << "No protocol";
 	return;
     }
 
@@ -40,6 +42,8 @@ void address::describe(std::ostream& out)
 	out << "ICMP";
 	return;
     }
+
+    out << "Not describable";
 
 }
 
