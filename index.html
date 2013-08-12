@@ -30,19 +30,26 @@
 <li><a href="config.html">Configuration</a></li>
 <li><a href="output.html">Output streaming protocols</a></li>
 <li><a href="management.html">Management interface</a></li>
+<li><a href="monitor.html">Cybermon</a></li>
 </ul>
 
 <h2>Overview</h2>
 
-<p>This is a software-based probe, collects packets from a set of
-network interfaces, and any packets which match on a address map are
-forwarded to an endpoint in a packet-streaming protocol.</p>
+<p>The Cyberprobe project is:
 
-<p>
-Optionally, the probe can be configured to receive alerts from
+<ul>
+<li><p>A distributed architecture for real-time monitoring of networks against
+attack.</p></li>
+<li><p>A software-based probe, which collects packets from a set of
+network interfaces, and any packets which match on a address map are
+forwarded to an endpoint in a packet-streaming protocol.</p></li>
+<li><p>The approach of configuring the probe to receive alerts from
 snort. In this configuration, when an alert is received from Snort, the IP
 source address associated with the alert is dynamically targeted for a period
-of time.
+of time.</p></li>
+<li><p>Simple monitoring software which studies the collected data and
+reports urgent threats which need to be investigated. (Bit of a work in progress at the moment).</p></li>
+</ul>
 </p>
 
 <p>
@@ -96,6 +103,10 @@ Usage:
 
 <pre>
     cyberprobe &lt;config-file>
+</pre>
+
+<pre>
+    cybermon &lt;port-number>
 </pre>
 
 <h2>Snort integration</h2>

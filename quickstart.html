@@ -30,6 +30,7 @@
 <li><a href="config.html">Configuration</a></li>
 <li><a href="output.html">Output streaming protocols</a></li>
 <li><a href="management.html">Management interface</a></li>
+<li><a href="monitor.html">Cybermon</a></li>
 </ul>
 
 <p>This page covers how to get started with minimal fuss.</p>
@@ -50,6 +51,7 @@ the following executables:
 
 <table>
 <tr><td><code>cyberprobe</code></td><td>The Cyber Probe executable.</td></tr>
+<tr><td><code>cybermon</code></td><td>Data analyser, analyses the data streams and reports events.  Cybermon is in a fairly early state, very much a work in progress.</td></tr>
 <tr><td><code>etsi_rcvr</code></td><td>Test decoder for ETSI format data.</td></tr>
 <tr><td><code>nhis11_rcvr</code></td><td>Test decoder for NHIS1.1 format data.</td></tr>
 </table>
@@ -136,6 +138,25 @@ output connections set up, and data output from <code>etsi_rcvr</code>.
 </li>
 
 </ul>
+</p>
+
+<h2>Cybermon</h2>
+
+<p>
+Once you have this working with the <code>etsi_rcvr</code> receiver, stop
+<code>etsi_rcvr</code> and fire up <code>cybermon</code> on the same
+port e.g.
+<pre>
+cybermon 10000
+</pre>
+Make sure you restart <code>cyberprobe</code> so that the IRI BEGIN
+events are sent.  You should be able to get some events reported:
+<pre>
+Target SNORTc0a80150 discovered on IP 192.168.1.80
+Target SNORTd43af65b: IPv4 192.168.1.80 has received 0.50MB of data.
+Target SNORTd43af65b: IPv4 192.168.1.80 has received 1.00MB of data.
+Target SNORTd43af65b: IPv4 192.168.1.80 has received 2.00MB of data.
+</pre>
 </p>
 
 </body>
