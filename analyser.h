@@ -8,35 +8,70 @@
 #include <map>
 
 #include "thread.h"
+#include "pdu.h"
+#include "context.h"
 
 namespace analyser {
 
-    class context {
-      public:
-	unsigned long id;
-	std::string liid;
+    class observer {
+    public:
+	virtual void data(const context_ptr cp, const pdu_iter& s, 
+			  const pdu_iter& e) = 0;
     };
-    
-    class engine {
+
+    class engine : public observer {
       private:
 
-	unsigned long next_context_id;
 	threads::mutex lock;
-	std::map<unsigned long, context> contexts;
+	std::map<std::string, context_ptr> contexts;
 
       public:
 
-	engine() { next_context_id = 0; }
+	engine() { }
 	virtual ~engine() {}
-	
-	context& create_context(const std::string& liid);
-	void destroy_context(context&);
 
-	typedef std::vector<unsigned char>::iterator iter;
-	void process(context& c, const iter& s, const iter& e);
+	context_ptr get_root_context(const std::string& liid);
+	void close_root_context(const std::string& liid);
+
+	void process(context_ptr c, const pdu_iter& s, const pdu_iter& e);
+
+	static void get_context_stack(context_ptr p, std::list<context_ptr>& l) {
+	    while (p) {
+		l.push_front(p);
+		p = p->parent.lock();
+	    }
+	}
 	
-	void process(context& c, const iter& s, const iter& e, 
-		     const std::string& state);
+	static void describe(context_ptr p, std::ostream& out)
+	{
+	    std::list<context_ptr> l;
+	    get_context_stack(p, l);
+
+	    bool start = true;
+	    for(std::list<context_ptr>::iterator it = l.begin();
+		it != l.end();
+		it++) {
+		if (start)
+		    start = false;
+		else
+		    out << "/";
+		(*it)->addr.src.describe(out);
+	    }
+	    
+	    out << " -> ";
+
+	    start = true;
+	    for(std::list<context_ptr>::iterator it = l.begin();
+		it != l.end();
+		it++) {
+		if (start)
+		    start = false;
+		else
+		    out << "/";
+		(*it)->addr.dest.describe(out);
+	    }
+
+	}
 	
     };
 

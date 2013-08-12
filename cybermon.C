@@ -1,9 +1,9 @@
 
 /****************************************************************************
 
-ETSI LI test receiver.  Usage:
+Monitor thing.
 
-  etsi_rcvr <portnum> | tcpdump -n -r-
+  cybermon <portnum> | tcpdump -n -r-
 
 ****************************************************************************/
 
@@ -15,6 +15,25 @@ ETSI LI test receiver.  Usage:
 #include "etsi_li.h"
 #include "thread.h"
 #include "packet_capture.h"
+#include "flow.h"
+#include "hexdump.h"
+
+class obs : public analyser::engine {
+public:
+    void data(const analyser::context_ptr f, const analyser::pdu_iter& s, 
+	      const analyser::pdu_iter& e);
+};
+
+void obs::data(const analyser::context_ptr f, const analyser::pdu_iter& s, 
+	       const analyser::pdu_iter& e)
+{
+    describe(f, std::cout);
+    std::cout << std::endl;
+
+    hexdump::dump(s, e, std::cout);
+
+    std::cout << std::endl;
+}
 
 class cybermon : public monitor {
 private:
@@ -39,19 +58,14 @@ void cybermon::discovered(const std::string& liid,
 			  const tcpip::address& addr)
 {
 
-    lock.lock();
+    analyser::context_ptr c = an.get_root_context(liid);
+    analyser::target_context* tc = 
+	dynamic_cast<analyser::target_context*>(c.get());
 
-    if (contexts.find(liid) == contexts.end()) {
-	analyser::context& c = an.create_context(liid);
-	contexts.insert(std::pair<std::string,analyser::context&>(liid, c));
-    }
-
-    // FIXME: You done nothing with the address.
+    tc->set_target_address(addr);
 
     std::cerr << "Target " << liid << " discovered on IP " << addr
 	      << std::endl;
-    
-    lock.unlock();
 
 }
 
@@ -59,18 +73,14 @@ void cybermon::operator()(const std::string& liid,
 			  const iter& s, 
 			  const iter& e)
 {
-    lock.lock();
 
-    if (contexts.find(liid) == contexts.end()) {
-	analyser::context& c = an.create_context(liid);
-	contexts.insert(std::pair<std::string,analyser::context&>(liid, c));
+    analyser::context_ptr c = an.get_root_context(liid);
+
+    try {
+	an.process(c, s, e);
+    } catch (std::exception& e) {
+	std::cerr << "Packet failed: " << e.what() << std::endl;
     }
-    
-    analyser::context& c = contexts.find(liid)->second;
-
-    lock.unlock();
-
-    an.process(c, s, e);
 
 }
 
@@ -81,7 +91,7 @@ int main(int argc, char** argv)
     int port;
     buf >> port;
 
-    analyser::engine an;
+    obs an;
 
     cybermon m(an);
 

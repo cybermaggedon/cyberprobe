@@ -86,8 +86,26 @@ class capture {
 
 	  int ret = poll(&pfd, 1, 500);
 
-	  if (pfd.revents)
-	      pcap_dispatch(p, 1, handler, (unsigned char *) this);
+	  if (pfd.revents) {
+	  
+	      struct pcap_pkthdr* hdr;
+	      const unsigned char* data;
+
+	      int retval = pcap_next_ex(p, &hdr, &data);
+
+	      // Got a packet.
+	      if (retval == 1)
+		  handler((unsigned char*) this, hdr, data);
+
+	      // End of savefile.
+	      if (retval == -2)
+		  break;
+
+	      // Error
+	      if (retval == -1)
+		  throw std::runtime_error("PCAP failure");
+
+	  }
 
       }
 
@@ -118,6 +136,24 @@ class interface_capture : public capture {
 
 };
 
+// File reader
+class pcap_reader : public capture {
+
+  public:
+
+    // Constructor.  'iface' is the interface name e.g. eth0
+    // snaplen = maximum packet size to capture.
+    pcap_reader(const std::string& path) {
+	char errmsg[8192];
+	p = pcap_open_offline(path.c_str(), errmsg);
+	if (p == 0)
+	    throw std::runtime_error(errmsg);
+    }
+    
+
+};
+
+// Class, writes PCAP files.
 class pcap_writer {
   private:
     pcap_t* p;

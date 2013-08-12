@@ -1,36 +1,29 @@
 
 #include "thread.h"
-
+#include "context.h"
 #include "analyser.h"
+#include "ip.h"
 
 using namespace analyser;
 
-context& engine::create_context(const std::string& liid)
+context_ptr engine::get_root_context(const std::string& liid)
 {
     lock.lock();
-    unsigned long id = next_context_id++;
-    contexts[id].id = id;
-    contexts[id].liid = liid;
-    context& c = contexts[id];
+
+    context_ptr c;
+
+    if (contexts.find(liid) == contexts.end()) {
+	c = target_context::create(liid);
+	contexts[liid] = c;
+    } else
+	c = contexts[liid];
+
     lock.unlock();
+
     return c;
 }
 
-void engine::destroy_context(context& c)
+void engine::process(context_ptr c, const pdu_iter& s, const pdu_iter& e)
 {
-    lock.lock();
-    contexts.erase(c.id);
-    lock.unlock();
+    ip::process(*this, c, s, e);
 }
-
-void engine::process(context& c, const engine::iter& s, const engine::iter& e)
-{
-    const std::string state = "ip";
-    process(c, s, e, state);
-}
-
-void engine::process(context& c, const engine::iter& s, const engine::iter& e, 
-		     const std::string& state)
-{
-}
-
