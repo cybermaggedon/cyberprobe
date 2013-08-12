@@ -19,15 +19,8 @@ void udp::process(engine& eng, context_ptr c,
     dest.assign(s + 2, s + 4, TRANSPORT, UDP);
 
     uint32_t length = (s[4] << 8) + s[5];
-    
-//    for(int i = 0; i < (e - s); i++) {
-//	std::cerr << std::hex << (int) s[i] << " ";
-//    }
-//    std::cerr << std::endl;
 
     uint32_t cksum = (s[6] << 8) + s[7];
-
-    std::cerr << "Len " << (int)(e-s) << " " << length << std::endl;
 
     if ((e - s) != length)
 	throw exception("UDP header length doesn't agree with payload length");

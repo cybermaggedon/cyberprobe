@@ -11,6 +11,9 @@ namespace analyser {
     
     class ip;
 
+    // An IP identifier.
+    typedef uint32_t ip4_id;
+
     class fragment_hole {
     public:
 
@@ -32,13 +35,17 @@ namespace analyser {
 	// End of frag
 	unsigned long last;
 
-    };
+	// Identification
+	ip4_id id;
 
-    // An IP identifier.
-    typedef uint32_t ip4_id;
+	// Frag itself
+	std::vector<unsigned char> frag;
+	
+    };
 
     // List of fragment holes.
     typedef std::list<fragment_hole> hole_list;
+    typedef std::list<fragment*> fragment_list;
 
     class ip4_context : public network_context {
 
@@ -48,10 +55,13 @@ namespace analyser {
 	std::map<ip4_id, hole_list> h_list;
 
 	// IP frag index
-	std::map<ip4_id, pdu*> f_list;
+	std::map<ip4_id, std::list<fragment*> > f_list;
+
+	// IP headers for frags.
+	std::map<ip4_id, pdu> hdrs_list;
 
 	// Queue of fragments.
-	static const int frag_list_len = 500;
+	static const int max_frag_list_len = 50;
 	std::deque<fragment> frags;
 
       public:

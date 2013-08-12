@@ -24,12 +24,9 @@ void ip::process_ip4(engine& eng, context_ptr c,
     unsigned short ihl = s[0] & 0x0f;
     unsigned short id = s[4] << 8 + s[5];
     unsigned short flags = s[6] >> 5;
-    unsigned short frag_offset = (s[6] & 0x1f) + s[7];
+    unsigned short frag_offset = 8 * (((s[6] & 0x1f) << 8) + s[7]);
     unsigned short protocol = s[9];
     unsigned short cksum = s[10] << 8 + s[11];
-
-    if (flags & 1)
-	throw exception("IP fragmentation not implemented");
 
     if (ihl < 5) throw exception("IP packet IHL is invalid");
 
@@ -46,16 +43,212 @@ void ip::process_ip4(engine& eng, context_ptr c,
     src.addr.assign(s + 12, s + 16);
     dest.addr.assign(s + 16, s + 20);
 
+    // Create the flow address.
     flow f(src, dest);
-    
-    context_ptr fc = c->get_context(f);
 
+    // Get the IP context.
+    context_ptr fc = c->get_context(f);
     if (fc.get() == 0) {
 	fc = context_ptr(new ip4_context(f, c));
 	c->add_child(f, fc);
     }
 
-    // Process payloads.
+    ip4_context& ifc = *(dynamic_cast<ip4_context*>(fc.get()));
+
+    // Fragment processing or not?
+
+    // Frag processing if the more_frags option is set.
+    bool frag_proc = (flags & 1);
+
+    // Frag processing if we've already seen frags for the IP ID we're looking 
+    // at.
+    frag_proc |= (ifc.h_list.find(id) != ifc.h_list.end());
+
+    // FIXME: Manage the queue size!  Timeout etc!
+
+    if (frag_proc) {
+
+	// First things first, clear out old frags.
+	while (ifc.frags.size() > ifc.max_frag_list_len) {
+
+	    // Get the ID from the oldest frag.
+	    unsigned long aging_id = ifc.frags.front().id;
+
+	    // We're about to throw this frag away, may as well clear out the
+	    // frag index and hole_list, cause if they're not complete, they
+	    // won't complete now.
+	    ifc.f_list.erase(aging_id);
+	    ifc.h_list.erase(aging_id);
+	    ifc.hdrs_list.erase(aging_id);
+
+	    // Delete the unwanted frag.
+	    ifc.frags.pop_front();
+
+	}
+
+	// Using RFC815 algorithm.
+	unsigned long frag_first = frag_offset;
+	unsigned long frag_last = frag_offset + length - header_length;
+
+	// First frag seen?  Just create a hole from 0 .. infinity.
+	if (ifc.h_list.find(id) == ifc.h_list.end()) {
+	    fragment_hole fh;
+	    fh.first = 0;
+	    fh.last = 4000000;	// Just a ridiculously large value.
+	    ifc.h_list[id].push_back(fh);
+	}
+
+	// There's definitely a hole list now.
+
+	// Get the hole list.
+	hole_list& hl = ifc.h_list[id];
+
+	// Loop through holes.
+	hole_list::iterator it = hl.begin();
+	while (it != hl.end()) {
+
+	    unsigned long hole_first = it->first;
+	    unsigned long hole_last = it->last;
+	    
+	    // If this frag occurs after the hole, ignore it.
+	    if (frag_first > hole_last) { it++; continue; }
+
+	    // If this frag occurs before the hole, ignore it.
+	    if (frag_last < hole_first) { it++; continue; }
+
+	    // This frag overlaps with the hole in some way.
+	    
+	    // Delete current hole.
+	    it = hl.erase(it);
+
+	    if (frag_first > hole_first) {
+		fragment_hole fh;
+		fh.first = hole_first;
+		fh.last = frag_first - 1;
+		hl.push_back(fh);
+	    }
+
+	    // If there are more_frags, we need to add another hole.
+	    if ((frag_last < hole_last) && (flags & 1)) {
+		fragment_hole fh;
+		fh.first = frag_last + 1;
+		fh.last = hole_last;
+		hl.push_back(fh);
+	    }
+
+	    continue;
+
+	}
+
+	// If hole last is empty, we have completed.
+	if (hl.empty()) {
+
+	    // Now need to reconstruct the frag.
+
+	    std::vector<unsigned char> pdu;
+
+	    unsigned long pdu_size = 0;
+
+	    fragment_list& fl = ifc.f_list[id];
+
+	    unsigned long header_size = ifc.hdrs_list[id].size();
+
+	    for(std::list<fragment*>::iterator it2 = fl.begin();
+		it2 != fl.end();
+		it2++) {
+
+		fragment& f = **it2;
+
+		if ((header_size + f.last) > pdu_size) {
+		    pdu_size = header_size + f.last;
+		    pdu.resize(pdu_size);
+		}
+
+		std::copy((*it2)->frag.begin(), 
+			  (*it2)->frag.end(),
+			  pdu.begin() + header_size + (*it2)->first);
+
+	    }
+
+	    // Now the frag that triggered this re-assembly.
+
+	    // Resize the PDU.
+	    if ((header_size + frag_last) > pdu_size) {
+		pdu_size = header_size + frag_last;
+		pdu.resize(pdu_size);
+	    }
+
+	    // Copy this frag into place.
+	    std::copy(s + header_length, e,
+		      pdu.begin() + header_length + frag_first);
+
+	    // Now put the header in place.
+	    std::copy(ifc.hdrs_list[id].begin(), ifc.hdrs_list[id].end(), 
+		      pdu.begin());
+
+	    // Change the 'more frags' flag in this PDU.
+	    pdu[6] = pdu[6] & 0xdf;
+
+	    // Set the length.
+	    pdu[2] = (pdu.size() & 0xff00) >> 8;
+	    pdu[3] = (pdu.size() & 0xff);
+
+	    // Recalculate checksum.
+	    pdu[10] = pdu[11] = 0;
+	    uint16_t cksum = calculate_cksum(pdu.begin(), 
+					     pdu.begin() + header_length);
+
+	    pdu[10] = (cksum & 0xff00) >> 8;
+	    pdu[11] = cksum & 0xff;
+
+	    // Tidy up all the frag stuff, so that frag processing doesn't
+	    // go re-entrant.
+	    ifc.h_list.erase(id);
+	    ifc.f_list.erase(id);
+	    ifc.hdrs_list.erase(id);
+
+	    // We now have a complete IP packet!  Process it.
+	    ip::process_ip4(eng, c, pdu.begin(), pdu.end());
+
+	    return;
+
+	} else {
+
+	    // Put this frag on the queue.
+	    fragment f;
+	    f.first = frag_first;
+	    f.last = frag_last;
+	    f.id = id;
+
+	    ifc.frags.push_back(f);
+
+	    //FIXME: Is any of this thread safe?
+
+	    // Put the frag on the frag queue.
+	    if (frag_first == 0) {
+
+		// Keep the IP header of the first frag.
+		ifc.hdrs_list[id].assign(s, s + header_length);
+		ifc.frags.back().frag.assign(s + header_length, e);
+
+	    } else {
+
+		// Otherwise just keep the payload.
+		ifc.frags.back().frag.assign(s + header_length, e);
+
+	    }
+
+	    // Put the frag in the ID->frag index.
+	    ifc.f_list[id].push_back(&(ifc.frags.back()));
+
+	}
+
+	return;
+
+    }
+
+    // Complete payload, just process it.
+
     if (protocol == 6)
 
 	// TCP
