@@ -42,36 +42,7 @@ namespace analyser {
 	    }
 	}
 	
-	static void describe(context_ptr p, std::ostream& out)
-	{
-	    std::list<context_ptr> l;
-	    get_context_stack(p, l);
-
-	    bool start = true;
-	    for(std::list<context_ptr>::iterator it = l.begin();
-		it != l.end();
-		it++) {
-		if (start)
-		    start = false;
-		else
-		    out << "/";
-		(*it)->addr.src.describe(out);
-	    }
-	    
-	    out << " -> ";
-
-	    start = true;
-	    for(std::list<context_ptr>::iterator it = l.begin();
-		it != l.end();
-		it++) {
-		if (start)
-		    start = false;
-		else
-		    out << "/";
-		(*it)->addr.dest.describe(out);
-	    }
-
-	}
+	static void describe(context_ptr p, std::ostream& out);
 	
     };
 

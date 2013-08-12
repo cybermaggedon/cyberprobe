@@ -10,11 +10,12 @@
 namespace analyser {
 
     enum protocol {
-	NO_PROTOCOL, IP4, IP6, TCP, UDP
+	NO_PROTOCOL, IP4, IP6, TCP, UDP, ICMP
     };
     
     enum purpose {
-	NOT_SPECIFIED, LINK, NETWORK, TRANSPORT, SERVICE, APPLICATION
+	NOT_SPECIFIED, LINK, NETWORK, TRANSPORT, SERVICE, APPLICATION,
+	CONTROL
     };
 
     class address {

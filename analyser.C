@@ -27,3 +27,47 @@ void engine::process(context_ptr c, const pdu_iter& s, const pdu_iter& e)
 {
     ip::process(*this, c, s, e);
 }
+
+void engine::describe(context_ptr p, std::ostream& out)
+{
+
+    std::list<context_ptr> l;
+    get_context_stack(p, l);
+
+    bool start = true;
+
+    for(std::list<context_ptr>::iterator it = l.begin();
+	it != l.end();
+	it++) {
+	if (start)
+	    start = false;
+	else
+	    out << ", ";
+	
+	if ((*it)->get_type() == "target")
+	    out << "root";
+	else
+	    (*it)->addr.src.describe(out);
+    }
+	    
+    out << " -> ";
+
+    start = true;
+    for(std::list<context_ptr>::iterator it = l.begin();
+	it != l.end();
+	it++) {
+	if (start)
+	    start = false;
+	else
+	    out << ", ";
+
+	if ((*it)->get_type() == "target")
+	    out << "root";
+	else
+	    (*it)->addr.dest.describe(out);
+
+    }
+
+}
+
+

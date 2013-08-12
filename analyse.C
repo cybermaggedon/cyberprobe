@@ -54,7 +54,12 @@ void an::handle(unsigned long len, unsigned long captured,
 	std::vector<unsigned char> v;
 	v.assign(f + 14, f + len);
 	analyser::context_ptr c = e.get_root_context("123456");
-	e.process(c, v.begin(), v.end());
+
+//	try {
+	    e.process(c, v.begin(), v.end());
+//	} catch (std::exception& e) {
+//	    std::cerr << "Packet not processed: " << e.what() << std::endl;
+//	}
     }
 
 }

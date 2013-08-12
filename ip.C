@@ -2,6 +2,7 @@
 #include "ip.h"
 #include "tcp.h"
 #include "udp.h"
+#include "icmp.h"
 
 #include "analyser.h"
 
@@ -15,8 +16,9 @@ void ip::process_ip4(engine& eng, context_ptr c,
 
     unsigned int length = (s[2] << 8) + s[3];
 
-    if ((e - s) != length) throw exception("IP packet doesn't agree with its "
-					   "length field");
+    // Packet is allowed to be too long, but not too short.  May have been
+    // padded by Ethernet.
+    if ((e - s) < length) throw exception("Truncated IP packet");
 
     // Stuff from the IP header.
     unsigned short ihl = s[0] & 0x0f;
@@ -26,7 +28,7 @@ void ip::process_ip4(engine& eng, context_ptr c,
     unsigned short protocol = s[9];
     unsigned short cksum = s[10] << 8 + s[11];
 
-    if (flags & 4)
+    if (flags & 1)
 	throw exception("IP fragmentation not implemented");
 
     if (ihl < 5) throw exception("IP packet IHL is invalid");
@@ -57,21 +59,23 @@ void ip::process_ip4(engine& eng, context_ptr c,
     if (protocol == 6)
 
 	// TCP
-	tcp::process(eng, fc, s + header_length, e);
+	tcp::process(eng, fc, s + header_length, s + length);
 
     else if (protocol == 17)
 	
 	// UDP
-	udp::process(eng, fc, s + header_length, e);
+	udp::process(eng, fc, s + header_length, s + length);
 
-    else
+    else if (protocol == 1)
+	
+	// ICMP
+	icmp::process(eng, fc, s + header_length, s + length);
 
-	throw std::runtime_error("IP protocol not handled.");
-
-
-//    if (protocol == 17) return;
-
-//    std::cerr << "Protocol: " << protocol << std::endl;
+    else {
+	std::ostringstream buf;
+	buf << "IP protocol " << protocol << " not handled.";
+	throw exception(buf.str());
+    }
 
 }
 

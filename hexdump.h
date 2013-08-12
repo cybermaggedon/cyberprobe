@@ -29,7 +29,7 @@ public:
 		      << (int) *it;
 	    std::cout << " ";
 
-	    if (*it >= 32 && *it <= 127)
+	    if (*it >= 32 && *it <= 126)
 		chrs += *it;
 	    else
 		chrs += '.';

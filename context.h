@@ -72,8 +72,6 @@ namespace analyser {
 	    lock.unlock();
 	}
 
-	void describe(std::ostream&);
-
 	virtual ~context() {}
 	context_id get_id() { return id; }
 
