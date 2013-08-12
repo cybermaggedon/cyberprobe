@@ -1,0 +1,29 @@
+
+#include "socket.h"
+
+#include "address.h"
+
+#include <iomanip>
+
+using namespace analyser;
+
+void address::describe(std::ostream& out)
+{
+
+    if (proto == IP4) {
+	tcpip::ip4_address a;
+	if (addr.size() != 4)
+	    throw std::runtime_error("Invalid address data for IPv4");
+	a.addr.assign(addr.begin(), addr.end());
+	out << a;
+    }
+
+    if (proto == TCP || proto == UDP) {
+	if (addr.size() != 2)
+	    throw std::runtime_error("Invalid address data for port");
+	unsigned int p = (addr[0] << 8) + addr[1];
+	out << std::dec << std::setw(0) << p;
+    }
+
+}
+
