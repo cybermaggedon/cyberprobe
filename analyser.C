@@ -70,4 +70,39 @@ void engine::describe(context_ptr p, std::ostream& out)
 
 }
 
+void engine::get_root_info(context_ptr p, std::string& liid, address& a)
+{
+
+    while (p) {
+	if (p->get_type() == "target") {
+	    analyser::target_context* ta = 
+		dynamic_cast<analyser::target_context*>(p.get());
+	    liid = ta->get_liid();
+	    a = ta->get_target_address();
+	}
+	p = p->parent.lock();
+    }
+
+}
+
+
+void engine::get_network_info(context_ptr p, address& src, address& dest)
+{
+
+    src = address();
+    dest = address();
+    while (p) {
+	if (p->get_type() == "ip4") {
+	    src = p->addr.src;
+	    dest = p->addr.dest;
+	}
+	if (p->get_type() == "ip6") {
+	    src = p->addr.src;
+	    dest = p->addr.dest;
+	}
+	p = p->parent.lock();
+    }
+
+}
+
 

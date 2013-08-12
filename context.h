@@ -90,6 +90,7 @@ namespace analyser {
     class target_context : public context {
       private:
 	std::string liid;
+	address target_address;
       public:
 	static context_ptr create(const std::string& liid) {
 	    target_context* c = new target_context();
@@ -97,11 +98,22 @@ namespace analyser {
 	    return context_ptr(c);
 	}
 	void set_target_address(const tcpip::address& a) {
-	    //FIXME: Do something with the address.
+	    if (a.universe == a.ipv4) {
+		if (a.addr.size() == 4)
+		    target_address.assign(a.addr, NETWORK, IP4);
+	    }
+	    if (a.universe == a.ipv6) {
+		if (a.addr.size() == 16)
+		    target_address.assign(a.addr, NETWORK, IP6);
+	    }
 	}
-	std::string get_liid() {
+
+	address& get_target_address() { return target_address; }
+
+	std::string& get_liid() {
 	    return liid;
 	}
+
 	virtual std::string get_type() { return "target"; }
     };
     

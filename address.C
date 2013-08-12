@@ -10,12 +10,18 @@ using namespace analyser;
 void address::describe(std::ostream& out)
 {
 
+    if (proto == NO_PROTOCOL) {
+	out << "NO_PROTOCOL";
+	return;
+    }
+
     if (proto == IP4) {
 	tcpip::ip4_address a;
 	if (addr.size() != 4)
 	    throw std::runtime_error("Invalid address data for IPv4");
 	a.addr.assign(addr.begin(), addr.end());
 	out << "IPv4 " << a;
+	return;
     }
 
     if (proto == TCP || proto == UDP) {
@@ -27,10 +33,13 @@ void address::describe(std::ostream& out)
 	else
 	    out << "UDP ";
 	out << std::dec << std::setw(0) << p;
+	return;
     }
 
-    if (proto == ICMP)
+    if (proto == ICMP) {
 	out << "ICMP";
+	return;
+    }
 
 }
 

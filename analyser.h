@@ -41,6 +41,13 @@ namespace analyser {
 		p = p->parent.lock();
 	    }
 	}
+
+	static void get_root_info(context_ptr p,
+				  std::string& liid,
+				  address& ta);
+	
+	static void get_network_info(context_ptr p,
+				     address& src, address& dest);
 	
 	static void describe(context_ptr p, std::ostream& out);
 	

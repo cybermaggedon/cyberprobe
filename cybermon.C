@@ -17,6 +17,7 @@ Monitor thing.
 #include "packet_capture.h"
 #include "flow.h"
 #include "hexdump.h"
+#include "context.h"
 
 class obs : public analyser::engine {
 public:
@@ -27,6 +28,27 @@ public:
 void obs::data(const analyser::context_ptr f, const analyser::pdu_iter& s, 
 	       const analyser::pdu_iter& e)
 {
+
+    analyser::context_ptr p = f;
+
+    std::string liid;
+    analyser::address target_address;
+
+    analyser::address src, dest;
+    
+    get_root_info(f, liid, target_address);
+    get_network_info(f, src, dest);
+
+    std::cerr << "Target " << liid << " ";
+
+    if (src == target_address)
+	std::cerr << " - data from target";
+
+    if (dest == target_address)
+	std::cerr << " - data to target";
+
+    std::cout << std::endl;
+
     describe(f, std::cout);
     std::cout << std::endl;
 
@@ -65,7 +87,7 @@ void cybermon::discovered(const std::string& liid,
     tc->set_target_address(addr);
 
     std::cerr << "Target " << liid << " discovered on IP " << addr
-	      << std::endl;
+	      << std::endl << std::endl;
 
 }
 
