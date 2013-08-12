@@ -92,8 +92,8 @@ namespace analyser {
       public:
 	
 	// Calculate IP header cksum
-	static unsigned short calculate_cksum(const pdu_iter& s, 
-					      const pdu_iter& e);
+	static uint16_t calculate_cksum(const pdu_iter& s, 
+					const pdu_iter& e);
 
 	// Process an IP packet.  Works out the version, and calls appropriate
 	// function.

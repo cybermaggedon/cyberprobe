@@ -21,20 +21,20 @@ void ip::process_ip4(engine& eng, context_ptr c,
     if ((e - s) < length) throw exception("Truncated IP packet");
 
     // Stuff from the IP header.
-    unsigned short ihl = s[0] & 0x0f;
-    unsigned short id = s[4] << 8 + s[5];
-    unsigned short flags = s[6] >> 5;
-    unsigned short frag_offset = 8 * (((s[6] & 0x1f) << 8) + s[7]);
-    unsigned short protocol = s[9];
-    unsigned short cksum = s[10] << 8 + s[11];
+    uint8_t ihl = s[0] & 0x0f;
+    ip4_id id = s[4] << 8 + s[5];
+    uint8_t flags = s[6] >> 5;
+    uint16_t frag_offset = 8 * (((s[6] & 0x1f) << 8) + s[7]);
+    uint8_t protocol = s[9];
+    uint16_t cksum = s[10] << 8 + s[11];
 
     if (ihl < 5) throw exception("IP packet IHL is invalid");
 
-    unsigned short header_length = ihl * 4;
+    uint8_t header_length = ihl * 4;
     if ((e - s) < header_length) throw exception("IP packet IHL is invalid");
 
     // Calculate checksum.
-    unsigned short checked = calculate_cksum(s, s + header_length);
+    uint16_t checked = calculate_cksum(s, s + header_length);
     if (checked != 0)
 	throw exception("IP packet has invalid checksum");
 
@@ -278,7 +278,7 @@ void ip::process_ip6(engine& eng, context_ptr c,
     throw exception("IPv6 processing not implemented.");
 }
 
-unsigned short ip::calculate_cksum(const pdu_iter& s, const pdu_iter& e)
+uint16_t ip::calculate_cksum(const pdu_iter& s, const pdu_iter& e)
 {
     
     pdu_iter ptr = s;
@@ -304,7 +304,6 @@ unsigned short ip::calculate_cksum(const pdu_iter& s, const pdu_iter& e)
     return ~sum;
 
 }
-
 
 void ip::process(engine& eng, context_ptr c, 
 		 const pdu_iter& s, const pdu_iter& e)
