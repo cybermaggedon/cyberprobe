@@ -101,5 +101,7 @@ namespace analyser {
 
 };
 
+std::ostream& operator<<(std::ostream& o, const tcpip::address& addr);
+
 #endif
 

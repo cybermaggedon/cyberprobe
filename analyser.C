@@ -44,7 +44,7 @@ void engine::describe(context_ptr p, std::ostream& out)
 	else
 	    out << ", ";
 	
-	if ((*it)->get_type() == "target")
+	if ((*it)->get_type() == "root")
 	    out << "root";
 	else
 	    (*it)->addr.src.describe(out);
@@ -61,7 +61,7 @@ void engine::describe(context_ptr p, std::ostream& out)
 	else
 	    out << ", ";
 
-	if ((*it)->get_type() == "target")
+	if ((*it)->get_type() == "root")
 	    out << "root";
 	else
 	    (*it)->addr.dest.describe(out);
@@ -74,7 +74,7 @@ void engine::get_root_info(context_ptr p, std::string& liid, address& a)
 {
 
     while (p) {
-	if (p->get_type() == "target") {
+	if (p->get_type() == "root") {
 	    liid = p->root().get_liid();
 	    a = p->root().get_trigger_address();
 	}
