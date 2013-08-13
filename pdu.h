@@ -5,7 +5,7 @@
 namespace analyser {
 
     typedef std::vector<unsigned char> pdu;
-    typedef std::vector<unsigned char>::iterator pdu_iter;
+    typedef std::vector<unsigned char>::const_iterator pdu_iter;
 
 
 };

@@ -30,12 +30,9 @@ namespace analyser {
     // Forward declarations.
     class context;
     class root_context;
-    class ip4_context;
 
     // Shared pointer types.
     typedef boost::shared_ptr<context> context_ptr;
-    typedef boost::shared_ptr<root_context> root_context_ptr;
-    typedef boost::shared_ptr<ip4_context> ip4_context_ptr;
 
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.
@@ -111,10 +108,6 @@ namespace analyser {
 
 	// Returns a context 'type'.
 	virtual std::string get_type() = 0;
-
-	// Casts
-	root_context& root() { return reinterpret_cast<root_context&>(*this); }
-//	ip4_context& root() { return reinterpret_cast<ip4_context&>(*this); }
 
     };
 

@@ -24,8 +24,8 @@ namespace analyser {
     // reportable events occur.
     class observer {
     public:
-	virtual void data(const context_ptr cp, const pdu_iter& s, 
-			  const pdu_iter& e) = 0;
+	virtual void data(const context_ptr cp, 
+			  pdu_iter s, pdu_iter e) = 0;
     };
 
     // Packet analysis engine.  Designed to be sub-classed, caller should
@@ -56,7 +56,7 @@ namespace analyser {
 	// Process a packet within a context.  'c' describes the context,
 	// 's' and 'e' are iterators pointing at the start and end of packet
 	// data to process.
-	void process(context_ptr c, const pdu_iter& s, const pdu_iter& e);
+	void process(context_ptr c, pdu_iter s, pdu_iter e);
 
 	// Utility function, given a context, iterates up through the parent
 	// pointers, returning a list of contexts (including 'p').

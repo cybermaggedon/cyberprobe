@@ -39,14 +39,14 @@ public:
     std::map<analyser::address, uint64_t> next;
 
     // Observation method.
-    void data(const analyser::context_ptr f, const analyser::pdu_iter& s, 
-	      const analyser::pdu_iter& e);
+    void data(const analyser::context_ptr f, analyser::pdu_iter s, 
+	      analyser::pdu_iter e);
 
 };
 
 // Data method.  Keeps track of data flowing to an attacker and reports.
-void obs::data(const analyser::context_ptr f, const analyser::pdu_iter& s, 
-	       const analyser::pdu_iter& e)
+void obs::data(const analyser::context_ptr f, analyser::pdu_iter s, 
+	       analyser::pdu_iter e)
 {
 
     // Get information stored about the attacker.
@@ -118,7 +118,8 @@ void cybermon::discovered(const std::string& liid,
     analyser::context_ptr c = an.get_root_context(liid);
 
     // Record the known address.
-    c->root().set_trigger_address(addr);
+    analyser::root_context& rc = dynamic_cast<analyser::root_context&>(*c);
+    rc.set_trigger_address(addr);
 
     // Report attacker.
     std::cerr << "Target " << liid << " discovered on IP " << addr

@@ -66,7 +66,7 @@ namespace analyser {
 	}
 
 	// Assign to the address.
-	void assign(const pdu_iter& s, const pdu_iter& e, purpose pu, 
+	void assign(pdu_iter s, pdu_iter e, purpose pu, 
 		    protocol pr) {
 	    layer = pu; proto = pr;
 	    addr.assign(s, e);

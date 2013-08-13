@@ -23,19 +23,18 @@ public:
 
 class obs : public analyser::engine {
 public:
-    void data(const analyser::context_ptr f, const analyser::pdu_iter& s, 
-	      const analyser::pdu_iter& e);
+    void data(const analyser::context_ptr f, analyser::pdu_iter s, 
+	      analyser::pdu_iter e);
 };
 
-void obs::data(const analyser::context_ptr f, const analyser::pdu_iter& s, 
-	       const analyser::pdu_iter& e)
+void obs::data(const analyser::context_ptr f, analyser::pdu_iter s, 
+	       analyser::pdu_iter e)
 {
 
     describe(f, std::cout);
     std::cout << std::endl;
 
     hexdump::dump(s, e, std::cout);
-
     std::cout << std::endl;
 
 }

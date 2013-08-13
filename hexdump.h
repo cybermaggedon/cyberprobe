@@ -19,8 +19,8 @@ public:
     // indent = number of spaces before hexdump, if you want to indent.
     // Data is described at iterator bounds s and e.
     // out is the output stream to hex dump to.
-    static void dump(const std::vector<unsigned char>::iterator& s,
-		     const std::vector<unsigned char>::iterator& e,
+    static void dump(std::vector<unsigned char>::const_iterator s,
+		     std::vector<unsigned char>::const_iterator e,
 		     std::ostream& out, int indent = 0) {
 
 	std::vector<unsigned char>::const_iterator it;

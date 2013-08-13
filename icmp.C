@@ -4,8 +4,7 @@
 
 using namespace analyser;
 
-void icmp::process(engine& eng, context_ptr c, 
-		  const pdu_iter& s, const pdu_iter& e)
+void icmp::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
     address src, dest;

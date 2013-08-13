@@ -23,7 +23,7 @@ context_ptr engine::get_root_context(const std::string& liid)
     return c;
 }
 
-void engine::process(context_ptr c, const pdu_iter& s, const pdu_iter& e)
+void engine::process(context_ptr c, pdu_iter s, pdu_iter e)
 {
     ip::process(*this, c, s, e);
 }
@@ -75,8 +75,14 @@ void engine::get_root_info(context_ptr p, std::string& liid, address& a)
 
     while (p) {
 	if (p->get_type() == "root") {
-	    liid = p->root().get_liid();
-	    a = p->root().get_trigger_address();
+
+	    // Cast to root.
+	    analyser::root_context& rc = 
+		dynamic_cast<analyser::root_context&>(*p);
+	    
+	    liid = rc.get_liid();
+	    a = rc.get_trigger_address();
+
 	}
 	p = p->parent.lock();
     }

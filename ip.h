@@ -92,21 +92,21 @@ namespace analyser {
       public:
 	
 	// Calculate IP header cksum
-	static uint16_t calculate_cksum(const pdu_iter& s, 
-					const pdu_iter& e);
+	static uint16_t calculate_cksum(pdu_iter s, 
+					pdu_iter e);
 
 	// Process an IP packet.  Works out the version, and calls appropriate
 	// function.
 	static void process(engine&, context_ptr c, 
-			    const pdu_iter& s, const pdu_iter& e);
+			    pdu_iter s, pdu_iter e);
 
 	// IPv4 processing.
-	static void process_ip4(engine&, context_ptr c, const pdu_iter& s, 
-				const pdu_iter& e);
+	static void process_ip4(engine&, context_ptr c, pdu_iter s, 
+				pdu_iter e);
 
 	// IPv6 processing.
-	static void process_ip6(engine&, context_ptr c, const pdu_iter& s, 
-				const pdu_iter& e);
+	static void process_ip6(engine&, context_ptr c, pdu_iter s, 
+				pdu_iter e);
 
     };
 

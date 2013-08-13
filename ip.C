@@ -8,8 +8,7 @@
 
 using namespace analyser;
 
-void ip::process_ip4(engine& eng, context_ptr c, 
-		     const pdu_iter& s, const pdu_iter& e)
+void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
     if ((e - s) < 20) throw exception("Packet too small for IPv4");
@@ -272,13 +271,12 @@ void ip::process_ip4(engine& eng, context_ptr c,
 
 }
 
-void ip::process_ip6(engine& eng, context_ptr c, 
-		     const pdu_iter& s, const pdu_iter& e)
+void ip::process_ip6(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
 {
     throw exception("IPv6 processing not implemented.");
 }
 
-uint16_t ip::calculate_cksum(const pdu_iter& s, const pdu_iter& e)
+uint16_t ip::calculate_cksum(pdu_iter s, pdu_iter e)
 {
     
     pdu_iter ptr = s;
@@ -305,8 +303,7 @@ uint16_t ip::calculate_cksum(const pdu_iter& s, const pdu_iter& e)
 
 }
 
-void ip::process(engine& eng, context_ptr c, 
-		 const pdu_iter& s, const pdu_iter& e)
+void ip::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
   // Packet too small for the IP check, then do nothing.
