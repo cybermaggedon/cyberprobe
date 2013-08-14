@@ -148,16 +148,11 @@ Once you have this working with the <code>etsi_rcvr</code> receiver, stop
 <code>etsi_rcvr</code> and fire up <code>cybermon</code> on the same
 port e.g.
 <pre>
-cybermon 10000
+cybermon 10000 hexdump.lua
 </pre>
 Make sure you restart <code>cyberprobe</code> so that the IRI BEGIN
-events are sent.  You should be able to get some events reported:
-<pre>
-Target SNORTc0a80150 discovered on IP 192.168.1.80
-Target SNORTd43af65b: IPv4 192.168.1.80 has received 0.50MB of data.
-Target SNORTd43af65b: IPv4 192.168.1.80 has received 1.00MB of data.
-Target SNORTd43af65b: IPv4 192.168.1.80 has received 2.00MB of data.
-</pre>
+events are sent.  You should be able to get some stuff whizzing past on the
+screen, with hexdumps of data.
 </p>
 
 </body>
