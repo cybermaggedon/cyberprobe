@@ -41,6 +41,13 @@ int cybermon_lua::get_network_info(lua_State* lua)
     return h->cml->get_network_info(h);
 }
 
+int cybermon_lua::get_trigger_info(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    return h->cml->get_trigger_info(h);
+}
+
 void cybermon_lua::describe_src(cybermon_context* h)
 {
     std::ostringstream buf;
@@ -113,6 +120,25 @@ int cybermon_lua::get_network_info(cybermon_context* h)
     push(a2);
 
     return 2;
+
+}
+
+int cybermon_lua::get_trigger_info(cybermon_context* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    tcpip::ip4_address x;
+    std::string a1;
+
+    x.addr.assign(h->trigger.addr.begin(), h->trigger.addr.end());
+    x.to_string(a1);
+
+    // Put address string on stack
+    push(a1);
+
+    return 1;
 
 }
 
@@ -192,6 +218,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     fns["get_liid"] = &get_liid;
     fns["get_context_id"] = &get_context_id;
     fns["get_network_info"] = &get_network_info;
+    fns["get_trigger_info"] = &get_trigger_info;
 
     // These are registered with lua as the 'cybermon' module.
     register_module("cybermon", fns);

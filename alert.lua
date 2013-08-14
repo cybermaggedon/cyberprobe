@@ -1,13 +1,16 @@
 --
 -- Cybermon configuration file, used to tailor the behaviour of cybermon.
 --
--- This configuration file configures cybermon to watch data volumes being
--- transferred to identified attackers, and provide summary information about
--- volumes as they increase.
+-- This configuration file configures cybermon to emit alerts when it
+-- notices big volumes going to an attacker.
+-- 
+-- This example is too simple - if the alert fails to deliver, it crashes out.
+-- But, you get the point.
 --
--- It alerts when volumes go over the 256k threshold and then doubles the
--- threshold for IP addresses.
+-- This makes use of LuaSocket, won't work if you don't have that installed.
 --
+
+local socket = require("socket")
 
 local observer = {}
 
@@ -36,6 +39,12 @@ observer.data = function(context, data)
     local vol = (volume[dest] / 1024 / 1024)
     io.write(string.format("%0.1f MB has flowed to address %s\n", vol, dest))
     threshold[dest] = threshold[dest] * 2
+    
+    -- Send an alert
+    local s = socket.connect("localhost", 10101)
+    s:send(string.format("%s %s\n", dest, volume[dest]))
+    s:close()
+
   end
 
 end

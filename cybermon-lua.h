@@ -167,6 +167,7 @@ public:
     static int get_liid(lua_State*);
     static int get_context_id(lua_State*);
     static int get_network_info(lua_State*);
+    static int get_trigger_info(lua_State*);
     
     // The C++ equiv of above.
     void describe_src(cybermon_context* h);
@@ -174,6 +175,7 @@ public:
     void get_liid(cybermon_context* h);
     void get_context_id(cybermon_context* h);
     int get_network_info(cybermon_context* h);
+    int get_trigger_info(cybermon_context* h);
 
     // Constructor.
     cybermon_lua(const std::string& cfg);

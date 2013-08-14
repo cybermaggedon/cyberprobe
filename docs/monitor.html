@@ -222,6 +222,10 @@ each TCP stream or UDP datagram pair.</td></tr>
 <tr><td><code>cybermon.get_network_info(context)</code></td><td>Returns two
 variables: the source and destination network addresses (IP addresses)
 for this data.  These are in normal IP address string format.</td></tr>
+<tr><td><code>cybermon.get_trigger_info(context)</code></td><td>Returns the
+IP address which triggered this collection, if known.  If not, 0.0.0.0 is
+returned.  THis is in normal IP address string format.</td></tr>
+</table>
 
 </body>
 
