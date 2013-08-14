@@ -4,39 +4,17 @@
 
 int cybermon_lua::describe_src(lua_State* lua)
 {
-
-    // Horrible!  Can't get a 'cybermon*'.
-
-    std::ostringstream buf;
-
     void* ud = lua_touserdata(lua, -1);
     cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
-
-    analyser::engine::describe_src(h->ctxt, buf);
-
-    // Pop user-data argument
-    lua_pop(lua, 1);
-
-    // Put address string on stack.
-    lua_pushstring(lua, buf.str().c_str());
-
+    h->cml->describe_src(h);
     return 1;
 }
 
 int cybermon_lua::describe_dest(lua_State* lua)
 {
-    std::ostringstream buf;
-
     void* ud = lua_touserdata(lua, -1);
     cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
-
-    analyser::engine::describe_dest(h->ctxt, buf);
-
-    // Pop user-data argument
-    lua_pop(lua, 1);
-
-    lua_pushstring(lua, buf.str().c_str());
-
+    h->cml->describe_dest(h);
     return 1;
 }
 
@@ -44,12 +22,7 @@ int cybermon_lua::get_liid(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
     cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
-
-    // Pop user-data argument
-    lua_pop(lua, 1);
-
-    // Put LIID on stack
-    lua_pushstring(lua, h->liid.c_str());
+    h->cml->get_liid(h);
     return 1;
 }
 
@@ -57,13 +30,57 @@ int cybermon_lua::get_context_id(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
     cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    h->cml->get_context_id(h);
+    return 1;
+}
+
+void cybermon_lua::describe_src(cybermon_context* h)
+{
+    std::ostringstream buf;
+    analyser::engine::describe_src(h->ctxt, buf);
+
+    // Pop user-data argument
+    pop(1);
+
+    // Put address string on stack.
+    push(buf.str().c_str());
+
+}
+
+void cybermon_lua::describe_dest(cybermon_context* h)
+{
+
+    std::ostringstream buf;
+    analyser::engine::describe_dest(h->ctxt, buf);
 
     // Pop user-data argument
     lua_pop(lua, 1);
 
+    // Put address string on stack.
+    lua_pushstring(lua, buf.str().c_str());
+
+}
+
+void cybermon_lua::get_liid(cybermon_context* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
     // Put LIID on stack
-    lua_pushinteger(lua, h->ctxt->get_id());
-    return 1;
+    push(h->liid.c_str());
+
+}
+
+void cybermon_lua::get_context_id(cybermon_context* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    // Put Context ID on stack
+    push(h->ctxt->get_id());
+
 }
 
 // Call the config.trigger function as trigger(liid, addr)
@@ -112,6 +129,7 @@ void cybermon_lua::data(analyser::engine& an, const analyser::context_ptr f,
     h.e = e;
     h.liid = liid;
     h.trigger = trigger_address;
+    h.cml = this;
     
     // Get observer.data
     get_global("config");

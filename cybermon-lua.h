@@ -84,6 +84,11 @@ public:
 	lua_pushlstring(lua, s.c_str(), s.size());
     }
 
+    // Push a string onto the stack.
+    void push(int num) { 
+	lua_pushinteger(lua, num);
+    }
+
     // Push a string (defined by iterators).
     void push(std::vector<unsigned char>::const_iterator s,
 	      std::vector<unsigned char>::const_iterator e) {
@@ -125,6 +130,7 @@ public:
 // this code to elaborate contexts etc.  This seems the best way to do it
 // because, passing context_ptrs around doesn't work - they're shared ptrs,
 // which don't pass through C very well.
+    class cybermon_lua;
 class cybermon_context {
 public:
 
@@ -144,6 +150,9 @@ public:
     // Address which triggered processing
     analyser::address trigger;
 
+    // Cybermon bridge.
+    cybermon_lua* cml;
+
 };
 
 // Cybermon wrapper around the LUA state, acts as the cybermon to LUA
@@ -157,6 +166,12 @@ public:
     static int describe_dest(lua_State*);
     static int get_liid(lua_State*);
     static int get_context_id(lua_State*);
+    
+    // The C++ equiv of above.
+    void describe_src(cybermon_context* h);
+    void describe_dest(cybermon_context* h);
+    void get_liid(cybermon_context* h);
+    void get_context_id(cybermon_context* h);
 
     // Constructor.
     cybermon_lua(const std::string& cfg) {
