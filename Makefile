@@ -6,7 +6,7 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 	control.o snort_alert.o
 
 CYBERMON_OBJECTS=cybermon.o analyser.o etsi_li.o socket.o ber.o context.o ip.o \
-	tcp.o udp.o address.o icmp.o
+	tcp.o udp.o address.o icmp.o cybermon-lua.o
 
 ANALYSE_OBJECTS=analyse.o analyser.o context.o ip.o socket.o tcp.o udp.o \
 	address.o icmp.o
@@ -43,7 +43,6 @@ analyser.o: thread.h context.h socket.h pdu.h address.h flow.h exception.h
 analyser.o: analyser.h ip.h
 ber.o: ./ber.h socket.h
 capture.o: capture.h packet_capture.h packet_consumer.h thread.h
-c.o: socket.h
 config.o: config.h resource.h thread.h specification.h delivery.h sender.h
 config.o: management.h socket.h nhis11.h monitor.h etsi_li.h ./ber.h
 config.o: parameters.h capture.h packet_capture.h packet_consumer.h xml.h
@@ -53,7 +52,9 @@ control.o: control.h socket.h thread.h management.h specification.h
 control.o: resource.h
 cybermon.o: analyser.h thread.h pdu.h context.h socket.h address.h flow.h
 cybermon.o: exception.h monitor.h etsi_li.h ./ber.h packet_capture.h
-cybermon.o: hexdump.h
+cybermon.o: hexdump.h cybermon-lua.h
+cybermon-lua.o: cybermon-lua.h analyser.h thread.h pdu.h context.h socket.h
+cybermon-lua.o: address.h flow.h exception.h
 cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
 cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h etsi_li.h
 cyberprobe.o: ./ber.h parameters.h capture.h packet_capture.h
@@ -66,7 +67,7 @@ etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
 icmp.o: icmp.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
 icmp.o: analyser.h
 ip.o: ip.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
-ip.o: analyser.h tcp.h udp.h icmp.h
+ip.o: analyser.h tcp.h serial.h udp.h icmp.h
 nhis11.o: nhis11.h socket.h thread.h monitor.h
 nhis11_rcvr.o: monitor.h socket.h nhis11.h thread.h packet_capture.h
 resource_manager.o: resource.h thread.h specification.h
@@ -78,7 +79,7 @@ snort_alert.o: ./ber.h parameters.h capture.h packet_capture.h
 snort_alert.o: packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
-tcp.o: analyser.h
+tcp.o: analyser.h serial.h
 udp.o: udp.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
 udp.o: analyser.h
 xml.o: xml.h
