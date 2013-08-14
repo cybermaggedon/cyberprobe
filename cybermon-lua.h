@@ -166,33 +166,17 @@ public:
     static int describe_dest(lua_State*);
     static int get_liid(lua_State*);
     static int get_context_id(lua_State*);
+    static int get_network_info(lua_State*);
     
     // The C++ equiv of above.
     void describe_src(cybermon_context* h);
     void describe_dest(cybermon_context* h);
     void get_liid(cybermon_context* h);
     void get_context_id(cybermon_context* h);
+    int get_network_info(cybermon_context* h);
 
     // Constructor.
-    cybermon_lua(const std::string& cfg) {
-	
-	// C functions go in a map.
-	std::map<std::string,lua_CFunction> fns;
-	fns["describe_src"] = &describe_src;
-	fns["describe_dest"] = &describe_src;
-	fns["get_liid"] = &get_liid;
-	fns["get_context_id"] = &get_context_id;
-
-	// These are registered with lua as the 'cybermon' module.
-	register_module("cybermon", fns);
-
-	// Load the configuration file.
-	load_module(cfg);
-
-	// Transfer result from module to global variable 'config'.
-	set_global("config");
-
-    }
+    cybermon_lua(const std::string& cfg);
 
     // Push a cybermon context onto the LUA stack as light userdata.
     void push_cybermon_context(cybermon_context& c) {

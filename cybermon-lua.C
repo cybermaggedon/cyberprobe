@@ -34,6 +34,13 @@ int cybermon_lua::get_context_id(lua_State* lua)
     return 1;
 }
 
+int cybermon_lua::get_network_info(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    return h->cml->get_network_info(h);
+}
+
 void cybermon_lua::describe_src(cybermon_context* h)
 {
     std::ostringstream buf;
@@ -80,6 +87,32 @@ void cybermon_lua::get_context_id(cybermon_context* h)
 
     // Put Context ID on stack
     push(h->ctxt->get_id());
+
+}
+
+int cybermon_lua::get_network_info(cybermon_context* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    analyser::address src, dest;
+    analyser::engine::get_network_info(h->ctxt, src, dest);
+
+    tcpip::ip4_address x;
+    std::string a1, a2;
+
+    x.addr.assign(src.addr.begin(), src.addr.end());
+    x.to_string(a1);
+
+    x.addr.assign(dest.addr.begin(), dest.addr.end());
+    x.to_string(a2);
+
+    // Put address strings on stack
+    push(a1);
+    push(a2);
+
+    return 2;
 
 }
 
@@ -148,3 +181,26 @@ void cybermon_lua::data(analyser::engine& an, const analyser::context_ptr f,
     pop(1);
 
 }
+
+cybermon_lua::cybermon_lua(const std::string& cfg)
+{
+	
+    // C functions go in a map.
+    std::map<std::string,lua_CFunction> fns;
+    fns["describe_src"] = &describe_src;
+    fns["describe_dest"] = &describe_src;
+    fns["get_liid"] = &get_liid;
+    fns["get_context_id"] = &get_context_id;
+    fns["get_network_info"] = &get_network_info;
+
+    // These are registered with lua as the 'cybermon' module.
+    register_module("cybermon", fns);
+
+    // Load the configuration file.
+    load_module(cfg);
+
+    // Transfer result from module to global variable 'config'.
+    set_global("config");
+
+}
+

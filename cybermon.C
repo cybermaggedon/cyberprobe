@@ -117,33 +117,43 @@ void cybermon::operator()(const std::string& liid,
 
 int main(int argc, char** argv)
 {
-
-    if (argc != 3) {
+   
+ if (argc != 3) {
 	std::cerr << "Usage:" << "\tcybermon <port> <config>" << std::endl;
 	return 0;
     }
 
-    // Convert port argument to integer.
-    std::istringstream buf(argv[1]);
-    int port;
-    buf >> port;
+  
+    try {
 
-    // Get config file (Lua).
-    std::string config = argv[2];
+	// Convert port argument to integer.
+	std::istringstream buf(argv[1]);
+	int port;
+	buf >> port;
+	
+	// Get config file (Lua).
+	std::string config = argv[2];
+	
+	// Create the observer instance.
+	obs an(config);
+	
+	// Create the monitor instance, receives ETSI events, and processes
+	// data.
+	cybermon m(an);
 
-    // Create the observer instance.
-    obs an(config);
+	// Start an ETSI receiver.
+	etsi_li::receiver r(port, m);
+	r.start();
 
-    // Create the monitor instance, receives ETSI events, and processes
-    // data.
-    cybermon m(an);
+	// Wait forever.
+	r.join();
 
-    // Start an ETSI receiver.
-    etsi_li::receiver r(port, m);
-    r.start();
+    } catch (std::exception& e) {
+	
+	std::cerr << "Exception: " << e.what() << std::endl;
+	return 1;
 
-    // Wait forever.
-    r.join();
+    }
 
 }
 

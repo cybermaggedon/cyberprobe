@@ -265,7 +265,7 @@ void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
 
     else {
 	std::ostringstream buf;
-	buf << "IP protocol " << protocol << " not handled.";
+	buf << "IP protocol " << (int) protocol << " not handled.";
 	throw exception(buf.str());
     }
 

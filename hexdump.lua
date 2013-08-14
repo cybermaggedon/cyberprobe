@@ -1,3 +1,9 @@
+--
+-- Cybermon configuration file, used to tailor the behaviour of cybermon.
+--
+-- This configuration file configures cybermon to display a summary and
+-- hexdump of all observed data.
+--
 
 local observer = {}
 

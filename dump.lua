@@ -1,17 +1,24 @@
+--
+-- Cybermon configuration file, used to tailor the behaviour of cybermon.
+--
+-- This configuration file configures cybermon to dump all captured data to
+-- datadump.* files.
+--
 
 local observer = {}
 
-observer.seen = {}
+local seen = {}
 
+-- This isn't particular efficient - it keeps opening and closing files.
 observer.data = function(context, data)
   liid = cybermon.get_liid(context)
   id = cybermon.get_context_id(context)
 
   local fd
 
-  local path = "data/" .. id
+  local path = "datadump." .. id
 
-  if observer.seen[id] then
+  if seen[id] then
     fd = io.open(path, "a")
     io.write("Appending to " .. path .. "\n")
   else
@@ -19,7 +26,7 @@ observer.data = function(context, data)
     fd:write("Target %s\n", liid)
     fd:write(string.format("  %s -> %s\n\n", cybermon.describe_src(context),
              cybermon.describe_dest(context)))
-    observer.seen[id] = true
+    seen[id] = true
     io.write(string.format("Created file %s\n", path))
   end
 
