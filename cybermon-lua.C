@@ -188,7 +188,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     // C functions go in a map.
     std::map<std::string,lua_CFunction> fns;
     fns["describe_src"] = &describe_src;
-    fns["describe_dest"] = &describe_src;
+    fns["describe_dest"] = &describe_dest;
     fns["get_liid"] = &get_liid;
     fns["get_context_id"] = &get_context_id;
     fns["get_network_info"] = &get_network_info;

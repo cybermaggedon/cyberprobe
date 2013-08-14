@@ -6,7 +6,7 @@
 
 <style type="text/css">
 
-    body {  font: 10pt helvetica; background: white; }
+    body {  font: 11pt helvetica,sans-serif; background: white; }
 
     table { border-collapse: collapse; margin: 12px; }
     th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
@@ -25,39 +25,58 @@
 <h2>Table of contents</h2>
 
 <ul>
-<li><a href="index.html">Index</a></li>
+<li><a href="index.html">Overview</a></li>
 <li><a href="quickstart.html">Quick Start</a></li>
 <li><a href="config.html">Configuration</a></li>
 <li><a href="output.html">Output streaming protocols</a></li>
 <li><a href="management.html">Management interface</a></li>
 <li><a href="monitor.html">Cybermon</a></li>
+<li><a href="licence.html">Licence</a></li>
 </ul>
 
 <h2>Overview</h2>
 
-<p>The Cyberprobe project is:
-
-<ul>
-<li><p>A distributed architecture for real-time monitoring of networks against
-attack.</p></li>
-<li><p>A software-based probe, which collects packets from a set of
-network interfaces, and any packets which match on a address map are
-forwarded to an endpoint in a packet-streaming protocol.</p></li>
-<li><p>The approach of configuring the probe to receive alerts from
-snort. In this configuration, when an alert is received from Snort, the IP
-source address associated with the alert is dynamically targeted for a period
-of time.</p></li>
-<li><p>Simple monitoring software which studies the collected data and
-reports urgent threats which need to be investigated. (Bit of a work in progress at the moment).</p></li>
+<p>The Cyberprobe project is a distrbuted architecture for real-time
+monitoring of networks against attack.  The software consists of two
+components:
+<ul><li>a probe, which collects data packets and forwards it over a network in
+standard streaming protocols.</li>
+<li>a monitor, which receives the streamed packets, decodes the protocols,
+and interprets the information.</li>
 </ul>
-</p>
-
-<p>
-Cyberprobe also supports a management interface allow remote studying
-or alteration of configuration.
+These components can be used together or separately.
 </p>
 
 <img style="align: center" src="cyberprobe.png"/>
+
+<p>The probe, <code>cyberprobe</code> has the following features:
+<ul>
+<li>The probe can be tasked to collect packets from an interface and forward
+any which match a configurable address list.</li>
+<li>The probe can be configured to receive Snort alerts.
+In this configuration, when an alert is received from Snort, the IP
+source address associated with the alert is dynamically targeted for a period
+of time.</li>
+<li>The probe can be configured to have a management interface which allows
+remote interrogation of the state, and alteration of the configuration.</li>
+<li>The probe can be configured to deliver on one of two standard
+stream protocols.</li>
+</ul>
+</p>
+
+<p>The monitor tool, <code>cybermon</code> has the following features:
+<ul>
+<li>Collects packets delivered in stream protocols.</li>
+<li>Decodes packet protocols in near-real-time.</li>
+<li>Decoded information is made available to user-configurable logic to define
+how the decoded data is handled.  A simple configuration language is used
+(LUA) and example configurations are provided to monitor data volumes,
+display data hexdumps, or stash the data in files.
+</ul>
+</p>
+
+<p>The <code>cybermon</code> software is a bit of a work-in-progress at the
+moment, but there's enough capability to demonstrate the architecture.</p>
 
 <h2>Motivation</h2>
 
@@ -90,6 +109,13 @@ of data leaving your network from the credit card accounts database, then
 you know you need to act quickly.
 </p>
 
+<p>
+You need flexibility about how you monitor for network attacks.  There isn't
+a one-size-fits-all solution.  Attackers are ingenious in their approach to
+attacking your network, so you need to have a flexible, configurable
+monitoring tool to develop your defences.
+</p>
+
 <p>There's a war coming... The enemy is resourceful, they can use your 
 networks and systems as their own weapon.  But with the right tools, you
 can prepare a defence.  It's time to get ready for Cybermaggedon.
@@ -100,6 +126,8 @@ can prepare a defence.  It's time to get ready for Cybermaggedon.
 <p>Cyberprobe releases:</p>
 
 <table>
+<tr><td><code>0.12</code></td><td>Cybermon utility is configurable
+using LUA.</td></tr>
 <tr><td><code>0.11</code></td><td>Added basic cybermon utility.</td></tr>
 <tr><td><code>0.10</code></td><td>Added management interface.</td></tr>
 <tr><td><code>0.9</code></td><td>First release on SourceForge.</td></tr>
@@ -117,10 +145,6 @@ Usage:
 
 <pre>
     cyberprobe &lt;config-file>
-</pre>
-
-<pre>
-    cybermon &lt;port-number>
 </pre>
 
 <h2>Snort integration</h2>
@@ -189,7 +213,13 @@ delivery.</li>
 <li>The ETSI LI support is bare basics, for instance, doesn't support 
 keep-alive.</li>
 <li>The IPv6 matching has had little testing.</li>
+<li>Cybermon needs more protocol capability e.g. HTTP and SMTP support.</li>
 </ul>
+</p>
+
+<p>
+Suggestions, offers of code, help, etc. very welcome.  Get in touch if you'd 
+like to be involved!
 </p>
 
 </body>

@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>cyberprobe - monitoring</title>
+
+<style type="text/css">
+
+    body {  font: 10pt helvetica; background: white; }
+
+    table { border-collapse: collapse; margin: 12px; }
+    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
+    td { border: 1px solid black; padding: 6px; }
+
+    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
+
+    .xmlcomment { color: #4040ff; }
+
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe - Monitoring</h1>
+
+<h2>Table of contents</h2>
+
+<ul>
+<li><a href="index.html">Overview</a></li>
+<li><a href="quickstart.html">Quick Start</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="output.html">Output streaming protocols</a></li>
+<li><a href="management.html">Management interface</a></li>
+<li><a href="monitor.html">Cybermon</a></li>
+<li><a href="licence.html">Licence</a></li>
+</ul>
+
+<h2>Overview</h2>
+
+<p>Cybermon is a simple monitoring tool.  It receives the ETSI protocol,
+decodes the protocols, and makes decoded information available for
+further handling which you can specify.  The tool is very
+much a work in progress - it has limited protocol decode capability at the
+moment, but there's enough there to demonstrate the idea.
+</p>
+
+
+<h2>Usage</h2>
+
+<p>
+Usage:
+</p>
+
+<pre>
+    cybermon &lt;port-number> &lt;config-file>
+</pre>
+
+<p>You specify a port number to receive data on, and a configuration
+file written in LUA.  LUA is a simple but powerful scripting language.
+Here's an example to help you see how the configuration is used.
+</p>
+
+<h2>Example configuration</h2>
+
+<p>The configuration file is there to provide functions which get called
+when certain events occur.  The calling interface is fairly simple at the
+moment, and over time, expect to see a richer interface develop.
+</p>
+
+<p>To start with, we create the structure of the configuration file.
+Call it something with a <code>.lua</code> extension e.g.
+<code>config.lua</code> so that your editor knows how to indent the
+code.  The basic structure is a module which supplies two functions:
+</p>
+
+<pre>
+local observer = {}
+
+observer.data = function(context, data)
+  -- Stuff goes here
+end
+
+observer.trigger = function(liid, addr)
+  -- Stuff goes here
+end
+
+return observer
+</pre>
+
+<p>
+The <code>trigger</code> function is called whenever cyberprobe
+detects an attacker coming on stream, either by activity against one of the
+targeted addresses, or by a Snort rule firing.  So, let's get that to fire
+up a message...
+</p>
+
+<pre>
+observer.trigger = function(liid, addr)
+  io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+end
+</pre>
+
+<p>
+Now, the <code>data</code> function is called whenever cybermon decodes
+some data from a protocol.  TCP, UDP and ICMP are currently processed.
+Whenever a datagram, or segment of TCP is detected, the <code>data</code>
+function is called with the data payload.  This code will print a summary,
+but ignore the data payload.
+
+<pre>
+observer.data = function(context, data)
+
+  -- Get the LIID
+  local liid = cybermon.get_liid(context)
+
+  -- This gets a (vaguely) human readable description of the source and
+  -- destination protocol stacks.
+  local src = cybermon.describe_src(context)
+  local dest = cybermon.describe_dest(context)
+
+  -- Write out the information on standard output.
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", src, dest))
+  io.write("\n")
+
+end
+</pre>
+
+<p>
+Whenever packet data flows over the network, this configuration file
+displays summary information like this:
+
+<pre>
+Target SNORTadc229a6:
+  /IPv4 173.194.41.166/TCP 80 -> /IPv4 192.168.1.80/TCP 36061
+</pre>
+
+<p>The distribution contains four examples, for summarising, hex-dumping and
+storing the data in files.  Look at the <code>*.lua</code> files in the
+distribution.  The <code>monitor.lua</code> example tracks data and reports
+if it sees a considerable amount of data going to a flagged IP address.
+</p>
+
+<p>For completeness, here's the complete example we worked through above:</p>
+
+<pre>
+--
+-- Cybermon configuration file, used to tailor the behaviour of cybermon.
+--
+-- This configuration file configures cybermon to display a summary of all
+-- observered events.  This should serve as a template.
+--
+
+-- This file is a module, so you need to create a table, which will be
+-- returned to the calling environment.  It doesn't matter what you call it.
+local observer = {}
+
+-- The table should contain functions.  We currently use: data, trigger.
+
+-- This function is called when a data transfer occurs.  Context information
+-- is contained in 'context', and 'data' is a string, containing the packet
+-- data.
+observer.data = function(context, data)
+
+  -- Get the LIID
+  local liid = cybermon.get_liid(context)
+
+  -- This gets a (vaguely) human readable description of the source and
+  -- destination protocol stacks.
+  local src = cybermon.describe_src(context)
+  local dest = cybermon.describe_dest(context)
+
+  -- Write out the information on standard output.
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", src, dest))
+  io.write("\n")
+
+end
+
+-- This function is called when the address of an attacker has been
+-- identified.
+observer.trigger = function(liid, addr)
+  io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+end
+
+-- Return the table
+return observer
+</pre>
+
+<h2>Reference</h2>
+
+<p>The configuration file is expected to provide the following functions:
+</p>
+
+<table>
+<tr><th>Function</th><th>Description</th></tr>
+<tr><td><code>observer.trigger(liid, address)</code></td><td>Called
+when an attacker is seen coming on-stream.  The <code>liid</code>
+liid parameters describes the target ID, and <code>address</code> contains
+the IP address in string form. </td></tr>
+<tr><td><code>observer.data(context, data)</code></td><td>Called
+when data is seen to transfer.  The <code>data</code> parameter is a string
+containing the decoded data e.g. data from a TCP stream.  The
+<code>context</code> parameter is a LUA userdata variable which can't be access
+directly, but can be used with the functions described below to access further
+information.
+</td></tr>
+</table>
+
+<p>From the LUA code there, are a number of functions which can be called:
+</p>
+
+<table>
+<tr><th>Function</th><th>Description</th></tr>
+<tr><td><code>cybermon.describe_src(context)</code></td><td>Returns a human readable
+description of the protocol stack using source addresses.</td></tr>
+<tr><td><code>cybermon.describe_dest(context)</code></td><td>Returns a human readable
+description of the protocol stack using destination addresses.</td></tr>
+<tr><td><code>cybermon.get_liid(context)</code></td><td>Returns the LIID.</td></tr>
+<tr><td><code>cybermon.get_context_id(context)</code></td><td>Returns a 
+unique ID for the context.  All contexts have an ID which uniquely identifies
+each TCP stream or UDP datagram pair.</td></tr>
+<tr><td><code>cybermon.get_network_info(context)</code></td><td>Returns two
+variables: the source and destination network addresses (IP addresses)
+for this data.  These are in normal IP address string format.</td></tr>
+
+</body>
+
+</html>
+
