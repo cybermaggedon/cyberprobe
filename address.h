@@ -29,6 +29,7 @@ namespace analyser {
     
     // The purpose served by the address.
     enum purpose {
+	ROOT,                   // Root context
 	NOT_SPECIFIED,		// Not specified.
 	LINK,			// Link layer address.
 	NETWORK,		// Network layer address.

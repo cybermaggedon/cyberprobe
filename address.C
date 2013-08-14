@@ -12,6 +12,10 @@ using namespace analyser;
 void address::describe(std::ostream& out)
 {
 
+    if (layer == ROOT) {
+	return;
+    }
+
     if (proto == NO_PROTOCOL) {
 	out << "No protocol";
 	return;

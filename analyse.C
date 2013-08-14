@@ -25,13 +25,24 @@ class obs : public analyser::engine {
 public:
     void data(const analyser::context_ptr f, analyser::pdu_iter s, 
 	      analyser::pdu_iter e);
+    virtual void trigger(const std::string& liid,
+			 const tcpip::address& trigger_address);
 };
+
+void obs::trigger(const std::string& liid,
+		  const tcpip::address& trigger_address)
+{
+    std::cerr << "Attacker " << liid << " discovered at " << trigger_address
+	      << std::endl;
+}
 
 void obs::data(const analyser::context_ptr f, analyser::pdu_iter s, 
 	       analyser::pdu_iter e)
 {
 
-    describe(f, std::cout);
+    describe_src(f, std::cout);
+    std::cout << " -> ";
+    describe_dest(f, std::cout);
     std::cout << std::endl;
 
     hexdump::dump(s, e, std::cout);
@@ -53,10 +64,12 @@ void an::handle(unsigned long len, unsigned long captured,
 
 	std::vector<unsigned char> v;
 	v.assign(f + 14, f + len);
-	analyser::context_ptr c = e.get_root_context("123456");
+
+	// FIXME: Hard-coded?!
+	std::string liid = "123456";
 
 //	try {
-	    e.process(c, v.begin(), v.end());
+	    e.process(liid, v.begin(), v.end());
 //	} catch (std::exception& e) {
 //	    std::cerr << "Packet not processed: " << e.what() << std::endl;
 //	}

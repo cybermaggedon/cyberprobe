@@ -129,6 +129,10 @@ namespace analyser {
 	    c->liid = liid;
 	    return context_ptr(c);
 	}
+	root_context() {
+	    addr.src.layer = ROOT;
+	    addr.dest.layer = ROOT;
+	}
 	void set_trigger_address(const tcpip::address& a) {
 	    if (a.universe == a.ipv4) {
 		if (a.addr.size() == 4)

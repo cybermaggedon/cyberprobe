@@ -17,7 +17,8 @@ cyberprobe: ${CYBERPROBE_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERPROBE_OBJECTS} -o $@ -lpcap -lpthread -lexpat
 
 cybermon: ${CYBERMON_OBJECTS}
-	${CXX} ${CXXFLAGS} ${CYBERMON_OBJECTS} -o $@ -lpcap -lpthread -lexpat
+	${CXX} ${CXXFLAGS} ${CYBERMON_OBJECTS} -o $@ -lpcap -lpthread -lexpat \
+		-llua
 
 analyse: ${ANALYSE_OBJECTS}
 	${CXX} ${CXXFLAGS} ${ANALYSE_OBJECTS} -o $@ -lpcap -lpthread -lexpat
