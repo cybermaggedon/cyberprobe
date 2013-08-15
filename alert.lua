@@ -49,8 +49,12 @@ observer.data = function(context, data)
 
 end
 
-observer.trigger = function(liid, addr)
+observer.trigger_up = function(liid, addr)
   io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+end
+
+observer.trigger_down = function(liid)
+  io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
 print("Configuration loaded")

@@ -79,7 +79,11 @@ observer.data = function(context, data)
   -- Stuff goes here
 end
 
-observer.trigger = function(liid, addr)
+observer.trigger_up = function(liid, addr)
+  -- Stuff goes here
+end
+
+observer.trigger_down = function(liid)
   -- Stuff goes here
 end
 
@@ -87,15 +91,19 @@ return observer
 </pre>
 
 <p>
-The <code>trigger</code> function is called whenever cyberprobe
-detects an attacker coming on stream, either by activity against one of the
-targeted addresses, or by a Snort rule firing.  So, let's get that to fire
-up a message...
+The <code>trigger_up</code> and <code>trigger_down</code>functions are called
+whenever cyberprobe detects an attacker coming on-stream, or going off-stream
+either by addition of a target rule, or by a Snort rule firing.  So, let's get
+those to fire out messages...
 </p>
 
 <pre>
-observer.trigger = function(liid, addr)
+observer.trigger_up = function(liid, addr)
   io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+end
+
+observer.trigger_down = function(liid)
+  io.write(string.format("Target %s gone off air\n\n", liid))
 end
 </pre>
 
@@ -154,7 +162,8 @@ if it sees a considerable amount of data going to a flagged IP address.
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
 
--- The table should contain functions.  We currently use: data, trigger.
+-- The table should contain functions.  We currently use: data, trigger_up,
+-- trigger_down.
 
 -- This function is called when a data transfer occurs.  Context information
 -- is contained in 'context', and 'data' is a string, containing the packet
@@ -178,8 +187,13 @@ end
 
 -- This function is called when the address of an attacker has been
 -- identified.
-observer.trigger = function(liid, addr)
+observer.trigger_up = function(liid, addr)
   io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+end
+
+-- This function is called when a known attacker goes off the air
+observer.trigger_down = function(liid)
+  io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
 -- Return the table
@@ -193,10 +207,13 @@ return observer
 
 <table>
 <tr><th>Function</th><th>Description</th></tr>
-<tr><td><code>observer.trigger(liid, address)</code></td><td>Called
+<tr><td><code>observer.trigger_up(liid, address)</code></td><td>Called
 when an attacker is seen coming on-stream.  The <code>liid</code>
-liid parameters describes the target ID, and <code>address</code> contains
+parameter describes the target ID, and <code>address</code> contains
 the IP address in string form. </td></tr>
+<tr><td><code>observer.trigger_down(liid)</code></td><td>Called
+when an attacker is seen going off-stream.  The <code>liid</code>
+parameter describes the target ID.</td></tr>
 <tr><td><code>observer.data(context, data)</code></td><td>Called
 when data is seen to transfer.  The <code>data</code> parameter is a string
 containing the decoded data e.g. data from a TCP stream.  The

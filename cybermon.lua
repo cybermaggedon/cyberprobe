@@ -9,7 +9,8 @@
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
 
--- The table should contain functions.  We currently use: data, trigger.
+-- The table should contain functions.  We currently use: data, trigger,
+-- trigger_down.
 
 -- This function is called when a data transfer occurs.  Context information
 -- is contained in 'context', and 'data' is a string, containing the packet
@@ -38,7 +39,7 @@ observer.trigger_up = function(liid, addr)
 end
 
 -- This function is called when a known attacker goes off the air
-observer.trigger_down = function(liid, addr)
+observer.trigger_down = function(liid)
   io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
