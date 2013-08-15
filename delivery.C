@@ -90,7 +90,7 @@ bool delivery::ipv4_match(const_iterator& start,
     daddr.addr.assign(start + 16, start + 20);
 
     // Get the target map lock.
-    lock.lock();
+    targets_lock.lock();
 
     // Find a match against the source or destination IP address.
     std::map<tcpip::ip4_address, std::string>::const_iterator it;
@@ -100,7 +100,7 @@ bool delivery::ipv4_match(const_iterator& start,
 	
     // If no match, then ignore the packet.
     if (it == targets.end()) {
-	lock.unlock();
+	targets_lock.unlock();
 	return false;
     }
 	
@@ -109,7 +109,7 @@ bool delivery::ipv4_match(const_iterator& start,
     hit = it->first;
     liid = it->second;
 
-    lock.unlock();
+    targets_lock.unlock();
 
     return true;
 
@@ -132,7 +132,7 @@ bool delivery::ipv6_match(const_iterator& start,
     daddr.addr.assign(start + 24, start + 40);
 
     // Get the target map lock.
-    lock.lock();
+    targets_lock.lock();
 
     // Find a match against the source or destination IP address.
     std::map<tcpip::ip6_address, std::string>::const_iterator it;
@@ -142,7 +142,7 @@ bool delivery::ipv6_match(const_iterator& start,
 
     // If no match, then ignore the packet.
     if (it == targets6.end()) {
-	lock.unlock();
+	targets_lock.unlock();
 	return false;
     }
     // At this point 'it' definitely points at a target entry.
@@ -150,7 +150,7 @@ bool delivery::ipv6_match(const_iterator& start,
     hit = it->first;
     liid = it->second;
 
-    lock.unlock();
+    targets_lock.unlock();
 
     return true;
 
@@ -190,8 +190,8 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	// No target match?
 	if (!match) return;
 
-	// Get the target map lock.
-	lock.lock();
+	// Get the senders list lock.
+	senders_lock.lock();
 
 	// Now invoke destinations, and send packet to destinations.
 	for(std::map<ep,sender*>::iterator it = senders.begin();
@@ -201,7 +201,7 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	}
 	
 	// Unlock, we're done.
-	lock.unlock();
+	senders_lock.unlock();
 
     }
 
@@ -217,8 +217,8 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	// No target match?
 	if (!match) return;
 
-	// Get the target map lock.
-	lock.lock();
+	// Get the senders list lock.
+	senders_lock.lock();
 
 	// Now invoke destinations, and send packet to destinations.
 	for(std::map<ep,sender*>::iterator it = senders.begin();
@@ -228,7 +228,7 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	}
 	
 	// Unlock, we're done.
-	lock.unlock();
+	senders_lock.unlock();
 
     }
 
@@ -240,7 +240,7 @@ void delivery::add_interface(const std::string& iface,
 			     int delay) 
 {
     
-    lock.lock();
+    interfaces_lock.lock();
     
     intf i;
     i.interface = iface;
@@ -264,11 +264,11 @@ void delivery::add_interface(const std::string& iface,
 	interfaces[i] = c;
 
     } catch (std::exception& e) {
-	lock.unlock();
+	interfaces_lock.unlock();
 	throw e;
     }
 
-    lock.unlock();
+    interfaces_lock.unlock();
 
 }
 
@@ -278,7 +278,7 @@ void delivery::remove_interface(const std::string& iface,
 				int delay)
 {
 
-    lock.lock();
+    interfaces_lock.lock();
 
     intf i;
     i.interface = iface;
@@ -290,7 +290,7 @@ void delivery::remove_interface(const std::string& iface,
 	interfaces.erase(i);
     }
 
-    lock.unlock();
+    interfaces_lock.unlock();
 
 }
 
@@ -299,7 +299,7 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 
     ii.clear();
     
-    lock.lock();
+    interfaces_lock.lock();
     
     for(std::map<intf,capture_dev*>::iterator it = interfaces.begin();
 	it != interfaces.end();
@@ -311,7 +311,7 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 	ii.push_back(inf);
     }
     
-    lock.unlock();
+    interfaces_lock.unlock();
 
 }
 
@@ -320,7 +320,8 @@ void delivery::add_target(const tcpip::address& addr,
 			  const std::string& liid) 
 {
 
-    lock.lock();
+    targets_lock.lock();
+
     if (addr.universe == addr.ipv4) {
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
@@ -330,24 +331,59 @@ void delivery::add_target(const tcpip::address& addr,
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
 	targets6[a] = liid;
     }
-    lock.unlock();
+
+    // Tell all senders, target up.
+    senders_lock.lock();
+    for(std::map<ep,sender*>::iterator it = senders.begin();
+	it != senders.end();
+	it++) {
+	it->second->target_up(liid, addr);
+    }
+    senders_lock.unlock();
+
+    targets_lock.unlock();
 
 }
 
 // Removes a target mapping.
 void delivery::remove_target(const tcpip::address& addr) 
 {
-    lock.lock();
+    
+    targets_lock.lock();
+
+    std::string liid;
+
     if (addr.universe == addr.ipv4) {
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
+
+	// Tell all senders, target down.
+	senders_lock.lock();
+	for(std::map<ep,sender*>::iterator it = senders.begin();
+	    it != senders.end();
+	    it++) {
+	    it->second->target_down(targets[a]);
+	}
+	senders_lock.unlock();
+
 	targets.erase(a);
     } else {
 	const tcpip::ip6_address& a =
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
+
+	// Tell all senders, target down.
+	senders_lock.lock();
+	for(std::map<ep,sender*>::iterator it = senders.begin();
+	    it != senders.end();
+	    it++) {
+	    it->second->target_down(targets6[a]);
+	}
+	senders_lock.unlock();
+
 	targets6.erase(a);
     }
-    lock.unlock();
+
+    targets_lock.unlock();
 
 }
 
@@ -363,7 +399,8 @@ void delivery::get_targets(std::map<tcpip::ip4_address, std::string>& t4,
 void delivery::add_endpoint(const std::string& host, unsigned int port,
 			    const std::string& type) 
 {
-    lock.lock();
+
+    senders_lock.lock();
     
     ep e;
     e.hostname = host;
@@ -377,17 +414,18 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
     }
 
     if (type == "nhis1.1") {
-	// FIXME: Constructor could handle host and port.
 	s = new nhis11_sender(host, port, *this);
     } else if (type == "etsi") {
 	s = new etsi_li_sender(host, port, *this);
-    } else
+    } else {
+	senders_lock.unlock();
 	throw std::runtime_error("Endpoint type not known.");
+    }
 
     s->start();
     senders[e] = s;
 
-    lock.unlock();
+    senders_lock.unlock();
 }
 
 // Removes an endpoint
@@ -395,7 +433,7 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 			       const std::string& type)
 
 {
-    lock.lock();
+    senders_lock.lock();
 
     ep e;
     e.hostname = host;
@@ -407,7 +445,7 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 	senders.erase(e);
     }
 
-    lock.unlock();
+    senders_lock.unlock();
 
 }
 
@@ -415,7 +453,7 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 void delivery::get_endpoints(std::list<sender_info>& info) 
 {
 
-    lock.lock();
+    senders_lock.lock();
 
     info.clear();
     for(std::map<ep,sender*>::iterator it = senders.begin();
@@ -426,6 +464,6 @@ void delivery::get_endpoints(std::list<sender_info>& info)
 	info.push_back(inf);
     }
 
-    lock.unlock();
+    senders_lock.unlock();
 
 }

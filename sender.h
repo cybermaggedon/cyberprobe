@@ -50,6 +50,15 @@ class sender : public threads::thread {
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
+    // Hints about targets coming on/off-stream
+    virtual void target_up(const std::string& liid, const tcpip::address& hit) {
+	std::cerr << "LIID " << liid << " is up." << std::endl;
+    }
+
+    virtual void target_down(const std::string& liid) {
+	std::cerr << "LIID " << liid << " is down." << std::endl;
+    }
+
     // Called to push a packet down the sender transport.
     void deliver(const std::string& liid,
 		 const_iterator& start,

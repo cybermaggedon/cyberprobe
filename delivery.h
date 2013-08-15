@@ -82,18 +82,19 @@ class delivery : public parameters, public management, public packet_consumer {
   private:
     
     // Lock for senders and targets maps.
-    threads::mutex lock;
+    //threads::mutex lock;
 
     // Targets : an IP address to LIID mapping.
-    std::map<tcpip::ip4_address, std::string> targets;
-
-    // Targets : an IP address to LIID mapping.
-    std::map<tcpip::ip6_address, std::string> targets6;
+    threads::mutex targets_lock;
+    std::map<tcpip::ip4_address, std::string> targets;   // IPv4
+    std::map<tcpip::ip6_address, std::string> targets6;  // IPv6
 
     // Endpoints
+    threads::mutex senders_lock;
     std::map<ep, sender*> senders;
 
     // Interfaces
+    threads::mutex interfaces_lock;
     std::map<intf, capture_dev*> interfaces;
 
     // Parameters and lock
