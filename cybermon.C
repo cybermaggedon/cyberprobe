@@ -136,6 +136,8 @@ int main(int argc, char** argv)
 	
 	// Create the observer instance.
 	obs an(config);
+
+	an.start();
 	
 	// Create the monitor instance, receives ETSI events, and processes
 	// data.

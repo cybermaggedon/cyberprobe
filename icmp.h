@@ -9,10 +9,12 @@ namespace analyser {
     
     // ICMP context.  No address information, just flagging the presence of
     // ICMP.
-    class icmp_context : public transport_context {
-      public:
-	icmp_context() {}
-        icmp_context(const flow& a, context_ptr p) { addr = a; parent = p; }
+    class icmp_context : public context {
+    public:
+        icmp_context(watcher& w) : context(w) {}
+        icmp_context(watcher& w, const flow& a, context_ptr p) : context(w) {
+	    addr = a; parent = p; 
+	}
 	virtual std::string get_type() { return "udp"; }
     };
     

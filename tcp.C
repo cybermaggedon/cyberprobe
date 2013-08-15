@@ -28,12 +28,19 @@ void tcp::process(engine& eng, context_ptr c,
 
     flow f(src, dest);
 
+    // FIXME: Locking.
+    // FIXME: Race condition on get_context once locking is fixed.
+
     context_ptr fc = c->get_context(f);
 
     if (fc.get() == 0) {
-	fc = context_ptr(new tcp_context(f, c));
+	fc = context_ptr(new tcp_context(eng, f, c));
 	c->add_child(f, fc);
     }
+
+    // Set / update TTL on the context.
+    // 120 seconds.
+    fc->set_ttl(context::default_ttl);
 
     tcp_context& tc = dynamic_cast<tcp_context&>(*fc);
 

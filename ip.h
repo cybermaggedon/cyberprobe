@@ -52,7 +52,7 @@ namespace analyser {
     typedef std::list<fragment*> fragment_list;
 
     // IPv4 context
-    class ip4_context : public network_context {
+    class ip4_context : public context {
 
 	friend ip;
 
@@ -73,10 +73,10 @@ namespace analyser {
       public:
 
 	// Constructor.
-	ip4_context() {}
+        ip4_context(watcher& w) : context(w) {}
 
 	// Constructor, specifying flow address and parent.
-        ip4_context(const flow& a, context_ptr par) { 
+        ip4_context(watcher& w, const flow& a, context_ptr par) : context(w) { 
 	    parent = par;
 	    addr = a; 
 	}

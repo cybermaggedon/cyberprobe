@@ -13,7 +13,10 @@ context_ptr engine::get_root_context(const std::string& liid)
     context_ptr c;
 
     if (contexts.find(liid) == contexts.end()) {
-	c = root_context::create(liid);
+	c = context_ptr(new root_context(w));
+	
+	root_context* rp = dynamic_cast<root_context*>(c.get());
+	rp->set_liid(liid);
 	contexts[liid] = c;
     } else
 	c = contexts[liid];

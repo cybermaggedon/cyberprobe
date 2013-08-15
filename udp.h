@@ -14,14 +14,16 @@
 namespace analyser {
     
     // A UDP context.
-    class udp_context : public transport_context {
+    class udp_context : public context {
       public:
 	
 	// Construcotr.
-	udp_context() {}
+        udp_context(watcher& w) : context(w) {}
 
 	// Constructor, when specifying flow address and parent context.
-        udp_context(const flow& a, context_ptr p) { addr = a; parent = p; }
+        udp_context(watcher& w, const flow& a, context_ptr p) : context(w) { 
+	    addr = a; parent = p; 
+	}
 
 	// Type is "udp".
 	virtual std::string get_type() { return "udp"; }

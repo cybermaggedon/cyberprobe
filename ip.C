@@ -48,9 +48,13 @@ void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     // Get the IP context.
     context_ptr fc = c->get_context(f);
     if (fc.get() == 0) {
-	fc = context_ptr(new ip4_context(f, c));
+	fc = context_ptr(new ip4_context(eng, f, c));
 	c->add_child(f, fc);
     }
+
+    // Set / update TTL on the context.
+    // 120 seconds.
+    fc->set_ttl(context::default_ttl);
 
     ip4_context& ifc = *(dynamic_cast<ip4_context*>(fc.get()));
 

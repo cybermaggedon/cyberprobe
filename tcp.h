@@ -27,7 +27,7 @@ namespace analyser {
     };
     
     // A TCP context.
-    class tcp_context : public transport_context {
+    class tcp_context : public context {
       public:
 
 	bool syn_observed;
@@ -41,12 +41,12 @@ namespace analyser {
 	std::set<tcp_segment> segments;
 	
 	// Constructor.
-	tcp_context() {
+        tcp_context(watcher& w) : context(w) {
 	    syn_observed = false;
 	}
 
 	// Constructor, describing flow address and parent pointer.
-        tcp_context(const flow& a, context_ptr p) { 
+    tcp_context(watcher& w, const flow& a, context_ptr p) : context(w) { 
 	    addr = a; parent = p; 
 	    syn_observed = false;
 	}

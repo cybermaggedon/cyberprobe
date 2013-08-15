@@ -34,8 +34,8 @@ namespace analyser {
 
     // Packet analysis engine.  Designed to be sub-classed, caller should
     // implement the 'observer' interface.
-    class engine : public observer {
-      private:
+    class engine : public observer, public reaper {
+    private:
 
 	// Lock for all state.
 	threads::mutex lock;
@@ -48,10 +48,13 @@ namespace analyser {
 	// data to process.
 	void process(context_ptr c, pdu_iter s, pdu_iter e);
 
-      public:
+	// Reaper, tidies things up when they get old.
+	reaper w;
+
+    public:
 
 	// Constructor.
-	engine() { }
+        engine() { }
 
 	// Destructor.
 	virtual ~engine() {}
@@ -90,7 +93,8 @@ namespace analyser {
 
 	// Utility function, given a context, iterates up through the parent
 	// pointers, returning a list of contexts (including 'p').
-	static void get_context_stack(context_ptr p, std::list<context_ptr>& l) {
+	static void get_context_stack(context_ptr p, 
+				      std::list<context_ptr>& l) {
 	    while (p) {
 		l.push_front(p);
 		p = p->parent.lock();

@@ -13,6 +13,7 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+#include <sstream>
 
 #include "socket.h"
 #include "thread.h"
@@ -21,12 +22,13 @@
 #include "address.h"
 #include "flow.h"
 #include "exception.h"
+#include "reaper.h"
 
 namespace analyser {
 
     // Context ID type.
     typedef unsigned long context_id;
-
+    
     // Forward declarations.
     class context;
     class root_context;
@@ -36,18 +38,25 @@ namespace analyser {
 
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.
-    class context {
+    class context : public reapable {
       private:
 
 	// Next context ID to hand out.
 	static context_id next_context_id;
+	static unsigned long total_contexts;
 	
 	// This context's ID.
 	context_id id;
 
       protected:
 
+	// Watcher, tidies things up when they get old.
+	watcher& w;
+
       public:
+
+	// Default time-to-live.
+	static const int default_ttl = 10;
 
 	// The flow address.
 	flow addr;
@@ -63,15 +72,17 @@ namespace analyser {
 	std::map<flow,context_ptr> children;
 
 	// Constructor.
-	context() { 
+        context(watcher& w) : reapable(w), w(w) { 
 	    id = next_context_id++; 
+	    total_contexts++;
 	    // parent is initialised to 'null'.
 	}
 
 	// Constructor, initialises parent pointer.
-	context(context_ptr parent) { 
+        context(watcher& w, context_ptr parent) : reapable(w), w(w) { 
 	    id = next_context_id++; 
 	    this->parent = parent;
+	    total_contexts++;
 	}
 
 	// Given a flow address, returns the child context.
@@ -100,7 +111,10 @@ namespace analyser {
 	}
 
 	// Destructor.
-	virtual ~context() {}
+	virtual ~context() { 
+	    total_contexts--;
+	    std::cerr << "Total contexts = " << total_contexts << std::endl;
+	}
 
 	// Returns constructor ID.
 	// FIXME: Is it used?
@@ -109,13 +123,27 @@ namespace analyser {
 	// Returns a context 'type'.
 	virtual std::string get_type() = 0;
 
+	// Delete myself.
+	void reap() {
+
+	    // Erase myself from my parent's child map.
+	    // Should call my destructor, I guess.
+	    context_ptr p = parent.lock();
+	    if (p)
+		p->children.erase(addr);
+
+	}
+
     };
 
     // 'Root' context.  Root of a protocol stack, describes why that protocol
     // stack exists.  Basically reason for acquiring the data, indicated by
     // the LIID.
     class root_context : public context {
-      private:
+    private:
+
+	// Don't set TTL on this, currently.  It's lifetime is managed by
+	// the engine class.
 	
 	// LIID.
 	std::string liid;
@@ -124,12 +152,12 @@ namespace analyser {
 	address trigger_address;
 
       public:
-	static context_ptr create(const std::string& liid) {
-	    root_context* c = new root_context();
-	    c->liid = liid;
-	    return context_ptr(c);
-	}
-	root_context() {
+	/* static context_ptr create(const std::string& liid) { */
+	/*     root_context* c = new root_context(); */
+	/*     c->liid = liid; */
+	/*     return context_ptr(c); */
+	/* } */
+       root_context(watcher& w) : context(w) {
 	    addr.src.layer = ROOT;
 	    addr.dest.layer = ROOT;
 	}
@@ -150,13 +178,11 @@ namespace analyser {
 	    return liid;
 	}
 
-	virtual std::string get_type() { return "root"; }
-    };
-    
-    class network_context : public context {
-    };
+	void set_liid(const std::string& l) {
+	    liid = l;
+	}
 
-    class transport_context : public context {
+	virtual std::string get_type() { return "root"; }
     };
 
 };
