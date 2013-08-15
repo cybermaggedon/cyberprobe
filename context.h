@@ -113,7 +113,6 @@ namespace analyser {
 	// Destructor.
 	virtual ~context() { 
 	    total_contexts--;
-	    std::cerr << "Total contexts = " << total_contexts << std::endl;
 	}
 
 	// Returns constructor ID.
@@ -157,10 +156,11 @@ namespace analyser {
 	/*     c->liid = liid; */
 	/*     return context_ptr(c); */
 	/* } */
-       root_context(watcher& w) : context(w) {
+        root_context(watcher& w) : context(w) {
 	    addr.src.layer = ROOT;
 	    addr.dest.layer = ROOT;
 	}
+	virtual ~root_context() {}
 	void set_trigger_address(const tcpip::address& a) {
 	    if (a.universe == a.ipv4) {
 		if (a.addr.size() == 4)

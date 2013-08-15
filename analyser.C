@@ -26,6 +26,13 @@ context_ptr engine::get_root_context(const std::string& liid)
     return c;
 }
 
+void engine::close_root_context(const std::string& liid)
+{
+    lock.lock();
+    contexts.erase(liid);
+    lock.unlock();
+}
+
 void engine::process(context_ptr c, pdu_iter s, pdu_iter e)
 {
     ip::process(*this, c, s, e);

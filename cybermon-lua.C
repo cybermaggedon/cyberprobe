@@ -142,24 +142,43 @@ int cybermon_lua::get_trigger_info(cybermon_context* h)
 
 }
 
-// Call the config.trigger function as trigger(liid, addr)
-void cybermon_lua::trigger(const std::string& liid, const tcpip::address& a)
+// Call the config.trigger_up function as trigger_up(liid, addr)
+void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
 {
  
     // Get information stored about the attacker.
     std::string ta;
     a.to_string(ta);
 
-    // Get observer.trigger
+    // Get observer.trigger_up
     lua_getfield(lua, LUA_GLOBALSINDEX, "config");
-    lua_getfield(lua, -1, "trigger");
+    lua_getfield(lua, -1, "trigger_up");
     
     // Put liid on stack
     lua_pushstring(lua, liid.c_str());
     lua_pushstring(lua, ta.c_str());
 	
-    // observer.data(context, data)
+    // observer.trigger_up(liid, addr)
     lua_call(lua, 2, 0);
+
+    // Still got 'observer' left on stack, it can go.
+    lua_pop(lua, 1); 
+
+}
+
+// Call the config.trigger_down function as trigger_down(liid, addr)
+void cybermon_lua::trigger_down(const std::string& liid)
+{
+
+    // Get observer.trigger_down
+    lua_getfield(lua, LUA_GLOBALSINDEX, "config");
+    lua_getfield(lua, -1, "trigger_down");
+    
+    // Put liid on stack
+    lua_pushstring(lua, liid.c_str());
+	
+    // observer.trigger_down(liid)
+    lua_call(lua, 1, 0);
 
     // Still got 'observer' left on stack, it can go.
     lua_pop(lua, 1); 

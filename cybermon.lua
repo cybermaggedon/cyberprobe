@@ -33,8 +33,13 @@ end
 
 -- This function is called when the address of an attacker has been
 -- identified.
-observer.trigger = function(liid, addr)
+observer.trigger_up = function(liid, addr)
   io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+end
+
+-- This function is called when a known attacker goes off the air
+observer.trigger_down = function(liid, addr)
+  io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
 -- Return the table

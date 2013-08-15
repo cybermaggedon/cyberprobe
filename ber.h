@@ -58,7 +58,9 @@ namespace ber {
 		    return *it;
 	    }
 
-	    throw std::out_of_range("No PDU with that tag.");
+	    std::ostringstream buf;
+	    buf << "No PDU with tag " << tag;
+	    throw std::out_of_range(buf.str());
 
 	}
 

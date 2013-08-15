@@ -28,8 +28,9 @@ namespace analyser {
     public:
 	virtual void data(const context_ptr cp, 
 			  pdu_iter s, pdu_iter e) = 0;
-	virtual void trigger(const std::string& liid,
-			     const tcpip::address& trigger_address) = 0;
+	virtual void trigger_up(const std::string& liid,
+				const tcpip::address& trigger_address) = 0;
+	virtual void trigger_down(const std::string& liid) = 0;
     };
 
     // Packet analysis engine.  Designed to be sub-classed, caller should
@@ -73,8 +74,8 @@ namespace analyser {
 	    process(c, s, e);
 	}
 
-	// Called when attacker is discovered.
-	void discovered(const std::string& liid,
+	// Called when attacker is detected.
+	void target_up(const std::string& liid,
 			const tcpip::address& addr) {
 
 	    // Get the root context for this LIID.
@@ -87,7 +88,17 @@ namespace analyser {
 	    rc.set_trigger_address(addr);
 
 	    // This is a reportable event.
-	    trigger(liid, addr);
+	    trigger_up(liid, addr);
+
+	}
+
+	// Called when attacker goes off the air.
+	void target_down(const std::string& liid) {
+
+	    close_root_context(liid);
+
+	    // This is a reportable event.
+	    trigger_down(liid);
 
 	}
 

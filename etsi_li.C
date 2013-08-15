@@ -563,8 +563,10 @@ void mux::target_disconnect(const std::string& liid,     // LIID
 {
 
     // Bail if we haven't connected this LIID.
-    if (seq.find(liid) == seq.end())
-	throw std::runtime_error("LIID is not connected.");
+    if (seq.find(liid) == seq.end()) {
+	// This isn't right, but silently ignore.
+	return;
+    }
 
     // Describes a connection stop.
     transport.ia_acct_stop(liid, oper, seq[liid]++, cin[liid],
@@ -587,8 +589,11 @@ void mux::target_ip(const std::string& liid,               // LIID
 
 
     // Bail if we haven't connected this LIID.
-    if (seq.find(liid) == seq.end())
-	throw std::runtime_error("LIID is not connected.");
+    if (seq.find(liid) == seq.end()) {
+	// This isn't right, but cope with it anyway.
+	seq[liid] = 0;
+	cin[liid] = next_cin++;
+    }
 
     // Describes the IP packet.
     transport.send_ip(liid, oper, seq[liid]++, cin[liid],
@@ -691,6 +696,10 @@ void connection::run()
 
 		    try {
 
+			std::vector<unsigned char> ip_addr;
+			long iritype;
+			int accesseventtype = -1;
+
 			// IRI case
 			std::list<ber::berpdu> seq_pdus;
 			it->decode_construct(seq_pdus);
@@ -700,43 +709,83 @@ void connection::run()
 			    it2 != seq_pdus.end();
 			    it2++) {
 
+			    ber::berpdu& iritype_p = it2->get_element(0);
+			    iritype = iritype_p.decode_int();
+
 			    ber::berpdu& iricontents_p = it2->get_element(2);
 			    ber::berpdu& ipiri_p = iricontents_p.get_element(2);
 
 			    ber::berpdu& ipiricontents_p = 
 				ipiri_p.get_element(1);
 
-			    ber::berpdu& targetipaddress_p = 
-				ipiricontents_p.get_element(4);
+			    ber::berpdu& accesseventtype_p = 
+				ipiricontents_p.get_element(0);
 
-			    ber::berpdu& iptype_p = 
-				targetipaddress_p.get_element(1);
+			    accesseventtype = accesseventtype_p.decode_int();
 
-			    ber::berpdu& ipvalue_p = 
-				targetipaddress_p.get_element(2);
+			    // Get ready to decode IP address.
+			    try {
 
-			    ber::berpdu& ipbinary_p = ipvalue_p.get_element(1);
+				ber::berpdu& targetipaddress_p = 
+				    ipiricontents_p.get_element(4);
 
-			    std::vector<unsigned char> vec;
-			    ipbinary_p.decode_vector(vec);
+				ber::berpdu& iptype_p = 
+				    targetipaddress_p.get_element(1);
+				
+				ber::berpdu& ipvalue_p = 
+				    targetipaddress_p.get_element(2);
+				
+				ber::berpdu& ipbinary_p = 
+				    ipvalue_p.get_element(1);
+				
+				ipbinary_p.decode_vector(ip_addr);
 
-			    if (vec.size() == 4) {
-				tcpip::ip4_address a;
-				for(int i = 0; i < 4; i++)
-				    a.addr[i] = vec[i];
-				p.discovered(liid, a);
+			    } catch (...) {
+				// Oh well, no IP address.
 			    }
+
+			    // Process IRI here.
+
+/*
+			    std::cerr << "IRI type = " << iritype << std::endl;
+			    std::cerr << "AET = " << accesseventtype 
+				      << std::endl;
+			    std::cerr << "Liid = " << liid << std::endl;;
+			    std::cerr << "Addr vec size = " 
+				      << ip_addr.size() 
+				      << std::endl;
+			    std::cerr << std::endl;
+*/
+
+			    if (iritype == 1 && accesseventtype == 1 &&
+				ip_addr.size() != 0) {
+
+				// Target up and we have an address.
+				if (ip_addr.size() == 4) {
+				    tcpip::ip4_address a;
+				    a.addr.assign(ip_addr.begin(),
+						  ip_addr.end());
+				    p.target_up(liid, a);
+				}
 			
-			    if (vec.size() == 16) {
-				tcpip::ip6_address a;
-				for(int i = 0; i < 16; i++)
-				    a.addr[i] = vec[i];
-				p.discovered(liid, a);
+				if (ip_addr.size() == 16) {
+				    tcpip::ip6_address a;
+				    a.addr.assign(ip_addr.begin(),
+						  ip_addr.end());
+				    p.target_up(liid, a);
+				}
+
+			    }
+			    
+			    if (iritype == 2) {
+				p.target_down(liid);
 			    }
 
 			}
 
-		    } catch (...) {
+		    } catch (std::exception& e) {
+			// Didn't like the IRI data, so what, just ignore.
+//			std::cerr << e.what() << std::endl;
 		    }
 
 		}

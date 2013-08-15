@@ -51,8 +51,12 @@ public:
     }
 
     // Trigger
-    void trigger(const std::string& liid, const tcpip::address& a) {
-	cml.trigger(liid, a);
+    void trigger_up(const std::string& liid, const tcpip::address& a) {
+	cml.trigger_up(liid, a);
+    }
+
+    void trigger_down(const std::string& liid) {
+	cml.trigger_down(liid);
     }
 
 };
@@ -78,17 +82,24 @@ public:
 			    const iter& e);
 
     // Called when attacker is discovered.
-    void discovered(const std::string& liid, const tcpip::address& addr);
+    void target_up(const std::string& liid, const tcpip::address& addr);
+
+    // Called when attacker is disconnected.
+    void target_down(const std::string& liid);
     
 };
 
-
+// Called when attacker is discovered.
+void cybermon::target_up(const std::string& liid,
+			 const tcpip::address& addr)
+{
+    an.target_up(liid, addr);
+}
 
 // Called when attacker is discovered.
-void cybermon::discovered(const std::string& liid,
-			  const tcpip::address& addr)
+void cybermon::target_down(const std::string& liid)
 {
-    an.discovered(liid, addr);
+    an.target_down(liid);
 }
 
 // Called when a PDU is received.

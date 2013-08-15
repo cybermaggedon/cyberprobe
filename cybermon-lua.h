@@ -185,8 +185,11 @@ public:
 	push_light_userdata(&c);
     }
 
-    // Call the config.trigger function as trigger(liid, addr)
-    void trigger(const std::string& liid, const tcpip::address& a);
+    // Call the config.trigger_up function as trigger_up(liid, addr)
+    void trigger_up(const std::string& liid, const tcpip::address& a);
+
+    // Call the config.trigger_down function as trigger_down(liid)
+    void trigger_down(const std::string& liid);
 
     // Calls the config.data function as data(context, data).
     // The 'context' variable passed to LUA is a light userdata pointer,

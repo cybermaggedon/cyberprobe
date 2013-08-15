@@ -29,11 +29,9 @@ public:
     void unset_ttl(unsigned long ttl) { r.set_ttl(*this, ttl); }
 
     virtual ~reapable() {
-
 	// This removes me from the reap lists in the watcher.  I no longer
 	// need to be reaped, see?
 	r.self_reaped(*this);
-
     }
 
     virtual void reap() = 0;

@@ -17,8 +17,10 @@ class packet_processor {
 			    const std::vector<unsigned char>::iterator&) = 0;
 
     // Gets called if target IP address is known.
-    virtual void discovered(const std::string& liid,
-			    const tcpip::address& addr) = 0;
+    virtual void target_up(const std::string& liid,
+			   const tcpip::address& addr) = 0;
+
+    virtual void target_down(const std::string& liid) = 0;
 
 };
 

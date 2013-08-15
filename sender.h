@@ -3,6 +3,7 @@
 #define SENDER_H
 
 #include <deque>
+#include <boost/shared_ptr.hpp>
 
 #include "management.h"
 #include "thread.h"
@@ -10,12 +11,16 @@
 #include "etsi_li.h"
 #include "parameters.h"
 
+// Shared pointer to TCP/IP address.
+typedef boost::shared_ptr<tcpip::address> address_ptr;
+
 // A packet on the packet queue: LIID plus PDU.
-class pdu {
+class qpdu {
   public:
-    std::string liid;
-    std::vector<unsigned char> pdu;
-    const tcpip::address* addr;
+    enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
+    std::string liid;		            // Valid for: PDU, TARGET_UP/DOWN
+    std::vector<unsigned char> pdu;         // Valid for: PDU
+    address_ptr addr;                       // Valid for: TARGET_UP
 };
 
 // Sender base class.  Provides a queue input into a thread.
@@ -27,7 +32,7 @@ class sender : public threads::thread {
     threads::mutex lock;
     threads::condition cond;
     static const int max_packets = 1024;
-    std::deque<pdu> packets;
+    std::deque<qpdu> packets;
 
     // State: true if we're running, false if we've been asked to stop.
     bool running;
@@ -51,19 +56,13 @@ class sender : public threads::thread {
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
     // Hints about targets coming on/off-stream
-    virtual void target_up(const std::string& liid, const tcpip::address& hit) {
-	std::cerr << "LIID " << liid << " is up." << std::endl;
-    }
-
-    virtual void target_down(const std::string& liid) {
-	std::cerr << "LIID " << liid << " is down." << std::endl;
-    }
+    virtual void target_up(const std::string& l, const tcpip::address& a);
+    virtual void target_down(const std::string& liid);
 
     // Called to push a packet down the sender transport.
     void deliver(const std::string& liid,
 		 const_iterator& start,
-		 const_iterator& end,
-		 const tcpip::address& hit);
+		 const_iterator& end);
 
     // Called to stop the thread.
     virtual void stop() {

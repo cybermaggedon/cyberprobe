@@ -25,15 +25,20 @@ class obs : public analyser::engine {
 public:
     void data(const analyser::context_ptr f, analyser::pdu_iter s, 
 	      analyser::pdu_iter e);
-    virtual void trigger(const std::string& liid,
-			 const tcpip::address& trigger_address);
+    virtual void trigger_up(const std::string& liid,
+			    const tcpip::address& trigger_address);
+    virtual void trigger_down(const std::string& liid);
 };
 
-void obs::trigger(const std::string& liid,
-		  const tcpip::address& trigger_address)
+void obs::trigger_up(const std::string& liid,
+		     const tcpip::address& trigger_address)
 {
     std::cerr << "Attacker " << liid << " discovered at " << trigger_address
 	      << std::endl;
+}
+
+void obs::trigger_down(const std::string& liid) {
+    std::cerr << "Attacker " << liid << " off the air" << std::endl;
 }
 
 void obs::data(const analyser::context_ptr f, analyser::pdu_iter s, 

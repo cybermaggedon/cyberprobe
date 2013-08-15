@@ -27,10 +27,14 @@ public:
 	lock.unlock();
     }
 
-    void discovered(const std::string& liid,
+    void target_up(const std::string& liid,
 		    const tcpip::address& addr) {
 	std::cerr << "Target " << liid << " discovered on IP " << addr
 		  << std::endl;
+    }
+
+    void target_down(const std::string& liid) {
+	std::cerr << "Target " << liid << " offline. " << std::endl;
     }
 
 };

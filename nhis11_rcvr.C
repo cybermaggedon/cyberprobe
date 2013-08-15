@@ -27,11 +27,10 @@ public:
 	lock.unlock();
     }
 
-    void discovered(const std::string& liid,
-		    const tcpip::address& addr) {
-	std::cerr << "Target " << liid << " discovered on IP " << addr
-		  << std::endl;
-    }
+    // These events aren't trigger by NHIS 1.1.
+    void target_up(const std::string& liid,
+		   const tcpip::address& addr) {}
+    void target_down(const std::string& liid) {}
 
 };
 

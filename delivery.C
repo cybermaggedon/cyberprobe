@@ -197,7 +197,7 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(liid, start, end, hit);
+	    it->second->deliver(liid, start, end);
 	}
 	
 	// Unlock, we're done.
@@ -224,7 +224,7 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(liid, start, end, hit);
+	    it->second->deliver(liid, start, end);
 	}
 	
 	// Unlock, we're done.
@@ -354,8 +354,15 @@ void delivery::remove_target(const tcpip::address& addr)
     std::string liid;
 
     if (addr.universe == addr.ipv4) {
+	
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
+
+	if (targets.find(a) == targets.end()) {
+	    // Target not in the target map.  Silenty ignore.
+	    targets_lock.unlock();
+	    return;
+	}
 
 	// Tell all senders, target down.
 	senders_lock.lock();
@@ -367,9 +374,17 @@ void delivery::remove_target(const tcpip::address& addr)
 	senders_lock.unlock();
 
 	targets.erase(a);
+
     } else {
+
 	const tcpip::ip6_address& a =
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
+
+	if (targets6.find(a) == targets6.end()) {
+	    // Target not in the target map.  Silenty ignore.
+	    targets_lock.unlock();
+	    return;
+	}
 
 	// Tell all senders, target down.
 	senders_lock.lock();
@@ -378,9 +393,11 @@ void delivery::remove_target(const tcpip::address& addr)
 	    it++) {
 	    it->second->target_down(targets6[a]);
 	}
+
 	senders_lock.unlock();
 
 	targets6.erase(a);
+
     }
 
     targets_lock.unlock();
