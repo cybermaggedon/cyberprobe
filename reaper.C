@@ -1,6 +1,6 @@
 
 #include <unistd.h>
-
+#include <iostream>
 #include <list>
 
 #include "reaper.h"
@@ -17,6 +17,24 @@ void reaper::run()
 	// We can bail out of this loop if we're stopping.
 	while (running) {
 
+	    // This destruction may have resulted in some other
+	    // objects self-reaping, so we can remove them.
+	    self_lock.lock();
+
+	    for(std::list<reapable*>::iterator it = self_list.begin();
+		it != self_list.end();
+		it++) {
+		
+		if (reap_map.find(*it) != reap_map.end()) {
+		    unsigned long cur_reap = reap_map[*it];
+		    reap_list.erase(std::pair<unsigned long,reapable*>(cur_reap,*it));
+		    reap_map.erase(*it);
+		}
+		
+	    }
+	    
+	    self_lock.unlock();
+
 	    if (reap_list.empty()) break;
 
 	    unsigned long now = get_time();
@@ -25,30 +43,16 @@ void reaper::run()
 	    if (next <= now) {
 		
 		reapable* r = reap_list.begin()->second;
-		
+
 		reap_list.erase(std::pair<unsigned long,reapable*>(next, r));
 		reap_map.erase(r);
 
 		// Delete the item.
 		r->reap();
 
-		// This destruction may have resulted in some other
-		// objects self-reaping, so we can remove them.
-		self_lock.lock();
-
-		for(std::list<reapable*>::iterator it = self_list.begin();
-		    it != self_list.end();
-		    it++) {
-		    
-		    if (reap_map.find(*it) != reap_map.end()) {
-			unsigned long cur_reap = reap_map[*it];
-			reap_list.erase(std::pair<unsigned long,reapable*>(cur_reap,*it));
-			reap_map.erase(*it);
-		    }
-
-		}
-
-		self_lock.unlock();
+		// It's important that the 'self' list is processed before
+		// the reap map, otherwise we won't realise some objects have
+		// gone away.
 
 		// Try next item.
 		continue;
