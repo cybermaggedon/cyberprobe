@@ -155,6 +155,12 @@ void nhis11_sender::run()
 	    // Got the packet, so the queue can unlock.
 	    lock.unlock();
 
+	    // NHIS 1.1 can only handle the PDUs.
+	    if (next.msg_type != qpdu::PDU) continue;
+
+	    // FIXME: We could use the TARGET_UP and TARGET_DOWN messages
+	    // to close connections that aren't needed any more.
+
 	    // Loop until successful delivery.
 	    while (running) {
 
