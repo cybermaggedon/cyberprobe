@@ -1,8 +1,11 @@
 
+#include <boost/regex.hpp>
+
 #include "tcp.h"
 #include "manager.h"
 #include "pdu.h"
 #include "context.h"
+#include "http.h"
 
 using namespace analyser;
 
@@ -185,7 +188,65 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 void tcp::post_process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
-    mgr.connection_data(c, s, e);
+
+    static const boost::regex http_response("HTTP/1\\.");
+    static const boost::regex http_request("GET /");
+
+    tcp_context& tc = dynamic_cast<tcp_context&>(*c);
+
+    if (!tc.svc_idented) {
+
+	// We could copy the whole buffer?
+	int to_copy = e - s;
+
+	// But not if that would overflow.
+	if ((tc.ident_buffer.size() + (e - s)) > tc.ident_buffer_max) {
+	    
+	    // In that case, copy less.
+	    to_copy = tc.ident_buffer_max - tc.ident_buffer.size();
+
+	}
+
+	tc.ident_buffer.append(s, s + to_copy);
+
+	// If not enough to run an ident, bail out.
+	if (tc.ident_buffer.size() < tc.ident_buffer_max)
+	    return;
+
+	// Not idented, and we have enough data for an ident attempt.
+
+	boost::match_results<std::string::const_iterator> what;
+
+	if (regex_search(tc.ident_buffer, what, http_request,
+			 boost::match_continuous)) {
+
+	    tc.processor = &http::process_request;
+	    tc.svc_idented = true;
+
+	} else 	if (regex_search(tc.ident_buffer, what, http_response,
+				 boost::match_continuous)) {
+
+	    tc.processor = &http::process_response;
+	    tc.svc_idented = true;
+
+	} else
+	
+	    // Default.
+	    tc.processor = 0;
+	    tc.svc_idented = true;
+
+    }
+
+    // Process the data using the processing function if defined.  Otherwise
+    // use connection_data.
+    if (tc.processor)
+	(*tc.processor)(mgr, c, s, e);
+    else
+	mgr.connection_data(c, s, e);
+
+    return;
+
+
 }
 
 

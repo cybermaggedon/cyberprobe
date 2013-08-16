@@ -6,9 +6,9 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 	control.o snort_alert.o
 
 CYBERMON_OBJECTS=cybermon.o engine.o etsi_li.o socket.o ber.o base_context.o \
-	ip.o tcp.o udp.o address.o icmp.o cybermon-lua.o reaper.o
+	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o
 
-ANALYSE_OBJECTS=analyse.o engine.o context.o ip.o socket.o tcp.o udp.o \
+ANALYSE_OBJECTS=analyse.o engine.o context.o ip.o socket.o tcp.o udp.o http.o \
 	address.o icmp.o reaper.o base_context.o
 
 all: cyberprobe cybermon nhis11_rcvr etsi_rcvr analyse
@@ -18,10 +18,11 @@ cyberprobe: ${CYBERPROBE_OBJECTS}
 
 cybermon: ${CYBERMON_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERMON_OBJECTS} -o $@ -lpcap -lpthread -lexpat \
-		-llua
+		-llua -lboost_regex
 
 analyse: ${ANALYSE_OBJECTS}
-	${CXX} ${CXXFLAGS} ${ANALYSE_OBJECTS} -o $@ -lpcap -lpthread -lexpat
+	${CXX} ${CXXFLAGS} ${ANALYSE_OBJECTS} -o $@ -lpcap -lpthread -lexpat \
+		-lboost_regex
 
 nhis11_rcvr: nhis11_rcvr.o nhis11.o socket.o
 	${CXX} ${CXXFLAGS} nhis11_rcvr.o nhis11.o socket.o -o $@ -lpthread \
@@ -38,8 +39,8 @@ depend:
 
 address.o: socket.h address.h pdu.h
 analyse.o: packet_capture.h engine.h thread.h pdu.h context.h socket.h
-analyse.o: address.h flow.h exception.h reaper.h base_context.h observer.h
-analyse.o: manager.h hexdump.h
+analyse.o: address.h flow.h exception.h reaper.h base_context.h manager.h
+analyse.o: observer.h hexdump.h
 base_context.o: base_context.h flow.h address.h pdu.h socket.h thread.h
 base_context.o: exception.h
 ber.o: ./ber.h socket.h
@@ -48,17 +49,17 @@ config.o: config.h resource.h thread.h specification.h delivery.h sender.h
 config.o: management.h socket.h nhis11.h monitor.h etsi_li.h ./ber.h
 config.o: parameters.h capture.h packet_capture.h packet_consumer.h xml.h
 config.o: interface.h target.h endpoint.h parameter.h snort_alert.h control.h
-context.o: context.h socket.h thread.h pdu.h address.h flow.h exception.h
-context.o: reaper.h base_context.h observer.h manager.h
+context.o: context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+context.o: thread.h base_context.h manager.h observer.h
 control.o: control.h socket.h thread.h management.h specification.h
 control.o: resource.h
 cybermon.o: engine.h thread.h pdu.h context.h socket.h address.h flow.h
-cybermon.o: exception.h reaper.h base_context.h observer.h manager.h
+cybermon.o: exception.h reaper.h base_context.h manager.h observer.h
 cybermon.o: monitor.h etsi_li.h ./ber.h packet_capture.h hexdump.h
 cybermon.o: cybermon-lua.h
 cybermon-lua.o: cybermon-lua.h engine.h thread.h pdu.h context.h socket.h
 cybermon-lua.o: address.h flow.h exception.h reaper.h base_context.h
-cybermon-lua.o: observer.h manager.h
+cybermon-lua.o: manager.h observer.h
 cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
 cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h etsi_li.h
 cyberprobe.o: ./ber.h parameters.h capture.h packet_capture.h
@@ -66,15 +67,15 @@ cyberprobe.o: packet_consumer.h
 delivery.o: delivery.h sender.h management.h socket.h thread.h nhis11.h
 delivery.o: monitor.h etsi_li.h ./ber.h parameters.h capture.h
 delivery.o: packet_capture.h packet_consumer.h
-engine.o: thread.h context.h socket.h pdu.h address.h flow.h exception.h
-engine.o: reaper.h base_context.h observer.h manager.h engine.h ip.h
+engine.o: thread.h context.h socket.h address.h pdu.h flow.h exception.h
+engine.o: reaper.h base_context.h manager.h observer.h engine.h ip.h
 etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
-icmp.o: icmp.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
-icmp.o: reaper.h base_context.h observer.h manager.h
-ip.o: ip.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
-ip.o: reaper.h base_context.h observer.h manager.h tcp.h serial.h udp.h
-ip.o: icmp.h
+icmp.o: icmp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+icmp.o: thread.h base_context.h manager.h observer.h
+ip.o: ip.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+ip.o: thread.h base_context.h manager.h observer.h tcp.h serial.h protocol.h
+ip.o: udp.h icmp.h
 nhis11.o: nhis11.h socket.h thread.h monitor.h
 nhis11_rcvr.o: monitor.h socket.h nhis11.h thread.h packet_capture.h
 reaper.o: reaper.h thread.h
@@ -86,9 +87,9 @@ snort_alert.o: delivery.h sender.h management.h nhis11.h monitor.h etsi_li.h
 snort_alert.o: ./ber.h parameters.h capture.h packet_capture.h
 snort_alert.o: packet_consumer.h
 socket.o: socket.h
-tcp.o: tcp.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
-tcp.o: reaper.h base_context.h observer.h manager.h serial.h
+tcp.o: tcp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+tcp.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
 test.o: reaper.h thread.h
-udp.o: udp.h context.h socket.h thread.h pdu.h address.h flow.h exception.h
-udp.o: reaper.h base_context.h observer.h manager.h
+udp.o: udp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+udp.o: thread.h base_context.h manager.h observer.h
 xml.o: xml.h

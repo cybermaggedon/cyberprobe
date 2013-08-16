@@ -15,6 +15,7 @@
 #include "context.h"
 #include "manager.h"
 #include "serial.h"
+#include "protocol.h"
 
 namespace analyser {
 
@@ -32,33 +33,42 @@ namespace analyser {
     class tcp_context : public context {
       public:
 
+	// This deals with stream synchronisation and tear-down (the SYN/FIN
+	// stuff).
 	bool syn_observed;
 	bool fin_observed;
-
-	bool pre_ident;
 	bool connected;
 
-	static const int pre_ident_len = 20;
-	pdu pre_ident_buffer;
+	// Buffer for data for identification.
+	static const int ident_buffer_max = 20;
+	std::string ident_buffer;
 
+	// Once identified, the processing function.
+	bool svc_idented;
+	process_fn processor;
+
+	// Sequence number.
 	serial<int32_t, uint32_t> seq_expected;
 
+	// Segments buffer for reassembly.
 	static const int max_segments = 100;
 	std::set<tcp_segment> segments;
 	
 	// Constructor.
         tcp_context(manager& m) : context(m) {
 	    syn_observed = false;
-	    pre_ident = true;
 	    connected = false;
+	    svc_idented = false;
+	    processor = 0;
 	}
 
 	// Constructor, describing flow address and parent pointer.
         tcp_context(manager& m, const flow& a, context_ptr p) : context(m) { 
 	    addr = a; parent = p; 
 	    syn_observed = false;
-	    pre_ident = true;
 	    connected = false;
+	    svc_idented = false;
+	    processor = 0;
 	}
 
 	// Type is "tcp".
@@ -83,6 +93,7 @@ namespace analyser {
 	// TCP processing function.
 	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
 
+	// Process on re-synchronised streams.
 	static void post_process(manager&, context_ptr c, pdu_iter s, 
 				 pdu_iter e);
 
