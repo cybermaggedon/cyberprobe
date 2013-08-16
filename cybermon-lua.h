@@ -191,13 +191,19 @@ public:
     // Call the config.trigger_down function as trigger_down(liid)
     void trigger_down(const std::string& liid);
 
+    void connection_up(analyser::engine& an, const analyser::context_ptr f);
+
+    void connection_down(analyser::engine& an, const analyser::context_ptr f);
+
     // Calls the config.data function as data(context, data).
     // The 'context' variable passed to LUA is a light userdata pointer,
     // allowing calling back into the C++ code.  The value is only valid
     // in LUA space for the duration of this call.
-    void data(analyser::engine& an, const analyser::context_ptr f, 
-	      analyser::pdu_iter s, 
-	      analyser::pdu_iter e);
+    void connection_data(analyser::engine& an, const analyser::context_ptr f, 
+			 analyser::pdu_iter s, analyser::pdu_iter e);
+
+    void datagram(analyser::engine& an, const analyser::context_ptr f, 
+		  analyser::pdu_iter s, analyser::pdu_iter e);
 
 };
 

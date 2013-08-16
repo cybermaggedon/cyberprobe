@@ -14,7 +14,7 @@ local observer = {}
 local volume = {}
 local threshold = {}
 
-observer.data = function(context, data)
+observer.connection_data = function(context, data)
 
   liid = cybermon.get_liid(context)
   src, dest = cybermon.get_network_info(context)
@@ -39,6 +39,24 @@ observer.data = function(context, data)
   end
 
 end
+
+observer.connection_up = function(context)
+  liid = cybermon.get_liid(context)
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", cybermon.describe_src(context),
+           cybermon.describe_dest(context)))
+  io.write("  Connected.\n\n");
+end
+
+observer.connection_down = function(context)
+  liid = cybermon.get_liid(context)
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", cybermon.describe_src(context),
+           cybermon.describe_dest(context)))
+  io.write("  Disconnected.\n\n");
+end
+
+observer.datagram = observer.connection_data
 
 observer.trigger_up = function(liid, addr)
   io.write(string.format("Target %s detected at address %s\n\n", liid, addr))

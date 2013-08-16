@@ -35,6 +35,10 @@ void tcp::process(engine& eng, context_ptr c,
 
     if (fc.get() == 0) {
 	fc = context_ptr(new tcp_context(eng, f, c));
+
+	// Unreliable
+//	eng.connection_up(fc);
+
 	c->add_child(f, fc);
     }
 
@@ -50,10 +54,23 @@ void tcp::process(engine& eng, context_ptr c,
 	tc.syn_observed = true;
 	tc.seq_expected = seq + 1;
 
-	// FIXME: Produce a better event.
-	eng.data(fc, s + header_length, e);
+	// FIXME: Is data allowed in a connection request?
+	if (payload_length > 0) {
+	    eng.connection_data(fc, s + header_length, e);
+	}
 
 	return;
+    }
+
+    if (flags & FIN) {
+
+	fc->set_ttl(10);
+	
+// Unreliable
+//	eng.connection_down(fc);
+
+	return;
+
     }
 
     // Haven't ever seen SYN... ignore.
@@ -89,7 +106,8 @@ void tcp::process(engine& eng, context_ptr c,
 	// Advance the expected sequence.
 	tc.seq_expected += payload_length;
 
-	eng.data(fc, s + header_length, e);
+	if (payload_length > 0)
+	    eng.connection_data(fc, s + header_length, e);
 
 
     } else {
@@ -154,9 +172,9 @@ void tcp::process(engine& eng, context_ptr c,
 	    // We already compared (>=) those two values above, this must be
 	    // positive or zero.
 
-	    eng.data(fc, 
-		     tc.segments.begin()->segment.begin() + unwanted,
-		     tc.segments.begin()->segment.end());
+	    eng.connection_data(fc, 
+				tc.segments.begin()->segment.begin() + unwanted,
+				tc.segments.begin()->segment.end());
 
 	    tc.seq_expected = tc.segments.begin()->last;
 

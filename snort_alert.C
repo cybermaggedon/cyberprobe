@@ -185,6 +185,8 @@ void snort_alerter::run()
 	    // Discard the time event.
 	    timeout_events.pop_front();
 
+	    // FIXME: This iterate stuff is pants.  Use reaper.
+
 	    // iterate through timeout map, looking for addresses wich have
 	    // expired.
 	    for(std::map<tcpip::ip4_address, long>::iterator it =

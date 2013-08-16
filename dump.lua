@@ -10,7 +10,7 @@ local observer = {}
 local seen = {}
 
 -- This isn't particular efficient - it keeps opening and closing files.
-observer.data = function(context, data)
+observer.connection_data = function(context, data)
   liid = cybermon.get_liid(context)
   id = cybermon.get_context_id(context)
 
@@ -35,6 +35,14 @@ observer.data = function(context, data)
   fd:close()
 
 end
+
+observer.connection_up = function(context)
+end
+
+observer.connection_down = function(context)
+end
+
+observer.datagram = observer.connection_data
 
 observer.trigger_up = function(liid, addr)
   io.write(string.format("Target %s detected at address %s\n\n", liid, addr))

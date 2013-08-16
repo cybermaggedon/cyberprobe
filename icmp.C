@@ -27,6 +27,6 @@ void icmp::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole ICMP message.
-    eng.data(fc, s, e);
+    eng.datagram(fc, s, e);
 
 }

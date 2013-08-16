@@ -39,7 +39,7 @@ void udp::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    eng.data(fc, s + 4, e);
+    eng.datagram(fc, s + 4, e);
 
     // Now what?
 

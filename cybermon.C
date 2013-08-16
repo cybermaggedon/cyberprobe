@@ -44,10 +44,24 @@ public:
     // Stores the next 'reporting' event for data acquisition by an attacker.
     std::map<analyser::address, uint64_t> next;
 
-    // Observation method.
-    void data(const analyser::context_ptr f, analyser::pdu_iter s, 
-	      analyser::pdu_iter e) {
-	cml.data(*this, f, s, e);
+    // Connection-orientated.
+    virtual void connection_up(const analyser::context_ptr cp) {
+	cml.connection_up(*this, cp);
+    }
+
+    virtual void connection_down(const analyser::context_ptr cp) {
+	cml.connection_down(*this, cp);
+    }
+
+    virtual void connection_data(const analyser::context_ptr cp,
+				 analyser::pdu_iter s, analyser::pdu_iter e) {
+	cml.connection_data(*this, cp, s, e);
+    }
+
+    // Connection-less
+    virtual void datagram(const analyser::context_ptr cp,
+			  analyser::pdu_iter s, analyser::pdu_iter e) {
+	cml.datagram(*this, cp, s, e);
     }
 
     // Trigger

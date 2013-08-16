@@ -15,7 +15,7 @@ local observer = {}
 -- This function is called when a data transfer occurs.  Context information
 -- is contained in 'context', and 'data' is a string, containing the packet
 -- data.
-observer.data = function(context, data)
+observer.connection_data = function(context, data)
 
   -- Get the LIID
   local liid = cybermon.get_liid(context)
@@ -31,6 +31,14 @@ observer.data = function(context, data)
   io.write("\n")
 
 end
+
+observer.connection_up = function(context)
+end
+
+observer.connection_down = function(context)
+end
+
+observer.datagram = observer.connection_data
 
 -- This function is called when the address of an attacker has been
 -- identified.

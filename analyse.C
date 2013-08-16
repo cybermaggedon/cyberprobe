@@ -23,8 +23,12 @@ public:
 
 class obs : public analyser::engine {
 public:
-    void data(const analyser::context_ptr f, analyser::pdu_iter s, 
-	      analyser::pdu_iter e);
+    void connection_data(const analyser::context_ptr f, analyser::pdu_iter s, 
+			 analyser::pdu_iter e);
+    void connection_up(const analyser::context_ptr f);
+    void connection_down(const analyser::context_ptr f);
+    void datagram(const analyser::context_ptr f, analyser::pdu_iter s, 
+		  analyser::pdu_iter e);
     virtual void trigger_up(const std::string& liid,
 			    const tcpip::address& trigger_address);
     virtual void trigger_down(const std::string& liid);
@@ -41,8 +45,8 @@ void obs::trigger_down(const std::string& liid) {
     std::cerr << "Attacker " << liid << " off the air" << std::endl;
 }
 
-void obs::data(const analyser::context_ptr f, analyser::pdu_iter s, 
-	       analyser::pdu_iter e)
+void obs::connection_data(const analyser::context_ptr f, analyser::pdu_iter s, 
+			  analyser::pdu_iter e)
 {
 
     describe_src(f, std::cout);
@@ -51,6 +55,46 @@ void obs::data(const analyser::context_ptr f, analyser::pdu_iter s,
     std::cout << std::endl;
 
     hexdump::dump(s, e, std::cout);
+    std::cout << std::endl;
+
+}
+
+void obs::datagram(const analyser::context_ptr f, analyser::pdu_iter s, 
+		   analyser::pdu_iter e)
+{
+
+    describe_src(f, std::cout);
+    std::cout << " -> ";
+    describe_dest(f, std::cout);
+    std::cout << std::endl;
+
+    hexdump::dump(s, e, std::cout);
+    std::cout << std::endl;
+
+}
+
+void obs::connection_up(const analyser::context_ptr f)
+{
+
+    describe_src(f, std::cout);
+    std::cout << " -> ";
+    describe_dest(f, std::cout);
+    std::cout << std::endl;
+
+    std::cerr << "  Connected." << std::endl;
+    std::cout << std::endl;
+
+}
+
+void obs::connection_down(const analyser::context_ptr f)
+{
+
+    describe_src(f, std::cout);
+    std::cout << " -> ";
+    describe_dest(f, std::cout);
+    std::cout << std::endl;
+
+    std::cerr << "  Disconnected." << std::endl;
     std::cout << std::endl;
 
 }
