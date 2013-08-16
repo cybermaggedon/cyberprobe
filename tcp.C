@@ -189,8 +189,12 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 void tcp::post_process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
+    static const boost::regex 
+	http_request("(OPTIONS|GET|HEAD|POST|PUT|DELETE|CONNECT|TRACE)"
+		     " [^ ]* HTTP/1.",
+		     boost::regex::extended);
+
     static const boost::regex http_response("HTTP/1\\.");
-    static const boost::regex http_request("GET /");
 
     tcp_context& tc = dynamic_cast<tcp_context&>(*c);
 
