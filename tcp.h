@@ -11,7 +11,7 @@
 #include <set>
 
 #include "context.h"
-#include "analyser.h"
+#include "manager.h"
 #include "serial.h"
 
 namespace analyser {
@@ -41,12 +41,12 @@ namespace analyser {
 	std::set<tcp_segment> segments;
 	
 	// Constructor.
-        tcp_context(watcher& w) : context(w) {
+        tcp_context(manager& m) : context(m) {
 	    syn_observed = false;
 	}
 
 	// Constructor, describing flow address and parent pointer.
-    tcp_context(watcher& w, const flow& a, context_ptr p) : context(w) { 
+        tcp_context(manager& m, const flow& a, context_ptr p) : context(m) { 
 	    addr = a; parent = p; 
 	    syn_observed = false;
 	}
@@ -71,7 +71,7 @@ namespace analyser {
 	static const int NS = 256;
 
 	// TCP processing function.
-	static void process(engine&,context_ptr c, pdu_iter s, pdu_iter e);
+	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
 
     };
 

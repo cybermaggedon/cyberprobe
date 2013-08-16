@@ -1,10 +1,10 @@
 
 #include "icmp.h"
-#include "analyser.h"
+#include "manager.h"
 
 using namespace analyser;
 
-void icmp::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
+void icmp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
     address src, dest;
@@ -18,15 +18,17 @@ void icmp::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     context_ptr fc = c->get_context(f);
 
     if (fc.get() == 0) {
-	fc = context_ptr(new icmp_context(eng, f, c));
+	fc = context_ptr(new icmp_context(mgr, f, c));
 	c->add_child(f, fc);
     }
 
+    icmp_context& ic = dynamic_cast<icmp_context&>(*fc);
+
     // Set / update TTL on the context.
     // 120 seconds.
-    fc->set_ttl(context::default_ttl);
+    ic.set_ttl(context::default_ttl);
 
     // Pass whole ICMP message.
-    eng.datagram(fc, s, e);
+    mgr.datagram(fc, s, e);
 
 }

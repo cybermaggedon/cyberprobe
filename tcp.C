@@ -1,11 +1,10 @@
 
 #include "tcp.h"
-#include "analyser.h"
+#include "manager.h"
 
 using namespace analyser;
 
-void tcp::process(engine& eng, context_ptr c, 
-		  pdu_iter s, pdu_iter e)
+void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
     if ((e - s) < 20)
@@ -34,7 +33,7 @@ void tcp::process(engine& eng, context_ptr c,
     context_ptr fc = c->get_context(f);
 
     if (fc.get() == 0) {
-	fc = context_ptr(new tcp_context(eng, f, c));
+	fc = context_ptr(new tcp_context(mgr, f, c));
 
 	// Unreliable
 //	eng.connection_up(fc);
@@ -42,11 +41,11 @@ void tcp::process(engine& eng, context_ptr c,
 	c->add_child(f, fc);
     }
 
+    tcp_context& tc = dynamic_cast<tcp_context&>(*fc);
+
     // Set / update TTL on the context.
     // 120 seconds.
-    fc->set_ttl(context::default_ttl);
-
-    tcp_context& tc = dynamic_cast<tcp_context&>(*fc);
+    tc.set_ttl(context::default_ttl);
 
     // This is for the initial setup.  Works for both directions, ISN = seq + 1
     if (flags & SYN) {
@@ -56,7 +55,7 @@ void tcp::process(engine& eng, context_ptr c,
 
 	// FIXME: Is data allowed in a connection request?
 	if (payload_length > 0) {
-	    eng.connection_data(fc, s + header_length, e);
+	    mgr.connection_data(fc, s + header_length, e);
 	}
 
 	return;
@@ -64,7 +63,7 @@ void tcp::process(engine& eng, context_ptr c,
 
     if (flags & FIN) {
 
-	fc->set_ttl(10);
+	tc.set_ttl(10);
 	
 // Unreliable
 //	eng.connection_down(fc);
@@ -107,8 +106,7 @@ void tcp::process(engine& eng, context_ptr c,
 	tc.seq_expected += payload_length;
 
 	if (payload_length > 0)
-	    eng.connection_data(fc, s + header_length, e);
-
+	    mgr.connection_data(fc, s + header_length, e);
 
     } else {
 
@@ -172,7 +170,7 @@ void tcp::process(engine& eng, context_ptr c,
 	    // We already compared (>=) those two values above, this must be
 	    // positive or zero.
 
-	    eng.connection_data(fc, 
+	    mgr.connection_data(fc, 
 				tc.segments.begin()->segment.begin() + unwanted,
 				tc.segments.begin()->segment.end());
 

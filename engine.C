@@ -1,7 +1,7 @@
 
 #include "thread.h"
 #include "context.h"
-#include "analyser.h"
+#include "engine.h"
 #include "ip.h"
 
 using namespace analyser;
@@ -13,7 +13,7 @@ context_ptr engine::get_root_context(const std::string& liid)
     context_ptr c;
 
     if (contexts.find(liid) == contexts.end()) {
-	c = context_ptr(new root_context(w));
+	c = context_ptr(new root_context(*this));
 	
 	root_context* rp = dynamic_cast<root_context*>(c.get());
 	rp->set_liid(liid);

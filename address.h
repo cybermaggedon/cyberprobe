@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "pdu.h"
+#include "socket.h"
 
 namespace analyser {
 

@@ -8,12 +8,9 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#include <vector>
-#include <list>
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-#include <sstream>
 
 #include "socket.h"
 #include "thread.h"
@@ -23,66 +20,34 @@
 #include "flow.h"
 #include "exception.h"
 #include "reaper.h"
+#include "base_context.h"
+#include "observer.h"
+#include "manager.h"
 
 namespace analyser {
 
-    // Context ID type.
-    typedef unsigned long context_id;
-    
-    // Forward declarations.
-    class context;
-    class root_context;
-
-    // Shared pointer types.
-    typedef boost::shared_ptr<context> context_ptr;
-
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.
-    class context : public reapable {
+    class context : public base_context, public reapable {
       private:
-
-	// Next context ID to hand out.
-	static context_id next_context_id;
-	static unsigned long total_contexts;
-	
-	// This context's ID.
-	context_id id;
 
       protected:
 
 	// Watcher, tidies things up when they get old.
-	watcher& w;
+	manager& mgr;
 
       public:
 
 	// Default time-to-live.
 	static const int default_ttl = 10;
 
-	// The flow address.
-	flow addr;
-
-	// Lock for all context state.
-	threads::mutex lock;
-
-	// Use weak_ptr for the parent link, cause otherwise there's a
-	// shared_ptr cycle.
-	boost::weak_ptr<context> parent;
-
-	// Child contexts.
-	std::map<flow,context_ptr> children;
-
 	// Constructor.
-        context(watcher& w) : reapable(w), w(w) { 
-	    id = next_context_id++; 
-	    total_contexts++;
-	    // parent is initialised to 'null'.
+        context(manager& m) : reapable(m), mgr(m) { 
 	}
 
 	// Constructor, initialises parent pointer.
-        context(watcher& w, context_ptr parent) : reapable(w), w(w) { 
-	    id = next_context_id++; 
-	    this->parent = parent;
-	    total_contexts++;
+        context(manager& m, context_ptr parent) : 
+	base_context(parent), reapable(m), mgr(m) { 
 	}
 
 	// Given a flow address, returns the child context.
@@ -112,15 +77,7 @@ namespace analyser {
 
 	// Destructor.
 	virtual ~context() { 
-	    total_contexts--;
 	}
-
-	// Returns constructor ID.
-	// FIXME: Is it used?
-	context_id get_id() { return id; }
-
-	// Returns a context 'type'.
-	virtual std::string get_type() = 0;
 
 	// Delete myself.
 	void reap() {
@@ -156,10 +113,12 @@ namespace analyser {
 	/*     c->liid = liid; */
 	/*     return context_ptr(c); */
 	/* } */
-        root_context(watcher& w) : context(w) {
+        root_context(manager& m) : 
+	context(m) {
 	    addr.src.layer = ROOT;
 	    addr.dest.layer = ROOT;
 	}
+
 	virtual ~root_context() {}
 	void set_trigger_address(const tcpip::address& a) {
 	    if (a.universe == a.ipv4) {

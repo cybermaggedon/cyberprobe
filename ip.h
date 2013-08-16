@@ -3,7 +3,7 @@
 #define IP_H
 
 #include "context.h"
-#include "analyser.h"
+#include "manager.h"
 
 #include <deque>
 
@@ -73,10 +73,10 @@ namespace analyser {
       public:
 
 	// Constructor.
-        ip4_context(watcher& w) : context(w) {}
+        ip4_context(manager& m) : context(m) {}
 
 	// Constructor, specifying flow address and parent.
-        ip4_context(watcher& w, const flow& a, context_ptr par) : context(w) { 
+        ip4_context(manager& m, flow& a, context_ptr par) : context(m) { 
 	    parent = par;
 	    addr = a; 
 	}
@@ -97,15 +97,15 @@ namespace analyser {
 
 	// Process an IP packet.  Works out the version, and calls appropriate
 	// function.
-	static void process(engine&, context_ptr c, 
+	static void process(manager&, context_ptr c, 
 			    pdu_iter s, pdu_iter e);
 
 	// IPv4 processing.
-	static void process_ip4(engine&, context_ptr c, pdu_iter s, 
+	static void process_ip4(manager&, context_ptr c, pdu_iter s, 
 				pdu_iter e);
 
 	// IPv6 processing.
-	static void process_ip6(engine&, context_ptr c, pdu_iter s, 
+	static void process_ip6(manager&, context_ptr c, pdu_iter s, 
 				pdu_iter e);
 
     };

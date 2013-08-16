@@ -3,12 +3,11 @@
 #include "tcp.h"
 #include "udp.h"
 #include "icmp.h"
-
-#include "analyser.h"
+#include "manager.h"
 
 using namespace analyser;
 
-void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
+void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
     if ((e - s) < 20) throw exception("Packet too small for IPv4");
@@ -48,15 +47,15 @@ void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     // Get the IP context.
     context_ptr fc = c->get_context(f);
     if (fc.get() == 0) {
-	fc = context_ptr(new ip4_context(eng, f, c));
+	fc = context_ptr(new ip4_context(mgr, f, c));
 	c->add_child(f, fc);
     }
 
+    ip4_context& ifc = *(dynamic_cast<ip4_context*>(fc.get()));
+
     // Set / update TTL on the context.
     // 120 seconds.
-    fc->set_ttl(context::default_ttl);
-
-    ip4_context& ifc = *(dynamic_cast<ip4_context*>(fc.get()));
+    ifc.set_ttl(context::default_ttl);
 
     // Fragment processing or not?
 
@@ -211,7 +210,7 @@ void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
 	    ifc.hdrs_list.erase(id);
 
 	    // We now have a complete IP packet!  Process it.
-	    ip::process_ip4(eng, c, pdu.begin(), pdu.end());
+	    ip::process_ip4(mgr, c, pdu.begin(), pdu.end());
 
 	    return;
 
@@ -255,17 +254,17 @@ void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     if (protocol == 6)
 
 	// TCP
-	tcp::process(eng, fc, s + header_length, s + length);
+	tcp::process(mgr, fc, s + header_length, s + length);
 
     else if (protocol == 17)
 	
 	// UDP
-	udp::process(eng, fc, s + header_length, s + length);
+	udp::process(mgr, fc, s + header_length, s + length);
 
     else if (protocol == 1)
 	
 	// ICMP
-	icmp::process(eng, fc, s + header_length, s + length);
+	icmp::process(mgr, fc, s + header_length, s + length);
 
     else {
 	std::ostringstream buf;
@@ -275,7 +274,7 @@ void ip::process_ip4(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
 
 }
 
-void ip::process_ip6(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
+void ip::process_ip6(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
     throw exception("IPv6 processing not implemented.");
 }
@@ -307,7 +306,7 @@ uint16_t ip::calculate_cksum(pdu_iter s, pdu_iter e)
 
 }
 
-void ip::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
+void ip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
   // Packet too small for the IP check, then do nothing.
@@ -315,9 +314,9 @@ void ip::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     throw exception("Empty packet");
 
   if ((*s & 0xf0) == 0x40)
-      process_ip4(eng, c, s, e);
+      process_ip4(mgr, c, s, e);
   else if ((*s & 0xf0) == 0x60)
-      process_ip6(eng, c, s, e);
+      process_ip6(mgr, c, s, e);
   else
       throw exception("Expecting IP, but isn't IPv4 or IPv6");
 

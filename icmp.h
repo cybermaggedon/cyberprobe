@@ -3,7 +3,7 @@
 #define ICMP_H
 
 #include "context.h"
-#include "analyser.h"
+#include "observer.h"
 
 namespace analyser {
     
@@ -11,8 +11,8 @@ namespace analyser {
     // ICMP.
     class icmp_context : public context {
     public:
-        icmp_context(watcher& w) : context(w) {}
-        icmp_context(watcher& w, const flow& a, context_ptr p) : context(w) {
+        icmp_context(manager& m) : context(m) {}
+        icmp_context(manager& m, const flow& a, context_ptr p) : context(m) {
 	    addr = a; parent = p; 
 	}
 	virtual std::string get_type() { return "udp"; }
@@ -23,7 +23,8 @@ namespace analyser {
     public:
 	
 	// ICMP processing function.
-	static void process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e);
+	static void process(manager& mgr, context_ptr c, pdu_iter s, 
+			    pdu_iter e);
 
     };
 

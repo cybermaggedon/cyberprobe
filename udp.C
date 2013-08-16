@@ -2,11 +2,11 @@
 #include "udp.h"
 #include "address.h"
 #include "flow.h"
-#include "analyser.h"
+#include "manager.h"
 
 using namespace analyser;
 
-void udp::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
+void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
     if ((e - s) < 8)
@@ -31,15 +31,17 @@ void udp::process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e)
     context_ptr fc = c->get_context(f);
 
     if (fc.get() == 0) {
-	fc = context_ptr(new udp_context(eng, f, c));
+	fc = context_ptr(new udp_context(mgr, f, c));
 	c->add_child(f, fc);
     }
 
+    udp_context& uc = dynamic_cast<udp_context&>(*fc);
+
     // Set / update TTL on the context.
     // 120 seconds.
-    fc->set_ttl(context::default_ttl);
+    uc.set_ttl(context::default_ttl);
 
-    eng.datagram(fc, s + 4, e);
+    mgr.datagram(fc, s + 4, e);
 
     // Now what?
 

@@ -17,7 +17,7 @@ extern "C" {
 #include <stdexcept>
 #include <map>
 
-#include "analyser.h"
+#include "engine.h"
 
 // Generic C++ wrapper around LUA.
 class lua_state {

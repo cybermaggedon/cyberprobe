@@ -6,8 +6,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ANALYSER_H
-#define ANALYSER_H
+#ifndef ENGINE_H
+#define ENGINE_H
 
 #include <string>
 #include <vector>
@@ -19,35 +19,15 @@
 #include "context.h"
 
 #include "socket.h"
+#include "reaper.h"
+#include "observer.h"
+#include "manager.h"
 
 namespace analyser {
-
-    // Observer interface.  The observer interface is called when various
-    // reportable events occur.
-    class observer {
-    public:
-	
-	// Connection-orientated.
-	virtual void connection_up(const context_ptr cp) = 0;
-	virtual void connection_down(const context_ptr cp) = 0;
-	virtual void connection_data(const context_ptr cp,
-				     pdu_iter s, pdu_iter e) = 0;
-
-	// Connection-less
-	virtual void datagram(const context_ptr cp,
-			      pdu_iter s, pdu_iter e) = 0;
-
-//	virtual void data(const context_ptr cp, 
-//			  pdu_iter s, pdu_iter e) = 0;
-
-	virtual void trigger_up(const std::string& liid,
-				const tcpip::address& trigger_address) = 0;
-	virtual void trigger_down(const std::string& liid) = 0;
-    };
-
+    
     // Packet analysis engine.  Designed to be sub-classed, caller should
     // implement the 'observer' interface.
-    class engine : public observer, public reaper {
+    class engine : public manager {
     private:
 
 	// Lock for all state.
@@ -60,9 +40,6 @@ namespace analyser {
 	// 's' and 'e' are iterators pointing at the start and end of packet
 	// data to process.
 	void process(context_ptr c, pdu_iter s, pdu_iter e);
-
-	// Reaper, tidies things up when they get old.
-	reaper w;
 
     public:
 

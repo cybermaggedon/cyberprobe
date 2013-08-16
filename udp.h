@@ -9,7 +9,7 @@
 #define UDP_H
 
 #include "context.h"
-#include "analyser.h"
+#include "manager.h"
 
 namespace analyser {
     
@@ -18,10 +18,10 @@ namespace analyser {
       public:
 	
 	// Construcotr.
-        udp_context(watcher& w) : context(w) {}
+        udp_context(manager& m) : context(m) {}
 
 	// Constructor, when specifying flow address and parent context.
-        udp_context(watcher& w, const flow& a, context_ptr p) : context(w) { 
+        udp_context(manager& m, const flow& a, context_ptr p) : context(m) { 
 	    addr = a; parent = p; 
 	}
 
@@ -34,7 +34,8 @@ namespace analyser {
       public:
 	
 	// UDP processing.
-	static void process(engine& eng, context_ptr c, pdu_iter s, pdu_iter e);
+	static void process(manager& mgr, context_ptr c, pdu_iter s, 
+			    pdu_iter e);
 
     };
 
