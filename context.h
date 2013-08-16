@@ -8,20 +8,13 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#include <map>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-
 #include "socket.h"
-#include "thread.h"
 
-#include "pdu.h"
 #include "address.h"
 #include "flow.h"
 #include "exception.h"
 #include "reaper.h"
 #include "base_context.h"
-#include "observer.h"
 #include "manager.h"
 
 namespace analyser {

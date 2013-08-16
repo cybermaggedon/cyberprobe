@@ -2,6 +2,8 @@
 #ifndef IP_H
 #define IP_H
 
+#include <stdint.h>
+
 #include "context.h"
 #include "manager.h"
 

@@ -1,6 +1,8 @@
 
 #include "tcp.h"
 #include "manager.h"
+#include "pdu.h"
+#include "context.h"
 
 using namespace analyser;
 
@@ -34,10 +36,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     if (fc.get() == 0) {
 	fc = context_ptr(new tcp_context(mgr, f, c));
-
-	// Unreliable
-//	eng.connection_up(fc);
-
 	c->add_child(f, fc);
     }
 
@@ -49,32 +47,26 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // This is for the initial setup.  Works for both directions, ISN = seq + 1
     if (flags & SYN) {
-
 	tc.syn_observed = true;
 	tc.seq_expected = seq + 1;
-
-	// FIXME: Is data allowed in a connection request?
-	if (payload_length > 0) {
-	    mgr.connection_data(fc, s + header_length, e);
-	}
-
-	return;
     }
 
-    if (flags & FIN) {
+    // This works for either the step2 SYN/ACK or the step3 ACK.
+    if ((flags & ACK) && !tc.connected) {
+	tc.connected = true;
+	mgr.connection_up(fc);
+    }
 
-	tc.set_ttl(10);
-	
-// Unreliable
-//	eng.connection_down(fc);
-
+    // This works for the either of the close-down packets containing a FIN.
+    if ((flags & (FIN|RST)) && !tc.fin_observed) {
+	tc.fin_observed = true;
+	tc.set_ttl(2);
+	mgr.connection_down(fc);
 	return;
-
     }
 
     // Haven't ever seen SYN... ignore.
     if (tc.syn_observed == false) {
-
 	// FIXME: Do something more useful.  Should at least event on the
 	// data.
 	return;
@@ -106,7 +98,7 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	tc.seq_expected += payload_length;
 
 	if (payload_length > 0)
-	    mgr.connection_data(fc, s + header_length, e);
+	    post_process(mgr, fc, s + header_length, e);
 
     } else {
 
@@ -170,9 +162,9 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    // We already compared (>=) those two values above, this must be
 	    // positive or zero.
 
-	    mgr.connection_data(fc, 
-				tc.segments.begin()->segment.begin() + unwanted,
-				tc.segments.begin()->segment.end());
+	    post_process(mgr, fc, 
+			 tc.segments.begin()->segment.begin() + unwanted,
+			 tc.segments.begin()->segment.end());
 
 	    tc.seq_expected = tc.segments.begin()->last;
 
@@ -190,4 +182,10 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     }
     
 }
+
+void tcp::post_process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+{
+    mgr.connection_data(c, s, e);
+}
+
 

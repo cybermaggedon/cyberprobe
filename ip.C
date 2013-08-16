@@ -1,4 +1,6 @@
 
+#include <stdint.h>
+
 #include "ip.h"
 #include "tcp.h"
 #include "udp.h"

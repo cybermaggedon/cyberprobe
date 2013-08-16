@@ -8,6 +8,8 @@
 #ifndef TCP_H
 #define TCP_H
 
+#include <stdint.h>
+
 #include <set>
 
 #include "context.h"
@@ -31,9 +33,13 @@ namespace analyser {
       public:
 
 	bool syn_observed;
+	bool fin_observed;
 
-//	uint32_t seq_expected;
-//	uint32_t seq_observed;
+	bool pre_ident;
+	bool connected;
+
+	static const int pre_ident_len = 20;
+	pdu pre_ident_buffer;
 
 	serial<int32_t, uint32_t> seq_expected;
 
@@ -43,12 +49,16 @@ namespace analyser {
 	// Constructor.
         tcp_context(manager& m) : context(m) {
 	    syn_observed = false;
+	    pre_ident = true;
+	    connected = false;
 	}
 
 	// Constructor, describing flow address and parent pointer.
         tcp_context(manager& m, const flow& a, context_ptr p) : context(m) { 
 	    addr = a; parent = p; 
 	    syn_observed = false;
+	    pre_ident = true;
+	    connected = false;
 	}
 
 	// Type is "tcp".
@@ -72,6 +82,9 @@ namespace analyser {
 
 	// TCP processing function.
 	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
+
+	static void post_process(manager&, context_ptr c, pdu_iter s, 
+				 pdu_iter e);
 
     };
 
