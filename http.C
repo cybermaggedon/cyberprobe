@@ -49,9 +49,10 @@ void http::process_request(manager& mgr, context_ptr c,
 	    break;
 
 	case http_request_context::POST_PROTOCOL_EXP_NL:
-	    if (*s == '\n')
+	    if (*s == '\n') {
 		fc->state = http_request_context::MAYBE_KEY;
-	    else {
+		fc->key = fc->value = "";
+	    } else {
 		// Protocol violation!
 		fc->lock.unlock();
 		throw exception("HTTP protocol violation!");
@@ -71,7 +72,7 @@ void http::process_request(manager& mgr, context_ptr c,
 	    if (*s == ':')
 		fc->state = http_request_context::POST_KEY_EXP_SPACE;
 	    else
-		fc->key += *s;
+		fc->key += tolower(*s);
 	    break;
 
 	case http_request_context::POST_KEY_EXP_SPACE:
@@ -96,9 +97,10 @@ void http::process_request(manager& mgr, context_ptr c,
 	    break;
 
 	case http_request_context::POST_VALUE_EXP_NL:
-	    if (*s == '\n')
+	    if (*s == '\n') {
 		fc->state = http_request_context::MAYBE_KEY;
-	    else {
+		fc->key = fc->value = "";
+	    } else {
 		// Protocol violation!
 		fc->lock.unlock();
 		throw exception("HTTP request protocol violation!");
@@ -122,21 +124,23 @@ void http::process_request(manager& mgr, context_ptr c,
 		std::map<std::string,std::string>& header = fc->header;
 		fc->state = http_request_context::IN_DATA;
 
-		if ((header.find("transfer-encoding") != header.end()) &&
+		if (header.find("content-type") == header.end()) {
+		    // No body.
+		    fc->state = http_request_context::IN_METHOD;
+
+		    fc->method = fc->url = fc->protocol = "";
+		    header.clear();
+
+		} else if ((header.find("transfer-encoding") != header.end()) &&
 		    (header["transfer-encoding"] == "chunked")) {
-		    fc->body_mode = http_request_context::CHUNKED;
 		    fc->state = http_request_context::IN_CHUNK_LENGTH;
 		} else if (header.find("content-length") != header.end()) {
-		    fc->body_mode = http_request_context::CONTENT_LENGTH;
 		    fc->state = http_request_context::COUNTING_DATA;
 		    std::istringstream buf(header["content-length"]);
 		    buf >> std::dec >> fc->content_remaining;
 		} else
-		    fc->body_mode = 
-			http_request_context::BLANK_LINE_TERMINATION;
-
-		if (fc->header["transfer-encoding"] == "chunked")
-		    throw exception("Don't know how to handle chunked");
+		    // This state just looks for newline.
+		    fc->state = http_request_context::IN_DATA;
 
 	    } else {
 		// Protocol violation!
@@ -146,18 +150,10 @@ void http::process_request(manager& mgr, context_ptr c,
 	    break;
 
 	case http_request_context::IN_DATA:
-	    fc->body.push_back(*s);
-	    fc->content_remaining--;
-	    if (fc->content_remaining == 0) {
-		
-		// FIXME: Raise event here.
-		// FIXME: Clear state for next transaction.
-		
-		// Start of next transaction.
-		fc->state = http_request_context::IN_METHOD;
-
-	    }
-
+	    if (*s == '\r')
+		fc->state = http_request_context::IN_DATA_MAYBE_END;
+	    else
+		fc->body.push_back(*s);
 	    break;
 
 	case http_request_context::IN_DATA_MAYBE_END:
@@ -165,9 +161,39 @@ void http::process_request(manager& mgr, context_ptr c,
 		fc->body.push_back('\r');
 		fc->body.push_back(*s);
 		fc->state = http_request_context::IN_DATA;
-	    } else
-		// Start of next header.
+	    } else {
+
+		mgr.connection_data(c, fc->body.begin(), fc->body.end());
+		
+		// FIXME: Raise event here.
+
+		fc->method = fc->url = fc->protocol = "";
+		fc->header.clear();
+		
+		// Start of next transaction.
 		fc->state = http_request_context::IN_METHOD;
+
+	    }
+	    break;
+
+	case http_request_context::COUNTING_DATA:
+
+	    fc->body.push_back(*s);
+	    fc->content_remaining--;
+
+	    if (fc->content_remaining == 0) {
+
+		mgr.connection_data(c, fc->body.begin(), fc->body.end());
+		
+		// FIXME: Raise event here.
+
+		fc->method = fc->url = fc->protocol = "";
+		fc->header.clear();
+		
+		// Start of next transaction.
+		fc->state = http_request_context::IN_METHOD;
+
+	    }
 	    break;
 
 	default:

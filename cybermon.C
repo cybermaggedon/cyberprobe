@@ -64,6 +64,16 @@ public:
 	cml.datagram(*this, cp, s, e);
     }
 
+    // HTTP
+    virtual void http_request(const analyser::context_ptr cp,
+			      const std::string& method,
+			      const std::string& url,
+			      const std::map<std::string,std::string>& hdr,
+			      analyser::pdu_iter body_start,
+			      analyser::pdu_iter body_end) {
+	std::cerr << "HTTP! But not implemented." << std::endl;
+    }
+    
     // Trigger
     void trigger_up(const std::string& liid, const tcpip::address& a) {
 	cml.trigger_up(liid, a);

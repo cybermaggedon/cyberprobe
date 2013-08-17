@@ -21,8 +21,13 @@ namespace analyser {
 	virtual void datagram(const context_ptr cp,
 			      pdu_iter s, pdu_iter e) = 0;
 
-//	virtual void data(const context_ptr cp, 
-//			  pdu_iter s, pdu_iter e) = 0;
+	// HTTP
+	virtual void http_request(const context_ptr cp,
+				  const std::string& method,
+				  const std::string& url,
+				  const std::map<std::string,std::string>& hdr,
+				  pdu_iter body_start,
+				  pdu_iter body_end) = 0;
 
 	virtual void trigger_up(const std::string& liid,
 				const tcpip::address& trigger_address) = 0;

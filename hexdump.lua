@@ -31,7 +31,8 @@ observer.connection_data = function(context, data)
   io.write(string.format("Target %s:\n", liid))
   io.write(string.format("  %s -> %s\n", cybermon.describe_src(context),
            cybermon.describe_dest(context)))
-  observer.hexdump(data:sub(1, 16 * 8))
+--  observer.hexdump(data:sub(1, 16 * 8))
+  observer.hexdump(data)
   io.write("\n")
 end
 

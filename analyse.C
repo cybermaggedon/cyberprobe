@@ -29,6 +29,15 @@ public:
     void connection_down(const analyser::context_ptr f);
     void datagram(const analyser::context_ptr f, analyser::pdu_iter s, 
 		  analyser::pdu_iter e);
+
+    // HTTP
+    virtual void http_request(const analyser::context_ptr cp,
+			      const std::string& method,
+			      const std::string& url,
+			      const std::map<std::string,std::string>& hdr,
+			      analyser::pdu_iter body_start,
+			      analyser::pdu_iter body_end);
+
     virtual void trigger_up(const std::string& liid,
 			    const tcpip::address& trigger_address);
     virtual void trigger_down(const std::string& liid);
@@ -82,6 +91,24 @@ void obs::connection_up(const analyser::context_ptr f)
     std::cout << std::endl;
 
     std::cerr << "  Connected." << std::endl;
+    std::cout << std::endl;
+
+}
+
+void obs::http_request(const analyser::context_ptr f,
+		       const std::string& method,
+		       const std::string& url,
+		       const std::map<std::string,std::string>& hdr,
+		       analyser::pdu_iter body_start,
+		       analyser::pdu_iter body_end)
+{
+
+    describe_src(f, std::cout);
+    std::cout << " -> ";
+    describe_dest(f, std::cout);
+    std::cout << std::endl;
+
+    std::cerr << "  HTTP request " << method << " " << url << std::endl;
     std::cout << std::endl;
 
 }

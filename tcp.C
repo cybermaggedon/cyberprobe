@@ -214,24 +214,8 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
     if (!fc->svc_idented) {
 
-#ifdef OH_SOD_IT
-
-	// We could copy the whole buffer?
-	int to_copy = e - s;
-
-	// But not if that would overflow.
-	if ((fc->ident_buffer.size() + (e - s)) > fc->ident_buffer_max) {
-	    
-	    // In that case, copy less.
-	    to_copy = fc->ident_buffer_max - fc->ident_buffer.size();
-
-	}
-
-	fc->ident_buffer.append(s, s + to_copy);
-
-#endif
-
-	fc->ident_buffer.append(s, e);
+	// Copy into the ident buffer.
+	fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
 
 	// If not enough to run an ident, bail out.
 	if (fc->ident_buffer.size() < fc->ident_buffer_max) {
@@ -243,7 +227,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
 	boost::match_results<std::string::const_iterator> what;
 
-	if (regex_search(fc->ident_buffer, what, http_request,
+	if (regex_search(fc->ident_buffer, what, http_request, 
 			 boost::match_continuous)) {
 	    
 	    fc->processor = &http::process_request;
@@ -268,8 +252,10 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	fc->lock.unlock();
 
 	// Just need to process what's in the buffer.
-	tcp::post_process(mgr, fc, fc->ident_buffer.begin(),
-			  fc->ident_buffer.end());
+
+	pdu p;
+	p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
+	tcp::post_process(mgr, fc, p.begin(), p.end());
 	return;
 	
 
