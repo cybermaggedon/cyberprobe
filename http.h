@@ -20,20 +20,40 @@
 namespace analyser {
     
     // An HTTP context.
-    class http_context : public context {
+    class http_request_context : public context {
       public:
 	
 	// Constructor.
-        http_context(manager& m) : context(m) {
+        http_request_context(manager& m) : context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
-        http_context(manager& m, const flow& a, context_ptr p) : context(m) { 
+        http_request_context(manager& m, const flow& a, context_ptr p) : 
+	context(m) { 
+	    addr = a; parent = p; 
+	}
+
+	// Type.
+	virtual std::string get_type() { return "http_request"; }
+
+    };
+
+    // An HTTP context.
+    class http_response_context : public context {
+      public:
+	
+	// Constructor.
+        http_response_context(manager& m) : context(m) {
+	}
+
+	// Constructor, describing flow address and parent pointer.
+        http_response_context(manager& m, const flow& a, context_ptr p) : 
+	context(m) { 
 	    addr = a; parent = p; 
 	}
 
 	// Type is "http".
-	virtual std::string get_type() { return "http"; }
+	virtual std::string get_type() { return "http_respose"; }
     };
 
     class http {

@@ -25,7 +25,9 @@ namespace analyser {
 	IP6,			// IPv6.
 	TCP,			// TCP.
 	UDP,			// UDP
-	ICMP			// ICMP.
+	ICMP,			// ICMP.
+	HTTP_REQUEST,           // HTTP request.
+	HTTP_RESPONSE		// HTTP response.	
     };
     
     // The purpose served by the address.
