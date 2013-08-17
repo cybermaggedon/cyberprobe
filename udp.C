@@ -28,18 +28,11 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     flow f(src, dest);
 
-    context_ptr fc = c->get_context(f);
-
-    if (fc.get() == 0) {
-	fc = context_ptr(new udp_context(mgr, f, c));
-	c->add_child(f, fc);
-    }
-
-    udp_context& uc = dynamic_cast<udp_context&>(*fc);
+    udp_context::ptr fc = udp_context::get_or_create(c, f);
 
     // Set / update TTL on the context.
     // 120 seconds.
-    uc.set_ttl(context::default_ttl);
+    fc->set_ttl(context::default_ttl);
 
     mgr.datagram(fc, s + 4, e);
 

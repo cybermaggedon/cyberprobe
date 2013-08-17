@@ -16,7 +16,23 @@ namespace analyser {
 	    addr = a; parent = p; 
 	}
 	virtual std::string get_type() { return "udp"; }
-    };
+ 
+	typedef boost::shared_ptr<icmp_context> ptr;
+
+	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	    context_ptr cp = context_ptr(new icmp_context(m, f, par));
+	    return cp;
+	}
+
+	// Given a flow address, returns the child context.
+	static ptr get_or_create(context_ptr base, const flow& f) {
+	    context_ptr cp = context::get_or_create(base, f, 
+						    icmp_context::create);
+	    ptr sp = boost::dynamic_pointer_cast<icmp_context>(cp);
+	    return sp;
+	}
+
+   };
     
     class icmp {
 

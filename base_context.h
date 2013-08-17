@@ -64,7 +64,7 @@ namespace analyser {
 	}
 
 	// Given a flow address, returns the child context.
-	context_ptr get_context(const flow& f) {
+	context_ptr get_child(const flow& f) {
 	    lock.lock();
 	    context_ptr c;
 	    if (children.find(f) != children.end())

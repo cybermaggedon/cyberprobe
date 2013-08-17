@@ -47,46 +47,40 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     flow f(src, dest);
 
     // Get the IP context.
-    context_ptr fc = c->get_context(f);
-    if (fc.get() == 0) {
-	fc = context_ptr(new ip4_context(mgr, f, c));
-	c->add_child(f, fc);
-    }
-
-    ip4_context& ifc = *(dynamic_cast<ip4_context*>(fc.get()));
+    ip4_context::ptr fc = ip4_context::get_or_create(c, f);
 
     // Set / update TTL on the context.
     // 120 seconds.
-    ifc.set_ttl(context::default_ttl);
+    fc->set_ttl(context::default_ttl);
 
-    // Fragment processing or not?
+    fc->lock.lock();
 
     // Frag processing if the more_frags option is set.
     bool frag_proc = (flags & 1);
 
     // Frag processing if we've already seen frags for the IP ID we're looking 
     // at.
-    frag_proc |= (ifc.h_list.find(id) != ifc.h_list.end());
+    frag_proc |= (fc->h_list.find(id) != fc->h_list.end());
 
     // FIXME: Manage the queue size!  Timeout etc!
 
     if (frag_proc) {
 
 	// First things first, clear out old frags.
-	while (ifc.frags.size() > ifc.max_frag_list_len) {
+	while (fc->frags.size() > fc->max_frag_list_len) {
 
 	    // Get the ID from the oldest frag.
-	    unsigned long aging_id = ifc.frags.front().id;
+	    unsigned long aging_id = fc->frags.front().id;
 
 	    // We're about to throw this frag away, may as well clear out the
 	    // frag index and hole_list, cause if they're not complete, they
 	    // won't complete now.
-	    ifc.f_list.erase(aging_id);
-	    ifc.h_list.erase(aging_id);
-	    ifc.hdrs_list.erase(aging_id);
+	    fc->f_list.erase(aging_id);
+	    fc->h_list.erase(aging_id);
+	    fc->hdrs_list.erase(aging_id);
 
 	    // Delete the unwanted frag.
-	    ifc.frags.pop_front();
+	    fc->frags.pop_front();
 
 	}
 
@@ -95,17 +89,17 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	unsigned long frag_last = frag_offset + length - header_length;
 
 	// First frag seen?  Just create a hole from 0 .. infinity.
-	if (ifc.h_list.find(id) == ifc.h_list.end()) {
+	if (fc->h_list.find(id) == fc->h_list.end()) {
 	    fragment_hole fh;
 	    fh.first = 0;
 	    fh.last = 4000000;	// Just a ridiculously large value.
-	    ifc.h_list[id].push_back(fh);
+	    fc->h_list[id].push_back(fh);
 	}
 
 	// There's definitely a hole list now.
 
 	// Get the hole list.
-	hole_list& hl = ifc.h_list[id];
+	hole_list& hl = fc->h_list[id];
 
 	// Loop through holes.
 	hole_list::iterator it = hl.begin();
@@ -153,9 +147,9 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 	    unsigned long pdu_size = 0;
 
-	    fragment_list& fl = ifc.f_list[id];
+	    fragment_list& fl = fc->f_list[id];
 
-	    unsigned long header_size = ifc.hdrs_list[id].size();
+	    unsigned long header_size = fc->hdrs_list[id].size();
 
 	    for(std::list<fragment*>::iterator it2 = fl.begin();
 		it2 != fl.end();
@@ -187,7 +181,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 		      pdu.begin() + header_length + frag_first);
 
 	    // Now put the header in place.
-	    std::copy(ifc.hdrs_list[id].begin(), ifc.hdrs_list[id].end(), 
+	    std::copy(fc->hdrs_list[id].begin(), fc->hdrs_list[id].end(), 
 		      pdu.begin());
 
 	    // Change the 'more frags' flag in this PDU.
@@ -207,12 +201,14 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 	    // Tidy up all the frag stuff, so that frag processing doesn't
 	    // go re-entrant.
-	    ifc.h_list.erase(id);
-	    ifc.f_list.erase(id);
-	    ifc.hdrs_list.erase(id);
+	    fc->h_list.erase(id);
+	    fc->f_list.erase(id);
+	    fc->hdrs_list.erase(id);
 
 	    // We now have a complete IP packet!  Process it.
 	    ip::process_ip4(mgr, c, pdu.begin(), pdu.end());
+
+	    fc->lock.unlock();
 
 	    return;
 
@@ -224,7 +220,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    f.last = frag_last;
 	    f.id = id;
 
-	    ifc.frags.push_back(f);
+	    fc->frags.push_back(f);
 
 	    //FIXME: Is any of this thread safe?
 
@@ -232,24 +228,28 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    if (frag_first == 0) {
 
 		// Keep the IP header of the first frag.
-		ifc.hdrs_list[id].assign(s, s + header_length);
-		ifc.frags.back().frag.assign(s + header_length, e);
+		fc->hdrs_list[id].assign(s, s + header_length);
+		fc->frags.back().frag.assign(s + header_length, e);
 
 	    } else {
 
 		// Otherwise just keep the payload.
-		ifc.frags.back().frag.assign(s + header_length, e);
+		fc->frags.back().frag.assign(s + header_length, e);
 
 	    }
 
 	    // Put the frag in the ID->frag index.
-	    ifc.f_list[id].push_back(&(ifc.frags.back()));
+	    fc->f_list[id].push_back(&(fc->frags.back()));
 
 	}
+
+	fc->lock.unlock();
 
 	return;
 
     }
+
+    fc->lock.unlock();
 
     // Complete payload, just process it.
 

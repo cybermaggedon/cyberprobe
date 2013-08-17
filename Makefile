@@ -71,6 +71,8 @@ engine.o: thread.h context.h socket.h address.h pdu.h flow.h exception.h
 engine.o: reaper.h base_context.h manager.h observer.h engine.h ip.h
 etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
+http.o: http.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+http.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
 icmp.o: icmp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 icmp.o: thread.h base_context.h manager.h observer.h
 ip.o: ip.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
@@ -89,6 +91,7 @@ snort_alert.o: packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
+tcp.o: http.h
 test.o: reaper.h thread.h
 udp.o: udp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 udp.o: thread.h base_context.h manager.h observer.h

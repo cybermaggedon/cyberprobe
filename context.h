@@ -31,6 +31,8 @@ namespace analyser {
 
       public:
 
+	manager& get_manager() { return mgr; }
+
 	// Default time-to-live.
 	static const int default_ttl = 10;
 
@@ -81,6 +83,31 @@ namespace analyser {
 	    if (p)
 		p->children.erase(addr);
 
+	}
+
+	typedef context_ptr (*creator)(manager&, const flow&, context_ptr);
+
+	static context_ptr get_or_create(context_ptr base, const flow& f, 
+					 creator create_fn) {
+
+	    boost::shared_ptr<context> mc = 
+		boost::dynamic_pointer_cast<context>(base);
+
+	    mc->lock.lock();
+
+	    context_ptr ch;
+
+	    if (mc->children.find(f) != mc->children.end())
+		ch = base->children[f];
+	    else {
+		ch = (*create_fn)(mc->mgr, f, mc);
+		base->children[f] = ch;
+	    }
+		
+	    mc->lock.unlock();
+
+	    return ch;
+	    
 	}
 
     };

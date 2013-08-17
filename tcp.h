@@ -73,6 +73,22 @@ namespace analyser {
 
 	// Type is "tcp".
 	virtual std::string get_type() { return "tcp"; }
+
+	typedef boost::shared_ptr<tcp_context> ptr;
+
+	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	    context_ptr cp = context_ptr(new tcp_context(m, f, par));
+	    return cp;
+	}
+
+	// Given a flow address, returns the child context.
+	static ptr get_or_create(context_ptr base, const flow& f) {
+	    context_ptr cp = context::get_or_create(base, f, 
+						    tcp_context::create);
+	    ptr sp = boost::dynamic_pointer_cast<tcp_context>(cp);
+	    return sp;
+	}
+
     };
 
     class tcp {
@@ -94,7 +110,7 @@ namespace analyser {
 	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
 
 	// Process on re-synchronised streams.
-	static void post_process(manager&, context_ptr c, pdu_iter s, 
+	static void post_process(manager&, tcp_context::ptr c, pdu_iter s, 
 				 pdu_iter e);
 
     };

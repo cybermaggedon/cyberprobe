@@ -36,6 +36,21 @@ namespace analyser {
 	// Type.
 	virtual std::string get_type() { return "http_request"; }
 
+	typedef boost::shared_ptr<http_request_context> ptr;
+
+	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	    context_ptr cp = context_ptr(new http_request_context(m, f, par));
+	    return cp;
+	}
+
+	// Given a flow address, returns the child context.
+	static ptr get_or_create(context_ptr base, const flow& f) {
+	    context_ptr cp = 
+		context::get_or_create(base, f, http_request_context::create);
+	    ptr sp = boost::dynamic_pointer_cast<http_request_context>(cp);
+	    return sp;
+	}
+
     };
 
     // An HTTP context.
@@ -53,7 +68,23 @@ namespace analyser {
 	}
 
 	// Type is "http".
-	virtual std::string get_type() { return "http_respose"; }
+	virtual std::string get_type() { return "http_response"; }
+
+	typedef boost::shared_ptr<http_response_context> ptr;
+
+	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	    context_ptr cp = context_ptr(new http_response_context(m, f, par));
+	    return cp;
+	}
+
+	// Given a flow address, returns the child context.
+	static ptr get_or_create(context_ptr base, const flow& f) {
+	    context_ptr cp = 
+		context::get_or_create(base, f, http_response_context::create);
+	    ptr sp = boost::dynamic_pointer_cast<http_response_context>(cp);
+	    return sp;
+	}
+
     };
 
     class http {
