@@ -99,8 +99,12 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	// Advance the expected sequence.
 	fc->seq_expected += payload_length;
 
-	if (payload_length > 0)
+	if (payload_length > 0) {
+	    fc->lock.unlock();
 	    post_process(mgr, fc, s + header_length, e);
+	    fc->lock.lock();
+	}
+	    
 
     } else {
 
@@ -170,9 +174,13 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    // We already compared (>=) those two values above, this must be
 	    // positive or zero.
 
+	    fc->lock.unlock();
+
 	    post_process(mgr, fc, 
 			 fc->segments.begin()->segment.begin() + unwanted,
 			 fc->segments.begin()->segment.end());
+
+	    fc->lock.lock();
 
 	    fc->seq_expected = fc->segments.begin()->last;
 
@@ -206,6 +214,8 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
     if (!fc->svc_idented) {
 
+#ifdef OH_SOD_IT
+
 	// We could copy the whole buffer?
 	int to_copy = e - s;
 
@@ -219,6 +229,10 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
 	fc->ident_buffer.append(s, s + to_copy);
 
+#endif
+
+	fc->ident_buffer.append(s, e);
+
 	// If not enough to run an ident, bail out.
 	if (fc->ident_buffer.size() < fc->ident_buffer_max) {
 	    fc->lock.unlock();
@@ -231,7 +245,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
 	if (regex_search(fc->ident_buffer, what, http_request,
 			 boost::match_continuous)) {
-
+	    
 	    fc->processor = &http::process_request;
 	    fc->svc_idented = true;
 
@@ -241,13 +255,23 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	    fc->processor = &http::process_response;
 	    fc->svc_idented = true;
 
-	} else
+	} else {
 	
 	    // Default.
 	    fc->processor = 0;
 	    fc->svc_idented = true;
+	    
+	}
+	
+	// Good, we're idented now.
 
-	    // FIXME: What about the buffer???
+	fc->lock.unlock();
+
+	// Just need to process what's in the buffer.
+	tcp::post_process(mgr, fc, fc->ident_buffer.begin(),
+			  fc->ident_buffer.end());
+	return;
+	
 
     }
 
