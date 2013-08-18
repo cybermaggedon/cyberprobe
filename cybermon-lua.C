@@ -2,6 +2,8 @@
 #include <sstream>
 #include <cybermon-lua.h>
 
+using namespace analyser;
+
 int cybermon_lua::describe_src(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
@@ -316,7 +318,6 @@ void cybermon_lua::datagram(analyser::engine& an,
     an.get_root_info(f, liid, trigger_address);
 
     cybermon_context h;
-
     h.an = &an;
     h.ctxt = f;
     h.s = s;
@@ -337,6 +338,102 @@ void cybermon_lua::datagram(analyser::engine& an,
     
     // observer.data(context, data)
     call(2, 0);
+    
+    // Still got 'observer' left on stack, it can go.
+    pop(1);
+
+}
+
+void cybermon_lua::http_request(engine& an, const context_ptr f,
+				const std::string& method,
+				const std::string& url,
+				const std::map<std::string,std::string>& hdr,
+				pdu_iter s,
+				pdu_iter e)
+{
+
+    // Get information stored about the attacker.
+    std::string liid;
+    analyser::address trigger_address;
+    an.get_root_info(f, liid, trigger_address);
+
+    cybermon_context h;
+    h.an = &an;
+    h.ctxt = f;
+    h.s = s;
+    h.e = e;
+    h.liid = liid;
+    h.trigger = trigger_address;
+    h.cml = this;
+    
+    // Get observer.http_request
+    get_global("config");
+    get_field(-1, "http_request");
+    
+    // Put hideous on the stack
+    push_cybermon_context(h);
+
+    // Push method
+    push(method);
+
+    // Push URL
+    push(url);
+
+    // Put data on stack.
+    push(s, e);
+
+    // FIXME: Push hdr on stack.
+    
+    // observer.data(context, data)
+    call(4, 0);
+    
+    // Still got 'observer' left on stack, it can go.
+    pop(1);
+
+}
+
+void cybermon_lua::http_response(engine& an, const context_ptr f,
+				 unsigned int code,
+				 const std::string& status,
+				 const std::map<std::string,std::string>& hdr,
+				 pdu_iter s,
+				 pdu_iter e)
+{
+
+    // Get information stored about the attacker.
+    std::string liid;
+    analyser::address trigger_address;
+    an.get_root_info(f, liid, trigger_address);
+
+    cybermon_context h;
+    h.an = &an;
+    h.ctxt = f;
+    h.s = s;
+    h.e = e;
+    h.liid = liid;
+    h.trigger = trigger_address;
+    h.cml = this;
+    
+    // Get observer.http_request
+    get_global("config");
+    get_field(-1, "http_response");
+    
+    // Put hideous on the stack
+    push_cybermon_context(h);
+
+    // Push method
+    push(code);
+
+    // Push URL
+    push(status);
+
+    // Put data on stack.
+    push(s, e);
+
+    // FIXME: Push hdr on stack.
+    
+    // observer.data(context, data)
+    call(4, 0);
     
     // Still got 'observer' left on stack, it can go.
     pop(1);

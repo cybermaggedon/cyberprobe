@@ -47,6 +47,11 @@ void address::describe(std::ostream& out) const
 	return;
     }
 
+    if (proto == HTTP) {
+	out << "HTTP";
+	return;
+    }
+
     out << "Not describable";
 
 }

@@ -28,6 +28,13 @@ namespace analyser {
 				  const std::map<std::string,std::string>& hdr,
 				  pdu_iter body_start,
 				  pdu_iter body_end) = 0;
+	virtual void http_response(const context_ptr cp,
+				   unsigned int code,
+				   const std::string& status,
+				   const std::map<std::string,std::string>& hdr,
+				   pdu_iter body_start,
+				   pdu_iter body_end) = 0;
+
 
 	virtual void trigger_up(const std::string& liid,
 				const tcpip::address& trigger_address) = 0;

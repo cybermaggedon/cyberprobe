@@ -51,6 +51,42 @@ observer.trigger_down = function(liid)
   io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
+observer.http_request = function(context, method, url, body)
+
+  -- Get the LIID
+  local liid = cybermon.get_liid(context)
+
+  -- This gets a (vaguely) human readable description of the source and
+  -- destination protocol stacks.
+  local src = cybermon.describe_src(context)
+  local dest = cybermon.describe_dest(context)
+
+  -- Write out the information on standard output.
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", src, dest))
+  io.write(string.format("  HTTP request %s %s\n", method, url))
+  io.write("\n")
+
+end
+
+observer.http_response = function(context, code, status, body)
+
+  -- Get the LIID
+  local liid = cybermon.get_liid(context)
+
+  -- This gets a (vaguely) human readable description of the source and
+  -- destination protocol stacks.
+  local src = cybermon.describe_src(context)
+  local dest = cybermon.describe_dest(context)
+
+  -- Write out the information on standard output.
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", src, dest))
+  io.write(string.format("  HTTP response %d %s\n", code, status))
+  io.write("\n")
+
+end
+
 -- Return the table
 return observer
 

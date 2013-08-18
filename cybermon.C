@@ -32,7 +32,7 @@ Usage:
 // events and keep tabs on how much data has flowed out to attackers.
 class obs : public analyser::engine {
 private:
-    cybermon_lua cml;
+    analyser::cybermon_lua cml;
 
 public:
 
@@ -71,9 +71,18 @@ public:
 			      const std::map<std::string,std::string>& hdr,
 			      analyser::pdu_iter body_start,
 			      analyser::pdu_iter body_end) {
-	std::cerr << "HTTP! But not implemented." << std::endl;
+	cml.http_request(*this, cp, method, url, hdr, body_start, body_end);
     }
-    
+
+    virtual void http_response(const analyser::context_ptr cp,
+			       unsigned int code,
+			       const std::string& status,
+			       const std::map<std::string,std::string>& hdr,
+			       analyser::pdu_iter body_start,
+			       analyser::pdu_iter body_end) {
+	cml.http_response(*this, cp, code, status, hdr, body_start, body_end);
+    }
+
     // Trigger
     void trigger_up(const std::string& liid, const tcpip::address& a) {
 	cml.trigger_up(liid, a);

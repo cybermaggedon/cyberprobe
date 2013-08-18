@@ -112,30 +112,13 @@ namespace analyser {
 		f_rev.src = f.dest;
 		f_rev.dest = f.src;
 
-		std::cerr << "Created " << ch->get_type() << std::endl;
-		std::cerr << "  address is ";
-		f.src.describe(std::cerr);
-		std::cerr << " -> ";
-		f.dest.describe(std::cerr);
-		std::cerr << std::endl;
-
-		std::cerr << "  reverse is ";
-		f_rev.src.describe(std::cerr);
-		std::cerr << " -> ";
-		f_rev.dest.describe(std::cerr);
-		std::cerr << std::endl;
-
 		// First of all, see if the base context's reverse has this
 		// reverse flow.
 		context_ptr base_rev = base->reverse.lock();
 		if (base_rev) {
 
-		    std::cerr << "  considering the reverse." << std::endl;
-
 		    if (base_rev->children.find(f_rev) != 
 			base_rev->children.end()) {
-
-			std::cerr << "  FOUND!" << std::endl;
 
 			// If the base's reverse has such a child, use that
 			// as the new context's reverse.
@@ -151,11 +134,7 @@ namespace analyser {
 		    
 		    // The base has no reverse.  Try its children.
 
-		    std::cerr << "  considering the base." << std::endl;
-
 		    if (base->children.find(f_rev) != base->children.end()) {
-
-			std::cerr << "  FOUND!" << std::endl;
 
 			// If the base's reverse has such a child, use that
 			// as the new context's reverse.
@@ -166,11 +145,6 @@ namespace analyser {
 
 		    }
 
-		}
-
-		context_ptr rv = ch->reverse.lock();
-		if (rv) {
-		    std::cerr << "  got a reverse!" << std::endl;
 		}
 
 	    }

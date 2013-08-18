@@ -110,6 +110,7 @@ void http::process_request(manager& mgr, context_ptr c,
 	case http_request_context::POST_HEADER_EXP_NL:
 	    if (*s == '\n') {
 
+#ifdef USEFUL_DEBUG_I_GUESS
 		std::cerr << "Method = " << fc->method << std::endl;
 		std::cerr << "Url = " << fc->url << std::endl;
 		std::cerr << "Proto = " << fc->protocol << std::endl;
@@ -120,6 +121,7 @@ void http::process_request(manager& mgr, context_ptr c,
 		    std::cerr << "(" << it->first << ") = (" << it->second
 			      << ")" << std::endl;
 		}
+#endif
 
 		std::map<std::string,std::string>& header = fc->header;
 		fc->state = http_request_context::IN_DATA;
@@ -162,10 +164,9 @@ void http::process_request(manager& mgr, context_ptr c,
 		fc->body.push_back(*s);
 		fc->state = http_request_context::IN_DATA;
 	    } else {
-
-		mgr.connection_data(c, fc->body.begin(), fc->body.end());
 		
-		// FIXME: Raise event here.
+		mgr.http_request(fc, fc->method, fc->url, fc->header, 
+				 fc->body.begin(), fc->body.end());
 
 		fc->method = fc->url = fc->protocol = "";
 		fc->header.clear();
@@ -182,10 +183,9 @@ void http::process_request(manager& mgr, context_ptr c,
 	    fc->content_remaining--;
 
 	    if (fc->content_remaining == 0) {
-
-		mgr.connection_data(c, fc->body.begin(), fc->body.end());
 		
-		// FIXME: Raise event here.
+		mgr.http_request(fc, fc->method, fc->url,
+				 fc->header, fc->body.begin(), fc->body.end());
 
 		fc->method = fc->url = fc->protocol = "";
 		fc->header.clear();
@@ -313,6 +313,7 @@ void http::process_response(manager& mgr, context_ptr c,
 	case http_response_context::POST_HEADER_EXP_NL:
 	    if (*s == '\n') {
 
+#ifdef USEFUL_DEBUG_I_GUESS
 		std::cerr << "code = " << fc->code << std::endl;
 		std::cerr << "status = " << fc->status << std::endl;
 		std::cerr << "Proto = " << fc->protocol << std::endl;
@@ -323,6 +324,7 @@ void http::process_response(manager& mgr, context_ptr c,
 		    std::cerr << "(" << it->first << ") = (" << it->second
 			      << ")" << std::endl;
 		}
+#endif
 
 		std::map<std::string,std::string>& header = fc->header;
 		fc->state = http_response_context::IN_DATA;
@@ -366,9 +368,12 @@ void http::process_response(manager& mgr, context_ptr c,
 		fc->state = http_response_context::IN_DATA;
 	    } else {
 
-		mgr.connection_data(c, fc->body.begin(), fc->body.end());
-		
-		// FIXME: Raise event here.
+		std::istringstream buf(fc->code);
+		unsigned int code;
+		buf >> code;
+
+		mgr.http_response(fc, code, fc->status, fc->header, 
+				  fc->body.begin(), fc->body.end());
 
 		fc->protocol = fc->code = fc->status = "";
 		fc->header.clear();
@@ -386,7 +391,12 @@ void http::process_response(manager& mgr, context_ptr c,
 
 	    if (fc->content_remaining == 0) {
 
-		mgr.connection_data(c, fc->body.begin(), fc->body.end());
+		std::istringstream buf(fc->code);
+		unsigned int code;
+		buf >> code;
+
+		mgr.http_response(fc, code, fc->status, fc->header, 
+				  fc->body.begin(), fc->body.end());
 		
 		// FIXME: Raise event here.
 
@@ -411,5 +421,4 @@ void http::process_response(manager& mgr, context_ptr c,
 
     fc->lock.unlock();
 
-//    mgr.connection_data(c, s, e);
 }

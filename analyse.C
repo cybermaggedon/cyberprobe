@@ -37,6 +37,12 @@ public:
 			      const std::map<std::string,std::string>& hdr,
 			      analyser::pdu_iter body_start,
 			      analyser::pdu_iter body_end);
+    virtual void http_response(const analyser::context_ptr cp,
+			       unsigned int code,
+			       const std::string& status,
+			       const std::map<std::string,std::string>& hdr,
+			       analyser::pdu_iter body_start,
+			       analyser::pdu_iter body_end);
 
     virtual void trigger_up(const std::string& liid,
 			    const tcpip::address& trigger_address);
@@ -109,6 +115,24 @@ void obs::http_request(const analyser::context_ptr f,
     std::cout << std::endl;
 
     std::cerr << "  HTTP request " << method << " " << url << std::endl;
+    std::cout << std::endl;
+
+}
+
+void obs::http_response(const analyser::context_ptr f,
+			unsigned int code,
+			const std::string& status,
+			const std::map<std::string,std::string>& hdr,
+			analyser::pdu_iter body_start,
+			analyser::pdu_iter body_end)
+{
+
+    describe_src(f, std::cout);
+    std::cout << " -> ";
+    describe_dest(f, std::cout);
+    std::cout << std::endl;
+
+    std::cerr << "  HTTP response " << code << " " << status << std::endl;
     std::cout << std::endl;
 
 }
