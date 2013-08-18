@@ -81,6 +81,9 @@ bool delivery::ipv4_match(const_iterator& start,
 			  tcpip::ip4_address& hit)
 {
 
+    // FIXME: What if it matches on more than one address?!
+    // FIXME: Should be tagged with more than one LIID? 
+
     // Too small to be an IP packet?
     if (end - start < 20) return false;
     
@@ -122,6 +125,9 @@ bool delivery::ipv6_match(const_iterator& start,
 			  std::string& liid,
 			  tcpip::ip6_address& hit)
 {
+
+    // FIXME: What if it matches on more than one address?!
+    // FIXME: Should be tagged with more than one LIID? 
 
     // Too small to be an IPv6 packet?
     if (end - start < 40) return false;

@@ -46,6 +46,10 @@ namespace analyser {
 	// shared_ptr cycle.
 	boost::weak_ptr<base_context> parent;
 
+	// Use weak_ptr for the 'reverse flow' link, cause otherwise there's a
+	// shared_ptr cycle.
+	boost::weak_ptr<base_context> reverse;
+
 	// Child contexts.
 	std::map<flow,context_ptr> children;
 

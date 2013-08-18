@@ -9,7 +9,7 @@ using namespace analyser;
 
 
 // Describe the address in human-readable on an output-stream.
-void address::describe(std::ostream& out)
+void address::describe(std::ostream& out) const
 {
 
     if (layer == ROOT) {

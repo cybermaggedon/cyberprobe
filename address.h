@@ -26,8 +26,7 @@ namespace analyser {
 	TCP,			// TCP.
 	UDP,			// UDP
 	ICMP,			// ICMP.
-	HTTP_REQUEST,           // HTTP request.
-	HTTP_RESPONSE		// HTTP response.	
+	HTTP,                   // HTTP.
     };
     
     // The purpose served by the address.
@@ -77,7 +76,7 @@ namespace analyser {
 	}
 	
 	// Describe the address in human-readable on an output-stream.
-	void describe(std::ostream& out);
+	void describe(std::ostream& out) const;
 
 	// Less-than operator.
 	bool operator<(const address& a) const {

@@ -19,7 +19,7 @@
 
 namespace analyser {
     
-    // An HTTP context.
+    // An HTTP request context.
     class http_request_context : public context {
       public:
 
@@ -37,10 +37,6 @@ namespace analyser {
 	    COUNTING_CHUNK_DATA
 
 	} state;
-
-	enum {
-	    CHUNKED, CONTENT_LENGTH, BLANK_LINE_TERMINATION
-	} body_mode;
 
 	std::string method;
 	std::string url;
@@ -86,21 +82,50 @@ namespace analyser {
 
     };
 
-    // An HTTP context.
+    // An HTTP response context.
     class http_response_context : public context {
       public:
+
+	enum {
+	    IN_PROTOCOL, IN_CODE, IN_STATUS, POST_STATUS_EXP_NL,
+	    MAYBE_KEY, IN_KEY, POST_KEY_EXP_SPACE,
+	    IN_VALUE, POST_VALUE_EXP_NL,
+	    POST_HEADER_EXP_NL,
+	    IN_DATA, IN_DATA_MAYBE_END,
+	    
+	    COUNTING_DATA,
+
+	    IN_CHUNK_LENGTH,
+	    POST_CHUNK_LENGTH_EXP_NL,
+	    COUNTING_CHUNK_DATA
+
+	} state;
+
+	std::string protocol;
+	std::string code;
+	std::string status;
+
+	std::map<std::string, std::string> header;
+	std::string key;
+	std::string value;
+	
+	unsigned long long content_remaining;
+
+	pdu body;
 	
 	// Constructor.
         http_response_context(manager& m) : context(m) {
+	    state = http_response_context::IN_PROTOCOL;
 	}
 
 	// Constructor, describing flow address and parent pointer.
         http_response_context(manager& m, const flow& a, context_ptr p) : 
 	context(m) { 
 	    addr = a; parent = p; 
+	    state = http_response_context::IN_PROTOCOL;
 	}
 
-	// Type is "http".
+	// Type.
 	virtual std::string get_type() { return "http_response"; }
 
 	typedef boost::shared_ptr<http_response_context> ptr;
