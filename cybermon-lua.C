@@ -347,7 +347,7 @@ void cybermon_lua::datagram(analyser::engine& an,
 void cybermon_lua::http_request(engine& an, const context_ptr f,
 				const std::string& method,
 				const std::string& url,
-				const std::map<std::string,std::string>& hdr,
+				const std::map<std::string,std::pair<std::string,std::string> >& hdr,
 				pdu_iter s,
 				pdu_iter e)
 {
@@ -383,13 +383,13 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     create_table(0, hdr.size());
 
     // Loop through header
-    for(std::map<std::string,std::string>::const_iterator it = hdr.begin();
+    for(std::map<std::string,std::pair<std::string,std::string> >::const_iterator it = hdr.begin();
 	it != hdr.end();
 	it++) {
 
 	// Set table row.
-	push(it->first);
-	push(it->second);
+	push(it->second.first);
+	push(it->second.second);
 	set_table(-3);
 
     }
@@ -408,7 +408,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 unsigned int code,
 				 const std::string& status,
-				 const std::map<std::string,std::string>& hdr,
+				 const std::map<std::string,std::pair<std::string,std::string> >& hdr,
 				 pdu_iter s,
 				 pdu_iter e)
 {
@@ -444,13 +444,13 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     create_table(0, hdr.size());
 
     // Loop through header
-    for(std::map<std::string,std::string>::const_iterator it = hdr.begin();
+    for(std::map<std::string,std::pair<std::string,std::string> >::const_iterator it = hdr.begin();
 	it != hdr.end();
 	it++) {
 
 	// Set table row.
-	push(it->first);
-	push(it->second);
+	push(it->second.first);
+	push(it->second.second);
 	set_table(-3);
 
     }

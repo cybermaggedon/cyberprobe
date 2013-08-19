@@ -221,14 +221,14 @@ namespace analyser {
 	void http_request(engine& an, const context_ptr cf,
 			  const std::string& method,
 			  const std::string& url,
-			  const std::map<std::string,std::string>& hdr,
+			  const std::map<std::string,std::pair<std::string,std::string> >& hdr,
 			  pdu_iter body_start,
 			  pdu_iter body_end);
 
 	void http_response(engine& an, const context_ptr cf,
 			   unsigned int code,
 			   const std::string& status,
-			   const std::map<std::string,std::string>& hdr,
+			  const std::map<std::string,std::pair<std::string,std::string> >& hdr,
 			   pdu_iter body_start,
 			   pdu_iter body_end);
 

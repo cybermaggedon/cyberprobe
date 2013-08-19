@@ -18,48 +18,115 @@
 #include "protocol.h"
 
 namespace analyser {
-    
-    // An HTTP request context.
-    class http_request_context : public context {
-      public:
+
+    // HTTP parser.  The request / response structures are almost identical,
+    // so this parser make most use of the commonality.
+
+    // Type of the header
+    typedef 
+	std::map<std::string, std::pair<std::string,std::string> > http_hdr_t;
+
+    class http_parser {
+    public:
+
+	enum variant_t { REQUEST, RESPONSE };
+
+    private:
+	
+	variant_t variant;
 
 	enum {
-	    IN_METHOD, IN_URL, IN_PROTOCOL, POST_PROTOCOL_EXP_NL,
+
+	    // Request variant
+	    IN_REQUEST_METHOD, IN_REQUEST_URL, IN_REQUEST_PROTOCOL,
+	    POST_REQUEST_PROTOCOL_EXP_NL,
+
+	    // Response variant
+	    IN_RESPONSE_PROTOCOL, IN_RESPONSE_CODE, IN_RESPONSE_STATUS, 
+	    POST_RESPONSE_STATUS_EXP_NL,
+
+	    // Header
 	    MAYBE_KEY, IN_KEY, POST_KEY_EXP_SPACE,
 	    IN_VALUE, POST_VALUE_EXP_NL,
 	    POST_HEADER_EXP_NL,
-	    IN_DATA, IN_DATA_MAYBE_END,
-	    
-	    COUNTING_DATA,
 
+	    // Body, scanning for CRLF end.
+	    IN_BODY, IN_BODY_AFTER_CR,
+	    
+	    // Body, just counting bytes.
+	    COUNTING_DATA,
+	    
+	    // Body, chunked transfer encoding.
 	    IN_CHUNK_LENGTH,
 	    POST_CHUNK_LENGTH_EXP_NL,
-	    COUNTING_CHUNK_DATA
+	    COUNTING_CHUNK_DATA,
+	    POST_CHUNKED_EXP_NL
 
 	} state;
 
-	std::string method;
-	std::string url;
+	void reset_transaction() {
+	    protocol = method = url = code = status = "";
+	    body.clear();
+	    header.clear();
+	}
+
+    public:
+
+	http_parser(variant_t var) {
+	    variant = var;
+	    reset_transaction();
+
+	    if (var == REQUEST)
+		state = IN_REQUEST_METHOD;
+	    else
+		state = IN_RESPONSE_PROTOCOL;
+	}
+
+	// Common to request and response.
 	std::string protocol;
 
-	std::map<std::string, std::string> header;
+	// For the request.
+	std::string method;
+	std::string url;
+
+	// For the response.
+	std::string code;
+	std::string status;
+
+	// Header key/val fields.
+	http_hdr_t header;
+
+	// Used when picking up key/value pairs.
 	std::string key;
 	std::string value;
+
+	// Used for processing chunked transfer encoding.
+	std::string chunk_length;
 	
+	// Used when reading data.
 	unsigned long long content_remaining;
 
+	// Payload is received here.
 	pdu body;
+
+	// Parse.
+	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);
+
+    };
+    
+    // An HTTP request context.
+    class http_request_context : public context, public http_parser {
+      public:
 	
 	// Constructor.
-        http_request_context(manager& m) : context(m) {
-	    state = IN_METHOD;
+        http_request_context(manager& m) : 
+	context(m), http_parser(REQUEST) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         http_request_context(manager& m, const flow& a, context_ptr p) : 
-	context(m) { 
+	context(m), http_parser(REQUEST) { 
 	    addr = a; parent = p; 
-	    state = IN_METHOD;
 	}
 
 	// Type.
@@ -83,49 +150,18 @@ namespace analyser {
     };
 
     // An HTTP response context.
-    class http_response_context : public context {
+    class http_response_context : public context, public http_parser {
       public:
 
-	enum {
-	    IN_PROTOCOL, IN_CODE, IN_STATUS, POST_STATUS_EXP_NL,
-	    MAYBE_KEY, IN_KEY, POST_KEY_EXP_SPACE,
-	    IN_VALUE, POST_VALUE_EXP_NL,
-	    POST_HEADER_EXP_NL,
-	    IN_DATA, IN_DATA_MAYBE_END,
-	    
-	    COUNTING_DATA,
-
-	    IN_CHUNK_LENGTH,
-	    POST_CHUNK_LENGTH_EXP_NL,
-	    COUNTING_CHUNK_DATA,
-	    POST_CHUNKED_EXP_NL
-
-	} state;
-
-	std::string protocol;
-	std::string code;
-	std::string status;
-
-	std::map<std::string, std::string> header;
-	std::string key;
-	std::string value;
-
-	std::string chunk_length;
-	
-	unsigned long long content_remaining;
-
-	pdu body;
-	
 	// Constructor.
-        http_response_context(manager& m) : context(m) {
-	    state = http_response_context::IN_PROTOCOL;
+        http_response_context(manager& m) :
+	context(m), http_parser(RESPONSE) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         http_response_context(manager& m, const flow& a, context_ptr p) : 
-	context(m) { 
+	context(m), http_parser(RESPONSE) { 
 	    addr = a; parent = p; 
-	    state = http_response_context::IN_PROTOCOL;
 	}
 
 	// Type.

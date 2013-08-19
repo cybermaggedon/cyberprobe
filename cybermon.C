@@ -68,7 +68,7 @@ public:
     virtual void http_request(const analyser::context_ptr cp,
 			      const std::string& method,
 			      const std::string& url,
-			      const std::map<std::string,std::string>& hdr,
+			      const analyser::observer::http_hdr_t& hdr,
 			      analyser::pdu_iter body_start,
 			      analyser::pdu_iter body_end) {
 	cml.http_request(*this, cp, method, url, hdr, body_start, body_end);
@@ -77,7 +77,7 @@ public:
     virtual void http_response(const analyser::context_ptr cp,
 			       unsigned int code,
 			       const std::string& status,
-			       const std::map<std::string,std::string>& hdr,
+			       const analyser::observer::http_hdr_t& hdr,
 			       analyser::pdu_iter body_start,
 			       analyser::pdu_iter body_end) {
 	cml.http_response(*this, cp, code, status, hdr, body_start, body_end);

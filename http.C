@@ -4,8 +4,356 @@
 #include "address.h"
 #include "http.h"
 #include "ctype.h"
+#include "manager.h"
 
 using namespace analyser;
+
+static unsigned char tolol(unsigned char c) {
+		    return tolower(c);
+		};
+
+// HTTP response processing function.
+void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
+{
+
+    while (s != e) {
+
+	switch (state) {
+
+	case http_parser::IN_REQUEST_METHOD:
+	    if (*s == ' ')
+		state = http_parser::IN_REQUEST_URL;
+	    else
+		method += *s;
+	    break;
+
+	case http_parser::IN_REQUEST_URL:
+	    if (*s == ' ')
+		state = http_parser::IN_REQUEST_PROTOCOL;
+	    else
+		url += *s;
+	    break;
+
+	case http_parser::IN_REQUEST_PROTOCOL:
+	    if (*s == '\r')
+		state = http_parser::POST_REQUEST_PROTOCOL_EXP_NL;
+	    else
+		protocol += *s;
+	    break;
+
+	case http_parser::POST_REQUEST_PROTOCOL_EXP_NL:
+	    if (*s == '\n') {
+		state = http_parser::MAYBE_KEY;
+		key = value = "";
+	    } else
+		// Protocol violation!
+		throw exception("HTTP protocol violation!");
+	    break;
+
+	case http_parser::IN_RESPONSE_PROTOCOL:
+	    if (*s == ' ')
+		state = http_parser::IN_RESPONSE_CODE;
+	    else
+		protocol += *s;
+	    break;
+
+	case http_parser::IN_RESPONSE_CODE:
+	    if (*s == ' ')
+		state = http_parser::IN_RESPONSE_STATUS;
+	    else
+		code += *s;
+	    break;
+
+	case http_parser::IN_RESPONSE_STATUS:
+	    if (*s == '\r')
+		state = http_parser::POST_RESPONSE_STATUS_EXP_NL;
+	    else
+		status += *s;
+	    break;
+
+	case http_parser::POST_RESPONSE_STATUS_EXP_NL:
+	    if (*s == '\n') {
+		state = http_parser::MAYBE_KEY;
+		key = value = "";
+	    } else {
+		// Protocol violation!
+		throw exception("HTTP protocol violation!");
+	    }
+	    break;
+
+	case http_parser::MAYBE_KEY:
+	    if (*s == '\r')
+		state = http_parser::POST_HEADER_EXP_NL;
+	    else {
+		key += *s;
+		state = http_parser::IN_KEY;
+	    }
+	    break;
+
+	case http_parser::IN_KEY:
+	    if (*s == ':')
+		state = http_parser::POST_KEY_EXP_SPACE;
+	    else
+		key += *s;
+	    break;
+
+	case http_parser::POST_KEY_EXP_SPACE:
+	    if (*s == ' ')
+		state = http_parser::IN_VALUE;
+	    else {
+		// Protocol violation!
+		throw exception("HTTP protocol violation!");
+	    }
+	    break;
+
+	case http_parser::IN_VALUE:
+	    if (*s == '\r') {
+
+		 std::string lowerc;
+		 std::transform(key.begin(), key.end(), back_inserter(lowerc), 
+				tolol);
+
+		 header[lowerc] =
+		     std::pair<std::string,std::string>(key, value);
+
+		 key = "";
+		 value = "";
+
+		 state = http_parser::POST_VALUE_EXP_NL;
+	     } else
+		 value += *s;
+	     break;
+
+	 case http_parser::POST_VALUE_EXP_NL:
+	     if (*s == '\n') {
+		 state = http_parser::MAYBE_KEY;
+		 key = value = "";
+	     } else {
+		 // Protocol violation!
+		 throw exception("HTTP response protocol violation!");
+	     }
+	     break;
+
+	 case http_parser::POST_HEADER_EXP_NL:
+	     if (*s == '\n') {
+
+ #ifdef USEFUL_DEBUG_I_GUESS
+		 std::cerr << "code = " << fc->code << std::endl;
+		 std::cerr << "status = " << fc->status << std::endl;
+		 std::cerr << "Proto = " << fc->protocol << std::endl;
+		 for(std::map<std::string, std::string>::iterator it = 
+			 fc->header.begin();
+		     it != fc->header.end();
+		     it++) {
+		     std::cerr << "(" << it->first << ") = (" << it->second
+			       << ")" << std::endl;
+		 }
+ #endif
+
+		 state = http_parser::IN_BODY;
+
+		 if (header.find("content-type") == header.end()) {
+		     // No body.
+
+		     std::istringstream buf(code);
+		     unsigned int codeval;
+		     buf >> codeval;
+
+		     if (variant == REQUEST)
+			 mgr.http_request(c, method, url, header, 
+					  body.begin(), body.end());
+		     else
+			 mgr.http_response(c, codeval, status, header, 
+					   body.begin(), body.end());
+
+		     if (variant == REQUEST)
+			 state = http_parser::IN_REQUEST_METHOD;
+		     else
+			 state = http_parser::IN_RESPONSE_PROTOCOL;
+
+		     reset_transaction();
+
+		 } else if ((header.find("transfer-encoding") != 
+			     header.end()) &&
+			    (header["transfer-encoding"].second == "chunked")) {
+		     state = http_parser::IN_CHUNK_LENGTH;
+		 } else if (header.find("content-length") != header.end()) {
+		     state = http_parser::COUNTING_DATA;
+		     std::istringstream buf(header["content-length"].second);
+		     buf >> std::dec >> content_remaining;
+		 } else
+		     // This state just looks for newline.
+		     state = http_parser::IN_BODY;
+
+	     } else {
+		 // Protocol violation!
+		 throw exception("HTTP response protocol violation!");
+	     }
+	     break;
+
+	 case http_parser::IN_BODY:
+	     if (*s == '\r')
+		 state = http_parser::IN_BODY_AFTER_CR;
+	    else
+		body.push_back(*s);
+	    break;
+
+	case http_parser::IN_BODY_AFTER_CR:
+	    if (*s == '\n') {
+		body.push_back('\r');
+		body.push_back(*s);
+		state = http_parser::IN_BODY;
+	    } else {
+
+		std::istringstream buf(code);
+		unsigned int codeval;
+		buf >> codeval;
+
+		if (variant == REQUEST)
+		    mgr.http_request(c, method, url, header, 
+				     body.begin(), body.end());
+		else
+		    mgr.http_response(c, codeval, status, header, 
+				      body.begin(), body.end());
+
+		reset_transaction();
+		
+		// Start of next transaction.
+		if (variant == REQUEST)
+		    state = http_parser::IN_REQUEST_METHOD;
+		else
+		    state = http_parser::IN_RESPONSE_PROTOCOL;
+
+	    }
+	    break;
+
+	case http_parser::COUNTING_DATA:
+
+	    body.push_back(*s);
+	    content_remaining--;
+
+	    if (content_remaining == 0) {
+
+		std::istringstream buf(code);
+		unsigned int codeval;
+		buf >> codeval;
+
+		if (variant == REQUEST)
+		    mgr.http_request(c, method, url, header, 
+				     body.begin(), body.end());
+		else
+		    mgr.http_response(c, codeval, status, header, 
+				      body.begin(), body.end());
+
+		reset_transaction();
+		
+		// Start of next transaction.
+		if (variant == REQUEST)
+		    state = http_parser::IN_REQUEST_METHOD;
+		else
+		    state = http_parser::IN_RESPONSE_PROTOCOL;
+
+	    }
+	    break;
+
+	case http_parser::IN_CHUNK_LENGTH:
+	    if (*s == '\r')
+		state = http_parser::POST_CHUNK_LENGTH_EXP_NL;
+	    else
+		chunk_length += *s;
+	    break;
+
+	case http_parser::POST_CHUNK_LENGTH_EXP_NL:
+	    if (*s == '\n') {
+		std::istringstream buf(chunk_length);
+		int chunk_length;
+		buf >> std::hex >> content_remaining;
+
+		if (content_remaining == 0) {
+		    // FIXME: Need to handle the footer etc.
+
+		    state = http_parser::POST_CHUNKED_EXP_NL;
+
+		} else 
+
+		    state = http_parser::COUNTING_CHUNK_DATA;
+
+	    } else {
+		throw exception("HTTP response protocol violation!");
+	    }
+	    break;
+
+	case http_parser::POST_CHUNKED_EXP_NL:
+
+	    if (*s == '\n') {
+		// Transaction complete
+
+		std::istringstream buf(code);
+		unsigned int codeval;
+		buf >> codeval;
+		
+		if (variant == REQUEST)
+		    mgr.http_request(c, method, url, header, 
+				     body.begin(), body.end());
+		else
+		    mgr.http_response(c, codeval, status, header, 
+				      body.begin(), body.end());
+
+		reset_transaction();
+
+		// Start of next transaction.
+		if (variant == REQUEST)
+		    state = http_parser::IN_REQUEST_METHOD;
+		else
+		    state = http_parser::IN_RESPONSE_PROTOCOL;
+
+
+	    } else {
+		// Otherwise skip over the CR, and possibly footer lines.
+		// FIXME: Handle footer lines.
+	    }
+	    break;
+
+	case http_parser::COUNTING_CHUNK_DATA:
+
+	    body.push_back(*s);
+	    content_remaining--;
+
+	    if (content_remaining == 0) {
+
+		std::istringstream buf(code);
+		unsigned int codeval;
+		buf >> codeval;
+
+		if (variant == REQUEST)
+		    mgr.http_request(c, method, url, header, 
+				     body.begin(), body.end());
+		else
+		    mgr.http_response(c, codeval, status, header, 
+				      body.begin(), body.end());
+		
+		reset_transaction();
+
+		// Start of next transaction.
+		if (variant == REQUEST)
+		    state = http_parser::IN_REQUEST_METHOD;
+		else
+		    state = http_parser::IN_RESPONSE_PROTOCOL;
+
+	    }
+	    break;
+
+	default:
+	    std::cerr << "State: "<< state << std::endl;
+	    throw exception("A state not implemented.");
+
+	}
+
+	s++;
+
+    }
+
+}
 
 // HTTP request processing function.
 void http::process_request(manager& mgr, context_ptr c, 
@@ -23,191 +371,11 @@ void http::process_request(manager& mgr, context_ptr c,
 
     fc->lock.lock();
 
-    while (s != e) {
-
-//	std::cerr << "Request " << *s << " " << fc->state << std::endl;
-
-	switch (fc->state) {
-
-	case http_request_context::IN_METHOD:
-	    if (*s == ' ')
-		fc->state = http_request_context::IN_URL;
-	    else
-		fc->method += *s;
-	    break;
-
-	case http_request_context::IN_URL:
-	    if (*s == ' ')
-		fc->state = http_request_context::IN_PROTOCOL;
-	    else
-		fc->url += *s;
-	    break;
-
-	case http_request_context::IN_PROTOCOL:
-	    if (*s == '\r')
-		fc->state = http_request_context::POST_PROTOCOL_EXP_NL;
-	    else
-		fc->protocol += *s;
-	    break;
-
-	case http_request_context::POST_PROTOCOL_EXP_NL:
-	    if (*s == '\n') {
-		fc->state = http_request_context::MAYBE_KEY;
-		fc->key = fc->value = "";
-	    } else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP protocol violation!");
-	    }
-	    break;
-
-	case http_request_context::MAYBE_KEY:
-	    if (*s == '\r')
-		fc->state = http_request_context::POST_HEADER_EXP_NL;
-	    else {
-		fc->key += tolower(*s);
-		fc->state = http_request_context::IN_KEY;
-	    }
-	    break;
-
-	case http_request_context::IN_KEY:
-	    if (*s == ':')
-		fc->state = http_request_context::POST_KEY_EXP_SPACE;
-	    else
-		fc->key += tolower(*s);
-	    break;
-
-	case http_request_context::POST_KEY_EXP_SPACE:
-	    if (*s == ' ')
-		fc->state = http_request_context::IN_VALUE;
-	    else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP protocol violation!");
-	    }
-	    break;
-
-	case http_request_context::IN_VALUE:
-	    if (*s == '\r') {
-
-		fc->header[fc->key] = fc->value;
-		fc->key = "";
-		fc->value = "";
-		fc->state = http_request_context::POST_VALUE_EXP_NL;
-	    } else
-		fc->value += *s;
-	    break;
-
-	case http_request_context::POST_VALUE_EXP_NL:
-	    if (*s == '\n') {
-		fc->state = http_request_context::MAYBE_KEY;
-		fc->key = fc->value = "";
-	    } else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP request protocol violation!");
-	    }
-	    break;
-
-	case http_request_context::POST_HEADER_EXP_NL:
-	    if (*s == '\n') {
-
-#ifdef USEFUL_DEBUG_I_GUESS
-		std::cerr << "Method = " << fc->method << std::endl;
-		std::cerr << "Url = " << fc->url << std::endl;
-		std::cerr << "Proto = " << fc->protocol << std::endl;
-		for(std::map<std::string, std::string>::iterator it = 
-			fc->header.begin();
-		    it != fc->header.end();
-		    it++) {
-		    std::cerr << "(" << it->first << ") = (" << it->second
-			      << ")" << std::endl;
-		}
-#endif
-
-		std::map<std::string,std::string>& header = fc->header;
-
-		if (header.find("content-type") == header.end()) {
-
-		    // No body.
-
-		    mgr.http_request(fc, fc->method, fc->url, fc->header, 
-				     fc->body.begin(), fc->body.end());
-
-		    fc->state = http_request_context::IN_METHOD;
-
-		    fc->method = fc->url = fc->protocol = "";
-		    header.clear();
-
-		} else if (header.find("content-length") != header.end()) {
-		    fc->state = http_request_context::COUNTING_DATA;
-		    std::istringstream buf(header["content-length"]);
-		    buf >> std::dec >> fc->content_remaining;
-		} else
-		    // This state just looks for newline.
-		    fc->state = http_request_context::IN_DATA;
-
-	    } else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP request protocol violation!");
-	    }
-	    break;
-
-	case http_request_context::IN_DATA:
-	    if (*s == '\r')
-		fc->state = http_request_context::IN_DATA_MAYBE_END;
-	    else
-		fc->body.push_back(*s);
-	    break;
-
-	case http_request_context::IN_DATA_MAYBE_END:
-	    if (*s == '\n') {
-		fc->body.push_back('\r');
-		fc->body.push_back(*s);
-		fc->state = http_request_context::IN_DATA;
-	    } else {
-		
-		mgr.http_request(fc, fc->method, fc->url, fc->header, 
-				 fc->body.begin(), fc->body.end());
-
-		fc->method = fc->url = fc->protocol = "";
-		fc->header.clear();
-		
-		// Start of next transaction.
-		fc->state = http_request_context::IN_METHOD;
-
-	    }
-	    break;
-
-	case http_request_context::COUNTING_DATA:
-
-	    fc->body.push_back(*s);
-	    fc->content_remaining--;
-
-	    if (fc->content_remaining == 0) {
-		
-		mgr.http_request(fc, fc->method, fc->url,
-				 fc->header, fc->body.begin(), fc->body.end());
-
-		fc->method = fc->url = fc->protocol = "";
-		fc->header.clear();
-		
-		// Start of next transaction.
-		fc->state = http_request_context::IN_METHOD;
-
-	    }
-	    break;
-
-	default:
-	    std::cerr << "XXX state "<< fc->state << std::endl;
-	    fc->lock.unlock();
-	    throw exception("A state not implemented.");
-
-	}
-
-	s++;
-
+    try {
+	fc->parse(fc, s, e, mgr);
+    } catch (std::exception& e) {
+	fc->lock.unlock();
+	throw e;
     }
 
     fc->lock.unlock();
@@ -230,276 +398,11 @@ void http::process_response(manager& mgr, context_ptr c,
 
     fc->lock.lock();
 
-    while (s != e) {
-
-	switch (fc->state) {
-
-	case http_response_context::IN_PROTOCOL:
-	    if (*s == ' ')
-		fc->state = http_response_context::IN_CODE;
-	    else
-		fc->protocol += *s;
-	    break;
-
-	case http_response_context::IN_CODE:
-	    if (*s == ' ')
-		fc->state = http_response_context::IN_STATUS;
-	    else
-		fc->code += *s;
-	    break;
-
-	case http_response_context::IN_STATUS:
-	    if (*s == '\r')
-		fc->state = http_response_context::POST_STATUS_EXP_NL;
-	    else
-		fc->status += *s;
-	    break;
-
-	case http_response_context::POST_STATUS_EXP_NL:
-	    if (*s == '\n') {
-		fc->state = http_response_context::MAYBE_KEY;
-		fc->key = fc->value = "";
-	    } else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP protocol violation!");
-	    }
-	    break;
-
-	case http_response_context::MAYBE_KEY:
-	    if (*s == '\r')
-		fc->state = http_response_context::POST_HEADER_EXP_NL;
-	    else {
-		fc->key += tolower(*s);
-		fc->state = http_response_context::IN_KEY;
-	    }
-	    break;
-
-	case http_response_context::IN_KEY:
-	    if (*s == ':')
-		fc->state = http_response_context::POST_KEY_EXP_SPACE;
-	    else
-		fc->key += tolower(*s);
-	    break;
-
-	case http_response_context::POST_KEY_EXP_SPACE:
-	    if (*s == ' ')
-		fc->state = http_response_context::IN_VALUE;
-	    else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP protocol violation!");
-	    }
-	    break;
-
-	case http_response_context::IN_VALUE:
-	    if (*s == '\r') {
-
-		fc->header[fc->key] = fc->value;
-		fc->key = "";
-		fc->value = "";
-		fc->state = http_response_context::POST_VALUE_EXP_NL;
-	    } else
-		fc->value += *s;
-	    break;
-
-	case http_response_context::POST_VALUE_EXP_NL:
-	    if (*s == '\n') {
-		fc->state = http_response_context::MAYBE_KEY;
-		fc->key = fc->value = "";
-	    } else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP response protocol violation!");
-	    }
-	    break;
-
-	case http_response_context::POST_HEADER_EXP_NL:
-	    if (*s == '\n') {
-
-#ifdef USEFUL_DEBUG_I_GUESS
-		std::cerr << "code = " << fc->code << std::endl;
-		std::cerr << "status = " << fc->status << std::endl;
-		std::cerr << "Proto = " << fc->protocol << std::endl;
-		for(std::map<std::string, std::string>::iterator it = 
-			fc->header.begin();
-		    it != fc->header.end();
-		    it++) {
-		    std::cerr << "(" << it->first << ") = (" << it->second
-			      << ")" << std::endl;
-		}
-#endif
-
-		std::map<std::string,std::string>& header = fc->header;
-		fc->state = http_response_context::IN_DATA;
-
-		if (header.find("content-type") == header.end()) {
-		    // No body.
-
-		    std::istringstream buf(fc->code);
-		    unsigned int code;
-		    buf >> code;
-
-		    mgr.http_response(fc, code, fc->status, fc->header, 
-				      fc->body.begin(), fc->body.end());
-
-		    fc->state = http_response_context::IN_PROTOCOL;
-
-		    fc->protocol = fc->code = fc->status = "";
-		    header.clear();
-
-		} else if ((header.find("transfer-encoding") != header.end()) &&
-		    (header["transfer-encoding"] == "chunked")) {
-		    fc->state = http_response_context::IN_CHUNK_LENGTH;
-		} else if (header.find("content-length") != header.end()) {
-		    fc->state = http_response_context::COUNTING_DATA;
-		    std::istringstream buf(header["content-length"]);
-		    buf >> std::dec >> fc->content_remaining;
-		} else
-		    // This state just looks for newline.
-		    fc->state = http_response_context::IN_DATA;
-
-	    } else {
-		// Protocol violation!
-		fc->lock.unlock();
-		throw exception("HTTP response protocol violation!");
-	    }
-	    break;
-
-	case http_response_context::IN_DATA:
-	    if (*s == '\r')
-		fc->state = http_response_context::IN_DATA_MAYBE_END;
-	    else
-		fc->body.push_back(*s);
-	    break;
-
-	case http_response_context::IN_DATA_MAYBE_END:
-	    if (*s == '\n') {
-		fc->body.push_back('\r');
-		fc->body.push_back(*s);
-		fc->state = http_response_context::IN_DATA;
-	    } else {
-
-		std::istringstream buf(fc->code);
-		unsigned int code;
-		buf >> code;
-
-		mgr.http_response(fc, code, fc->status, fc->header, 
-				  fc->body.begin(), fc->body.end());
-
-		fc->protocol = fc->code = fc->status = "";
-		fc->header.clear();
-		
-		// Start of next transaction.
-		fc->state = http_response_context::IN_PROTOCOL;
-
-	    }
-	    break;
-
-	case http_response_context::COUNTING_DATA:
-
-	    fc->body.push_back(*s);
-	    fc->content_remaining--;
-
-	    if (fc->content_remaining == 0) {
-
-		std::istringstream buf(fc->code);
-		unsigned int code;
-		buf >> code;
-
-		mgr.http_response(fc, code, fc->status, fc->header, 
-				  fc->body.begin(), fc->body.end());
-		
-		// FIXME: Raise event here.
-
-		fc->protocol = fc->code = fc->status = "";
-		fc->header.clear();
-		
-		// Start of next transaction.
-		fc->state = http_response_context::IN_PROTOCOL;
-
-	    }
-	    break;
-
-	case http_response_context::IN_CHUNK_LENGTH:
-	    if (*s == '\r')
-		fc->state = http_response_context::POST_CHUNK_LENGTH_EXP_NL;
-	    else
-		fc->chunk_length += *s;
-	    break;
-
-	case http_response_context::POST_CHUNK_LENGTH_EXP_NL:
-	    if (*s == '\n') {
-		std::istringstream buf(fc->chunk_length);
-		int chunk_length;
-		buf >> std::hex >> fc->content_remaining;
-
-		if (fc->content_remaining == 0) {
-		    // FIXME: Need to handle the footer etc.
-
-		    fc->state = http_response_context::POST_CHUNKED_EXP_NL;
-
-		} else 
-
-		    fc->state = http_response_context::COUNTING_CHUNK_DATA;
-
-	    } else {
-		fc->lock.unlock();
-		throw exception("HTTP response protocol violation!");
-	    }
-	    break;
-
-	case http_response_context::POST_CHUNKED_EXP_NL:
-
-	    if (*s == '\n') {
-		// Transaction complete
-
-		std::istringstream buf(fc->code);
-		unsigned int code;
-		buf >> code;
-
-		mgr.http_response(fc, code, fc->status, fc->header, 
-				  fc->body.begin(), fc->body.end());
-	    } else {
-		// Otherwise skip over the CR, and possibly footer lines.
-		// FIXME: Handle footer lines.
-	    }
-	    break;
-
-	case http_response_context::COUNTING_CHUNK_DATA:
-
-	    fc->body.push_back(*s);
-	    fc->content_remaining--;
-
-	    if (fc->content_remaining == 0) {
-
-		std::istringstream buf(fc->code);
-		unsigned int code;
-		buf >> code;
-
-		mgr.http_response(fc, code, fc->status, fc->header, 
-				  fc->body.begin(), fc->body.end());
-		
-		// FIXME: Raise event here.
-
-		fc->protocol = fc->code = fc->status = "";
-		fc->header.clear();
-		
-		// Start of next transaction.
-		fc->state = http_response_context::IN_PROTOCOL;
-
-	    }
-	    break;
-
-	default:
-	    std::cerr << "YYY state "<< fc->state << std::endl;
-	    fc->lock.unlock();
-	    throw exception("A state not implemented.");
-
-	}
-
-	s++;
-
+    try {
+	fc->parse(fc, s, e, mgr);
+    } catch (std::exception& e) {
+	fc->lock.unlock();
+	throw e;
     }
 
     fc->lock.unlock();
