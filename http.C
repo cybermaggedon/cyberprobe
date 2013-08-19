@@ -25,6 +25,8 @@ void http::process_request(manager& mgr, context_ptr c,
 
     while (s != e) {
 
+//	std::cerr << "Request " << *s << " " << fc->state << std::endl;
+
 	switch (fc->state) {
 
 	case http_request_context::IN_METHOD:
@@ -124,18 +126,19 @@ void http::process_request(manager& mgr, context_ptr c,
 #endif
 
 		std::map<std::string,std::string>& header = fc->header;
-		fc->state = http_request_context::IN_DATA;
 
 		if (header.find("content-type") == header.end()) {
+
 		    // No body.
+
+		    mgr.http_request(fc, fc->method, fc->url, fc->header, 
+				     fc->body.begin(), fc->body.end());
+
 		    fc->state = http_request_context::IN_METHOD;
 
 		    fc->method = fc->url = fc->protocol = "";
 		    header.clear();
 
-		} else if ((header.find("transfer-encoding") != header.end()) &&
-		    (header["transfer-encoding"] == "chunked")) {
-		    fc->state = http_request_context::IN_CHUNK_LENGTH;
 		} else if (header.find("content-length") != header.end()) {
 		    fc->state = http_request_context::COUNTING_DATA;
 		    std::istringstream buf(header["content-length"]);
@@ -197,6 +200,7 @@ void http::process_request(manager& mgr, context_ptr c,
 	    break;
 
 	default:
+	    std::cerr << "XXX state "<< fc->state << std::endl;
 	    fc->lock.unlock();
 	    throw exception("A state not implemented.");
 
@@ -331,6 +335,14 @@ void http::process_response(manager& mgr, context_ptr c,
 
 		if (header.find("content-type") == header.end()) {
 		    // No body.
+
+		    std::istringstream buf(fc->code);
+		    unsigned int code;
+		    buf >> code;
+
+		    mgr.http_response(fc, code, fc->status, fc->header, 
+				      fc->body.begin(), fc->body.end());
+
 		    fc->state = http_response_context::IN_PROTOCOL;
 
 		    fc->protocol = fc->code = fc->status = "";
@@ -409,7 +421,78 @@ void http::process_response(manager& mgr, context_ptr c,
 	    }
 	    break;
 
+	case http_response_context::IN_CHUNK_LENGTH:
+	    if (*s == '\r')
+		fc->state = http_response_context::POST_CHUNK_LENGTH_EXP_NL;
+	    else
+		fc->chunk_length += *s;
+	    break;
+
+	case http_response_context::POST_CHUNK_LENGTH_EXP_NL:
+	    if (*s == '\n') {
+		std::istringstream buf(fc->chunk_length);
+		int chunk_length;
+		buf >> std::hex >> fc->content_remaining;
+
+		if (fc->content_remaining == 0) {
+		    // FIXME: Need to handle the footer etc.
+
+		    fc->state = http_response_context::POST_CHUNKED_EXP_NL;
+
+		} else 
+
+		    fc->state = http_response_context::COUNTING_CHUNK_DATA;
+
+	    } else {
+		fc->lock.unlock();
+		throw exception("HTTP response protocol violation!");
+	    }
+	    break;
+
+	case http_response_context::POST_CHUNKED_EXP_NL:
+
+	    if (*s == '\n') {
+		// Transaction complete
+
+		std::istringstream buf(fc->code);
+		unsigned int code;
+		buf >> code;
+
+		mgr.http_response(fc, code, fc->status, fc->header, 
+				  fc->body.begin(), fc->body.end());
+	    } else {
+		// Otherwise skip over the CR, and possibly footer lines.
+		// FIXME: Handle footer lines.
+	    }
+	    break;
+
+	case http_response_context::COUNTING_CHUNK_DATA:
+
+	    fc->body.push_back(*s);
+	    fc->content_remaining--;
+
+	    if (fc->content_remaining == 0) {
+
+		std::istringstream buf(fc->code);
+		unsigned int code;
+		buf >> code;
+
+		mgr.http_response(fc, code, fc->status, fc->header, 
+				  fc->body.begin(), fc->body.end());
+		
+		// FIXME: Raise event here.
+
+		fc->protocol = fc->code = fc->status = "";
+		fc->header.clear();
+		
+		// Start of next transaction.
+		fc->state = http_response_context::IN_PROTOCOL;
+
+	    }
+	    break;
+
 	default:
+	    std::cerr << "YYY state "<< fc->state << std::endl;
 	    fc->lock.unlock();
 	    throw exception("A state not implemented.");
 

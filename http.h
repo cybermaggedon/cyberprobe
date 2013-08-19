@@ -97,7 +97,8 @@ namespace analyser {
 
 	    IN_CHUNK_LENGTH,
 	    POST_CHUNK_LENGTH_EXP_NL,
-	    COUNTING_CHUNK_DATA
+	    COUNTING_CHUNK_DATA,
+	    POST_CHUNKED_EXP_NL
 
 	} state;
 
@@ -108,6 +109,8 @@ namespace analyser {
 	std::map<std::string, std::string> header;
 	std::string key;
 	std::string value;
+
+	std::string chunk_length;
 	
 	unsigned long long content_remaining;
 
