@@ -78,6 +78,16 @@ namespace analyser {
 	    
 	}
 
+	// Create table on the stack, pre-allocating items.
+	void create_table(int arr, int narr) {
+	    lua_createtable(lua, arr, narr);
+	}
+
+	// Set table value.
+	void set_table(int pos) {
+	    lua_settable(lua, pos);
+	}
+
 	// Pop p items from the stack.
 	void pop(int p) { lua_pop(lua, p); }
 	

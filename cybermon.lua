@@ -51,7 +51,7 @@ observer.trigger_down = function(liid)
   io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
-observer.http_request = function(context, method, url, body)
+observer.http_request = function(context, method, url, header, body)
 
   -- Get the LIID
   local liid = cybermon.get_liid(context)
@@ -65,11 +65,17 @@ observer.http_request = function(context, method, url, body)
   io.write(string.format("Target %s:\n", liid))
   io.write(string.format("  %s -> %s\n", src, dest))
   io.write(string.format("  HTTP request %s %s\n", method, url))
+
+  -- Write header
+  for key, value in pairs(header) do
+    io.write(string.format("  %s: %s\n", key, value))
+  end
+
   io.write("\n")
 
 end
 
-observer.http_response = function(context, code, status, body)
+observer.http_response = function(context, code, status, header, body)
 
   -- Get the LIID
   local liid = cybermon.get_liid(context)
@@ -83,6 +89,12 @@ observer.http_response = function(context, code, status, body)
   io.write(string.format("Target %s:\n", liid))
   io.write(string.format("  %s -> %s\n", src, dest))
   io.write(string.format("  HTTP response %d %s\n", code, status))
+
+  -- Write header
+  for key, value in pairs(header) do
+    io.write(string.format("  %s: %s\n", key, value))
+  end
+
   io.write("\n")
 
 end

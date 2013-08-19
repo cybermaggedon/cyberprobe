@@ -379,13 +379,26 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     // Push URL
     push(url);
 
+    // Build header table on stack.
+    create_table(0, hdr.size());
+
+    // Loop through header
+    for(std::map<std::string,std::string>::const_iterator it = hdr.begin();
+	it != hdr.end();
+	it++) {
+
+	// Set table row.
+	push(it->first);
+	push(it->second);
+	set_table(-3);
+
+    }
+
     // Put data on stack.
     push(s, e);
 
-    // FIXME: Push hdr on stack.
-    
     // observer.data(context, data)
-    call(4, 0);
+    call(5, 0);
     
     // Still got 'observer' left on stack, it can go.
     pop(1);
@@ -427,13 +440,26 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     // Push URL
     push(status);
 
+    // Build header table on stack.
+    create_table(0, hdr.size());
+
+    // Loop through header
+    for(std::map<std::string,std::string>::const_iterator it = hdr.begin();
+	it != hdr.end();
+	it++) {
+
+	// Set table row.
+	push(it->first);
+	push(it->second);
+	set_table(-3);
+
+    }
+
     // Put data on stack.
     push(s, e);
 
-    // FIXME: Push hdr on stack.
-    
     // observer.data(context, data)
-    call(4, 0);
+    call(5, 0);
     
     // Still got 'observer' left on stack, it can go.
     pop(1);
