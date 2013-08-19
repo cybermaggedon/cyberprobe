@@ -8,10 +8,7 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 CYBERMON_OBJECTS=cybermon.o engine.o etsi_li.o socket.o ber.o base_context.o \
 	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o
 
-ANALYSE_OBJECTS=analyse.o engine.o context.o ip.o socket.o tcp.o udp.o http.o \
-	address.o icmp.o reaper.o base_context.o
-
-all: cyberprobe cybermon nhis11_rcvr etsi_rcvr analyse
+all: cyberprobe cybermon nhis11_rcvr etsi_rcvr
 
 cyberprobe: ${CYBERPROBE_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERPROBE_OBJECTS} -o $@ -lpcap -lpthread -lexpat
@@ -19,10 +16,6 @@ cyberprobe: ${CYBERPROBE_OBJECTS}
 cybermon: ${CYBERMON_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERMON_OBJECTS} -o $@ -lpcap -lpthread -lexpat \
 		-llua -lboost_regex
-
-analyse: ${ANALYSE_OBJECTS}
-	${CXX} ${CXXFLAGS} ${ANALYSE_OBJECTS} -o $@ -lpcap -lpthread -lexpat \
-		-lboost_regex
 
 nhis11_rcvr: nhis11_rcvr.o nhis11.o socket.o
 	${CXX} ${CXXFLAGS} nhis11_rcvr.o nhis11.o socket.o -o $@ -lpthread \
@@ -38,9 +31,6 @@ depend:
 # DO NOT DELETE
 
 address.o: socket.h address.h pdu.h
-analyse.o: packet_capture.h engine.h thread.h pdu.h context.h socket.h
-analyse.o: address.h flow.h exception.h reaper.h base_context.h manager.h
-analyse.o: observer.h hexdump.h
 base_context.o: base_context.h flow.h address.h pdu.h socket.h thread.h
 base_context.o: exception.h
 ber.o: ./ber.h socket.h
@@ -71,7 +61,7 @@ engine.o: thread.h context.h socket.h address.h pdu.h flow.h exception.h
 engine.o: reaper.h base_context.h manager.h observer.h engine.h ip.h
 etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
-http.o: http.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+http.o: address.h pdu.h socket.h http.h context.h flow.h exception.h reaper.h
 http.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
 icmp.o: icmp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 icmp.o: thread.h base_context.h manager.h observer.h
@@ -92,7 +82,6 @@ socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
 tcp.o: http.h
-test.o: reaper.h thread.h
 udp.o: udp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 udp.o: thread.h base_context.h manager.h observer.h
 xml.o: xml.h

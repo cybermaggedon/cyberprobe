@@ -94,9 +94,8 @@ public:
 
 };
 
-
 // Monitor class, implements the monitor interface to receive data.
-class cybermon : public monitor {
+class etsi_monitor : public monitor {
 private:
 
     // Analysis engine
@@ -108,7 +107,7 @@ public:
     typedef std::vector<unsigned char>::iterator iter;
 
     // Constructor.
-    cybermon(analyser::engine& an) : an(an) {}
+    etsi_monitor(analyser::engine& an) : an(an) {}
 
     // Called when a PDU is received.
     virtual void operator()(const std::string& liid, const iter& s, 
@@ -123,31 +122,27 @@ public:
 };
 
 // Called when attacker is discovered.
-void cybermon::target_up(const std::string& liid,
+void etsi_monitor::target_up(const std::string& liid,
 			 const tcpip::address& addr)
 {
     an.target_up(liid, addr);
 }
 
 // Called when attacker is discovered.
-void cybermon::target_down(const std::string& liid)
+void etsi_monitor::target_down(const std::string& liid)
 {
     an.target_down(liid);
 }
 
 // Called when a PDU is received.
-void cybermon::operator()(const std::string& liid, 
+void etsi_monitor::operator()(const std::string& liid, 
 			  const iter& s, 
 			  const iter& e)
 {
 
-    // Get the root context.
-//    analyser::context_ptr c = an.get_root_context(liid);
-
     try {
 
 	// Process the PDU
-//	an.process(c, s, e);
 	an.process(liid, s, e);
 
     } catch (std::exception& e) {
@@ -159,46 +154,103 @@ void cybermon::operator()(const std::string& liid,
 
 }
 
+class pcap_input : public pcap_reader {
+private:
+    analyser::engine& e;
+    int count;
+
+public:
+    pcap_input(const std::string& f, analyser::engine& e) : 
+	pcap_reader(f), e(e) {
+	count = 0;
+    }
+
+    virtual void handle(unsigned long len, unsigned long captured, 
+			const unsigned char* f);
+
+};
+
+
+void pcap_input::handle(unsigned long len, unsigned long captured, 
+			const unsigned char* f)
+{
+
+    int datalink = pcap_datalink(p);
+
+    if (datalink == DLT_EN10MB) {
+
+	// IPv4 ethernet only
+	if (f[12] != 8) return;
+	if (f[13] != 0) return;
+
+	std::vector<unsigned char> v;
+	v.assign(f + 14, f + len);
+
+	// FIXME: Hard-coded?!
+	std::string liid = "PCAP";
+
+	try {
+	    e.process(liid, v.begin(), v.end());
+	} catch (std::exception& e) {
+	    std::cerr << "Packet not processed: " << e.what() << std::endl;
+	}
+    }
+
+}
+
 int main(int argc, char** argv)
 {
    
- if (argc != 3) {
-	std::cerr << "Usage:" << "\tcybermon <port> <config>" << std::endl;
+    if (argc != 3) {
+	std::cerr << "Usage:" << std::endl
+		  << "\tcybermon <port> <config>" << std::endl
+		  << "or" << std::endl
+		  << "\tcybermon - <config>" << std::endl;
 	return 0;
     }
-
-  
+    
     try {
 
-	// Convert port argument to integer.
-	std::istringstream buf(argv[1]);
-	int port;
-	buf >> port;
-	
 	// Get config file (Lua).
 	std::string config = argv[2];
 	
 	// Create the observer instance.
 	obs an(config);
-
-	an.start();
 	
-	// Create the monitor instance, receives ETSI events, and processes
-	// data.
-	cybermon m(an);
+	// Start the observer.
+	an.start();
 
-	// Start an ETSI receiver.
-	etsi_li::receiver r(port, m);
-	r.start();
+	std::string arg1(argv[1]);
+	if (arg1 == "-") {
 
-	// Wait forever.
-	r.join();
+	    pcap_input pin("-", an);
+	    pin.run();
 
+	} else {
+	
+	    // Convert port argument to integer.
+	    std::istringstream buf(argv[1]);
+	    int port;
+	    buf >> port;
+	
+	    // Create the monitor instance, receives ETSI events, and processes
+	    // data.
+	    etsi_monitor m(an);
+
+	    // Start an ETSI receiver.
+	    etsi_li::receiver r(port, m);
+	    r.start();
+
+	    // Wait forever.
+	    r.join();
+
+	}
+	    
     } catch (std::exception& e) {
 	
 	std::cerr << "Exception: " << e.what() << std::endl;
 	return 1;
-
+	
     }
 
 }
