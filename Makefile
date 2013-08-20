@@ -7,7 +7,7 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 
 CYBERMON_OBJECTS=cybermon.o engine.o etsi_li.o socket.o ber.o base_context.o \
 	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o \
-	unrecognised.o
+	unrecognised.o dns.o
 
 all: cyberprobe cybermon nhis11_rcvr etsi_rcvr
 

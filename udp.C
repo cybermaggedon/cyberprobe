@@ -3,6 +3,8 @@
 #include "address.h"
 #include "flow.h"
 #include "manager.h"
+#include "unrecognised.h"
+#include "dns.h"
 
 using namespace analyser;
 
@@ -34,9 +36,15 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    // Currently, we don't understand any protocols.
-    mgr.unrecognised_datagram(fc, s + 4, e);
+    // We're just going to 'identify' DNS on port 53.
+    // FIXME: Is there a stronger identifier?
+    if ((src.get_16b() == 53) || dest.get_16b() == 53) {
+	dns::process(mgr, fc, s + 4, e);
+    } else  {
 
-    // Now what?
+	unrecognised::process_unrecognised_datagram(mgr, fc, s + 4, e);
+
+    }
 
 }
+

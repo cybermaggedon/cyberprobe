@@ -27,6 +27,7 @@ namespace analyser {
 	UDP,			// UDP
 	ICMP,			// ICMP.
 	HTTP,                   // HTTP.
+	DNS,
 
 	// Unknown stuff
 	UNRECOGNISED
@@ -101,6 +102,13 @@ namespace analyser {
 	    return layer == a.layer &&
 	    proto == a.proto &&
 	    addr == a.addr;
+	}
+
+	// Get the 'value' of the address in different formats.
+	uint16_t get_16b() {
+	    if (addr.size() != 2)
+		throw std::runtime_error("Address is not 16-bit");
+	    return (addr[0] << 8) + addr[1];
 	}
 
     };

@@ -52,6 +52,16 @@ void address::describe(std::ostream& out) const
 	return;
     }
 
+    if (proto == DNS) {
+	out << "DNS";
+	return;
+    }
+
+    if (proto == UNRECOGNISED) {
+	out << "Unrecognised";
+	return;
+    }
+
     out << "Not describable";
 
 }
