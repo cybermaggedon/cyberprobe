@@ -8,10 +8,6 @@
 
 using namespace analyser;
 
-static unsigned char tolol(unsigned char c) {
-		    return tolower(c);
-		};
-
 // HTTP response processing function.
 void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 {
@@ -111,7 +107,7 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 
 		 std::string lowerc;
 		 std::transform(key.begin(), key.end(), back_inserter(lowerc), 
-				tolol);
+				::tolower);
 
 		 header[lowerc] =
 		     std::pair<std::string,std::string>(key, value);

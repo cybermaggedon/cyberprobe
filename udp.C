@@ -34,7 +34,8 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    mgr.datagram(fc, s + 4, e);
+    // Currently, we don't understand any protocols.
+    mgr.unrecognised_datagram(fc, s + 4, e);
 
     // Now what?
 

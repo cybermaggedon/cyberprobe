@@ -53,15 +53,21 @@ public:
 	cml.connection_down(*this, cp);
     }
 
-    virtual void connection_data(const analyser::context_ptr cp,
-				 analyser::pdu_iter s, analyser::pdu_iter e) {
-	cml.connection_data(*this, cp, s, e);
+    virtual void unrecognised_stream(const analyser::context_ptr cp,
+				     analyser::pdu_iter s, 
+				     analyser::pdu_iter e) {
+	cml.unrecognised_stream(*this, cp, s, e);
     }
 
     // Connection-less
-    virtual void datagram(const analyser::context_ptr cp,
+    virtual void unrecognised_datagram(const analyser::context_ptr cp,
 			  analyser::pdu_iter s, analyser::pdu_iter e) {
-	cml.datagram(*this, cp, s, e);
+	cml.unrecognised_datagram(*this, cp, s, e);
+    }
+
+    virtual void icmp(const analyser::context_ptr cp,
+		      analyser::pdu_iter s, analyser::pdu_iter e) {
+	cml.icmp(*this, cp, s, e);
     }
 
     // HTTP

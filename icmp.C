@@ -22,7 +22,7 @@ void icmp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole ICMP message.
-    mgr.datagram(fc, s, e);
+    mgr.icmp(fc, s, e);
 
 }
 

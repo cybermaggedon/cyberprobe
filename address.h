@@ -27,6 +27,9 @@ namespace analyser {
 	UDP,			// UDP
 	ICMP,			// ICMP.
 	HTTP,                   // HTTP.
+
+	// Unknown stuff
+	UNRECOGNISED
     };
     
     // The purpose served by the address.

@@ -263,10 +263,10 @@ void cybermon_lua::connection_down(analyser::engine& an,
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::connection_data(analyser::engine& an, 
-				   const analyser::context_ptr f, 
-				   analyser::pdu_iter s, 
-				   analyser::pdu_iter e)
+void cybermon_lua::unrecognised_stream(analyser::engine& an, 
+				       const analyser::context_ptr f, 
+				       analyser::pdu_iter s, 
+				       analyser::pdu_iter e)
 {
 
     // Get information stored about the attacker.
@@ -306,10 +306,10 @@ void cybermon_lua::connection_data(analyser::engine& an,
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::datagram(analyser::engine& an, 
-			    const analyser::context_ptr f, 
-			    analyser::pdu_iter s, 
-			    analyser::pdu_iter e)
+void cybermon_lua::unrecognised_datagram(analyser::engine& an, 
+					 const analyser::context_ptr f, 
+					 analyser::pdu_iter s, 
+					 analyser::pdu_iter e)
 {
 
     // Get information stored about the attacker.
@@ -328,7 +328,46 @@ void cybermon_lua::datagram(analyser::engine& an,
     
     // Get observer.data
     get_global("config");
-    get_field(-1, "datagram");
+    get_field(-1, "unrecognised_datagram");
+    
+    // Put hideous on the stack
+    push_cybermon_context(h);
+
+    // Put data on stack.
+    push(s, e);
+    
+    // observer.data(context, data)
+    call(2, 0);
+    
+    // Still got 'observer' left on stack, it can go.
+    pop(1);
+
+}
+
+
+void cybermon_lua::icmp(analyser::engine& an, 
+			const analyser::context_ptr f, 
+			analyser::pdu_iter s, 
+			analyser::pdu_iter e)
+{
+
+    // Get information stored about the attacker.
+    std::string liid;
+    analyser::address trigger_address;
+    an.get_root_info(f, liid, trigger_address);
+
+    cybermon_context h;
+    h.an = &an;
+    h.ctxt = f;
+    h.s = s;
+    h.e = e;
+    h.liid = liid;
+    h.trigger = trigger_address;
+    h.cml = this;
+    
+    // Get observer.data
+    get_global("config");
+    get_field(-1, "icmp");
     
     // Put hideous on the stack
     push_cybermon_context(h);

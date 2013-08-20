@@ -212,11 +212,14 @@ namespace analyser {
 	// The 'context' variable passed to LUA is a light userdata pointer,
 	// allowing calling back into the C++ code.  The value is only valid
 	// in LUA space for the duration of this call.
-	void connection_data(engine& an, const context_ptr f, 
-			     pdu_iter s, pdu_iter e);
+	void unrecognised_stream(engine& an, const context_ptr f, 
+				 pdu_iter s, pdu_iter e);
 
-	void datagram(engine& an, const context_ptr f, 
-		      pdu_iter s, pdu_iter e);
+	void unrecognised_datagram(engine& an, const context_ptr f, 
+				   pdu_iter s, pdu_iter e);
+
+	void icmp(engine& an, const context_ptr f, 
+		  pdu_iter s, pdu_iter e);
 
 	void http_request(engine& an, const context_ptr cf,
 			  const std::string& method,

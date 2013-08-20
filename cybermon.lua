@@ -38,13 +38,24 @@ end
 observer.connection_down = function(context)
 end
 
-observer.datagram = observer.connection_data
+observer.unrecognised_datagram = function(context, data)
 
--- This function is called when the address of an attacker has been
--- identified.
-observer.trigger_up = function(liid, addr)
-  io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+  -- Get the LIID
+  local liid = cybermon.get_liid(context)
+
+  -- This gets a (vaguely) human readable description of the source and
+  -- destination protocol stacks.
+  local src = cybermon.describe_src(context)
+  local dest = cybermon.describe_dest(context)
+
+  -- Write out the information on standard output.
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", src, dest))
+  io.write("\n")
+
 end
+
+observer.icmp = observer.unrecognised_datagram
 
 -- This function is called when a known attacker goes off the air
 observer.trigger_down = function(liid)

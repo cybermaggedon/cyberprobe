@@ -14,12 +14,16 @@ namespace analyser {
 	// Connection-orientated.
 	virtual void connection_up(const context_ptr cp) = 0;
 	virtual void connection_down(const context_ptr cp) = 0;
-	virtual void connection_data(const context_ptr cp,
-				     pdu_iter s, pdu_iter e) = 0;
+
+	virtual void unrecognised_stream(const context_ptr cp,
+					 pdu_iter s, pdu_iter e) = 0;
 
 	// Connection-less
-	virtual void datagram(const context_ptr cp,
-			      pdu_iter s, pdu_iter e) = 0;
+	virtual void unrecognised_datagram(const context_ptr cp,
+					   pdu_iter s, pdu_iter e) = 0;
+
+	virtual void icmp(const context_ptr cp,
+			  pdu_iter s, pdu_iter e) = 0;
 
 	typedef
 	    std::map<std::string, std::pair<std::string,std::string> > 

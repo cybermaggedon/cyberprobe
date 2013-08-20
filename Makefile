@@ -6,7 +6,8 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 	control.o snort_alert.o
 
 CYBERMON_OBJECTS=cybermon.o engine.o etsi_li.o socket.o ber.o base_context.o \
-	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o
+	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o \
+	unrecognised.o
 
 all: cyberprobe cybermon nhis11_rcvr etsi_rcvr
 
@@ -81,7 +82,10 @@ snort_alert.o: packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
-tcp.o: http.h
+tcp.o: http.h unrecognised.h
 udp.o: udp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 udp.o: thread.h base_context.h manager.h observer.h
+unrecognisd.o: unrecognised.h context.h socket.h address.h pdu.h flow.h
+unrecognisd.o: exception.h reaper.h thread.h base_context.h manager.h
+unrecognisd.o: observer.h serial.h protocol.h
 xml.o: xml.h

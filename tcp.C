@@ -6,6 +6,7 @@
 #include "pdu.h"
 #include "context.h"
 #include "http.h"
+#include "unrecognised.h"
 
 using namespace analyser;
 
@@ -242,7 +243,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	} else {
 	
 	    // Default.
-	    fc->processor = 0;
+	    fc->processor = &unrecognised::process_unrecognised_stream;
 	    fc->svc_idented = true;
 	    
 	}
@@ -263,10 +264,10 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
     // Process the data using the processing function if defined.  Otherwise
     // use connection_data.
-    if (fc->processor)
+//    if (fc->processor)
 	(*fc->processor)(mgr, fc, s, e);
-    else
-	mgr.connection_data(fc, s, e);
+//    else
+//	mgr.connection_data(fc, s, e);
 
     return;
 
