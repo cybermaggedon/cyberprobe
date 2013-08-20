@@ -156,15 +156,12 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		     // No body.
 
 		     std::istringstream buf(code);
-		     unsigned int codeval;
 		     buf >> codeval;
 
 		     if (variant == REQUEST)
-			 mgr.http_request(c, method, url, header, 
-					  body.begin(), body.end());
+			 complete_request(c, mgr);
 		     else
-			 mgr.http_response(c, codeval, status, header, 
-					   body.begin(), body.end());
+			 complete_response(c, mgr);
 
 		     if (variant == REQUEST)
 			 state = http_parser::IN_REQUEST_METHOD;
@@ -206,15 +203,12 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 	    } else {
 
 		std::istringstream buf(code);
-		unsigned int codeval;
 		buf >> codeval;
 
 		if (variant == REQUEST)
-		    mgr.http_request(c, method, url, header, 
-				     body.begin(), body.end());
+		    complete_request(c, mgr);
 		else
-		    mgr.http_response(c, codeval, status, header, 
-				      body.begin(), body.end());
+		    complete_response(c, mgr);
 
 		reset_transaction();
 		
@@ -235,15 +229,12 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 	    if (content_remaining == 0) {
 
 		std::istringstream buf(code);
-		unsigned int codeval;
 		buf >> codeval;
 
 		if (variant == REQUEST)
-		    mgr.http_request(c, method, url, header, 
-				     body.begin(), body.end());
+		    complete_request(c, mgr);
 		else
-		    mgr.http_response(c, codeval, status, header, 
-				      body.begin(), body.end());
+		    complete_response(c, mgr);
 
 		reset_transaction();
 		
@@ -289,15 +280,12 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		// Transaction complete
 
 		std::istringstream buf(code);
-		unsigned int codeval;
 		buf >> codeval;
 		
 		if (variant == REQUEST)
-		    mgr.http_request(c, method, url, header, 
-				     body.begin(), body.end());
+		    complete_request(c, mgr);
 		else
-		    mgr.http_response(c, codeval, status, header, 
-				      body.begin(), body.end());
+		    complete_response(c, mgr);
 
 		reset_transaction();
 
@@ -322,15 +310,12 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 	    if (content_remaining == 0) {
 
 		std::istringstream buf(code);
-		unsigned int codeval;
 		buf >> codeval;
 
 		if (variant == REQUEST)
-		    mgr.http_request(c, method, url, header, 
-				     body.begin(), body.end());
+		    complete_request(c, mgr);
 		else
-		    mgr.http_response(c, codeval, status, header, 
-				      body.begin(), body.end());
+		    complete_response(c, mgr);
 		
 		reset_transaction();
 
@@ -407,4 +392,46 @@ void http::process_response(manager& mgr, context_ptr c,
 
     fc->lock.unlock();
 
+}
+
+void http_parser::complete_request(context_ptr c, manager& mgr)
+{
+	    
+    std::string norm;
+    
+    // Convert host and URL into a fully normalised URL.
+    normalise_url(header["host"].second, url, norm);
+
+    // Stash the URL on a queue in our context structure.
+    http_request_context::ptr sp = 
+	boost::dynamic_pointer_cast<http_request_context>(c);
+    sp->urls_requested.push_back(norm);
+
+    // Raise an HTTP request event.
+    mgr.http_request(c, method, url, header, 
+		     body.begin(), body.end());
+}
+
+void http_parser::complete_response(context_ptr c, manager& mgr)
+{
+
+    // Get the 'reverse' HTTP flow.  This will be the HTTP request side.
+    context_ptr rev = c->reverse.lock();
+
+    std::string url;
+
+    // If we have a reverse flow pointer...
+    if (rev) {
+	http_request_context::ptr sp_rev = 
+	    boost::dynamic_pointer_cast<http_request_context>(rev);
+
+	// ... then use it to get the URL of this HTTP response.
+	sp_rev->lock.lock();
+	url = sp_rev->urls_requested.front();
+	sp_rev->urls_requested.pop_front();
+	sp_rev->lock.unlock();
+    }
+
+    mgr.http_response(c, codeval, status, header, url, 
+		      body.begin(), body.end());
 }

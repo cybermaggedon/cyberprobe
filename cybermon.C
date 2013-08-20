@@ -78,9 +78,11 @@ public:
 			       unsigned int code,
 			       const std::string& status,
 			       const analyser::observer::http_hdr_t& hdr,
+			       const std::string& url,
 			       analyser::pdu_iter body_start,
 			       analyser::pdu_iter body_end) {
-	cml.http_response(*this, cp, code, status, hdr, body_start, body_end);
+	cml.http_response(*this, cp, code, status, hdr, url, 
+			  body_start, body_end);
     }
 
     // Trigger

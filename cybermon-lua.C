@@ -409,6 +409,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 unsigned int code,
 				 const std::string& status,
 				 const std::map<std::string,std::pair<std::string,std::string> >& hdr,
+				 const std::string& url,
 				 pdu_iter s,
 				 pdu_iter e)
 {
@@ -434,10 +435,10 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     // Put hideous on the stack
     push_cybermon_context(h);
 
-    // Push method
+    // Push code
     push(code);
 
-    // Push URL
+    // Push status
     push(status);
 
     // Build header table on stack.
@@ -455,11 +456,14 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 
     }
 
+    // Push fully normalised URL if known.
+    push(url);
+
     // Put data on stack.
     push(s, e);
 
     // observer.data(context, data)
-    call(5, 0);
+    call(6, 0);
     
     // Still got 'observer' left on stack, it can go.
     pop(1);

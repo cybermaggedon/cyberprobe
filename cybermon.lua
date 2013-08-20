@@ -75,7 +75,7 @@ observer.http_request = function(context, method, url, header, body)
 
 end
 
-observer.http_response = function(context, code, status, header, body)
+observer.http_response = function(context, code, status, header, url, body)
 
   -- Get the LIID
   local liid = cybermon.get_liid(context)
@@ -89,6 +89,7 @@ observer.http_response = function(context, code, status, header, body)
   io.write(string.format("Target %s:\n", liid))
   io.write(string.format("  %s -> %s\n", src, dest))
   io.write(string.format("  HTTP response %d %s\n", code, status))
+  io.write(string.format("  Resource %s\n", url))
 
   -- Write header
   for key, value in pairs(header) do

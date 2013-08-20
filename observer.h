@@ -37,6 +37,8 @@ namespace analyser {
 				   unsigned int code,
 				   const std::string& status,
 				   const http_hdr_t& hdr,
+				   // URL of object, or "" if not known.
+				   const std::string& url,
 				   pdu_iter body_start,
 				   pdu_iter body_end) = 0;
 

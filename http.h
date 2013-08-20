@@ -9,6 +9,7 @@
 #define HTTP_H
 
 #include <stdint.h>
+#include <boost/regex.hpp>
 
 #include <set>
 
@@ -82,6 +83,27 @@ namespace analyser {
 		state = IN_RESPONSE_PROTOCOL;
 	}
 
+	void normalise_url(const std::string& host, const std::string url,
+			   std::string& out) {
+
+	    boost::match_results<std::string::const_iterator> what;
+
+	    static const boost::regex already_normalised("[a-zA-Z]+:");
+
+	    if (regex_search(url, what, already_normalised, 
+			     boost::match_continuous)) {
+		out = url;
+		return;
+	    }
+
+	    out = "http://" + host + url;
+	    
+	}
+
+	void complete_request(context_ptr c, manager& mgr);
+
+	void complete_response(context_ptr c, manager& mgr);
+
 	// Common to request and response.
 	std::string protocol;
 
@@ -91,6 +113,7 @@ namespace analyser {
 
 	// For the response.
 	std::string code;
+	int codeval;
 	std::string status;
 
 	// Header key/val fields.
@@ -128,6 +151,8 @@ namespace analyser {
 	context(m), http_parser(REQUEST) { 
 	    addr = a; parent = p; 
 	}
+
+	std::list<std::string> urls_requested;
 
 	// Type.
 	virtual std::string get_type() { return "http_request"; }

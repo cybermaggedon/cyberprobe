@@ -14,6 +14,7 @@ local observer = {}
 
 -- Local function, does a hexdump.
 local hexdump =  function(buf)
+  buf = buf:sub(1,128)
   for i=1, math.ceil(#buf/16) * 16 do
     if (i-1) % 16 == 0 then io.write(string.format('  %08X  ', i-1)) end
     io.write( i > #buf and '   ' or string.format('%02X ', buf:byte(i)) )
