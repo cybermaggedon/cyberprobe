@@ -160,16 +160,6 @@ namespace analyser {
 	// Context
 	context_ptr ctxt;
 
-	// Iterators, defining the bounds of the data.
-	pdu_iter s;
-	pdu_iter e;
-
-	// LIID.
-	std::string liid;
-    
-	// Address which triggered processing
-	address trigger;
-
 	// Cybermon bridge.
 	cybermon_lua* cml;
 
@@ -192,7 +182,7 @@ namespace analyser {
 	// The C++ equiv of above.
 	void describe_src(cybermon_context* h);
 	void describe_dest(cybermon_context* h);
-	void get_liid(cybermon_context* h);
+	int get_liid(cybermon_context* h);
 	void get_context_id(cybermon_context* h);
 	int get_network_info(cybermon_context* h);
 	int get_trigger_info(cybermon_context* h);

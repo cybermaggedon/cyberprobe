@@ -148,6 +148,21 @@ namespace analyser {
 
 	}
 
+	std::string to_ip_string() const {
+	    std::string s;
+
+	    try {
+		return to_ip4_string();
+	    } catch (...) {}
+
+	    try {
+		return to_ip6_string();
+	    } catch (...) {}
+
+	    throw exception("Not an IP address");
+
+	}
+
     };
 
 };

@@ -77,14 +77,21 @@ void cybermon_lua::describe_dest(cybermon_context* h)
 
 }
 
-void cybermon_lua::get_liid(cybermon_context* h)
+int cybermon_lua::get_liid(cybermon_context* h)
 {
 
     // Pop user-data argument
     pop(1);
 
-    // Put LIID on stack
-    push(h->liid.c_str());
+    // Get LIID
+    std::string liid;
+    analyser::address trigger_address;
+    engine::get_root_info(h->ctxt, liid, trigger_address);
+
+    // Push LIID on stack.
+    push(liid);
+
+    return 1;
 
 }
 
@@ -105,21 +112,11 @@ int cybermon_lua::get_network_info(cybermon_context* h)
     // Pop user-data argument
     pop(1);
 
-    analyser::address src, dest;
-    analyser::engine::get_network_info(h->ctxt, src, dest);
+    address src, dest;
+    engine::get_network_info(h->ctxt, src, dest);
 
-    tcpip::ip4_address x;
-    std::string a1, a2;
-
-    x.addr.assign(src.addr.begin(), src.addr.end());
-    x.to_string(a1);
-
-    x.addr.assign(dest.addr.begin(), dest.addr.end());
-    x.to_string(a2);
-
-    // Put address strings on stack
-    push(a1);
-    push(a2);
+    push(src.to_ip_string());
+    push(dest.to_ip_string());
 
     return 2;
 
@@ -131,14 +128,12 @@ int cybermon_lua::get_trigger_info(cybermon_context* h)
     // Pop user-data argument
     pop(1);
 
-    tcpip::ip4_address x;
-    std::string a1;
+    // Get trigger address
+    std::string liid;
+    address trigger_address;
+    engine::get_root_info(h->ctxt, liid, trigger_address);
 
-    x.addr.assign(h->trigger.addr.begin(), h->trigger.addr.end());
-    x.to_string(a1);
-
-    // Put address string on stack
-    push(a1);
+    push(trigger_address.to_ip_string());
 
     return 1;
 
@@ -195,17 +190,10 @@ void cybermon_lua::connection_up(analyser::engine& an,
 				 const analyser::context_ptr f)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
 
     h.an = &an;
     h.ctxt = f;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.data
@@ -231,17 +219,10 @@ void cybermon_lua::connection_down(analyser::engine& an,
 				 const analyser::context_ptr f)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
 
     h.an = &an;
     h.ctxt = f;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.data
@@ -269,19 +250,10 @@ void cybermon_lua::unrecognised_stream(analyser::engine& an,
 				       analyser::pdu_iter e)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
 
     h.an = &an;
     h.ctxt = f;
-    h.s = s;
-    h.e = e;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.data
@@ -312,18 +284,9 @@ void cybermon_lua::unrecognised_datagram(analyser::engine& an,
 					 analyser::pdu_iter e)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
     h.an = &an;
     h.ctxt = f;
-    h.s = s;
-    h.e = e;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.data
@@ -351,18 +314,9 @@ void cybermon_lua::icmp(analyser::engine& an,
 			analyser::pdu_iter e)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
     h.an = &an;
     h.ctxt = f;
-    h.s = s;
-    h.e = e;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.data
@@ -391,18 +345,9 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 				pdu_iter e)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
     h.an = &an;
     h.ctxt = f;
-    h.s = s;
-    h.e = e;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.http_request
@@ -453,18 +398,9 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 pdu_iter e)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
     h.an = &an;
     h.ctxt = f;
-    h.s = s;
-    h.e = e;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.http_request
@@ -540,16 +476,9 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
 			       const std::list<dns_rr> additional)
 {
 
-    // Get information stored about the attacker.
-    std::string liid;
-    analyser::address trigger_address;
-    an.get_root_info(f, liid, trigger_address);
-
     cybermon_context h;
     h.an = &an;
     h.ctxt = f;
-    h.liid = liid;
-    h.trigger = trigger_address;
     h.cml = this;
     
     // Get observer.http_request
