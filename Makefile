@@ -58,6 +58,8 @@ cyberprobe.o: packet_consumer.h
 delivery.o: delivery.h sender.h management.h socket.h thread.h nhis11.h
 delivery.o: monitor.h etsi_li.h ./ber.h parameters.h capture.h
 delivery.o: packet_capture.h packet_consumer.h
+dns.o: dns.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
+dns.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
 engine.o: thread.h context.h socket.h address.h pdu.h flow.h exception.h
 engine.o: reaper.h base_context.h manager.h observer.h engine.h ip.h
 etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
@@ -84,8 +86,9 @@ tcp.o: tcp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
 tcp.o: http.h unrecognised.h
 udp.o: udp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
-udp.o: thread.h base_context.h manager.h observer.h
-unrecognisd.o: unrecognised.h context.h socket.h address.h pdu.h flow.h
-unrecognisd.o: exception.h reaper.h thread.h base_context.h manager.h
-unrecognisd.o: observer.h serial.h protocol.h
+udp.o: thread.h base_context.h manager.h observer.h unrecognised.h serial.h
+udp.o: protocol.h dns.h
+unrecognised.o: unrecognised.h context.h socket.h address.h pdu.h flow.h
+unrecognised.o: exception.h reaper.h thread.h base_context.h manager.h
+unrecognised.o: observer.h serial.h protocol.h
 xml.o: xml.h
