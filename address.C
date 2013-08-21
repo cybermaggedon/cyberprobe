@@ -30,6 +30,15 @@ void address::describe(std::ostream& out) const
 	return;
     }
 
+    if (proto == IP6) {
+	tcpip::ip6_address a;
+	if (addr.size() != 16)
+	    throw std::runtime_error("Invalid address data for IPv6");
+	a.addr.assign(addr.begin(), addr.end());
+	out << "IPv6 " << a;
+	return;
+    }
+
     if (proto == TCP || proto == UDP) {
 	if (addr.size() != 2)
 	    throw std::runtime_error("Invalid address data for port");
