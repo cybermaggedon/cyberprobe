@@ -3,6 +3,7 @@
 #define OBSERVER_H
 
 #include "context.h"
+#include "dns_protocol.h"
 
 namespace analyser {
 
@@ -50,6 +51,15 @@ namespace analyser {
 	virtual void trigger_up(const std::string& liid,
 				const tcpip::address& trigger_address) = 0;
 	virtual void trigger_down(const std::string& liid) = 0;
+
+	// DNS
+	virtual void dns_message(const context_ptr cp,
+				 const dns_header hdr,
+				 const std::list<dns_query> queries,
+				 const std::list<dns_rr> answers,
+				 const std::list<dns_rr> authorities,
+				 const std::list<dns_rr> additional) = 0;
+
     };
 
 };

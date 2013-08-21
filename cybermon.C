@@ -100,6 +100,15 @@ public:
 	cml.trigger_down(liid);
     }
 
+    // DNS
+    virtual void dns_message(const analyser::context_ptr cp,
+			     const analyser::dns_header hdr,
+			     const std::list<analyser::dns_query> queries,
+			     const std::list<analyser::dns_rr> answers,
+			     const std::list<analyser::dns_rr> authorities,
+			     const std::list<analyser::dns_rr> additional) {
+    }
+
 };
 
 // Monitor class, implements the monitor interface to receive data.

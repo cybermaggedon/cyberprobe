@@ -7,7 +7,7 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 
 CYBERMON_OBJECTS=cybermon.o engine.o etsi_li.o socket.o ber.o base_context.o \
 	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o \
-	unrecognised.o dns.o
+	unrecognised.o dns.o dns_protocol.o
 
 all: cyberprobe cybermon nhis11_rcvr etsi_rcvr
 
@@ -41,16 +41,16 @@ config.o: management.h socket.h nhis11.h monitor.h etsi_li.h ./ber.h
 config.o: parameters.h capture.h packet_capture.h packet_consumer.h xml.h
 config.o: interface.h target.h endpoint.h parameter.h snort_alert.h control.h
 context.o: context.h socket.h address.h pdu.h flow.h exception.h reaper.h
-context.o: thread.h base_context.h manager.h observer.h
+context.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 control.o: control.h socket.h thread.h management.h specification.h
 control.o: resource.h
 cybermon.o: engine.h thread.h pdu.h context.h socket.h address.h flow.h
 cybermon.o: exception.h reaper.h base_context.h manager.h observer.h
-cybermon.o: monitor.h etsi_li.h ./ber.h packet_capture.h hexdump.h
-cybermon.o: cybermon-lua.h
+cybermon.o: dns_protocol.h monitor.h etsi_li.h ./ber.h packet_capture.h
+cybermon.o: hexdump.h cybermon-lua.h
 cybermon-lua.o: cybermon-lua.h engine.h thread.h pdu.h context.h socket.h
 cybermon-lua.o: address.h flow.h exception.h reaper.h base_context.h
-cybermon-lua.o: manager.h observer.h
+cybermon-lua.o: manager.h observer.h dns_protocol.h
 cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
 cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h etsi_li.h
 cyberprobe.o: ./ber.h parameters.h capture.h packet_capture.h
@@ -59,18 +59,22 @@ delivery.o: delivery.h sender.h management.h socket.h thread.h nhis11.h
 delivery.o: monitor.h etsi_li.h ./ber.h parameters.h capture.h
 delivery.o: packet_capture.h packet_consumer.h
 dns.o: dns.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
-dns.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
+dns.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
+dns.o: protocol.h
+dns_protocol.o: dns_protocol.h
 engine.o: thread.h context.h socket.h address.h pdu.h flow.h exception.h
-engine.o: reaper.h base_context.h manager.h observer.h engine.h ip.h
+engine.o: reaper.h base_context.h manager.h observer.h dns_protocol.h
+engine.o: engine.h ip.h
 etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
 http.o: address.h pdu.h socket.h http.h context.h flow.h exception.h reaper.h
-http.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
+http.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
+http.o: protocol.h
 icmp.o: icmp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
-icmp.o: thread.h base_context.h manager.h observer.h
+icmp.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 ip.o: ip.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
-ip.o: thread.h base_context.h manager.h observer.h tcp.h serial.h protocol.h
-ip.o: udp.h icmp.h
+ip.o: thread.h base_context.h manager.h observer.h dns_protocol.h tcp.h
+ip.o: serial.h protocol.h udp.h icmp.h
 nhis11.o: nhis11.h socket.h thread.h monitor.h
 nhis11_rcvr.o: monitor.h socket.h nhis11.h thread.h packet_capture.h
 reaper.o: reaper.h thread.h
@@ -83,12 +87,12 @@ snort_alert.o: ./ber.h parameters.h capture.h packet_capture.h
 snort_alert.o: packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
-tcp.o: thread.h base_context.h manager.h observer.h serial.h protocol.h
-tcp.o: http.h unrecognised.h
+tcp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
+tcp.o: protocol.h http.h unrecognised.h
 udp.o: udp.h context.h socket.h address.h pdu.h flow.h exception.h reaper.h
-udp.o: thread.h base_context.h manager.h observer.h unrecognised.h serial.h
-udp.o: protocol.h dns.h
+udp.o: thread.h base_context.h manager.h observer.h dns_protocol.h
+udp.o: unrecognised.h serial.h protocol.h dns.h
 unrecognised.o: unrecognised.h context.h socket.h address.h pdu.h flow.h
 unrecognised.o: exception.h reaper.h thread.h base_context.h manager.h
-unrecognised.o: observer.h serial.h protocol.h
+unrecognised.o: observer.h dns_protocol.h serial.h protocol.h
 xml.o: xml.h

@@ -2,6 +2,8 @@
 #ifndef PDU_H
 #define PDU_H
 
+#include <vector>
+
 namespace analyser {
 
     typedef std::vector<unsigned char> pdu;
