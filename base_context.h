@@ -11,7 +11,7 @@
 #include "thread.h"
 #include "exception.h"
 
-namespace analyser {
+namespace cybermon {
 
     // Context ID type.
     typedef unsigned long context_id;

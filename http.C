@@ -6,7 +6,7 @@
 #include "ctype.h"
 #include "manager.h"
 
-using namespace analyser;
+using namespace cybermon;
 
 // HTTP response processing function.
 void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)

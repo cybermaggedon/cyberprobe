@@ -15,7 +15,7 @@
 #include "socket.h"
 #include "exception.h"
 
-namespace analyser {
+namespace cybermon {
 
     // Protocol type.
     enum protocol {

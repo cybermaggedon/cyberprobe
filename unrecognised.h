@@ -17,7 +17,7 @@
 #include "serial.h"
 #include "protocol.h"
 
-namespace analyser {
+namespace cybermon {
     
     // An unrecoginsed stream.
     class unrecognised_stream_context : public context {

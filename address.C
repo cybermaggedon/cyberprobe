@@ -5,7 +5,7 @@
 
 #include <iomanip>
 
-using namespace analyser;
+using namespace cybermon;
 
 
 // Describe the address in human-readable on an output-stream.

@@ -11,7 +11,7 @@
 #include "context.h"
 #include "manager.h"
 
-namespace analyser {
+namespace cybermon {
     
     // A UDP context.
     class udp_context : public context {

@@ -5,7 +5,7 @@
 #include "reaper.h"
 #include "observer.h"
 
-namespace analyser {
+namespace cybermon {
 
     class manager : public observer, public reaper {
     public:

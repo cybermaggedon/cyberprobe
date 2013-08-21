@@ -4,7 +4,7 @@
 
 #include "address.h"
 
-namespace analyser {
+namespace cybermon {
 
     class flow {
       public:

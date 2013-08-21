@@ -28,65 +28,65 @@ Usage:
 #include "context.h"
 #include "cybermon-lua.h"
 
-// My observation engine.  Uses the analyser engine, takes the data
+// My observation engine.  Uses the cybermon engine, takes the data
 // events and keep tabs on how much data has flowed out to attackers.
-class obs : public analyser::engine {
+class obs : public cybermon::engine {
 private:
-    analyser::cybermon_lua cml;
+    cybermon::cybermon_lua cml;
 
 public:
 
     obs(const std::string& path) : cml(path) {}
 
     // Map of network address to the amount of data acquired.
-    std::map<analyser::address, uint64_t> amounts;
+    std::map<cybermon::address, uint64_t> amounts;
 
     // Stores the next 'reporting' event for data acquisition by an attacker.
-    std::map<analyser::address, uint64_t> next;
+    std::map<cybermon::address, uint64_t> next;
 
     // Connection-orientated.
-    virtual void connection_up(const analyser::context_ptr cp) {
+    virtual void connection_up(const cybermon::context_ptr cp) {
 	cml.connection_up(*this, cp);
     }
 
-    virtual void connection_down(const analyser::context_ptr cp) {
+    virtual void connection_down(const cybermon::context_ptr cp) {
 	cml.connection_down(*this, cp);
     }
 
-    virtual void unrecognised_stream(const analyser::context_ptr cp,
-				     analyser::pdu_iter s, 
-				     analyser::pdu_iter e) {
+    virtual void unrecognised_stream(const cybermon::context_ptr cp,
+				     cybermon::pdu_iter s, 
+				     cybermon::pdu_iter e) {
 	cml.unrecognised_stream(*this, cp, s, e);
     }
 
     // Connection-less
-    virtual void unrecognised_datagram(const analyser::context_ptr cp,
-			  analyser::pdu_iter s, analyser::pdu_iter e) {
+    virtual void unrecognised_datagram(const cybermon::context_ptr cp,
+			  cybermon::pdu_iter s, cybermon::pdu_iter e) {
 	cml.unrecognised_datagram(*this, cp, s, e);
     }
 
-    virtual void icmp(const analyser::context_ptr cp,
-		      analyser::pdu_iter s, analyser::pdu_iter e) {
+    virtual void icmp(const cybermon::context_ptr cp,
+		      cybermon::pdu_iter s, cybermon::pdu_iter e) {
 	cml.icmp(*this, cp, s, e);
     }
 
     // HTTP
-    virtual void http_request(const analyser::context_ptr cp,
+    virtual void http_request(const cybermon::context_ptr cp,
 			      const std::string& method,
 			      const std::string& url,
-			      const analyser::observer::http_hdr_t& hdr,
-			      analyser::pdu_iter body_start,
-			      analyser::pdu_iter body_end) {
+			      const cybermon::observer::http_hdr_t& hdr,
+			      cybermon::pdu_iter body_start,
+			      cybermon::pdu_iter body_end) {
 	cml.http_request(*this, cp, method, url, hdr, body_start, body_end);
     }
 
-    virtual void http_response(const analyser::context_ptr cp,
+    virtual void http_response(const cybermon::context_ptr cp,
 			       unsigned int code,
 			       const std::string& status,
-			       const analyser::observer::http_hdr_t& hdr,
+			       const cybermon::observer::http_hdr_t& hdr,
 			       const std::string& url,
-			       analyser::pdu_iter body_start,
-			       analyser::pdu_iter body_end) {
+			       cybermon::pdu_iter body_start,
+			       cybermon::pdu_iter body_end) {
 	cml.http_response(*this, cp, code, status, hdr, url, 
 			  body_start, body_end);
     }
@@ -101,12 +101,12 @@ public:
     }
 
     // DNS
-    virtual void dns_message(const analyser::context_ptr cp,
-			     const analyser::dns_header hdr,
-			     const std::list<analyser::dns_query> queries,
-			     const std::list<analyser::dns_rr> answers,
-			     const std::list<analyser::dns_rr> authorities,
-			     const std::list<analyser::dns_rr> additional) {
+    virtual void dns_message(const cybermon::context_ptr cp,
+			     const cybermon::dns_header hdr,
+			     const std::list<cybermon::dns_query> queries,
+			     const std::list<cybermon::dns_rr> answers,
+			     const std::list<cybermon::dns_rr> authorities,
+			     const std::list<cybermon::dns_rr> additional) {
 	cml.dns_message(*this, cp, hdr, queries, answers, authorities,
 			additional);
     }
@@ -118,7 +118,7 @@ class etsi_monitor : public monitor {
 private:
 
     // Analysis engine
-    analyser::engine& an;
+    cybermon::engine& an;
 
 public:
 
@@ -126,7 +126,7 @@ public:
     typedef std::vector<unsigned char>::iterator iter;
 
     // Constructor.
-    etsi_monitor(analyser::engine& an) : an(an) {}
+    etsi_monitor(cybermon::engine& an) : an(an) {}
 
     // Called when a PDU is received.
     virtual void operator()(const std::string& liid, const iter& s, 
@@ -175,11 +175,11 @@ void etsi_monitor::operator()(const std::string& liid,
 
 class pcap_input : public pcap_reader {
 private:
-    analyser::engine& e;
+    cybermon::engine& e;
     int count;
 
 public:
-    pcap_input(const std::string& f, analyser::engine& e) : 
+    pcap_input(const std::string& f, cybermon::engine& e) : 
 	pcap_reader(f), e(e) {
 	count = 0;
     }

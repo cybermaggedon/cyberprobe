@@ -2,12 +2,12 @@
 #include <sstream>
 #include <cybermon-lua.h>
 
-using namespace analyser;
+using namespace cybermon;
 
 int cybermon_lua::describe_src(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
-    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
     h->cml->describe_src(h);
     return 1;
 }
@@ -15,7 +15,7 @@ int cybermon_lua::describe_src(lua_State* lua)
 int cybermon_lua::describe_dest(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
-    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
     h->cml->describe_dest(h);
     return 1;
 }
@@ -23,7 +23,7 @@ int cybermon_lua::describe_dest(lua_State* lua)
 int cybermon_lua::get_liid(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
-    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
     h->cml->get_liid(h);
     return 1;
 }
@@ -31,7 +31,7 @@ int cybermon_lua::get_liid(lua_State* lua)
 int cybermon_lua::get_context_id(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
-    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
     h->cml->get_context_id(h);
     return 1;
 }
@@ -39,45 +39,45 @@ int cybermon_lua::get_context_id(lua_State* lua)
 int cybermon_lua::get_network_info(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
-    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
     return h->cml->get_network_info(h);
 }
 
 int cybermon_lua::get_trigger_info(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
-    cybermon_context* h = reinterpret_cast<cybermon_context*>(ud);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
     return h->cml->get_trigger_info(h);
 }
 
-void cybermon_lua::describe_src(cybermon_context* h)
+void cybermon_lua::describe_src(context_userdata* h)
 {
     std::ostringstream buf;
-    analyser::engine::describe_src(h->ctxt, buf);
+    engine::describe_src(h->ctxt, buf);
 
     // Pop user-data argument
     pop(1);
 
     // Put address string on stack.
-    push(buf.str().c_str());
+    push(buf.str());
 
 }
 
-void cybermon_lua::describe_dest(cybermon_context* h)
+void cybermon_lua::describe_dest(context_userdata* h)
 {
 
     std::ostringstream buf;
-    analyser::engine::describe_dest(h->ctxt, buf);
+    engine::describe_dest(h->ctxt, buf);
 
     // Pop user-data argument
-    lua_pop(lua, 1);
+    pop(1);
 
     // Put address string on stack.
-    lua_pushstring(lua, buf.str().c_str());
+    push(buf.str());
 
 }
 
-int cybermon_lua::get_liid(cybermon_context* h)
+int cybermon_lua::get_liid(context_userdata* h)
 {
 
     // Pop user-data argument
@@ -85,7 +85,7 @@ int cybermon_lua::get_liid(cybermon_context* h)
 
     // Get LIID
     std::string liid;
-    analyser::address trigger_address;
+    address trigger_address;
     engine::get_root_info(h->ctxt, liid, trigger_address);
 
     // Push LIID on stack.
@@ -95,7 +95,7 @@ int cybermon_lua::get_liid(cybermon_context* h)
 
 }
 
-void cybermon_lua::get_context_id(cybermon_context* h)
+void cybermon_lua::get_context_id(context_userdata* h)
 {
 
     // Pop user-data argument
@@ -106,7 +106,7 @@ void cybermon_lua::get_context_id(cybermon_context* h)
 
 }
 
-int cybermon_lua::get_network_info(cybermon_context* h)
+int cybermon_lua::get_network_info(context_userdata* h)
 {
 
     // Pop user-data argument
@@ -122,7 +122,7 @@ int cybermon_lua::get_network_info(cybermon_context* h)
 
 }
 
-int cybermon_lua::get_trigger_info(cybermon_context* h)
+int cybermon_lua::get_trigger_info(context_userdata* h)
 {
 
     // Pop user-data argument
@@ -186,13 +186,12 @@ void cybermon_lua::trigger_down(const std::string& liid)
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::connection_up(analyser::engine& an, 
-				 const analyser::context_ptr f)
+void cybermon_lua::connection_up(engine& an, 
+				 const context_ptr f)
 {
 
-    cybermon_context h;
+    context_userdata h;
 
-    h.an = &an;
     h.ctxt = f;
     h.cml = this;
     
@@ -201,7 +200,7 @@ void cybermon_lua::connection_up(analyser::engine& an,
     get_field(-1, "connection_up");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
     
     // observer.connection_up(context)
     call(1, 0);
@@ -215,13 +214,12 @@ void cybermon_lua::connection_up(analyser::engine& an,
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::connection_down(analyser::engine& an, 
-				 const analyser::context_ptr f)
+void cybermon_lua::connection_down(engine& an, 
+				 const context_ptr f)
 {
 
-    cybermon_context h;
+    context_userdata h;
 
-    h.an = &an;
     h.ctxt = f;
     h.cml = this;
     
@@ -230,7 +228,7 @@ void cybermon_lua::connection_down(analyser::engine& an,
     get_field(-1, "connection_down");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
     
     // observer.connection_down(context)
     call(1, 0);
@@ -244,15 +242,14 @@ void cybermon_lua::connection_down(analyser::engine& an,
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::unrecognised_stream(analyser::engine& an, 
-				       const analyser::context_ptr f, 
-				       analyser::pdu_iter s, 
-				       analyser::pdu_iter e)
+void cybermon_lua::unrecognised_stream(engine& an, 
+				       const context_ptr f, 
+				       pdu_iter s, 
+				       pdu_iter e)
 {
 
-    cybermon_context h;
+    context_userdata h;
 
-    h.an = &an;
     h.ctxt = f;
     h.cml = this;
     
@@ -261,7 +258,7 @@ void cybermon_lua::unrecognised_stream(analyser::engine& an,
     get_field(-1, "connection_data");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
 
     // Put data on stack.
     push(s, e);
@@ -278,14 +275,13 @@ void cybermon_lua::unrecognised_stream(analyser::engine& an,
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::unrecognised_datagram(analyser::engine& an, 
-					 const analyser::context_ptr f, 
-					 analyser::pdu_iter s, 
-					 analyser::pdu_iter e)
+void cybermon_lua::unrecognised_datagram(engine& an, 
+					 const context_ptr f, 
+					 pdu_iter s, 
+					 pdu_iter e)
 {
 
-    cybermon_context h;
-    h.an = &an;
+    context_userdata h;
     h.ctxt = f;
     h.cml = this;
     
@@ -294,7 +290,7 @@ void cybermon_lua::unrecognised_datagram(analyser::engine& an,
     get_field(-1, "unrecognised_datagram");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
 
     // Put data on stack.
     push(s, e);
@@ -308,14 +304,13 @@ void cybermon_lua::unrecognised_datagram(analyser::engine& an,
 }
 
 
-void cybermon_lua::icmp(analyser::engine& an, 
-			const analyser::context_ptr f, 
-			analyser::pdu_iter s, 
-			analyser::pdu_iter e)
+void cybermon_lua::icmp(engine& an, 
+			const context_ptr f, 
+			pdu_iter s, 
+			pdu_iter e)
 {
 
-    cybermon_context h;
-    h.an = &an;
+    context_userdata h;
     h.ctxt = f;
     h.cml = this;
     
@@ -324,7 +319,7 @@ void cybermon_lua::icmp(analyser::engine& an,
     get_field(-1, "icmp");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
 
     // Put data on stack.
     push(s, e);
@@ -345,8 +340,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 				pdu_iter e)
 {
 
-    cybermon_context h;
-    h.an = &an;
+    context_userdata h;
     h.ctxt = f;
     h.cml = this;
     
@@ -355,7 +349,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     get_field(-1, "http_request");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
 
     // Push method
     push(method);
@@ -398,8 +392,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 pdu_iter e)
 {
 
-    cybermon_context h;
-    h.an = &an;
+    context_userdata h;
     h.ctxt = f;
     h.cml = this;
     
@@ -408,7 +401,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     get_field(-1, "http_response");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
 
     // Push code
     push(code);
@@ -476,8 +469,7 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
 			       const std::list<dns_rr> additional)
 {
 
-    cybermon_context h;
-    h.an = &an;
+    context_userdata h;
     h.ctxt = f;
     h.cml = this;
     
@@ -486,7 +478,7 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
     get_field(-1, "dns_message");
     
     // Put hideous on the stack
-    push_cybermon_context(h);
+    push(h);
 
     push(hdr);
     push(queries);
@@ -503,7 +495,7 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
 }
 
 
-void lua_state::push(const dns_header& hdr)
+void cybermon_lua::push(const dns_header& hdr)
 {
 
     create_table(0, 8);
@@ -542,7 +534,7 @@ void lua_state::push(const dns_header& hdr)
 
 }
 
-void lua_state::push(const dns_query& qry)
+void cybermon_lua::push(const dns_query& qry)
 {
 
     create_table(0, 3);
@@ -561,7 +553,7 @@ void lua_state::push(const dns_query& qry)
 
 }
 
-void lua_state::push(const dns_rr& rr)
+void cybermon_lua::push(const dns_rr& rr)
 {
 
     create_table(0, 7);
@@ -613,7 +605,7 @@ void lua_state::push(const dns_rr& rr)
 }
 
 
-void lua_state::push(const std::list<dns_query>& lst)
+void cybermon_lua::push(const std::list<dns_query>& lst)
 {
 
     create_table(lst.size(), 0);
@@ -631,7 +623,7 @@ void lua_state::push(const std::list<dns_query>& lst)
 
 }
 
-void lua_state::push(const std::list<dns_rr>& lst)
+void cybermon_lua::push(const std::list<dns_rr>& lst)
 {
 
     create_table(lst.size(), 0);

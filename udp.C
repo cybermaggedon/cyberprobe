@@ -6,7 +6,7 @@
 #include "unrecognised.h"
 #include "dns.h"
 
-using namespace analyser;
+using namespace cybermon;
 
 void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {

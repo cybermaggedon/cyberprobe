@@ -2,7 +2,7 @@
 #include "unrecognised.h"
 #include "manager.h"
 
-using namespace analyser;
+using namespace cybermon;
 
 void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c, 
 					       pdu_iter s, pdu_iter e)

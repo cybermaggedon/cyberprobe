@@ -18,7 +18,7 @@
 #include "protocol.h"
 #include "dns_protocol.h"
 
-namespace analyser {
+namespace cybermon {
 
     // A DNS context.
     class dns_context : public context {

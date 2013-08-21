@@ -17,7 +17,7 @@
 #include "base_context.h"
 #include "manager.h"
 
-namespace analyser {
+namespace cybermon {
 
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.

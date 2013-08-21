@@ -23,7 +23,7 @@
 #include "observer.h"
 #include "manager.h"
 
-namespace analyser {
+namespace cybermon {
     
     // Packet analysis engine.  Designed to be sub-classed, caller should
     // implement the 'observer' interface.
@@ -68,11 +68,10 @@ namespace analyser {
 			const tcpip::address& addr) {
 
 	    // Get the root context for this LIID.
-	    analyser::context_ptr c = get_root_context(liid);
+	    context_ptr c = get_root_context(liid);
 
 	    // Record the known address.
-	    analyser::root_context& rc = 
-		dynamic_cast<analyser::root_context&>(*c);
+	    root_context& rc = dynamic_cast<root_context&>(*c);
 
 	    rc.set_trigger_address(addr);
 

@@ -3,7 +3,7 @@
 #include "manager.h"
 #include "address.h"
 
-using namespace analyser;
+using namespace cybermon;
 
 void dns::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {

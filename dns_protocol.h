@@ -10,7 +10,7 @@
 #include "pdu.h"
 #include "address.h"
 
-namespace analyser {
+namespace cybermon {
 
     enum dns_rcode_t {
 	NO_ERROR = 0,

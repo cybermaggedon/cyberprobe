@@ -18,7 +18,7 @@
 #include "serial.h"
 #include "protocol.h"
 
-namespace analyser {
+namespace cybermon {
 
     // HTTP parser.  The request / response structures are almost identical,
     // so this parser make most use of the commonality.

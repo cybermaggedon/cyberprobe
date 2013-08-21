@@ -9,7 +9,7 @@
 
 #include <deque>
 
-namespace analyser {
+namespace cybermon {
     
     class ip;
 

@@ -4,7 +4,7 @@
 #include "engine.h"
 #include "ip.h"
 
-using namespace analyser;
+using namespace cybermon;
 
 context_ptr engine::get_root_context(const std::string& liid)
 {
@@ -88,8 +88,8 @@ void engine::get_root_info(context_ptr p, std::string& liid, address& a)
 	if (p->get_type() == "root") {
 
 	    // Cast to root.
-	    analyser::root_context& rc = 
-		dynamic_cast<analyser::root_context&>(*p);
+	    root_context& rc = 
+		dynamic_cast<root_context&>(*p);
 	    
 	    liid = rc.get_liid();
 	    a = rc.get_trigger_address();

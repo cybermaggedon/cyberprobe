@@ -19,7 +19,7 @@ extern "C" {
 
 #include "engine.h"
 
-namespace analyser {
+namespace cybermon {
 
     // Generic C++ wrapper around LUA.
     class lua_state {
@@ -109,13 +109,6 @@ namespace analyser {
 	    lua_pushlstring(lua, (char*) buf, e - s);
 	}
 
-	// Push DNS stuff.
-	void push(const dns_header&);
-	void push(const dns_query&);
-	void push(const std::list<dns_query>&);
-	void push(const dns_rr&);
-	void push(const std::list<dns_rr>&);
-
 	// Call a function.  args = number of arguments on the stack
 	// res = number of return values.
 	void call(int args, int res) {
@@ -151,11 +144,8 @@ namespace analyser {
     // which don't pass through C very well.
     class cybermon_lua;
 
-    class cybermon_context {
+    class context_userdata {
     public:
-
-	// Analyser engine.
-	engine* an;
 
 	// Context
 	context_ptr ctxt;
@@ -180,20 +170,29 @@ namespace analyser {
 	static int get_trigger_info(lua_State*);
     
 	// The C++ equiv of above.
-	void describe_src(cybermon_context* h);
-	void describe_dest(cybermon_context* h);
-	int get_liid(cybermon_context* h);
-	void get_context_id(cybermon_context* h);
-	int get_network_info(cybermon_context* h);
-	int get_trigger_info(cybermon_context* h);
+	void describe_src(context_userdata* h);
+	void describe_dest(context_userdata* h);
+	int get_liid(context_userdata* h);
+	void get_context_id(context_userdata* h);
+	int get_network_info(context_userdata* h);
+	int get_trigger_info(context_userdata* h);
 
 	// Constructor.
 	cybermon_lua(const std::string& cfg);
 
+	using lua_state::push;
+
 	// Push a cybermon context onto the LUA stack as light userdata.
-	void push_cybermon_context(cybermon_context& c) {
+	void push(context_userdata& c) {
 	    push_light_userdata(&c);
 	}
+
+	// Push DNS stuff.
+	void push(const dns_header&);
+	void push(const dns_query&);
+	void push(const std::list<dns_query>&);
+	void push(const dns_rr&);
+	void push(const std::list<dns_rr>&);
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
 	void trigger_up(const std::string& liid, const tcpip::address& a);

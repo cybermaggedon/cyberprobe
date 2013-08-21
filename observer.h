@@ -5,7 +5,7 @@
 #include "context.h"
 #include "dns_protocol.h"
 
-namespace analyser {
+namespace cybermon {
 
     // Observer interface.  The observer interface is called when various
     // reportable events occur.
@@ -34,7 +34,7 @@ namespace analyser {
 	virtual void http_request(const context_ptr cp,
 				  const std::string& method,
 				  const std::string& url,
-				  const analyser::observer::http_hdr_t& hdr,
+				  const observer::http_hdr_t& hdr,
 				  pdu_iter body_start,
 				  pdu_iter body_end) = 0;
 

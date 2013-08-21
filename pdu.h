@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace analyser {
+namespace cybermon {
 
     typedef std::vector<unsigned char> pdu;
     typedef std::vector<unsigned char>::const_iterator pdu_iter;

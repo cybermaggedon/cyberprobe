@@ -17,7 +17,7 @@
 #include "serial.h"
 #include "protocol.h"
 
-namespace analyser {
+namespace cybermon {
 
     class tcp_segment {
     public:

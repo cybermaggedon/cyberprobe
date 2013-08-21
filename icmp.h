@@ -5,7 +5,7 @@
 #include "context.h"
 #include "observer.h"
 
-namespace analyser {
+namespace cybermon {
     
     // ICMP context.  No address information, just flagging the presence of
     // ICMP.

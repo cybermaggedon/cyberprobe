@@ -8,7 +8,7 @@
 #include "http.h"
 #include "unrecognised.h"
 
-using namespace analyser;
+using namespace cybermon;
 
 void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {

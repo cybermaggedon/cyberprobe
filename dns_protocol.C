@@ -11,8 +11,7 @@
 
 #include "dns_protocol.h"
 
-using namespace analyser;
-
+using namespace cybermon;
 
 void dns_decoder::parse_name(pdu_iter ms, pdu_iter me, 
 			     pdu_iter& pos, pdu_iter e, std::string& name,
