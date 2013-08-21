@@ -107,6 +107,8 @@ public:
 			     const std::list<analyser::dns_rr> answers,
 			     const std::list<analyser::dns_rr> authorities,
 			     const std::list<analyser::dns_rr> additional) {
+	cml.dns_message(*this, cp, hdr, queries, answers, authorities,
+			additional);
     }
 
 };

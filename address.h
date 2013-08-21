@@ -13,6 +13,7 @@
 
 #include "pdu.h"
 #include "socket.h"
+#include "exception.h"
 
 namespace analyser {
 
@@ -107,8 +108,44 @@ namespace analyser {
 	// Get the 'value' of the address in different formats.
 	uint16_t get_16b() {
 	    if (addr.size() != 2)
-		throw std::runtime_error("Address is not 16-bit");
+		throw exception("Address is not 16-bit");
 	    return (addr[0] << 8) + addr[1];
+	}
+
+	std::string to_ip4_string() const {
+
+	    if (addr.size() != 4)
+		throw exception("Address is not 4 bytes.");
+
+	    if (proto != IP4)
+		throw exception("Address is not IPv4 protocol.");
+
+	    tcpip::ip4_address x;
+	    std::string s;
+
+	    x.addr.assign(addr.begin(), addr.end());
+	    x.to_string(s);
+
+	    return s;
+
+	}
+
+	std::string to_ip6_string() const {
+
+	    if (addr.size() != 16)
+		throw exception("Address is not 16 bytes.");
+
+	    if (proto != IP6)
+		throw exception("Address is not IPv6 protocol.");
+
+	    tcpip::ip6_address x;
+	    std::string s;
+
+	    x.addr.assign(addr.begin(), addr.end());
+	    x.to_string(s);
+
+	    return s;
+
 	}
 
     };

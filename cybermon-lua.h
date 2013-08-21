@@ -109,6 +109,13 @@ namespace analyser {
 	    lua_pushlstring(lua, (char*) buf, e - s);
 	}
 
+	// Push DNS stuff.
+	void push(const dns_header&);
+	void push(const dns_query&);
+	void push(const std::list<dns_query>&);
+	void push(const dns_rr&);
+	void push(const std::list<dns_rr>&);
+
 	// Call a function.  args = number of arguments on the stack
 	// res = number of return values.
 	void call(int args, int res) {
@@ -221,20 +228,30 @@ namespace analyser {
 	void icmp(engine& an, const context_ptr f, 
 		  pdu_iter s, pdu_iter e);
 
+	typedef std::map<std::string,std::pair<std::string,std::string> > 
+	    http_header;
+
 	void http_request(engine& an, const context_ptr cf,
 			  const std::string& method,
 			  const std::string& url,
-			  const std::map<std::string,std::pair<std::string,std::string> >& hdr,
+			  const http_header& hdr,
 			  pdu_iter body_start,
 			  pdu_iter body_end);
 
 	void http_response(engine& an, const context_ptr cf,
 			   unsigned int code,
 			   const std::string& status,
-			   const std::map<std::string,std::pair<std::string,std::string> >& hdr,
+			   const http_header& hdr,
 			   const std::string& url,
 			   pdu_iter body_start,
 			   pdu_iter body_end);
+
+	void dns_message(engine& an, const context_ptr cf,
+			 const dns_header& hdr, 
+			 const std::list<dns_query> queries,
+			 const std::list<dns_rr> answers,
+			 const std::list<dns_rr> authorities,
+			 const std::list<dns_rr> additional);
 
     };
 

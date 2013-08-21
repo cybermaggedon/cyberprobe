@@ -386,7 +386,7 @@ void cybermon_lua::icmp(analyser::engine& an,
 void cybermon_lua::http_request(engine& an, const context_ptr f,
 				const std::string& method,
 				const std::string& url,
-				const std::map<std::string,std::pair<std::string,std::string> >& hdr,
+				const http_header& hdr,
 				pdu_iter s,
 				pdu_iter e)
 {
@@ -422,7 +422,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     create_table(0, hdr.size());
 
     // Loop through header
-    for(std::map<std::string,std::pair<std::string,std::string> >::const_iterator it = hdr.begin();
+    for(http_header::const_iterator it = hdr.begin();
 	it != hdr.end();
 	it++) {
 
@@ -447,7 +447,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 unsigned int code,
 				 const std::string& status,
-				 const std::map<std::string,std::pair<std::string,std::string> >& hdr,
+				 const http_header& hdr,
 				 const std::string& url,
 				 pdu_iter s,
 				 pdu_iter e)
@@ -484,7 +484,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     create_table(0, hdr.size());
 
     // Loop through header
-    for(std::map<std::string,std::pair<std::string,std::string> >::const_iterator it = hdr.begin();
+    for(http_header::const_iterator it = hdr.begin();
 	it != hdr.end();
 	it++) {
 
@@ -531,4 +531,193 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     set_global("config");
 
 }
+
+void cybermon_lua::dns_message(engine& an, const context_ptr f,
+			       const dns_header& hdr, 
+			       const std::list<dns_query> queries,
+			       const std::list<dns_rr> answers,
+			       const std::list<dns_rr> authorities,
+			       const std::list<dns_rr> additional)
+{
+
+    // Get information stored about the attacker.
+    std::string liid;
+    analyser::address trigger_address;
+    an.get_root_info(f, liid, trigger_address);
+
+    cybermon_context h;
+    h.an = &an;
+    h.ctxt = f;
+    h.liid = liid;
+    h.trigger = trigger_address;
+    h.cml = this;
+    
+    // Get observer.http_request
+    get_global("config");
+    get_field(-1, "dns_message");
+    
+    // Put hideous on the stack
+    push_cybermon_context(h);
+
+    push(hdr);
+    push(queries);
+    push(answers);
+    push(authorities);
+    push(additional);
+
+    // observer.data(context, data)
+    call(6, 0);
+    
+    // Still got 'observer' left on stack, it can go.
+    pop(1);
+
+}
+
+
+void lua_state::push(const dns_header& hdr)
+{
+
+    create_table(0, 8);
+    
+    push("id");
+    push(hdr.id);
+    set_table(-3);
+
+    push("qr");
+    push(hdr.qr);
+    set_table(-3);
+
+    push("opcode");
+    push(hdr.opcode);
+    set_table(-3);
+
+    push("aa");
+    push(hdr.aa);
+    set_table(-3);
+
+    push("tc");
+    push(hdr.tc);
+    set_table(-3);
+
+    push("rd");
+    push(hdr.rd);
+    set_table(-3);
+
+    push("ra");
+    push(hdr.ra);
+    set_table(-3);
+
+    push("rcode");
+    push(hdr.rcode);
+    set_table(-3);
+
+}
+
+void lua_state::push(const dns_query& qry)
+{
+
+    create_table(0, 3);
+
+    push("name");
+    push(qry.name);
+    set_table(-3);
+
+    push("type");
+    push(qry.type);
+    set_table(-3);
+
+    push("class");
+    push(qry.cls);
+    set_table(-3);
+
+}
+
+void lua_state::push(const dns_rr& rr)
+{
+
+    create_table(0, 7);
+
+    push("name");
+    push(rr.name);
+    set_table(-3);
+
+    push("type");
+    push(rr.type);
+    set_table(-3);
+
+    push("class");
+    push(rr.cls);
+    set_table(-3);
+
+    push("rdata");
+    push(rr.rdata.begin(), rr.rdata.end());
+    set_table(-3);
+
+    push("ttl");
+    push(rr.ttl);
+    set_table(-3);
+
+    if (rr.rdname != "") {
+	push("rdname");
+	push(rr.rdname);
+	set_table(-3);
+    }
+
+    if (rr.addr.addr.size() != 0) {
+
+	if (rr.addr.addr.size() == 4) {
+	    // IPv4 address.
+	    push("rdaddress");
+	    push(rr.addr.to_ip4_string());
+	    set_table(-3);
+	}
+
+	if (rr.addr.addr.size() == 16) {
+	    // IPv6 address.
+	    push("rdaddress");
+	    push(rr.addr.to_ip6_string());
+	    set_table(-3);
+	}
+
+    }
+
+}
+
+
+void lua_state::push(const std::list<dns_query>& lst)
+{
+
+    create_table(lst.size(), 0);
+
+    int row = 0;
+    for(std::list<dns_query>::const_iterator it = lst.begin();
+	it != lst.end();
+	it++) {
+	
+	push(row++);
+	push(*it);
+	set_table(-3);
+
+    }
+
+}
+
+void lua_state::push(const std::list<dns_rr>& lst)
+{
+
+    create_table(lst.size(), 0);
+
+    int row = 0;
+    for(std::list<dns_rr>::const_iterator it = lst.begin();
+	it != lst.end();
+	it++) {
+	
+	push(row++);
+	push(*it);
+	set_table(-3);
+
+    }
+
+}
+
 

@@ -111,6 +111,46 @@ observer.http_response = function(context, code, status, header, url, body)
 
 end
 
+observer.dns_message = function(context, header, queries, answers, auth, add)
+
+  -- Get the LIID
+  local liid = cybermon.get_liid(context)
+
+  -- This gets a (vaguely) human readable description of the source and
+  -- destination protocol stacks.
+  local src = cybermon.describe_src(context)
+  local dest = cybermon.describe_dest(context)
+
+  -- Write out the information on standard output.
+  io.write(string.format("Target %s:\n", liid))
+  io.write(string.format("  %s -> %s\n", src, dest))
+
+
+  if header.qr == 0 then
+    io.write(string.format("  DNS query id %d\n", header.id))
+  else
+    io.write(string.format("  DNS response id %d\n", header.id))
+  end
+
+  for key, value in pairs(queries) do
+    io.write(string.format("    Query: %s\n", value.name))
+  end
+  
+  for key, value in pairs(answers) do
+    io.write(string.format("    Answer: %s", value.name))
+    if value.rdaddress then
+       io.write(string.format(" -> %s", value.rdaddress))
+    end
+    if value.rdname then
+       io.write(string.format(" -> %s", value.rdname))
+    end
+    io.write("\n")
+  end
+  
+  io.write("\n")
+
+end
+
 -- Return the table
 return observer
 
