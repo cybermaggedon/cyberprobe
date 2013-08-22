@@ -73,7 +73,7 @@ namespace cybermon {
 	    cfns[pos].name = 0;
 	    cfns[pos].func = 0;
 	    
-	    // FIXME: This is marked deprecated.
+	    // FIXME: Is this going to get deprecated in LUA 5.2?
 	    luaL_register(lua, name.c_str(), cfns);
 	    
 	}
@@ -135,6 +135,24 @@ namespace cybermon {
 	    lua_pushlightuserdata(lua, val);
 	}
 
+	void to_string(int pos, std::string& s) {
+	    size_t len = 0;
+	    const char* c = lua_tolstring(lua, pos, &len);
+	    if (c == 0)
+		throw std::runtime_error("Not a LUA string.");
+	    s.assign(c, len);
+	}
+
+	void to_integer(int pos, int& val) {
+	    val = lua_tointeger(lua, pos);
+	}
+
+	void to_userdata(int pos, void*& val) {
+	    val = lua_touserdata(lua, pos);
+	    if (val == 0)
+		throw std::runtime_error("Not a LUA userdata.");
+	}
+
     };
 
     // This is a bit kludgy.  We need to pass some values into LUA, so we pass
@@ -168,6 +186,7 @@ namespace cybermon {
 	static int get_context_id(lua_State*);
 	static int get_network_info(lua_State*);
 	static int get_trigger_info(lua_State*);
+	static int forge_dns_response(lua_State*);
     
 	// The C++ equiv of above.
 	void describe_src(context_userdata* h);
@@ -176,6 +195,7 @@ namespace cybermon {
 	void get_context_id(context_userdata* h);
 	int get_network_info(context_userdata* h);
 	int get_trigger_info(context_userdata* h);
+	int forge_dns_response(context_userdata* h);
 
 	// Constructor.
 	cybermon_lua(const std::string& cfg);

@@ -149,6 +149,19 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   
   io.write("\n")
 
+  if header.qr == 0 and #queries == 1 and queries[1].name == "example.org"
+    and queries[1].type == 1 and queries[1].class == 1 then
+    -- Send a fake response
+    header.qr = 1
+    answers = {}
+    answers[1] = {}
+    answers[1].name = "example.org"
+    answers[1].type = 1
+    answers[1].class = 1
+    answers[1].rdaddress = "1.2.3.4"
+    cybermon.forge_dns_response(context, header, queries, answers, {}, {})
+  end
+
 end
 
 -- Return the table

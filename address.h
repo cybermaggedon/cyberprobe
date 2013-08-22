@@ -25,7 +25,7 @@ namespace cybermon {
 	IP4,			// IPv4.
 	IP6,			// IPv6.
 	TCP,			// TCP.
-	UDP,			// UDP
+	UDP,			// UDP.  'Address' is DNS id.
 	ICMP,			// ICMP.
 	HTTP,                   // HTTP.
 	DNS,

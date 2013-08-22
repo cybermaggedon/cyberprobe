@@ -50,6 +50,13 @@ int cybermon_lua::get_trigger_info(lua_State* lua)
     return h->cml->get_trigger_info(h);
 }
 
+int cybermon_lua::forge_dns_response(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -6);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
+    return h->cml->forge_dns_response(h);
+}
+
 void cybermon_lua::describe_src(context_userdata* h)
 {
     std::ostringstream buf;
@@ -136,6 +143,21 @@ int cybermon_lua::get_trigger_info(context_userdata* h)
     push(trigger_address.to_ip_string());
 
     return 1;
+
+}
+
+int cybermon_lua::forge_dns_response(context_userdata* h)
+{
+
+    std::cerr << "Table has " << lua_objlen(lua, -4) << " queries." << std::endl;
+    std::cerr << "Table has " << lua_objlen(lua, -3) << " answers." << std::endl;
+
+    // Pop all arguments.
+    pop(6);
+
+    std::cerr << "forge_dns_response not implemented." << std::endl;
+
+    return 0;
 
 }
 
@@ -449,6 +471,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     fns["get_context_id"] = &get_context_id;
     fns["get_network_info"] = &get_network_info;
     fns["get_trigger_info"] = &get_trigger_info;
+    fns["forge_dns_response"] = &forge_dns_response;
 
     // These are registered with lua as the 'cybermon' module.
     register_module("cybermon", fns);
@@ -610,7 +633,7 @@ void cybermon_lua::push(const std::list<dns_query>& lst)
 
     create_table(lst.size(), 0);
 
-    int row = 0;
+    int row = 1;
     for(std::list<dns_query>::const_iterator it = lst.begin();
 	it != lst.end();
 	it++) {
@@ -628,7 +651,7 @@ void cybermon_lua::push(const std::list<dns_rr>& lst)
 
     create_table(lst.size(), 0);
 
-    int row = 0;
+    int row = 1;
     for(std::list<dns_rr>::const_iterator it = lst.begin();
 	it != lst.end();
 	it++) {
