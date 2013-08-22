@@ -143,7 +143,19 @@ namespace cybermon {
 	    s.assign(c, len);
 	}
 
-	void to_integer(int pos, int& val) {
+	void to_integer(int pos, uint64_t& val) {
+	    val = lua_tointeger(lua, pos);
+	}
+
+	void to_integer(int pos, uint32_t& val) {
+	    val = lua_tointeger(lua, pos);
+	}
+
+	void to_integer(int pos, uint16_t& val) {
+	    val = lua_tointeger(lua, pos);
+	}
+
+	void to_integer(int pos, uint8_t& val) {
 	    val = lua_tointeger(lua, pos);
 	}
 
@@ -151,6 +163,14 @@ namespace cybermon {
 	    val = lua_touserdata(lua, pos);
 	    if (val == 0)
 		throw std::runtime_error("Not a LUA userdata.");
+	}
+
+	int obj_len(int pos) {
+	    return lua_objlen(lua, pos);
+	}
+
+	bool is_nil(int pos) {
+	    return (lua_isnil(lua, pos) == 1);
 	}
 
     };
@@ -213,6 +233,12 @@ namespace cybermon {
 	void push(const std::list<dns_query>&);
 	void push(const dns_rr&);
 	void push(const std::list<dns_rr>&);
+
+	void to_dns_query(int pos, dns_query&);
+	void to_dns_queries(int pos, std::list<dns_query>&);
+
+	void to_dns_rr(int pos, dns_rr&);
+	void to_dns_rrs(int pos, std::list<dns_rr>&);
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
 	void trigger_up(const std::string& liid, const tcpip::address& a);

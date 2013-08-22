@@ -664,4 +664,95 @@ void cybermon_lua::push(const std::list<dns_rr>& lst)
 
 }
 
+void cybermon_lua::to_dns_query(int pos, dns_query& d)
+{
+    
+    lua_getfield(lua, pos, "name");
+    to_string(-1, d.name);
 
+    lua_getfield(lua, pos, "type");
+    to_integer(-1, d.type);
+
+    lua_getfield(lua, pos, "class");
+    to_integer(-1, d.cls);
+
+}
+
+void cybermon_lua::to_dns_queries(int pos, std::list<dns_query>& lst)
+{
+
+    int len = obj_len(pos);
+
+    lst.clear();
+
+
+    for(int i = 1; i <= len; i++) {
+	
+	dns_query q;
+
+	to_dns_query(pos, q);
+
+	lst.push_back(q);
+
+    }
+
+}
+
+void cybermon_lua::to_dns_rr(int pos, dns_rr& d)
+{
+    
+    lua_getfield(lua, pos, "name");
+    to_string(-1, d.name);
+
+    lua_getfield(lua, pos, "type");
+    to_integer(-1, d.type);
+
+    lua_getfield(lua, pos, "class");
+    to_integer(-1, d.cls);
+
+    lua_getfield(lua, pos, "ttl");
+    to_integer(-1, d.ttl);
+
+    lua_getfield(lua, pos, "rdname");
+    if (!is_nil(-1))
+	to_string(-1, d.rdname);
+    else
+	pop(1);
+
+    lua_getfield(lua, pos, "address");
+    if (!is_nil(-1)) {
+	std::string a;
+	to_string(-1, a);
+	d.addr.from_ip_string(a);
+    } else
+	pop(1);
+
+    lua_getfield(lua, pos, "rdata");
+    if (!is_nil(-1)) {
+	std::string a;
+	to_string(-1, a);
+	d.rdata.clear();
+	std::copy(a.begin(), a.end(), back_inserter(d.rdata));
+    } else
+	pop(1);
+
+}
+
+void cybermon_lua::to_dns_rrs(int pos, std::list<dns_rr>& lst)
+{
+
+    int len = obj_len(pos);
+
+    lst.clear();
+
+    for(int i = 1; i <= len; i++) {
+	
+	dns_rr r;
+
+	to_dns_rr(pos, r);
+
+	lst.push_back(r);
+
+    }
+
+}

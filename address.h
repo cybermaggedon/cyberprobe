@@ -130,6 +130,32 @@ namespace cybermon {
 
 	}
 
+	void from_ip4_string(const std::string& a) {
+	    tcpip::ip4_address x(a);
+	    assign(x.addr, NETWORK, IP4);
+	}
+
+	void from_ip6_string(const std::string& a) {
+	    tcpip::ip6_address x(a);
+	    assign(x.addr, NETWORK, IP6);
+	}
+
+	void from_ip_string(const std::string& a) {
+
+	    try {
+		from_ip4_string(a);
+		return;
+	    } catch (...) {}
+
+	    try {
+		from_ip6_string(a);
+		return;
+	    } catch (...) {}
+
+	    throw exception("Not an IP address");
+
+	}
+
 	std::string to_ip6_string() const {
 
 	    if (addr.size() != 16)

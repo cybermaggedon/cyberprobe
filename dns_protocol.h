@@ -83,7 +83,6 @@ namespace cybermon {
 	std::string name;
 	uint16_t type;
 	uint16_t cls;
-	uint16_t rdlength;
 	pdu rdata;
 	uint32_t ttl;
 

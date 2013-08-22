@@ -109,10 +109,10 @@ void dns_decoder::parse_rr(dns_rr& rr)
     rr.cls = ((*(ptr++)) << 8) + *(ptr++);
     rr.ttl = ((*(ptr++)) << 24) + ((*(ptr++)) << 16) + 
 	((*(ptr++)) << 8) + (*(ptr++));
-    rr.rdlength = ((*(ptr++)) << 8) + *(ptr++);
+    int rdlength = ((*(ptr++)) << 8) + *(ptr++);
     
     rr.rdata.clear();
-    for(int cnt2 = 0;  cnt2 < rr.rdlength; cnt2++)
+    for(int cnt2 = 0;  cnt2 < rdlength; cnt2++)
 	rr.rdata.push_back(*(ptr++));
 
     if (rr.type == CNAME || rr.type == PTR || rr.type == NS ||
