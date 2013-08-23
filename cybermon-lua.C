@@ -149,8 +149,22 @@ int cybermon_lua::get_trigger_info(context_userdata* h)
 int cybermon_lua::forge_dns_response(context_userdata* h)
 {
 
-    std::cerr << "Table has " << lua_objlen(lua, -4) << " queries." << std::endl;
-    std::cerr << "Table has " << lua_objlen(lua, -3) << " answers." << std::endl;
+    // Arg -6 is the 'h' variable passed to this function.
+
+    dns_header hdr;
+    to_dns_header(-5, hdr);
+
+    std::list<dns_query> queries;
+    to_dns_queries(-4, queries);
+
+    std::list<dns_rr> answers;
+    to_dns_rrs(-3, answers);
+
+    std::list<dns_rr> authorities;
+    to_dns_rrs(-2, authorities);
+
+    std::list<dns_rr> additional;
+    to_dns_rrs(-1, additional);
 
     // Pop all arguments.
     pop(6);
@@ -667,14 +681,17 @@ void cybermon_lua::push(const std::list<dns_rr>& lst)
 void cybermon_lua::to_dns_query(int pos, dns_query& d)
 {
     
-    lua_getfield(lua, pos, "name");
+    get_field(pos, "name");
     to_string(-1, d.name);
+    pop();
 
-    lua_getfield(lua, pos, "type");
+    get_field(pos, "type");
     to_integer(-1, d.type);
+    pop();
 
-    lua_getfield(lua, pos, "class");
+    get_field(pos, "class");
     to_integer(-1, d.cls);
+    pop();
 
 }
 
@@ -688,9 +705,15 @@ void cybermon_lua::to_dns_queries(int pos, std::list<dns_query>& lst)
 
     for(int i = 1; i <= len; i++) {
 	
-	dns_query q;
+	push(i);
 
-	to_dns_query(pos, q);
+	// Take into account the value I just pushed.
+	get_table(pos - 1);
+	
+	dns_query q;
+	to_dns_query(-1, q);
+
+	pop();
 
 	lst.push_back(q);
 
@@ -701,40 +724,43 @@ void cybermon_lua::to_dns_queries(int pos, std::list<dns_query>& lst)
 void cybermon_lua::to_dns_rr(int pos, dns_rr& d)
 {
     
-    lua_getfield(lua, pos, "name");
+    get_field(pos, "name");
     to_string(-1, d.name);
+    pop();
 
-    lua_getfield(lua, pos, "type");
+    get_field(pos, "type");
     to_integer(-1, d.type);
+    pop();
 
-    lua_getfield(lua, pos, "class");
+    get_field(pos, "class");
     to_integer(-1, d.cls);
+    pop();
 
-    lua_getfield(lua, pos, "ttl");
+    get_field(pos, "ttl");
     to_integer(-1, d.ttl);
+    pop();
 
-    lua_getfield(lua, pos, "rdname");
+    get_field(pos, "rdname");
     if (!is_nil(-1))
 	to_string(-1, d.rdname);
-    else
-	pop(1);
+    pop();
 
-    lua_getfield(lua, pos, "address");
+    get_field(pos, "address");
     if (!is_nil(-1)) {
 	std::string a;
 	to_string(-1, a);
 	d.addr.from_ip_string(a);
-    } else
-	pop(1);
+    }
+    pop();
 
-    lua_getfield(lua, pos, "rdata");
+    get_field(pos, "rdata");
     if (!is_nil(-1)) {
 	std::string a;
 	to_string(-1, a);
 	d.rdata.clear();
 	std::copy(a.begin(), a.end(), back_inserter(d.rdata));
-    } else
-	pop(1);
+    }
+    pop();
 
 }
 
@@ -747,12 +773,71 @@ void cybermon_lua::to_dns_rrs(int pos, std::list<dns_rr>& lst)
 
     for(int i = 1; i <= len; i++) {
 	
-	dns_rr r;
+	push(i);
 
-	to_dns_rr(pos, r);
+	// Take into account the value I just pushed.
+	get_table(pos - 1);
+	
+	dns_rr r;
+	to_dns_rr(-1, r);
+
+	pop();
 
 	lst.push_back(r);
 
     }
+
+}
+
+void cybermon_lua::to_dns_header(int pos, dns_header& hdr)
+{
+    
+    get_field(pos, "id");
+    to_integer(-1, hdr.id);
+    pop();
+
+    get_field(pos, "qr");
+    to_integer(-1, hdr.qr);
+    pop();
+
+    get_field(pos, "opcode");
+    to_integer(-1, hdr.opcode);
+    pop();
+
+    get_field(pos, "aa");
+    to_integer(-1, hdr.aa);
+    pop();
+
+    get_field(pos, "tc");
+    to_integer(-1, hdr.tc);
+    pop();
+
+    get_field(pos, "rd");
+    to_integer(-1, hdr.rd);
+    pop();
+
+    get_field(pos, "ra");
+    to_integer(-1, hdr.ra);
+    pop();
+
+    get_field(pos, "rcode");
+    to_integer(-1, hdr.rcode);
+    pop();
+
+    get_field(pos, "qdcount");
+    to_integer(-1, hdr.qdcount);
+    pop();
+
+    get_field(pos, "ancount");
+    to_integer(-1, hdr.ancount);
+    pop();
+
+    get_field(pos, "nscount");
+    to_integer(-1, hdr.nscount);
+    pop();
+
+    get_field(pos, "arcount");
+    to_integer(-1, hdr.arcount);
+    pop();
 
 }

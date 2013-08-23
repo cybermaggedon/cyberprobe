@@ -89,7 +89,7 @@ namespace cybermon {
 	}
 
 	// Pop p items from the stack.
-	void pop(int p) { lua_pop(lua, p); }
+	void pop(int p = 1) { lua_pop(lua, p); }
 	
 	// Push a string onto the stack.
 	void push(const std::string& s) { 
@@ -130,6 +130,11 @@ namespace cybermon {
 	    lua_getfield(lua, pos, name.c_str());
 	}
 
+	// Get a field from a table, value goes onto the stack.
+	void get_table(int pos) {
+	    lua_gettable(lua, pos);
+	}
+
 	// Push a light userdata value onto the stack.
 	void push_light_userdata(void* val) {
 	    lua_pushlightuserdata(lua, val);
@@ -137,6 +142,7 @@ namespace cybermon {
 
 	void to_string(int pos, std::string& s) {
 	    size_t len = 0;
+	    int tp = lua_type(lua, pos);
 	    const char* c = lua_tolstring(lua, pos, &len);
 	    if (c == 0)
 		throw std::runtime_error("Not a LUA string.");
@@ -233,6 +239,8 @@ namespace cybermon {
 	void push(const std::list<dns_query>&);
 	void push(const dns_rr&);
 	void push(const std::list<dns_rr>&);
+
+	void to_dns_header(int pos, dns_header&);
 
 	void to_dns_query(int pos, dns_query&);
 	void to_dns_queries(int pos, std::list<dns_query>&);

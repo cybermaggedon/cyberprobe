@@ -1,5 +1,5 @@
 
-CXXFLAGS += -I. -g
+CXXFLAGS += -I. -O6
 
 CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 	resource_manager.o sender.o delivery.o xml.o ber.o capture.o config.o \
@@ -60,7 +60,7 @@ delivery.o: monitor.h etsi_li.h ./ber.h parameters.h capture.h
 delivery.o: packet_capture.h packet_consumer.h
 dns.o: dns.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 dns.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
-dns.o: protocol.h
+dns.o: protocol.h udp.h ip.h
 dns_protocol.o: dns_protocol.h pdu.h address.h socket.h exception.h
 engine.o: thread.h context.h socket.h address.h pdu.h exception.h flow.h
 engine.o: reaper.h base_context.h manager.h observer.h dns_protocol.h
