@@ -1,6 +1,8 @@
 
 #include <sstream>
-#include <cybermon-lua.h>
+
+#include "cybermon-lua.h"
+#include "forgery.h"
 
 using namespace cybermon;
 
@@ -169,7 +171,8 @@ int cybermon_lua::forge_dns_response(context_userdata* h)
     // Pop all arguments.
     pop(6);
 
-    std::cerr << "forge_dns_response not implemented." << std::endl;
+    forgery::forge_dns_response(h->ctxt, hdr, queries, answers, authorities,
+				additional);
 
     return 0;
 
@@ -569,6 +572,22 @@ void cybermon_lua::push(const dns_header& hdr)
     push(hdr.rcode);
     set_table(-3);
 
+    push("qdcount");
+    push(hdr.qdcount);
+    set_table(-3);
+
+    push("ancount");
+    push(hdr.ancount);
+    set_table(-3);
+
+    push("nscount");
+    push(hdr.nscount);
+    set_table(-3);
+
+    push("arcount");
+    push(hdr.arcount);
+    set_table(-3);
+
 }
 
 void cybermon_lua::push(const dns_query& qry)
@@ -621,19 +640,19 @@ void cybermon_lua::push(const dns_rr& rr)
 	set_table(-3);
     }
 
-    if (rr.addr.addr.size() != 0) {
+    if (rr.rdaddress.addr.size() != 0) {
 
-	if (rr.addr.addr.size() == 4) {
+	if (rr.rdaddress.addr.size() == 4) {
 	    // IPv4 address.
 	    push("rdaddress");
-	    push(rr.addr.to_ip4_string());
+	    push(rr.rdaddress.to_ip4_string());
 	    set_table(-3);
 	}
 
-	if (rr.addr.addr.size() == 16) {
+	if (rr.rdaddress.addr.size() == 16) {
 	    // IPv6 address.
 	    push("rdaddress");
-	    push(rr.addr.to_ip6_string());
+	    push(rr.rdaddress.to_ip6_string());
 	    set_table(-3);
 	}
 
@@ -741,15 +760,16 @@ void cybermon_lua::to_dns_rr(int pos, dns_rr& d)
     pop();
 
     get_field(pos, "rdname");
-    if (!is_nil(-1))
+    if (!is_nil(-1)) {
 	to_string(-1, d.rdname);
+    }
     pop();
 
-    get_field(pos, "address");
+    get_field(pos, "rdaddress");
     if (!is_nil(-1)) {
 	std::string a;
 	to_string(-1, a);
-	d.addr.from_ip_string(a);
+	d.rdaddress.from_ip_string(a);
     }
     pop();
 
@@ -841,3 +861,5 @@ void cybermon_lua::to_dns_header(int pos, dns_header& hdr)
     pop();
 
 }
+
+

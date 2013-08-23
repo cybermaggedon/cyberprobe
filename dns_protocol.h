@@ -87,7 +87,7 @@ namespace cybermon {
 	uint32_t ttl;
 
 	std::string rdname;
-	address addr;
+	address rdaddress;
 
     };
 

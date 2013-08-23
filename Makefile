@@ -7,7 +7,7 @@ CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 
 CYBERMON_OBJECTS=cybermon.o engine.o etsi_li.o socket.o ber.o base_context.o \
 	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o \
-	unrecognised.o dns.o dns_protocol.o
+	unrecognised.o dns.o dns_protocol.o forgery.o
 
 all: cyberprobe cybermon nhis11_rcvr etsi_rcvr
 
@@ -50,7 +50,7 @@ cybermon.o: dns_protocol.h monitor.h etsi_li.h ./ber.h packet_capture.h
 cybermon.o: hexdump.h cybermon-lua.h
 cybermon-lua.o: cybermon-lua.h engine.h thread.h pdu.h context.h socket.h
 cybermon-lua.o: address.h exception.h flow.h reaper.h base_context.h
-cybermon-lua.o: manager.h observer.h dns_protocol.h
+cybermon-lua.o: manager.h observer.h dns_protocol.h forgery.h
 cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
 cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h etsi_li.h
 cyberprobe.o: ./ber.h parameters.h capture.h packet_capture.h
@@ -67,6 +67,9 @@ engine.o: reaper.h base_context.h manager.h observer.h dns_protocol.h
 engine.o: engine.h ip.h
 etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
+forgery.o: context.h socket.h address.h pdu.h exception.h flow.h reaper.h
+forgery.o: thread.h base_context.h manager.h observer.h dns_protocol.h
+forgery.o: forgery.h dns.h serial.h protocol.h hexdump.h udp.h ip.h
 http.o: address.h pdu.h socket.h exception.h http.h context.h flow.h reaper.h
 http.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
 http.o: protocol.h

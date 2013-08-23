@@ -159,6 +159,9 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     answers[1].type = 1
     answers[1].class = 1
     answers[1].rdaddress = "1.2.3.4"
+    -- One answer
+    header.ancount = 1
+    io.write("    Forging DNS response!\n\n")
     cybermon.forge_dns_response(context, header, queries, answers, {}, {})
   end
 
