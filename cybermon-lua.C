@@ -906,11 +906,13 @@ int cybermon_lua::context_forge_dns_response(lua_State* lua)
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
+/*
     luaL_checktype(lua, 2, LUA_TTABLE); // Header
     luaL_checktype(lua, 3, LUA_TTABLE); // Queries
     luaL_checktype(lua, 4, LUA_TTABLE); // Answers
     luaL_checktype(lua, 5, LUA_TTABLE); // Authorities
     luaL_checktype(lua, 6, LUA_TTABLE); // Additional
+*/
 
     dns_header hdr;
     cd->cml->to_dns_header(-5, hdr);

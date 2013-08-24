@@ -140,7 +140,6 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   io.write(string.format("Target %s:\n", liid))
   io.write(string.format("  %s -> %s\n", src, dest))
 
-
   if header.qr == 0 then
     io.write(string.format("  DNS query id %d\n", header.id))
   else
@@ -184,7 +183,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     -- One answer
     header.ancount = 2
     io.write("    Forging DNS response!\n\n")
---    cybermon.forge_dns_response(context, header, queries, answers, {}, {})
+    context:forge_dns_response(context, header, queries, answers, {}, {})
   end
 
 end
