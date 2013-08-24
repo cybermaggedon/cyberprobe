@@ -14,7 +14,7 @@ void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
     std::string ta;
     a.to_string(ta);
 
-    // Get observer.trigger_up
+    // Get config.trigger_up
     get_global("config");
     get_field(-1, "trigger_up");
     
@@ -22,10 +22,10 @@ void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
     push(liid);
     push(ta);
 	
-    // observer.trigger_up(liid, addr)
+    // config.trigger_up(liid, addr)
     call(2, 0);
 
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop();
 
 }
@@ -34,17 +34,17 @@ void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
 void cybermon_lua::trigger_down(const std::string& liid)
 {
 
-    // Get observer.trigger_down
+    // Get config.trigger_down
     get_global("config");
     get_field(-1, "trigger_down");
     
     // Put liid on stack
     push(liid);
 	
-    // observer.trigger_down(liid)
+    // config.trigger_down(liid)
     call(1, 0);
 
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop();
 
 }
@@ -56,17 +56,17 @@ void cybermon_lua::connection_up(engine& an,
 				 context_ptr f)
 {
 
-    // Get observer.data
+    // Get config.connection_up
     get_global("config");
     get_field(-1, "connection_up");
     
     // Put context on the stack
     push(f);
     
-    // observer.connection_up(context)
+    // config.connection_up(context)
     call(1, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -79,17 +79,17 @@ void cybermon_lua::connection_down(engine& an,
 				   const context_ptr f)
 {
     
-    // Get observer.data
+    // Get config.connection_down
     get_global("config");
     get_field(-1, "connection_down");
     
     // Put context on the stack
     push(f);
     
-    // observer.connection_down(context)
+    // config.connection_down(context)
     call(1, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -104,9 +104,9 @@ void cybermon_lua::unrecognised_stream(engine& an,
 				       pdu_iter e)
 {
     
-    // Get observer.data
+    // Get config.unrecognised_stream
     get_global("config");
-    get_field(-1, "connection_data");
+    get_field(-1, "unrecognised_stream");
     
     // Put context on the stack
     push(f);
@@ -114,10 +114,10 @@ void cybermon_lua::unrecognised_stream(engine& an,
     // Put data on stack.
     push(s, e);
     
-    // observer.data(context, data)
+    // config.unrecognised_stream(context, data)
     call(2, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -132,7 +132,7 @@ void cybermon_lua::unrecognised_datagram(engine& an,
 					 pdu_iter e)
 {
     
-    // Get observer.data
+    // Get config.unrecognised_datagram
     get_global("config");
     get_field(-1, "unrecognised_datagram");
     
@@ -142,10 +142,10 @@ void cybermon_lua::unrecognised_datagram(engine& an,
     // Put data on stack.
     push(s, e);
     
-    // observer.data(context, data)
+    // config.unrecognised_datagram(context, data)
     call(2, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -157,7 +157,7 @@ void cybermon_lua::icmp(engine& an,
 			pdu_iter e)
 {
 
-    // Get observer.data
+    // Get config.icmp
     get_global("config");
     get_field(-1, "icmp");
     
@@ -167,10 +167,10 @@ void cybermon_lua::icmp(engine& an,
     // Put data on stack.
     push(s, e);
     
-    // observer.data(context, data)
+    // config.icmp(context, data)
     call(2, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -183,7 +183,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 				pdu_iter e)
 {
     
-    // Get observer.http_request
+    // Get config.http_request
     get_global("config");
     get_field(-1, "http_request");
     
@@ -214,10 +214,10 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     // Put data on stack.
     push(s, e);
 
-    // observer.data(context, data)
+    // config.http_request(context, method, url, header, body)
     call(5, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -231,7 +231,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 pdu_iter e)
 {
 
-    // Get observer.http_request
+    // Get config.http_response
     get_global("config");
     get_field(-1, "http_response");
     
@@ -265,10 +265,10 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     // Put data on stack.
     push(s, e);
 
-    // observer.data(context, data)
+    // config.http_response(context, code, status, header, url, body)
     call(6, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -322,7 +322,7 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
 			       const std::list<dns_rr> additional)
 {
 
-    // Get observer.http_request
+    // Get config.dns_message
     get_global("config");
     get_field(-1, "dns_message");
     
@@ -335,10 +335,11 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
     push(authorities);
     push(additional);
 
-    // observer.data(context, data)
+    // config.dns_message(context, hdr, queries, answers, authorities,
+    // additional)
     call(6, 0);
     
-    // Still got 'observer' left on stack, it can go.
+    // Still got 'config' left on stack, it can go.
     pop(1);
 
 }
@@ -875,7 +876,15 @@ int cybermon_lua::context_get_trigger_info(lua_State* lua)
     engine::get_root_info(cd->ctxt, liid, trigger_address);
 
     cd->cml->pop(1);
-    cd->cml->push(trigger_address.to_ip_string());
+
+    if (trigger_address.addr.size() == 0)
+	cd->cml->push();
+    else
+	try {
+	    cd->cml->push(trigger_address.to_ip_string());
+	} catch (...) {
+	cd->cml->push();
+	}
 
     return 1;
 
@@ -895,7 +904,7 @@ int cybermon_lua::context_get_network_info(lua_State* lua)
     cd->cml->push(src.to_ip_string());
     cd->cml->push(dest.to_ip_string());
 
-    return 1;
+    return 2;
 
 }
 

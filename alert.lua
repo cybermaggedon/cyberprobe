@@ -9,7 +9,6 @@
 --
 -- This makes use of LuaSocket, won't work if you don't have that installed.
 --
-
 local socket = require("socket")
 
 local observer = {}
@@ -17,13 +16,10 @@ local observer = {}
 local volume = {}
 local threshold = {}
 
-observer.connection_data = function(context, data)
+local track = function(context, size)
 
-  liid = cybermon.get_liid(context)
-  src, dest = cybermon.get_network_info(context)
-  trig = cybermon.get_trigger_info(context)
-
-  -- Ignore data which isn't going *to* the attacker.
+  trig = context:get_trigger_info()
+  src, dest = context:get_network_info()
   if not(trig == dest) then
     return
   end
@@ -33,39 +29,74 @@ observer.connection_data = function(context, data)
     volume[dest] = 0
   end
 
-  volume[dest] = volume[dest] + data:len()
+  volume[dest] = volume[dest] + size
 
   if volume[dest] > threshold[dest] then
     local vol = (volume[dest] / 1024 / 1024)
     io.write(string.format("%0.1f MB has flowed to address %s\n", vol, dest))
-    threshold[dest] = threshold[dest] * 2
-    
-    -- Send an alert
+
     local s = socket.connect("localhost", 10101)
     s:send(string.format("%s %s\n", dest, volume[dest]))
     s:close()
 
+    threshold[dest] = threshold[dest] * 2
   end
 
 end
 
-observer.connection_up = function(context)
-end
+-- The table should contain functions.
 
-observer.connection_down = function(context)
-end
-
-observer.datagram = observer.connection_data
-
+-- This function is called when a trigger events starts collection of an
+-- attacker. liid=the trigger ID, addr=trigger address
 observer.trigger_up = function(liid, addr)
   io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
 end
 
+-- This function is called when an attacker goes off the air
 observer.trigger_down = function(liid)
   io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
-print("Configuration loaded")
+-- This function is called when a stream-orientated connection is made
+-- (e.g. TCP)
+observer.connection_up = function(context)
+end
 
+-- This function is called when a stream-orientated connection is closed
+observer.connection_down = function(context)
+end
+
+-- This function is called when a datagram is observed, but the protocol
+-- is not recognised.
+observer.unrecognised_datagram = function(context, data)
+  track(context, #data)
+end
+
+-- This function is called when stream data  is observed, but the protocol
+-- is not recognised.
+observer.unrecognised_stream = function(context, data)
+  track(context,#data)
+end
+
+-- This function is called when an ICMP message is observed.
+observer.icmp = function(context, data)
+  track(context,#data)
+end
+
+-- This function is called when an HTTP request is observed.
+observer.http_request = function(context, method, url, header, body)
+  track(context,#body)
+end
+
+-- This function is called when an HTTP response is observed.
+observer.http_response = function(context, code, status, header, url, body)
+  track(context,#body)
+end
+
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
+end
+
+-- Return the table
 return observer
 

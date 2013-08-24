@@ -24,6 +24,28 @@ end
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
 observer.connection_up = function(context)
+
+    src, dest = context:get_network_info()
+
+    local cls, src_addr, dest_addr
+
+    cls, src_addr = context:get_src_addr()
+    cls, dest_addr = context:get_dest_addr()
+
+    if not((src_addr == "22") or (dest_addr == "22")) then
+      -- Ignore non-ssh traffic
+      return
+    end
+
+    if src == "192.168.1.8" or dest == "192.168.1.8" then
+      -- Ignore admin workstation
+      return
+    end
+
+    
+    print("Spike! on ssh connection between " .. src .. " and " .. dest)
+    context:forge_tcp_reset(context)
+
 end
 
 -- This function is called when a stream-orientated connection is closed

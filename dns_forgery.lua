@@ -54,6 +54,37 @@ end
 
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
+
+  if header.qr == 0 and #queries == 1 and queries[1].name == "example.org"
+    and queries[1].type == 1 and queries[1].class == 1 then
+
+    -- Send a fake response
+
+    -- Set query/response flag to 'response'
+    header.qr = 1
+
+    -- Two answers, give example.org 2 alternative IP addresses.
+    answers = {}
+    answers[1] = {}
+    answers[1].name = "example.org"
+    answers[1].type = 1
+    answers[1].class = 1
+    answers[1].rdaddress = "1.2.3.4"
+    answers[2] = {}
+    answers[2].name = "example.org"
+    answers[2].type = 1
+    answers[2].class = 1
+    answers[2].rdaddress = "5.6.7.8"
+
+    -- Two answers
+    header.ancount = 2
+
+    io.write("Forging DNS response!\n")
+
+    context:forge_dns_response(context, header, queries, answers, {}, {})
+
+  end
+
 end
 
 -- Return the table

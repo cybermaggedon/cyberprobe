@@ -566,10 +566,6 @@ void forgery::encode_ip_tcp_header(pdu& p,
 					    start + 20,  // Start of TCP
 					    p.end());
 
-    int checksum_size = p.size() - 20;
-    int act = p.end() - (start + 20);
-    std::cerr << checksum_size << " " << act << std::endl;
-
     // Put checksum in place.
     p[36] = ((sum & 0xff00) >> 8);
     p[37] = sum & 0xff;

@@ -31,15 +31,15 @@ public:
 	    if (((it - s) % 16) == 0) {
 
 		for(int i = 0; i < indent; i++)
-		    std::cout << " ";
-		std::cout << std::hex << std::setfill('0') << std::setw(6) 
+		    out << " ";
+		out << std::hex << std::setfill('0') << std::setw(6) 
 			  << (it - s) << ": ";
 		chrs = "";
 	    }
 
-	    std::cout << std::hex << std::setfill('0') << std::setw(2)
+	    out << std::hex << std::setfill('0') << std::setw(2)
 		      << (int) *it;
-	    std::cout << " ";
+	    out << " ";
 
 	    if (*it >= 32 && *it <= 126)
 		chrs += *it;
@@ -47,14 +47,14 @@ public:
 		chrs += '.';
 	    
 	    if (((it - s) % 16) == 15) {
-		std::cout << "| " << chrs << std::endl;
+		out << "| " << chrs << std::endl;
 	    }
 	}
 	
 	if (((it - s) % 16) != 0) {
 	    for(int i = 0; i < (16 - ((it - s) % 16)); i++)
-		std::cout << "   ";
-		std::cout << "| " << chrs << std::endl;
+		out << "   ";
+		out << "| " << chrs << std::endl;
 	}
 	
     }
