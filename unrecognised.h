@@ -29,7 +29,8 @@ namespace cybermon {
 	}
 
 	// Constructor, describing flow address and parent pointer.
-        unrecognised_stream_context(manager& m, const flow& a, context_ptr p) : 
+        unrecognised_stream_context(manager& m, const flow_address& a, 
+				    context_ptr p) : 
 	context(m) { 
 	    addr = a; parent = p; 
 	}
@@ -39,14 +40,15 @@ namespace cybermon {
 
 	typedef boost::shared_ptr<unrecognised_stream_context> ptr;
 
-	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	static context_ptr create(manager& m, const flow_address& f, 
+				  context_ptr par) {
 	    context_ptr cp = 
 		context_ptr(new unrecognised_stream_context(m, f, par));
 	    return cp;
 	}
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow& f) {
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, 
 				       unrecognised_stream_context::create);
@@ -67,7 +69,8 @@ namespace cybermon {
 	}
 
 	// Constructor, describing flow address and parent pointer.
-        unrecognised_datagram_context(manager& m, const flow& a, context_ptr p) : 
+        unrecognised_datagram_context(manager& m, const flow_address& a, 
+				      context_ptr p) : 
 	context(m) { 
 	    addr = a; parent = p; 
 	}
@@ -77,14 +80,15 @@ namespace cybermon {
 
 	typedef boost::shared_ptr<unrecognised_datagram_context> ptr;
 
-	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	static context_ptr create(manager& m, const flow_address& f, 
+				  context_ptr par) {
 	    context_ptr cp = 
 		context_ptr(new unrecognised_datagram_context(m, f, par));
 	    return cp;
 	}
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow& f) {
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, 
 				       unrecognised_datagram_context::create);

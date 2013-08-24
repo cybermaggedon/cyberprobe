@@ -39,12 +39,12 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	throw exception("IP packet has invalid checksum");
 
     // Addresses.
-    tcpip::ip4_address src, dest;
-    src.addr.assign(s + 12, s + 16);
-    dest.addr.assign(s + 16, s + 20);
+    address src, dest;
+    src.set(s + 12, s + 16, NETWORK, IP4);
+    dest.set(s + 16, s + 20, NETWORK, IP4);
 
     // Create the flow address.
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     // Get the IP context.
     ip4_context::ptr fc = ip4_context::get_or_create(c, f);

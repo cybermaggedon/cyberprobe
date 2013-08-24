@@ -10,10 +10,10 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
 
     std::vector<unsigned char> empty;
     address src, dest;
-    src.assign(empty, TRANSPORT, UNRECOGNISED);
-    dest.assign(empty, TRANSPORT, UNRECOGNISED);
+    src.set(empty, TRANSPORT, UNRECOGNISED);
+    dest.set(empty, TRANSPORT, UNRECOGNISED);
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     unrecognised_stream_context::ptr fc = 
 	unrecognised_stream_context::get_or_create(c, f);
@@ -38,10 +38,10 @@ void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c,
 
     std::vector<unsigned char> empty;
     address src, dest;
-    src.assign(empty, TRANSPORT, UNRECOGNISED);
-    dest.assign(empty, TRANSPORT, UNRECOGNISED);
+    src.set(empty, TRANSPORT, UNRECOGNISED);
+    dest.set(empty, TRANSPORT, UNRECOGNISED);
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     unrecognised_datagram_context::ptr fc = 
 	unrecognised_datagram_context::get_or_create(c, f);

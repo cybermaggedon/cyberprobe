@@ -36,8 +36,34 @@ namespace cybermon {
 
       public:
 
+	context_ptr get_reverse() {
+	    return reverse.lock();
+	}
+
+	context_ptr get_parent() {
+	    return parent.lock();
+	}
+
 	// The flow address.
-	flow addr;
+	flow_address addr;
+
+	void get_src(std::vector<unsigned char>& a, purpose& pu, 
+			protocol& pr) const {
+	    addr.src.get(a, pu, pr);
+	}
+
+	void get_dest(std::vector<unsigned char>& a, purpose& pu, 
+			protocol& pr) const {
+	    addr.dest.get(a, pu, pr);
+	}
+
+	void get_src(std::string& type, std::string& address) const {
+	    addr.src.get(type, address);
+	}
+
+	void get_dest(std::string& type, std::string& address) const {
+	    addr.dest.get(type, address);
+	}
 
 	// Lock for all context state.
 	threads::mutex lock;
@@ -51,7 +77,7 @@ namespace cybermon {
 	boost::weak_ptr<base_context> reverse;
 
 	// Child contexts.
-	std::map<flow,context_ptr> children;
+	std::map<flow_address,context_ptr> children;
 
 	// Constructor.
         base_context() { 
@@ -68,7 +94,7 @@ namespace cybermon {
 	}
 
 	// Given a flow address, returns the child context.
-	context_ptr get_child(const flow& f) {
+	context_ptr get_child(const flow_address& f) {
 	    lock.lock();
 	    context_ptr c;
 	    if (children.find(f) != children.end())
@@ -78,7 +104,7 @@ namespace cybermon {
 	}
 
 	// Adds a child context.
-	void add_child(const flow& f, context_ptr c) {
+	void add_child(const flow_address& f, context_ptr c) {
 	    lock.lock();
 	    if (children.find(f) != children.end())
 		throw exception("That context already exists.");

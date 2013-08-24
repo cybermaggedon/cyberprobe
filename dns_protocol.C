@@ -125,13 +125,13 @@ void dns_decoder::parse_rr(dns_rr& rr)
 
     if (rr.type == A) {
 	if (rr.rdata.size() == 4) {
-	    rr.rdaddress.assign(rr.rdata, NETWORK, IP4);
+	    rr.rdaddress.set(rr.rdata, NETWORK, IP4);
 	}
     }
 
     if (rr.type == AAAA) {
 	if (rr.rdata.size() == 16) {
-	    rr.rdaddress.assign(rr.rdata, NETWORK, IP6);
+	    rr.rdaddress.set(rr.rdata, NETWORK, IP6);
 	}
     }
 

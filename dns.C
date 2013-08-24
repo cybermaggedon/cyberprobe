@@ -21,10 +21,10 @@ void dns::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     id[1] = dec.hdr.id & 0xff;
     
     address src, dest;
-    src.assign(id, APPLICATION, DNS);
-    dest.assign(id, APPLICATION, DNS);
+    src.set(id, APPLICATION, DNS);
+    dest.set(id, APPLICATION, DNS);
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     dns_context::ptr fc = dns_context::get_or_create(c, f);
 

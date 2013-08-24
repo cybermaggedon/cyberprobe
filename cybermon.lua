@@ -33,7 +33,20 @@ observer.connection_data = function(context, data)
 end
 
 observer.connection_up = function(context)
---  cybermon.forge_tcp_reset(context)
+    local cls, addr
+
+    cls, addr = cybermon.get_src_addr(context)
+    if addr == "20000" then
+      print "Spike!"
+      cybermon.forge_tcp_reset(context)
+    end
+
+    cls, addr = cybermon.get_dest_addr(context)
+    if addr == "20000" then
+      print "Spike!"
+      cybermon.forge_tcp_reset(context)
+    end
+
 end
 
 observer.connection_down = function(context)

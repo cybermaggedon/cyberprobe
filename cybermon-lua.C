@@ -66,6 +66,45 @@ int cybermon_lua::forge_tcp_reset(lua_State* lua)
     return h->cml->forge_tcp_reset(h);
 }
 
+int cybermon_lua::get_type(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
+    return h->cml->get_type(h);
+}
+
+int cybermon_lua::get_src_addr(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
+    return h->cml->get_src_addr(h);
+}
+
+int cybermon_lua::get_dest_addr(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
+    return h->cml->get_dest_addr(h);
+}
+
+int cybermon_lua::get_parent(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
+    return h->cml->get_parent(h);
+}
+
+int cybermon_lua::get_reverse(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
+    return h->cml->get_reverse(h);
+}
+
+
+
+
+
 void cybermon_lua::describe_src(context_userdata* h)
 {
     std::ostringstream buf;
@@ -196,6 +235,80 @@ int cybermon_lua::forge_tcp_reset(context_userdata* h)
     return 0;
 
 }
+
+int cybermon_lua::get_type(context_userdata* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    push(h->ctxt->get_type());
+
+    return 1;
+
+}
+
+int cybermon_lua::get_src_addr(context_userdata* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    std::string cls;
+    std::string addr;
+
+    h->ctxt->get_src(cls, addr);
+
+    push(cls);
+    push(addr);
+
+    return 2;
+
+}
+
+int cybermon_lua::get_dest_addr(context_userdata* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    std::string cls;
+    std::string addr;
+
+    h->ctxt->get_dest(cls, addr);
+
+    push(cls);
+    push(addr);
+
+    return 2;
+
+}
+
+int cybermon_lua::get_parent(context_userdata* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    // FIXME: Not implemented.
+
+    return 0;
+
+}
+
+int cybermon_lua::get_reverse(context_userdata* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    // FIXME: Not implemented.
+
+    return 0;
+
+}
+
+
 
 // Call the config.trigger_up function as trigger_up(liid, addr)
 void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
@@ -509,6 +622,11 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     fns["get_trigger_info"] = &get_trigger_info;
     fns["forge_dns_response"] = &forge_dns_response;
     fns["forge_tcp_reset"] = &forge_tcp_reset;
+    fns["get_type"] = &get_type;
+    fns["get_src_addr"] = &get_src_addr;
+    fns["get_dest_addr"] = &get_dest_addr;
+    fns["get_parent"] = &get_parent;
+    fns["get_reverse"] = &get_reverse;
 
     // These are registered with lua as the 'cybermon' module.
     register_module("cybermon", fns);

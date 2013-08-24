@@ -19,8 +19,8 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // TCP ports
     address src, dest;
-    src.assign(s, s + 2, TRANSPORT, TCP);
-    dest.assign(s + 2, s + 4, TRANSPORT, TCP);
+    src.set(s, s + 2, TRANSPORT, TCP);
+    dest.set(s + 2, s + 4, TRANSPORT, TCP);
 
     uint32_t seq = (s[4] << 24) + (s[5] << 16) + (s[6] << 8) + s[7];
     uint32_t ack = (s[8] << 24) + (s[9] << 16) + (s[10] << 8) + s[11];
@@ -33,7 +33,7 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // FIXME: Check checksum?
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     // FIXME: Locking.
     // FIXME: Race condition on get_context once locking is fixed.

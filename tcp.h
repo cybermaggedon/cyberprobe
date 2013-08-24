@@ -64,7 +64,8 @@ namespace cybermon {
 	}
 
 	// Constructor, describing flow address and parent pointer.
-        tcp_context(manager& m, const flow& a, context_ptr p) : context(m) { 
+        tcp_context(manager& m, const flow_address& a, context_ptr p) : 
+	context(m) { 
 	    addr = a; parent = p; 
 	    syn_observed = false;
 	    connected = false;
@@ -77,13 +78,14 @@ namespace cybermon {
 
 	typedef boost::shared_ptr<tcp_context> ptr;
 
-	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	static context_ptr create(manager& m, const flow_address& f, 
+				  context_ptr par) {
 	    tcp_context* tc = new tcp_context(m, f, par);
 	    return context_ptr(tc);
 	}
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow& f) {
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    tcp_context::create);
 	    ptr sp = boost::dynamic_pointer_cast<tcp_context>(cp);

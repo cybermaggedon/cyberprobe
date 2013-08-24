@@ -92,12 +92,6 @@ socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
 tcp.o: protocol.h http.h unrecognised.h forgery.h
-tmp2.o: hexdump.h tcp.h context.h socket.h address.h pdu.h exception.h flow.h
-tmp2.o: reaper.h thread.h base_context.h manager.h observer.h dns_protocol.h
-tmp2.o: serial.h protocol.h
-tmp.o: hexdump.h tcp.h context.h socket.h address.h pdu.h exception.h flow.h
-tmp.o: reaper.h thread.h base_context.h manager.h observer.h dns_protocol.h
-tmp.o: serial.h protocol.h
 udp.o: udp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 udp.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 udp.o: unrecognised.h serial.h protocol.h dns.h

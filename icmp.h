@@ -12,20 +12,22 @@ namespace cybermon {
     class icmp_context : public context {
     public:
         icmp_context(manager& m) : context(m) {}
-        icmp_context(manager& m, const flow& a, context_ptr p) : context(m) {
+        icmp_context(manager& m, const flow_address& a, context_ptr p) : 
+	context(m) {
 	    addr = a; parent = p; 
 	}
 	virtual std::string get_type() { return "udp"; }
  
 	typedef boost::shared_ptr<icmp_context> ptr;
 
-	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	static context_ptr create(manager& m, const flow_address& f, 
+				  context_ptr par) {
 	    context_ptr cp = context_ptr(new icmp_context(m, f, par));
 	    return cp;
 	}
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow& f) {
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    icmp_context::create);
 	    ptr sp = boost::dynamic_pointer_cast<icmp_context>(cp);

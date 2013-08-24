@@ -16,8 +16,8 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // UDP ports
     address src, dest;
-    src.assign(s, s + 2, TRANSPORT, UDP);
-    dest.assign(s + 2, s + 4, TRANSPORT, UDP);
+    src.set(s, s + 2, TRANSPORT, UDP);
+    dest.set(s + 2, s + 4, TRANSPORT, UDP);
 
     uint32_t length = (s[4] << 8) + s[5];
 
@@ -28,7 +28,7 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // FIXME: Check checksum?
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     udp_context::ptr fc = udp_context::get_or_create(c, f);
 

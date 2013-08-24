@@ -67,15 +67,25 @@ namespace cybermon {
 	}
 
 	// Assign to the address.
-	void assign(const std::vector<unsigned char>& a, purpose pu,
-		    protocol pr) {
+	void set(const std::vector<unsigned char>& a, purpose pu,
+		 protocol pr) {
 	    layer = pu; proto = pr;
 	    addr.assign(a.begin(), a.end());
 	}
 
+	void get(std::vector<unsigned char>& a, purpose& pu, 
+		 protocol& pr) const {
+	    a = addr; pu = layer; pr = proto;
+	}
+
+	void get(std::string& type, std::string& address) const;
+
+	pdu_iter begin() const { return addr.begin(); }
+	pdu_iter end() const { return addr.begin(); }
+
 	// Assign to the address.
-	void assign(pdu_iter s, pdu_iter e, purpose pu, 
-		    protocol pr) {
+	void set(pdu_iter s, pdu_iter e, purpose pu, 
+		 protocol pr) {
 	    layer = pu; proto = pr;
 	    addr.assign(s, e);
 	}
@@ -132,12 +142,12 @@ namespace cybermon {
 
 	void from_ip4_string(const std::string& a) {
 	    tcpip::ip4_address x(a);
-	    assign(x.addr, NETWORK, IP4);
+	    set(x.addr, NETWORK, IP4);
 	}
 
 	void from_ip6_string(const std::string& a) {
 	    tcpip::ip6_address x(a);
-	    assign(x.addr, NETWORK, IP6);
+	    set(x.addr, NETWORK, IP6);
 	}
 
 	void from_ip_string(const std::string& a) {

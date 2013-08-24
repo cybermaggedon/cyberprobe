@@ -7,11 +7,12 @@ using namespace cybermon;
 void icmp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
+    std::vector<unsigned char> empty;
     address src, dest;
-    src.assign(s, s, CONTROL, ICMP);
-    dest.assign(s, s, CONTROL, ICMP);
+    src.set(empty, CONTROL, ICMP);
+    dest.set(empty, CONTROL, ICMP);
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     // FIXME: Check checksum?
 

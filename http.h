@@ -147,7 +147,8 @@ namespace cybermon {
 	}
 
 	// Constructor, describing flow address and parent pointer.
-        http_request_context(manager& m, const flow& a, context_ptr p) : 
+        http_request_context(manager& m, const flow_address& a, 
+			     context_ptr p) : 
 	context(m), http_parser(REQUEST) { 
 	    addr = a; parent = p; 
 	}
@@ -159,13 +160,14 @@ namespace cybermon {
 
 	typedef boost::shared_ptr<http_request_context> ptr;
 
-	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	static context_ptr create(manager& m, const flow_address& f,
+				  context_ptr par) {
 	    context_ptr cp = context_ptr(new http_request_context(m, f, par));
 	    return cp;
 	}
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow& f) {
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, http_request_context::create);
 	    ptr sp = boost::dynamic_pointer_cast<http_request_context>(cp);
@@ -184,7 +186,8 @@ namespace cybermon {
 	}
 
 	// Constructor, describing flow address and parent pointer.
-        http_response_context(manager& m, const flow& a, context_ptr p) : 
+        http_response_context(manager& m, const flow_address& a, 
+			      context_ptr p) : 
 	context(m), http_parser(RESPONSE) { 
 	    addr = a; parent = p; 
 	}
@@ -194,13 +197,14 @@ namespace cybermon {
 
 	typedef boost::shared_ptr<http_response_context> ptr;
 
-	static context_ptr create(manager& m, const flow& f, context_ptr par) {
+	static context_ptr create(manager& m, const flow_address& f, 
+				  context_ptr par) {
 	    context_ptr cp = context_ptr(new http_response_context(m, f, par));
 	    return cp;
 	}
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow& f) {
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, http_response_context::create);
 	    ptr sp = boost::dynamic_pointer_cast<http_response_context>(cp);

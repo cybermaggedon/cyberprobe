@@ -46,7 +46,7 @@ namespace cybermon {
 	}
 
 	// Given a flow address, returns the child context.
-	context_ptr get_context(const flow& f) {
+	context_ptr get_child(const flow_address& f) {
 
 	    lock.lock();
 
@@ -62,7 +62,7 @@ namespace cybermon {
 	}
 
 	// Adds a child context.
-	void add_child(const flow& f, context_ptr c) {
+	void add_child(const flow_address& f, context_ptr c) {
 	    lock.lock();
 	    if (children.find(f) != children.end())
 		throw exception("That context already exists.");
@@ -85,9 +85,11 @@ namespace cybermon {
 
 	}
 
-	typedef context_ptr (*creator)(manager&, const flow&, context_ptr);
+	typedef context_ptr (*creator)(manager&, const flow_address&, 
+				       context_ptr);
 
-	static context_ptr get_or_create(context_ptr base, const flow& f, 
+	static context_ptr get_or_create(context_ptr base, 
+					 const flow_address& f, 
 					 creator create_fn) {
 
 	    boost::shared_ptr<context> mc = 
@@ -108,7 +110,7 @@ namespace cybermon {
 
 		// Now, we try to look up the 'reverse' flow.  Here's it's
 		// address...
-		flow f_rev;
+		flow_address f_rev;
 		f_rev.src = f.dest;
 		f_rev.dest = f.src;
 
@@ -188,11 +190,11 @@ namespace cybermon {
 	void set_trigger_address(const tcpip::address& a) {
 	    if (a.universe == a.ipv4) {
 		if (a.addr.size() == 4)
-		    trigger_address.assign(a.addr, NETWORK, IP4);
+		    trigger_address.set(a.addr, NETWORK, IP4);
 	    }
 	    if (a.universe == a.ipv6) {
 		if (a.addr.size() == 16)
-		    trigger_address.assign(a.addr, NETWORK, IP6);
+		    trigger_address.set(a.addr, NETWORK, IP6);
 	    }
 	}
 

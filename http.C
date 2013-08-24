@@ -343,10 +343,10 @@ void http::process_request(manager& mgr, context_ptr c,
 
     std::vector<unsigned char> empty;
     address src, dest;
-    src.assign(empty, TRANSPORT, HTTP);
-    dest.assign(empty, TRANSPORT, HTTP);
+    src.set(empty, TRANSPORT, HTTP);
+    dest.set(empty, TRANSPORT, HTTP);
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     http_request_context::ptr fc = http_request_context::get_or_create(c, f);
 
@@ -370,10 +370,10 @@ void http::process_response(manager& mgr, context_ptr c,
 
     std::vector<unsigned char> empty;
     address src, dest;
-    src.assign(empty, TRANSPORT, HTTP);
-    dest.assign(empty, TRANSPORT, HTTP);
+    src.set(empty, TRANSPORT, HTTP);
+    dest.set(empty, TRANSPORT, HTTP);
 
-    flow f(src, dest);
+    flow_address f(src, dest);
 
     http_response_context::ptr fc = http_response_context::get_or_create(c, f);
 
