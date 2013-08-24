@@ -6,62 +6,6 @@
 
 using namespace cybermon;
 
-int cybermon_lua::forge_dns_response(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -6);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->forge_dns_response(h);
-}
-
-int cybermon_lua::forge_tcp_reset(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->forge_tcp_reset(h);
-}
-
-int cybermon_lua::forge_dns_response(context_userdata* h)
-{
-
-    // Arg -6 is the 'h' variable passed to this function.
-
-    dns_header hdr;
-    to_dns_header(-5, hdr);
-
-    std::list<dns_query> queries;
-    to_dns_queries(-4, queries);
-
-    std::list<dns_rr> answers;
-    to_dns_rrs(-3, answers);
-
-    std::list<dns_rr> authorities;
-    to_dns_rrs(-2, authorities);
-
-    std::list<dns_rr> additional;
-    to_dns_rrs(-1, additional);
-
-    // Pop all arguments.
-    pop(6);
-
-    forgery::forge_dns_response(h->ctxt, hdr, queries, answers, authorities,
-				additional);
-
-    return 0;
-
-}
-
-int cybermon_lua::forge_tcp_reset(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    forgery::forge_tcp_reset(h->ctxt);
-
-    return 0;
-
-}
-
 // Call the config.trigger_up function as trigger_up(liid, addr)
 void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
 {
@@ -331,14 +275,6 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 
 cybermon_lua::cybermon_lua(const std::string& cfg)
 {
-	
-    // C functions go in a map.
-    std::map<std::string,lua_CFunction> fns;
-    fns["forge_dns_response"] = &forge_dns_response;
-    fns["forge_tcp_reset"] = &forge_tcp_reset;
-
-    // These are registered with lua as the 'cybermon' module.
-    register_module("cybermon", fns);
 
     // Load the configuration file.
     load_module(cfg);
@@ -367,6 +303,8 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     afns["get_context_id"] = &context_get_id;
     afns["get_network_info"] = &context_get_network_info;
     afns["get_trigger_info"] = &context_get_trigger_info;
+    afns["forge_dns_response"] = &context_forge_dns_response;
+    afns["forge_tcp_reset"] = &context_forge_tcp_reset;
 
     register_table(afns);
 
@@ -960,3 +898,54 @@ int cybermon_lua::context_get_network_info(lua_State* lua)
 
 }
 
+
+int cybermon_lua::context_forge_dns_response(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    luaL_checktype(lua, 2, LUA_TTABLE); // Header
+    luaL_checktype(lua, 3, LUA_TTABLE); // Queries
+    luaL_checktype(lua, 4, LUA_TTABLE); // Answers
+    luaL_checktype(lua, 5, LUA_TTABLE); // Authorities
+    luaL_checktype(lua, 6, LUA_TTABLE); // Additional
+
+    dns_header hdr;
+    cd->cml->to_dns_header(-5, hdr);
+
+    std::list<dns_query> queries;
+    cd->cml->to_dns_queries(-4, queries);
+
+    std::list<dns_rr> answers;
+    cd->cml->to_dns_rrs(-3, answers);
+
+    std::list<dns_rr> authorities;
+    cd->cml->to_dns_rrs(-2, authorities);
+
+    std::list<dns_rr> additional;
+    cd->cml->to_dns_rrs(-1, additional);
+
+    forgery::forge_dns_response(cd->ctxt, hdr, queries, answers, authorities,
+				additional);
+
+    // Pop all arguments.
+    cd->cml->pop(6);
+
+    return 0;
+
+}
+
+int cybermon_lua::context_forge_tcp_reset(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    forgery::forge_tcp_reset(cd->ctxt);
+
+    cd->cml->pop(1);
+
+}

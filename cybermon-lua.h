@@ -267,18 +267,14 @@ namespace cybermon {
     	static int context_get_reverse(lua_State*);
     	static int context_get_parent(lua_State*);
 
-	static int forge_dns_response(lua_State*);
-	static int forge_tcp_reset(lua_State*);
+	static int context_forge_dns_response(lua_State*);
+	static int context_forge_tcp_reset(lua_State*);
 
 	static int context_get_src_addr(lua_State*);
 	static int context_get_dest_addr(lua_State*);
 
 
 	static int context_gc(lua_State*);
-
-	// The C++ equiv of above.
-	int forge_dns_response(context_userdata* h);
-	int forge_tcp_reset(context_userdata* h);
 
 	// Constructor.
 	cybermon_lua(const std::string& cfg);

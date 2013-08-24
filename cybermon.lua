@@ -36,27 +36,17 @@ observer.connection_up = function(context)
 
     local cls, addr
 
-    print(context)
-    print(getmetatable(context))
-    print(getmetatable(context)["__index"])
-    print(getmetatable(context)["get_src_addr"])
     cls, addr = context:get_src_addr()
+    if addr == "20000" then
+      print "Spike!"
+      context:forge_tcp_reset(context)
+    end
 
---    if addr == "20000asd" then
---      print "Spike!"
---      cybermon.forge_tcp_reset(context)
---    end
-    io.write(string.format("  %s:%s\n", cls, addr))
-
-    local par = context:get_parent()
-    cls, addr = par:get_src_addr()
-    io.write(string.format("  %s:%s\n", cls, addr))
-
---    cls, addr = cybermon.get_dest_addr(context)
---    if addr == "20000asd" then
---      print "Spike!"
---      cybermon.forge_tcp_reset(context)
---    end
+    cls, addr = context:get_dest_addr(context)
+    if addr == "20000" then
+      print "Spike!"
+      context:forge_tcp_reset(context)
+    end
 
 end
 
