@@ -59,6 +59,13 @@ int cybermon_lua::forge_dns_response(lua_State* lua)
     return h->cml->forge_dns_response(h);
 }
 
+int cybermon_lua::forge_tcp_reset(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
+    return h->cml->forge_tcp_reset(h);
+}
+
 void cybermon_lua::describe_src(context_userdata* h)
 {
     std::ostringstream buf;
@@ -173,6 +180,18 @@ int cybermon_lua::forge_dns_response(context_userdata* h)
 
     forgery::forge_dns_response(h->ctxt, hdr, queries, answers, authorities,
 				additional);
+
+    return 0;
+
+}
+
+int cybermon_lua::forge_tcp_reset(context_userdata* h)
+{
+
+    // Pop user-data argument
+    pop(1);
+
+    forgery::forge_tcp_reset(h->ctxt);
 
     return 0;
 
@@ -489,6 +508,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     fns["get_network_info"] = &get_network_info;
     fns["get_trigger_info"] = &get_trigger_info;
     fns["forge_dns_response"] = &forge_dns_response;
+    fns["forge_tcp_reset"] = &forge_tcp_reset;
 
     // These are registered with lua as the 'cybermon' module.
     register_module("cybermon", fns);

@@ -33,6 +33,7 @@ observer.connection_data = function(context, data)
 end
 
 observer.connection_up = function(context)
+--  cybermon.forge_tcp_reset(context)
 end
 
 observer.connection_down = function(context)

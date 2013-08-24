@@ -31,6 +31,14 @@ namespace cybermon {
 					 address& dest, uint16_t dport,
 					 const pdu& payload);
 
+	static void encode_ip_tcp_header(pdu& p,
+					 address& src, uint16_t sport,
+					 address& dest, uint16_t dport,
+					 uint32_t seq, uint32_t ack,
+					 int flags,
+					 const pdu& payload);
+
+	static void forge_tcp_reset(context_ptr);
 
     };
 

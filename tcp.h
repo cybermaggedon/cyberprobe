@@ -49,6 +49,7 @@ namespace cybermon {
 
 	// Sequence number.
 	serial<int32_t, uint32_t> seq_expected;
+	serial<int32_t, uint32_t> ack_received;
 
 	// Segments buffer for reassembly.
 	static const int max_segments = 100;
@@ -77,8 +78,8 @@ namespace cybermon {
 	typedef boost::shared_ptr<tcp_context> ptr;
 
 	static context_ptr create(manager& m, const flow& f, context_ptr par) {
-	    context_ptr cp = context_ptr(new tcp_context(m, f, par));
-	    return cp;
+	    tcp_context* tc = new tcp_context(m, f, par);
+	    return context_ptr(tc);
 	}
 
 	// Given a flow address, returns the child context.
@@ -94,6 +95,17 @@ namespace cybermon {
     class tcp {
 
       public:
+
+	// 1's complement checksum
+	static void checksum(pdu_iter s, pdu_iter e, uint16_t& sum);
+
+	// Calculate TCP cksum
+	static uint16_t calculate_ip4_cksum(pdu_iter src,  // IPv4 address
+					    pdu_iter dest, // IPv4 address
+					    uint16_t protocol,
+					    uint16_t length,
+					    pdu_iter s,    // TCP hdr + body
+					    pdu_iter e);
 
 	// Flags
 	static const int FIN = 1;

@@ -286,7 +286,7 @@ uint16_t ip::calculate_cksum(pdu_iter s, pdu_iter e)
     
     pdu_iter ptr = s;
 
-    unsigned long sum = 0;
+    uint32_t sum = 0;
 
     // Handle 2-bytes at a time.
     while ((e - ptr) > 1) {

@@ -7,6 +7,7 @@
 #include "context.h"
 #include "http.h"
 #include "unrecognised.h"
+#include "forgery.h"
 
 using namespace cybermon;
 
@@ -22,6 +23,7 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     dest.assign(s + 2, s + 4, TRANSPORT, TCP);
 
     uint32_t seq = (s[4] << 24) + (s[5] << 16) + (s[6] << 8) + s[7];
+    uint32_t ack = (s[8] << 24) + (s[9] << 16) + (s[10] << 8) + s[11];
     uint16_t offset = s[12] >> 4;
     uint16_t flags = ((s[12] & 0xf) << 8) + s[13];
     uint32_t cksum = (s[16] << 8) + s[17];
@@ -43,6 +45,11 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     fc->lock.lock();
+
+    // Store the last ack.
+    if (flags & ACK) {
+	fc->ack_received = ack;
+    }
 
     // This is for the initial setup.  Works for both directions, ISN = seq + 1
     if (flags & SYN) {
@@ -274,4 +281,57 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
 }
 
+void tcp::checksum(pdu_iter s, pdu_iter e, uint16_t& sum)
+{
 
+    pdu_iter ptr = s;
+
+    uint32_t tmp = sum;
+
+    // Handle 2-bytes at a time.
+    while ((e - ptr) > 1) {
+	tmp += (ptr[0] << 8) + ptr[1];
+	if (tmp & 0x80000000)
+	    tmp = (tmp & 0xffff) + (tmp >> 16);
+	ptr += 2;
+    }
+
+    // If a remaining byte, handle that.
+    if ((e - ptr) != 0)
+	tmp += ptr[0];
+
+    while (tmp >> 16) {
+	tmp = (tmp & 0xffff) + (tmp >> 16);
+    }
+
+    sum = tmp;
+
+}
+
+uint16_t tcp::calculate_ip4_cksum(pdu_iter src,  // IPv4 address
+				  pdu_iter dest, // IPv4 address
+				  uint16_t protocol,
+				  uint16_t length,
+				  pdu_iter s,    // TCP hdr + body
+				  pdu_iter e)
+{
+
+    uint16_t sum = 0;
+
+    checksum(s, e, sum);
+
+    checksum(src, src + 4, sum);
+
+    checksum(dest, dest + 4, sum);
+
+    pdu tmp;
+    tmp.push_back(0);
+    tmp.push_back(protocol);
+    tmp.push_back((length & 0xff00) >> 8);
+    tmp.push_back(length & 0xff);
+
+    checksum(tmp.begin(), tmp.begin() + 4, sum);
+
+    return ~sum;
+
+}

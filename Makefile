@@ -69,7 +69,7 @@ etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
 forgery.o: context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 forgery.o: thread.h base_context.h manager.h observer.h dns_protocol.h
-forgery.o: forgery.h dns.h serial.h protocol.h hexdump.h udp.h ip.h
+forgery.o: forgery.h dns.h serial.h protocol.h hexdump.h udp.h tcp.h ip.h
 http.o: address.h pdu.h socket.h exception.h http.h context.h flow.h reaper.h
 http.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
 http.o: protocol.h
@@ -91,7 +91,13 @@ snort_alert.o: packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
-tcp.o: protocol.h http.h unrecognised.h
+tcp.o: protocol.h http.h unrecognised.h forgery.h
+tmp2.o: hexdump.h tcp.h context.h socket.h address.h pdu.h exception.h flow.h
+tmp2.o: reaper.h thread.h base_context.h manager.h observer.h dns_protocol.h
+tmp2.o: serial.h protocol.h
+tmp.o: hexdump.h tcp.h context.h socket.h address.h pdu.h exception.h flow.h
+tmp.o: reaper.h thread.h base_context.h manager.h observer.h dns_protocol.h
+tmp.o: serial.h protocol.h
 udp.o: udp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 udp.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 udp.o: unrecognised.h serial.h protocol.h dns.h
