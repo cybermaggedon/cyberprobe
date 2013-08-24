@@ -305,6 +305,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     afns["get_trigger_info"] = &context_get_trigger_info;
     afns["forge_dns_response"] = &context_forge_dns_response;
     afns["forge_tcp_reset"] = &context_forge_tcp_reset;
+    afns["forge_tcp_data"] = &context_forge_tcp_data;
 
     register_table(afns);
 
@@ -930,8 +931,8 @@ int cybermon_lua::context_forge_dns_response(lua_State* lua)
     std::list<dns_rr> additional;
     cd->cml->to_dns_rrs(-1, additional);
 
-    forgery::forge_dns_response(cd->ctxt, hdr, queries, answers, authorities,
-				additional);
+    forgery::forge_dns_response(cd->ctxt, hdr, queries, answers, 
+				authorities, additional);
 
     // Pop all arguments.
     cd->cml->pop(6);
@@ -952,3 +953,20 @@ int cybermon_lua::context_forge_tcp_reset(lua_State* lua)
     cd->cml->pop(1);
 
 }
+
+int cybermon_lua::context_forge_tcp_data(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    pdu data;
+    cd->cml->to_string(-1, data);
+
+    forgery::forge_tcp_data(cd->ctxt, data.begin(), data.end());
+
+    cd->cml->pop(2);
+
+}
+

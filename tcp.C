@@ -298,7 +298,7 @@ void tcp::checksum(pdu_iter s, pdu_iter e, uint16_t& sum)
 
     // If a remaining byte, handle that.
     if ((e - ptr) != 0)
-	tmp += ptr[0];
+	tmp += ptr[0] << 8;
 
     while (tmp >> 16) {
 	tmp = (tmp & 0xffff) + (tmp >> 16);

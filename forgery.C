@@ -7,6 +7,7 @@
 #include "udp.h"
 #include "tcp.h"
 #include "ip.h"
+#include "hexdump.h"
 
 // FIXME: Why?!
 #include <stdio.h>
@@ -38,8 +39,6 @@ void forgery::forge_dns_response(context_ptr cp,
     ip4_context::ptr ic = 
 	boost::dynamic_pointer_cast<ip4_context>(tmp);
 
-    std::string src_address = ic->addr.src.to_ip_string();
-    std::string dest_address = ic->addr.dest.to_ip_string();
     unsigned short src_port = uc->addr.src.get_16b();
     unsigned short dest_port = uc->addr.dest.get_16b();
 
@@ -67,8 +66,8 @@ void forgery::forge_dns_response(context_ptr cp,
     struct sockaddr_in sin;
 
     sin.sin_family = AF_INET;
-    std::copy(ic->addr.dest.addr.begin(),
-	      ic->addr.dest.addr.end(),
+    std::copy(ic->addr.src.addr.begin(),
+	      ic->addr.src.addr.end(),
 	      (unsigned char*) &(sin.sin_addr.s_addr));
     sin.sin_port = 0;
     
@@ -85,10 +84,88 @@ void forgery::forge_dns_response(context_ptr cp,
 	exit(1);
     }
 
-    // FIXME: Hard-coded interface.
-    std::string interface = "lo";
-    ret = setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, interface.c_str(),
-		     interface.size());
+    char tmpbuf[ip_packet.size()];
+    std::copy(ip_packet.begin(), ip_packet.end(), tmpbuf);
+
+    ret = send(sock, tmpbuf, ip_packet.size(), 0);
+    if (ret < 0) {
+	perror("send");
+	exit(1);
+    }
+
+    close(sock);
+
+}
+
+void forgery::forge_tcp_data(context_ptr cp, pdu_iter s, pdu_iter e)
+{
+
+    ip4_context::ptr ip4_ptr;
+    tcp_context::ptr tcp_ptr;
+
+    context_ptr tmp = cp;
+
+    while (1)  {
+
+	if (tmp->get_type() == "tcp") {
+	    tcp_ptr = boost::dynamic_pointer_cast<tcp_context>(tmp);
+	}
+
+	if (tmp->get_type() == "ip4") {
+	    ip4_ptr = boost::dynamic_pointer_cast<ip4_context>(tmp);
+	}
+
+	tmp = tmp->parent.lock();
+	if (!tmp) break;
+	
+    }
+
+    if (!tcp_ptr)
+	throw exception("Not in a TCP context");
+
+    if (!ip4_ptr)
+	throw exception("Only know how to forge data over IPv4");
+
+    unsigned short src_port = tcp_ptr->addr.src.get_16b();
+    unsigned short dest_port = tcp_ptr->addr.dest.get_16b();
+
+    uint32_t seq = tcp_ptr->seq_expected.value();
+    uint32_t ack = tcp_ptr->ack_received.value();
+
+    // Maybe should update the state?
+    // tcp_ptr->ack_received += (e - s);
+
+    pdu fake_response;
+    fake_response.assign(s, e);
+
+    pdu ip_packet;
+    encode_ip_tcp_header(ip_packet, 
+			 ip4_ptr->addr.dest, dest_port,
+			 ip4_ptr->addr.src, src_port,
+			 ack, seq, tcp::ACK,
+			 fake_response);
+
+    int sock = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
+    if (sock < 0) {
+	perror("socket");
+	exit(1);
+    }
+
+    struct sockaddr_in sin;
+    sin.sin_family = AF_INET;
+    std::copy(ip4_ptr->addr.src.addr.begin(),
+	      ip4_ptr->addr.src.addr.end(),
+	      (unsigned char*) &(sin.sin_addr.s_addr));
+    sin.sin_port = 0;
+    
+    int ret = connect(sock, (struct sockaddr*) &sin, sizeof(sin));
+    if (ret < 0) {
+	perror("connect");
+	exit(1);
+    }
+
+    int yes = 1;
+    ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &yes, sizeof(yes));
     if (ret < 0) {
 	perror("setsockopt");
 	exit(1);
@@ -109,8 +186,6 @@ void forgery::forge_dns_response(context_ptr cp,
 
 void forgery::forge_tcp_reset(context_ptr cp)
 {
-
-    // FIXME: Should be able to hunt for it.
 
     ip4_context::ptr ip4_ptr;
     tcp_context::ptr tcp_ptr;
@@ -161,8 +236,8 @@ void forgery::forge_tcp_reset(context_ptr cp)
     struct sockaddr_in sin;
 
     sin.sin_family = AF_INET;
-    std::copy(ip4_ptr->addr.dest.addr.begin(),
-	      ip4_ptr->addr.dest.addr.end(),
+    std::copy(ip4_ptr->addr.src.addr.begin(),
+	      ip4_ptr->addr.src.addr.end(),
 	      (unsigned char*) &(sin.sin_addr.s_addr));
     sin.sin_port = 0;
     
@@ -174,15 +249,6 @@ void forgery::forge_tcp_reset(context_ptr cp)
 
     int yes = 1;
     ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &yes, sizeof(yes));
-    if (ret < 0) {
-	perror("setsockopt");
-	exit(1);
-    }
-
-    // FIXME: Hard-coded interface.
-    std::string interface = "lo";
-    ret = setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, interface.c_str(),
-		     interface.size());
     if (ret < 0) {
 	perror("setsockopt");
 	exit(1);
@@ -475,8 +541,8 @@ void forgery::encode_ip_tcp_header(pdu& p,
     *bk = flags;
 
     // Window size
-    *bk = 0;
-    *bk = 0;
+    *bk = 0x16;
+    *bk = 0xd0;
 
     // Checksum
     pdu_iter sum_place = p.end();
@@ -499,6 +565,10 @@ void forgery::encode_ip_tcp_header(pdu& p,
 					    p.size() - 20,
 					    start + 20,  // Start of TCP
 					    p.end());
+
+    int checksum_size = p.size() - 20;
+    int act = p.end() - (start + 20);
+    std::cerr << checksum_size << " " << act << std::endl;
 
     // Put checksum in place.
     p[36] = ((sum & 0xff00) >> 8);

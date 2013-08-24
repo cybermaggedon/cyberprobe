@@ -14,6 +14,10 @@ namespace cybermon {
 				       const std::list<dns_rr>& authorities,
 				       const std::list<dns_rr>& additional);
 
+	static void forge_tcp_reset(context_ptr);
+
+	static void forge_tcp_data(context_ptr, pdu_iter, pdu_iter);
+
 	static void encode_dns_header(std::back_insert_iterator<pdu>,
 				      const dns_header&);
 
@@ -37,8 +41,6 @@ namespace cybermon {
 					 uint32_t seq, uint32_t ack,
 					 int flags,
 					 const pdu& payload);
-
-	static void forge_tcp_reset(context_ptr);
 
     };
 

@@ -185,11 +185,20 @@ namespace cybermon {
 
 	void to_string(int pos, std::string& s) {
 	    size_t len = 0;
-	    int tp = lua_type(lua, pos);
 	    const char* c = lua_tolstring(lua, pos, &len);
 	    if (c == 0)
 		throw std::runtime_error("Not a LUA string.");
 	    s.assign(c, len);
+	}
+
+	void to_string(int pos, std::vector<unsigned char>& s) {
+	    size_t len = 0;
+	    const char* c = lua_tolstring(lua, pos, &len);
+	    if (c == 0)
+		throw std::runtime_error("Not a LUA string.");
+	    s.clear();
+	    std::back_insert_iterator<pdu> bk = back_inserter(s);
+	    std::copy(c, c + len, bk);
 	}
 
 	void to_integer(int pos, uint64_t& val) {
@@ -281,6 +290,7 @@ namespace cybermon {
 
 	static int context_forge_dns_response(lua_State*);
 	static int context_forge_tcp_reset(lua_State*);
+	static int context_forge_tcp_data(lua_State*);
 
 	static int context_get_src_addr(lua_State*);
 	static int context_get_dest_addr(lua_State*);

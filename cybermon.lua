@@ -39,13 +39,21 @@ observer.connection_up = function(context)
     cls, addr = context:get_src_addr()
     if addr == "20000" then
       print "Spike!"
-      context:forge_tcp_reset(context)
+      context:forge_tcp_reset(context, "lo")
     end
 
     cls, addr = context:get_dest_addr(context)
     if addr == "20000" then
       print "Spike!"
-      context:forge_tcp_reset(context)
+      context:forge_tcp_reset(context, "lo")
+    end
+
+    cls, addr = context:get_dest_addr()
+    if addr == "20001" then
+      print "Spike!!"
+--      context:forge_tcp_data("I am watching you!!\n")
+--      local rev = context:get_reverse()
+      context:forge_tcp_data("I am watching you.\n")
     end
 
 end
@@ -183,7 +191,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     -- One answer
     header.ancount = 2
     io.write("    Forging DNS response!\n\n")
-    context:forge_dns_response(context, header, queries, answers, {}, {})
+    context:forge_dns_response(context, "lo", header, queries, answers, {}, {})
   end
 
 end
