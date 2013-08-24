@@ -6,52 +6,6 @@
 
 using namespace cybermon;
 
-int cybermon_lua::describe_src(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    h->cml->describe_src(h);
-    return 1;
-}
-
-int cybermon_lua::describe_dest(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    h->cml->describe_dest(h);
-    return 1;
-}
-
-int cybermon_lua::get_liid(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    h->cml->get_liid(h);
-    return 1;
-}
-
-int cybermon_lua::get_context_id(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    h->cml->get_context_id(h);
-    return 1;
-}
-
-int cybermon_lua::get_network_info(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->get_network_info(h);
-}
-
-int cybermon_lua::get_trigger_info(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->get_trigger_info(h);
-}
-
 int cybermon_lua::forge_dns_response(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -6);
@@ -64,134 +18,6 @@ int cybermon_lua::forge_tcp_reset(lua_State* lua)
     void* ud = lua_touserdata(lua, -1);
     context_userdata* h = reinterpret_cast<context_userdata*>(ud);
     return h->cml->forge_tcp_reset(h);
-}
-
-int cybermon_lua::get_type(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->get_type(h);
-}
-
-int cybermon_lua::get_src_addr(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->get_src_addr(h);
-}
-
-int cybermon_lua::get_dest_addr(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->get_dest_addr(h);
-}
-
-int cybermon_lua::get_parent(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->get_parent(h);
-}
-
-int cybermon_lua::get_reverse(lua_State* lua)
-{
-    void* ud = lua_touserdata(lua, -1);
-    context_userdata* h = reinterpret_cast<context_userdata*>(ud);
-    return h->cml->get_reverse(h);
-}
-
-
-
-
-
-void cybermon_lua::describe_src(context_userdata* h)
-{
-    std::ostringstream buf;
-    engine::describe_src(h->ctxt, buf);
-
-    // Pop user-data argument
-    pop(1);
-
-    // Put address string on stack.
-    push(buf.str());
-
-}
-
-void cybermon_lua::describe_dest(context_userdata* h)
-{
-
-    std::ostringstream buf;
-    engine::describe_dest(h->ctxt, buf);
-
-    // Pop user-data argument
-    pop(1);
-
-    // Put address string on stack.
-    push(buf.str());
-
-}
-
-int cybermon_lua::get_liid(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    // Get LIID
-    std::string liid;
-    address trigger_address;
-    engine::get_root_info(h->ctxt, liid, trigger_address);
-
-    // Push LIID on stack.
-    push(liid);
-
-    return 1;
-
-}
-
-void cybermon_lua::get_context_id(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    // Put Context ID on stack
-    push(h->ctxt->get_id());
-
-}
-
-int cybermon_lua::get_network_info(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    address src, dest;
-    engine::get_network_info(h->ctxt, src, dest);
-
-    push(src.to_ip_string());
-    push(dest.to_ip_string());
-
-    return 2;
-
-}
-
-int cybermon_lua::get_trigger_info(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    // Get trigger address
-    std::string liid;
-    address trigger_address;
-    engine::get_root_info(h->ctxt, liid, trigger_address);
-
-    push(trigger_address.to_ip_string());
-
-    return 1;
-
 }
 
 int cybermon_lua::forge_dns_response(context_userdata* h)
@@ -235,80 +61,6 @@ int cybermon_lua::forge_tcp_reset(context_userdata* h)
     return 0;
 
 }
-
-int cybermon_lua::get_type(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    push(h->ctxt->get_type());
-
-    return 1;
-
-}
-
-int cybermon_lua::get_src_addr(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    std::string cls;
-    std::string addr;
-
-    h->ctxt->get_src(cls, addr);
-
-    push(cls);
-    push(addr);
-
-    return 2;
-
-}
-
-int cybermon_lua::get_dest_addr(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    std::string cls;
-    std::string addr;
-
-    h->ctxt->get_dest(cls, addr);
-
-    push(cls);
-    push(addr);
-
-    return 2;
-
-}
-
-int cybermon_lua::get_parent(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    // FIXME: Not implemented.
-
-    return 0;
-
-}
-
-int cybermon_lua::get_reverse(context_userdata* h)
-{
-
-    // Pop user-data argument
-    pop(1);
-
-    // FIXME: Not implemented.
-
-    return 0;
-
-}
-
-
 
 // Call the config.trigger_up function as trigger_up(liid, addr)
 void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
@@ -354,24 +106,18 @@ void cybermon_lua::trigger_down(const std::string& liid)
 }
 
 // Calls the config.data function as data(context, data).
-// The 'context' variable passed to LUA is a light userdata pointer,
-// allowing calling back into the C++ code.  The value is only valid
-// in LUA space for the duration of this call.
+// The 'context' variable passed to LUA is a userdata pointer,
+// allowing calling back into the C++ code.
 void cybermon_lua::connection_up(engine& an, 
-				 const context_ptr f)
+				 context_ptr f)
 {
 
-    context_userdata h;
-
-    h.ctxt = f;
-    h.cml = this;
-    
     // Get observer.data
     get_global("config");
     get_field(-1, "connection_up");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on the stack
+    push(f);
     
     // observer.connection_up(context)
     call(1, 0);
@@ -386,20 +132,15 @@ void cybermon_lua::connection_up(engine& an,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
 void cybermon_lua::connection_down(engine& an, 
-				 const context_ptr f)
+				   const context_ptr f)
 {
-
-    context_userdata h;
-
-    h.ctxt = f;
-    h.cml = this;
     
     // Get observer.data
     get_global("config");
     get_field(-1, "connection_down");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on the stack
+    push(f);
     
     // observer.connection_down(context)
     call(1, 0);
@@ -418,18 +159,13 @@ void cybermon_lua::unrecognised_stream(engine& an,
 				       pdu_iter s, 
 				       pdu_iter e)
 {
-
-    context_userdata h;
-
-    h.ctxt = f;
-    h.cml = this;
     
     // Get observer.data
     get_global("config");
     get_field(-1, "connection_data");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on the stack
+    push(f);
 
     // Put data on stack.
     push(s, e);
@@ -451,17 +187,13 @@ void cybermon_lua::unrecognised_datagram(engine& an,
 					 pdu_iter s, 
 					 pdu_iter e)
 {
-
-    context_userdata h;
-    h.ctxt = f;
-    h.cml = this;
     
     // Get observer.data
     get_global("config");
     get_field(-1, "unrecognised_datagram");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on stack.
+    push(f);
 
     // Put data on stack.
     push(s, e);
@@ -481,16 +213,12 @@ void cybermon_lua::icmp(engine& an,
 			pdu_iter e)
 {
 
-    context_userdata h;
-    h.ctxt = f;
-    h.cml = this;
-    
     // Get observer.data
     get_global("config");
     get_field(-1, "icmp");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on the stack
+    push(f);
 
     // Put data on stack.
     push(s, e);
@@ -510,17 +238,13 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 				pdu_iter s,
 				pdu_iter e)
 {
-
-    context_userdata h;
-    h.ctxt = f;
-    h.cml = this;
     
     // Get observer.http_request
     get_global("config");
     get_field(-1, "http_request");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on the stack
+    push(f);
 
     // Push method
     push(method);
@@ -563,16 +287,12 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 pdu_iter e)
 {
 
-    context_userdata h;
-    h.ctxt = f;
-    h.cml = this;
-    
     // Get observer.http_request
     get_global("config");
     get_field(-1, "http_response");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on the stack
+    push(f);
 
     // Push code
     push(code);
@@ -614,19 +334,8 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
 	
     // C functions go in a map.
     std::map<std::string,lua_CFunction> fns;
-    fns["describe_src"] = &describe_src;
-    fns["describe_dest"] = &describe_dest;
-    fns["get_liid"] = &get_liid;
-    fns["get_context_id"] = &get_context_id;
-    fns["get_network_info"] = &get_network_info;
-    fns["get_trigger_info"] = &get_trigger_info;
     fns["forge_dns_response"] = &forge_dns_response;
     fns["forge_tcp_reset"] = &forge_tcp_reset;
-    fns["get_type"] = &get_type;
-    fns["get_src_addr"] = &get_src_addr;
-    fns["get_dest_addr"] = &get_dest_addr;
-    fns["get_parent"] = &get_parent;
-    fns["get_reverse"] = &get_reverse;
 
     // These are registered with lua as the 'cybermon' module.
     register_module("cybermon", fns);
@@ -636,6 +345,33 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
 
     // Transfer result from module to global variable 'config'.
     set_global("config");
+
+    // Put new meta-table on the stack.
+    new_meta_table("cybermon.context");
+
+    push("__index");
+    push_value(-2);       /* pushes the metatable */
+    set_table(-3);  /* metatable.__index = metatable */
+    
+    std::map<std::string,lua_CFunction> afns;
+    afns["__gc"] = &context_gc;
+    afns["get_type"] = &context_get_type;
+    afns["get_parent"] = &context_get_parent;
+    afns["get_src_addr"] = &context_get_src_addr;
+    afns["get_dest_addr"] = &context_get_dest_addr;
+    afns["get_reverse"] = &context_get_reverse;
+    afns["get_id"] = &context_get_id;
+    afns["describe_src"] = &context_describe_src;
+    afns["describe_dest"] = &context_describe_dest;
+    afns["get_liid"] = &context_get_liid;
+    afns["get_context_id"] = &context_get_id;
+    afns["get_network_info"] = &context_get_network_info;
+    afns["get_trigger_info"] = &context_get_trigger_info;
+
+    register_table(afns);
+
+    // Pop meta-table
+    pop();
 
 }
 
@@ -647,16 +383,12 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
 			       const std::list<dns_rr> additional)
 {
 
-    context_userdata h;
-    h.ctxt = f;
-    h.cml = this;
-    
     // Get observer.http_request
     get_global("config");
     get_field(-1, "dns_message");
     
-    // Put hideous on the stack
-    push(h);
+    // Put context on the stack
+    push(f);
 
     push(hdr);
     push(queries);
@@ -1000,4 +732,231 @@ void cybermon_lua::to_dns_header(int pos, dns_header& hdr)
 
 }
 
+void cybermon_lua::push(context_ptr cp)
+{
+
+    void* ud = new_userdata(sizeof(context_userdata));
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    // Placement 'new' to initialise the thing.
+    cd = new (cd) context_userdata;
+
+    cd->ctxt = cp;
+    cd->cml = this;
+
+    get_meta_table("cybermon.context");
+    set_meta_table(-2);
+
+}
+
+int cybermon_lua::context_get_parent(lua_State *lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    context_ptr par = cd->ctxt->get_parent();
+
+    lua_pop(lua, 1);
+    
+    if (par)
+	cd->cml->push(par);
+    else
+	cd->cml->push();
+
+    return 1;
+
+}
+
+int cybermon_lua::context_get_reverse(lua_State *lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    context_ptr par = cd->ctxt->get_reverse();
+
+    lua_pop(lua, 1);
+
+    if (par)
+	cd->cml->push(par);
+    else
+	cd->cml->push();
+
+    return 1;
+
+}
+
+int cybermon_lua::context_get_id(lua_State *lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    context_id id = cd->ctxt->get_id();
+
+    cd->cml->pop(1);
+    cd->cml->push(id);
+
+    return 1;
+
+}
+
+int cybermon_lua::context_gc(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    cd->ctxt.reset();
+
+    lua_pop(lua, 1);
+
+    return 1;
+}
+
+int cybermon_lua::context_get_src_addr(lua_State *lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    std::string cls, addr;
+    cd->ctxt->get_src(cls, addr);
+
+    cd->cml->pop();
+    cd->cml->push(cls);
+    cd->cml->push(addr);
+
+    return 2;
+
+}
+
+int cybermon_lua::context_get_dest_addr(lua_State *lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    std::string cls, addr;
+    cd->ctxt->get_dest(cls, addr);
+
+    cd->cml->pop();
+    cd->cml->push(cls);
+    cd->cml->push(addr);
+
+    return 2;
+
+}
+
+int cybermon_lua::context_describe_src(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    std::ostringstream buf;
+
+    cybermon::engine::describe_src(cd->ctxt, buf);
+
+    cd->cml->pop(1);
+
+    cd->cml->push(buf.str());
+
+    return 1;
+}
+
+int cybermon_lua::context_describe_dest(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    std::ostringstream buf;
+
+    cybermon::engine::describe_dest(cd->ctxt, buf);
+
+    cd->cml->pop(1);
+
+    cd->cml->push(buf.str());
+
+    return 1;
+}
+
+int cybermon_lua::context_get_type(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    std::string type = cd->ctxt->get_type();
+
+    cd->cml->pop(1);
+
+    cd->cml->push(type);
+
+    return 1;
+
+}
+
+int cybermon_lua::context_get_liid(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    std::string liid;
+    address trigger_address;
+    engine::get_root_info(cd->ctxt, liid, trigger_address);
+
+    cd->cml->pop(1);
+    cd->cml->push(liid);
+
+    return 1;
+
+}
+
+int cybermon_lua::context_get_trigger_info(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    std::string liid;
+    address trigger_address;
+    engine::get_root_info(cd->ctxt, liid, trigger_address);
+
+    cd->cml->pop(1);
+    cd->cml->push(trigger_address.to_ip_string());
+
+    return 1;
+
+}
+
+int cybermon_lua::context_get_network_info(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    address src, dest;
+    engine::get_network_info(cd->ctxt, src, dest);
+
+    cd->cml->pop(1);
+    cd->cml->push(src.to_ip_string());
+    cd->cml->push(dest.to_ip_string());
+
+    return 1;
+
+}
 

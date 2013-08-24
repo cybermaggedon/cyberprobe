@@ -58,7 +58,7 @@ namespace cybermon {
 	void register_module(const std::string& name,
 			     const std::map<std::string,lua_CFunction>& fns) {
 	    
-	    luaL_reg* cfns = new luaL_reg[fns.size() + 1];
+	    luaL_reg cfns[fns.size() + 1];
 	    
 	    int pos = 0;
 	    for(std::map<std::string,lua_CFunction>::const_iterator it = 
@@ -78,6 +78,28 @@ namespace cybermon {
 	    
 	}
 
+	// Registers into a metatable.
+	void register_table(const std::map<std::string,lua_CFunction>& fns) {
+	    
+	    luaL_reg cfns[fns.size() + 1];
+	    
+	    int pos = 0;
+	    for(std::map<std::string,lua_CFunction>::const_iterator it = 
+		    fns.begin();
+		it != fns.end();
+		it++) {
+		cfns[pos].name = it->first.c_str();
+		cfns[pos].func = it->second;
+		pos++;
+	    }
+	    
+	    cfns[pos].name = 0;
+	    cfns[pos].func = 0;
+	    
+	    luaL_register(lua, 0, cfns);
+	    
+	}
+
 	// Create table on the stack, pre-allocating items.
 	void create_table(int arr, int narr) {
 	    lua_createtable(lua, arr, narr);
@@ -90,10 +112,19 @@ namespace cybermon {
 
 	// Pop p items from the stack.
 	void pop(int p = 1) { lua_pop(lua, p); }
+		
+	// Push nil onto the stack.
+	void push() { 
+	    lua_pushnil(lua);
+	}
 	
 	// Push a string onto the stack.
 	void push(const std::string& s) { 
 	    lua_pushlstring(lua, s.c_str(), s.size());
+	}
+
+	void push_value(int pos) {
+	    lua_pushvalue(lua, pos);
 	}
 	
 	// Push a string onto the stack.
@@ -179,15 +210,35 @@ namespace cybermon {
 	    return (lua_isnil(lua, pos) == 1);
 	}
 
+	void new_meta_table(const std::string& name) {
+	    luaL_newmetatable(lua, name.c_str());
+	}
+
+	void* new_userdata(int size) {
+	    return lua_newuserdata(lua, size);
+	}
+
+	void get_meta_table(const std::string& name) {
+	    luaL_getmetatable(lua, name.c_str());
+	}
+
+	void set_meta_table(int pos) {
+	    lua_setmetatable(lua, pos);
+	}
+
+	void push_c_function(lua_CFunction f) {
+	    lua_pushcfunction(lua, f);
+	}
+
     };
 
-    // This is a bit kludgy.  We need to pass some values into LUA, so we pass
-    // one of these objects as light userdata.  It allows callbacks back into
-    // this code to elaborate contexts etc.  This seems the best way to do it
-    // because, passing context_ptrs around doesn't work - they're shared ptrs,
-    // which don't pass through C very well.
     class cybermon_lua;
 
+    // We need to pass some values into LUA, so we pass one of these
+    // objects as light userdata.  It allows callbacks back into this
+    // code to elaborate contexts etc.  This seems the best way to do
+    // it because, passing context_ptrs around doesn't work - they're
+    // shared ptrs, which don't pass through C very well.
     class context_userdata {
     public:
 
@@ -206,34 +257,28 @@ namespace cybermon {
     public:
 
 	// These are 'C' functions which get called from lua.
-	static int describe_src(lua_State*);
-	static int describe_dest(lua_State*);
-	static int get_liid(lua_State*);
-	static int get_context_id(lua_State*);
-	static int get_network_info(lua_State*);
-	static int get_trigger_info(lua_State*);
+	static int context_describe_src(lua_State*);
+	static int context_describe_dest(lua_State*);
+	static int context_get_liid(lua_State*);
+	static int context_get_id(lua_State*);
+	static int context_get_network_info(lua_State*);
+	static int context_get_trigger_info(lua_State*);
+    	static int context_get_type(lua_State*);
+    	static int context_get_reverse(lua_State*);
+    	static int context_get_parent(lua_State*);
+
 	static int forge_dns_response(lua_State*);
 	static int forge_tcp_reset(lua_State*);
-    	static int get_type(lua_State*);
-    	static int get_src_addr(lua_State*);
-    	static int get_dest_addr(lua_State*);
-    	static int get_parent(lua_State*);
-    	static int get_reverse(lua_State*);
+
+	static int context_get_src_addr(lua_State*);
+	static int context_get_dest_addr(lua_State*);
+
+
+	static int context_gc(lua_State*);
 
 	// The C++ equiv of above.
-	void describe_src(context_userdata* h);
-	void describe_dest(context_userdata* h);
-	int get_liid(context_userdata* h);
-	void get_context_id(context_userdata* h);
-	int get_network_info(context_userdata* h);
-	int get_trigger_info(context_userdata* h);
 	int forge_dns_response(context_userdata* h);
 	int forge_tcp_reset(context_userdata* h);
-	int get_type(context_userdata* h);
-	int get_src_addr(context_userdata* h);
-	int get_dest_addr(context_userdata* h);
-	int get_parent(context_userdata* h);
-	int get_reverse(context_userdata* h);
 
 	// Constructor.
 	cybermon_lua(const std::string& cfg);
@@ -244,6 +289,8 @@ namespace cybermon {
 	void push(context_userdata& c) {
 	    push_light_userdata(&c);
 	}
+
+	void push(context_ptr c);
 
 	// Push DNS stuff.
 	void push(const dns_header&);
@@ -266,7 +313,7 @@ namespace cybermon {
 	// Call the config.trigger_down function as trigger_down(liid)
 	void trigger_down(const std::string& liid);
 
-	void connection_up(engine& an, const context_ptr f);
+	void connection_up(engine& an, context_ptr f);
 
 	void connection_down(engine& an, const context_ptr f);
 
@@ -311,8 +358,4 @@ namespace cybermon {
     };
 
 };
-
-
-
-
 

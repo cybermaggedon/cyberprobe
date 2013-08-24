@@ -18,12 +18,12 @@ local observer = {}
 observer.connection_data = function(context, data)
 
   -- Get the LIID
-  local liid = cybermon.get_liid(context)
+  local liid = context:get_liid()
 
   -- This gets a (vaguely) human readable description of the source and
   -- destination protocol stacks.
-  local src = cybermon.describe_src(context)
-  local dest = cybermon.describe_dest(context)
+  local src = context:describe_src()
+  local dest = context:describe_dest()
 
   -- Write out the information on standard output.
   io.write(string.format("Target %s:\n", liid))
@@ -33,19 +33,30 @@ observer.connection_data = function(context, data)
 end
 
 observer.connection_up = function(context)
+
     local cls, addr
 
-    cls, addr = cybermon.get_src_addr(context)
-    if addr == "20000" then
-      print "Spike!"
-      cybermon.forge_tcp_reset(context)
-    end
+    print(context)
+    print(getmetatable(context))
+    print(getmetatable(context)["__index"])
+    print(getmetatable(context)["get_src_addr"])
+    cls, addr = context:get_src_addr()
 
-    cls, addr = cybermon.get_dest_addr(context)
-    if addr == "20000" then
-      print "Spike!"
-      cybermon.forge_tcp_reset(context)
-    end
+--    if addr == "20000asd" then
+--      print "Spike!"
+--      cybermon.forge_tcp_reset(context)
+--    end
+    io.write(string.format("  %s:%s\n", cls, addr))
+
+    local par = context:get_parent()
+    cls, addr = par:get_src_addr()
+    io.write(string.format("  %s:%s\n", cls, addr))
+
+--    cls, addr = cybermon.get_dest_addr(context)
+--    if addr == "20000asd" then
+--      print "Spike!"
+--      cybermon.forge_tcp_reset(context)
+--    end
 
 end
 
@@ -55,12 +66,12 @@ end
 observer.unrecognised_datagram = function(context, data)
 
   -- Get the LIID
-  local liid = cybermon.get_liid(context)
+  local liid = context:get_liid()
 
   -- This gets a (vaguely) human readable description of the source and
   -- destination protocol stacks.
-  local src = cybermon.describe_src(context)
-  local dest = cybermon.describe_dest(context)
+  local src = context:describe_src()
+  local dest = context:describe_dest()
 
   -- Write out the information on standard output.
   io.write(string.format("Target %s:\n", liid))
@@ -79,12 +90,12 @@ end
 observer.http_request = function(context, method, url, header, body)
 
   -- Get the LIID
-  local liid = cybermon.get_liid(context)
+  local liid = context:get_liid()
 
   -- This gets a (vaguely) human readable description of the source and
   -- destination protocol stacks.
-  local src = cybermon.describe_src(context)
-  local dest = cybermon.describe_dest(context)
+  local src = context:describe_src()
+  local dest = context:describe_dest()
 
   -- Write out the information on standard output.
   io.write(string.format("Target %s:\n", liid))
@@ -103,12 +114,12 @@ end
 observer.http_response = function(context, code, status, header, url, body)
 
   -- Get the LIID
-  local liid = cybermon.get_liid(context)
+  local liid = context:get_liid(context)
 
   -- This gets a (vaguely) human readable description of the source and
   -- destination protocol stacks.
-  local src = cybermon.describe_src(context)
-  local dest = cybermon.describe_dest(context)
+  local src = context:describe_src(context)
+  local dest = context:describe_dest(context)
 
   -- Write out the information on standard output.
   io.write(string.format("Target %s:\n", liid))
@@ -128,12 +139,12 @@ end
 observer.dns_message = function(context, header, queries, answers, auth, add)
 
   -- Get the LIID
-  local liid = cybermon.get_liid(context)
+  local liid = context:get_liid()
 
   -- This gets a (vaguely) human readable description of the source and
   -- destination protocol stacks.
-  local src = cybermon.describe_src(context)
-  local dest = cybermon.describe_dest(context)
+  local src = context:describe_src()
+  local dest = context:describe_dest()
 
   -- Write out the information on standard output.
   io.write(string.format("Target %s:\n", liid))
@@ -183,7 +194,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     -- One answer
     header.ancount = 2
     io.write("    Forging DNS response!\n\n")
-    cybermon.forge_dns_response(context, header, queries, answers, {}, {})
+--    cybermon.forge_dns_response(context, header, queries, answers, {}, {})
   end
 
 end
