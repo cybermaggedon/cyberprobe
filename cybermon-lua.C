@@ -15,18 +15,18 @@ void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
     a.to_string(ta);
 
     // Get observer.trigger_up
-    lua_getfield(lua, LUA_GLOBALSINDEX, "config");
-    lua_getfield(lua, -1, "trigger_up");
+    get_global("config");
+    get_field(-1, "trigger_up");
     
     // Put liid on stack
-    lua_pushstring(lua, liid.c_str());
-    lua_pushstring(lua, ta.c_str());
+    push(liid);
+    push(ta);
 	
     // observer.trigger_up(liid, addr)
-    lua_call(lua, 2, 0);
+    call(2, 0);
 
     // Still got 'observer' left on stack, it can go.
-    lua_pop(lua, 1); 
+    pop();
 
 }
 
@@ -35,17 +35,17 @@ void cybermon_lua::trigger_down(const std::string& liid)
 {
 
     // Get observer.trigger_down
-    lua_getfield(lua, LUA_GLOBALSINDEX, "config");
-    lua_getfield(lua, -1, "trigger_down");
+    get_global("config");
+    get_field(-1, "trigger_down");
     
     // Put liid on stack
-    lua_pushstring(lua, liid.c_str());
+    push(liid);
 	
     // observer.trigger_down(liid)
-    lua_call(lua, 1, 0);
+    call(1, 0);
 
     // Still got 'observer' left on stack, it can go.
-    lua_pop(lua, 1); 
+    pop();
 
 }
 
@@ -696,7 +696,7 @@ int cybermon_lua::context_get_parent(lua_State *lua)
 
     context_ptr par = cd->ctxt->get_parent();
 
-    lua_pop(lua, 1);
+    cd->cml->pop();
     
     if (par)
 	cd->cml->push(par);
@@ -716,7 +716,7 @@ int cybermon_lua::context_get_reverse(lua_State *lua)
 
     context_ptr par = cd->ctxt->get_reverse();
 
-    lua_pop(lua, 1);
+    cd->cml->pop();
 
     if (par)
 	cd->cml->push(par);
@@ -750,7 +750,7 @@ int cybermon_lua::context_gc(lua_State* lua)
 
     cd->ctxt.reset();
 
-    lua_pop(lua, 1);
+    cd->cml->pop();
 
     return 1;
 }
@@ -906,6 +906,7 @@ int cybermon_lua::context_forge_dns_response(lua_State* lua)
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
+    // FIXME: Fails for some reason?!  I don't understand the API prob'ly.
 /*
     luaL_checktype(lua, 2, LUA_TTABLE); // Header
     luaL_checktype(lua, 3, LUA_TTABLE); // Queries

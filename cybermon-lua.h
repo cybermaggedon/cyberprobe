@@ -143,7 +143,19 @@ namespace cybermon {
 	// Call a function.  args = number of arguments on the stack
 	// res = number of return values.
 	void call(int args, int res) {
-	    lua_call(lua, args, res);
+
+	    int ret = lua_pcall(lua, args, res, 0);
+	    if (ret == 0)
+		return;
+
+	    std::string errmsg;
+	    to_string(-1, errmsg);
+
+	    // Pop error message.
+	    pop();
+
+	    throw exception(errmsg);
+
 	}
 
 	// Get a global variable value onto the stack.
