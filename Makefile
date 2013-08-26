@@ -67,9 +67,10 @@ engine.o: reaper.h base_context.h manager.h observer.h dns_protocol.h
 engine.o: engine.h ip.h
 etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
-forgery.o: context.h socket.h address.h pdu.h exception.h flow.h reaper.h
-forgery.o: thread.h base_context.h manager.h observer.h dns_protocol.h
-forgery.o: forgery.h dns.h serial.h protocol.h hexdump.h udp.h tcp.h ip.h
+forgery.o: forgery.h context.h socket.h address.h pdu.h exception.h flow.h
+forgery.o: reaper.h thread.h base_context.h manager.h observer.h
+forgery.o: dns_protocol.h dns.h serial.h protocol.h hexdump.h udp.h tcp.h
+forgery.o: ip.h
 http.o: address.h pdu.h socket.h exception.h http.h context.h flow.h reaper.h
 http.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
 http.o: protocol.h
