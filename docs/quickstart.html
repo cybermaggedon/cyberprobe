@@ -31,7 +31,7 @@ tutorial is to run the appropriate components as the 'root' user a.k.a. Super
 User.
 </p>
 
-<h2>Stage 1: Build software</h2>
+<h2>Step 1: Build software</h2>
 
 <p>There's a fair amount of development taking place in the git repository,
 so you probably want to get the  latest release on the 
@@ -87,7 +87,7 @@ the directory where you have just built it.</p>
 <p>If you have problems you can't resolve
 <a href="https://sourceforge.net/p/cyberprobe/discussion/">head to the discussion</a> forums.
 
-<h2>Stage 2: Establish network parameters</h2>
+<h2>Step 2: Establish network parameters</h2>
 
 <p>
 The simplest way to use cyberprobe is to use it on a Linux workstation,
@@ -98,7 +98,7 @@ in order to keep things simple.  We'll do dynamic tracking later.
 
 <center><img src="simple-cyberprobe.png"/></center>
 
-<p>In the next stage, you'll use <code>cyberprobe</code> to capture some
+<p>In the next few steps, you'll use <code>cyberprobe</code> to capture some
 data, on your workstation, and stream it to <code>etsi_rcvr</code> so
 that you know it's working.  But first, you'll need to collect some information
 about your configuration.
@@ -136,7 +136,7 @@ your workstation.  In my case, I can tell the broadband router to
 permanently allocate a particular IP address to this workstation.
 </p>
 
-<h2>Stage 3: Starting <code>cyberprobe</code> with a configuration file</h2>
+<h2>Step 3: Starting <code>cyberprobe</code> with a configuration file</h2>
 
 <p>The source code contains a file <code>config.xml</code> which is a 
 good template for any configuration you're going to build.  However, for the
@@ -234,7 +234,7 @@ to check that an XML configuration file is valid, if you're not getting
 the results you expect.
 </p>
 
-<h2>Stage 4: Adding a target</h2>
+<h2>Step 4: Adding a target</h2>
 
 <p>We have <code>cyberprobe</code> running, but it isn't doing anything
 useful.  Remember, I said that a useful configuration consists of three
@@ -258,11 +258,11 @@ use the IP address of your workstation.</p>
 Added target 192.168.1.80 -> 123456.
 </pre>
 
-<p>At this stage, we're capturing packets, spotting target addresses, but
+<p>At this step, we're capturing packets, spotting target addresses, but
 as there's no endpoint defined there's still nowhere to send the data.
 So, this is still a useless configuration.  On to the next step...</p>
 
-<h2>Stage 5: Adding an endpoint</h2>
+<h2>Step 5: Adding an endpoint</h2>
 
 <p>Adding an endpoint to the configuration file will define a place
 where the captured data is sent.  Before adding an endpoint, let's make sure
@@ -309,10 +309,10 @@ Added endpoint localhost:10000 of type etsi
 Hopefully you'll start to see some output from <code>tcpdump</code>...
 </p>
 
-<h2>Stage 6: Capturing data</h2>
+<h2>Step 6: Capturing data</h2>
 
 <p>
-At this stage, <code>cyberprobe</code> should be forwarding an network
+At this step, <code>cyberprobe</code> should be forwarding an network
 traffic your workstation generates to the <code>tcpdump</code> command, so
 that you see data.  Any average workstation is generating network traffic
 all the time, so you won't need to do anything.  But if you see nothing,
@@ -331,9 +331,22 @@ ength 672
  length 1795
 </pre>
 
-<h2>Stage 7: Management interface</h2>
+<p>
+At this step, it's worth having a quick play with the reconnection
+mechanism.  Stop and start <code>etsi_rcvr</code>, and you'll see that
+<code>cyberprobe</code> reconnects automatically:</p>
 
-<p>At this stage, we'll setup a control port, and use it modify the
+<pre>
+ETSI LI connection to localhost:10000 failed.
+Will reconnect...
+ETSI LI connection to localhost:10000 established.
+</pre>
+<p>We don't guarantee zero data loss on a reconnect.
+</p>
+
+<h2>Step 7: Management interface</h2>
+
+<p>At this step, we'll setup a control port, and use it modify the
 configuration of <code>cyberprobe</code>.
 </p>
 
@@ -400,9 +413,9 @@ configuration file AND the control interface to manage the same resources,
 so you probably don't want to do that.
 </p>
 
-<h2>Stage 8: Integration with Snort</h2>
+<h2>Step 8: Integration with Snort</h2>
 
-<p>In this stage, we'll add the excellent IDS, Snort to the mix.
+<p>In this step, we'll add the excellent IDS, Snort to the mix.
 If you don't know Snort, it scans network traffic for patterns, and
 can take various actions when those patterns are discovered.  It is typically
 used to detect network attacks, and the Snort folks maintain a huge collection
@@ -503,7 +516,7 @@ be further thwarted by the operating system checking for patches without
 you knowing.
 </p>
 
-<h2>Stage 9: Introducing a delay</h2>
+<h2>Step 9: Introducing a delay</h2>
 
 <p>
 Your Snort integration suffers from a particular problem now.  The time
@@ -533,19 +546,19 @@ this delay in action: When you generate network traffic, you should be
 able to see the delay between network activity taking place, and the
 corresponding burst of activity from <code>tcpdump</code>.</p>
 
-<h2>Stage 10: Introducing Cybermon</h2>
+<h2>Step 10: Introducing Cybermon</h2>
 
-<p>The previous 9 stages have all been about <code>cyberprobe</code>. If you've
+<p>The previous 9 steps have all been about <code>cyberprobe</code>. If you've
 got this far successfully, you pretty much know all there is to know about
 <code>cyberprobe</code>.  It is time to start doing something more useful
-with all that data you are capturing.  In this stage we'll start up
+with all that data you are capturing.  In this step we'll start up
 <code>cybermon</code> and look at the data.
 </p>
 
 <center><img src="cyberprobe-cybermon.png"/></center>
 
 <p>
-So, that <code>etsi_rcvr</code> you started in stage 5?  Stop that, and 
+So, that <code>etsi_rcvr</code> you started in step 5?  Stop that, and 
 start <code>cybermon</code>.  Two arguments are needed: A TCP port number
 to receive the data on, and a configuration which tells it what to do.
 A number of configuration files are bundled in with the source code, there
@@ -617,6 +630,298 @@ SNORTc0a80150: 216.34.181.45:80 -> 192.168.1.80:34284. HTTP response 200 OK
     Content-Type: text/html; charset=utf-8
     Server: Apache/2.2.3 (CentOS)
 </pre>
+
+<h2>Step 11: Trying other configuration files</h2>
+
+<p>
+In the previous step, you started <code>cybermon</code> with the 
+<code>cybermon.lua</code> configuration file.  Have a play with a couple
+of the others.  Configuration file <code>hexdump.lua</code> produces
+little hex dumps of things like HTTP bodies:
+</p>
+
+<pre>
+cybermon 10000 hexdump.lua
+</pre>
+
+<p>
+Configuration file <code>dump.lua</code> causes cybermon to dump the
+information to files in the <code>data</code> directory.
+</p>
+
+<pre>
+mkdir data
+cybermon 10000 dump.lua
+</pre>
+
+<p>The <code>quiet.lua</code> configuration file does nothing.  It may be
+a good place to start hacking your own configuration file.  Which is exactly
+what we'll do in the next step.
+</p>
+
+<h2>Step 12: Writing your own configuration file</h2>
+
+<p>
+So, take a copy of the <code>quiet.lua</code> configuration file, and have
+a look at it.  It consists of a bunch of functions written in the LUA
+language.  LUA is a lightweight scripting langauge which is really good as a
+configuration language.  For example, this function is called when a TCP
+connection is made:
+</p>
+
+<pre>
+observer.connection_up = function(context)
+end
+</pre>
+
+<p>
+And this function is called when an HTTP response is observed:
+</p>
+
+<pre>
+observer.http_response = function(context, code, status, header, url, body)
+end
+</pre>
+
+<p>
+Let's get hacking!  The <code>header</code> parameter is a LUA table which
+contains key/value pairs from the header.  The <code>url</code> parameter
+contains the full URL of the response.  The <code>body</code> parameter
+contains the payload body as an empty string.  Let's start simple:
+</p>
+
+<pre>
+observer.http_response = function(context, code, status, header, url, body)
+  print(url)
+end
+</pre>
+
+<p>Then run that up...</p>
+
+<pre>
+./cybermon 10000 my.lua
+</pre>
+
+<p>Now, do some web browsing, and you should see a list of URLs flying past.
+Each web page typically consists of several HTTP requests, but you should be
+able to see the URLs associated with all of the web pages you visit.
+Let's tart that up a little more: 
+</p>
+
+<pre>
+-- This function is called when an HTTP response is observed.
+observer.http_response = function(context, code, status, header, url, body)
+
+  -- Take first 40 characters of URL
+  local u = url:sub(1,40)
+
+  -- Get Content-Type (first 20 characters)
+  local ct
+  ct = ""
+  for key, value in pairs(header) do
+    if key:lower() == "content-type" then
+      ct = value:sub(1,20)
+    end
+  end
+
+  io.write(string.format("%-40s %-20s %d\n", u, ct, #body))
+
+end
+</pre>
+
+<p>That basically outputs three columns: The URL (truncated to 40 characters),
+the body content type (truncated to 20 characters) and the HTTP response
+payload length.  Here's what I get from visiting Slashdot:
+</p>
+
+<pre>
+http://widget-cdn.rpxnow.com/manifest/sh text/javascript;char 42980
+http://slashdot.org/                     text/html; charset=u 40105
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 5625
+http://pagead2.googlesyndication.com/pag application/x-shockw 33347
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 540
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 42
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 452
+http://pagead2.googlesyndication.com/pag                      0
+</pre>
+
+<h2>Step 13: Forging a TCP reset</h2>
+
+<p>
+So far, this has all been very passive.  It's time to make some noise!
+From the LUA functions, there are a couple of functions available which allow
+you to put some packets back onto the network.
+</p>
+
+<p>But first... there's a problem.  You remember in step 9,
+we added a delay?  That's not going to work with packet forgery, because
+by the time we've forged a packet and sent it on to the network, it's about
+a second late.  So, we need to change our interface back so that there's no
+delay on the interface.  That means, we're monitoring network data, but we'll
+miss the original attack which triggered a Snort alert.
+</p>
+
+<pre>
+    &lt;interface name="p4p1"/>
+</pre>
+
+<p>The LUA interface passes a <code>context</code> variable to many of the
+LUA functions, which gives access to <code>cybermon</code> information and
+the packet forgery functions.  In this step, we're going to forge a TCP
+reset on any connections which are from or to port 80.  Hack the configuration
+file:
+</p>
+
+<pre>
+observer.connection_up = function(context)
+
+    -- Get TCP ports.
+    local cls, src_addr, dest_addr
+    cls, src_addr = context:get_src_addr()
+    cls, dest_addr = context:get_dest_addr()
+
+    -- check if it is port 80.
+    if not((src_addr == "80") or (dest_addr == "80")) then
+      -- Ignore non-HTTP traffic
+      return
+    end
+
+    -- TCP reset    
+    print("Spike! on HTTP connection.")
+    context:forge_tcp_reset(context)
+
+end
+</pre>
+
+<p>
+Now before we go any further, <code>cybermon</code> needs to run as root in
+order to use either of the packet forgery functions.  Packet forgery
+needs access to the raw IP socket layer, which is a privileged operation.
+Start that up:
+</p>
+
+<pre>
+./cybermon 10000 my.lua
+</pre>
+
+<p>
+Now start web browsing, and you should see a bunch of "Spike! on HTTP
+connection" messages.  Also, you'll see a page saying "The connection was
+reset" in your web browser.  That's a fairly anti-social configuration to
+run on any network.  See the <code>tcp_reset.lua</code> example for a more
+useful configuration.  It disrupts network traffic going to/from an SSH
+server which isn't from your administration workstation.
+</p>
+
+<p>On any network with an SSH service open to the outside world, you might want
+to use firewall rules to prevent access to the SSH service from addresses
+outside of your network, but you could use <code>cybermon</code> as a
+belt-and-braces protection mechanism.</p>
+
+<p>Another example is where you know the user community on your network is
+being targeted by phishing emails.  Your first step is to try to get the
+phishing emails out of their inboxes, getting your email provider to filter
+the attacks.  But a backup attack would be to make sure your users can't
+get to the phisher's web site.  The <code>http_request</code> function allows
+us to reset requests going to a particular web site.
+</p>
+
+<pre>
+-- This function is called when an HTTP request is observed.
+observer.http_request = function(context, method, url, header, body)
+
+    if header["Host"] == "example.org" then
+      print("Spike! on HTTP request")
+      context:forge_tcp_reset(context)
+    end
+
+    if header["Host"] == "www.example.org" then
+      print("Spike! on HTTP request")
+      context:forge_tcp_reset(context)
+    end
+
+end
+</pre>
+
+<h2>Step 14: Forging a DNS response</h2>
+
+<p>In this step, we'll detect a particular DNS request, and forge a response.
+First of all, you'll need to familiarise yourself with <code>host</code>
+which is a useful DNS test tool.  e.g.
+</p>
+
+<pre>
+$ <span style="color: red">host -t a example.org</span>
+example.org has address 93.184.216.119
+</pre>
+
+<p>The example.org name has been resolved to a particular IP address.
+Let's hack the DNS request function in <code>my.lua</code>:
+</p>
+
+<pre>
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
+
+  -- Check my assumptions.  Need a DNS query request, with one query,
+  -- name is example.org, type 'A', class 'IN'.
+  if header.qr == 0 and #queries == 1 and queries[1].name == "example.org"
+    and queries[1].type == 1 and queries[1].class == 1 then
+
+    -- Send a fake response
+
+    -- Set query/response flag to 'response'
+    header.qr = 1
+
+    -- 1 answer
+    answers = {}
+    answers[1] = {}
+    answers[1].name = "example.org"
+    answers[1].type = 1
+    answers[1].class = 1
+    answers[1].rdaddress = "1.2.3.4"
+
+    -- 1 answer
+    header.ancount = 1
+
+    io.write("Forging DNS response!\n")
+
+    context:forge_dns_response(context, header, queries, answers, {}, {})
+
+  end
+
+end
+</pre>
+
+<p>
+So, this example, checks that the query is one we want to mess with.  If it
+is, we turn the query structures into response structures, and hand them
+back to <code>cybermon</code> to do a forgery.  The above example forges the
+address <code>1.2.3.4</code>.  Start up <code>cybermon</code> with the script:
+</p>
+
+<pre>
+./cybermon 10000 my.lua
+</pre>
+
+<p>If everything is working your <code>host</code> command will show a different
+result:
+</p>
+
+<pre>
+$ <span style="color: red">host -t a example.org</span>
+example.org has address 1.2.3.4
+</pre>
+
+<p>Haha!  Spike!  DNS forgery has applications in blocking access to a phishers
+resources on the internet, you might want to redirect your users to an
+address which is inside your network.
+</p>
+
+<p>All done, I hope you enjoyed the tutorial!  The
+<a href="cybermon.html">Cybermon</a> reference page details the LUA interface
+in detail if you want to find out what else you can do in your LUA code.
+</p>
 
 </body>
 

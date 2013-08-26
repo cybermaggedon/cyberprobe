@@ -156,37 +156,6 @@ using LUA.</td></tr>
 <a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>.
 </p>
 
-<!--
-<h2>Usage</h2>
-
-<p>
-Usage:
-</p>
-
-<pre>
-    cyberprobe &lt;config-file>
-</pre>
-
-<h2>Snort integration</h2>
-
-<p>If the <code>snort_alert</code> element is specified in the configuration
-file, Cyberprobe will
-receive Snort alerts on a UNIX socket.  When an alert is received, the
-source address of the IP is dynamically targeted for a short period of time.
-The duration of targeting can be specified with the <code>duration</code>
-element.  Note: when using Snort alerts, a delay should be specified with
-the interface, to allow for the Snort processing latency.  1 second should
-be fine.
-</p>
-
-<p>Snort should be run in IDS mode, with the UNIX socket alerting mode
-enabled. e.g.</p>
-<pre>
-  snort -A unsock -N -l /var/log/snort/ -c snort.conf 
-</pre>
-
--->
-
 <h2>Code</h2>
 
 

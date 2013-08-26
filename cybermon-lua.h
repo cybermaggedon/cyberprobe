@@ -154,6 +154,8 @@ namespace cybermon {
 	    // Pop error message.
 	    pop();
 
+	    std::cerr << "LUA error: " << errmsg << std::endl;
+
 	    throw exception(errmsg);
 
 	}
