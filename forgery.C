@@ -330,9 +330,10 @@ void forgery::encode_dns_name(std::back_insert_iterator<pdu> bk,
     while (name != "") {
 	
 	std::string tok;
-	if (name.find(".") != -1) {
-	    tok = name.substr(0, name.find("."));
-	    name = name.substr(name.find(".") + 1);
+	int pos = name.find(".");
+	if (pos != -1) {
+	    tok = name.substr(0, pos);
+	    name = name.substr(pos + 1);
 	} else {
 	    tok = name;
 	    name = "";
@@ -545,7 +546,6 @@ void forgery::encode_ip_tcp_header(pdu& p,
     *bk = 0xd0;
 
     // Checksum
-    pdu_iter sum_place = p.end();
     *bk = 0;
     *bk = 0;
 

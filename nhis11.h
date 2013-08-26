@@ -95,10 +95,10 @@ class connection : public threads::thread {
 class receiver : public threads::thread {
 
   private:
-    tcpip::tcp_socket svr;
-    monitor& p;
     int port;
     bool running;
+    tcpip::tcp_socket svr;
+    monitor& p;
 
     threads::mutex close_me_lock;
     std::queue<connection*> close_mes;

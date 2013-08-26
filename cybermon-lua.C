@@ -961,6 +961,8 @@ int cybermon_lua::context_forge_tcp_reset(lua_State* lua)
 
     cd->cml->pop(1);
 
+    return 0;
+
 }
 
 int cybermon_lua::context_forge_tcp_data(lua_State* lua)
@@ -976,6 +978,8 @@ int cybermon_lua::context_forge_tcp_data(lua_State* lua)
     forgery::forge_tcp_data(cd->ctxt, data.begin(), data.end());
 
     cd->cml->pop(2);
+
+    return 0;
 
 }
 

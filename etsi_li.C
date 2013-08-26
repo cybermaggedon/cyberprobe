@@ -728,9 +728,6 @@ void connection::run()
 
 				ber::berpdu& targetipaddress_p = 
 				    ipiricontents_p.get_element(4);
-
-				ber::berpdu& iptype_p = 
-				    targetipaddress_p.get_element(1);
 				
 				ber::berpdu& ipvalue_p = 
 				    targetipaddress_p.get_element(2);

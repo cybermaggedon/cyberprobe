@@ -325,7 +325,7 @@ void etsi_li_sender::run()
 						    "unknown");
 
 			// Deliver packet.
-			mux.target_ip(liid, next.pdu, oper, country, net_elt, 
+			mux.target_ip(liid, pdu, oper, country, net_elt, 
 				      int_pt);
 
 			// Only break out of the loop on success.

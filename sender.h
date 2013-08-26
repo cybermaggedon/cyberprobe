@@ -90,7 +90,7 @@ class nhis11_sender : public sender {
 
     // Constructor.
     nhis11_sender(const std::string& h, unsigned short p,
-		  parameters& par) : h(h), p(p), sender(par) {}
+		  parameters& par) : sender(par), h(h), p(p)  {}
 
     // Destructor.
     virtual ~nhis11_sender() {}
@@ -141,7 +141,9 @@ class etsi_li_sender : public sender {
 
     // Constructor.
     etsi_li_sender(const std::string& h, unsigned int short p, 
-		   parameters& par) : h(h), p(p), sender(par), mux(transport) { 
+		   parameters& par) : 
+    sender(par), mux(transport), h(h), p(p)
+    { 
 	initialise(); 
     }
 

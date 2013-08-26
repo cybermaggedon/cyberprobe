@@ -69,7 +69,7 @@ namespace cybermon {
 	std::map<ip4_id, pdu> hdrs_list;
 
 	// Queue of fragments.
-	static const int max_frag_list_len = 50;
+	static const unsigned int max_frag_list_len = 50;
 	std::deque<fragment> frags;
 
       public:

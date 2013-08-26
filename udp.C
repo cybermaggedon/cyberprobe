@@ -21,8 +21,6 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     uint32_t length = (s[4] << 8) + s[5];
 
-    uint32_t cksum = (s[6] << 8) + s[7];
-
     if ((e - s) != length)
 	throw exception("UDP header length doesn't agree with payload length");
 

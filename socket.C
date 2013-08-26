@@ -92,11 +92,12 @@ bool tcpip::tcp_socket::poll(float timeout)
     fds.fd = sock;
     fds.events = POLLIN|POLLPRI;
     int ret = ::poll(&fds, 1, (int) (timeout * 1000));
-    if (ret < 0)
+    if (ret < 0) {
 	if (errno != EINTR)
 	    throw std::runtime_error("Socket poll failed");
 	else
 	    return false; // Treat EINTR as timeout.
+    }
     
     if (ret == 0) return false;
 
@@ -121,11 +122,12 @@ bool tcpip::udp_socket::poll(float timeout)
     fds.fd = sock;
     fds.events = POLLIN|POLLPRI;
     int ret = ::poll(&fds, 1, (int) (timeout * 1000));
-    if (ret < 0)
+    if (ret < 0) {
 	if (errno != EINTR)
 	    throw std::runtime_error("Socket poll failed");
 	else
 	    return false; // Treat EINTR as timeout.
+    }
     
     if (ret == 0) return false;
 
@@ -160,7 +162,7 @@ int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 		throw std::runtime_error("Socket error");
 	}
 
-	if (bufsize > 0)
+	if (bufsize > 0) {
 	    if (needed >= bufsize) {
 		buffer.insert(buffer.end(), buf + bufstart,
 			      buf + bufstart + bufsize);
@@ -175,6 +177,7 @@ int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 		got += needed;
 		needed = 0;
 	    }
+	}
 
     }
 	    
@@ -224,7 +227,7 @@ int tcpip::tcp_socket::read(char* buffer, int len)
 		throw std::runtime_error("Socket error");
 	}
 
-	if (bufsize > 0)
+	if (bufsize > 0) {
 	    if (needed >= bufsize) {
 		memcpy(buffer + got, buf + bufstart, bufsize);
 		got += bufsize;
@@ -237,6 +240,7 @@ int tcpip::tcp_socket::read(char* buffer, int len)
 		got += needed;
 		needed = 0;
 	    }
+	}
 
     }
 	    
@@ -369,11 +373,12 @@ bool tcpip::unix_socket::poll(float timeout)
     fds.fd = sock;
     fds.events = POLLIN|POLLPRI;
     int ret = ::poll(&fds, 1, (int) (timeout * 1000));
-    if (ret < 0)
+    if (ret < 0) {
 	if (errno != EINTR)
 	    throw std::runtime_error("Socket poll failed");
 	else
 	    return false; // Treat EINTR as timeout.
+    }
     
     if (ret == 0) return false;
 

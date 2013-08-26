@@ -84,7 +84,9 @@ class capture {
 
       while (running) {
 
-	  int ret = poll(&pfd, 1, 500);
+	  int ret = ::poll(&pfd, 1, 500);
+	  if (ret < 0)
+	      throw std::runtime_error("Poll failed");
 
 	  if (pfd.revents) {
 	  

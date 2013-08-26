@@ -26,7 +26,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     uint32_t ack = (s[8] << 24) + (s[9] << 16) + (s[10] << 8) + s[11];
     uint16_t offset = s[12] >> 4;
     uint16_t flags = ((s[12] & 0xf) << 8) + s[13];
-    uint32_t cksum = (s[16] << 8) + s[17];
 
     unsigned int header_length = 4 * offset;
     uint32_t payload_length = (e - s) - header_length;

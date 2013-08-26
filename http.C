@@ -253,7 +253,6 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 	case http_parser::POST_CHUNK_LENGTH_EXP_NL:
 	    if (*s == '\n') {
 		std::istringstream buf(chunk_length);
-		int chunk_length;
 		buf >> std::hex >> content_remaining;
 
 		if (content_remaining == 0) {

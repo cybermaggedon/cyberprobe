@@ -48,6 +48,8 @@ void capture_dev::run()
 
 	// Milli-second poll.
 	int ret = poll(&pfd, 1, 1);
+	if (ret < 0)
+	    throw std::runtime_error("poll failed");
 
 	if (pfd.revents)
 	    pcap_dispatch(p, 1, handler, (unsigned char *) this);

@@ -71,11 +71,12 @@ void connection::tokenise(const std::string& line,
 
     while (left != "") {
 	
-	if (left.find(" ") != -1) {
+	int pos = left.find(" ");
+	if (pos != -1) {
 
-	    tok.push_back(left.substr(0, left.find(" ")));
+	    tok.push_back(left.substr(0, pos));
 
-	    left = left.substr(left.find(" ") + 1);
+	    left = left.substr(pos + 1);
 
 	    while (left != "" && left[0] == ' ')
 		left == left.substr(1);

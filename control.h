@@ -122,11 +122,11 @@ namespace control {
 	// TCP socket, accepting connections.
 	tcpip::tcp_socket svr;
 
-	// Thing which implements the management commands.
-	management& d;
-
 	// Resource specification.
 	spec& sp;
+
+	// Thing which implements the management commands.
+	management& d;
 
 	// True = running, false = closing down.
 	bool running;

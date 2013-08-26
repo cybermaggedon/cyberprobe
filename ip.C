@@ -22,11 +22,10 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // Stuff from the IP header.
     uint8_t ihl = s[0] & 0x0f;
-    ip4_id id = s[4] << 8 + s[5];
+    ip4_id id = (s[4] << 8) + s[5];
     uint8_t flags = s[6] >> 5;
     uint16_t frag_offset = 8 * (((s[6] & 0x1f) << 8) + s[7]);
     uint8_t protocol = s[9];
-    uint16_t cksum = s[10] << 8 + s[11];
 
     if (ihl < 5) throw exception("IP packet IHL is invalid");
 

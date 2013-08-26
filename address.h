@@ -98,13 +98,14 @@ namespace cybermon {
 	    if (layer < a.layer)
 		return true;
 	    else
-		if (layer == a.layer)
+		if (layer == a.layer) {
 		    if (proto < a.proto)
 			return true;
 		    else
 			if (proto == a.proto)
 			    if (addr < a.addr)
 				return true;
+		}
 	    return false;
 	}
 

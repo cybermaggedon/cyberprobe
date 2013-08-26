@@ -40,7 +40,7 @@ namespace cybermon {
 	bool connected;
 
 	// Buffer for data for identification.
-	static const int ident_buffer_max = 20;
+	static const unsigned int ident_buffer_max = 20;
 	std::string ident_buffer;
 
 	// Once identified, the processing function.
@@ -52,7 +52,7 @@ namespace cybermon {
 	serial<int32_t, uint32_t> ack_received;
 
 	// Segments buffer for reassembly.
-	static const int max_segments = 100;
+	static const unsigned int max_segments = 100;
 	std::set<tcp_segment> segments;
 	
 	// Constructor.

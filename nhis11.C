@@ -80,7 +80,7 @@ void sender::send_ip(const std::vector<unsigned char>& pkt,
     buffer.push_back((cid >> 8) & 0xff);
     buffer.push_back(cid & 0xff);
 
-    for(int i = 0; i < pkt.size(); i++)
+    for(unsigned int i = 0; i < pkt.size(); i++)
 	buffer.push_back(pkt[i]);
 
     // Send the IP packet.
@@ -145,7 +145,7 @@ void connection::run()
 	
 	    // NHIS 1.1 continue header.
 	    pdu.clear();
-	    int ret = s.read(pdu, 20);
+	    unsigned int ret = s.read(pdu, 20);
 	    if (ret <= 0) break;
 
 	    if ((pdu[0] & 0xfc) != 0x1c)
