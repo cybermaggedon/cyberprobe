@@ -56,7 +56,7 @@ namespace cybermon {
     // IPv4 context
     class ip4_context : public context {
 
-	friend ip;
+	friend class ip;
 
 	// IP frag re-assembly hole list.
 	std::map<ip4_id, hole_list> h_list;
