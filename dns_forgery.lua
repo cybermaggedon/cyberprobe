@@ -81,7 +81,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
     io.write("Forging DNS response!\n")
 
-    context:forge_dns_response(context, header, queries, answers, {}, {})
+    context:forge_dns_response(header, queries, answers, {}, {})
 
   end
 

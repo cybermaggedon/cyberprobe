@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>cyberprobe - monitoring</title>
+
+<style type="text/css" media="all">
+@import "cyberprobe.css";
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe - Monitoring</h1>
+
+<h2>Table of contents</h2>
+
+<ul>
+<li><a href="index.html">Overview</a></li>
+<li><a href="quickstart.html">Quick Start tutorial</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="output.html">Output streaming protocols</a></li>
+<li><a href="management.html">Management interface</a></li>
+<li><a href="cybermon.html">Cybermon</a></li>
+<li><a href="licence.html">Licence</a></li>
+</ul>
+
+<h2>Overview</h2>
+
+<p>Cybermon is a simple monitoring tool.  It receives the ETSI protocol,
+decodes the protocols, and makes decoded information available for
+further handling which you can specify.  The tool is very
+much a work in progress - it has limited protocol decode capability at the
+moment, but there's enough there to demonstrate the idea.
+</p>
+
+
+<h2>Usage</h2>
+
+<p>
+Usage:
+</p>
+
+<pre>
+    cybermon &lt;port-number> &lt;config-file>
+</pre>
+
+<p>You specify a port number to receive data on, and a configuration
+file written in LUA.  LUA is a simple but powerful scripting language.
+Here's an example to help you see how the configuration is used.
+</p>
+
+<h2>Example configuration</h2>
+
+<p>The configuration file is there to provide functions which get called
+when certain events occur.  The calling interface is fairly simple at the
+moment, and over time, expect to see a richer interface develop.
+</p>
+
+<p>To start with, we create the structure of the configuration file.
+Call it something with a <code>.lua</code> extension e.g.
+<code>config.lua</code> so that your editor knows how to indent the
+code.  The basic structure is a module which a number of functions:
+</p>
+
+<pre>
+local observer = {}
+
+-- This function is called when a trigger events starts collection of an
+-- attacker. liid=the trigger ID, addr=trigger address
+observer.trigger_up = function(liid, addr)
+end
+
+-- This function is called when an attacker goes off the air
+observer.trigger_down = function(liid)
+end
+
+-- This function is called when a stream-orientated connection is made
+-- (e.g. TCP)
+observer.connection_up = function(context)
+end
+
+-- This function is called when a stream-orientated connection is closed
+observer.connection_down = function(context)
+end
+
+-- This function is called when a datagram is observed, but the protocol
+-- is not recognised.
+observer.unrecognised_datagram = function(context, data)
+end
+
+-- This function is called when stream data  is observed, but the protocol
+-- is not recognised.
+observer.unrecognised_stream = function(context, data)
+end
+
+-- This function is called when an ICMP message is observed.
+observer.icmp = function(context, data)
+end
+
+-- This function is called when an HTTP request is observed.
+observer.http_request = function(context, method, url, header, body)
+end
+
+-- This function is called when an HTTP response is observed.
+observer.http_response = function(context, code, status, header, url, body)
+end
+
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
+end
+
+-- Return the table
+return observer
+</pre>
+
+<h2>Reference</h2>
+
+<p>The configuration file is expected to provide the following functions:
+</p>
+
+<table>
+
+<tr><th>Function</th><th>Description</th></tr>
+
+<tr><td><code>trigger_up(liid, address)</code></td><td>Called
+when an attacker is seen coming on-stream.  The <code>liid</code>
+parameter describes the target ID, and <code>address</code> contains
+the IP address in string form. </td></tr>
+
+<tr><td><code>trigger_down(liid)</code></td><td>Called
+when an attacker is seen going off-stream.  The <code>liid</code>
+parameter describes the target ID.</td></tr>
+
+<tr><td><code>connection_up(context)</code></td><td>Called
+when a stream-based connection (e.g. TCP) is made.
+The <code>context</code> parameter is a 
+LUA userdata variable which can't be access
+directly, but can be used with the functions described below to access further
+information from <code>cybermon</code>.</td></tr>
+
+<tr><td><code>connection_down(context)</code></td><td>Similar to
+<code>connection_up</code>, called when a connection closes.</td></tr>
+
+<tr><td><code>icmp(context, data)</code></td><td>Called when an ICMP
+message is detected.  The <code>data</code> parameter contains the ICMP message
+body.</td></tr>
+
+<tr><td><code>http_request(context, method, url, header, body)</code></td>
+<td>Called when an HTTP request is observed.  The HTTP method and URL are
+described in the <code>method</code> and <code>url</code> parameters.
+The <code>header</code> parameter is a LUA table, which describes the HTTP
+header key/value pairs.  If there is an HTTP payload in the request, it is
+contained in the <code>body</code> parameter, which is a string.  Otherwise
+<code>body</code> will be an empty string.</td></tr>
+
+<tr><td><code>http_response(context, code, status, header, url,
+body)</code></td>
+<td>Called when an HTTP response is observed.  The HTTP response code and status
+are described in the <code>code</code> and <code>status</code> parameters.
+The <code>header</code> parameter is a LUA table, which describes the HTTP
+header key/value pairs.  If there is an HTTP payload in the response, it is
+contained in the <code>body</code> parameter, which is a string.  Otherwise
+<code>body</code> will be an empty string.</td></tr>
+
+<tr><td><code>dns_message(context, header, queries, answers, auth, 
+add)</code></td>
+<td>Called when a DNS message is observed.  The decoded DNS message
+is described in the parameters: <code>header</code> is the DNS header,
+<code>queries</code> contains the DNS queries, <code>answers</code>
+contains the answers in a response message, <code>auth</code> contains
+DNS nameserver authority descriptions, and <code>add</code> provides additional
+information.</td></tr>
+
+<tr><td><code>unrecognised_datagram(context, data)</code></td>
+<td>Called when a datagram is received using a protocol which isn't recognised.
+Currently, only DNS and ICMP are recognised.  Any other UDP protocol results in
+a call to this function.</td></tr>
+
+<tr><td><code>unrecognised_stream(context, data)</code></td>
+<td>Called when connection-orientated data is received using a protocol which
+isn't recognised.
+Currently, only HTTP is recognised.  Any other TCP protocol results in
+calls to this function whenever data is observed.</td></tr>
+
+</table>
+
+<p>From the LUA code there, the context variable has a number of method
+functions which can be called:
+</p>
+
+<table>
+<tr><th>Function</th><th>Description</th></tr>
+
+<tr><td><code>context:get_type()</code></td><td>
+Returns the protocol type of the context e.g. <code>http</code>,
+<code>tcp</code>, <code>udp</code>, <code>dns</code>,
+<code>ip4</code></td></tr>
+
+<tr><td><code>context:get_parent()</code></td><td>
+Returns the parent context relating to a context.  This can be used to
+travel "up" the protocol stack.  For example, call <code>get_parent</code>
+on a TCP context will return the IP context.</td></tr>
+
+<tr><td><code>context:get_src_addr()</code></td><td>
+Returns the source address relating to a context.  Returns two string
+variables: the first is the address class e.g. <code>ipv4</code>, the second
+is the address value e.g. <code>1.2.3.4</code>.</td></tr>
+
+<tr><td><code>context:get_dest_addr()</code></td><td>
+Returns the destination address relating to a context.  Returns two string
+variables: the first is the address class e.g. <code>ipv4</code>, the second
+is the address value e.g. <code>1.2.3.4</code>.</td></tr>
+
+<tr><td><code>context:get_reverse()</code></td><td>
+Returns the context relating to the "other side" of a communication, but only
+if this has been identified.  On an HTTP response, <code>get_reverse</code>
+will return the HTTP request.  In the <code>http_request</code> function
+you will not be able to use <code>get_reverse</code> to find the HTTP response
+because the response does not exist at the point the request is
+identified.</td></tr></td></tr>
+
+<tr><td><code>context:get_id()</code></td><td>
+Returns a context's unique ID.  Can be useful for tracking, or can be used
+as index into your own LUA structures to associate information with contexts.
+</td></tr></td></tr>
+
+<tr><td><code>context:describe_src()</code></td><td>Returns a human readable
+description of the protocol stack using source addresses.</td></tr>
+
+<tr><td><code>context:describe_dest()</code></td><td>Returns a human readable
+description of the protocol stack using source addresses.</td></tr>
+
+<tr><td><code>context:get_liid()</code></td><td>
+Returns the trigger ID associated with a "target".
+</td></tr></td></tr>
+
+<tr><td><code>context:get_network_info()</code></td><td>Returns two
+variables: the source and destination network addresses (IP addresses)
+for this data.  These are in normal IP address string format.</td></tr>
+
+<tr><td><code>context:get_trigger_info()</code></td><td>Returns the
+IP address which triggered this collection, if known.  If not, 0.0.0.0 is
+returned.  This is in normal IP address string format.</td></tr>
+
+<tr><td><code>context:forge_tcp_reset()</code></td><td>Creates a TCP reset
+packet and directs it at the source address associated with this context.
+Must have TCP protocol present in the stack.</td></tr>
+
+<tr><td><code>context:forge_dns_response(header, queries, answers, add)</code></td><td>Creates a DNS message
+and directs it at the source address associated with this context.  The provided
+parameters are used as protocol data in the DNS encoder.</td></tr>
+
+</table>
+
+</body>
+
+</html>
+

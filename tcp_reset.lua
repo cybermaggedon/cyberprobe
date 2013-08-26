@@ -44,7 +44,7 @@ observer.connection_up = function(context)
 
     
     print("Spike! on ssh connection between " .. src .. " and " .. dest)
-    context:forge_tcp_reset(context)
+    context:forge_tcp_reset()
 
 end
 
