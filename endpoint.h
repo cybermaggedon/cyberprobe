@@ -27,10 +27,21 @@ public:
 	this->hostname = hostname; this->port = port; this->type = type;
     }
 
-    // Hash is form host:port.
+    // Hash is form <space> + host:port.
     virtual std::string get_hash() const { 
 	std::ostringstream buf;
-	buf << hostname << ":" << port << ":" << type;
+
+	// See that space before the hash?  It means that endpoint
+	// hashes are "less than" other hashes, which means they are at the
+	// front of the set.  This means endpoints are started before
+	// targets.
+
+	// The end result of that, is that we know endpoints will be
+	// configured before targets are added to the delivery engine,
+	// which means that 'target up' messages will be sent on targets
+	// configured in the config file.
+
+	buf << " " << hostname << ":" << port << ":" << type;
 	return buf.str();
     }
 
