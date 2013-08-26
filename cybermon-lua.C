@@ -182,7 +182,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 				pdu_iter s,
 				pdu_iter e)
 {
-    
+
     // Get config.http_request
     get_global("config");
     get_field(-1, "http_request");

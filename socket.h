@@ -394,6 +394,73 @@ namespace tcpip {
 
     };
 
+    /** A raw IP socket (HDRINCL mode). */
+    class raw_socket : public socket {
+      public:
+	int sock;
+      private:
+
+	/** Socket port number. */
+	int port;
+
+	/** Actual socket creation */
+	void create() {
+	    sock = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
+
+	    int y = 1;
+	    int ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &y, sizeof(y));
+	    if (ret < 0)
+		throw std::runtime_error("Couldn't set IP_HDRINCL sock opt");
+	}
+
+      public:
+
+	/** Create a UNIX socket. */
+	raw_socket() { 
+	    sock = -1;
+	};
+
+	/** Write to the socket. */
+	virtual int write(const char* buffer, int len) {
+	    return ::write(sock, buffer, len);
+	}
+
+	/** Write to the socket. */
+	virtual int write(const std::vector<unsigned char>& buffer) {
+	    unsigned char tmp[buffer.size()];
+	    copy(buffer.begin(), buffer.end(), tmp);
+	    return write((char*) tmp, buffer.size());
+	}
+
+	virtual int read(char* buffer, int len) {
+	    return ::read(sock, buffer, len);
+	}
+
+	/** Write to the socket. */
+	virtual int write(const std::string& str) {
+	    return write(str.c_str(), str.length());
+	}
+
+	/** Connection to a remote service */
+	virtual void connect(const std::string& addr);
+
+	/** Close the connection. */
+	virtual void close() {
+            if (sock >= 0) {
+		::shutdown(sock, SHUT_RDWR);
+                ::close(sock);
+		sock = -1;
+            }
+	}
+
+	/** Destructor.  You must call close() before destroying socket,
+	    otherwise a file descriptor gets leaked. */
+	virtual ~raw_socket() { }
+
+    };
+
 };
 
 std::ostream& operator<<(std::ostream& o, const tcpip::address& addr);

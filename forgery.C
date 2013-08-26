@@ -1,16 +1,12 @@
 
-#include "context.h"
 #include "forgery.h"
+#include "context.h"
 #include "dns_protocol.h"
 #include "dns.h"
 #include "hexdump.h"
 #include "udp.h"
 #include "tcp.h"
 #include "ip.h"
-#include "hexdump.h"
-
-// FIXME: Why?!
-#include <stdio.h>
 
 using namespace cybermon;
 
@@ -57,43 +53,11 @@ void forgery::forge_dns_response(context_ptr cp,
 			 ic->addr.src, src_port,
 			 fake_response);
 
-    int sock = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
-    if (sock < 0) {
-	perror("socket");
-	exit(1);
-    }
-
-    struct sockaddr_in sin;
-
-    sin.sin_family = AF_INET;
-    std::copy(ic->addr.src.addr.begin(),
-	      ic->addr.src.addr.end(),
-	      (unsigned char*) &(sin.sin_addr.s_addr));
-    sin.sin_port = 0;
+    tcpip::raw_socket sock;
     
-    int ret = connect(sock, (struct sockaddr*) &sin, sizeof(sin));
-    if (ret < 0) {
-	perror("connect");
-	exit(1);
-    }
-
-    int yes = 1;
-    ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &yes, sizeof(yes));
-    if (ret < 0) {
-	perror("setsockopt");
-	exit(1);
-    }
-
-    char tmpbuf[ip_packet.size()];
-    std::copy(ip_packet.begin(), ip_packet.end(), tmpbuf);
-
-    ret = send(sock, tmpbuf, ip_packet.size(), 0);
-    if (ret < 0) {
-	perror("send");
-	exit(1);
-    }
-
-    close(sock);
+    sock.connect(ic->addr.src.to_ip4_string());
+    sock.write(ip_packet);
+    sock.close();
 
 }
 
@@ -144,43 +108,12 @@ void forgery::forge_tcp_data(context_ptr cp, pdu_iter s, pdu_iter e)
 			 ip4_ptr->addr.src, src_port,
 			 ack, seq, tcp::ACK,
 			 fake_response);
-
-    int sock = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
-    if (sock < 0) {
-	perror("socket");
-	exit(1);
-    }
-
-    struct sockaddr_in sin;
-    sin.sin_family = AF_INET;
-    std::copy(ip4_ptr->addr.src.addr.begin(),
-	      ip4_ptr->addr.src.addr.end(),
-	      (unsigned char*) &(sin.sin_addr.s_addr));
-    sin.sin_port = 0;
     
-    int ret = connect(sock, (struct sockaddr*) &sin, sizeof(sin));
-    if (ret < 0) {
-	perror("connect");
-	exit(1);
-    }
+    tcpip::raw_socket sock;
 
-    int yes = 1;
-    ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &yes, sizeof(yes));
-    if (ret < 0) {
-	perror("setsockopt");
-	exit(1);
-    }
-
-    char tmpbuf[ip_packet.size()];
-    std::copy(ip_packet.begin(), ip_packet.end(), tmpbuf);
-
-    ret = send(sock, tmpbuf, ip_packet.size(), 0);
-    if (ret < 0) {
-	perror("send");
-	exit(1);
-    }
-
-    close(sock);
+    sock.connect(ip4_ptr->addr.src.to_ip4_string());
+    sock.write(ip_packet);
+    sock.close();
 
 }
 
@@ -227,43 +160,11 @@ void forgery::forge_tcp_reset(context_ptr cp)
 			 ack, seq, tcp::RST | tcp::ACK,
 			 fake_response);
 
-    int sock = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
-    if (sock < 0) {
-	perror("socket");
-	exit(1);
-    }
+    tcpip::raw_socket sock;
 
-    struct sockaddr_in sin;
-
-    sin.sin_family = AF_INET;
-    std::copy(ip4_ptr->addr.src.addr.begin(),
-	      ip4_ptr->addr.src.addr.end(),
-	      (unsigned char*) &(sin.sin_addr.s_addr));
-    sin.sin_port = 0;
-    
-    int ret = connect(sock, (struct sockaddr*) &sin, sizeof(sin));
-    if (ret < 0) {
-	perror("connect");
-	exit(1);
-    }
-
-    int yes = 1;
-    ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &yes, sizeof(yes));
-    if (ret < 0) {
-	perror("setsockopt");
-	exit(1);
-    }
-
-    char tmpbuf[ip_packet.size()];
-    std::copy(ip_packet.begin(), ip_packet.end(), tmpbuf);
-
-    ret = send(sock, tmpbuf, ip_packet.size(), 0);
-    if (ret < 0) {
-	perror("send");
-	exit(1);
-    }
-
-    close(sock);
+    sock.connect(ip4_ptr->addr.src.to_ip4_string());
+    sock.write(ip_packet);
+    sock.close();
 
 }
 

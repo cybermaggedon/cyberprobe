@@ -264,17 +264,12 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
 	tcp::post_process(mgr, fc, p.begin(), p.end());
 	return;
-	
 
     }
 
     // Process the data using the processing function if defined.  Otherwise
     // use connection_data.
-//    if (fc->processor)
-	(*fc->processor)(mgr, fc, s, e);
-//    else
-//	mgr.connection_data(fc, s, e);
-
+    (*fc->processor)(mgr, fc, s, e);
     return;
 
 

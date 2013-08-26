@@ -443,3 +443,25 @@ void tcpip::unix_socket::bind(const std::string& path)
 
 }
 
+void tcpip::raw_socket::connect(const std::string& hostname)
+{
+
+    create();
+
+    struct hostent* hent = ::gethostbyname(hostname.c_str());
+    if (hent == 0)
+	throw std::runtime_error("Couldn't map hostname to address.");
+	    
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = 0;
+
+    memcpy(&addr.sin_addr.s_addr, hent->h_addr_list[0], 
+	   sizeof(addr.sin_addr.s_addr));
+
+    int ret = ::connect(sock, (sockaddr*) &addr, sizeof(addr));
+    if (ret < 0)
+	throw std::runtime_error("Couldn't connect to host.");
+
+}
+

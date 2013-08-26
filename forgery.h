@@ -1,4 +1,5 @@
 
+#include "context.h"
 #include "dns_protocol.h"
 
 namespace cybermon {
