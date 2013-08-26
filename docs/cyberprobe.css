@@ -1,0 +1,32 @@
+
+body {
+  font-size: 13pt;
+  background: white;
+  font-family: "Gill Sans", "Gill Sans MT", "Trebuchet MS", sans-serif;
+}
+
+table { border-collapse: collapse; margin: 12px; }
+th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
+td { border: 1px solid black; padding: 6px; }
+
+pre {
+  border: 1px solid #e0e0e0;
+  background: #ffffe8;
+  margin: 12px;
+  padding: 12px;
+  font: 13pt courier;
+}
+
+.standout {
+  border: 1px solid #808080;
+  background: #ffffe8;
+  color: black;
+  margin: 12px;
+  padding: 12px;
+  font-size: 18pt;
+  text-align: center;
+  font-weight: bold;
+}
+
+.xmlcomment { color: #4040ff; }
+
