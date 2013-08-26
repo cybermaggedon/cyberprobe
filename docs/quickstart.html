@@ -53,6 +53,7 @@ git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 <li>LUA - probably 5.1 or later.</li>
 <li>GCC C++ compiler and development support.</li>
 <li>PCAP.</li>
+<li>Expat (XML parser).</li>
 <li>tcpdump - not needed to build the software, but we use it in this
 tutorial.</li>
 <li>telnet - not needed to build the software, but we use it in this tutorial.
@@ -762,7 +763,7 @@ miss the original attack which triggered a Snort alert.
 </p>
 
 <pre>
-    &lt;interface name="p4p1"/>
+    &lt;interface name="eth0"/>
 </pre>
 
 <p>The LUA interface passes a <code>context</code> variable to many of the

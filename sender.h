@@ -31,7 +31,7 @@ class sender : public threads::thread {
     // queue.
     threads::mutex lock;
     threads::condition cond;
-    static const int max_packets = 1024;
+    static const unsigned int max_packets = 1024;
     std::deque<qpdu> packets;
 
     // State: true if we're running, false if we've been asked to stop.

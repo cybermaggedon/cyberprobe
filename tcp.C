@@ -11,6 +11,9 @@
 
 using namespace cybermon;
 
+const unsigned int tcp_context::ident_buffer_max = 20;
+const unsigned int tcp_context::max_segments = 100;
+
 void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 

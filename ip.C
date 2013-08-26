@@ -9,6 +9,8 @@
 
 using namespace cybermon;
 
+const unsigned int ip4_context::max_frag_list_len = 50;
+
 void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 
