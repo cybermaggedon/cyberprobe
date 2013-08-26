@@ -133,18 +133,11 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 	 case http_parser::POST_HEADER_EXP_NL:
 	     if (*s == '\n') {
 
- #ifdef USEFUL_DEBUG_I_GUESS
-		 std::cerr << "code = " << fc->code << std::endl;
-		 std::cerr << "status = " << fc->status << std::endl;
-		 std::cerr << "Proto = " << fc->protocol << std::endl;
-		 for(std::map<std::string, std::string>::iterator it = 
-			 fc->header.begin();
-		     it != fc->header.end();
-		     it++) {
-		     std::cerr << "(" << it->first << ") = (" << it->second
-			       << ")" << std::endl;
-		 }
- #endif
+#ifdef USEFUL_DEBUG_I_GUESS
+		 std::cerr << "code = " << code << std::endl;
+		 std::cerr << "status = " << status << std::endl;
+		 std::cerr << "Proto = " << protocol << std::endl;
+#endif
 
 		 state = http_parser::IN_BODY;
 
@@ -169,6 +162,7 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		 } else if ((header.find("transfer-encoding") != 
 			     header.end()) &&
 			    (header["transfer-encoding"].second == "chunked")) {
+		     chunk_length = "";
 		     state = http_parser::IN_CHUNK_LENGTH;
 		 } else if (header.find("content-length") != header.end()) {
 		     state = http_parser::COUNTING_DATA;
@@ -183,6 +177,14 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		 throw exception("HTTP response protocol violation!");
 	     }
 	     break;
+
+	case http_parser::PRE_CHUNK_LENGTH:
+	    // Skip CRLF
+	    if (*s == '\n') {
+		chunk_length = "";
+		state = http_parser::IN_CHUNK_LENGTH;
+	    }
+	    break;
 
 	 case http_parser::IN_BODY:
 	     if (*s == '\r')
@@ -304,6 +306,11 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 
 	    if (content_remaining == 0) {
 
+		chunk_length = "";
+		state = http_parser::PRE_CHUNK_LENGTH;
+		break;
+
+/*
 		std::istringstream buf(code);
 		buf >> codeval;
 
@@ -319,13 +326,13 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		    state = http_parser::IN_REQUEST_METHOD;
 		else
 		    state = http_parser::IN_RESPONSE_PROTOCOL;
+*/
 
 	    }
 	    break;
 
 	default:
-	    std::cerr << "State: "<< state << std::endl;
-	    throw exception("A state not implemented.");
+	    throw exception("An HTTP parsing state not implemented!");
 
 	}
 

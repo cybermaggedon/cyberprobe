@@ -58,6 +58,7 @@ namespace cybermon {
 	    COUNTING_DATA,
 	    
 	    // Body, chunked transfer encoding.
+	    PRE_CHUNK_LENGTH,
 	    IN_CHUNK_LENGTH,
 	    POST_CHUNK_LENGTH_EXP_NL,
 	    COUNTING_CHUNK_DATA,
