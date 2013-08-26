@@ -1,5 +1,5 @@
 
-CXXFLAGS += -I. -O6
+CXXFLAGS += -I. -O6 -Wall -Werror
 
 CYBERPROBE_OBJECTS=cyberprobe.o socket.o nhis11.o etsi_li.o \
 	resource_manager.o sender.o delivery.o xml.o ber.o capture.o config.o \

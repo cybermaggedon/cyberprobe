@@ -4,18 +4,8 @@
 <head>
 <title>cyberprobe</title>
 
-<style type="text/css">
-
-    body {  font: 11pt helvetica,sans-serif; background: white; }
-
-    table { border-collapse: collapse; margin: 12px; }
-    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
-    td { border: 1px solid black; padding: 6px; }
-
-    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
-
-    .xmlcomment { color: #4040ff; }
-
+<style type="text/css" media="all">
+@import "cyberprobe.css";
 </style>
 
 </head>
@@ -26,13 +16,18 @@
 
 <ul>
 <li><a href="index.html">Overview</a></li>
-<li><a href="quickstart.html">Quick Start</a></li>
+<li><a href="quickstart.html">Quick Start tutorial</a></li>
 <li><a href="config.html">Configuration</a></li>
 <li><a href="output.html">Output streaming protocols</a></li>
 <li><a href="management.html">Management interface</a></li>
 <li><a href="monitor.html">Cybermon</a></li>
 <li><a href="licence.html">Licence</a></li>
 </ul>
+
+<div class="standout">
+Version 0.20 is here! See <a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>.
+
+</div>
 
 <h2>Overview</h2>
 
@@ -44,7 +39,9 @@ standard streaming protocols.</li>
 <li>a monitor, which receives the streamed packets, decodes the protocols,
 and interprets the information.</li>
 </ul>
-These components can be used together or separately.
+These components can be used together or separately.  For a simple
+configuration, they can be run on the same host, for more complex environments,
+a number of probes can feed a single monitor.
 </p>
 
 <img style="align: center" src="cyberprobe.png"/>
@@ -56,9 +53,15 @@ any which match a configurable address list.</li>
 <li>The probe can be configured to receive Snort alerts.
 In this configuration, when an alert is received from Snort, the IP
 source address associated with the alert is dynamically targeted for a period
-of time.</li>
-<li>The probe can be configured to have a management interface which allows
-remote interrogation of the state, and alteration of the configuration.</li>
+of time.  In such a configuration, the system will collect data from any
+network actor who triggers a snort rule and is thus identified as a potential
+attacker.
+</li>
+<li>The probe can optionally run a management interface which allows
+remote interrogation of the state, and alteration of the configuration.  This
+allows dynamic alteration of the targeting map, and integration with other
+systems.
+</li>
 <li>The probe can be configured to deliver on one of two standard
 stream protocols.</li>
 </ul>
@@ -67,16 +70,29 @@ stream protocols.</li>
 <p>The monitor tool, <code>cybermon</code> has the following features:
 <ul>
 <li>Collects packets delivered in stream protocols.</li>
-<li>Decodes packet protocols in near-real-time.</li>
+<li>Decodes packet protocols in and raises events in near-real-time.</li>
 <li>Decoded information is made available to user-configurable logic to define
 how the decoded data is handled.  A simple configuration language is used
 (LUA) and example configurations are provided to monitor data volumes,
-display data hexdumps, or stash the data in files.
+display data hexdumps, or stash the data in files.</li>
+<li>Packet forgery techniques are included, which allow resetting TCP
+connections, and forging DNS responses.  This can be invoked from your LUA
+in order to fight back against attacks on your network.</li>
+<li>Supports IP, TCP, UDP, ICMP, HTTP and DNS protocols, currently.</li>
 </ul>
 </p>
 
 <p>The <code>cybermon</code> software is a bit of a work-in-progress at the
-moment, but there's enough capability to demonstrate the architecture.</p>
+moment, and needs more protocols added, but there's enough capability to be
+useful, and to demonstrate the value of this architecture.</p>
+
+<p>The code is targeted at the Linux platform, although it is generic enough
+to be applicable to other UN*X-like platforms.
+</p>
+
+<p>The easiest way to learn about the software is to follow our
+<a href="quickstart.html">Quick Start tutorial</a>.
+</p>
 
 <h2>Motivation</h2>
 
@@ -121,11 +137,14 @@ networks and systems as their own weapon.  But with the right tools, you
 can prepare a defence.  It's time to get ready for Cybermaggedon.
 </p>
 
-<h2>News</h2>
+<h2>Revision history</h2>
 
 <p>Cyberprobe releases:</p>
 
 <table>
+<tr><td><code>0.20</code></td><td>HTTP and DNS protocol capability.  TCP
+reset and DNS packet forgery added.  Major overhaul of the LUA language
+interface.</td></tr>
 <tr><td><code>0.12</code></td><td>Cybermon utility is configurable
 using LUA.</td></tr>
 <tr><td><code>0.11</code></td><td>Added basic cybermon utility.</td></tr>
@@ -137,6 +156,7 @@ using LUA.</td></tr>
 <a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>.
 </p>
 
+<!--
 <h2>Usage</h2>
 
 <p>
@@ -164,6 +184,8 @@ enabled. e.g.</p>
 <pre>
   snort -A unsock -N -l /var/log/snort/ -c snort.conf 
 </pre>
+
+-->
 
 <h2>Code</h2>
 
@@ -213,7 +235,7 @@ delivery.</li>
 <li>The ETSI LI support is bare basics, for instance, doesn't support 
 keep-alive.</li>
 <li>The IPv6 matching has had little testing.</li>
-<li>Cybermon needs more protocol capability e.g. HTTP and SMTP support.</li>
+<li>Cybermon needs more protocol capability e.g. SMTP support.</li>
 </ul>
 </p>
 

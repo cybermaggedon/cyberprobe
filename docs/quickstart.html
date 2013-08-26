@@ -4,18 +4,8 @@
 <head>
 <title>cyberprobe - Quick Start</title>
 
-<style type="text/css">
-
-    body {  font: 10pt helvetica; background: white; }
-
-    table { border-collapse: collapse; margin: 12px; }
-    th { border: 1px solid black; padding: 6px; background: #f0f0f0; }
-    td { border: 1px solid black; padding: 6px; }
-
-    pre { border: 1px solid #e0e0e0; background: #ffffe8; margin: 12px; padding: 12px; font: 10pt courier; }
-
-    .xmlcomment { color: #4040ff; }
-
+<style type="text/css" media="all">
+@import "cyberprobe.css";
 </style>
 
 </head>
@@ -26,7 +16,7 @@
 
 <ul>
 <li><a href="index.html">Overview</a></li>
-<li><a href="quickstart.html">Quick Start</a></li>
+<li><a href="quickstart.html">Quick Start tutorial</a></li>
 <li><a href="config.html">Configuration</a></li>
 <li><a href="output.html">Output streaming protocols</a></li>
 <li><a href="management.html">Management interface</a></li>
@@ -34,17 +24,48 @@
 <li><a href="licence.html">Licence</a></li>
 </ul>
 
-<p>This page covers how to get started with minimal fuss.</p>
+<p>This page covers how to get started with minimal reading of stuff.
+To run through this tutorial, you will need to run some code with elevated
+privileges than a normal 'user' has.  The easiest way to get through this
+tutorial is to run the appropriate components as the 'root' user a.k.a. Super
+User.
+</p>
 
-<h2>Get software</h2>
+<h2>Stage 1: Build software</h2>
 
-<p>You can either download the latest release on the 
+<p>There's a fair amount of development taking place in the git repository,
+so you probably want to get the  latest release on the 
 <a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>
-page, or checkout the latest code from git:
+page.
+</p>
+
+<p>
+But if you do want to track the latest code, checkout the latest code from git:
 </p>
 <pre>
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 </pre>
+
+<p>The code doesn't have many dependencies.  Exotic dependencies are:</p>
+<ul>
+<li>Boost regex.</li>
+<li>Boost shared pointer.</li>
+<li>LUA - probably 5.1 or later.</li>
+<li>GCC C++ compiler and development support.</li>
+<li>PCAP.</li>
+<li>tcpdump - not needed to build the software, but we use it in this
+tutorial.</li>
+<li>telnet - not needed to build the software, but we use it in this tutorial.
+</li>
+</ul>
+
+<p>
+Note: on many platforms, installing a package just adds the "run time" part
+of the code.  In order to be able to compile code against the run time, you
+need to install a separate "developers kit" package.  On Fedora, for
+instance, both <code>libpcap</code> and <code>libpcap-devel</code> are
+needed in order to be able to build this code.
+</p>
 
 <p>Unpack the code, and then run <code>make</code>.  This compiles
 the following executables:
@@ -52,108 +73,550 @@ the following executables:
 
 <table>
 <tr><td><code>cyberprobe</code></td><td>The Cyber Probe executable.</td></tr>
-<tr><td><code>cybermon</code></td><td>Data analyser, analyses the data streams and reports events.  Cybermon is in a fairly early state, very much a work in progress.</td></tr>
+<tr><td><code>cybermon</code></td><td>Data analyser, analyses the data streams and reports events.</td></tr>
 <tr><td><code>etsi_rcvr</code></td><td>Test decoder for ETSI format data.</td></tr>
 <tr><td><code>nhis11_rcvr</code></td><td>Test decoder for NHIS1.1 format data.</td></tr>
 </table>
 
-<p>We haven't added installation or packaging to the code yet.</p>
+<p>There isn't anything in the code to manage installation or packaging
+yes, but for the purposes of this tutorial, you can run everything from
+the directory where you have just built it.</p>
 
-<h2>Starting it up</h2>
+<p>If that builds without errors, then it's time to start something up.</p>
 
-<p>Bascially:
-<ul>
+<p>If you have problems you can't resolve
+<a href="https://sourceforge.net/p/cyberprobe/discussion/">head to the discussion</a> forums.
 
-<li><p>Compile <code>cyberprobe</code>, and start hacking the configuration
-file use the supplied <code>config.xml</code> as a starting point.</p></li>
+<h2>Stage 2: Establish network parameters</h2>
 
-<li><p>Hack the <code>interfaces</code> block and configure the name of an
-interface to study.  Note the delay attribute.  This specifies that
-packets are held for a small amount of time before processing.  This gives
-snort a chance to hit a signature and fire an alert at as, before the
-offending packet gets handled by cyberprobe:</p>
+<p>
+The simplest way to use cyberprobe is to use it on a Linux workstation,
+pretty much like the one you're using now, and use it to capture all the
+data going to/from the internet.  This will be a static configuration
+in order to keep things simple.  We'll do dynamic tracking later.
+</p>
+
+<center><img src="simple-cyberprobe.png"/></center>
+
+<p>In the next stage, you'll use <code>cyberprobe</code> to capture some
+data, on your workstation, and stream it to <code>etsi_rcvr</code> so
+that you know it's working.  But first, you'll need to collect some information
+about your configuration.
+</p>
+
+<p>
+You need to know the name of the network interface you are using.  The
+command <code>/sbin/ifconfig</code> will show you all the network interfaces
+your machine knows about. e.g.
 <pre>
-  &lt;interfaces>
-    &lt;interface name="eth0" delay="1"/>
-  &lt;/interfaces>
+lo: flags=73&lt;UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        [etc.]
+
+eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.80  netmask 255.255.255.0  broadcast 192.168.1.255
+        inet6 fe80::a60:6eff:fe81:7a75  prefixlen 64  scopeid 0x20<link>
+        [etc.]
 </pre>
-</li>
+<p>
+The <code>lo</code> interface is a loopback interface, and isn't really on
+the network, so ignore that.  It's an interface that gets packets going to
+127.0.0.1 and makes sure they end up handled by your workstation.
+Your interface is quite likely to be called something like <code>eth0</code>.
+The other thing you need to know is the IP address of your workstation.
+The IP address is associated with an interface, so 
+in the above example, I can see I have an IP address 192.168.1.80.
+</p>
 
-<li><p>Hack the <code>targets</code> block, and leave it empty - we're going
-to use Snort to trigger forwarding of packets:</p>
+<p>Note: on some networks (like mine) the IP address is allocated dynamically.
+In my case, the IP address is allocated by the broadband router.  So,
+you may need to keep a look out for it changing every an eye time you restart
+your workstation.  In my case, I can tell the broadband router to
+permanently allocate a particular IP address to this workstation.
+</p>
+
+<h2>Stage 3: Starting <code>cyberprobe</code> with a configuration file</h2>
+
+<p>The source code contains a file <code>config.xml</code> which is a 
+good template for any configuration you're going to build.  However, for the
+purpose of this discussion, let's start from scratch.  In order to do anything
+useful, there are three essential elements to a cyberprobe configuration file:
+interfaces, targets and endpoints.  The system won't do anything useful
+without those three configuration elements defined.  Let's start with a
+very simple configuration.</p>
+
+<p>Using your favourite text editor, create a text file, say <code>c.xml</code>
+with the following contents:
+</p>
 <pre>
+&lt;?xml version="1.0" encoding="ISO-8859-1"?>
+
+&lt;configuration>
+
+  &lt;interfaces>
+    &lt;interface name="eth0"/>
+  &lt;/interfaces>
+
   &lt;targets>
   &lt;/targets>
-</pre>
-</li>
 
-<li><p>Hack the <code>endpoints</code> block, and deliver packets to a local
-service on port 10000:</p></li>
+  &lt;endpoints>
+  &lt;/endpoints>
+
+&lt;/configuration>
+</pre>
+
+<p>Note: You should replace the <code>eth0</code> string with the name of
+your network interface.  Remember? We discovered that when playing with the
+<code>ifconfig</code> command.</p>
+
+<p>We're ready to roll.  We need to run as a privileged used because
+<code>cyberprobe</code> captures data off the network interface.  So,
+running as root, you need to locate the place where you compiled the
+code, and run <code>cyberprobe</code> giving it the name of the configuration
+file you just created:
+</p>
+
+<pre>
+./cyberprobe c.xml
+</pre>
+
+<p>
+If everything goes to plan, you should see the following output:
+</p>
+
+<pre>
+Capture on interface eth0 started.
+</pre>
+
+<p>If you see an error message, the obvious two things to check are:
+</p>
+
+<ul>
+<li>Did you name a network interface correctly?  See <code>ifconfig</code>
+discussion above.</li>
+<li>Are you running as a privileged user?</li>
+</ul>
+
+<p>If you see no output at all, check that your configuration file is correct.
+</p>
+
+<p>Once you are seeing the "Capture on interface eth0" line, then you've
+achieved success in this step, and are ready to move on.
+</p>
+
+<p>If you have everything working, there's one thing to note before moving
+on: <code>cyberprobe</code> treats a broken configuration file the same
+as an empty configuration file.  With <code>cyberprobe</code> running, 
+edit the configuration file, and delete the query (?) prefix in the first
+line, so that it looks like this:
+</p>
+
+<pre>
+&lt;xml version="1.0" encoding="ISO-8859-1"?>
+</pre>
+
+<p>You've now broken the configuration file.  It's not valid XML any more,
+so the parsing fails.  You should see this output from
+<code>cyberprobe</code>:
+</p>
+
+<pre>
+Capture on interface eth0 stopped.
+</pre>
+
+<p>If you repair the damage to the configuration file, everything will
+start working again.  The lesson here is: If you find that
+<code>cyberprobe</code> won't recognise any resources, it's likely that your
+configuration file is invalid.  The utility <code>xmlwf</code> can be useful 
+to check that an XML configuration file is valid, if you're not getting
+the results you expect.
+</p>
+
+<h2>Stage 4: Adding a target</h2>
+
+<p>We have <code>cyberprobe</code> running, but it isn't doing anything
+useful.  Remember, I said that a useful configuration consists of three
+minimal elements: interfaces, targets and endpoints?  Well, currently
+we only have interfaces defined.  That means that <code>cyberprobe</code>
+is capturing packets off of the network, but throwing them away.
+</p>
+
+<p>Let's add a target.  Edit the <code>targets</code> block of the
+configuration file.  We need an entry describing
+the IP address of my workstation.  Remember? We discovered that with the
+<code>ifconfig</code> command earlier?  Instead of <code>192.168.1.80</code>
+use the IP address of your workstation.</p>
+<pre>
+  &lt;targets>
+    &lt;target address="192.168.1.80" liid="123456"/>
+  &lt;/targets>
+</pre>
+<p>If successful, you should see new output from <code>cyberprobe</code>:</p>
+<pre>
+Added target 192.168.1.80 -> 123456.
+</pre>
+
+<p>At this stage, we're capturing packets, spotting target addresses, but
+as there's no endpoint defined there's still nowhere to send the data.
+So, this is still a useless configuration.  On to the next step...</p>
+
+<h2>Stage 5: Adding an endpoint</h2>
+
+<p>Adding an endpoint to the configuration file will define a place
+where the captured data is sent.  Before adding an endpoint, let's make sure
+there's something ready to receive the data.
+</p>
+
+<p>
+In a separate terminal window, navigate to the Cyberprobe build, and run:
+</p>
+
+<pre>
+./etsi_rcvr 10000 | tcpdump -n -r -
+</pre>
+
+<p>
+The <code>etsi_rcvr</code> program opens a TCP port listening on port 10000
+for a stream of ETSI data, and on standard output, writes the IP packets
+it sees in PCAP format.  The <code>tcpdump</code> command receives this
+PCAP data, and outputs packet summaries.
+</p>
+
+</p>If that starts successfully, the next step is to plumb a connection
+from <code>cyberprobe</code> to <code>etsi_rcvr</code>.
+</p>
+
+<p>Next, edit the configuration file, and edit the <code>endpoints</code>
+block to deliver packets to a local service on port 10000:
+</p>
 <pre>
   &lt;endpoints>
     &lt;endpoint hostname="localhost" port="10000" type="etsi"/>
   &lt;/endpoints>
 </pre>
-</li>
-
-<li><p>Configure reception of Snort alerts.  A Snort alert will trigger
-collection for 20 seconds.</p></li>
-<pre>
-   &lt;snort_alert socket="/var/log/snort/snort_alert" duration="20"/>
-</pre>
-</li>
-
-<li><p>Refer to the Snort documentation, and get snort up and running, and
-generating alerts.  A rule such as the one below will detect any activity on
-port 80, might be a good starting point to check everything is working:
-<pre>
-alert tcp any any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
-</pre>
-</li>
-
-<li>
-<p>Start a test receiver on port 10000:</p>
-<pre>
-etsi_rcvr 10000 | tcpdump -n -r-
-</pre>
-</li>
-
-<li><p>Start Cyberprobe, specifying the configuration file:</p>
-<pre>
-cyberprobe config.xml
-</pre>
-</li>
-
-<li><p>Start Snort, generating UNIX socket alerts.  You need to specify
-your Snort configuration file.</p>
-<pre>
-snort -A unsock -N -l /var/log/snort/ -c snort.conf 
-</pre>
-</li>
-
-<li>
-<p>Generate something which hits on a Snort rule, and Cyberprobe will report,
-on standard output, the rule hit.  At this point, you should also see
-output connections set up, and data output from <code>etsi_rcvr</code>.
-</p>
-</li>
-
-</ul>
-</p>
-
-<h2>Cybermon</h2>
 
 <p>
-Once you have this working with the <code>etsi_rcvr</code> receiver, stop
-<code>etsi_rcvr</code> and fire up <code>cybermon</code> on the same
-port e.g.
-<pre>
-cybermon 10000 hexdump.lua
-</pre>
-Make sure you restart <code>cyberprobe</code> so that the IRI BEGIN
-events are sent.  You should be able to get some stuff whizzing past on the
-screen, with hexdumps of data.
+If that worked, you should see <code>cyberprobe</code> start the endpoint:
 </p>
+
+<pre>
+Added endpoint localhost:10000 of type etsi
+</pre>
+
+<p>
+Hopefully you'll start to see some output from <code>tcpdump</code>...
+</p>
+
+<h2>Stage 6: Capturing data</h2>
+
+<p>
+At this stage, <code>cyberprobe</code> should be forwarding an network
+traffic your workstation generates to the <code>tcpdump</code> command, so
+that you see data.  Any average workstation is generating network traffic
+all the time, so you won't need to do anything.  But if you see nothing,
+you can do something like, visit the Google home page in a browser on your
+workstation.  You should see something like this pouring from the tcpdump.
+</p>
+
+<pre>
+18:54:24.376838 IP 192.168.1.80.54249 > 212.58.244.71.http: Flags [P.], seq 
+1:673, ack 1, win 115, options [nop,nop,TS val 129851063 ecr 3366955869], l
+ength 672
+18:54:24.390768 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [.], ack 
+673, win 124, options [nop,nop,TS val 3366955882 ecr 129851063], length 0
+18:54:24.392909 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [P.], seq 
+1:1796, ack 673, win 124, options [nop,nop,TS val 3366955884 ecr 129851063],
+ length 1795
+</pre>
+
+<h2>Stage 7: Management interface</h2>
+
+<p>At this stage, we'll setup a control port, and use it modify the
+configuration of <code>cyberprobe</code>.
+</p>
+
+<p>First step is to modify the configuration file to include this line, just
+after the <code>&lt;configuration></code> line:</p>
+
+<pre>
+  &lt;control port="8888" username="admin" password="mypassword"/>
+</pre>
+
+<p>That declares that a management service needs to be run on port 8888.
+The authentication details are provided too.
+You should see this output from <code>cyberprobe</code>:</p>
+
+<pre>
+Starting control on port 8888
+</pre>
+
+<p>That's good!  Now need to connect and interrogate the targets list:
+I use <code>telnet</code> to connect, the <code>auth</code> command to
+authenticate, and the <code>target</code> command to see a list of commands.
+</p>
+
+<pre>
+$ <span style="color: red">telnet localhost 8888</span>
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+<span style="color: red">auth admin mypassword</span>
+200 Authenticated.
+<span style="color: red">targets</span>
+201 Targets list follows.
+25
+123456:ipv4:192.168.1.80
+</pre>
+
+<p>I can use the <code>help</code> command to see the full list of commands
+permitted.  There are commands for changing the address target list:
+</p>
+
+<pre>
+<span style="color: red">targets</span>
+201 Targets list follows.
+25
+123456:ipv4:192.168.1.80
+<span style="color: red">remove_target ipv4 192.168.1.80</span>
+200 Removed target.
+<span style="color: red">add_target 654321 ipv4 192.168.1.80</span>
+200 Added target.
+</pre>
+
+<p>The interface isn't pretty, but you get the idea.  You can change almost
+everything that you can manage by changing the configuration file.
+</p>
+
+<p>Note: The the management interface changes the active state of
+<code>cyberprobe</code> but it doesn't change the configuration file.  So,
+configuration changes made through the management interface are 'lost' when
+you restart <code>cyberprobe</code>.
+</p>
+
+<p>Note also that you may get some weird results if you use the
+configuration file AND the control interface to manage the same resources,
+so you probably don't want to do that.
+</p>
+
+<h2>Stage 8: Integration with Snort</h2>
+
+<p>In this stage, we'll add the excellent IDS, Snort to the mix.
+If you don't know Snort, it scans network traffic for patterns, and
+can take various actions when those patterns are discovered.  It is typically
+used to detect network attacks, and the Snort folks maintain a huge collection
+of patterns that will identify known network attacks.  The Snort team
+maintain the project at <a href="http://www.snort.org/">www.snort.org</a>.
+<p>
+
+<center><img src="cyberprobe-snort.png"/></center>
+
+<p>
+If you want to try out the Snort integration, you need to head over to the
+Snort home page, download and install Snort.
+</p>
+
+<p>
+Once you have it installed, to simplify things, you'll want to put a rule
+in place that will definitely identify things on your network.  The easiest
+way is to add a local rule that identifies your workstation.  First of all,
+you'll want to make sure your Snort configuration file
+(<code>/etc/snort/snort.conf</code>) loads a local rules file.  So, it should
+contain something like this:
+</p>
+
+<pre>
+# site specific rules
+include $RULE_PATH/local.rules
+</pre>
+
+<p>Then, to identify your workstation, add a rule like this to your local
+rules file (<code>/etc/snort/rules/local.rules</code>):
+</p>
+
+<pre>
+alert tcp 192.168.1.80 any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
+</pre>
+
+<p>Cyberprobe itself needs to be configured to receive Snort alerts.  You
+do that by adding some configuration, just after the
+<code>&lt;configuration></code> line:</p>
+
+<pre>
+   &lt;snort_alert socket="/var/log/snort/snort_alert" duration="60"/>
+</pre>
+
+<p>That says, Snort alerts will result in dynamic collection of data for
+60 seconds from identification.  While you're in the configuration file,
+you can remove the static IP
+address target line.  Find this line and delete it:
+</p>
+
+<pre>
+    &lt;target address="192.168.1.80" liid="123456"/>
+</pre>
+
+<p>
+Cyberprobe should respond:
+</p>
+<pre>
+Removed target 192.168.1.80 -> 123456.
+Start snort alerter on /var/log/snort/snort_alert
+</pre>
+
+
+
+Now I can run Snort in IDS mode.  Snort
+needs to run as 'root':
+</p>
+
+<pre>
+snort -i eth0 -A unsock -N -l /var/log/snort/ -c /etc/snort/snort.conf 
+</pre>
+
+<p>Thanks to our Snort rule, when our workstation generates network data,
+Snort will detect it, trigger our rule, and alert Cyberprobe.  You should see
+Cyberprobe say:
+</p>
+<pre>
+Hit on signature ID 200, targeting 192.168.1.80
+</pre>
+
+<p>
+Also, once the rule is triggered, you should see evidence of packet data
+from the <code>tcpdump</code> command, as before.
+Cyberprobe causes the targeting to time out after a period of time.  If
+further alerts are seen, the targeting lifetime is targeted.  If no 
+further alerts are seen the IP address targeting is deleted.
+If you can convince your workstation to stop creating network data, by
+e.g. not using it for a minute or so, then you should see the rule time out:
+</p>
+<pre>
+Stopped targeting on 192.168.1.80
+</pre>
+<p>
+In practice this may be harder than you think, as workstations generate
+network traffic all the time.  You may have to turn off your email clients
+and close the web browse.  Your attempt to silence your workstation may
+be further thwarted by the operating system checking for patches without
+you knowing.
+</p>
+
+<h2>Stage 9: Introducing a delay</h2>
+
+<p>
+Your Snort integration suffers from a particular problem now.  The time
+taken for Snort to inspect some packets, generate an alert and for
+<code>cyberprobe</code>
+to get the IP address targeted is not zero.  It is hard to measure, but
+it is going to be a significant chunk of a millisecond.  The problem
+is that by the time <code>cyberprobe</code> is targeting the IP address,
+the network attcker's packets have long gone.  The result is, that
+while <code>cyberprobe</code> is now targetting the attacker, it won't
+capture the original network attack.
+</p>
+
+<p>Our solution is to introduce a packet delay in <code>cyberprobe</code>.
+The packets entering cyberprobe are kept in a time-delay queue and are
+processed once that delay expires.  You can configure a delay, by putting
+the <code>delay</code> attribute in an interface specfication. e.g.
+</p>
+<pre>
+  &lt;interfaces>
+    &lt;interface name="eth0" delay="1"/>
+  &lt;/interfaces>
+</pre>
+
+<p>A 1-second delay will be plenty enough.  You should be able to see
+this delay in action: When you generate network traffic, you should be
+able to see the delay between network activity taking place, and the
+corresponding burst of activity from <code>tcpdump</code>.</p>
+
+<h2>Stage 10: Introducing Cybermon</h2>
+
+<p>The previous 9 stages have all been about <code>cyberprobe</code>. If you've
+got this far successfully, you pretty much know all there is to know about
+<code>cyberprobe</code>.  It is time to start doing something more useful
+with all that data you are capturing.  In this stage we'll start up
+<code>cybermon</code> and look at the data.
+</p>
+
+<center><img src="cyberprobe-cybermon.png"/></center>
+
+<p>
+So, that <code>etsi_rcvr</code> you started in stage 5?  Stop that, and 
+start <code>cybermon</code>.  Two arguments are needed: A TCP port number
+to receive the data on, and a configuration which tells it what to do.
+A number of configuration files are bundled in with the source code, there
+should be a basic one called <code>cybermon.lua</code>:
+</p>
+
+<pre>
+./cybermon 10000 cybermon.lua
+</pre>
+
+<p>
+Now when you generate network traffic, some of the traffic will be presented
+in a reasonably intelligent form.  For example, I do a naming service
+lookup for <code>www.google.com</code>...
+</p>
+
+<pre>
+host -t a www.slashdot.org
+</pre>
+
+<p>The DNS protocol is parsed, and presented in a human readable form.  I can
+see the request, and the response:
+</p>
+
+<pre>
+SNORTc0a80150: 192.168.1.80:54633 -> 192.168.1.1:53. DNS query
+    Query: www.slashdot.org
+
+SNORTc0a80150: 192.168.1.1:53 -> 192.168.1.80:54633. DNS response
+    Query: www.slashdot.org
+    Answer: www.slashdot.org -> 216.34.181.48
+</pre>
+
+<p>
+I see the query travelling from my workstation to the broadband router,
+and then the response from the broadband router contains an answer field
+mapping the name to an address.  HTTP protocols are also decoded.  Get
+the Slashdot home page...
+</p>
+
+<pre>
+wget -O- 'http://www.slashdot.org/'
+</pre>
+
+<p>...and amongst all the other stuff, you see the HTTP request and
+response...
+</p>
+
+<pre>
+SNORTc0a80150: 192.168.1.80:34284 -> 216.34.181.45:80. HTTP GET request
+    URL /
+    Connection: Keep-Alive
+    User-Agent: Wget/1.14 (linux-gnu)
+    Host: slashdot.org
+    Accept: */*
+
+SNORTc0a80150: 216.34.181.45:80 -> 192.168.1.80:34284. HTTP response 200 OK
+    URL http://slashdot.org/
+    Connection: keep-alive
+    Content-Length: 113468
+    Date: Mon, 26 Aug 2013 13:13:25 GMT
+    Age: 17
+    X-Varnish: 1493567531 1493567417
+    X-XRDS-Location: http://slashdot.org/slashdot.xrds
+    Cache-Control: no-cache
+    Vary: Accept-Encoding
+    SLASH_LOG_DATA: shtml
+    Pragma: no-cache
+    Content-Type: text/html; charset=utf-8
+    Server: Apache/2.2.3 (CentOS)
+</pre>
 
 </body>
 
