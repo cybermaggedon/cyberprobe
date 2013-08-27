@@ -21,19 +21,25 @@ void reaper::run()
 	    // objects self-reaping, so we can remove them.
 	    self_lock.lock();
 
-	    for(std::list<reapable*>::iterator it = self_list.begin();
-		it != self_list.end();
-		it++) {
+	    while (!self_list.empty()) {
+
+		reapable* r = self_list.front();
+		self_list.pop_front();
 		
-		if (reap_map.find(*it) != reap_map.end()) {
-		    unsigned long cur_reap = reap_map[*it];
-		    reap_list.erase(std::pair<unsigned long,reapable*>(cur_reap,*it));
-		    reap_map.erase(*it);
+		self_lock.unlock();
+
+		if (reap_map.find(r) != reap_map.end()) {
+		    unsigned long cur_reap = reap_map[r];
+		    reap_list.erase(std::pair<unsigned long,reapable*>(cur_reap,r));
+		    reap_map.erase(r);
 		}
-		
+
+		self_lock.lock();
+
 	    }
-	    
+
 	    self_lock.unlock();
+
 
 	    if (reap_list.empty()) break;
 
@@ -48,6 +54,7 @@ void reaper::run()
 		reap_map.erase(r);
 
 		// Delete the item.
+
 		r->reap();
 
 		// It's important that the 'self' list is processed before
