@@ -163,14 +163,15 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    // Is it too late for this one?
 	    if (fc->seq_expected >=  fc->segments.begin()->last) {
 
-		// What's it doing on the queue?
+		// It's no use now.
 
-		// Get rid of it, and moan.
+		// What's it doing on the queue?  Probably a dup of a packet
+		// that we couldn't use straight away.
+
+		// Get rid of it.  
 		fc->segments.erase(fc->segments.begin());
 
-		fc->lock.unlock();
-
-		throw std::runtime_error("TCP queue management is broken");
+		continue;
 
 	    }
 
