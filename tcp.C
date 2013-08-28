@@ -37,9 +37,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     flow_address f(src, dest);
 
-    // FIXME: Locking.
-    // FIXME: Race condition on get_context once locking is fixed.
-
     tcp_context::ptr fc = tcp_context::get_or_create(c, f);
 
     // Set / update TTL on the context.

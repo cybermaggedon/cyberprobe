@@ -9,10 +9,16 @@ CYBERMON_OBJECTS=cybermon.o engine.o etsi_li.o socket.o ber.o base_context.o \
 	ip.o tcp.o udp.o http.o address.o icmp.o cybermon-lua.o reaper.o \
 	unrecognised.o dns.o dns_protocol.o forgery.o
 
-all: cyberprobe cybermon nhis11_rcvr etsi_rcvr
+CYBERPROBE_CLI_OBJECTS=cyberprobe_cli.o socket.o readline.o
+
+all: cyberprobe cybermon nhis11_rcvr etsi_rcvr cyberprobe_cli
 
 cyberprobe: ${CYBERPROBE_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERPROBE_OBJECTS} -o $@ -lpcap -lpthread -lexpat
+
+cyberprobe_cli: ${CYBERPROBE_CLI_OBJECTS}
+	${CXX} ${CXXFLAGS} ${CYBERPROBE_CLI_OBJECTS} -o $@ -lpcap -lpthread \
+		-lexpat -lreadline -lncurses
 
 cybermon: ${CYBERMON_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERMON_OBJECTS} -o $@ -lpcap -lpthread -lexpat \
@@ -55,6 +61,7 @@ cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
 cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h etsi_li.h
 cyberprobe.o: ./ber.h parameters.h capture.h packet_capture.h
 cyberprobe.o: packet_consumer.h
+cyberprobe_cli.o: readline.h rlwrap.h socket.h
 delivery.o: delivery.h sender.h management.h socket.h thread.h nhis11.h
 delivery.o: monitor.h etsi_li.h ./ber.h parameters.h capture.h
 delivery.o: packet_capture.h packet_consumer.h
@@ -81,6 +88,7 @@ ip.o: thread.h base_context.h manager.h observer.h dns_protocol.h tcp.h
 ip.o: serial.h protocol.h udp.h icmp.h
 nhis11.o: nhis11.h socket.h thread.h monitor.h
 nhis11_rcvr.o: monitor.h socket.h nhis11.h thread.h packet_capture.h
+readline.o: readline.h
 reaper.o: reaper.h thread.h
 resource_manager.o: resource.h thread.h specification.h
 sender.o: sender.h management.h socket.h thread.h nhis11.h monitor.h
