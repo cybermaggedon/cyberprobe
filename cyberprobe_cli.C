@@ -1,17 +1,11 @@
 
 #include "readline.h"
-
 #include <iostream>
 #include <sstream>
-#include <termios.h>
-
-#include "rlwrap.h"
-
-#include <term.h>
-
 #include "socket.h"
-
 #include <vector>
+#include <boost/regex.hpp>
+#include <iomanip>
 
 std::vector<std::string> commands;
 std::vector<std::string> add_commands;
@@ -21,6 +15,253 @@ std::vector<std::string> classes;
 
 std::vector<std::string>::iterator table_pos;
 std::vector<std::string>::iterator table_end;
+
+std::string get_status(const std::string& line)
+{
+    int pos = line.find(" ");
+    if (pos != -1)
+	return line.substr(0, pos);
+    else
+	return "";
+}
+
+bool cmd_data(tcpip::tcp_socket& sock, const std::string& cmd, 
+	      std::string& result) 
+{
+
+    sock.write(cmd + "\n");
+
+    std::string line;
+    sock.readline(line);
+    if (get_status(line) != "201") {
+	std::cout << line << std::endl;
+	return false;
+    }
+    
+    sock.readline(line);
+    std::istringstream buf(line);
+    int len;
+    buf >> std::dec >> len;
+
+    sock.read(result, len);
+
+    return true;
+
+}
+    
+void cmd_do(tcpip::tcp_socket& s, const std::string& cmd)
+{
+
+    s.write(cmd + "\n");
+
+    std::string line;
+    s.readline(line);
+
+    if (get_status(line) != "200")
+	std::cerr << line << std::endl;
+
+}
+
+void cmd_do2(tcpip::tcp_socket& s, const std::string& c1, 
+	     const std::string& c2)
+{
+    std::string cmd = c1 + " " + c2;
+    cmd_do(s, cmd);
+}
+
+void cmd_do3(tcpip::tcp_socket& s, const std::string& c1, 
+	     const std::string& c2, const std::string& c3)
+{
+    std::string cmd = c1 + " " + c2 + " " + c3;
+    cmd_do(s, cmd);
+}
+
+void cmd_do4(tcpip::tcp_socket& s, const std::string& c1, 
+	     const std::string& c2, const std::string& c3, 
+	     const std::string& c4)
+{
+    std::string cmd = c1 + " " + c2 + " " + c3 + " " + c4;
+    cmd_do(s, cmd);
+}
+
+void cmd_help()
+{
+    std::cerr << "Not implemented. :) " << std::endl;
+}
+
+void cmd_endpoints(tcpip::tcp_socket& sock) 
+{
+
+    std::string result;
+
+    cmd_data(sock, "endpoints", result);
+
+    std::cout.setf(std::ios::left);
+
+    std::cout << std::setw(40) << "Hostname"
+	      << std::setw(8) << "Port"
+	      << std::setw(10) << "Type"
+	      << std::endl;
+    
+    std::cout << std::setw(40) << "--------"
+	      << std::setw(8) << "----"
+	      << std::setw(10) << "----"
+	      << std::endl;
+    
+    while (1) {
+
+	int pos = result.find(":");
+	if (pos == -1) break;
+	std::string hostname = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find(":");
+	if (pos == -1) break;
+	std::string port = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find(":");
+	if (pos == -1) break;
+	std::string type = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find("\n");
+	if (pos == -1) break;
+	std::string desc = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	std::cout << std::setw(40) << hostname
+		  << std::setw(8) << port
+		  << std::setw(10) << type
+		  << std::endl;
+
+    }
+    
+}
+
+void cmd_targets(tcpip::tcp_socket& sock) 
+{
+
+    std::string result;
+    cmd_data(sock, "targets", result);
+
+    std::cout.setf(std::ios::left);
+
+    std::cout << std::setw(20) << "LIID"
+	      << std::setw(8) << "Class"
+	      << std::setw(30) << "Address"
+	      << std::endl;
+    
+    std::cout << std::setw(20) << "----"
+	      << std::setw(8) << "-----"
+	      << std::setw(30) << "-------"
+	      << std::endl;
+    
+    while (1) {
+
+	int pos = result.find(":");
+	if (pos == -1) break;
+	std::string liid = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find(":");
+	if (pos == -1) break;
+	std::string cls = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find("\n");
+	if (pos == -1) break;
+	std::string addr = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	std::cout << std::setw(20) << liid
+		  << std::setw(8) << cls
+		  << std::setw(30) << addr
+		  << std::endl;
+
+    }
+    
+}
+
+void cmd_interfaces(tcpip::tcp_socket& sock) 
+{
+
+    std::string result;
+    cmd_data(sock, "interfaces", result);
+
+    std::cout.setf(std::ios::left);
+
+    std::cout << std::setw(20) << "Interface"
+	      << std::setw(8) << "Delay"
+	      << std::setw(50) << "Filter"
+	      << std::endl;
+    
+    std::cout << std::setw(20) << "---------"
+	      << std::setw(8) << "-----"
+	      << std::setw(50) << "------"
+	      << std::endl;
+    
+    while (1) {
+
+	int pos = result.find(":");
+	if (pos == -1) break;
+	std::string interface = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find(":");
+	if (pos == -1) break;
+	std::string delay = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find("\n");
+	if (pos == -1) break;
+	std::string filter = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	std::cout << std::setw(20) << interface
+		  << std::setw(8) << delay
+		  << std::setw(50) << filter
+		  << std::endl;
+
+    }
+    
+}
+
+void cmd_parameters(tcpip::tcp_socket& sock) 
+{
+
+    std::string result;
+    cmd_data(sock, "parameters", result);
+
+    std::cout.setf(std::ios::left);
+
+    std::cout << std::setw(30) << "Key"
+	      << std::setw(45) << "Value"
+	      << std::endl;
+    
+    std::cout << std::setw(30) << "---"
+	      << std::setw(45) << "-----"
+	      << std::endl;
+    
+    while (1) {
+
+	int pos = result.find(":");
+	if (pos == -1) break;
+	std::string key = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	pos = result.find("\n");
+	if (pos == -1) break;
+	std::string value = result.substr(0, pos);
+	result = result.substr(pos + 1);
+
+	std::cout << std::setw(30) << key
+		  << std::setw(45) << value
+		  << std::endl;
+
+    }
+    
+}
 
 bool generator(const std::string& partial, std::string& match) 
 {
@@ -187,15 +428,19 @@ int main(int argc, char** argv)
     commands.push_back("show");
     commands.push_back("quit");
     commands.push_back("help");
+
     add_commands.push_back("interface");
     add_commands.push_back("target");
     add_commands.push_back("endpoint");
     add_commands.push_back("parameter");
+
     remove_commands = add_commands;
+
     show_commands.push_back("interfaces");
     show_commands.push_back("targets");
     show_commands.push_back("endpoints");
     show_commands.push_back("parameters");
+
     classes.push_back("ipv4");
     classes.push_back("ipv6");
 
@@ -241,9 +486,127 @@ int main(int argc, char** argv)
     }
 
     while (1) {
+
 	std::string s;
 	readline::get_line_completing("> ", s, completer);
-	std::cout << s << std::endl;
+
+	static const boost::regex 
+	    help(" *help *$", boost::regex::extended);
+
+	boost::match_results<std::string::const_iterator> what;
+
+	if (regex_search(s, help, boost::match_continuous)) {
+	    cmd_help();
+	    continue;
+	}
+
+	static const boost::regex 
+	    endpoints(" *show +endpoints *$", boost::regex::extended);
+
+	if (regex_search(s, endpoints, boost::match_continuous)) {
+	    cmd_endpoints(sock);
+	    continue;
+	}
+
+	static const boost::regex 
+	    targets(" *show +targets *$", boost::regex::extended);
+
+	if (regex_search(s, targets, boost::match_continuous)) {
+	    cmd_targets(sock);
+	    continue;
+	}
+
+	static const boost::regex 
+	    interfaces(" *show +interfaces *$", boost::regex::extended);
+
+	if (regex_search(s, interfaces, boost::match_continuous)) {
+	    cmd_interfaces(sock);
+	    continue;
+	}
+
+	static const boost::regex 
+	    parameters(" *show +parameters *$", boost::regex::extended);
+
+	if (regex_search(s, parameters, boost::match_continuous)) {
+	    cmd_parameters(sock);
+	    continue;
+	}
+
+	static const boost::regex 
+	    add_interface(" *add +interface +([^ ]+) +([^ ]+) *$", 
+			  boost::regex::extended);
+
+	if (regex_search(s, what, add_interface, boost::match_continuous)) {
+	    cmd_do3(sock, "add_interface", what[1], what[2]);
+	    continue;
+	}
+
+	static const boost::regex 
+	    remove_interface(" *remove +interface +([^ ]+) +([^ ]+) *$", 
+			  boost::regex::extended);
+
+	if (regex_search(s, what, remove_interface, boost::match_continuous)) {
+	    cmd_do3(sock, "remove_interface", what[1], what[2]);
+	    continue;
+	}
+
+	static const boost::regex 
+	    add_target(" *add +target +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+			  boost::regex::extended);
+
+	if (regex_search(s, what, add_target, boost::match_continuous)) {
+	    cmd_do4(sock, "add_target", what[1], what[2], what[3]);
+	    continue;
+	}
+
+	static const boost::regex 
+	    remove_target(" *remove +target +([^ ]+) +([^ ]+) *$", 
+			  boost::regex::extended);
+	
+	if (regex_search(s, what, remove_target, boost::match_continuous)) {
+	    cmd_do3(sock, "remove_target", what[1], what[2]);
+	    continue;
+	}
+
+	static const boost::regex 
+	    add_parameter(" *add +parameter +([^ ]+) +(.*) *$", 
+			  boost::regex::extended);
+
+	if (regex_search(s, what, add_parameter, boost::match_continuous)) {
+	    cmd_do3(sock, "add_parameter", what[1], what[2]);
+	    continue;
+	}
+
+	static const boost::regex 
+	    remove_parameter(" *remove +parameter +([^ ]+) *$", 
+			  boost::regex::extended);
+	
+	if (regex_search(s, what, remove_parameter, boost::match_continuous)) {
+	    cmd_do2(sock, "remove_parameter", what[1]);
+	    continue;
+	}
+
+	static const boost::regex 
+	    add_endpoint(" *add +endpoint +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+			  boost::regex::extended);
+
+	if (regex_search(s, what, add_endpoint, boost::match_continuous)) {
+	    cmd_do4(sock, "add_endpoint", what[1], what[2], what[3]);
+	    continue;
+	}
+
+	static const boost::regex 
+	    remove_endpoint(" *remove +endpoint +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+			  boost::regex::extended);
+	
+	if (regex_search(s, what, remove_endpoint, boost::match_continuous)) {
+	    cmd_do4(sock, "remove_endpoint", what[1], what[2], what[3]);
+	    continue;
+	}
+
+	std::cerr << "Command not understood." << std::endl;
+	continue;
+
     }
 
 }

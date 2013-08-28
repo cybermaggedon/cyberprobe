@@ -18,7 +18,7 @@ cyberprobe: ${CYBERPROBE_OBJECTS}
 
 cyberprobe_cli: ${CYBERPROBE_CLI_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERPROBE_CLI_OBJECTS} -o $@ -lpcap -lpthread \
-		-lexpat -lreadline -lncurses
+		-lexpat -lreadline -lncurses -lboost_regex
 
 cybermon: ${CYBERMON_OBJECTS}
 	${CXX} ${CXXFLAGS} ${CYBERMON_OBJECTS} -o $@ -lpcap -lpthread -lexpat \

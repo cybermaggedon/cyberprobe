@@ -109,6 +109,34 @@ public:
 
     static completer_fn completion;
 
+    static void tokenise(const std::string& buf,
+			 std::vector<std::string>& tokens) {
+
+	unsigned int pos = 0;
+	std::string token;
+	tokens.clear();
+
+	while (pos < buf.size()) {
+	    
+	    bool whitespace = (buf[pos] == ' ') || (buf[pos] == '\t');
+
+	    if (whitespace) {
+		if (token != "") {
+		    tokens.push_back(token);
+		    token = "";
+		}
+		pos++;
+		continue;
+	    }
+
+	    token += buf[pos++];
+	
+	}
+	
+	if (token != "") tokens.push_back(token);
+
+    }
+
     static char** completion_wrapper(const char* text, int start, int end) {
 
 	std::vector<std::string> tokens;

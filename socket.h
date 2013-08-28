@@ -180,6 +180,14 @@ namespace tcpip {
 	virtual int read(char* buffer, int len);
 
 	/** Read from the socket. With buffering. */
+	virtual int read(std::string& buf, int len) {
+	    char tmp[len];
+	    int ret = read(tmp, len);
+	    buf.assign(tmp, len);
+	    return ret;
+	}
+
+	/** Read from the socket. With buffering. */
 	virtual int read(std::vector<unsigned char>& buffer, int len);
 
 	/** Read a line of text, LF. CR is discarded. */
