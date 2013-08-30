@@ -36,7 +36,7 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // We're just going to 'identify' DNS on port 53.
     // FIXME: Is there a stronger identifier?
-    if ((src.get_16b() == 53) || dest.get_16b() == 53) {
+    if ((src.get_uint16() == 53) || dest.get_uint16() == 53) {
 	dns::process(mgr, fc, s + 8, e);
     } else  {
 

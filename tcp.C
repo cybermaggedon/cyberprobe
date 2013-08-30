@@ -8,6 +8,7 @@
 #include "http.h"
 #include "unrecognised.h"
 #include "forgery.h"
+#include "smtp.h"
 
 using namespace cybermon;
 
@@ -247,8 +248,17 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	    fc->processor = &http::process_response;
 	    fc->svc_idented = true;
 
-	} else {
-	
+	} else if (fc->addr.dest.get_uint16() == 25) {
+
+	    fc->processor = &smtp::process_client;
+	    fc->svc_idented = true;
+
+	} else if (fc->addr.src.get_uint16() == 25) {
+
+	    fc->processor = &smtp::process_server;
+	    fc->svc_idented = true;
+
+	} else {	
 	    // Default.
 	    fc->processor = &unrecognised::process_unrecognised_stream;
 	    fc->svc_idented = true;

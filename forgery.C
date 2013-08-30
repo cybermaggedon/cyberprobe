@@ -35,8 +35,8 @@ void forgery::forge_dns_response(context_ptr cp,
     ip4_context::ptr ic = 
 	boost::dynamic_pointer_cast<ip4_context>(tmp);
 
-    unsigned short src_port = uc->addr.src.get_16b();
-    unsigned short dest_port = uc->addr.dest.get_16b();
+    unsigned short src_port = uc->addr.src.get_uint16();
+    unsigned short dest_port = uc->addr.dest.get_uint16();
 
     pdu fake_response;
     std::back_insert_iterator<pdu> bk = back_inserter(fake_response);
@@ -90,8 +90,8 @@ void forgery::forge_tcp_data(context_ptr cp, pdu_iter s, pdu_iter e)
     if (!ip4_ptr)
 	throw exception("Only know how to forge data over IPv4");
 
-    unsigned short src_port = tcp_ptr->addr.src.get_16b();
-    unsigned short dest_port = tcp_ptr->addr.dest.get_16b();
+    unsigned short src_port = tcp_ptr->addr.src.get_uint16();
+    unsigned short dest_port = tcp_ptr->addr.dest.get_uint16();
 
     uint32_t seq = tcp_ptr->seq_expected.value();
     uint32_t ack = tcp_ptr->ack_received.value();
@@ -146,8 +146,8 @@ void forgery::forge_tcp_reset(context_ptr cp)
     if (!ip4_ptr)
 	throw exception("Only know how to forge RST over IPv4");
 
-    unsigned short src_port = tcp_ptr->addr.src.get_16b();
-    unsigned short dest_port = tcp_ptr->addr.dest.get_16b();
+    unsigned short src_port = tcp_ptr->addr.src.get_uint16();
+    unsigned short dest_port = tcp_ptr->addr.dest.get_uint16();
 
     uint32_t seq = tcp_ptr->seq_expected.value();
     uint32_t ack = tcp_ptr->ack_received.value();

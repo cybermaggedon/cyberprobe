@@ -29,6 +29,7 @@ namespace cybermon {
 	ICMP,			// ICMP.
 	HTTP,                   // HTTP.
 	DNS,
+	SMTP,
 
 	// Unknown stuff
 	UNRECOGNISED
@@ -117,7 +118,7 @@ namespace cybermon {
 	}
 
 	// Get the 'value' of the address in different formats.
-	uint16_t get_16b() {
+	uint16_t get_uint16() {
 	    if (addr.size() != 2)
 		throw exception("Address is not 16-bit");
 	    return (addr[0] << 8) + addr[1];
