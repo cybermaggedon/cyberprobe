@@ -20,129 +20,74 @@
 
 namespace cybermon {
 
-    // HTTP parser.  The request / response structures are almost identical,
-    // so this parser make most use of the commonality.
-
-    // Type of the header
-//    typedef 
-//	std::map<std::string, std::pair<std::string,std::string> > http_hdr_t;
-
-#ifdef ASDASDSAD
-    class http_parser {
+    // SMTP client parser.
+    class smtp_client_parser {
     public:
 
-	enum variant_t { REQUEST, RESPONSE };
-
     private:
-	
-	variant_t variant;
 
 	enum {
 
-	    // Request variant
-	    IN_REQUEST_METHOD, IN_REQUEST_URL, IN_REQUEST_PROTOCOL,
-	    POST_REQUEST_PROTOCOL_EXP_NL,
-
-	    // Response variant
-	    IN_RESPONSE_PROTOCOL, IN_RESPONSE_CODE, IN_RESPONSE_STATUS, 
-	    POST_RESPONSE_STATUS_EXP_NL,
-
-	    // Header
-	    MAYBE_KEY, IN_KEY, POST_KEY_EXP_SPACE,
-	    IN_VALUE, POST_VALUE_EXP_NL,
-	    POST_HEADER_EXP_NL,
-
-	    // Body, scanning for CRLF end.
-	    IN_BODY, IN_BODY_AFTER_CR,
-	    
-	    // Body, just counting bytes.
-	    COUNTING_DATA,
-	    
-	    // Body, chunked transfer encoding.
-	    PRE_CHUNK_LENGTH,
-	    IN_CHUNK_LENGTH,
-	    POST_CHUNK_LENGTH_EXP_NL,
-	    COUNTING_CHUNK_DATA,
-	    POST_CHUNKED_EXP_NL
+	    IN_COMMAND, EXP_NL, IN_DATA
 
 	} state;
 
-	void reset_transaction() {
-	    protocol = method = url = code = status = "";
-	    body.clear();
-	    header.clear();
-	}
-
     public:
 
-	http_parser(variant_t var) {
-	    variant = var;
-	    reset_transaction();
-
-	    if (var == REQUEST)
-		state = IN_REQUEST_METHOD;
-	    else
-		state = IN_RESPONSE_PROTOCOL;
+	smtp_client_parser() {
+	    state = IN_COMMAND;
+	    exp_terminator = "\r\n.\r\n";
 	}
-
-	void normalise_url(const std::string& host, const std::string url,
-			   std::string& out) {
-
-	    boost::match_results<std::string::const_iterator> what;
-
-	    static const boost::regex already_normalised("[a-zA-Z]+:");
-
-	    if (regex_search(url, what, already_normalised, 
-			     boost::match_continuous)) {
-		out = url;
-		return;
-	    }
-
-	    out = "http://" + host + url;
-	    
-	}
-
-	void complete_request(context_ptr c, manager& mgr);
-
-	void complete_response(context_ptr c, manager& mgr);
-
-	// Common to request and response.
-	std::string protocol;
 
 	// For the request.
-	std::string method;
-	std::string url;
+	std::string command;
+	std::string data;
 
-	// For the response.
-	std::string code;
-	int codeval;
-	std::string status;
-
-	// Header key/val fields.
-	http_hdr_t header;
-
-	// Used when picking up key/value pairs.
-	std::string key;
-	std::string value;
-
-	// Used for processing chunked transfer encoding.
-	std::string chunk_length;
-	
-	// Used when reading data.
-	unsigned long long content_remaining;
-
-	// Payload is received here.
-	pdu body;
+	std::string terminator;
+	std::string exp_terminator;
 
 	// Parse.
 	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);
 
     };
-    
-#endif
+
+    // SMTP server parser.
+    class smtp_server_parser {
+    public:
+
+    private:
+
+	enum {
+
+	    IN_STATUS_CODE, IN_TEXT,
+	    EXP_NL
+
+	} state;
+
+    public:
+
+	smtp_server_parser() {
+	    state = IN_STATUS_CODE;
+	    first = true;
+	}
+
+	// For the request.
+	std::string status_str;
+	int last_status;
+	bool first;
+	int status;
+	bool cont;
+
+	std::list<std::string> texts;
+	std::string text;
+
+	// Parse.
+	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);
+
+    };
 
     // An SMTP client context.
-    class smtp_client_context : public context {
+    class smtp_client_context : public context, public smtp_client_parser {
       public:
 	
 	// Constructor.
@@ -179,7 +124,7 @@ namespace cybermon {
     };
 
     // An SMTP server context.
-    class smtp_server_context : public context {
+    class smtp_server_context : public context, public smtp_server_parser {
       public:
 	
 	// Constructor.

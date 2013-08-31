@@ -61,7 +61,7 @@ cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
 cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h etsi_li.h
 cyberprobe.o: ./ber.h parameters.h capture.h packet_capture.h
 cyberprobe.o: packet_consumer.h
-cyberprobe_cli.o: readline.h rlwrap.h socket.h
+cyberprobe_cli.o: readline.h socket.h
 delivery.o: delivery.h sender.h management.h socket.h thread.h nhis11.h
 delivery.o: monitor.h etsi_li.h ./ber.h parameters.h capture.h
 delivery.o: packet_capture.h packet_consumer.h
@@ -93,6 +93,9 @@ reaper.o: reaper.h thread.h
 resource_manager.o: resource.h thread.h specification.h
 sender.o: sender.h management.h socket.h thread.h nhis11.h monitor.h
 sender.o: etsi_li.h ./ber.h parameters.h
+smtp.o: address.h pdu.h socket.h exception.h smtp.h context.h flow.h reaper.h
+smtp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
+smtp.o: protocol.h hexdump.h
 snort_alert.o: socket.h snort_alert.h resource.h thread.h specification.h
 snort_alert.o: delivery.h sender.h management.h nhis11.h monitor.h etsi_li.h
 snort_alert.o: ./ber.h parameters.h capture.h packet_capture.h
@@ -100,7 +103,7 @@ snort_alert.o: packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
-tcp.o: protocol.h http.h unrecognised.h forgery.h
+tcp.o: protocol.h http.h unrecognised.h forgery.h smtp.h
 udp.o: udp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 udp.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 udp.o: unrecognised.h serial.h protocol.h dns.h
