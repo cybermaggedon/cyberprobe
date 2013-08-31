@@ -139,6 +139,9 @@ end
 observer.smtp_response = function(context, status, text)
   local a = string.format("SMTP response %d", status)
   observer.describe(context, a)
+  for k, v in pairs(text) do
+    io.write(string.format("    %s\n", v))
+  end
   io.write("\n")
 end
 
