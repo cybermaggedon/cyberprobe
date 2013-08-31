@@ -26,7 +26,6 @@ void smtp::process_client(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-//	hexdump::dump(s, e, std::cout);
 	fc->parse(fc, s, e, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
@@ -54,7 +53,6 @@ void smtp::process_server(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-//	hexdump::dump(s, e, std::cout);
 	fc->parse(fc, s, e, mgr);
     } catch (std::exception& e) {
 	std::cerr << e.what() << std::endl;
@@ -88,12 +86,11 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	    if (*s == '\n') {
 
-		std::cerr << "Command: " << command << std::endl;
-		std::cerr << std::endl;
+		mgr.smtp_command(cp, command);
 
 		if (command == "DATA") {
 		    state = smtp_client_parser::IN_DATA;
-		    data = "";
+		    data.clear();
 		    command = "";
 		    break;
 		}
@@ -107,24 +104,20 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	case smtp_client_parser::IN_DATA:
 
-	    data += *s;
+	    data.push_back(*s);
 	    
-	    if (data.length() < exp_terminator.length())
+	    if (data.size() < exp_terminator.length())
 		continue;
 
-	    {
+	    if (std::equal(exp_terminator.begin(), exp_terminator.end(),
+			   data.end() - exp_terminator.size())) {
 
-	    std::string last_five = 
-		data.substr(data.length() - exp_terminator.length(), 
-			    data.length());
+		data.erase(data.end() - exp_terminator.size(),
+			   data.end());
 
-	    if (last_five == exp_terminator) {
-		data = data.substr(0, data.length() - exp_terminator.length());
 		state = smtp_client_parser::IN_COMMAND;
-		std::cerr << "Data: Got " << data.length() << " bytes."
-			  << std::endl;
-		std::cerr << std::endl;
-	    }
+
+		mgr.smtp_data(cp, data.begin(), data.end());
 
 	    }
 
@@ -203,13 +196,7 @@ void smtp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 		    // Do something with the data.
 
-		    std::cerr << "Status: " << std::dec << status << std::endl;
-		    for(std::list<std::string>::iterator it = texts.begin();
-			it != texts.end();
-			it++) {
-			std::cerr << "Text: " << *it << std::endl;
-		    }
-		    std::cerr << std::endl;
+		    mgr.smtp_response(cp, status, texts);
 
 		    first = true;
 		    texts.clear();

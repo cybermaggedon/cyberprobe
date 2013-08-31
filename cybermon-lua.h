@@ -368,6 +368,17 @@ namespace cybermon {
 			   pdu_iter body_start,
 			   pdu_iter body_end);
 
+	void smtp_command(engine& an, const context_ptr cf,
+			  const std::string& command);
+
+	void smtp_response(engine& an, const context_ptr cf,
+			   int status,
+			   const std::list<std::string>& text);
+
+	void smtp_data(engine& an, const context_ptr cf,
+		       pdu_iter s,
+		       pdu_iter e);
+
 	void dns_message(engine& an, const context_ptr cf,
 			 const dns_header& hdr, 
 			 const std::list<dns_query> queries,

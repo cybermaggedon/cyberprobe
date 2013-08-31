@@ -273,6 +273,89 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 
 }
 
+void cybermon_lua::smtp_command(engine& an, const context_ptr f,
+				const std::string& command)
+{
+
+    // Get config.http_request
+    get_global("config");
+    get_field(-1, "smtp_command");
+    
+    // Put context on the stack
+    push(f);
+
+    // Push method
+    push(command);
+
+    // config.smtp_command(context, command)
+    call(2, 0);
+    
+    // Still got 'config' left on stack, it can go.
+    pop(1);
+
+}
+
+void cybermon_lua::smtp_response(engine& an, const context_ptr f,
+				 int status,
+				 const std::list<std::string>& text)
+{
+
+    // Get config.http_request
+    get_global("config");
+    get_field(-1, "smtp_response");
+    
+    // Put context on the stack
+    push(f);
+
+    // Push method
+    push(status);
+
+    // Build texts table on stack.
+    create_table(0, text.size());
+
+    // Loop through header
+    int row = 1;
+    for(std::list<std::string>::const_iterator it = text.begin();
+	it != text.end();
+	it++) {
+
+	// Set table row.
+	push(row++);
+	push(*it);
+	set_table(-3);
+
+    }
+
+    // config.smtp_response(context, status, texts)
+    call(3, 0);
+    
+    // Still got 'config' left on stack, it can go.
+    pop(1);
+
+}
+
+void cybermon_lua::smtp_data(engine& an, const context_ptr f,
+			     pdu_iter s, pdu_iter e)
+{
+
+    // Get config.http_request
+    get_global("config");
+    get_field(-1, "smtp_data");
+    
+    // Put context on the stack
+    push(f);
+
+    // Push data.
+    push(s, e);
+
+    // config.smtp_data(context, data)
+    call(2, 0);
+    
+    // Still got 'config' left on stack, it can go.
+    pop(1);
+
+}
+
 cybermon_lua::cybermon_lua(const std::string& cfg)
 {
 

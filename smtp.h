@@ -41,7 +41,7 @@ namespace cybermon {
 
 	// For the request.
 	std::string command;
-	std::string data;
+	std::vector<unsigned char> data;
 
 	std::string terminator;
 	std::string exp_terminator;

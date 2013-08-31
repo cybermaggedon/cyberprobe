@@ -52,6 +52,19 @@ namespace cybermon {
 				const tcpip::address& trigger_address) = 0;
 	virtual void trigger_down(const std::string& liid) = 0;
 
+	// SMTP
+	virtual void smtp_command(const context_ptr cp,
+				  const std::string& command) = 0;
+
+	virtual void smtp_response(const context_ptr cp,
+				   int status,
+				   const std::list<std::string>& text) = 0;
+
+	virtual void smtp_data(const context_ptr cp,
+			       std::vector<unsigned char>::const_iterator s,
+			       std::vector<unsigned char>::const_iterator e)
+	    = 0;
+
 	// DNS
 	virtual void dns_message(const context_ptr cp,
 				 const dns_header hdr,

@@ -128,6 +128,34 @@ observer.http_response = function(context, code, status, header, url, body)
 
 end
 
+-- This function is called when an SMTP command is observed.
+observer.smtp_command = function(context, command)
+  local a = string.format("SMTP command %s", command)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_response = function(context, status, text)
+  local a = string.format("SMTP response %d", status)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_data = function(context, data)
+  local a = string.format("SMTP data")
+  observer.describe(context, a)
+  io.write("\n")
+end
+
+-- This function is called when an SMTP command is observed.
+observer.smtp_command = function(context, command)
+  local a = string.format("SMTP command %s", command)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
 

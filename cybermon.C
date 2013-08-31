@@ -91,6 +91,24 @@ public:
 			  body_start, body_end);
     }
 
+    // SMTP
+    virtual void smtp_command(const cybermon::context_ptr cp,
+			      const std::string& command) {
+	cml.smtp_command(*this, cp, command);
+    }
+
+    virtual void smtp_response(const cybermon::context_ptr cp,
+			       int status,
+			       const std::list<std::string>& text) {
+	cml.smtp_response(*this, cp, status, text);
+    }
+
+    virtual void smtp_data(const cybermon::context_ptr cp,
+			   std::vector<unsigned char>::const_iterator s,
+			   std::vector<unsigned char>::const_iterator e) {
+	cml.smtp_data(*this, cp, s, e);
+    }
+
     // Trigger
     void trigger_up(const std::string& liid, const tcpip::address& a) {
 	cml.trigger_up(liid, a);
