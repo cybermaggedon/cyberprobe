@@ -30,6 +30,7 @@ namespace cybermon {
 	HTTP,                   // HTTP.
 	DNS,
 	SMTP,
+	FTP,
 
 	// Unknown stuff
 	UNRECOGNISED

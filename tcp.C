@@ -9,7 +9,7 @@
 #include "unrecognised.h"
 #include "forgery.h"
 #include "smtp.h"
-#include "hexdump.h"
+#include "ftp.h"
 
 using namespace cybermon;
 
@@ -237,6 +237,24 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	} else if (fc->addr.src.get_uint16() == 25) {
 	    
 	    fc->processor = &smtp::process_server;
+	    fc->svc_idented = true;
+
+	    (*fc->processor)(mgr, fc, s, e);
+	    fc->lock.unlock();
+	    return;
+
+	} else if (fc->addr.src.get_uint16() == 21) {
+	    
+	    fc->processor = &ftp::process_server;
+	    fc->svc_idented = true;
+
+	    (*fc->processor)(mgr, fc, s, e);
+	    fc->lock.unlock();
+	    return;
+
+	} else if (fc->addr.dest.get_uint16() == 21) {
+	    
+	    fc->processor = &ftp::process_client;
 	    fc->svc_idented = true;
 
 	    (*fc->processor)(mgr, fc, s, e);
