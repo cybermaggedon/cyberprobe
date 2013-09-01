@@ -104,9 +104,11 @@ public:
     }
 
     virtual void smtp_data(const cybermon::context_ptr cp,
+			   const std::string& from,
+			   const std::list<std::string>& to,
 			   std::vector<unsigned char>::const_iterator s,
 			   std::vector<unsigned char>::const_iterator e) {
-	cml.smtp_data(*this, cp, s, e);
+	cml.smtp_data(*this, cp, from, to, s, e);
     }
 
     // Trigger

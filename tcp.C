@@ -9,6 +9,7 @@
 #include "unrecognised.h"
 #include "forgery.h"
 #include "smtp.h"
+#include "hexdump.h"
 
 using namespace cybermon;
 
@@ -222,46 +223,62 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
     static const boost::regex http_response("HTTP/1\\.");
 
     if (!fc->svc_idented) {
-
-	// Copy into the ident buffer.
-	fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
-
-	// If not enough to run an ident, bail out.
-	if (fc->ident_buffer.size() < fc->ident_buffer_max) {
-	    fc->lock.unlock();
-	    return;
-	}
-
-	// Not idented, and we have enough data for an ident attempt.
-
-	boost::match_results<std::string::const_iterator> what;
-
-	if (regex_search(fc->ident_buffer, what, http_request, 
-			 boost::match_continuous)) {
-	    
-	    fc->processor = &http::process_request;
-	    fc->svc_idented = true;
-
-	} else 	if (regex_search(fc->ident_buffer, what, http_response,
-				 boost::match_continuous)) {
-
-	    fc->processor = &http::process_response;
-	    fc->svc_idented = true;
-
-	} else if (fc->addr.dest.get_uint16() == 25) {
+	
+	// Deal with the cases that don't ident by scanning data.
+	if (fc->addr.dest.get_uint16() == 25) {
 
 	    fc->processor = &smtp::process_client;
 	    fc->svc_idented = true;
 
-	} else if (fc->addr.src.get_uint16() == 25) {
+	    (*fc->processor)(mgr, fc, s, e);
+	    fc->lock.unlock();
+	    return;
 
+	} else if (fc->addr.src.get_uint16() == 25) {
+	    
 	    fc->processor = &smtp::process_server;
 	    fc->svc_idented = true;
 
-	} else {	
-	    // Default.
-	    fc->processor = &unrecognised::process_unrecognised_stream;
-	    fc->svc_idented = true;
+	    (*fc->processor)(mgr, fc, s, e);
+	    fc->lock.unlock();
+	    return;
+
+	} else {
+
+	    // Ident by studing the data.
+
+	    // Copy into the ident buffer.
+	    fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
+	    
+	    // If not enough to run an ident, bail out.
+	    if (fc->ident_buffer.size() < fc->ident_buffer_max) {
+		fc->lock.unlock();
+		return;
+	    }
+
+	    // Not idented, and we have enough data for an ident attempt.
+
+	    boost::match_results<std::string::const_iterator> what;
+	    
+	    if (regex_search(fc->ident_buffer, what, http_request, 
+			     boost::match_continuous)) {
+	    
+		fc->processor = &http::process_request;
+		fc->svc_idented = true;
+
+	    } else 	if (regex_search(fc->ident_buffer, what, http_response,
+					 boost::match_continuous)) {
+
+		fc->processor = &http::process_response;
+		fc->svc_idented = true;
+
+	    } else {	
+
+		// Default.
+		fc->processor = &unrecognised::process_unrecognised_stream;
+		fc->svc_idented = true;
+
+	    }
 	    
 	}
 	
@@ -273,13 +290,13 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
 	pdu p;
 	p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
-	tcp::post_process(mgr, fc, p.begin(), p.end());
+
+	(*fc->processor)(mgr, fc, p.begin(), p.end());
 	return;
 
     }
 
-    // Process the data using the processing function if defined.  Otherwise
-    // use connection_data.
+    // Process the data using the defined processing function.
     (*fc->processor)(mgr, fc, s, e);
     return;
 

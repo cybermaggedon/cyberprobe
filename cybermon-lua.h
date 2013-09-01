@@ -376,6 +376,8 @@ namespace cybermon {
 			   const std::list<std::string>& text);
 
 	void smtp_data(engine& an, const context_ptr cf,
+		       const std::string& from,
+		       const std::list<std::string>& to,
 		       pdu_iter s,
 		       pdu_iter e);
 

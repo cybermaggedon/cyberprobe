@@ -61,6 +61,8 @@ namespace cybermon {
 				   const std::list<std::string>& text) = 0;
 
 	virtual void smtp_data(const context_ptr cp,
+			       const std::string& from,
+			       const std::list<std::string>& to,
 			       std::vector<unsigned char>::const_iterator s,
 			       std::vector<unsigned char>::const_iterator e)
 	    = 0;

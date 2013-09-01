@@ -146,9 +146,13 @@ observer.smtp_response = function(context, status, text)
 end
 
 -- This function is called when an SMTP response is observed.
-observer.smtp_data = function(context, data)
+observer.smtp_data = function(context, from, to, data)
   local a = string.format("SMTP data")
   observer.describe(context, a)
+  io.write(string.format("    From: %s\n", from))
+  for key, value in pairs(to) do
+    io.write(string.format("    To: %s\n", value))
+  end
   io.write("\n")
 end
 

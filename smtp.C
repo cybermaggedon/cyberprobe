@@ -88,10 +88,47 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 		mgr.smtp_command(cp, command);
 
-		if (command == "DATA") {
+		static const boost::regex 
+		    mail_from(" *MAIL +[Ff][Rr][Oo][Mm] *: *<([^ ]+)>",
+			      boost::regex::extended);
+
+		static const boost::regex 
+		    rcpt_to(" *RCPT +[Tt][Oo] *: *<([^ ]+)>",
+			    boost::regex::extended);
+
+		static const boost::regex 
+		    data_cmd(" *DATA *", boost::regex::extended);
+
+		static const boost::regex 
+		    rset_cmd(" *RSET *", boost::regex::extended);
+
+		boost::match_results<std::string::const_iterator> what;
+
+		if (regex_search(command, what, mail_from, 
+				 boost::match_continuous)) {
+		    from = what[1];
+		}
+
+		if (regex_search(command, what, rcpt_to, 
+				 boost::match_continuous)) {
+		    to.push_back(what[1]);
+		}
+
+		if (regex_search(command, what, data_cmd, 
+				 boost::match_continuous)) {
 		    state = smtp_client_parser::IN_DATA;
 		    data.clear();
 		    command = "";
+		    break;
+		}
+
+		if (regex_search(command, what, rset_cmd, 
+				 boost::match_continuous)) {
+		    state = smtp_client_parser::IN_COMMAND;
+		    data.clear();
+		    command = "";
+		    from = "";
+		    to.clear();
 		    break;
 		}
 		
@@ -117,7 +154,10 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 		state = smtp_client_parser::IN_COMMAND;
 
-		mgr.smtp_data(cp, data.begin(), data.end());
+		mgr.smtp_data(cp, from, to, data.begin(), data.end());
+
+		from = "";
+		to.clear();
 
 	    }
 

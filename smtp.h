@@ -46,6 +46,9 @@ namespace cybermon {
 	std::string terminator;
 	std::string exp_terminator;
 
+	std::string from;
+	std::list<std::string> to;
+
 	// Parse.
 	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);
 

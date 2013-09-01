@@ -335,6 +335,8 @@ void cybermon_lua::smtp_response(engine& an, const context_ptr f,
 }
 
 void cybermon_lua::smtp_data(engine& an, const context_ptr f,
+			     const std::string& from,
+			     const std::list<std::string>& to,
 			     pdu_iter s, pdu_iter e)
 {
 
@@ -345,11 +347,30 @@ void cybermon_lua::smtp_data(engine& an, const context_ptr f,
     // Put context on the stack
     push(f);
 
+    // Push from.
+    push(from);
+
+    // Build to table on stack.
+    create_table(0, to.size());
+
+    // Loop through 'to'
+    int row = 1;
+    for(std::list<std::string>::const_iterator it = to.begin();
+	it != to.end();
+	it++) {
+
+	// Set table row.
+	push(row++);
+	push(*it);
+	set_table(-3);
+
+    }
+
     // Push data.
     push(s, e);
 
-    // config.smtp_data(context, data)
-    call(2, 0);
+    // config.smtp_data(context, from, to, data)
+    call(4, 0);
     
     // Still got 'config' left on stack, it can go.
     pop(1);
