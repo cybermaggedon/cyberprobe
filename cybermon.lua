@@ -191,6 +191,23 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
 end
 
+-- This function is called when an FTP command is observed.
+observer.ftp_command = function(context, command)
+  local a = string.format("FTP command %s", command)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
+-- This function is called when an FTP response is observed.
+observer.ftp_response = function(context, status, text)
+  local a = string.format("FTP response %d", status)
+  observer.describe(context, a)
+  for k, v in pairs(text) do
+    io.write(string.format("    %s\n", v))
+  end
+  io.write("\n")
+end
+
 -- Return the table
 return observer
 

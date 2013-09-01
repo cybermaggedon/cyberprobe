@@ -63,9 +63,16 @@ namespace cybermon {
 	virtual void smtp_data(const context_ptr cp,
 			       const std::string& from,
 			       const std::list<std::string>& to,
-			       std::vector<unsigned char>::const_iterator s,
-			       std::vector<unsigned char>::const_iterator e)
-	    = 0;
+			       pdu_iter s,
+			       pdu_iter e) = 0;
+
+	// FTP
+	virtual void ftp_command(const context_ptr cp,
+				 const std::string& command) = 0;
+
+	virtual void ftp_response(const context_ptr cp,
+				  int status,
+				  const std::list<std::string>& text) = 0;
 
 	// DNS
 	virtual void dns_message(const context_ptr cp,

@@ -3,7 +3,6 @@
 #include "ftp.h"
 #include "ctype.h"
 #include "manager.h"
-#include "hexdump.h"
 
 #include <iostream>
 
@@ -55,7 +54,6 @@ void ftp::process_server(manager& mgr, context_ptr c,
     try {
 	fc->parse(fc, s, e, mgr);
     } catch (std::exception& e) {
-	std::cerr << "BROPKE" << std::endl;
 	std::cerr << e.what() << std::endl;
 	fc->lock.unlock();
 	throw e;
@@ -87,8 +85,27 @@ void ftp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	    if (*s == '\n') {
 
-		std::cerr << "Command: " << command << std::endl;
-		std::cerr << std::endl;
+		static const boost::regex 
+		    user_cmd(" *USER +(.*)$", boost::regex::extended);
+		    
+		static const boost::regex 
+		    pass_cmd(" *PASS +(.*)$", boost::regex::extended);
+		    
+		boost::match_results<std::string::const_iterator> what;
+
+		if (regex_search(command, what, user_cmd, 
+				 boost::match_continuous)) {
+//		    std::cerr << "User: " << what[1] << std::endl;
+
+		}
+
+		if (regex_search(command, what, pass_cmd, 
+				 boost::match_continuous)) {
+//		    std::cerr << "Password: " << what[1] << std::endl;
+
+		}
+
+		mgr.ftp_command(cp, command);
 
 /*
 		mgr.ftp_command(cp, command);
@@ -190,122 +207,147 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	switch (state) {
 
-	case ftp_server_parser::IN_STATUS_CODE:
-	    
-	    if (*s == ' ' || *s == '-') {
-		if (status_str.length() != 3)
-		    throw exception("FTP server protocol violation: "
-				    "Expect 3-char status");
-		cont = (*s == '-');
-		state = ftp_server_parser::IN_TEXT;
-		break;
-	    }
+	case ftp_server_parser::IN_STATUS:
 
-	    if (status_str.length() == 3)
-		throw exception("FTP server protocol violation: "
-				"Status code too long");
-
-	    if (*s < '0' || *s > '9')
-		throw exception("FTP server protocol violation: "
-				"Status code not numeric");
-
-	    status_str += *s;
-
-	    break;
-
-	case ftp_server_parser::IN_TEXT:
-	    
-	    if (*s == '\r') {
-		state = ftp_server_parser::EXP_NL;
-		break;
-	    }
-
-	    text += *s;
-	    break;
-
-	case ftp_server_parser::EXP_NL:
-
-	    if (*s == '\n') {
+	    if (*s == ' ') {
 
 		std::istringstream buf(status_str);
 		buf >> std::dec >> status;
 
-		if (first) {
-		    last_status = status;
-		} else {
-		    if (status != last_status)
-			throw exception("FTP server protocol violation");
-		}
+		cont = false;
+		state = ftp_server_parser::IN_TEXT;
+		break;
 
-		texts.push_back(text);
+	    }
 
+	    if (*s == '-') {
+
+		std::istringstream buf(status_str);
+		buf >> std::dec >> status;
+
+		cont = true;
+		state = ftp_server_parser::IN_TEXT;
+		break;
+
+	    }
+
+	    if (status_str.length() == 3)
+		throw exception("FTP server protocol violation: "
+				"Status code length");
+
+	    status_str += *s;
+	    break;
+
+	case ftp_server_parser::IN_TEXT:
+
+	    if (*s == '\r') {
+		state = ftp_server_parser::POST_TEXT_EXP_NL;
+		break;
+	    }
+	    
+	    response += *s;
+	    break;
+
+	case ftp_server_parser::POST_TEXT_EXP_NL:
+	    
+	    if (*s == '\n') {
+
+		responses.push_back(response);
+		
 		if (!cont) {
 
-		    // Do something with the data.
+		    static const boost::regex 
+			passive_cmd(".*\\(([0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+)\\)",
+				    boost::regex::extended);
+		    
+		    boost::match_results<std::string::const_iterator> what;
 
-		    std::cerr << status << " response." << std::endl;
-		    for(std::list<std::string>::iterator it = texts.begin();
-			it != texts.end();
-			it++) {
+		    if (regex_search(response, what, passive_cmd, 
+				     boost::match_continuous)) {
+
+			std::istringstream buf(what[1]);
 			
-			std::cerr << "  " << *it << std::endl;
+			unsigned int h1, h2, h3, h4, p1, p2;
+			
+			buf >> std::dec;
+			buf >> h1; buf.get();
+			buf >> h2; buf.get();
+			buf >> h3; buf.get();
+			buf >> h4; buf.get();
+			buf >> p1; buf.get();
+			buf >> p2;
+			
+			address pasv_net;
+			pasv_net.addr.push_back(h1);
+			pasv_net.addr.push_back(h2);
+			pasv_net.addr.push_back(h3);
+			pasv_net.addr.push_back(h4);
+			pasv_net.proto = IP4;
+			pasv_net.layer = NETWORK;
+		    
+			address pasv_port;
+			pasv_port.addr.push_back(p1);
+			pasv_port.addr.push_back(p2);
+			pasv_port.proto = TCP;
+			pasv_net.layer = TRANSPORT;
+
+//			std::cerr << "IP: " << pasv_net.to_ip_string()
+//				  << std::endl;
+//			std::cerr << "Port: " << pasv_port.get_uint16()
+//				  << std::endl;
 
 		    }
 
-		    std::cerr << std::endl;
+		    mgr.ftp_response(cp, status, responses);
+		    
+//		    std::cerr << "Status: " << status << std::endl;
+//		    std::cerr << "Response: " << response << std::endl;
+//		    std::cerr << std::endl;
 
-		    static const boost::regex 
-			passive_cmd("Entering Passive Mode \\(([0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+)\\)",
-				boost::regex::extended);
-
-		boost::match_results<std::string::const_iterator> what;
-
-		if (regex_search(*(texts.begin()), what, passive_cmd, 
-				 boost::match_continuous)) {
-
-		    std::istringstream buf(what[1]);
-
-		    unsigned int h1, h2, h3, h4, p1, p2;
-
-		    buf >> std::dec;
-		    buf >> h1; buf.get();
-		    buf >> h2; buf.get();
-		    buf >> h3; buf.get();
-		    buf >> h4; buf.get();
-		    buf >> p1; buf.get();
-		    buf >> p2;
-
-		    address pasv_net;
-		    pasv_net.addr.push_back(h1);
-		    pasv_net.addr.push_back(h2);
-		    pasv_net.addr.push_back(h3);
-		    pasv_net.addr.push_back(h4);
-		    pasv_net.proto = IP4;
-		    pasv_net.layer = NETWORK;
-
-		    address pasv_port;
-		    pasv_port.addr.push_back(p1);
-		    pasv_port.addr.push_back(p2);
-		    pasv_port.proto = TCP;
-		    pasv_net.layer = TRANSPORT;
-
+		    status_str = "";
+		    response = "";
+		    responses.clear();
+		    state = ftp_server_parser::IN_STATUS;
+		    break;
 		}
+		
 
-		mgr.ftp_response(cp, status, texts);
+		throw exception("FTP server multi-line not implemented");
 
-		first = true;
-		texts.clear();
+	    }
 
+	    throw exception("FTP protocol violation: Expect LF");
+
+
+
+
+
+#ifdef ASDASDSAD
+
+
+
+
+
+
+		if (!cont) {
+
+//		    mgr.ftp_response(cp, status, texts);
+
+		    first = true;
+		    responses.clear();
+		    
 		}
 
 		status_str = "";
-		text = "";
+		response = "";
 
-		state = ftp_server_parser::IN_STATUS_CODE;
+		state = ftp_server_parser::EXP_FOLLOWUP_LINE;
 		break;
 	    }
 
 	    throw exception("FTP server protocol violation");
+
+#endif
 
 	default:
 	    throw exception("An FTP server parsing state not implemented!");

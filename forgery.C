@@ -3,7 +3,6 @@
 #include "context.h"
 #include "dns_protocol.h"
 #include "dns.h"
-#include "hexdump.h"
 #include "udp.h"
 #include "tcp.h"
 #include "ip.h"

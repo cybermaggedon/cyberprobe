@@ -62,27 +62,27 @@ namespace cybermon {
 
 	enum {
 
-	    IN_STATUS_CODE, IN_TEXT,
-	    EXP_NL
+	    IN_STATUS, IN_TEXT, POST_TEXT_EXP_NL,
+	    PRE_SUBSEQUENT_LINE, IN_INTERMEDIATE_LINE,
+	    IN_LAST_LINE_STATUS, IN_LAST_LINE_TEXT
 
 	} state;
 
     public:
 
 	ftp_server_parser() {
-	    state = IN_STATUS_CODE;
+	    state = IN_STATUS;
 	    first = true;
 	}
 
 	// For the request.
-	std::string status_str;
-	int last_status;
 	bool first;
 	int status;
+	std::string status_str;
 	bool cont;
 
-	std::list<std::string> texts;
-	std::string text;
+	std::list<std::string> responses;
+	std::string response;
 
 	// Parse.
 	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);

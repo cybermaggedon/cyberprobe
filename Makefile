@@ -53,7 +53,7 @@ control.o: resource.h
 cybermon.o: engine.h thread.h pdu.h context.h socket.h address.h exception.h
 cybermon.o: flow.h reaper.h base_context.h manager.h observer.h
 cybermon.o: dns_protocol.h monitor.h etsi_li.h ./ber.h packet_capture.h
-cybermon.o: hexdump.h cybermon-lua.h
+cybermon.o: cybermon-lua.h
 cybermon-lua.o: cybermon-lua.h engine.h thread.h pdu.h context.h socket.h
 cybermon-lua.o: address.h exception.h flow.h reaper.h base_context.h
 cybermon-lua.o: manager.h observer.h dns_protocol.h forgery.h
@@ -76,8 +76,10 @@ etsi_li.o: etsi_li.h socket.h ./ber.h thread.h monitor.h
 etsi_rcvr.o: monitor.h socket.h etsi_li.h ./ber.h thread.h packet_capture.h
 forgery.o: forgery.h context.h socket.h address.h pdu.h exception.h flow.h
 forgery.o: reaper.h thread.h base_context.h manager.h observer.h
-forgery.o: dns_protocol.h dns.h serial.h protocol.h hexdump.h udp.h tcp.h
-forgery.o: ip.h
+forgery.o: dns_protocol.h dns.h serial.h protocol.h udp.h tcp.h ip.h
+ftp.o: address.h pdu.h socket.h exception.h ftp.h context.h flow.h reaper.h
+ftp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
+ftp.o: protocol.h
 http.o: address.h pdu.h socket.h exception.h http.h context.h flow.h reaper.h
 http.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
 http.o: protocol.h
@@ -95,7 +97,7 @@ sender.o: sender.h management.h socket.h thread.h nhis11.h monitor.h
 sender.o: etsi_li.h ./ber.h parameters.h
 smtp.o: address.h pdu.h socket.h exception.h smtp.h context.h flow.h reaper.h
 smtp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
-smtp.o: protocol.h hexdump.h
+smtp.o: protocol.h
 snort_alert.o: socket.h snort_alert.h resource.h thread.h specification.h
 snort_alert.o: delivery.h sender.h management.h nhis11.h monitor.h etsi_li.h
 snort_alert.o: ./ber.h parameters.h capture.h packet_capture.h
@@ -103,7 +105,7 @@ snort_alert.o: packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
-tcp.o: protocol.h http.h unrecognised.h forgery.h smtp.h
+tcp.o: protocol.h http.h unrecognised.h forgery.h smtp.h ftp.h
 udp.o: udp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 udp.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 udp.o: unrecognised.h serial.h protocol.h dns.h

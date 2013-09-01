@@ -3,7 +3,6 @@
 #include "smtp.h"
 #include "ctype.h"
 #include "manager.h"
-#include "hexdump.h"
 
 #include <iostream>
 

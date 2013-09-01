@@ -24,7 +24,6 @@ Usage:
 #include "thread.h"
 #include "packet_capture.h"
 #include "flow.h"
-#include "hexdump.h"
 #include "context.h"
 #include "cybermon-lua.h"
 
@@ -109,6 +108,18 @@ public:
 			   std::vector<unsigned char>::const_iterator s,
 			   std::vector<unsigned char>::const_iterator e) {
 	cml.smtp_data(*this, cp, from, to, s, e);
+    }
+
+    // FTP
+    virtual void ftp_command(const cybermon::context_ptr cp,
+			     const std::string& command) {
+	cml.ftp_command(*this, cp, command);
+    }
+    
+    virtual void ftp_response(const cybermon::context_ptr cp,
+			      int status,
+			      const std::list<std::string>& responses) {
+	cml.ftp_response(*this, cp, status, responses);
     }
 
     // Trigger

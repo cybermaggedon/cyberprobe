@@ -381,6 +381,13 @@ namespace cybermon {
 		       pdu_iter s,
 		       pdu_iter e);
 
+	void ftp_command(engine& an, const context_ptr cf,
+			 const std::string& command);
+
+	void ftp_response(engine& an, const context_ptr cf,
+			  int status,
+			  const std::list<std::string>& responses);
+
 	void dns_message(engine& an, const context_ptr cf,
 			 const dns_header& hdr, 
 			 const std::list<dns_query> queries,
