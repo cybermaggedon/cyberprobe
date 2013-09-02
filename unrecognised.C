@@ -24,7 +24,7 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
 	mgr.unrecognised_stream(fc, s, e);
     } catch (std::exception& e) {
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();
@@ -52,7 +52,7 @@ void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c,
 	mgr.unrecognised_datagram(fc, s, e);
     } catch (std::exception& e) {
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();

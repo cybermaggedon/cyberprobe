@@ -362,7 +362,7 @@ void http::process_request(manager& mgr, context_ptr c,
 	fc->parse(fc, s, e, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();
@@ -389,7 +389,7 @@ void http::process_response(manager& mgr, context_ptr c,
 	fc->parse(fc, s, e, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();

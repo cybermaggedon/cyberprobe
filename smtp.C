@@ -28,7 +28,7 @@ void smtp::process_client(manager& mgr, context_ptr c,
 	fc->parse(fc, s, e, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();
@@ -56,7 +56,7 @@ void smtp::process_server(manager& mgr, context_ptr c,
     } catch (std::exception& e) {
 	std::cerr << e.what() << std::endl;
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();
@@ -153,6 +153,8 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 		state = smtp_client_parser::IN_COMMAND;
 
+		// FIXME: Need to turn the data into something more useful
+		// i.e. RFC822 decode.
 		mgr.smtp_data(cp, from, to, data.begin(), data.end());
 
 		from = "";

@@ -271,7 +271,7 @@ void delivery::add_interface(const std::string& iface,
 
     } catch (std::exception& e) {
 	interfaces_lock.unlock();
-	throw e;
+	throw;
     }
 
     interfaces_lock.unlock();

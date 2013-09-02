@@ -3,6 +3,7 @@
 #include "ftp.h"
 #include "ctype.h"
 #include "manager.h"
+#include "ip.h"
 
 #include <iostream>
 
@@ -28,7 +29,7 @@ void ftp::process_client(manager& mgr, context_ptr c,
 	fc->parse(fc, s, e, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();
@@ -56,7 +57,7 @@ void ftp::process_server(manager& mgr, context_ptr c,
     } catch (std::exception& e) {
 	std::cerr << e.what() << std::endl;
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();
@@ -90,6 +91,10 @@ void ftp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 		    
 		static const boost::regex 
 		    pass_cmd(" *PASS +(.*)$", boost::regex::extended);
+
+		static const boost::regex 
+		    retr_cmd(" *RETR +(.*)$",
+			     boost::regex::extended);
 		    
 		boost::match_results<std::string::const_iterator> what;
 
@@ -97,12 +102,14 @@ void ftp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 				 boost::match_continuous)) {
 //		    std::cerr << "User: " << what[1] << std::endl;
 
-		}
-
-		if (regex_search(command, what, pass_cmd, 
+		} else if (regex_search(command, what, pass_cmd, 
 				 boost::match_continuous)) {
 //		    std::cerr << "Password: " << what[1] << std::endl;
 
+		} else if (regex_search(command, what, retr_cmd, 
+				 boost::match_continuous)) {
+		    std::cerr << "Retrieve: " << what[1] << std::endl;
+//		    context_ptr = as;
 		}
 
 		mgr.ftp_command(cp, command);
@@ -257,7 +264,7 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 		if (!cont) {
 
 		    static const boost::regex 
-			passive_cmd(".*\\(([0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+)\\)",
+			passive_cmd("Entering Passive Mode \\(([0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+)\\)",
 				    boost::regex::extended);
 		    
 		    boost::match_results<std::string::const_iterator> what;
@@ -276,26 +283,93 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 			buf >> h4; buf.get();
 			buf >> p1; buf.get();
 			buf >> p2;
-			
-			address pasv_net;
-			pasv_net.addr.push_back(h1);
-			pasv_net.addr.push_back(h2);
-			pasv_net.addr.push_back(h3);
-			pasv_net.addr.push_back(h4);
-			pasv_net.proto = IP4;
-			pasv_net.layer = NETWORK;
+
+			passive_net.addr.clear();
+			passive_net.addr.push_back(h1);
+			passive_net.addr.push_back(h2);
+			passive_net.addr.push_back(h3);
+			passive_net.addr.push_back(h4);
+			passive_net.proto = IP4;
+			passive_net.layer = NETWORK;
 		    
-			address pasv_port;
-			pasv_port.addr.push_back(p1);
-			pasv_port.addr.push_back(p2);
-			pasv_port.proto = TCP;
-			pasv_net.layer = TRANSPORT;
+			passive_port.addr.clear();
+			passive_port.addr.push_back(p1);
+			passive_port.addr.push_back(p2);
+			passive_port.proto = TCP;
+			passive_net.layer = TRANSPORT;
 
-//			std::cerr << "IP: " << pasv_net.to_ip_string()
-//				  << std::endl;
-//			std::cerr << "Port: " << pasv_port.get_uint16()
-//				  << std::endl;
+#ifdef BROKEN
+			context_ptr ftp_data_cp;
+//			ftp_data_cp = 
 
+			std::cerr << "IP: " << passive_net.to_ip_string()
+				  << std::endl;
+			std::cerr << "Port: " << passive_port.get_uint16()
+				  << std::endl;
+
+			// FIXME: Assumption - that the sender's IP address
+			// is the one that will connect to the FTP data
+			// port.
+
+			// From FTP server, get TCP.
+			context_ptr par_cp = cp->get_parent();
+
+			// Get IP
+			if (par_cp)
+			    par_cp = cp->get_parent();
+
+			address net_src, net_dest;
+
+			if (par_cp) {
+			    net_src = par_cp->addr.src;
+			    net_dest = par_cp->addr.dest;
+			}
+
+			// Get IP's parent.
+			if (par_cp)
+			    par_cp = cp->get_parent();
+
+			flow_address expected_net(net_dest, net_src);
+
+			context_ptr new_cp = 
+			    ip4_context::get_or_create(par_cp, expected_net);
+
+			flow_address expected_net(net_dest, net_src);
+
+
+
+
+
+
+
+
+
+			
+			if (par_cp == 0 || par_cp->get_type() != "tcp")
+			    throw exception("Was assuming FTP over TCP");
+
+			par_cp = par_cp->get_parent();
+
+			if (par_cp == 0 || par_cp->get_type() != "ip4")
+			    throw exception("Was assuming FTP over IPv4");
+
+			std::cerr << "Looking for data connection "
+				  << net_dest.to_ip_string() << " -> "
+				  << net_src.to_ip_string() << std::endl;
+
+			flow_address f;
+			f.src = net_dest;
+			f.dest = net_src;
+
+			par_cp = par_cp->get_parent();
+
+			if (par_cp == 0)
+			    throw exception("Expecting IP context to have a "
+					    "parent");
+
+			ip_data_cp = par_cp->asd;
+
+#endif
 		    }
 
 		    mgr.ftp_response(cp, status, responses);

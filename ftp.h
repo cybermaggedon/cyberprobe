@@ -80,6 +80,8 @@ namespace cybermon {
 	int status;
 	std::string status_str;
 	bool cont;
+	address passive_net;
+	address passive_port;
 
 	std::list<std::string> responses;
 	std::string response;

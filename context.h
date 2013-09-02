@@ -45,6 +45,39 @@ namespace cybermon {
 	base_context(parent), reapable(m), mgr(m) { 
 	}
 
+#ifdef BROKEN
+	context_ptr locate_other_endpoint(const std::list<flow_address>& a) {
+	    return locate_other_endpoint(a, a.size());
+	}
+
+	context_ptr locate_other_endpoint(const std::list<flow_address>& ad,
+					  int parents)
+	{
+	    if (parents == 0)
+		throw exception("Parents must be > 0");
+
+	    context_ptr par_cp = get_parent();
+	    if (!par_cp)
+		throw exception("Parent is null");
+
+	    for(int i = 1; i < parents; i++) {
+		context_ptr parent_cp = get_parent();
+		if (!par_cp)
+		    throw exception("Parent is null");
+	    }
+
+	    context_ptr cp = par_cp;
+
+	    for(std::list<flow_address>::const_iterator it = ad.begin();
+		it != ad.end();
+		it++) {
+		cp = cp->
+	    }
+
+	}
+
+#endif
+
 	// Given a flow address, returns the child context.
 	context_ptr get_child(const flow_address& f) {
 
@@ -88,23 +121,23 @@ namespace cybermon {
 	typedef context_ptr (*creator)(manager&, const flow_address&, 
 				       context_ptr);
 
-	static context_ptr get_or_create(context_ptr base, 
+	static context_ptr get_or_create(context_ptr parent, 
 					 const flow_address& f, 
 					 creator create_fn) {
 
 	    boost::shared_ptr<context> mc = 
-		boost::dynamic_pointer_cast<context>(base);
+		boost::dynamic_pointer_cast<context>(parent);
 
 	    mc->lock.lock();
 
 	    context_ptr ch;
 
 	    if (mc->children.find(f) != mc->children.end())
-		ch = base->children[f];
+		ch = parent->children[f];
 	    else {
 
 		ch = (*create_fn)(mc->mgr, f, mc);
-		base->children[f] = ch;
+		parent->children[f] = ch;
 
 		// We've just created a context!
 
@@ -114,36 +147,36 @@ namespace cybermon {
 		f_rev.src = f.dest;
 		f_rev.dest = f.src;
 
-		// First of all, see if the base context's reverse has this
+		// First of all, see if the parent context's reverse has this
 		// reverse flow.
-		context_ptr base_rev = base->reverse.lock();
-		if (base_rev) {
+		context_ptr parent_rev = parent->reverse.lock();
+		if (parent_rev) {
 
-		    if (base_rev->children.find(f_rev) != 
-			base_rev->children.end()) {
+		    if (parent_rev->children.find(f_rev) != 
+			parent_rev->children.end()) {
 
-			// If the base's reverse has such a child, use that
+			// If the parent's reverse has such a child, use that
 			// as the new context's reverse.
-			ch->reverse = base_rev->children[f_rev];
+			ch->reverse = parent_rev->children[f_rev];
 
 			// And vice versa...
-			base_rev->children[f_rev]->reverse = ch;
+			parent_rev->children[f_rev]->reverse = ch;
 
 		    }
 		    
 
 		} else {
 		    
-		    // The base has no reverse.  Try its children.
+		    // The parent has no reverse.  Try its children.
 
-		    if (base->children.find(f_rev) != base->children.end()) {
+		    if (parent->children.find(f_rev) != parent->children.end()) {
 
-			// If the base's reverse has such a child, use that
+			// If the parent's reverse has such a child, use that
 			// as the new context's reverse.
-			ch->reverse = base->children[f_rev];
+			ch->reverse = parent->children[f_rev];
 
 			// And vice versa...
-			base->children[f_rev]->reverse = ch;
+			parent->children[f_rev]->reverse = ch;
 
 		    }
 

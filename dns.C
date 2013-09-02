@@ -40,7 +40,7 @@ void dns::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     } catch (std::exception& e) {
 	fc->lock.unlock();
-	throw e;
+	throw;
     }
 
     fc->lock.unlock();
