@@ -216,33 +216,25 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	case ftp_server_parser::IN_STATUS:
 
-	    if (*s == ' ') {
+	    if ((*s >= '0') && (*s <= '9')) {
+		status_str += *s;
+		break;
+	    }
 
-		std::istringstream buf(status_str);
-		buf >> std::dec >> status;
-
-		cont = false;
+	    if ((*s == ' ') || (*s == '-')) {
+		cont = (*s == '-');
 		state = ftp_server_parser::IN_TEXT;
 		break;
 
 	    }
 
-	    if (*s == '-') {
-
-		std::istringstream buf(status_str);
-		buf >> std::dec >> status;
-
-		cont = true;
-		state = ftp_server_parser::IN_TEXT;
-		break;
-
-	    }
-
-	    if (status_str.length() == 3)
+	    if (status_str != "")
 		throw exception("FTP server protocol violation: "
-				"Status code length");
+				"Malformed response line");
 
-	    status_str += *s;
+	    response += *s;
+	    state = ftp_server_parser::IN_TEXT;
+
 	    break;
 
 	case ftp_server_parser::IN_TEXT:
@@ -256,7 +248,87 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 	    break;
 
 	case ftp_server_parser::POST_TEXT_EXP_NL:
+
+	    if (*s != '\n')
+		throw exception("FTP server protocol violation: "
+				"Expect LF after CR");
+
+	    int s;
+	    if (status_str != "") {
+		std::istringstream buf(status_str);
+		buf >> std::dec >> s;
+	    }
+
+	    if (first) {
+		if (status_str.length() != 3)
+		    throw exception("FTP server protocol violation: "
+				    "Malformed status");
+		status = s;
+	    } else {
+		if ((status_str != "") && (s != status))
+		    throw exception("FTP server protocol violation: "
+				    "Status mismatch in multi-line response");
+	    }
+
+	    responses.push_back(response);
+
+	    static const boost::regex 
+		passive_cmd("Entering Passive Mode \\(([0-9]+,[0-9]+,[0-9]+"
+			    ",[0-9]+,[0-9]+,[0-9]+)\\)",
+			    boost::regex::extended);
 	    
+	    {
+	    boost::match_results<std::string::const_iterator> what;
+	    
+	    if (regex_search(responses.front(), what, passive_cmd, 
+			     boost::match_continuous)) {
+
+		std::istringstream buf(what[1]);
+		
+		unsigned int h1, h2, h3, h4, p1, p2;
+		
+		buf >> std::dec;
+		buf >> h1; buf.get();
+		buf >> h2; buf.get();
+		buf >> h3; buf.get();
+		buf >> h4; buf.get();
+		buf >> p1; buf.get();
+		buf >> p2;
+		
+		passive_net.addr.clear();
+		passive_net.addr.push_back(h1);
+		passive_net.addr.push_back(h2);
+		passive_net.addr.push_back(h3);
+		passive_net.addr.push_back(h4);
+		passive_net.proto = IP4;
+		passive_net.layer = NETWORK;
+		    
+		passive_port.addr.clear();
+		passive_port.addr.push_back(p1);
+		passive_port.addr.push_back(p2);
+		passive_port.proto = TCP;
+		passive_net.layer = TRANSPORT;
+
+		std::cerr << "Passive..." << std::endl;
+		std::cerr << "IP: " << passive_net.to_ip_string() << std::endl;
+		std::cerr << "Port: " << passive_port.get_uint16() << std::endl;
+		
+	    }
+	    }
+
+	    if (!cont) {
+		mgr.ftp_response(cp, status, responses);
+		first = true;
+		responses.clear();
+	    }
+	    
+	    status_str = "";
+	    response = "";
+
+	    state = ftp_server_parser::IN_STATUS;
+	    break;
+	    
+#ifdef ASDASD
 	    if (*s == '\n') {
 
 		responses.push_back(response);
@@ -381,6 +453,10 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 		    status_str = "";
 		    response = "";
 		    responses.clear();
+
+#endif
+
+#ifdef ASDASDASD
 		    state = ftp_server_parser::IN_STATUS;
 		    break;
 		}
@@ -392,7 +468,7 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	    throw exception("FTP protocol violation: Expect LF");
 
-
+#endif
 
 
 
