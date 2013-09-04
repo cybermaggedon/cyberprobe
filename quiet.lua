@@ -56,6 +56,15 @@ end
 observer.dns_message = function(context, header, queries, answers, auth, add)
 end
 
+
+-- This function is called when an FTP command is observed.
+observer.ftp_command = function(context, command)
+end
+
+-- This function is called when an FTP response is observed.
+observer.ftp_response = function(context, status, text)
+end
+
 -- Return the table
 return observer
 

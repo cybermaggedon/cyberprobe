@@ -108,7 +108,7 @@ void ftp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 		} else if (regex_search(command, what, retr_cmd, 
 				 boost::match_continuous)) {
-		    std::cerr << "Retrieve: " << what[1] << std::endl;
+//		    std::cerr << "Retrieve: " << what[1] << std::endl;
 //		    context_ptr = as;
 		}
 
@@ -212,6 +212,9 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
     while (s != e) {
 
+//	std::cerr << "State: " << state << std::endl;
+//	std::cerr << "Char: " << *s << std::endl;
+
 	switch (state) {
 
 	case ftp_server_parser::IN_STATUS:
@@ -228,9 +231,16 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	    }
 
-	    if (status_str != "")
+	    if (*s == '\r') {
+		cont = true;
+		state = ftp_server_parser::POST_TEXT_EXP_NL;
+		break;
+	    }
+
+	    if (status_str != "") {
 		throw exception("FTP server protocol violation: "
 				"Malformed response line");
+	    }
 
 	    response += *s;
 	    state = ftp_server_parser::IN_TEXT;
@@ -259,15 +269,27 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 		buf >> std::dec >> s;
 	    }
 
+//	    std::cerr << "First=" << first << std::endl;
+//	    std::cerr << "Cont=" << first << std::endl;
+//	    std::cerr << "Response=" << response << std::endl;
+//	    std::cerr << "Status_str=" << status_str << std::endl;
+//	    std::cerr << "Status=" << status << std::endl;
+//	    std::cerr << "S=" << s << std::endl;
+
 	    if (first) {
 		if (status_str.length() != 3)
 		    throw exception("FTP server protocol violation: "
 				    "Malformed status");
 		status = s;
+		first = false;
 	    } else {
+
+		// If status != s, need to 'submit' the current responses,
+		// and just deal with this situation. :(
 		if ((status_str != "") && (s != status))
 		    throw exception("FTP server protocol violation: "
 				    "Status mismatch in multi-line response");
+		if (status_str == "") cont = true;
 	    }
 
 	    responses.push_back(response);
@@ -309,9 +331,9 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 		passive_port.proto = TCP;
 		passive_net.layer = TRANSPORT;
 
-		std::cerr << "Passive..." << std::endl;
-		std::cerr << "IP: " << passive_net.to_ip_string() << std::endl;
-		std::cerr << "Port: " << passive_port.get_uint16() << std::endl;
+//		std::cerr << "Passive..." << std::endl;
+//		std::cerr << "IP: " << passive_net.to_ip_string() << std::endl;
+//		std::cerr << "Port: " << passive_port.get_uint16() << std::endl;
 		
 	    }
 	    }
