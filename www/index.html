@@ -1,0 +1,85 @@
+<html>
+<body>
+Hello World
+
+<div id="place">
+<div id="here">
+</div>
+</div>
+
+</body>
+</html>
+
+<script language="JavaScript">
+
+var last_oid = 0;
+var last_insert = null;
+
+function get_oldest_oid() {
+
+  var cli = new XMLHttpRequest();
+  var url = "http://localhost:9200/cybermon/observation/_search";
+
+  var body = '  { "from" : 0, "size" : 1, "fields" : ["observation.oid"], "sort" : [ { "observation.oid" : {"order" : "asc"} }], "query" : {        "match_all" : {}  }}';
+
+  cli.open("POST", url, false);
+  cli.send(body);
+  var resp = eval('(' + cli.responseText + ')');
+
+  return resp.hits.hits[0].fields["observation.oid"];
+
+}
+
+last_oid = get_oldest_oid();
+
+function update() {
+  
+  while (1) {
+
+    var cli = new XMLHttpRequest();
+    var url = "http://localhost:9200/cybermon/observation/" + last_oid;
+
+    cli.open("GET", url, false);
+    cli.send();
+
+    var resp = eval('(' + cli.responseText + ')');
+
+    if (!resp.exists) {
+
+      attempts--;
+
+      if (attempts == 0)
+        load_oid++;
+      
+      break;
+    }
+
+    var liid = resp._source.observation.liid;
+    var action = resp._source.observation.action;
+    var oid = resp._source.observation.oid;
+    
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(oid + " " + liid + " " + action));
+
+    var pre = document.getElementById("here");
+
+    if (last_insert == null)
+      pre.appendChild(div);
+    else
+      pre.insertBefore(div, last_insert)
+
+    last_insert = div;
+
+    last_oid += 1;
+    attempts = 10;
+
+  }
+
+  setTimeout(update, 1000);
+
+}
+
+update();
+
+</script>
+

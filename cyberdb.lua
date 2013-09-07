@@ -69,6 +69,12 @@ end
 local observation = function(request)
 
   local u = string.format("http://localhost:9200/cybermon/observation/%d", id)
+  request["observation"]["oid"] = id
+  request["observation"]["time"] = os.time()
+
+--  print(jsenc.encode(request))
+
+  print(string.format("Observation %d", id))
   id = id + 1
 
   local c = http_req(u, "PUT", jsenc.encode(request))
@@ -94,6 +100,8 @@ request["observation"]["properties"]["body"] = {}
 request["observation"]["properties"]["body"]["type"] = "binary"
 request["observation"]["properties"]["data"] = {}
 request["observation"]["properties"]["data"]["type"] = "binary"
+request["observation"]["properties"]["time"] = {}
+request["observation"]["properties"]["time"]["type"] = "integer"
 
 local c = http_req("http://localhost:9200/cybermon/observation/_mapping",
   "PUT", jsenc(request))
