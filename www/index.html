@@ -1,10 +1,7 @@
 <html>
 <body>
-Hello World
 
 <div id="place">
-<div id="here">
-</div>
 </div>
 
 </body>
@@ -12,8 +9,18 @@ Hello World
 
 <script language="JavaScript">
 
+var width = 1400;
+
+var height = 1000;
+
+// Update period, in milliseconds.
+var rejig_period = 100;
+var db_check_period = 5000;
+//var db_next_item_time = 200;
+
 var last_oid = 0;
-var last_insert = null;
+
+var observations = new Array();
 
 function get_oldest_oid() {
 
@@ -30,10 +37,18 @@ function get_oldest_oid() {
 
 }
 
-last_oid = get_oldest_oid();
+function pos(time, now) {
+  return width - 8 * (now - time);
+}
 
-function update() {
-  
+last_oid = get_oldest_oid();
+attempts = 10;
+
+function db_check() {
+
+  var now = new Date();
+  now = now.getTime() / 1000;
+
   while (1) {
 
     var cli = new XMLHttpRequest();
@@ -49,7 +64,7 @@ function update() {
       attempts--;
 
       if (attempts == 0)
-        load_oid++;
+        last_oid++;
       
       break;
     }
@@ -57,29 +72,96 @@ function update() {
     var liid = resp._source.observation.liid;
     var action = resp._source.observation.action;
     var oid = resp._source.observation.oid;
-    
+    var time = resp._source.observation.time;
+
+    var obs = {};
+    obs["time"] = time;
+    obs["liid"] = liid;
+    obs["y"] = (oid * 45102529) % height;
+    obs["x"] = pos(now, time);
+
     var div = document.createElement("div");
-    div.appendChild(document.createTextNode(oid + " " + liid + " " + action));
+    div.appendChild(document.createTextNode(oid + " " + action));
+    obs["element"] = div;
 
-    var pre = document.getElementById("here");
+    if (action == "connected_up") {
+      last_oid++; continue;
+    }
 
-    if (last_insert == null)
-      pre.appendChild(div);
-    else
-      pre.insertBefore(div, last_insert)
+    if (action == "connected_down") {
+      last_oid++; continue;
+    }
+    
+    if (action == "http_response") {
+      var ct = resp._source.observation.header["Content-Type"];
+      if (ct == "image/jpeg" || ct == "image/gif" || ct == "image/png") {
 
-    last_insert = div;
+        div.appendChild(document.createElement("br"));
+        var img = document.createElement("img");
+        img.style["width"] = "50px";
+        img.src = "data:" + ct + ";base64," + resp._source.observation.body;
 
+        div.appendChild(img);
+      }
+    }
+    
+    if (obs["x"] >= 0) {
+
+      observations.push(obs);
+      place(obs);
+
+    }
+    
     last_oid += 1;
     attempts = 10;
 
   }
 
-  setTimeout(update, 1000);
+  setTimeout(db_check, db_check_period);
+ 
+}
+
+function place(obs) {
+
+    var elt = obs["element"];
+
+    elt.style["left"] = obs["x"] + "px";
+    elt.style["top"] = obs["y"] + "px";
+    elt.style["position"] = "absolute";
+    elt.style["border"] = "1px solid black";
+    elt.style["background"] = "white";
+    elt.style["font"] = "7pt courier";
+
+    document.getElementById("place").appendChild(elt);
 
 }
 
-update();
+function rejig() {
+
+  var now = new Date();
+  now = now.getTime() / 1000;
+
+  for(i in observations) {
+    var obs = observations[i];
+    var elt = obs["element"];
+
+    obs["x"] = pos(obs.time, now);
+
+    if (obs["x"] < 0) {
+      elt.parentNode.removeChild(elt);
+      observations.splice(i, 1);
+      i--;
+    } else 
+      elt.style["left"] = obs["x"] + "px";
+
+  }
+
+  setTimeout(rejig, rejig_period);
+
+}
+
+db_check();
+rejig();
 
 </script>
 
