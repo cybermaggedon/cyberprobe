@@ -79,7 +79,7 @@ forgery.o: reaper.h thread.h base_context.h manager.h observer.h
 forgery.o: dns_protocol.h dns.h serial.h protocol.h udp.h tcp.h ip.h
 ftp.o: address.h pdu.h socket.h exception.h ftp.h context.h flow.h reaper.h
 ftp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
-ftp.o: protocol.h
+ftp.o: protocol.h ip.h
 http.o: address.h pdu.h socket.h exception.h http.h context.h flow.h reaper.h
 http.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
 http.o: protocol.h
