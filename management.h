@@ -11,7 +11,7 @@ class interface_info {
   public:
     std::string interface;
     std::string filter;
-    int delay;
+    float delay;
 };
 
 // Sender status
@@ -30,12 +30,12 @@ class management {
     // Modifies interface capture
     virtual void add_interface(const std::string& iface,
 			       const std::string& filter,
-			       int delay) = 0;
+			       float delay) = 0;
 
     // Modifies interface capture
     virtual void remove_interface(const std::string& iface,
 				  const std::string& filter,
-				  int delay) = 0;
+				  float delay) = 0;
 
     virtual void get_interfaces(std::list<interface_info>& ii) = 0;
 

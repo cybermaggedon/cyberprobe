@@ -1,5 +1,7 @@
 
 #include "capture.h"
+#include <stdint.h>
+#include <unistd.h>
 
 // FIXME: Thread this for performance.
 
@@ -8,7 +10,8 @@ void capture_dev::handle(unsigned long len, unsigned long captured,
 		 const unsigned char* payload)
 {
 
-    if (delay == 0) {
+    // Bypass the delay line stuff if there's no delay.
+    if (delay == 0.0) {
 
 	// Convert into a vector.
 	std::vector<unsigned char> packet;
@@ -22,12 +25,12 @@ void capture_dev::handle(unsigned long len, unsigned long captured,
 	// Put a new packet on the delay line.
 	delay_line.push(delayed_packet());
 
-	// Set its exit time.
-	gettimeofday(&(delay_line.back().exit_time), 0);
-	delay_line.back().exit_time.tv_sec += delay;     // Add the delay.
+	// Get time now.
+	struct timeval now;
+	gettimeofday(&now, 0);
 
-	// Convert into a vector.
-	std::vector<unsigned char> packet;
+	// Set packet exit time.
+	timeradd(&now, &delay_val, &(delay_line.back().exit_time));
     
 	// Put packet data on queue.
 	delay_line.back().packet.assign(payload, payload + captured);
@@ -43,7 +46,12 @@ void capture_dev::run()
     struct pollfd pfd;
     pfd.fd = pcap_get_selectable_fd(p);
     pfd.events = POLLIN | POLLPRI;
-    
+
+    // Calculate delay in form of a timeval.
+    uint64_t delay_usec = delay * 1000000;
+    delay_val.tv_usec = delay_usec % 1000000;
+    delay_val.tv_sec = delay_usec / 1000000;
+
     while (running) {
 
 	// Milli-second poll.

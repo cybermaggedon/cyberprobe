@@ -253,7 +253,7 @@ void connection::cmd_add_interface(const std::vector<std::string>& lst)
     }
     
     std::string iface = lst[1];
-    int delay;
+    float delay;
     std::istringstream buf(lst[2]);
     buf >> delay;
     std::string filter;
@@ -280,7 +280,7 @@ void connection::cmd_remove_interface(const std::vector<std::string>& lst)
     }
     
     std::string iface = lst[1];
-    int delay;
+    float delay;
     std::istringstream buf(lst[2]);
     buf >> delay;
     std::string filter;

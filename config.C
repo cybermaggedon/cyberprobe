@@ -47,7 +47,7 @@ void config_manager::read(const std::string& file,
 
 		    // Get the delay attribute, if exists.
 		    if (it->attributes.find("delay") != it->attributes.end()) {
-			// Scan port string into an integer.
+			// Scan port string into a float.
 			std::istringstream buf(it->attributes["delay"]);
 			buf >> sp->delay;
 		    }

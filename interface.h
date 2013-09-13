@@ -24,11 +24,11 @@ public:
     std::string filter;
 
     // Delay
-    int delay;
+    float delay;
 
     // Constructors.
     iface_spec() {}
-    iface_spec(const std::string& ifa) { this->ifa = ifa; delay = 0; }
+    iface_spec(const std::string& ifa) { this->ifa = ifa; delay = 0.0; }
 
     // Hash is <interface>:<filter>:<delay>
     virtual std::string get_hash() const { 
@@ -65,7 +65,7 @@ public:
 		  << std::endl;
 	if (spec.filter != "")
 	    std::cerr << "  filter: " << spec.filter << std::endl;
-	if (spec.delay != 0)
+	if (spec.delay != 0.0)
 	    std::cerr << "  delay: " << spec.delay << std::endl;
 
     }
