@@ -21,8 +21,14 @@ void service::close_me(connection* c)
 void service::run()
 {
 
-    svr.bind(sp.port);
-    svr.listen();
+    try {
+	svr.bind(sp.port);
+	svr.listen();
+    } catch (std::exception& e) {
+	std::cerr << "Failed to start control service: " 
+		  << e.what() << std::endl;
+	return;
+    }
 
     while (running) {
 
@@ -37,6 +43,7 @@ void service::run()
 
 	    // Spawn a connection thread.
 	    connection* c = new connection(cn, d, *this, sp);
+	    connections.push_back(c);
 	    c->start();
 
 	}
@@ -50,12 +57,29 @@ void service::run()
 
 	    // Delete resource.
 	    delete close_mes.front();
+	    connections.remove(close_mes.front());
 
 	    close_mes.pop();
 	}
 	close_me_lock.unlock();
 
     }
+
+    // Signal all connections to close
+    for(std::list<connection*>::iterator it = connections.begin();
+	it != connections.end();
+	it++)
+	(*it)->stop();
+
+    // Now wait for threads, and delete.
+    for(std::list<connection*>::iterator it = connections.begin();
+	it != connections.end();
+	it++) {
+	(*it)->join();
+	delete *it;
+    }
+
+    svr.close();
 
 }
 
@@ -534,11 +558,15 @@ void connection::run()
 
     try {
 
-	while (1) {
+	while (running) {
 
 	    std::string line;
 
 	    try {
+
+		// Keep checking the loop condition if we're idle.
+		bool activ = s.poll(1.0);
+		if (!activ) continue;
 
 		// Get the next command.
 		try {
