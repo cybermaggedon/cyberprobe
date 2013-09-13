@@ -72,16 +72,16 @@ class sender {
     static void encode_psheader(ber::berpdu& psheader_p,
 				const std::string& liid,
 				const std::string& oper,
-				long seq, long cin,
+				uint32_t seq, uint32_t cin,
 				const std::string& country = "XX",
 				const std::string& net_element = "unknown",
 				const std::string& int_pt = "unknown");
 
     static void encode_ipiri(ber::berpdu& ipiri_p,
-			    const std::string& username,
+			     const std::string& username,
 			     const tcpip::address* address,
-			    int ipversion,
-			    int accessevent);
+			     int ipversion,
+			     int accessevent);
 
     // Close the transport.
     void close() { sock.close(); cnx = false; }
@@ -90,7 +90,7 @@ class sender {
 
     // IA Acct start
     void ia_acct_start_request(const std::string& liid,
-			       long seq, long cin,
+			       uint32_t seq, uint32_t cin,
 			       const std::string& oper,
 			       const std::string& country = "XX",
 			       const std::string& net_element = "unknown",
@@ -99,7 +99,7 @@ class sender {
 			       
     void ia_acct_start_response(const std::string& liid,
 				const tcpip::address& target_addr,
-				long seq, long cin,
+				uint32_t seq, uint32_t cin,
 				const std::string& oper,
 				const std::string& country = "XX",
 				const std::string& net_element = "unknown",
@@ -108,7 +108,7 @@ class sender {
 
     void send_ip(const std::string& liid,
 		 const std::string& oper,
-		 long seq, long cid,
+		 uint32_t seq, uint32_t cid,
 		 const std::vector<unsigned char>& packet,
 		 const std::string& country = "XX",
 		 const std::string& net_element = "unknown",
@@ -116,7 +116,7 @@ class sender {
 
     void ia_acct_stop(const std::string& liid,
 				const std::string& oper,
-				long seq, long cin,
+				uint32_t seq, uint32_t cin,
 				const std::string& country = "XX",
 				const std::string& net_element = "unknown",
 				const std::string& int_pt = "unknown",
@@ -133,11 +133,12 @@ class mux {
     sender& transport;
 
     // Map LIID to CIN and sequence numbers
-    std::map<std::string, long> cin;
-    std::map<std::string, long> seq;
+    std::map<std::string, uint32_t> cin;
+    std::map<std::string, uint32_t> cc_seq;
+    std::map<std::string, uint32_t> iri_seq;
 
     // Static, the CIN which will be assigned to the next LIID.
-    static unsigned long next_cin;
+    static uint32_t next_cin;
 
     // Operator and country.
     std::string oper;

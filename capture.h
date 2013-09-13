@@ -12,6 +12,8 @@
 #include "packet_consumer.h"
 #include "thread.h"
 
+#include <sys/time.h>
+
 #include <queue>
 
 // Packet capture.  Captures on an interface, and then submits captured
@@ -37,15 +39,18 @@ private:
     int datalink;
 
     // Seconds of delay
-    int delay;
+    float delay;
+
+    // Delay converted to timeval form.
+    struct timeval delay_val;
 
 public:
 
-    // Going to need support for a delay line in the run method.
+    // Thread body.
     virtual void run();
 
     // Constructor.  i=interface name, d=packet consumer.
-    capture_dev(const std::string& i, int delay, packet_consumer& d) : 
+    capture_dev(const std::string& i, float delay, packet_consumer& d) : 
 	interface_capture(i), deliv(d) { 
 	datalink = pcap_datalink(p); 
 	this->delay = delay;

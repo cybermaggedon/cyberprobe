@@ -538,11 +538,11 @@ the <code>delay</code> attribute in an interface specfication. e.g.
 </p>
 <pre>
   &lt;interfaces>
-    &lt;interface name="eth0" delay="1"/>
+    &lt;interface name="eth0" delay="0.2"/>
   &lt;/interfaces>
 </pre>
 
-<p>A 1-second delay will be plenty enough.  You should be able to see
+<p>0.2 second should be plenty enough.  You should be able to see
 this delay in action: When you generate network traffic, you should be
 able to see the delay between network activity taking place, and the
 corresponding burst of activity from <code>tcpdump</code>.</p>
@@ -756,15 +756,22 @@ you to put some packets back onto the network.
 
 <p>But first... there's a problem.  You remember in step 9,
 we added a delay?  That's not going to work with packet forgery, because
-by the time we've forged a packet and sent it on to the network, it's about
-a second late.  So, we need to change our interface back so that there's no
+by the time we've forged a packet and sent it on to the network, it's too
+late.  So, we need to change our interface back so that there's no
 delay on the interface.  That means, we're monitoring network data, but we'll
 miss the original attack which triggered a Snort alert.
 </p>
 
 <pre>
-    &lt;interface name="eth0"/>
+    &lt;interface name="eth0" delay="0.0"/>
 </pre>
+
+<p>Once you have this code working, you might be able to mess with the delay
+parameter to see if you can pick a low-latency value that works for you.
+On my network, the value <code>0.02</code> is low enough to
+allow a response to allow packet forgery to work. Any higher, and the forged
+packets are too late to beat the real packets.
+</p>
 
 <p>The LUA interface passes a <code>context</code> variable to many of the
 LUA functions, which gives access to <code>cybermon</code> information and

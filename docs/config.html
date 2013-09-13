@@ -52,7 +52,7 @@ Sample configuration:
 
     &lt;-- The delay attribute can be used to specify a delay before packets
            are processed.  In seconds. --> 
-    &lt;interface name="eth1" delay="1"/>
+    &lt;interface name="eth1" delay="0.5"/>
 
   &lt;/interfaces>
 
@@ -141,6 +141,7 @@ The <code>interfaces</code> block defines a set of interfaces to sniff.
 The <code>name</code> attribute is mandatory, the <code>filter</code>
 element is optional.  The <code>delay</code> element can be used to
 specify, in seconds, the duration to wait before packets are processed.
+The delay is specified as a floating point decimal.
 </p>
 
 <p>

@@ -109,6 +109,8 @@ namespace control {
 	    auth = false;
 	}
 
+	virtual void stop() { running = false; }
+
 	// Desctructor.
 	virtual ~connection() {}
 
@@ -137,6 +139,8 @@ namespace control {
 	// Connection threads.
 	std::queue<connection*> close_mes;
 
+	std::list<connection*> connections;
+
 	// Thread body.
 	virtual void run();
 
@@ -156,6 +160,8 @@ namespace control {
 	// Stop.
 	virtual void stop() {
 	    running = false;
+	    std::cerr << "Control on port " << sp.port << " stopped."
+		      << std::endl;
 	    join();
 	}
 

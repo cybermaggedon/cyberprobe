@@ -243,7 +243,7 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 // Modifies interface capture
 void delivery::add_interface(const std::string& iface,
 			     const std::string& filter,
-			     int delay) 
+			     float delay) 
 {
     
     interfaces_lock.lock();
@@ -281,7 +281,7 @@ void delivery::add_interface(const std::string& iface,
 // Modifies interface capture
 void delivery::remove_interface(const std::string& iface,
 				const std::string& filter,
-				int delay)
+				float delay)
 {
 
     interfaces_lock.lock();

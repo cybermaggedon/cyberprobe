@@ -48,7 +48,7 @@ class intf {
   public:
     std::string interface;
     std::string filter;
-    int delay;
+    float delay;
 
     // FIXME: I haven't checked this works?!?!?!
     bool operator<(const intf& i) const {
@@ -128,12 +128,12 @@ class delivery : public parameters, public management, public packet_consumer {
     // Modifies interface capture
     virtual void add_interface(const std::string& iface,
 			       const std::string& filter,
-			       int delay);
+			       float delay);
 
     // Modifies interface capture
     virtual void remove_interface(const std::string& iface,
 				  const std::string& filter,
-				  int delay);
+				  float delay);
     
     // Returns the interfaces list.
     virtual void get_interfaces(std::list<interface_info>& ii);

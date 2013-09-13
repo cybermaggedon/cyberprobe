@@ -8,13 +8,13 @@
 using namespace etsi_li;
 
 // The next CIN which will be used.
-unsigned long mux::next_cin = 0;
+uint32_t mux::next_cin = 0;
 
 // Encodes the ETSI LI PS PDU PSHeader construct.
 void sender::encode_psheader(ber::berpdu& psheader_p,
 			     const std::string& liid,
 			     const std::string& oper,
-			     long seq, long cin,
+			     uint32_t seq, uint32_t cin,
 			     const std::string& country,
 			     const std::string& net_element,
 			     const std::string& intpt)
@@ -197,7 +197,7 @@ void sender::encode_ipiri(ber::berpdu& ipiri_p,
 }
 
 void sender::ia_acct_start_request(const std::string& liid,
-				   long seq, long cin,
+				   uint32_t seq, uint32_t cin,
 				   const std::string& oper,
 				   const std::string& country,
 				   const std::string& net_element,
@@ -277,7 +277,7 @@ void sender::ia_acct_start_request(const std::string& liid,
 
 void sender::ia_acct_start_response(const std::string& liid,
 				    const tcpip::address& target_addr,
-				    long seq, long cin,
+				    uint32_t seq, uint32_t cin,
 				    const std::string& oper,
 				    const std::string& country,
 				    const std::string& net_element,
@@ -358,7 +358,7 @@ void sender::ia_acct_start_response(const std::string& liid,
 
 void sender::ia_acct_stop(const std::string& liid,
 			  const std::string& oper,
-			  long seq, long cin,
+			  uint32_t seq, uint32_t cin,
 			  const std::string& country,
 			  const std::string& net_element,
 			  const std::string& int_pt,
@@ -439,7 +439,7 @@ void sender::ia_acct_stop(const std::string& liid,
 // Transmit an IP packet
 void sender::send_ip(const std::string& liid,
 		     const std::string& oper,
-		     long seq, long cin,
+		     uint32_t seq, uint32_t cin,
 		     const std::vector<unsigned char>& packet,
 		     const std::string& country,
 		     const std::string& net_element,
@@ -539,17 +539,19 @@ void mux::target_connect(const std::string& liid,     // LIID
 {
 
     // Initialise sequence and CIN.
-    seq[liid] = 0;
+    iri_seq[liid] = 0;
+    cc_seq[liid] = 0;
+
     cin[liid] = next_cin++;
 
     // Describes connetion request.
-    transport.ia_acct_start_request(liid, seq[liid]++, cin[liid], oper,
+    transport.ia_acct_start_request(liid, iri_seq[liid]++, cin[liid], oper,
 				    country, net_elt, int_pt, username);
 
     // Describes connection response.
-    transport.ia_acct_start_response(liid, target_addr, 
-				     seq[liid]++, cin[liid], oper,
-				     country, net_elt, int_pt, username);
+    transport.ia_acct_start_response(liid, target_addr, iri_seq[liid]++, 
+				     cin[liid], oper, country, net_elt, 
+				     int_pt, username);
 
 }
 
@@ -563,18 +565,19 @@ void mux::target_disconnect(const std::string& liid,     // LIID
 {
 
     // Bail if we haven't connected this LIID.
-    if (seq.find(liid) == seq.end()) {
+    if (iri_seq.find(liid) == iri_seq.end()) {
 	// This isn't right, but silently ignore.
 	return;
     }
 
     // Describes a connection stop.
-    transport.ia_acct_stop(liid, oper, seq[liid]++, cin[liid],
+    transport.ia_acct_stop(liid, oper, iri_seq[liid]++, cin[liid],
 			   country, net_elt, int_pt, username);
 
     // Clear the CIN & sequence information.
     cin.erase(liid);
-    seq.erase(liid);
+    iri_seq.erase(liid);
+    cc_seq.erase(liid);
 
 }
 
@@ -589,14 +592,15 @@ void mux::target_ip(const std::string& liid,               // LIID
 
 
     // Bail if we haven't connected this LIID.
-    if (seq.find(liid) == seq.end()) {
+    if (cc_seq.find(liid) == cc_seq.end()) {
 	// This isn't right, but cope with it anyway.
-	seq[liid] = 0;
+	iri_seq[liid] = 0;
+	cc_seq[liid] = 0;
 	cin[liid] = next_cin++;
     }
 
     // Describes the IP packet.
-    transport.send_ip(liid, oper, seq[liid]++, cin[liid],
+    transport.send_ip(liid, oper, cc_seq[liid]++, cin[liid],
 		      pdu, country, net_elt, int_pt);
 
 

@@ -12,6 +12,77 @@
 /** BER decoding utilities. */
 namespace ber {
 
+    // Conversion between integer and 2's complement byte string.
+    template <typename DIGIT = unsigned char, int BITS = 8,
+	typename VALUE = int64_t>
+    class integer {
+    public:
+    
+        VALUE value;
+
+        integer(VALUE v) : value(v) {}
+        integer() : value(0) {}
+
+	// Convert int into 2‘s complement vector.
+        void encode(std::vector<DIGIT>& b) {
+	    encode(value, b);
+	}
+
+        static void encode(VALUE val, std::vector<DIGIT>& b) {
+
+	    if (val == 0) {
+		b.push_back(0);
+		return;
+	    }
+	    
+	    int64_t base = 1 << BITS;
+	    unsigned int mask = ((1 << BITS) -1 );
+	    b.clear();
+	    
+	    if (val < 0) {
+		encode(-(val + 1), b);
+		for(typename std::vector<DIGIT>::iterator it = b.begin();
+		    it != b.end();
+		    it++)
+		    *it = (~*it & mask);
+		return;
+	    }
+	    
+	    while (val != 0) {
+		b.push_back(val % base);
+		val >>= BITS;
+	    }
+
+	    // MSB bit set? That's the sign bit, so need to zero—pad.
+	    if (b.back() & (1 << (BITS - 1)))
+		b.push_back(0);
+	    
+	}
+
+	// Convert 2's complement vector into int.
+	void decode(const std::vector<DIGIT>& b) {
+	    
+	    value = 0;
+	    
+	    for(typename std::vector<DIGIT>::const_reverse_iterator it =
+		    b.rbegin();
+		it != b.rend();
+		it++) {
+		
+		value = (value << BITS) + *it;
+
+		if (it == b.rbegin()) {
+		    if (*it & (1 << (BITS - 1))) {
+			value -= (1 << (BITS));
+		    }
+		}
+
+	    }
+
+	}
+
+    };
+
     enum tag_class {
 	universal = 0, application = 1, context_specific = 2, priv = 3
     };
@@ -252,17 +323,11 @@ namespace ber {
 	}
 
 	/** Encodes an INTEGER. */
-	void encode_int(tag_class cls, long tag, long val) {
+	void encode_int(tag_class cls, long tag, int64_t val) {
 
-	    // Serialise the value in reverse order.
 	    std::vector<unsigned char> vbytes;
-	    if (val == 0)
-		vbytes.push_back(0);
-	    else
-		while (val != 0) {
-		    vbytes.push_back(val & 0xff);
-		    val /= 256;
-		}
+
+	    integer<>(val).encode(vbytes);
 
 	    data.clear();
 	    encode_tag(cls, tag);
@@ -356,16 +421,19 @@ namespace ber {
 
 	/** Extracts an INTEGER from a PDU. */
 	long decode_int() {
+
+	    integer<> i;
+
 	    int start = content_start();
 	    int length = get_length();
 
-	    long num = 0;
-	    for(int i = 0; i < length; i++) {
-		num <<= 8;
-		num |= data.at(start + i);
-	    }
+	    std::vector<unsigned char> vbytes;
+	    std::copy(data.begin() + start, data.begin() + start + length,
+		      back_inserter(vbytes));
 
-	    return num;
+	    i.decode(vbytes);
+
+	    return i.value;
 
 	}
 
