@@ -163,13 +163,16 @@ namespace cybermon {
 			parent_rev->children[f_rev]->reverse = ch;
 
 		    }
-		    
 
 		} else {
-		    
+
 		    // The parent has no reverse.  Try its children.
 
-		    if (parent->children.find(f_rev) != parent->children.end()) {
+		    // Only do this on a root context, otherwise we'll just
+		    // find the same context in many cases.
+
+		    if ((parent->get_type() == "root") && 
+			(parent->children.find(f_rev) != parent->children.end())) {
 
 			// If the parent's reverse has such a child, use that
 			// as the new context's reverse.

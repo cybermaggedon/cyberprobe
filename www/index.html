@@ -9,14 +9,16 @@
 
 <script language="JavaScript">
 
-var width = 1400;
+var width = 1200;
+var height = 800;
 
-var height = 1000;
+// Horizontal scale
+var pixels_per_second = 40;
 
 // Update period, in milliseconds.
 var rejig_period = 100;
-var db_check_period = 5000;
-//var db_next_item_time = 200;
+var db_check_period = 1000;
+var db_next_item_time = 5;
 
 var last_oid = 0;
 
@@ -38,7 +40,7 @@ function get_oldest_oid() {
 }
 
 function pos(time, now) {
-  return width - 8 * (now - time);
+  return width - pixels_per_second * (now - time);
 }
 
 last_oid = get_oldest_oid();
@@ -49,75 +51,103 @@ function db_check() {
   var now = new Date();
   now = now.getTime() / 1000;
 
-  while (1) {
+  var cli = new XMLHttpRequest();
+  var url = "http://localhost:9200/cybermon/observation/" + last_oid;
 
-    var cli = new XMLHttpRequest();
-    var url = "http://localhost:9200/cybermon/observation/" + last_oid;
+  cli.open("GET", url, false);
+  cli.send();
 
-    cli.open("GET", url, false);
-    cli.send();
+  var resp = eval('(' + cli.responseText + ')');
 
-    var resp = eval('(' + cli.responseText + ')');
+  if (!resp.exists) {
 
-    if (!resp.exists) {
+    attempts--;
 
-      attempts--;
-
-      if (attempts == 0)
-        last_oid++;
-      
-      break;
+    if (attempts == 0) {
+      last_oid++;
+      setTimeout(db_check, db_next_item_time);
+      return;
+    } else {
+      setTimeout(db_check, db_check_period);
+      return;
     }
-
-    var liid = resp._source.observation.liid;
-    var action = resp._source.observation.action;
-    var oid = resp._source.observation.oid;
-    var time = resp._source.observation.time;
-
-    var obs = {};
-    obs["time"] = time;
-    obs["liid"] = liid;
-    obs["y"] = (oid * 45102529) % height;
-    obs["x"] = pos(now, time);
-
-    var div = document.createElement("div");
-    div.appendChild(document.createTextNode(oid + " " + action));
-    obs["element"] = div;
-
-    if (action == "connected_up") {
-      last_oid++; continue;
-    }
-
-    if (action == "connected_down") {
-      last_oid++; continue;
-    }
-    
-    if (action == "http_response") {
-      var ct = resp._source.observation.header["Content-Type"];
-      if (ct == "image/jpeg" || ct == "image/gif" || ct == "image/png") {
-
-        div.appendChild(document.createElement("br"));
-        var img = document.createElement("img");
-        img.style["width"] = "50px";
-        img.src = "data:" + ct + ";base64," + resp._source.observation.body;
-
-        div.appendChild(img);
-      }
-    }
-    
-    if (obs["x"] >= 0) {
-
-      observations.push(obs);
-      place(obs);
-
-    }
-    
-    last_oid += 1;
-    attempts = 10;
 
   }
 
-  setTimeout(db_check, db_check_period);
+  var liid = resp._source.observation.liid;
+  var action = resp._source.observation.action;
+  var oid = resp._source.observation.oid;
+  var time = resp._source.observation.time;
+
+  var ip = null;
+  if (resp._source.observation.src) {
+    for(var i in resp._source.observation.src) {
+      if (resp._source.observation.src[i].protocol == "ipv4")
+        ip = resp._source.observation.src[i].address;
+    }
+  }
+
+  // Fudge to spread things out.
+  if ((now - time) < 5) time = now;
+
+  var regex = '([\\d]+)\\.([\\d]+).([\\d]+).([\\d]+)';
+  var result = ip.match(regex);
+
+  var ip_place = 0;
+
+  // Yeh, this only uses 3 bytes of IP address.  That will do.
+  for(var i = 1; i < 4; i++)
+    ip_place = (ip_place * 256) + parseInt(result[i]);
+
+  var large_place = 256 * 256 * 256;
+
+  var obs = {};
+  obs["time"] = time;
+  obs["liid"] = liid;
+  obs["y"] = (ip_place / large_place) * height;
+  obs["x"] = pos(time, now);
+  obs["src"] = ip;
+
+  var div = document.createElement("div");
+  div.appendChild(document.createTextNode(oid + " " + action));
+  obs["element"] = div;
+
+  if (action == "connected_up") {
+    last_oid++;
+    setTimeout(db_check, db_next_item_time);
+    return;
+  }
+
+  if (action == "connected_down") {
+    last_oid++;
+    setTimeout(db_check, db_next_item_time);
+    return;
+  }
+    
+  if (action == "http_response") {
+    var ct = resp._source.observation.header["Content-Type"];
+    if (ct == "image/jpeg" || ct == "image/gif" || ct == "image/png") {
+      div.appendChild(document.createElement("br"));
+      var img = document.createElement("img");
+      img.style["maxWidth"] = "100px";
+      img.style["maxHeight"] = "100px";
+      img.src = "data:" + ct + ";base64," + resp._source.observation.body;
+      div.appendChild(img);
+    }
+  }
+    
+  if (obs["x"] >= 0) {
+    observations.push(obs);
+    place(obs);
+  }
+    
+  last_oid += 1;
+  attempts = 10;
+
+  if ((now - time) > 5)                // We catching up on the past?
+    setTimeout(db_check, 0);
+  else
+    setTimeout(db_check, db_next_item_time);
  
 }
 
@@ -130,7 +160,7 @@ function place(obs) {
     elt.style["position"] = "absolute";
     elt.style["border"] = "1px solid black";
     elt.style["background"] = "white";
-    elt.style["font"] = "7pt courier";
+    elt.style["font"] = "8pt courier";
 
     document.getElementById("place").appendChild(elt);
 
@@ -147,7 +177,7 @@ function rejig() {
 
     obs["x"] = pos(obs.time, now);
 
-    if (obs["x"] < 0) {
+    if (obs["x"] < -400) {
       elt.parentNode.removeChild(elt);
       observations.splice(i, 1);
       i--;
