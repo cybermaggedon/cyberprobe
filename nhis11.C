@@ -1,6 +1,8 @@
 
 #include "nhis11.h"
 
+#include "transport.h"
+
 #include <string>
 #include <vector>
 
@@ -13,24 +15,24 @@ unsigned long sender::next_cid;
 void nhis11::sender::send_start(const std::string& liid)
 {
 
-    std::vector<unsigned char> buffer;
+    pdu_ptr buffer = pdu_ptr(new pdu);
 
     // Magic.
-    buffer.push_back('c');
-    buffer.push_back('}');
+    buffer->push_back('c');
+    buffer->push_back('}');
 
     // Version number is zero.
-    buffer.push_back(0);
-    buffer.push_back(0);
+    buffer->push_back(0);
+    buffer->push_back(0);
 
     // LIID.
     for(std::string::const_iterator it = liid.begin();
 	it != liid.end(); it++)
-	buffer.push_back(*it);
+	buffer->push_back(*it);
 
     // Zero pad to 28 bytes, (32 minus the 4 byte header)
     for(int i = 28 - liid.length(); i >- 0; i--)
-	buffer.push_back(0);
+	buffer->push_back(0);
 
     // Send the start PDU.
     int ret = s.write(buffer);
@@ -45,43 +47,43 @@ void sender::send_ip(const std::vector<unsigned char>& pkt,
 		     bool direction)
 {
 
-    std::vector<unsigned char> buffer;
-    buffer.clear();
+    pdu_ptr buffer = pdu_ptr(new pdu);
+    buffer->clear();
 
     // Version & direction
-    buffer.push_back(0x1c + (direction ? 2 : 0));
+    buffer->push_back(0x1c + (direction ? 2 : 0));
     
     // Message type, not used.
-    buffer.push_back(0xff);
+    buffer->push_back(0xff);
 
     // Length
-    buffer.push_back((pkt.size() >> 8) & 0xff);
-    buffer.push_back(pkt.size() & 0xff);
+    buffer->push_back((pkt.size() >> 8) & 0xff);
+    buffer->push_back(pkt.size() & 0xff);
 
     // Sequence
-    buffer.push_back((seq >> 8) & 0xff);
-    buffer.push_back(seq & 0xff);
+    buffer->push_back((seq >> 8) & 0xff);
+    buffer->push_back(seq & 0xff);
     
     // Not used
-    buffer.push_back(0);
-    buffer.push_back(0);
-    buffer.push_back(0xff);
-    buffer.push_back(0xff);
-    buffer.push_back(0xff);
-    buffer.push_back(0xff);
+    buffer->push_back(0);
+    buffer->push_back(0);
+    buffer->push_back(0xff);
+    buffer->push_back(0xff);
+    buffer->push_back(0xff);
+    buffer->push_back(0xff);
 
     // CID
-    buffer.push_back((cid >> 56) & 0xff);
-    buffer.push_back((cid >> 48) & 0xff);
-    buffer.push_back((cid >> 40) & 0xff);
-    buffer.push_back((cid >> 32) & 0xff);
-    buffer.push_back((cid >> 24) & 0xff);
-    buffer.push_back((cid >> 16) & 0xff);
-    buffer.push_back((cid >> 8) & 0xff);
-    buffer.push_back(cid & 0xff);
+    buffer->push_back((cid >> 56) & 0xff);
+    buffer->push_back((cid >> 48) & 0xff);
+    buffer->push_back((cid >> 40) & 0xff);
+    buffer->push_back((cid >> 32) & 0xff);
+    buffer->push_back((cid >> 24) & 0xff);
+    buffer->push_back((cid >> 16) & 0xff);
+    buffer->push_back((cid >> 8) & 0xff);
+    buffer->push_back(cid & 0xff);
 
     for(unsigned int i = 0; i < pkt.size(); i++)
-	buffer.push_back(pkt[i]);
+	buffer->push_back(pkt[i]);
 
     // Send the IP packet.
     int ret = s.write(buffer);

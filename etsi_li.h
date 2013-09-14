@@ -31,6 +31,7 @@ need to be called on the etsi_li object are connect and close.
 #include "ber.h"
 #include "thread.h"
 #include "monitor.h"
+#include "transport.h"
 
 namespace etsi_li {
 
@@ -40,7 +41,7 @@ class sender {
   private:
 
     // TCP socket.
-    tcpip::tcp_socket sock;
+    transport sock;
 
     // FIXME: Only currently supports 'Internet Access' profile.
     // These scenarios are defined in ETSI LI spec.
@@ -55,7 +56,14 @@ class sender {
   public:
 
     // Constructor.
-    sender() { cnx = false; }
+    sender() { 
+	
+	cnx = false;
+
+	// 128kB buffer.
+	sock.set_buffer(128 * 1024, 0);
+
+    }
 
     // Destructor.
     virtual ~sender() {}
@@ -65,8 +73,12 @@ class sender {
 
     // Connect to host/port.  Also specifies the LIID for this transport.
     void connect(const std::string& host, int port) {
+	
+	// Connect.
 	sock.connect(host, port);
+
 	cnx = true;
+
     }
 
     static void encode_psheader(ber::berpdu& psheader_p,

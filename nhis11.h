@@ -5,10 +5,13 @@
 #include "socket.h"
 #include "thread.h"
 #include "monitor.h"
+#include "transport.h"
 
 #include <vector>
 #include <list>
 #include <queue>
+
+#include <boost/shared_ptr.hpp>
 
 namespace nhis11 {
 
@@ -17,8 +20,11 @@ class sender {
 
   private:
 
+    typedef std::vector<unsigned char> pdu;
+    typedef boost::shared_ptr<pdu> pdu_ptr;
+
     // TCP socket.
-    tcpip::tcp_socket s;
+    etsi_li::transport s;
 
     // Send the START PDU.
     void send_start(const std::string& liid);

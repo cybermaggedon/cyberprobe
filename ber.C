@@ -6,7 +6,7 @@
 bool ber::berpdu::read_pdu(tcpip::tcp_socket& sock)
 {
 
-    data.clear();
+    data->clear();
     is_decoded = false;
     contained_pdus.clear();
     
@@ -15,14 +15,14 @@ bool ber::berpdu::read_pdu(tcpip::tcp_socket& sock)
     int len = sock.read((char*) &c, 1);
     if (len != 1) return false;
 
-    data.push_back(c);
+    data->push_back(c);
     
     // Deal with long tag form.
     if ((c & 0x1f) == 0x1f)
 	while (1) {
 	    int len = sock.read((char*) &c, 1);
 	    if (len != 1) return false;
-	    data.push_back(c);
+	    data->push_back(c);
 	    if (c & 0x80) break;
 	}
 
@@ -31,7 +31,7 @@ bool ber::berpdu::read_pdu(tcpip::tcp_socket& sock)
     len = sock.read((char*) &c, 1);
     if (len != 1) return false;
 
-    data.push_back(c);
+    data->push_back(c);
     if ((c & 0x80) == 0) {
 	length = c;
     } else {
@@ -40,7 +40,7 @@ bool ber::berpdu::read_pdu(tcpip::tcp_socket& sock)
 	for(int i = 0; i < blen; i++) {
 	    int len = sock.read((char*) &c, 1);
 	    if (len != 1) return false;
-	    data.push_back(c);
+	    data->push_back(c);
 	    length <<= 8;
 	    length |= c;
 	}
@@ -56,7 +56,7 @@ bool ber::berpdu::read_pdu(tcpip::tcp_socket& sock)
     len = sock.read((char *)payload, length);
     if (len != length) return false;
 
-    data.insert(data.end(), payload, payload+length);
+    data->insert(data->end(), payload, payload+length);
 
     return true;
 

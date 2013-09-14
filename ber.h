@@ -2,6 +2,8 @@
 #ifndef NHIS_BER_H
 #define NHIS_BER_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <socket.h>
 
 #include <algorithm>
@@ -91,12 +93,19 @@ namespace ber {
     class berpdu {
       public:
 
+	typedef std::vector<unsigned char> pdu;
+	typedef boost::shared_ptr<pdu> pdu_ptr;
+
+	/** The PDU */
+	pdu_ptr data;
+
 	berpdu() {
 	    is_decoded = false;
+	    data = pdu_ptr(new pdu);
 	}
 
 	tag_class get_class() const {
-	    int bits = data.at(0) & 0xc0;
+	    int bits = data->at(0) & 0xc0;
 	    if (bits == 0) return universal;
 	    if (bits == 0x80) return context_specific;
 	    if (bits == 0xc0) return priv;
@@ -104,7 +113,7 @@ namespace ber {
 	}
 
 	bool is_constructed() const {
-	    return (data.at(0) & 0x20) == 0x20;
+	    return (data->at(0) & 0x20) == 0x20;
 	}
 
       private:
@@ -138,16 +147,16 @@ namespace ber {
 	long decode_tag(long& pos) const {
 
 	    // Low order case.
-	    if ((data.at(pos) & 0x1f) != 0x1f)
-		return data.at(pos++) & 0x1f;
+	    if ((data->at(pos) & 0x1f) != 0x1f)
+		return data->at(pos++) & 0x1f;
 
 	    pos++;
 
 	    long tag = 0;
 	    while (1) {
 		tag <<= 7;
-		tag |= (data.at(pos) & 0x7f);
-		if (data.at(pos++) & 0x80)
+		tag |= (data->at(pos) & 0x7f);
+		if (data->at(pos++) & 0x80)
 		    return tag;
 	    } 
 
@@ -163,18 +172,18 @@ namespace ber {
 	    int pos = 1;
 
 	    // Skip the tag.
-	    if ((data.at(0) & 0x1f) == 0x1f) {
-		while ((data.at(pos) & 0x80) == 0)
+	    if ((data->at(0) & 0x1f) == 0x1f) {
+		while ((data->at(pos) & 0x80) == 0)
 		    pos++;
 		pos++;
 	    }
 
 	    // Low order length case.
-	    if ((data.at(pos) & 0x80) == 0)
+	    if ((data->at(pos) & 0x80) == 0)
 		return pos + 1;
 
 	    // Length of the length.
-	    long b = data.at(pos++) & 0x7f;
+	    long b = data->at(pos++) & 0x7f;
 
 	    return pos + b;
 
@@ -185,16 +194,16 @@ namespace ber {
 	    // Assuming at start of length.
 
 	    // Short form.
-	    if ((data.at(pos) & 0x80) == 0)
-		return data.at(pos++);
+	    if ((data->at(pos) & 0x80) == 0)
+		return data->at(pos++);
 
 	    // Length of the length.
-	    long b = data.at(pos++) & 0x7f;
+	    long b = data->at(pos++) & 0x7f;
 
 	    long length = 0;
 	    while (b-- > 0) {
 		length <<= 8;
-		length |= data.at(pos++);
+		length |= data->at(pos++);
 	    }
 
 	    return length;
@@ -217,12 +226,12 @@ namespace ber {
 
 	    if (tag < 128) {
 		int cls_bits = cls << 6;
-		data.push_back(cls_bits | tag);
+		data->push_back(cls_bits | tag);
 		return;
 	    }
 
 	    int cls_bits = cls << 6;
-	    data.push_back(cls_bits | 0x1f);
+	    data->push_back(cls_bits | 0x1f);
 	    
 	    // This doesn't deal with the zero case, but that's covered above.
 
@@ -239,7 +248,7 @@ namespace ber {
 	    tbytes[0] |= 0x80;
 
 	    // Put bytes in data, in reverse order.
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
+	    std::back_insert_iterator<std::vector<unsigned char> > iter(*data);
 	    std::copy(tbytes.rbegin(), tbytes.rend(), iter);
 
 	}
@@ -247,7 +256,7 @@ namespace ber {
 	/** BER encoding of the length value. */
 	void encode_length(long length) {
 	    if (length < 128) {
-		data.push_back(length);
+		data->push_back(length);
 		return;
 	    }
 
@@ -261,37 +270,34 @@ namespace ber {
 	    }
 
 	    // Length of the length.  High bit is set.
-	    data.push_back(lbytes.size() | 0x80);
+	    data->push_back(lbytes.size() | 0x80);
 
 	    // Put bytes in data, in reverse order.
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
-	    std::copy(lbytes.rbegin(), lbytes.rend(), iter);
+	    std::copy(lbytes.rbegin(), lbytes.rend(), back_inserter(*data));
 
 	}
 
 	/** Encodes a string. */
 	void encode_string(tag_class cls, long tag, 
 			   const std::string& s) {
-	    data.clear();
+	    data->clear();
 	    encode_tag(cls, tag);
 	    encode_length(s.length());
 
 	    // Encode string.
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
-	    std::copy(s.begin(), s.end(), iter);
+	    std::copy(s.begin(), s.end(), back_inserter(*data));
 
 	}
 
 	/** Encodes a string. */
 	void encode_string(tag_class cls, long tag, 
 			   const std::vector<unsigned char>& s) {
-	    data.clear();
+	    data->clear();
 	    encode_tag(cls, tag);
 	    encode_length(s.size());
 
 	    // Encode string.
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
-	    std::copy(s.begin(), s.end(), iter);
+	    std::copy(s.begin(), s.end(), back_inserter(*data));
 
 	}
 
@@ -299,26 +305,24 @@ namespace ber {
 	void encode_string(tag_class cls, long tag, 
 			   const std::vector<unsigned char>::const_iterator& s,
 			   const std::vector<unsigned char>::const_iterator& e) {
-	    data.clear();
+	    data->clear();
 	    encode_tag(cls, tag);
 	    encode_length(e - s);
 
 	    // Encode string.
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
-	    std::copy(s, e, iter);
+	    std::copy(s, e, back_inserter(*data));
 
 	}
 
 	/** Encodes a string. */
 	void encode_oid(tag_class cls, long tag, 
 			int* oid, int len) {
-	    data.clear();
+	    data->clear();
 	    encode_tag(cls, tag);
 	    encode_length(len);
 
 	    // Encode string.
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
-	    std::copy(oid, oid + len, iter);
+	    std::copy(oid, oid + len, back_inserter(*data));
 
 	}
 
@@ -329,13 +333,12 @@ namespace ber {
 
 	    integer<>(val).encode(vbytes);
 
-	    data.clear();
+	    data->clear();
 	    encode_tag(cls, tag);
 	    encode_length(vbytes.size());
 
 	    // Encode string.
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
-	    std::copy(vbytes.rbegin(), vbytes.rend(), iter);
+	    std::copy(vbytes.rbegin(), vbytes.rend(), back_inserter(*data));
 
 	}
 
@@ -343,31 +346,30 @@ namespace ber {
 	void encode_construct(tag_class cls, long tag, 
 			      const std::list<berpdu*>& pdus) {
 
-	    data.clear();
+	    data->clear();
 	    encode_tag(cls, 0x20 | tag);
 
 	    long length = 0;
 	    for(std::list<berpdu*>::const_iterator it = pdus.begin();
 		it != pdus.end();
 		it++) {
-		length += (*it)->data.size();
+		length += (*it)->data->size();
 	    }
 	    
 	    encode_length(length);
 
-	    std::back_insert_iterator<std::vector<unsigned char> > iter(data);
-
 	    for(std::list<berpdu*>::const_iterator it = pdus.begin();
 		it != pdus.end();
 		it++)
-		std::copy((*it)->data.begin(), (*it)->data.end(), iter);
+		std::copy((*it)->data->begin(), (*it)->data->end(), 
+			  back_inserter(*data));
 
 	}
 
 	/** Encodes a NULL. */
 	void encode_null(tag_class cls, long tag) {
 
-	    data.clear();
+	    data->clear();
 	    encode_tag(cls, tag);
 	    encode_length(0);
 
@@ -379,8 +381,8 @@ namespace ber {
 	    int length = get_length();
 	    
 	    str.clear();
-	    str.append(data.begin() + start,
-		       data.begin() + start + length);
+	    str.append(data->begin() + start,
+		       data->begin() + start + length);
 
 	}
 
@@ -389,8 +391,8 @@ namespace ber {
 	    int start = content_start();
 	    int length = get_length();
 	    
-	    vec.assign(data.begin() + start,
-		       data.begin() + start + length);
+	    vec.assign(data->begin() + start,
+		       data->begin() + start + length);
 
 	}
 
@@ -413,7 +415,7 @@ namespace ber {
 
 		pdus.push_back(berpdu());
 		berpdu& p = pdus.back();
-		p.data.assign(data.begin() + start, data.begin() + pos);
+		p.data->assign(data->begin() + start, data->begin() + pos);
 
 	    }
 
@@ -428,7 +430,7 @@ namespace ber {
 	    int length = get_length();
 
 	    std::vector<unsigned char> vbytes;
-	    std::copy(data.begin() + start, data.begin() + start + length,
+	    std::copy(data->begin() + start, data->begin() + start + length,
 		      back_inserter(vbytes));
 
 	    i.decode(vbytes);
@@ -436,10 +438,6 @@ namespace ber {
 	    return i.value;
 
 	}
-
-
-	/** The PDU */
-	std::vector<unsigned char> data;
 
 	/** Waits for a complete BER PDU from a socket and returns it. */
 	bool read_pdu(tcpip::tcp_socket& sock);

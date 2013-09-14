@@ -2,7 +2,7 @@
 #ifndef SENDER_H
 #define SENDER_H
 
-#include <deque>
+#include <queue>
 #include <boost/shared_ptr.hpp>
 
 #include "management.h"
@@ -11,7 +11,7 @@
 #include "etsi_li.h"
 #include "parameters.h"
 
-// Shared pointer to TCP/IP address.
+// Shared pointers to TCP/IP address.
 typedef boost::shared_ptr<tcpip::address> address_ptr;
 
 // A packet on the packet queue: LIID plus PDU.
@@ -23,6 +23,9 @@ class qpdu {
     address_ptr addr;                       // Valid for: TARGET_UP
 };
 
+// Queue PDU pointer
+typedef boost::shared_ptr<qpdu> qpdu_ptr;
+
 // Sender base class.  Provides a queue input into a thread.
 class sender : public threads::thread {
   protected:
@@ -32,7 +35,7 @@ class sender : public threads::thread {
     threads::mutex lock;
     threads::condition cond;
     static const unsigned int max_packets = 1024;
-    std::deque<qpdu> packets;
+    std::queue<qpdu_ptr> packets;
 
     // State: true if we're running, false if we've been asked to stop.
     bool running;
@@ -45,6 +48,12 @@ class sender : public threads::thread {
     sender(parameters& p) : pars(p) {
 	running = true;
     }
+
+    // Thread body.
+    virtual void run();
+
+    // Handler - called to handle the next PDU on the queue.
+    virtual void handle(qpdu_ptr) = 0;
 
     // Return information about the sender for the management interface.
     virtual void get_info(sender_info& info) = 0;
@@ -95,8 +104,8 @@ class nhis11_sender : public sender {
     // Destructor.
     virtual ~nhis11_sender() {}
 
-    // Thread method.
-    virtual void run();
+    // PDU handler
+    virtual void handle(qpdu_ptr);
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
@@ -147,6 +156,9 @@ class etsi_li_sender : public sender {
 	initialise(); 
     }
 
+    // PDU handler
+    virtual void handle(qpdu_ptr);
+
     // Destructor.
     virtual ~etsi_li_sender() {}
 
@@ -155,9 +167,6 @@ class etsi_li_sender : public sender {
     void connect(const std::string& h, unsigned short p) {
 	this->h = h; this->p = p;
     }
-
-    // Thread method.
-    virtual void run();
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
