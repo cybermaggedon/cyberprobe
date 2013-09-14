@@ -43,10 +43,10 @@ base_context.o: thread.h
 ber.o: ./ber.h socket.h
 capture.o: capture.h packet_capture.h packet_consumer.h thread.h
 config.o: config.h resource.h thread.h specification.h delivery.h sender.h
-config.o: management.h socket.h nhis11.h monitor.h etsi_li.h ./ber.h
-config.o: transport.h parameters.h capture.h packet_capture.h
-config.o: packet_consumer.h xml.h interface.h target.h endpoint.h parameter.h
-config.o: snort_alert.h control.h
+config.o: management.h socket.h nhis11.h monitor.h transport.h etsi_li.h
+config.o: ./ber.h parameters.h capture.h packet_capture.h packet_consumer.h
+config.o: xml.h interface.h target.h endpoint.h parameter.h snort_alert.h
+config.o: control.h
 context.o: context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 context.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 control.o: control.h socket.h thread.h management.h specification.h
@@ -59,12 +59,12 @@ cybermon-lua.o: cybermon-lua.h engine.h thread.h pdu.h context.h socket.h
 cybermon-lua.o: address.h exception.h flow.h reaper.h base_context.h
 cybermon-lua.o: manager.h observer.h dns_protocol.h forgery.h
 cyberprobe.o: config.h resource.h thread.h specification.h delivery.h
-cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h etsi_li.h
-cyberprobe.o: ./ber.h transport.h parameters.h capture.h packet_capture.h
+cyberprobe.o: sender.h management.h socket.h nhis11.h monitor.h transport.h
+cyberprobe.o: etsi_li.h ./ber.h parameters.h capture.h packet_capture.h
 cyberprobe.o: packet_consumer.h
 cyberprobe_cli.o: readline.h socket.h
 delivery.o: delivery.h sender.h management.h socket.h thread.h nhis11.h
-delivery.o: monitor.h etsi_li.h ./ber.h transport.h parameters.h capture.h
+delivery.o: monitor.h transport.h etsi_li.h ./ber.h parameters.h capture.h
 delivery.o: packet_capture.h packet_consumer.h
 dns.o: dns.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 dns.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
@@ -90,20 +90,21 @@ icmp.o: thread.h base_context.h manager.h observer.h dns_protocol.h
 ip.o: ip.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 ip.o: thread.h base_context.h manager.h observer.h dns_protocol.h tcp.h
 ip.o: serial.h protocol.h udp.h icmp.h
-nhis11.o: nhis11.h socket.h thread.h monitor.h
-nhis11_rcvr.o: monitor.h socket.h nhis11.h thread.h packet_capture.h
+nhis11.o: nhis11.h socket.h thread.h monitor.h transport.h
+nhis11_rcvr.o: monitor.h socket.h nhis11.h thread.h transport.h
+nhis11_rcvr.o: packet_capture.h
 readline.o: readline.h
 reaper.o: reaper.h thread.h
 resource_manager.o: resource.h thread.h specification.h
 sender.o: sender.h management.h socket.h thread.h nhis11.h monitor.h
-sender.o: etsi_li.h ./ber.h transport.h parameters.h
+sender.o: transport.h etsi_li.h ./ber.h parameters.h
 smtp.o: address.h pdu.h socket.h exception.h smtp.h context.h flow.h reaper.h
 smtp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
 smtp.o: protocol.h
 snort_alert.o: socket.h snort_alert.h resource.h thread.h specification.h
-snort_alert.o: delivery.h sender.h management.h nhis11.h monitor.h etsi_li.h
-snort_alert.o: ./ber.h transport.h parameters.h capture.h packet_capture.h
-snort_alert.o: packet_consumer.h
+snort_alert.o: delivery.h sender.h management.h nhis11.h monitor.h
+snort_alert.o: transport.h etsi_li.h ./ber.h parameters.h capture.h
+snort_alert.o: packet_capture.h packet_consumer.h
 socket.o: socket.h
 tcp.o: tcp.h context.h socket.h address.h pdu.h exception.h flow.h reaper.h
 tcp.o: thread.h base_context.h manager.h observer.h dns_protocol.h serial.h
