@@ -145,7 +145,7 @@ observer.smtp_response = function(context, status, text)
   io.write("\n")
 end
 
--- This function is called when an SMTP response is observed.
+-- This function is called when an SMTP DATA body is observed.
 observer.smtp_data = function(context, from, to, data)
   local a = string.format("SMTP data")
   observer.describe(context, a)
@@ -153,13 +153,6 @@ observer.smtp_data = function(context, from, to, data)
   for key, value in pairs(to) do
     io.write(string.format("    To: %s\n", value))
   end
-  io.write("\n")
-end
-
--- This function is called when an SMTP command is observed.
-observer.smtp_command = function(context, command)
-  local a = string.format("SMTP command %s", command)
-  observer.describe(context, a)
   io.write("\n")
 end
 

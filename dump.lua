@@ -151,6 +151,44 @@ observer.http_response = function(context, code, status, header, url, body)
 
 end
 
+-- This function is called when an SMTP command is observed.
+observer.smtp_command = function(context, command)
+
+  local a = string.format("SMTP command %s", command)
+  local fd = observer.get_fd(context, a)
+
+  fd:write(string.format("Command: %s\n", command))
+  fd:close()
+
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_response = function(context, status, text)
+
+  local a = string.format("SMTP response %d", status)
+  local fd = observer.get_fd(context, a)
+
+  for k, v in pairs(text) do
+    fd:write(string.format("Response: %s\n", v))
+  end
+  fd:close()
+
+end
+
+-- This function is called when an SMTP DATA body is observed.
+observer.smtp_data = function(context, from, to, data)
+
+  local a = string.format("SMTP data")
+  local fd = observer.get_fd(context, a)
+
+  fd:write(string.format("From: %s\n", from))
+  for key, value in pairs(to) do
+    fd:write(string.format("To: %s\n", value))
+  end
+  fd:write(data)
+  io.write("\n")
+end
+
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
 
@@ -181,6 +219,28 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
   fd:close()
 
+end
+
+-- This function is called when an FTP command is observed.
+observer.ftp_command = function(context, command)
+
+  local a = string.format("FTP command %s", command)
+  local fd = observer.get_fd(context, action)
+
+  fd:write(string.format("Command: %s", command))
+  fd:close()
+
+end
+
+-- This function is called when an FTP response is observed.
+observer.ftp_response = function(context, status, text)
+
+  local a = string.format("FTP response %d", status)
+  local fd = observer.get_fd(context, action)
+
+  for k, v in pairs(text) do
+    fd:write(string.format("Response: %s\n", v))
+  end
 end
 
 -- Return the table

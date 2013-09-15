@@ -87,8 +87,29 @@ observer.http_response = function(context, code, status, header, url, body)
   track(context,#body)
 end
 
+-- This function is called when an SMTP command is observed.
+observer.smtp_command = function(context, command)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_response = function(context, status, text)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_data = function(context, from, to, data)
+  track(context,#data)
+end
+
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
+end
+
+-- This function is called when an FTP command is observed.
+observer.ftp_command = function(context, command)
+end
+
+-- This function is called when an FTP response is observed.
+observer.ftp_response = function(context, status, text)
 end
 
 -- Return the table

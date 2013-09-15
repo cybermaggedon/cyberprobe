@@ -162,6 +162,44 @@ header key/value pairs.  If there is an HTTP payload in the response, it is
 contained in the <code>body</code> parameter, which is a string.  Otherwise
 <code>body</code> will be an empty string.</td></tr>
 
+<tr><td><code>smtp_command(context, command)</code></td>
+<td>Called when an SMTP command is observed i.e. a single line message
+going to the server from a client.  The <code>command</code> parameter contains
+the command string.</td></tr>
+
+<tr><td><code>smtp_response(context, status, text)</code></td>
+<td>Called when an SMTP response is observed.  That is, status going from
+server to client following a command.  The <code>status</code> parameter 
+is the status number e.g. 200.  The <code>text</code> parameter contains the
+response text, described as a list of strings.  Responses may occur over a
+number of lines, hence the parameter is a list: For single-line responses,
+there is only a single item in the list.
+</td></tr>
+
+<tr><td><code>smtp_data(context, from, to, data)</code></td>
+<td>Called when an SMTP payload is observed i.e. the body of text following
+the DATA command.  To aid processing, the SMTP protocol processor assemble
+information from other commands: the <code>from</code> parameter contains
+the email From address described in the <code>MAIL FROM</code> command.
+The <code>to</code> parameter is a list of addresses contained in all
+<code>RCPT TO</code> commands.  The <code>data</code> parameter contains the
+email body - it will be an RFC822 payload.
+</td></tr>
+
+<tr><td><code>ftp_command(context, command)</code></td>
+<td>Called when an FTP command is observed i.e. a single line message
+going to the server from a client.  The <code>command</code> parameter contains
+the command string.</td></tr>
+
+<tr><td><code>ftp_response(context, status, text)</code></td>
+<td>Called when an FTP response is observed.  That is, status going from
+server to client following a command.  The <code>status</code> parameter 
+is the status number e.g. 200.  The <code>text</code> parameter contains the
+response text, described as a list of strings.  Responses may occur over a
+number of lines, hence the parameter is a list: For single-line responses,
+there is only a single item in the list.
+</td></tr>
+
 <tr><td><code>dns_message(context, header, queries, answers, auth, 
 add)</code></td>
 <td>Called when a DNS message is observed.  The decoded DNS message
