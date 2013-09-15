@@ -24,6 +24,8 @@
 <li><a href="licence.html">Licence</a></li>
 </ul>
 
+<h2>Quick-start index</h2>
+
 <p>This page covers how to get started with minimal reading of stuff.
 To run through this tutorial, you will need to run some code with elevated
 privileges than a normal 'user' has.  The easiest way to get through this
@@ -31,7 +33,39 @@ tutorial is to run the appropriate components as the 'root' user a.k.a. Super
 User.
 </p>
 
-<h2>Step 1: Build software</h2>
+<ul>
+<li><a href="#cyberprobe">Cyberprobe</a>
+<ul>
+<li><a href="#build">Build the software</a></li>
+<li><a href="#network">Establish your network parameters</a></li>
+<li><a href="#starting-cyberprobe">Starting cyberprobe</a></li>
+<li><a href="#add-target">Adding a target</a></li>
+<li><a href="#add-endpoint">Adding an endpoint</a></li>
+<li><a href="#capturing">Capturing data</a></li>
+<li><a href="#management">Management interface</a></li>
+<li><a href="#snort">Integration with Snort</a></li>
+<li><a href="#delay">Introducing a delay</a></li>
+</ul>
+</li>
+<li><a href="#cybermon">Cybermon</a>
+<ul>
+<li><a href="#introducing-cybermon">Introducing Cybermon</a></li>
+<li><a href="#configurations">Trying other configurations</a></li>
+<li><a href="#write-configuration">Writing your own configuration</a></li>
+<li><a href="#forge-tcp-reset">Forging a TCP reset</a></li>
+<li><a href="#forge-dns-response">Forging a DNS response</a></li>
+</ul>
+<li><a href="#visualisation">Visualisation</a>
+<ul>
+<li><a href="#storing">Storing observations</a></li>
+<li><a href="#visualising">Visualising observations</a></li>
+</ul>
+</ul>
+
+<a name="cyberprobe"/>
+<h2>Chapter I: Cyberprobe</h2>
+
+<a name="build"/><h3>Step 1: Build software</h3>
 
 <p>There's a fair amount of development taking place in the git repository,
 so you probably want to get the  latest release on the 
@@ -88,7 +122,7 @@ the directory where you have just built it.</p>
 <p>If you have problems you can't resolve
 <a href="https://sourceforge.net/p/cyberprobe/discussion/">head to the discussion</a> forums.
 
-<h2>Step 2: Establish network parameters</h2>
+<a name="network"/><h3>Step 2: Establish network parameters</h3>
 
 <p>
 The simplest way to use cyberprobe is to use it on a Linux workstation,
@@ -137,7 +171,8 @@ your workstation.  In my case, I can tell the broadband router to
 permanently allocate a particular IP address to this workstation.
 </p>
 
-<h2>Step 3: Starting <code>cyberprobe</code> with a configuration file</h2>
+<a name="starting-cyberprobe"/>
+<h3>Step 3: Starting <code>cyberprobe</code> with a configuration file</h3>
 
 <p>The source code contains a file <code>config.xml</code> which is a 
 good template for any configuration you're going to build.  However, for the
@@ -235,7 +270,8 @@ to check that an XML configuration file is valid, if you're not getting
 the results you expect.
 </p>
 
-<h2>Step 4: Adding a target</h2>
+<a name="add-target"/>
+<h3>Step 4: Adding a target</h3>
 
 <p>We have <code>cyberprobe</code> running, but it isn't doing anything
 useful.  Remember, I said that a useful configuration consists of three
@@ -263,7 +299,8 @@ Added target 192.168.1.80 -> 123456.
 as there's no endpoint defined there's still nowhere to send the data.
 So, this is still a useless configuration.  On to the next step...</p>
 
-<h2>Step 5: Adding an endpoint</h2>
+<a name="add-endpoint"/>
+<h3>Step 5: Adding an endpoint</h3>
 
 <p>Adding an endpoint to the configuration file will define a place
 where the captured data is sent.  Before adding an endpoint, let's make sure
@@ -310,7 +347,8 @@ Added endpoint localhost:10000 of type etsi
 Hopefully you'll start to see some output from <code>tcpdump</code>...
 </p>
 
-<h2>Step 6: Capturing data</h2>
+<a name="capturing"/>
+<h3>Step 6: Capturing data</h3>
 
 <p>
 At this step, <code>cyberprobe</code> should be forwarding an network
@@ -345,7 +383,8 @@ ETSI LI connection to localhost:10000 established.
 <p>We don't guarantee zero data loss on a reconnect.
 </p>
 
-<h2>Step 7: Management interface</h2>
+<a name="management"/>
+<h3>Step 7: Management interface</h3>
 
 <p>At this step, we'll setup a control port, and use it modify the
 configuration of <code>cyberprobe</code>.
@@ -414,7 +453,8 @@ configuration file AND the control interface to manage the same resources,
 so you probably don't want to do that.
 </p>
 
-<h2>Step 8: Integration with Snort</h2>
+<a name="snort"/>
+<h3>Step 8: Integration with Snort</h3>
 
 <p>In this step, we'll add the excellent IDS, Snort to the mix.
 If you don't know Snort, it scans network traffic for patterns, and
@@ -517,7 +557,8 @@ be further thwarted by the operating system checking for patches without
 you knowing.
 </p>
 
-<h2>Step 9: Introducing a delay</h2>
+<a name="delay"/>
+<h3>Step 9: Introducing a delay</h3>
 
 <p>
 Your Snort integration suffers from a particular problem now.  The time
@@ -547,7 +588,18 @@ this delay in action: When you generate network traffic, you should be
 able to see the delay between network activity taking place, and the
 corresponding burst of activity from <code>tcpdump</code>.</p>
 
-<h2>Step 10: Introducing Cybermon</h2>
+<p>
+At this point, you've completed the guided tour of <code>cyberprobe</code>,
+the packet capture tool.  If that's all you need, the rest of the tutorial
+will probably have less interest to you: In the following steps, we'll start
+to analyse and act on the captured data.
+</p>
+
+<a name="cybermon"/>
+<h2>Chapter II: Cybermon</h2>
+
+<a name="introducing-cybermon"/>
+<h3>Step 10: Introducing Cybermon</h3>
 
 <p>The previous 9 steps have all been about <code>cyberprobe</code>. If you've
 got this far successfully, you pretty much know all there is to know about
@@ -632,7 +684,8 @@ SNORTc0a80150: 216.34.181.45:80 -> 192.168.1.80:34284. HTTP response 200 OK
     Server: Apache/2.2.3 (CentOS)
 </pre>
 
-<h2>Step 11: Trying other configuration files</h2>
+<a name="configurations"/>
+<h3>Step 11: Trying other configuration files</h3>
 
 <p>
 In the previous step, you started <code>cybermon</code> with the 
@@ -660,7 +713,8 @@ a good place to start hacking your own configuration file.  Which is exactly
 what we'll do in the next step.
 </p>
 
-<h2>Step 12: Writing your own configuration file</h2>
+<a name="write-configuration"/>
+<h3>Step 12: Writing your own configuration file</h3>
 
 <p>
 So, take a copy of the <code>quiet.lua</code> configuration file, and have
@@ -746,7 +800,8 @@ http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 452
 http://pagead2.googlesyndication.com/pag                      0
 </pre>
 
-<h2>Step 13: Forging a TCP reset</h2>
+<a name="forge-tcp-reset"/>
+<h3>Step 13: Forging a TCP reset</h3>
 
 <p>
 So far, this has all been very passive.  It's time to make some noise!
@@ -851,7 +906,8 @@ observer.http_request = function(context, method, url, header, body)
 end
 </pre>
 
-<h2>Step 14: Forging a DNS response</h2>
+<a name="forge-dns-response"/>
+<h3>Step 14: Forging a DNS response</h3>
 
 <p>In this step, we'll detect a particular DNS request, and forge a response.
 First of all, you'll need to familiarise yourself with <code>host</code>
@@ -926,9 +982,162 @@ resources on the internet, you might want to redirect your users to an
 address which is inside your network.
 </p>
 
-<p>All done, I hope you enjoyed the tutorial!  The
-<a href="cybermon.html">Cybermon</a> reference page details the LUA interface
-in detail if you want to find out what else you can do in your LUA code.
+<p>The <a href="cybermon.html">Cybermon</a> reference page details the LUA
+interface in detail if you want to find out what else you can do in your
+LUA code.
+</p>
+
+<a name="visualisation"/>
+<h2>Chapter III: Visualisation</h2>
+
+<p>
+This is the most incomplete part of Cyberprobe.  Look at this part as
+demonstrating what <i>might</i> be possible.  If you find this interesting,
+and feel you could turn this into something more impressive, well... there's
+a git check-in with your name on.
+</p>
+
+<a name="storing"/>
+<h3>Step 15: Storing observations</h3>
+
+<p>Now we need somewhere to store the observations which <code>cybermon</code>
+discovers.  There are many candidates for a storage repository, but my
+favourite for this sort of scenario is the excellent
+<a href="http://www.elasticsearch.org">ElasticSearch</a>.  It is flexible,
+offers a huge amount of functionality, and is incredibly simple to interface
+with, thanks to its JSON API.  So, your next action is to head over
+to the <a href="http://www.elasticsearch.org/download/">download</a> page
+and get hold of the latest version.  I'm using version 0.90.3 to build
+this tutorial but the ElasticSearch API has proven hugely stable, so this
+is bound to work with the latest.
+</p>
+
+<p>Having downloaded the latest version, you unpack it, and run it e.g.
+</p>
+
+<pre>
+tar xvfz elasticsearch-0.90.3.tar.gz
+cd elasticsearch-0.90.3
+bin/elasticsearch -f
+</pre>
+
+<p>Another brilliant thing about ElasticSearch is that it needs almost no
+configuration to get an instance started.  You will need to make one
+configuration change to ElasticSearch if there are other instances running on
+your network: you need need to change <code>cluster.name</code> to some unique
+string in <code>config/elasticsearch.yml</code>, otherwise your ElasticSearch
+instance might join another cluster on your network, which could complicate
+things.
+</p>
+
+<p>You can check you have ElasticSearch up and running using a command such
+as this:
+</p>
+
+<pre>
+wget -q -O- http://localhost:9200
+</pre>
+
+<p>The response will look something like this:</p>
+
+<pre>{
+  "ok" : true,
+  "status" : 200,
+  "name" : "Cybermon",
+  "version" : {
+    "number" : "0.90.3",
+    "build_hash" : "5c38d6076448b899d758f29443329571e2522410",
+    "build_timestamp" : "2013-08-06T13:18:31Z",
+    "build_snapshot" : false,
+    "lucene_version" : "4.4"
+  },
+  "tagline" : "You Know, for Search"
+}</pre>
+
+<p>Once ElasticSearch is running, you can get <code>cybermon</code> to load
+observations into it by using the <code>cyberdb.lua</code> configuration file.
+So if you're continuing the tutorial, you can stop <code>cybermon</code>,
+and run:
+</p>
+
+<pre>cybermon 10000 cyberdb.lua</pre>
+
+<p>
+After some network data has been observed, you should be able to see
+results loaded into ElasticSearch using the following command:
+</p>
+
+<pre>
+curl -s -XPOST "http://localhost:9200/cybermon/observation/_search?pretty=true" -d '
+{
+  "query" : {
+    "match_all": {}
+  }
+}
+'
+</pre>
+
+<p>
+You should see some stuff which looks like data scrolling past on the screen.
+If your response looks like the following result, that's not so good, as it
+means there are no results.  See <code>hits.total</code>?  Zero means no
+results.
+</p>
+
+<pre>
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 0,
+    "max_score" : null,
+    "hits" : [ ]
+  }
+}
+</pre>
+
+<p>
+If you see a lot of information scrolling past on the screen, that's good.
+</p>
+
+<p>The <code>cyberdb.lua</code> configuration file maps the
+<code>cybermon</code> observations into a form which is appropriate to store
+in ElasticSearch.  Each observation is stored with a 60 second time-to-live,
+to the information is not stored for long.
+</p>
+
+<a name="visualising"/>
+<h3>Step 16: Visualising observations</h3>
+
+<p>Having loaded the observations into ElasticSearch, it's easy to do some
+visualisation.  Start up Firefox: you need to use
+"Open File" on the File menu, navigate to your Cyberprobe build area, and load
+load the page <code>www/index.html</code>.  If it all works correctly, the
+page will query your ElasticSearch instance, and show a scrolling display
+of stuff that cybermon sees.  The horizontal space depicts time, with 'now'
+at the right-hand edge.  Thus, observations scroll gradually from right to
+left.  The vertical space depicts the IP address space, so things resulting
+from similar addresses appear close to each other.
+</p>
+
+<p>
+All observations appear as a rectangle containing the action type, except
+HTTP responses carrying images which also have a thumbnail attached.
+</p>
+
+<center><img class="screen" src="visualisation.png"/></center>
+
+<h2>Conslusion</h2>
+
+<p>
+All done, I hope you enjoyed the tutorial!  Any comments on the software,
+or tutorial itself are very welcome!  Positive, or negative, we want to hear
+how you found the experience.
 </p>
 
 </body>

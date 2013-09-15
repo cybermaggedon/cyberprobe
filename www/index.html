@@ -109,7 +109,7 @@ function db_check() {
   obs["src"] = ip;
 
   var div = document.createElement("div");
-  div.appendChild(document.createTextNode(oid + " " + action));
+  div.appendChild(document.createTextNode(action));
   obs["element"] = div;
 
   if (action == "connected_up") {
