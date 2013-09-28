@@ -1,5 +1,5 @@
 
-#include "config.h"
+#include "configuration.h"
 #include "xml.h"
 #include "interface.h"
 #include "target.h"

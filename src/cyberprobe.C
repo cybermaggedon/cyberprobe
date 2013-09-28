@@ -19,7 +19,7 @@ Usage:
 #include <arpa/inet.h>
 #include <signal.h>
 
-#include "config.h"
+#include "configuration.h"
 #include "delivery.h"
 
 
