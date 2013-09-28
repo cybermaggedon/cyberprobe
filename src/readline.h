@@ -1,6 +1,7 @@
 
 #include <curses.h>
 #include <term.h>
+#include <string.h>
 
 #include <stdio.h>
 #include <readline/readline.h>
