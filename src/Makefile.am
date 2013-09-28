@@ -9,6 +9,7 @@ cybermon_SOURCES = cybermon.C
 cybermon_LDADD = libcybermon.la
 
 cyberprobe_cli_SOURCES = cyberprobe_cli.C readline.C
+cyberprobe_cli_LDADD = libcybermon.la
 
 nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C
 nhis11_rcvr_LDADD = libcybermon.la

@@ -12,3 +12,9 @@ nhis11_rcvr
 .libs
 libcybermon.la
 stamp-h1
+autom4te.cache
+config.h
+config.log
+config.status
+m4
+aclocal.m4
