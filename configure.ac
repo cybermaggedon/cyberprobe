@@ -26,6 +26,8 @@ AC_CHECK_LIB([pcap], [main])
 AC_CHECK_LIB([pthread], [main])
 AC_CHECK_LIB([readline], [main])
 
+AC_CHECK_LIB([lua], [lua_open])
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdint.h stdlib.h sys/socket.h sys/time.h unistd.h])
 
