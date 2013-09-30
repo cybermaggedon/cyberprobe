@@ -18,15 +18,17 @@ LT_INIT
 
 # Checks for libraries.
 # FIXME: Replace `main' with functions in libraries:
-AC_CHECK_LIB([boost_regex], [main])
-AC_CHECK_LIB([expat], [main])
-AC_CHECK_LIB([lua], [main])
-AC_CHECK_LIB([ncurses], [main])
-AC_CHECK_LIB([pcap], [main])
-AC_CHECK_LIB([pthread], [main])
-AC_CHECK_LIB([readline], [main])
+AC_CHECK_LIB([boost_regex], [main], [], 
+			    [AC_MSG_ERROR(Library boost_regex missing.)])
+AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
+AC_CHECK_LIB([lua], [main], [], [AC_MSG_ERROR(Library lua missing.)])
+AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
+AC_CHECK_LIB([pcap], [main], [], [AC_MSG_ERROR(Library pcap missing.)])
+AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
+AC_CHECK_LIB([readline], [main], [], [AC_MSG_ERROR(Library readline missing.)])
 
-AC_CHECK_LIB([lua], [lua_open])
+# LUA specifics
+#AC_CHECK_LIB([lua], [lua_open], [AC_DEFINE([HAVE_LUA_OPEN], 1, [I am a buynchy])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdint.h stdlib.h sys/socket.h sys/time.h unistd.h])
