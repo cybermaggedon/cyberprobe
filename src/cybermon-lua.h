@@ -125,7 +125,7 @@ namespace cybermon {
 	    // LUA 5.2 and on
 	    luaL_setfuncs(lua, cfns, 0);
 	    // FIXME: Is this right?
-	    set_meta_table(lua, -2);
+	    set_meta_table(-2);
 #endif
 	    
 	}
