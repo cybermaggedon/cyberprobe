@@ -25,9 +25,9 @@
 </ul>
 
 <div class="standout">
-Version 0.25 is here!  Brings SMTP and FTP capability, plus a simple
-visualisation mechanism.
-See <a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>.
+Version 0.30 is here!  See <a href="#revisions">revision history</a> below.
+Also see
+<a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>.
 
 </div>
 
@@ -121,7 +121,7 @@ After all, monitoring networks with tcpdump and Snort and collecting alerts and
 packet data for analysis is a straightforward process for many networks.
 However, real-time analysis is not possible if everything is file based.
 Collecting the data and forwarding over the network to a central
-collection point allows for a much more "industrialized" approach to intrusion
+collection point allows for a much more "industrialised" approach to intrusion
 detection.  If you detect an attack attempt, and then observe vast quantities
 of data leaving your network from the credit card accounts database, then
 you know you need to act quickly.
@@ -139,11 +139,14 @@ networks and systems as their own weapon.  But with the right tools, you
 can prepare a defence.  It's time to get ready for Cybermaggedon.
 </p>
 
-<h2>Revision history</h2>
+<a name="revisions"/><h2>Revision history</h2>
 
 <p>Cyberprobe releases:</p>
 
 <table>
+<tr><td><code>0.30</code></td><td>The build process now uses the GNU toolset.
+It detects the LUA interface and can compile against LUA 5.1 and 5.2.
+Successfully compiled on a MacBook!</td></tr>
 <tr><td><code>0.25</code></td><td>Added SMTP and FTP capability.
 Also added a primitive mechanism to
 <a href="quickstart.html#visualisation">visualise network observations</a>.

@@ -70,8 +70,16 @@ User.
 <p>There's a fair amount of development taking place in the git repository,
 so you probably want to get the  latest release on the 
 <a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>
-page.
+page.  Download, unpack, and compile.  The configure option 'prefix' can be
+used to say where the software will install.  Choose a location or go with
+<code>/usr/local</code>
 </p>
+
+<pre>
+./configure --prefix=/usr/local
+make
+sudo make install
+</pre>
 
 <p>
 But if you do want to track the latest code, checkout the latest code from git:
@@ -80,13 +88,26 @@ But if you do want to track the latest code, checkout the latest code from git:
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 </pre>
 
+<p>Compilation is a little more long-winded if you use the git source:
+</p>
+
+<pre>
+aclocal
+autoconf
+autoheader
+automake
+./configure --prefix=/usr/local
+make
+sudo make install
+</pre>
+
 <p>The code doesn't have many dependencies.  Exotic dependencies are:</p>
 <ul>
 <li>Boost regex.</li>
 <li>Boost shared pointer.</li>
-<li>LUA - probably 5.1 or later.</li>
+<li>LUA - 5.1 or later.</li>
 <li>GCC C++ compiler and development support.</li>
-<li>PCAP.</li>
+<li>libpcap.</li>
 <li>Expat (XML parser).</li>
 <li>tcpdump - not needed to build the software, but we use it in this
 tutorial.</li>
@@ -102,8 +123,7 @@ instance, both <code>libpcap</code> and <code>libpcap-devel</code> are
 needed in order to be able to build this code.
 </p>
 
-<p>Unpack the code, and then run <code>make</code>.  This compiles
-the following executables:
+<p>The compilation process compiles the following executables:
 </p>
 
 <table>
@@ -111,11 +131,10 @@ the following executables:
 <tr><td><code>cybermon</code></td><td>Data analyser, analyses the data streams and reports events.</td></tr>
 <tr><td><code>etsi_rcvr</code></td><td>Test decoder for ETSI format data.</td></tr>
 <tr><td><code>nhis11_rcvr</code></td><td>Test decoder for NHIS1.1 format data.</td></tr>
+<tr><td><code>cybermon_cli</code></td><td>Cyberprobe control command-line client.</td></tr>
 </table>
 
-<p>There isn't anything in the code to manage installation or packaging
-yes, but for the purposes of this tutorial, you can run everything from
-the directory where you have just built it.</p>
+<p>There isn't anything in the code to manage packaging yet.</p>
 
 <p>If that builds without errors, then it's time to start something up.</p>
 
@@ -157,18 +176,20 @@ eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
 <p>
 The <code>lo</code> interface is a loopback interface, and isn't really on
 the network, so ignore that.  It's an interface that gets packets going to
-127.0.0.1 and makes sure they end up handled by your workstation.
+<code>127.0.0.1</code> and makes sure they end up handled by your workstation.
 Your interface is quite likely to be called something like <code>eth0</code>.
 The other thing you need to know is the IP address of your workstation.
 The IP address is associated with an interface, so 
-in the above example, I can see I have an IP address 192.168.1.80.
+in the above example, I can see I have an IP address <code>192.168.1.80</code>.
 </p>
 
 <p>Note: on some networks (like mine) the IP address is allocated dynamically.
-In my case, the IP address is allocated by the broadband router.  So,
-you may need to keep a look out for it changing every an eye time you restart
-your workstation.  In my case, I can tell the broadband router to
-permanently allocate a particular IP address to this workstation.
+In my case, the IP address is allocated by the broadband router.  If things
+aren't working as you expect, you should check your IP address to check your
+workstation hasn't been allocated a new, different address.
+In my case, I can tell the broadband router to
+permanently allocate a particular IP address to this workstation, so that it
+won't change.
 </p>
 
 <a name="starting-cyberprobe"/>
@@ -215,7 +236,7 @@ file you just created:
 </p>
 
 <pre>
-./cyberprobe c.xml
+cyberprobe c.xml
 </pre>
 
 <p>
@@ -312,7 +333,7 @@ In a separate terminal window, navigate to the Cyberprobe build, and run:
 </p>
 
 <pre>
-./etsi_rcvr 10000 | tcpdump -n -r -
+etsi_rcvr 10000 | tcpdump -n -r -
 </pre>
 
 <p>
@@ -615,11 +636,13 @@ So, that <code>etsi_rcvr</code> you started in step 5?  Stop that, and
 start <code>cybermon</code>.  Two arguments are needed: A TCP port number
 to receive the data on, and a configuration which tells it what to do.
 A number of configuration files are bundled in with the source code, there
-should be a basic one called <code>cybermon.lua</code>:
+should be a basic one called <code>cybermon.lua</code> which is now installed
+in the <code>etc</code> directory, depending on where you installed the
+software:
 </p>
 
 <pre>
-./cybermon 10000 cybermon.lua
+cybermon 10000 /usr/local/etc/cybermon.lua
 </pre>
 
 <p>
@@ -695,7 +718,7 @@ little hex dumps of things like HTTP bodies:
 </p>
 
 <pre>
-cybermon 10000 hexdump.lua
+cybermon 10000 /usr/local/etc/hexdump.lua
 </pre>
 
 <p>
@@ -705,7 +728,7 @@ information to files in the <code>data</code> directory.
 
 <pre>
 mkdir data
-cybermon 10000 dump.lua
+cybermon 10000 /usr/local/etc/dump.lua
 </pre>
 
 <p>The <code>quiet.lua</code> configuration file does nothing.  It may be
@@ -754,7 +777,7 @@ end
 <p>Then run that up...</p>
 
 <pre>
-./cybermon 10000 my.lua
+cybermon 10000 my.lua
 </pre>
 
 <p>Now, do some web browsing, and you should see a list of URLs flying past.
@@ -864,7 +887,7 @@ Start that up:
 </p>
 
 <pre>
-./cybermon 10000 my.lua
+cybermon 10000 my.lua
 </pre>
 
 <p>
@@ -965,7 +988,7 @@ address <code>1.2.3.4</code>.  Start up <code>cybermon</code> with the script:
 </p>
 
 <pre>
-./cybermon 10000 my.lua
+cybermon 10000 my.lua
 </pre>
 
 <p>If everything is working your <code>host</code> command will show a different
@@ -1060,7 +1083,7 @@ So if you're continuing the tutorial, you can stop <code>cybermon</code>,
 and run:
 </p>
 
-<pre>cybermon 10000 cyberdb.lua</pre>
+<pre>cybermon 10000 /usr/local/etc/cyberdb.lua</pre>
 
 <p>
 After some network data has been observed, you should be able to see
