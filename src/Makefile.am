@@ -32,3 +32,19 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	exception.h flow.h manager.h observer.h monitor.h transport.h \
 	serial.h protocol.h management.h
 
+
+ACLOCAL_AMFLAGS = -I m4
+
+AM_CPPFLAGS =
+AM_LDFLAGS = 
+
+LDFLAGS_BOOST = \
+    $(BOOST_REGEX_LDFLAGS)
+
+LIBS_BOOST = \
+    $(BOOST_REGEX)
+
+AM_CPPFLAGS += $(BOOST_CPPFLAGS)
+AM_LDFLAGS += $(LDFLAGS_BOOST)
+LIBS += $(LIBS_BOOST)
+
