@@ -6,6 +6,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 // Lua
 extern "C" {
 #include "lua.h"
@@ -58,8 +62,14 @@ namespace cybermon {
 	void register_module(const std::string& name,
 			     const std::map<std::string,lua_CFunction>& fns) {
 	    
+#ifdef HAVE_LUAL_REGISTER
+	    // LUA 5.1
 	    luaL_reg cfns[fns.size() + 1];
-	    
+#else
+	    // LUA 5.2 and on
+	    luaL_Reg cfns[fns.size() + 1];
+#endif
+
 	    int pos = 0;
 	    for(std::map<std::string,lua_CFunction>::const_iterator it = 
 		    fns.begin();
@@ -73,16 +83,28 @@ namespace cybermon {
 	    cfns[pos].name = 0;
 	    cfns[pos].func = 0;
 	    
-	    // FIXME: Is this going to get deprecated in LUA 5.2?
+#ifdef HAVE_LUAL_REGISTER
+	    // LUA 5.1
 	    luaL_register(lua, name.c_str(), cfns);
+#else
+	    // LUA 5.2 and on
+	    luaL_setfuncs(lua, cfns, 0);
+	    set_global(name.c_str());
+#endif
 	    
 	}
 
 	// Registers into a metatable.
 	void register_table(const std::map<std::string,lua_CFunction>& fns) {
 	    
+#ifdef HAVE_LUAL_REGISTER
+	    // LUA 5.1
 	    luaL_reg cfns[fns.size() + 1];
-	    
+#else
+	    // LUA 5.2 and on
+	    luaL_Reg cfns[fns.size() + 1];
+#endif
+
 	    int pos = 0;
 	    for(std::map<std::string,lua_CFunction>::const_iterator it = 
 		    fns.begin();
@@ -95,8 +117,16 @@ namespace cybermon {
 	    
 	    cfns[pos].name = 0;
 	    cfns[pos].func = 0;
-	    
+	   
+#ifdef HAVE_LUAL_REGISTER
+	    // LUA 5.1
 	    luaL_register(lua, 0, cfns);
+#else
+	    // LUA 5.2 and on
+	    luaL_setfuncs(lua, cfns, 0);
+	    // FIXME: Is this right?
+	    set_meta_table(lua, -2);
+#endif
 	    
 	}
 
@@ -225,8 +255,12 @@ namespace cybermon {
 		throw std::runtime_error("Not a LUA userdata.");
 	}
 
-	int obj_len(int pos) {
+	int raw_len(int pos) {
+#ifdef HAVE_LUA_RAWLEN
+	    return lua_rawlen(lua, pos);
+#else
 	    return lua_objlen(lua, pos);
+#endif
 	}
 
 	bool is_nil(int pos) {

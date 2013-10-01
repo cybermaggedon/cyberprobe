@@ -692,7 +692,7 @@ void cybermon_lua::to_dns_query(int pos, dns_query& d)
 void cybermon_lua::to_dns_queries(int pos, std::list<dns_query>& lst)
 {
 
-    int len = obj_len(pos);
+    int len = raw_len(pos);
 
     lst.clear();
 
@@ -762,7 +762,7 @@ void cybermon_lua::to_dns_rr(int pos, dns_rr& d)
 void cybermon_lua::to_dns_rrs(int pos, std::list<dns_rr>& lst)
 {
 
-    int len = obj_len(pos);
+    int len = raw_len(pos);
 
     lst.clear();
 

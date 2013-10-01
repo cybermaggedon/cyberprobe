@@ -240,7 +240,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@ $(LIBS_BOOST)
+LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -322,15 +322,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = src
-AM_CPPFLAGS = $(BOOST_CPPFLAGS)
-AM_LDFLAGS = $(LDFLAGS_BOOST)
 ACLOCAL_AMFLAGS = -I m4
-LDFLAGS_BOOST = \
-    $(BOOST_REGEX_LDFLAGS)
-
-LIBS_BOOST = \
-    $(BOOST_REGEX)
-
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

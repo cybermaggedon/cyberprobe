@@ -30,7 +30,12 @@ AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
 AC_CHECK_LIB([readline], [main], [], [AC_MSG_ERROR(Library readline missing.)])
 
 # LUA specifics
-#AC_CHECK_LIB([lua], [lua_open], [AC_DEFINE([HAVE_LUA_OPEN], 1, [I am a buynchy])])
+AC_CHECK_LIB([lua], [luaL_register], 
+		    [AC_DEFINE([HAVE_LUAL_REGISTER], 1, 
+		    [Set if luaL_register is supported (removed in 5.2)])])
+AC_CHECK_LIB([lua], [lua_rawlen], 
+		    [AC_DEFINE([HAVE_LUA_RAWLEN], 1, 
+		    [Set if lua_rawlen is supported (added in 5.2)])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdint.h stdlib.h sys/socket.h sys/time.h unistd.h])

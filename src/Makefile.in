@@ -283,7 +283,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@
+LIBS = @LIBS@ $(LIBS_BOOST)
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -389,6 +389,15 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	dns_protocol.h forgery.h smtp.h ftp.h thread.h context.h pdu.h \
 	exception.h flow.h manager.h observer.h monitor.h transport.h \
 	serial.h protocol.h management.h
+
+ACLOCAL_AMFLAGS = -I m4
+AM_CPPFLAGS = $(BOOST_CPPFLAGS)
+AM_LDFLAGS = $(LDFLAGS_BOOST)
+LDFLAGS_BOOST = \
+    $(BOOST_REGEX_LDFLAGS)
+
+LIBS_BOOST = \
+    $(BOOST_REGEX_LIBS)
 
 all: all-am
 

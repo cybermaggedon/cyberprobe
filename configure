@@ -16361,7 +16361,90 @@ fi
 
 
 # LUA specifics
-#AC_CHECK_LIB([lua], [lua_open], [AC_DEFINE([HAVE_LUA_OPEN], 1, [I am a buynchy])])
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for luaL_register in -llua" >&5
+$as_echo_n "checking for luaL_register in -llua... " >&6; }
+if ${ac_cv_lib_lua_luaL_register+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-llua  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char luaL_register ();
+int
+main ()
+{
+return luaL_register ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_lua_luaL_register=yes
+else
+  ac_cv_lib_lua_luaL_register=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lua_luaL_register" >&5
+$as_echo "$ac_cv_lib_lua_luaL_register" >&6; }
+if test "x$ac_cv_lib_lua_luaL_register" = xyes; then :
+
+$as_echo "#define HAVE_LUAL_REGISTER 1" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua_rawlen in -llua" >&5
+$as_echo_n "checking for lua_rawlen in -llua... " >&6; }
+if ${ac_cv_lib_lua_lua_rawlen+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-llua  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char lua_rawlen ();
+int
+main ()
+{
+return lua_rawlen ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_lua_lua_rawlen=yes
+else
+  ac_cv_lib_lua_lua_rawlen=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lua_lua_rawlen" >&5
+$as_echo "$ac_cv_lib_lua_lua_rawlen" >&6; }
+if test "x$ac_cv_lib_lua_lua_rawlen" = xyes; then :
+
+$as_echo "#define HAVE_LUA_RAWLEN 1" >>confdefs.h
+
+fi
+
 
 # Checks for header files.
 for ac_header in arpa/inet.h netdb.h netinet/in.h stdint.h stdlib.h sys/socket.h sys/time.h unistd.h

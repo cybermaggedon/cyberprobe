@@ -39,6 +39,12 @@
 /* Define to 1 if you have the `readline' library (-lreadline). */
 #undef HAVE_LIBREADLINE
 
+/* Set if luaL_register is supported (removed in 5.2) */
+#undef HAVE_LUAL_REGISTER
+
+/* Set if lua_rawlen is supported (added in 5.2) */
+#undef HAVE_LUA_RAWLEN
+
 /* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */
 #undef HAVE_MALLOC
