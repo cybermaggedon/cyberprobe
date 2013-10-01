@@ -18,8 +18,10 @@ LT_INIT
 
 # Checks for libraries.
 # FIXME: Replace `main' with functions in libraries:
-AC_CHECK_LIB([boost_regex], [main], [], 
-			    [AC_MSG_ERROR(Library boost_regex missing.)])
+
+BOOST_REQUIRE
+BOOST_REGEX([mt])
+
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([lua], [main], [], [AC_MSG_ERROR(Library lua missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
