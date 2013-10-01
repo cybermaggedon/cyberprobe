@@ -1,0 +1,8 @@
+2013-10-01  Cyber MacGeddon  <cybermaggedon@gmail.com>
+
+	* Added autoconf support.
+
+	* Added variant LUA compilation support for 5.1 and 5.2.
+
+	* Now compiles on a MacBook!
+
