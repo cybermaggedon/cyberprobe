@@ -16,3 +16,8 @@ autom4te.cache
 config.h
 config.log
 config.status
+Makefile.in
+config.h.in
+configure
+aclocal.m4
+cyberprobe-*.tar.gz
