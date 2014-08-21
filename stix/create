@@ -1,0 +1,119 @@
+#!/usr/bin/env python
+
+from stix.core import STIXPackage, STIXHeader
+from cybox.core import Observable
+from cybox.objects.address_object import Address, EmailAddress
+from cybox.objects.file_object import File
+from cybox.objects.hostname_object import Hostname
+from cybox.objects.port_object import Port
+from cybox.objects.uri_object import URI
+from cybox.objects.system_object import System
+import sys
+import csv
+
+if len(sys.argv) != 3:
+    print "Usage:"
+    print "  create <input> <output>"
+    sys.exit(1)
+
+def create_email_observable(pkg, id, email):
+    a = EmailAddress("bunchy@email.com")
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+def create_ipv4_observable(pkg, id, ip):
+    a = Address(ip, Address.CAT_IPV4)
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+def create_mac_observable(pkg, id, mac):
+    a = Address(mac, Address.CAT_MAC)
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+def create_file_observable(pkg, id, path, hash):
+    a = File()
+    if hash != "":
+        a.add_hash(hash)
+    if path != "":
+        a.full_path = path
+    a.md5 = True
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+def create_hostname_observable(pkg, id, hostname):
+    a = Hostname()
+    a.hostname_value = hostname
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+def create_port_observable(pkg, id, proto, port):
+    a = Port()
+    a.layer4_protocol = proto
+    a.port_value = port
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+def create_uri_observable(pkg, id, uri):
+    a = URI(uri)
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+def create_system_observable(pkg, id, username):
+    a = System()
+    a.username = username
+    o = Observable(a)
+    o.id_ = id
+    pkg.add_observable(o)
+
+package = STIXPackage()                 
+header = STIXHeader()                   
+header.description = "Getting Started!" 
+package.stix_header = header       
+
+input = open(sys.argv[1], 'r')
+reader = csv.reader(input)
+for row in reader:
+    print ', '.join(row)
+    
+    id=row[0]
+    type=row[1]
+    
+    if type == 'email':
+        create_email_observable(package, id, row[2])
+    
+    if type == 'ipv4':
+        create_ipv4_observable(package, id, row[2])
+    
+    if type == 'mac':
+        create_mac_observable(package, id, row[2])
+
+    if type == 'file':
+        create_file_observable(package, id, row[2], row[3])
+
+    if type == 'hostname':
+        create_hostname_observable(package, id, row[2])
+
+    if type == 'port':
+        create_port_observable(package, id, row[2], row[3])
+
+    if type == 'uri':
+        create_uri_observable(package, id, row[2])
+
+    if type == 'system':
+        create_system_observable(package, id, row[2])
+
+f = open(sys.argv[2], 'w')
+f.write('<?xml version="1.0"?>')
+f.write(package.to_xml())
+f.close()
+
+sys.exit(0)
+
