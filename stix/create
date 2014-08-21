@@ -7,7 +7,7 @@ from cybox.objects.file_object import File
 from cybox.objects.hostname_object import Hostname
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
-from cybox.objects.system_object import System
+from cybox.objects.user_account_object import UserAccount
 import sys
 import csv
 
@@ -66,8 +66,8 @@ def create_uri_observable(pkg, id, uri):
     o.id_ = id
     pkg.add_observable(o)
 
-def create_system_observable(pkg, id, username):
-    a = System()
+def create_user_account_observable(pkg, id, username):
+    a = UserAccount()
     a.username = username
     o = Observable(a)
     o.id_ = id
@@ -107,8 +107,8 @@ for row in reader:
     if type == 'uri':
         create_uri_observable(package, id, row[2])
 
-    if type == 'system':
-        create_system_observable(package, id, row[2])
+    if type == 'user_account':
+        create_user_account_observable(package, id, row[2])
 
 f = open(sys.argv[2], 'w')
 f.write('<?xml version="1.0"?>')

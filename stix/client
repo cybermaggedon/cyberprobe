@@ -15,7 +15,7 @@ from cybox.objects.file_object import File
 from cybox.objects.hostname_object import Hostname
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
-from cybox.objects.system_object import System
+from cybox.objects.user_account_object import UserAccount
 
 from lxml import etree
 
@@ -125,8 +125,8 @@ def main():
         if isinstance(obj, URI):
             print "URI: %s" % obj.value
 
-        if isinstance(obj, System):
-            print "System:"
+        if isinstance(obj, UserAccount):
+            print "User account:"
             print "  Username: %s" % obj.username
 
         print

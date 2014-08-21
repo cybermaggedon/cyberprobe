@@ -5,4 +5,4 @@
 5,hostname,www.malware.com
 6,port,tcp,11111
 7,uri,http://www.malware.com
-8,system,finchy_mcglochlan
+8,user_account,finchy_mcglochlan
