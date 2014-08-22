@@ -89,7 +89,10 @@ def main():
         
         obj = obs.object_.properties
 
-        print "Id: %s" % obs.id_
+        if obs.id_:
+            print "Id: %s" % obs.id_
+        if obs.description:
+            print "Description: %s" % obs.description
 
         if isinstance(obj, Address):
 

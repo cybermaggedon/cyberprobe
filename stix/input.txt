@@ -1,8 +1,8 @@
-1,email,malware@malware.com
-2,ipv4,192.168.1.1
-3,mac,aa:bb:cc:dd:ee:ff
-4,file,/etc/passwd,af64e8218ce50f3d4817fea4ce6fb911
-5,hostname,www.malware.com
-6,port,tcp,11111
-7,uri,http://www.malware.com
-8,user_account,finchy_mcglochlan
+1,email,Spearfish attacker,malware@malware.com
+2,ipv4,Malware server IP address,10.11.12.13
+3,mac,Compromised wireless access point,aa:bb:cc:dd:ee:ff
+4,file,File containing malware,/etc/malware,af64e8218ce50f3d4817fea4ce6fb911
+5,hostname,Hostname of malware server,www.malware.com
+6,port,TCP port which malware observed to use,tcp,11111
+7,uri,URL of a page serving malware,http://www.malware.com/malware.dat
+8,user_account,Account which malware is observed to use,finchy_mcglochlan,circle_nerd

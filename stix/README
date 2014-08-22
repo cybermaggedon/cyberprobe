@@ -1,0 +1,43 @@
+Some STIX hacking
+=================
+
+I’ve got three things:
+- A script which parses a basic text file containing cyber threat indicators, 
+  and turns this into a STIX document (XML).
+- A server, which serves up the XML document using a TAXII poll command (over
+  HTTP).
+- A client, which accesses the server, gets the document, and dumps
+  information on output.
+
+Prepare STIX dependencies
+=========================
+
+On a Linux box…
+- Check Python is installed.  And pip (Python package installer) i.e. one of
+  these...
+  - Fedora: sudo yum install pip
+  - Ubuntu: sudo apt-get install pip
+- pip install stix
+- pip install libtaxii
+
+Checkout Cyberprobe (where I stashed the STIX stuff)
+====================================================
+
+- mkdir BLAH; cd BLAH
+- git clone ssh://cybermaggedon@git.code.sf.net/p/cyberprobe/code .
+- git checkout stix
+- cd stix
+
+Server
+======
+
+- Create STIX document: ./create input.txt default.xml
+- ./server
+
+Client
+======
+
+./client   # Should dump out some stuff from the STIX document
+
+
+
