@@ -1,5 +1,26 @@
 #!/usr/bin/env python
 
+#
+# Converts a simple CSV input file into a STIX document.
+#
+# Usage:
+#   create <input> <output> [<id>]
+# Where:
+#   input: the input file
+#   output: the output file
+#   id: optional ID for the STIX document.
+#
+# Input file format, lines in one of these formats:
+#   <id>,email,<description>,<email-address>
+#   <id>,ipv4,<description>,<x.x.x.x>
+#   <id>,mac,<description>,<x:x:x:x:x:x>
+#   <id>,file,<description>,<optional filename>,<optional hash>
+#   <id>,hostname,<description>,<hostname>
+#   <id>,port,<description>,<tcp|udp>,<portnum>
+#   <id>,uri,<description>,<url>
+#   <id>,user_account,<description>,<username>,<domain>
+#
+
 from stix.core import STIXPackage, STIXHeader
 from cybox.core import Observable
 from cybox.objects.address_object import Address, EmailAddress
@@ -11,18 +32,23 @@ from cybox.objects.user_account_object import UserAccount
 import sys
 import csv
 
+# Check arguments
 if len(sys.argv) < 3 or len(sys.argv) > 4:
     print "Usage:"
     print "  create <input> <output> [<id>]"
     sys.exit(1)
 
+# Parse arguments
 input_file = sys.argv[1]
 output_file = sys.argv[2]
-
 if len(sys.argv) == 4:
     id = sys.argv[3]
 else:
     id = None
+
+############################################################################
+# Helper functions to create different kinds of observable
+############################################################################
 
 def create_email_observable(pkg, id, description, email):
     a = EmailAddress("bunchy@email.com")
@@ -90,30 +116,41 @@ def create_user_account_observable(pkg, id, description, username, domain):
     o.description = description
     pkg.add_observable(o)
 
+############################################################################
+# main body
+############################################################################
+
+# Create STIX header
 header = STIXHeader()
-header.description = "Getting Started!"
 header.add_package_intent("Indicators - Watchlist")
 
+# Create STIX package
 package = STIXPackage()
 package.stix_header = header
 if id:
     package.id_ = id
 
+# Open input file, and parse CSV
 input = open(input_file, 'r')
 reader = csv.reader(input)
 for row in reader:
 
+    # Print row.
     print ', '.join(row)
 
+    # Parser id
     id = row[0]
     del row[0]
 
+    # Parse type
     type = row[0]
     del row[0]
 
+    # Parse description
     description = row[0]
     del row[0]
     
+    # Parse rest of row and create observable
     if type == 'email':
         create_email_observable(package, id, description, row[0])
     
@@ -138,10 +175,12 @@ for row in reader:
     if type == 'user_account':
         create_user_account_observable(package, id, description, row[0], row[1])
 
+# Parsing complete, write object to output file
 f = open(output_file, 'w')
 f.write('<?xml version="1.0"?>')
 f.write(package.to_xml())
 f.close()
 
+# All done, exit
 sys.exit(0)
 

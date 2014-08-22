@@ -6,6 +6,7 @@ import BaseHTTPServer
 import time
 import datetime
 
+# Timezone class, representing UTC.
 class UTC(datetime.tzinfo):
     """UTC"""
 

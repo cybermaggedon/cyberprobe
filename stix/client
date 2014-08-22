@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 
 import sys
-
 import argparse
 import dateutil.parser
-
 import libtaxii as t
 import libtaxii.messages_11 as tm11
 import libtaxii.clients as tc
-
 from stix.core import STIXPackage, STIXHeader
 from cybox.objects.address_object import Address, EmailAddress
 from cybox.objects.file_object import File
@@ -16,123 +13,138 @@ from cybox.objects.hostname_object import Hostname
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
-
-from lxml import etree
-
 import StringIO
 
-def main():
-    p = argparse.ArgumentParser(description="Poll Client")
-    p.add_argument("--host", dest="host", default="localhost", 
-                   help="Host where the Poll Service is hosted. "
-                   "Defaults to localhost.")
-    p.add_argument("--port", dest="port", default="8080", 
-                   help="Port where the Poll Service is hosted. Defaults to "
-                   "8080.")
-    p.add_argument("--path", dest="path", default="/services/poll/", 
-                   help="Path where the Poll Service is hosted. Defaults to "
-                   "/services/poll/.")
-    p.add_argument("--collection", dest="collection", default="default", 
-                   help="Data Collection to poll. Defaults to 'default'.")
-    p.add_argument("--begin_timestamp", dest="begin_ts", default=None, 
-                   help="The begin timestamp (format: "
-                   "YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm) for the poll request. "
+############################################################################
+# main body
+############################################################################
+
+# Parse command line arguments
+p = argparse.ArgumentParser(description="Poll Client")
+p.add_argument("--host", dest="host", default="localhost", 
+               help="Host where the Poll Service is hosted. "
+               "Defaults to localhost.")
+p.add_argument("--port", dest="port", default="8080", 
+               help="Port where the Poll Service is hosted. Defaults to "
+               "8080.")
+p.add_argument("--path", dest="path", default="/services/poll/", 
+               help="Path where the Poll Service is hosted. Defaults to "
+               "/services/poll/.")
+p.add_argument("--collection", dest="collection", default="default", 
+               help="Data Collection to poll. Defaults to 'default'.")
+p.add_argument("--begin_timestamp", dest="begin_ts", default=None, 
+               help="The begin timestamp (format: "
+               "YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm) for the poll request. "
                    "Defaults to None.")
-    p.add_argument("--end_timestamp", dest="end_ts", default=None, 
-                   help="The end timestamp (format: "
-                   "YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm) for the poll request. "
-                   "Defaults to None.")
+p.add_argument("--end_timestamp", dest="end_ts", default=None, 
+               help="The end timestamp (format: "
+               "YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm) for the poll request. "
+               "Defaults to None.")
 
-    args = p.parse_args()
+args = p.parse_args()
 
-    try:
-        if args.begin_ts:
-            begin_ts = dateutil.parser.parse(args.begin_ts)
-            if not begin_ts.tzinfo:
-                raise ValueError
-        else:
-            begin_ts = None
+# Parse date/time stuff.
+try:
+    if args.begin_ts:
+        begin_ts = dateutil.parser.parse(args.begin_ts)
+        if not begin_ts.tzinfo:
+            raise ValueError
+    else:
+        begin_ts = None
 
-        if args.end_ts:
-            end_ts = dateutil.parser.parse(args.end_ts)
-            if not end_ts.tzinfo:
-                raise ValueError
-        else:
-            end_ts = None
-    except ValueError:
+    if args.end_ts:
+        end_ts = dateutil.parser.parse(args.end_ts)
+        if not end_ts.tzinfo:
+            raise ValueError
+    else:
+        end_ts = None
+except ValueError:
 
-        print "Unable to parse timestamp value. Timestamp should include "
-        "both date and time information along with a timezone or UTC offset "
-        "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll."
-        sys.exit()
+    print "Unable to parse timestamp value. Timestamp should include "
+    "both date and time information along with a timezone or UTC offset "
+    "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll."
+    sys.exit()
 
-    poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
-                                collection_name=args.collection,
-                                exclusive_begin_timestamp_label=begin_ts,
-                                inclusive_end_timestamp_label=end_ts,
-                                poll_parameters=tm11.PollRequest.PollParameters())
+# Create poll request
+poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
+                            collection_name=args.collection,
+                            exclusive_begin_timestamp_label=begin_ts,
+                            inclusive_end_timestamp_label=end_ts,
+                            poll_parameters=tm11.PollRequest.PollParameters())
 
-    poll_req_xml = poll_req.to_xml()
+# Convert to XML for request body
+poll_req_xml = poll_req.to_xml()
 
-    client = tc.HttpClient()
-    client.setProxy('noproxy') 
-    resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11, poll_req_xml, args.port)
+# Create HTTP client
+client = tc.HttpClient()
+client.setProxy('noproxy') 
 
-    resp = t.get_message_from_http_response(resp, '0')
-    resp = "<?xml version=\"1.0\"?>\n" + resp.content_blocks[0].content
+# Call TAXII service, using the body
+resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
+                                poll_req_xml, args.port)
 
-    package = STIXPackage.from_xml(StringIO.StringIO(resp))
+# Get response
+resp = t.get_message_from_http_response(resp, '0')
+
+# Hack an XML header on the top?! and add the payload body.
+resp = "<?xml version=\"1.0\"?>\n" + resp.content_blocks[0].content
+
+# Parse the payload, should be a STIX document.
+package = STIXPackage.from_xml(StringIO.StringIO(resp))
+
+# Dump out the document
+print
+
+# Walk through observable
+for obs in package.observables.observables:
+    
+    # Get object
+    obj = obs.object_.properties
+
+    # Dump stuff out
+    if obs.id_:
+        print "Id: %s" % obs.id_
+    if obs.description:
+        print "Description: %s" % obs.description
+
+    if isinstance(obj, Address):
+
+        print "Address:"
+        if obj.category == Address.CAT_EMAIL:
+            print '  Email address: %s' % obj.address_value
+        if obj.category == Address.CAT_IPV4:
+            print '  IPv4 address: %s' % obj.address_value
+        if obj.category == Address.CAT_MAC:
+            print '  MAC address: %s' % obj.address_value
+
+    if isinstance(obj, File):
+        print "File:"
+
+        if obj.full_path:  print "  Path: %s" % obj.full_path
+
+        if obj.hashes:
+            for h in obj.hashes:
+                print "  Hash: "
+                if h.simple_hash_value:
+                    print "    Simple hash: %s" % h.simple_hash_value
+                if h.fuzzy_hash_value:
+                    print "    Fuzzy hash: %s" % h.fuzzy_hash_value
+                if h.type_:
+                    print "    Type: %s" % h.type_
+
+    if isinstance(obj, Hostname):
+        print "Hostname: %s" % obj.hostname_value
+
+    if isinstance(obj, Port):
+        print "Port: %s (%s)" % (obj.port_value, obj.layer4_protocol)
+
+    if isinstance(obj, URI):
+        print "URI: %s" % obj.value
+
+    if isinstance(obj, UserAccount):
+        print "User account:"
+        print "  Username: %s" % obj.username
+        print "  Domain: %s" % obj.domain
 
     print
 
-    for obs in package.observables.observables:
-        
-        obj = obs.object_.properties
-
-        if obs.id_:
-            print "Id: %s" % obs.id_
-        if obs.description:
-            print "Description: %s" % obs.description
-
-        if isinstance(obj, Address):
-
-            print "Address:"
-            if obj.category == Address.CAT_EMAIL:
-                print '  Email address: %s' % obj.address_value
-            if obj.category == Address.CAT_IPV4:
-                print '  IPv4 address: %s' % obj.address_value
-            if obj.category == Address.CAT_MAC:
-                print '  MAC address: %s' % obj.address_value
-
-        if isinstance(obj, File):
-            print "File:"
-
-            if obj.full_path:  print "  Path: %s" % obj.full_path
-            
-            if obj.hashes:
-                for h in obj.hashes:
-                    print "  Hash: "
-                    if h.simple_hash_value:
-                        print "    Simple hash: %s" % h.simple_hash_value
-                    if h.fuzzy_hash_value:
-                        print "    Fuzzy hash: %s" % h.fuzzy_hash_value
-                    if h.type_:
-                        print "    Type: %s" % h.type_
-
-        if isinstance(obj, Hostname):
-            print "Hostname: %s" % obj.hostname_value
-
-        if isinstance(obj, Port):
-            print "Port: %s (%s)" % (obj.port_value, obj.layer4_protocol)
-
-        if isinstance(obj, URI):
-            print "URI: %s" % obj.value
-
-        if isinstance(obj, UserAccount):
-            print "User account:"
-            print "  Username: %s" % obj.username
-
-        print
-
-if __name__ == "__main__":
-    main()
