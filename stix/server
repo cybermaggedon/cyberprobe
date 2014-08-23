@@ -73,11 +73,12 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 
             # Check whether file's modification time falls within the
             # begin/end bounds.
+            print msg.exclusive_begin_timestamp_label, then
             if msg.exclusive_begin_timestamp_label:
-                if msg.exclusive_begin_timestamp_label > then:
+                if msg.exclusive_begin_timestamp_label >= then:
                     continue
             if msg.inclusive_end_timestamp_label:
-                if msg.inclusive_end_timestamp_label <= then:
+                if msg.inclusive_end_timestamp_label < then:
                     continue
 
             # Keep the 'latest' time up to date.

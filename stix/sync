@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import os
 import argparse
 import dateutil.parser
 import libtaxii as t
@@ -30,76 +31,6 @@ class GMT(datetime.tzinfo):
         return datetime.timedelta(0)
 
 gmt = GMT()
-
-############################################################################
-# Dump a Cybox observable
-############################################################################
-
-def dump_observable(obs):
-    
-    # Get object
-    obj = obs.object_.properties
-
-    # Dump stuff out
-    if obs.id_:
-        print "Id: %s" % obs.id_
-    if obs.description:
-        print "Description: %s" % obs.description
-
-    if isinstance(obj, Address):
-
-        print "Address:"
-        if obj.category == Address.CAT_EMAIL:
-            print '  Email address: %s' % obj.address_value
-        if obj.category == Address.CAT_IPV4:
-            print '  IPv4 address: %s' % obj.address_value
-        if obj.category == Address.CAT_MAC:
-            print '  MAC address: %s' % obj.address_value
-
-    if isinstance(obj, File):
-        print "File:"
-
-        if obj.full_path:  print "  Path: %s" % obj.full_path
-
-        if obj.hashes:
-            for h in obj.hashes:
-                print "  Hash: "
-                if h.simple_hash_value:
-                    print "    Simple hash: %s" % h.simple_hash_value
-                if h.fuzzy_hash_value:
-                    print "    Fuzzy hash: %s" % h.fuzzy_hash_value
-                if h.type_:
-                    print "    Type: %s" % h.type_
-
-    if isinstance(obj, Hostname):
-        print "Hostname: %s" % obj.hostname_value
-
-    if isinstance(obj, Port):
-        print "Port: %s (%s)" % (obj.port_value, obj.layer4_protocol)
-
-    if isinstance(obj, URI):
-        print "URI: %s" % obj.value
-
-    if isinstance(obj, UserAccount):
-        print "User account:"
-        print "  Username: %s" % obj.username
-        print "  Domain: %s" % obj.domain
-
-    print
-
-############################################################################
-# Dump a STIX package in human readable form
-############################################################################
-
-def dump_package(pkg):
-
-    # Dump out the document
-    print
-
-    # Walk through observable
-    for obs in package.observables.observables:
-
-        dump_observable(obs)
 
 ############################################################################
 # main body
@@ -188,6 +119,8 @@ for cb in resp.content_blocks:
     # Dump package ID
     if package.id_:
         print "***** Package id: %s" % package.id_
+        fname = 'stix-%s-%s.xml' % (args.collection, package.id_)
+        f = open(fname, 'w')
+        f.write(package.to_json())
+        f.close()
 
-    # Dump package
-    dump_package(package)
