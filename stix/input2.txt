@@ -1,1 +1,1 @@
-1006,hostname,Hostname of a new malware server,www.malware.org
+example2:1006,hostname,Hostname of a new malware server,www.malware.org

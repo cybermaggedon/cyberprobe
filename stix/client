@@ -176,6 +176,8 @@ resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
 # Get response
 resp = t.get_message_from_http_response(resp, '0')
 
+print "End timestamp: %s" % resp.inclusive_end_timestamp_label
+
 # Process each content block
 for cb in resp.content_blocks:
 

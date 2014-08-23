@@ -11,6 +11,8 @@ import os
 host_name = 'localhost'
 port_number = 8080
 
+# Directory containing STIX documents.  Directory structure is...
+#   data/<collection>/<document>
 data_dir = "data"
 
 ############################################################################
@@ -36,54 +38,85 @@ gmt = GMT()
 #################################################################
 class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 
-    
+    # Handling a TAXII PollRequest
     def handle_poll_request(s, msg):
         
+        # Get the time (now)
         now = datetime.datetime.now(gmt)
 
+        # Construct pathname of collection.
+        # FIXME: Security feature: Check collection name for attempts
+        # to navigate outside of the data directory.
         dir = os.path.join(data_dir, msg.collection_name)
 
+        # Get a list of files.
         flst = os.listdir(dir)
 
+        # Start constructing the content block list
         cbs = []
 
         print "Building response..."
 
+        # Need to record the newest timestamp of all the data files, this 
+        # variable keeps track.
+        latest = None
+
+        # Iterate over file list.
         for file in flst:
 
+            # Create filename
             fname = os.path.join(dir, file)
 
+            # Stat in order to get the last modification time.
             st = os.stat(fname)
             then = datetime.datetime.fromtimestamp(st.st_mtime, gmt)
 
+            # Check whether file's modification time falls within the
+            # begin/end bounds.
             if msg.exclusive_begin_timestamp_label:
                 if msg.exclusive_begin_timestamp_label > then:
                     continue
-
             if msg.inclusive_end_timestamp_label:
                 if msg.inclusive_end_timestamp_label <= then:
                     continue
 
+            # Keep the 'latest' time up to date.
+            if latest == None or then > latest:
+                latest = then
+
             print "Adding %s" % fname
 
+            # Open the file and read contents.
             f = open(fname, "r")
             content = f.read()
             f.close()
 
+            # Create content block.
             cb = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), 
                                    content)
 
+            # Append content block to list.
             cbs.append(cb)
 
         print "Done"
 
+        # If there's no latest (i.e. there were no content blocks in scope,
+        # then use current time.
+        if latest == None:
+            latest = now
+
+        # Create poll response.
         resp = tm11.PollResponse(message_id=tm11.generate_message_id(),
                                  in_response_to=msg.message_id,
                                  collection_name=msg.collection_name,
-                                 inclusive_end_timestamp_label=now,
+                                 inclusive_end_timestamp_label=latest,
                                  content_blocks=cbs,
                                  more=False)
+
+        # Convert to XML
         body = resp.to_xml()
+
+        # Send HTTP response
         s.send_response(200)
         s.send_header("Content-type", "text/xml")
         s.send_header("Content-length", len(body))
@@ -96,32 +129,44 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         s.end_headers()
         s.wfile.write(body)
 
+    # HTTP head request
     def do_HEAD(s):
         s.send_response(200)
         s.send_header("Content-type", "text/html")
         s.end_headers()
 
+    # HTTP POST request
     def do_POST(s):
 
+        # Get the HTTP bdoy
         varLen = int(s.headers['Content-Length'])
         data = s.rfile.read(varLen)
 
+        # Parse body as TAXII message.
         msg = tm11.get_message_from_xml(data)
 
+        # If it's a poll request, handle it.
         if type(msg) == tm11.PollRequest:
             s.handle_poll_request(msg)
             return
-        else:
-            s.send_error(500)
 
-if __name__ == '__main__':
-    server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((host_name, port_number), Handler)
-    print time.asctime(), "Server Starts - %s:%s" % (host_name, port_number)
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-        httpd.server_close()
-        print time.asctime(), "Server Stops - %s:%s" % (host_name, port_number)
+        # Sorry, I only handle poll requests.
+        s.send_error(500)
+
+############################################################################
+# Main body
+############################################################################
+
+# Construct HTTP server
+server_class = BaseHTTPServer.HTTPServer
+httpd = server_class((host_name, port_number), Handler)
+print time.asctime(), "Server Starts - %s:%s" % (host_name, port_number)
+
+# Serve indefinitely.
+try:
+    httpd.serve_forever()
+except KeyboardInterrupt:
+    pass
+    httpd.server_close()
+    print time.asctime(), "Server Stops - %s:%s" % (host_name, port_number)
 

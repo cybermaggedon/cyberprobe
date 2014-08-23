@@ -51,7 +51,7 @@ else:
 ############################################################################
 
 def create_email_observable(pkg, id, description, email):
-    a = EmailAddress("bunchy@email.com")
+    a = EmailAddress(email)
     o = Observable(a)
     o.id_ = id
     o.description = description
@@ -130,13 +130,20 @@ package.stix_header = header
 if id:
     package.id_ = id
 
+row_count = 0
+
 # Open input file, and parse CSV
 input = open(input_file, 'r')
 reader = csv.reader(input)
 for row in reader:
 
+    row_count = row_count + 1
+
+    if row_count % 1000 == 0:
+        print row_count, "..."
+
     # Print row.
-    print ', '.join(row)
+#    print ', '.join(row)
 
     # Parser id
     id = row[0]
