@@ -5,66 +5,118 @@ import libtaxii.messages_11 as tm11
 import BaseHTTPServer
 import time
 import datetime
+import os
 
-# Timezone class, representing UTC.
-class UTC(datetime.tzinfo):
-    """UTC"""
+# Host/port parameters of web server
+host_name = 'localhost'
+port_number = 8080
+
+data_dir = "data"
+
+############################################################################
+# Timezone class, representing GMT.
+############################################################################
+class GMT(datetime.tzinfo):
+    """GMT"""
 
     def utcoffset(self, dt):
         return datetime.timedelta(0)
 
     def tzname(self, dt):
-        return "UTC"
+        return "GMT"
 
     def dst(self, dt):
         return datetime.timedelta(0)
 
-utc = UTC()
+# GMT timezone instance
+gmt = GMT()
 
-host_name = 'localhost'
-port_number = 8080
+############################################################################
+# HTTP request handler
+#################################################################
+class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 
-class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    
+    def handle_poll_request(s, msg):
+        
+        now = datetime.datetime.now(gmt)
+
+        dir = os.path.join(data_dir, msg.collection_name)
+
+        flst = os.listdir(dir)
+
+        cbs = []
+
+        print "Building response..."
+
+        for file in flst:
+
+            fname = os.path.join(dir, file)
+
+            st = os.stat(fname)
+            then = datetime.datetime.fromtimestamp(st.st_mtime, gmt)
+
+            if msg.exclusive_begin_timestamp_label:
+                if msg.exclusive_begin_timestamp_label > then:
+                    continue
+
+            if msg.inclusive_end_timestamp_label:
+                if msg.inclusive_end_timestamp_label <= then:
+                    continue
+
+            print "Adding %s" % fname
+
+            f = open(fname, "r")
+            content = f.read()
+            f.close()
+
+            cb = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), 
+                                   content)
+
+            cbs.append(cb)
+
+        print "Done"
+
+        resp = tm11.PollResponse(message_id=tm11.generate_message_id(),
+                                 in_response_to=msg.message_id,
+                                 collection_name=msg.collection_name,
+                                 inclusive_end_timestamp_label=now,
+                                 content_blocks=cbs,
+                                 more=False)
+        body = resp.to_xml()
+        s.send_response(200)
+        s.send_header("Content-type", "text/xml")
+        s.send_header("Content-length", len(body))
+        s.send_header("X-TAXII-Content-Type", 
+                      "urn:taxii.mitre.org:message:xml:1.1")
+        s.send_header("X-TAXII-Protocol", 
+                      "urn:taxii.mitre.org:protocol:http:1.0")
+        s.send_header("X-TAXII-Services", 
+                      "urn:taxii.mitre.org:services:1.1")
+        s.end_headers()
+        s.wfile.write(body)
+
     def do_HEAD(s):
         s.send_response(200)
         s.send_header("Content-type", "text/html")
         s.end_headers()
 
     def do_POST(s):
+
         varLen = int(s.headers['Content-Length'])
         data = s.rfile.read(varLen)
 
         msg = tm11.get_message_from_xml(data)
 
-        now = datetime.datetime.now(utc)
-        end_ts = now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+        if type(msg) == tm11.PollRequest:
+            s.handle_poll_request(msg)
+            return
+        else:
+            s.send_error(500)
 
-        f = open("default.xml", "r")
-        content = f.read()
-        f.close()
-
-        cb = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), content)
-
-        resp = tm11.PollResponse(message_id=tm11.generate_message_id(),
-                                 in_response_to=msg.message_id,
-                                 collection_name=msg.collection_name,
-                                 inclusive_end_timestamp_label=now,
-                                 content_blocks=[cb],
-                                 more=False)
-        body = resp.to_xml()
-        s.send_response(200)
-        s.send_header("Content-type", "text/xml")
-        s.send_header("Content-length", len(body))
-        s.send_header("X-TAXII-Content-Type", "urn:taxii.mitre.org:message:xml:1.1")
-        s.send_header("X-TAXII-Protocol", "urn:taxii.mitre.org:protocol:http:1.0")
-        s.send_header("X-TAXII-Services", "urn:taxii.mitre.org:services:1.1")
-
-        s.end_headers()
-        s.wfile.write(body)
-        
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((host_name, port_number), MyHandler)
+    httpd = server_class((host_name, port_number), Handler)
     print time.asctime(), "Server Starts - %s:%s" % (host_name, port_number)
     try:
         httpd.serve_forever()

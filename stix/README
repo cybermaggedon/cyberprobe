@@ -31,7 +31,11 @@ Checkout Cyberprobe (where I stashed the STIX stuff)
 Server
 ======
 
-- Create STIX document: ./create input.txt default.xml
+- mkdir data
+- mkdir data/default
+- Create STIX documents:
+  - ./create input1.txt data/default/1.xml 1
+  - ./create input2.txt data/default/2.xml 2
 - ./server
 
 Client
