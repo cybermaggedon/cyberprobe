@@ -6,6 +6,8 @@ import BaseHTTPServer
 import time
 import datetime
 import os
+from stix.core import STIXPackage, STIXHeader
+import StringIO
 
 # Host/port parameters of web server
 host_name = 'localhost'
@@ -37,6 +39,52 @@ gmt = GMT()
 # HTTP request handler
 #################################################################
 class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+
+    # Handling a TAXII InboxMessage
+    def handle_inbox_message(s, msg):
+
+        # Process each content block
+        for cb in msg.content_blocks:
+
+            content = cb.content
+
+            # Hack an XML header on the top?! and add the payload body.
+            resp = "<?xml version=\"1.0\"?>\n" + content
+
+            # Parse the payload, should be a STIX document.
+            package = STIXPackage.from_xml(StringIO.StringIO(resp))
+
+            for collection in msg.destination_collection_names:
+
+                # FIXME: Make sure this can't be used to write an arbitrary
+                # file.
+                path = os.path.join(data_dir, collection, package.id_)
+
+                f = open(path, 'w')
+                f.write(content)
+                f.close()
+
+                print "Wrote %s" % path
+
+        resp = tm11.StatusMessage(message_id=tm11.generate_message_id(),
+                                 in_response_to=msg.message_id,
+                                  status_type=tm11.ST_SUCCESS)
+
+        # Convert to XML
+        body = resp.to_xml()
+
+        # Send HTTP response
+        s.send_response(200)
+        s.send_header("Content-type", "text/xml")
+        s.send_header("Content-length", len(body))
+        s.send_header("X-TAXII-Content-Type", 
+                      "urn:taxii.mitre.org:message:xml:1.1")
+        s.send_header("X-TAXII-Protocol", 
+                      "urn:taxii.mitre.org:protocol:http:1.0")
+        s.send_header("X-TAXII-Services", 
+                      "urn:taxii.mitre.org:services:1.1")
+        s.end_headers()
+        s.wfile.write(body)
 
     # Handling a TAXII PollRequest
     def handle_poll_request(s, msg):
@@ -73,7 +121,6 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 
             # Check whether file's modification time falls within the
             # begin/end bounds.
-            print msg.exclusive_begin_timestamp_label, then
             if msg.exclusive_begin_timestamp_label:
                 if msg.exclusive_begin_timestamp_label >= then:
                     continue
@@ -149,6 +196,10 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         # If it's a poll request, handle it.
         if type(msg) == tm11.PollRequest:
             s.handle_poll_request(msg)
+            return
+
+        if type(msg) == tm11.InboxMessage:
+            s.handle_inbox_message(msg)
             return
 
         # Sorry, I only handle poll requests.

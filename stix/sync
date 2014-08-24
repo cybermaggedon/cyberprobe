@@ -121,6 +121,6 @@ for cb in resp.content_blocks:
         print "***** Package id: %s" % package.id_
         fname = 'stix-%s-%s.xml' % (args.collection, package.id_)
         f = open(fname, 'w')
-        f.write(package.to_json())
+        f.write(package.to_xml())
         f.close()
 
