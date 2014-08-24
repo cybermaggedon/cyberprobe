@@ -85,4 +85,8 @@ if type(resp) != tm11.StatusMessage:
     print "Expecting a status message!"
     sys.exit(1)
 
-print resp.status_type
+if resp.status_type != tm11.ST_SUCCESS:
+    print "%s: %s" % (resp.status_type, resp.message)
+
+
+

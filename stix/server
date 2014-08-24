@@ -40,6 +40,22 @@ gmt = GMT()
 #################################################################
 class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 
+    # Send a TAXII response payload
+    def respond(s, body):
+
+        # Send HTTP response
+        s.send_response(200)
+        s.send_header("Content-type", "text/xml")
+        s.send_header("Content-length", len(body))
+        s.send_header("X-TAXII-Content-Type", 
+                      "urn:taxii.mitre.org:message:xml:1.1")
+        s.send_header("X-TAXII-Protocol", 
+                      "urn:taxii.mitre.org:protocol:http:1.0")
+        s.send_header("X-TAXII-Services", 
+                      "urn:taxii.mitre.org:services:1.1")
+        s.end_headers()
+        s.wfile.write(body)
+
     # Handling a TAXII InboxMessage
     def handle_inbox_message(s, msg):
 
@@ -67,24 +83,11 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
                 print "Wrote %s" % path
 
         resp = tm11.StatusMessage(message_id=tm11.generate_message_id(),
-                                 in_response_to=msg.message_id,
+                                  in_response_to=msg.message_id,
                                   status_type=tm11.ST_SUCCESS)
 
-        # Convert to XML
-        body = resp.to_xml()
-
-        # Send HTTP response
-        s.send_response(200)
-        s.send_header("Content-type", "text/xml")
-        s.send_header("Content-length", len(body))
-        s.send_header("X-TAXII-Content-Type", 
-                      "urn:taxii.mitre.org:message:xml:1.1")
-        s.send_header("X-TAXII-Protocol", 
-                      "urn:taxii.mitre.org:protocol:http:1.0")
-        s.send_header("X-TAXII-Services", 
-                      "urn:taxii.mitre.org:services:1.1")
-        s.end_headers()
-        s.wfile.write(body)
+        # Respond
+        s.respond(resp.to_xml())
 
     # Handling a TAXII PollRequest
     def handle_poll_request(s, msg):
@@ -161,21 +164,9 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
                                  content_blocks=cbs,
                                  more=False)
 
-        # Convert to XML
+        # Send response
+        s.respond(resp.to_xml())
         body = resp.to_xml()
-
-        # Send HTTP response
-        s.send_response(200)
-        s.send_header("Content-type", "text/xml")
-        s.send_header("Content-length", len(body))
-        s.send_header("X-TAXII-Content-Type", 
-                      "urn:taxii.mitre.org:message:xml:1.1")
-        s.send_header("X-TAXII-Protocol", 
-                      "urn:taxii.mitre.org:protocol:http:1.0")
-        s.send_header("X-TAXII-Services", 
-                      "urn:taxii.mitre.org:services:1.1")
-        s.end_headers()
-        s.wfile.write(body)
 
     # HTTP head request
     def do_HEAD(s):
@@ -202,8 +193,13 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
             s.handle_inbox_message(msg)
             return
 
-        # Sorry, I only handle poll requests.
-        s.send_error(500)
+        # Sorry, I only handle inbox and poll requests.
+
+        resp = tm11.StatusMessage(message_id=tm11.generate_message_id(),
+                                  in_response_to=msg.message_id,
+                                  status_type=tm11.ST_FAILURE,
+                                  message="Your request type not supported.")
+        s.respond(resp.to_xml())
 
 ############################################################################
 # Main body
