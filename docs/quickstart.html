@@ -60,6 +60,11 @@ User.
 <li><a href="#storing">Storing observations</a></li>
 <li><a href="#visualising">Visualising observations</a></li>
 </ul>
+<li><a href="#stix">Cyber threat indicators using STIX</a>
+<ul>
+<li><a href="#stix-service">A STIX document service</a></li>
+<li><a href="#stix-deploying">Deploying threat information to Cybermon</a></li>
+</ul>
 </ul>
 
 <a name="cyberprobe"/>
@@ -1153,7 +1158,141 @@ All observations appear as a rectangle containing the action type, except
 HTTP responses carrying images which also have a thumbnail attached.
 </p>
 
-<center><img class="screen" src="visualisation.png"/></center>
+<center><img class="screen" src="visualisation.png" width="400"/></center>
+
+<a name="stix"/>
+<h2>Chapter IV: Cyber threat indicators using STIX</h2>
+
+<p>We've been experimenting with an open model for describing
+cyber threats.  <a href="https://stix.mitre.org">STIX</a> is a community-driven
+effort to standardise a model for cyber theat information.
+<a href="http://taxii.mitre.org/">TAXII</a> defines a set of services for
+distributing STIX information.  There's some support in Cyberprobe, but you
+should know that this is very prototype at the moment.
+</p>
+
+<p>This is what we've got so far:</p>
+<ul>
+<li>There's a simple CSV file format we've created to describe cyber threats.
+This is just for convenience.</li>
+<li>A script, <code>stix-create</code> which reads the above configuration file,
+and converts into a STIX document containing Indicator objects.</li>
+<li>A script, <code>stix-server</code> which acts as a very simple TAXII
+server, serving up STIX documents.</li>
+<li>A script, <code>stix-client</code> which connects to a STIX server, gets
+STIX documents and dumps some stuff out.</li>
+<li>A script <code>stix-sync-json</code> which connects to a STIX server,
+gets STIX documents, massages the whole lot into a single JSON form, and
+dumps that to a file.</li>
+<li>A configuration file for <code>cybermon</code> which reads the JSON 
+threat information and reports when theats are observed.</li>
+</ul>
+
+<p>Before taking this any further, you need to have Python installed, along
+with various dependencies (<code>pyOpenSSL</code>, <code>libtaxii</code> and
+<code>stix</code>).  The easiest way to install the dependencies is
+to install <code>pip</code>, and issue this command:
+<pre>
+sudo pip install libtaxii pyOpenSSL stix
+</pre>
+
+<a name="stix-service"/><h3>Step 17: A STIX document service</h3>
+
+<p>
+The installation bundle includes a couple of CSV files containing some
+fictional cyber theats.  Search for example1.txt and example2.txt.  They
+may be in <code>/usr/local/share/doc/cyberprobe</code> once you've installed
+everything.  You need to create a data area, and convert these files into
+STIX ready for serving:
+</p>
+
+<pre>
+mkdir /tmp/stix
+cd /tmp/stix
+mkdir -p data/default
+stix-create /usr/local/share/doc/cyberprobe/example1.txt data/default/1 1
+stix-create /usr/local/share/doc/cyberprobe/example2.txt data/default/2 2
+</pre>
+
+<p>
+Check that you have two new XML files in <code>data/default</code> directory.
+If they're there, you're ready to start a STIX server.  This will run on
+port 8080, so you'll need to use a different port number if you don't like
+this one.  It's important that this is run from the directory where you
+just created the data directory.
+</p>
+
+<pre>
+taxii-server --port 8080
+</pre>
+
+<p>
+If that works, use the test client to communicate:
+</p>
+
+<pre>
+taxii-client --port 8080
+</pre>
+
+<p>And you should see some stuff that looks like cyber threat information
+dumped on the screen.
+</p>
+
+<a name="stix-deploying"/>
+<h3>Step 18: Deploying theat information to Cybermon</h3>
+
+<p>Now, we use <code>taxii-sync-json</code> to fetch the STIX information
+in a JSON form I can easily ingest into the LUA code:
+</p>
+
+<pre>
+taxii-sync-json --port 8080
+</pre>
+
+<p>
+This should create a JSON file called <code>stix-default-combined.json</code>.
+</p>
+
+<p>
+Finally, stop any running cybermon processes, and run cybermon with a
+configuration file which reads the JSON file.
+</p>
+
+<pre>cybermon 10000 /usr/local/etc/cyberstix.lua</pre>
+
+<p>Now, this produces no output, except when activity which hits on a cyber
+threat is observed.  If you used my sample data, then this activity should
+trigger a theat:
+</p>
+
+<pre>
+wget -q -O- http://www.malware.com/malware.dat
+</pre>
+
+<p>I should just say at this point, I have no idea if the malware.com site
+is dodgy or not, it just seems to redirect to Wikipedia.  Hope they don't mind
+us using them for this test.</p>
+
+<p>If this works, you should see the following output:
+</p>
+
+<pre>
+DNS query for www.malware.com, hits example1:5 (Hostname of malware server)!
+DNS query for www.malware.com, hits example1:5 (Hostname of malware server)!
+DNS response for www.malware.com, hits example1:5 (Hostname of malware server)!
+DNS response for www.malware.com, hits example1:5 (Hostname of malware server)!
+HTTP request to http://www.malware.com/malware.dat, hits example1:7 (URL of a page serving malware)!
+HTTP request to www.malware.com, hits example1:5 (Hostname of malware server)!
+HTTP response from http://www.malware.com/malware.dat, hits example1:7 (URL of a page serving malware)!
+</pre>
+
+<p>
+This hits on a number of theat indicators.  The hostname
+<code>www.malware.com</code> is present in a theat indicator, and it is
+detected in the HTTP request, and both the DNS query and response.  Also,
+the URL <code>http://www.malware.com/malware.dat</code> is in a threat
+indicator and it is detected in both the HTTP request and response.
+</p>
 
 <h2>Conslusion</h2>
 
