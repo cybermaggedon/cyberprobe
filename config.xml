@@ -33,7 +33,7 @@
     <target address="10.1.1.8" liid="591875"/>
     <target address="10.1.1.9" liid="591875"/>
     <target address="10.1.1.10" liid="591875"/>
-    <target address="::4:5:6" liid="983898"/>
+    <target address="::4:5:6" class="ipv6" liid="983898"/>
   </targets>
 
   <!-- Endpoints for delivery of collected packets. -->

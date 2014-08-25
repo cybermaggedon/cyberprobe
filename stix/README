@@ -34,14 +34,12 @@ Server
 - mkdir data
 - mkdir data/default
 - Create STIX documents:
-  - ./create input1.txt data/default/1.xml 1
-  - ./create input2.txt data/default/2.xml 2
+  - ./create example1.txt data/default/example1.xml example:1
+  - ./create example2.txt data/default/example2.xml example:2
 - ./server
 
 Client
 ======
 
 ./client   # Should dump out some stuff from the STIX document
-
-
 
