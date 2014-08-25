@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+
+import sys
+import os
+import argparse
+import dateutil.parser
+import libtaxii as t
+import libtaxii.messages_11 as tm11
+import libtaxii.clients as tc
+from stix.core import STIXPackage, STIXHeader
+from cybox.objects.address_object import Address, EmailAddress
+from cybox.objects.file_object import File
+from cybox.objects.hostname_object import Hostname
+from cybox.objects.port_object import Port
+from cybox.objects.uri_object import URI
+from cybox.objects.user_account_object import UserAccount
+import StringIO
+import datetime
+
+# Timezone class, representing GMT.
+class GMT(datetime.tzinfo):
+    """GMT"""
+
+    def utcoffset(self, dt):
+        return datetime.timedelta(0)
+
+    def tzname(self, dt):
+        return "GMT"
+
+    def dst(self, dt):
+        return datetime.timedelta(0)
+
+gmt = GMT()
+
+############################################################################
+# main body
+############################################################################
+
+# Parse command line arguments
+p = argparse.ArgumentParser(description="Poll Client")
+p.add_argument("--host", dest="host", default="localhost", 
+               help="Host where the Poll Service is hosted. "
+               "Defaults to localhost.")
+p.add_argument("--port", dest="port", default="8080", 
+               help="Port where the Poll Service is hosted. Defaults to "
+               "8080.")
+p.add_argument("--path", dest="path", default="/services/poll/", 
+               help="Path where the Poll Service is hosted. Defaults to "
+               "/services/poll/.")
+p.add_argument("--collection", dest="collection", default="default", 
+               help="Data Collection to poll. Defaults to 'default'.")
+p.add_argument("--begin_timestamp", dest="begin_ts", default=None, 
+               help="The begin timestamp (format: "
+               "YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm) for the poll request. "
+                   "Defaults to None.")
+p.add_argument("--end_timestamp", dest="end_ts", default=None, 
+               help="The end timestamp (format: "
+               "YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm) for the poll request. "
+               "Defaults to None.")
+
+args = p.parse_args()
+
+# Parse date/time stuff.
+try:
+    if args.begin_ts:
+        begin_ts = dateutil.parser.parse(args.begin_ts)
+        if not begin_ts.tzinfo:
+            raise ValueError
+    else:
+        begin_ts = None
+
+    if args.end_ts:
+        end_ts = dateutil.parser.parse(args.end_ts)
+        if not end_ts.tzinfo:
+            raise ValueError
+    else:
+        end_ts = None
+except ValueError:
+
+    print "Unable to parse timestamp value. Timestamp should include "
+    "both date and time information along with a timezone or UTC offset "
+    "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll."
+    sys.exit()
+
+# Create poll request
+poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
+                            collection_name=args.collection,
+                            exclusive_begin_timestamp_label=begin_ts,
+                            inclusive_end_timestamp_label=end_ts,
+                            poll_parameters=tm11.PollRequest.PollParameters())
+
+# Convert to XML for request body
+poll_req_xml = poll_req.to_xml()
+
+# Create HTTP client
+client = tc.HttpClient()
+client.setProxy('noproxy') 
+
+# Call TAXII service, using the body
+resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
+                                poll_req_xml, args.port)
+
+# Get response
+resp = t.get_message_from_http_response(resp, '0')
+
+print "End timestamp: %s" % resp.inclusive_end_timestamp_label
+
+# Create STIX header
+header = STIXHeader()
+header.add_package_intent("Indicators - Watchlist")
+
+# Create STIX package
+combined = STIXPackage()
+combined.stix_header = header
+combined.id_ = "combined"
+
+# Process each content block
+for cb in resp.content_blocks:
+
+    content = cb.content
+
+    # Hack an XML header on the top?! and add the payload body.
+    resp = "<?xml version=\"1.0\"?>\n" + content
+
+    # Parse the payload, should be a STIX document.
+    package = STIXPackage.from_xml(StringIO.StringIO(resp))
+
+    for ind in package.indicators:
+        print ind
+        combined.add_indicator(ind)
+
+# Dump combination package
+
+fname = 'stix-%s-%s.json' % (args.collection, combined.id_)
+f = open(fname, 'w')
+f.write(combined.to_json())
+f.close()
+
