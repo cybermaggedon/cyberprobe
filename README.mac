@@ -1,0 +1,33 @@
+
+Well, it was a bit of a dog getting this thing to work on a Mac.  Here's what
+I did:
+- Install xcode
+- Install macports (go to the Mac ports page and click on the download pkg).
+- Install a bunch of stuff:
+  - sudo port install boost
+  - sudo port install lua
+  - sudo port install libpcap
+  - sudo port install expat
+  - sudo port install tcpdump
+  - sudo port install autoconf
+  - sudo port install automake
+- Should have enough to compile cyberprobe now.  For running configure,
+  you need to run:
+
+  - env CXXFLAGS=-L/opt/local/lib CFLAGS=-L/opt/local/lib ./configure
+
+- That's all good until you want to do the STIX stuff, for which you need a
+  bunch of Python resources:
+  - sudo port install py-pip
+  - sudo port select pip pip27
+  - sudo pip install libtaxii
+  - sudo pip install stix
+  - sudo port install lua-luajson
+  - sudo port install lua-luafilesystem
+- Before running any Python stuff (the Stix things) you need to set up the path:
+  PYTHONPATH=/opt/local/Library/Frameworks/Python.framework/versions/2.7/lib/python2.7/site-packages
+- When running stix-create, you get a UserWarning error about example.com, this
+  can be ignored.
+- To access malware.com example, you need...
+  - sudo port install wget
+

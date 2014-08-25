@@ -1,0 +1,10 @@
+Some useful commands for SMTP testing:
+
+telnet test.smtp.org 25
+EHLO cyberprobe.cyber
+MAIL FROM: <malware@malware.com>
+RCPT TO: <bit-bucket@test.smtp.org>
+DATA
+Hello
+.
+QUIT
