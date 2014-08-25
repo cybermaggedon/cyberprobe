@@ -16,35 +16,21 @@ from cybox.objects.user_account_object import UserAccount
 import StringIO
 import datetime
 
-# Timezone class, representing GMT.
-class GMT(datetime.tzinfo):
-    """GMT"""
-
-    def utcoffset(self, dt):
-        return datetime.timedelta(0)
-
-    def tzname(self, dt):
-        return "GMT"
-
-    def dst(self, dt):
-        return datetime.timedelta(0)
-
-gmt = GMT()
-
 ############################################################################
 # Dump a Cybox observable
 ############################################################################
 
-def dump_observable(obs):
+def dump_indicator(ind):
     
-    # Get object
-    obj = obs.object_.properties
-
     # Dump stuff out
-    if obs.id_:
-        print "Id: %s" % obs.id_
-    if obs.description:
-        print "Description: %s" % obs.description
+    if ind.id_:
+        print "Id: %s" % ind.id_
+    if ind.description:
+        print "Description: %s" % ind.description
+
+    # Get object
+    obs = ind.observable
+    obj = obs.object_.properties
 
     if isinstance(obj, Address):
 
@@ -93,13 +79,11 @@ def dump_observable(obs):
 
 def dump_package(pkg):
 
-    # Dump out the document
     print
 
-    # Walk through observable
-    for obs in package.observables.observables:
-
-        dump_observable(obs)
+    # Walk through indicators
+    for ind in package.indicators:
+        dump_indicator(ind)
 
 ############################################################################
 # main body

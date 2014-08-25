@@ -8,14 +8,10 @@ import datetime
 import os
 from stix.core import STIXPackage, STIXHeader
 import StringIO
+import argparse
 
-# Host/port parameters of web server
-host_name = 'localhost'
-port_number = 8080
-
-# Directory containing STIX documents.  Directory structure is...
-#   data/<collection>/<document>
-data_dir = "data"
+# Uses a directory containing STIX documents.  Directory structure is...
+#   <data_dir/<collection>/<document>
 
 ############################################################################
 # Timezone class, representing GMT.
@@ -38,7 +34,7 @@ gmt = GMT()
 ############################################################################
 # HTTP request handler
 #################################################################
-class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # Handling a TAXII InboxMessage
     def handle_inbox_message(s, msg):
@@ -209,10 +205,26 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 # Main body
 ############################################################################
 
+# Parse command line arguments
+p = argparse.ArgumentParser(description="Poll Client")
+p.add_argument("--host", dest="host", default="localhost", 
+               help="Host to start the HTTP service on. "
+               "Defaults to localhost.")
+p.add_argument("--port", dest="port", default="8080", 
+               help="Port where the Poll Service is hosted. Defaults to "
+               "8080.")
+p.add_argument("--data_dir", dest="data_dir", default="data/", 
+               help="Directory where the STIX data is stored. Defaults to "
+               "'data'.")
+args = p.parse_args()
+
+# Create global variable?
+data_dir = args.data_dir
+
 # Construct HTTP server
 server_class = BaseHTTPServer.HTTPServer
-httpd = server_class((host_name, port_number), Handler)
-print time.asctime(), "Server Starts - %s:%s" % (host_name, port_number)
+httpd = server_class((args.host, int(args.port)), TaxiiHandler)
+print time.asctime(), "Server Starts - %s:%s" % (args.host, args.port)
 
 # Serve indefinitely.
 try:
@@ -220,5 +232,5 @@ try:
 except KeyboardInterrupt:
     pass
     httpd.server_close()
-    print time.asctime(), "Server Stops - %s:%s" % (host_name, port_number)
+    print time.asctime(), "Server Stops - %s:%s" % (args.host, args.port)
 

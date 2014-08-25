@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Converts a simple CSV input file into a STIX document.
+# Converts a simple CSV input file into Indicators in a STIX document 
 #
 # Usage:
 #   create <input> <output> [<id>]
@@ -29,6 +29,7 @@ from cybox.objects.hostname_object import Hostname
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
+from stix.indicator import Indicator
 import sys
 import csv
 
@@ -50,71 +51,54 @@ else:
 # Helper functions to create different kinds of observable
 ############################################################################
 
+def add_indicator(pkg, id, description, obj):
+    i = Indicator()
+    i.id_ = id
+    i.description = description
+    i.add_object(obj)
+    pkg.add_indicator(i)
+
 def create_email_observable(pkg, id, description, email):
-    a = EmailAddress(email)
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+    o = EmailAddress(email)
+    add_indicator(pkg, id, description, o)
 
 def create_ipv4_observable(pkg, id, description, ip):
-    a = Address(ip, Address.CAT_IPV4)
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+    o = Address(ip, Address.CAT_IPV4)
+    add_indicator(pkg, id, description, o)
 
 def create_mac_observable(pkg, id, description, mac):
-    a = Address(mac, Address.CAT_MAC)
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+    o = Address(mac, Address.CAT_MAC)
+    add_indicator(pkg, id, description, o)
 
 def create_file_observable(pkg, id, description, path, hash):
-    a = File()
+    o = File()
     if hash != "":
-        a.add_hash(hash)
+        o.add_hash(hash)
     if path != "":
-        a.full_path = path
-    a.md5 = True
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+        o.full_path = path
+    o.md5 = True
+    add_indicator(pkg, id, description, o)
 
 def create_hostname_observable(pkg, id, description, hostname):
-    a = Hostname()
-    a.hostname_value = hostname
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+    o = Hostname()
+    o.hostname_value = hostname
+    add_indicator(pkg, id, description, o)
 
 def create_port_observable(pkg, id, description, proto, port):
-    a = Port()
-    a.layer4_protocol = proto
-    a.port_value = port
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+    o = Port()
+    o.layer4_protocol = proto
+    o.port_value = port
+    add_indicator(pkg, id, description, o)
 
 def create_uri_observable(pkg, id, description, uri):
-    a = URI(uri)
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+    o = URI(uri)
+    add_indicator(pkg, id, description, o)
 
 def create_user_account_observable(pkg, id, description, username, domain):
-    a = UserAccount()
-    a.username = username
-    a.domain = domain
-    o = Observable(a)
-    o.id_ = id
-    o.description = description
-    pkg.add_observable(o)
+    o = UserAccount()
+    o.username = username
+    o.domain = domain
+    add_indicator(pkg, id, description, o)
 
 ############################################################################
 # main body
