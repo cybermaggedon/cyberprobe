@@ -64,58 +64,66 @@ void config_manager::read(const std::string& file,
 	// Scan the targets block.
 	/////////////////////////////////////////////////////////////
 
-	xml::element& t_elt = dec.root.locate("targets");
+	try {
 
-	for(std::list<xml::element>::iterator it = t_elt.children.begin();
-	    it != t_elt.children.end();
-	    it++) {
+	    xml::element& t_elt = dec.root.locate("targets");
 
-	    // For each target element, get the liid, address and optional
-	    // class attributes.
-	    if (it->name == "target") {
-		
-		// Bail if liid or address aren't specified.
-		if (it->attributes.find("liid") == it->attributes.end())
+	    for(std::list<xml::element>::iterator it = t_elt.children.begin();
+		it != t_elt.children.end();
+		it++) {
+
+		// For each target element, get the liid, address and optional
+		// class attributes.
+		if (it->name == "target") {
+		    
+		    // Bail if liid or address aren't specified.
+		    if (it->attributes.find("liid") == it->attributes.end())
+			continue;
+		    
+		    if (it->attributes.find("address") == it->attributes.end())
+			continue;
+
+		    std::string ip = it->attributes["address"];
+		    std::string liid = it->attributes["liid"];
+		    std::string cs = it->attributes["class"];
+
+		    if (cs != "ipv6") {
+			
+			// IPv4 case
+			
+			// Convert string to an IPv4 address.
+			tcpip::ip4_address addr;
+			addr.from_string(ip);
+			
+			// Create target specification.
+			target_spec* sp = new target_spec;
+			sp->set_ipv4(liid, addr);
+			lst.push_back(sp);
+			
+		    } else {
+			
+			// IPv6 case
+			
+			// Convert string to an IPv6 address.
+			tcpip::ip6_address addr;
+			addr.from_string(ip);
+			
+			// Create target specfication.
+			target_spec* sp = new target_spec;
+			sp->set_ipv6(liid, addr);
+			lst.push_back(sp);
+			
+		    }
+
 		    continue;
-
-		if (it->attributes.find("address") == it->attributes.end())
-		    continue;
-
-		std::string ip = it->attributes["address"];
-		std::string liid = it->attributes["liid"];
-		std::string cs = it->attributes["class"];
-
-		if (cs != "ipv6") {
-
-		    // IPv4 case
-
-		    // Convert string to an IPv4 address.
-		    tcpip::ip4_address addr;
-		    addr.from_string(ip);
-
-		    // Create target specification.
-		    target_spec* sp = new target_spec;
-		    sp->set_ipv4(liid, addr);
-		    lst.push_back(sp);
-
-		} else {
-
-		    // IPv6 case
-
-		    // Convert string to an IPv6 address.
-		    tcpip::ip6_address addr;
-		    addr.from_string(ip);
-
-		    // Create target specfication.
-		    target_spec* sp = new target_spec;
-		    sp->set_ipv6(liid, addr);
-		    lst.push_back(sp);
 
 		}
 
-		continue;
-
 	    }
+
+	} catch (std::exception& e) {
+	    
+	    std::cerr << "Error parsing targets: " << e.what() << std::endl;
 
 	}
 
@@ -123,39 +131,47 @@ void config_manager::read(const std::string& file,
 	// Scan the endpoints block.
 	/////////////////////////////////////////////////////////////
 
-	xml::element& e_elt = dec.root.locate("endpoints");
+	try {
 
-	for(std::list<xml::element>::iterator it = e_elt.children.begin();
-	    it != e_elt.children.end();
-	    it++) {
+	    xml::element& e_elt = dec.root.locate("endpoints");
 
-	    // For each endpoint attribute, get hostname, port and type
-	    // attributes.
-	    if (it->name == "endpoint") {
+	    for(std::list<xml::element>::iterator it = e_elt.children.begin();
+		it != e_elt.children.end();
+		it++) {
 		
-		// All three attributes are mandatory.
-		if (it->attributes.find("hostname") == it->attributes.end())
+		// For each endpoint attribute, get hostname, port and type
+		// attributes.
+		if (it->name == "endpoint") {
+		    
+		    // All three attributes are mandatory.
+		    if (it->attributes.find("hostname") == it->attributes.end())
+			continue;
+		    if (it->attributes.find("port") == it->attributes.end())
+			continue;
+		    if (it->attributes.find("type") == it->attributes.end())
+			continue;
+		    
+		    // Get the attributes.
+		    std::string hostname = it->attributes["hostname"];
+		    std::string type = it->attributes["type"];
+		    
+		    // Scan port string into an integer.
+		    std::istringstream buf(it->attributes["port"]);
+		    int port;
+		    buf >> port;
+		
+		    // Create an endpoint specification.
+		    specification* sp = new endpoint_spec(hostname, port, type);
+		    lst.push_back(sp);
 		    continue;
-		if (it->attributes.find("port") == it->attributes.end())
-		    continue;
-		if (it->attributes.find("type") == it->attributes.end())
-		    continue;
 
-		// Get the attributes.
-		std::string hostname = it->attributes["hostname"];
-		std::string type = it->attributes["type"];
-
-		// Scan port string into an integer.
-		std::istringstream buf(it->attributes["port"]);
-		int port;
-		buf >> port;
-
-		// Create an endpoint specification.
-		specification* sp = new endpoint_spec(hostname, port, type);
-		lst.push_back(sp);
-		continue;
-
+		}
+		
 	    }
+
+	} catch (std::exception& e) {
+
+	    std::cerr << "Error parsing endpoints: " << e.what() << std::endl;
 
 	}
 
@@ -195,9 +211,9 @@ void config_manager::read(const std::string& file,
 
 	    }
 	    
-	} catch (...) {
+	} catch (std::exception& e) {
 
-	    // Silently ignore broken configuration.
+	    std::cerr << "Error parsing parameters: " << e.what() << std::endl;
 
 	}
 
@@ -227,9 +243,9 @@ void config_manager::read(const std::string& file,
 
 	    }
 
-	} catch (...) {
-	    
-	    // Silently ignore broken configuration.
+	} catch (std::exception& e) {
+
+	    std::cerr << "Error parsing control: " << e.what() << std::endl;
 
 	}
 
@@ -257,15 +273,16 @@ void config_manager::read(const std::string& file,
 
 	    }
 
-	} catch (...) {
-	    
-	    // Silently ignore broken configuration.
+	} catch (std::exception& e) {
+
+	    std::cerr << "Error parsing snort_alter: " << e.what() << std::endl;
 
 	}
 
-    } catch (...) {
+    } catch (std::exception& e) {
 	    
-	// Silently ignore broken configuration.
+	std::cerr << "Error parsing configuration file: " << e.what() 
+		  << std::endl;
 
     }
 
