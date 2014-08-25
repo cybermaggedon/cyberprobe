@@ -149,9 +149,57 @@ end
 observer.trigger_down = function(liid)
 end
 
+observer.get_address = function(context, lst, cls, is_src)
+
+  local par = context:get_parent()
+  if par then
+    observer.get_address(par, lst, cls, is_src)
+  end
+
+  if is_src then
+    tcls, addr = context:get_src_addr()
+  else
+    tcls, addr = context:get_dest_addr()
+  end
+
+  if tcls == cls then
+    table.insert(lst, addr)
+  end
+
+end
+
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
 observer.connection_up = function(context)
+
+  lst = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "ipv4", true)
+  observer.get_address(context, lst, "ipv4", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.ipv4[v]
+    if check then
+      print(string.format("Connection with address %s, hits %s (%s)", v,
+        check.id, check.description))
+    end
+  end
+
+  lst = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "tcp", true)
+  observer.get_address(context, lst, "tcp", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.port["tcp:" .. v]
+    if check then
+      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
+        check.id, check.description))
+    end
+  end
+
 end
 
 -- This function is called when a stream-orientated connection is closed
@@ -161,6 +209,21 @@ end
 -- This function is called when a datagram is observed, but the protocol
 -- is not recognised.
 observer.unrecognised_datagram = function(context, data)
+
+  lst = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "ipv4", true)
+  observer.get_address(context, lst, "ipv4", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.ipv4[v]
+    if check then
+      print(string.format("Datagram with address %s, hits %s (%s)", v,
+        check.id, check.description))
+    end
+  end
+
 end
 
 -- This function is called when stream data  is observed, but the protocol
@@ -170,6 +233,21 @@ end
 
 -- This function is called when an ICMP message is observed.
 observer.icmp = function(context, data)
+
+  lst = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "ipv4", true)
+  observer.get_address(context, lst, "ipv4", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.ipv4[v]
+    if check then
+      print(string.format("ICMP with address %s, hits %s (%s)", v,
+        check.id, check.description))
+    end
+  end
+
 end
 
 -- Call this to check, and if appropriate, update the configuration file
@@ -188,13 +266,13 @@ observer.http_request = function(context, method, url, header, body)
 
   check = stix.index.url[url]
   if check then
-    print(string.format("HTTP request to %s, hits %s (%s)!", url,
+    print(string.format("HTTP request to %s, hits %s (%s)", url,
         check.id, check.description))
   end
 
   check = stix.index.hostname[header['Host']]
   if check then
-    print(string.format("HTTP request to %s, hits %s (%s)!", header["Host"],
+    print(string.format("HTTP request to %s, hits %s (%s)", header["Host"],
         check.id, check.description))
   end
 
@@ -207,7 +285,7 @@ observer.http_response = function(context, code, status, header, url, body)
 
   check = stix.index.url[url]
   if check then
-    print(string.format("HTTP response from %s, hits %s (%s)!", url,
+    print(string.format("HTTP response from %s, hits %s (%s)", url,
         check.id, check.description))
   end
 
@@ -223,6 +301,21 @@ end
 
 -- This function is called when an SMTP response is observed.
 observer.smtp_data = function(context, from, to, data)
+
+  check = stix.index.email[from]
+  if check then
+    print(string.format("SMTP email from %s, hits %s (%s)", from,
+        check.id, check.description))
+  end
+
+  for k, v in pairs(to) do
+    check = stix.index.email[v]
+    if check then
+      print(string.format("SMTP email to %s, hits %s (%s)", to,
+          check.id, check.description))
+    end
+  end
+
 end
 
 -- This function is called when a DNS message is observed.
@@ -234,7 +327,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
     check = stix.index.hostname[queries[1].name]
     if check then
-      print(string.format("DNS query for %s, hits %s (%s)!", queries[1].name,
+      print(string.format("DNS query for %s, hits %s (%s)", queries[1].name,
           check.id, check.description))
     end
 
@@ -244,7 +337,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
     check = stix.index.hostname[queries[1].name]
     if check then
-      print(string.format("DNS response for %s, hits %s (%s)!", queries[1].name,
+      print(string.format("DNS response for %s, hits %s (%s)", queries[1].name,
           check.id, check.description))
     end
 

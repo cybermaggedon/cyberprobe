@@ -213,7 +213,8 @@ void config_manager::read(const std::string& file,
 	    
 	} catch (std::exception& e) {
 
-	    std::cerr << "Error parsing parameters: " << e.what() << std::endl;
+//	    std::cerr << "Error parsing parameters: " << e.what() << std::endl;
+	    // Silently ignore.
 
 	}
 
@@ -245,7 +246,7 @@ void config_manager::read(const std::string& file,
 
 	} catch (std::exception& e) {
 
-	    std::cerr << "Error parsing control: " << e.what() << std::endl;
+	    // Silently ignore.
 
 	}
 
@@ -275,7 +276,7 @@ void config_manager::read(const std::string& file,
 
 	} catch (std::exception& e) {
 
-	    std::cerr << "Error parsing snort_alter: " << e.what() << std::endl;
+	    // Silently ignore.
 
 	}
 

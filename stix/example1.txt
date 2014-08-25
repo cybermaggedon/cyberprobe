@@ -1,5 +1,5 @@
 example1:1,email,Spearfish attacker,malware@malware.com
-example1:2,ipv4,Malware server IP address,10.11.12.13
+example1:2,ipv4,Malware server IP address,192.179.1.72
 example1:3,mac,Compromised wireless access point,aa:bb:cc:dd:ee:ff
 example1:4,file,File containing malware,/etc/malware,af64e8218ce50f3d4817fea4ce6fb911
 example1:5,hostname,Hostname of malware server,www.malware.com
