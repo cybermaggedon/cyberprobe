@@ -64,58 +64,66 @@ void config_manager::read(const std::string& file,
 	// Scan the targets block.
 	/////////////////////////////////////////////////////////////
 
-	xml::element& t_elt = dec.root.locate("targets");
+	try {
 
-	for(std::list<xml::element>::iterator it = t_elt.children.begin();
-	    it != t_elt.children.end();
-	    it++) {
+	    xml::element& t_elt = dec.root.locate("targets");
 
-	    // For each target element, get the liid, address and optional
-	    // class attributes.
-	    if (it->name == "target") {
-		
-		// Bail if liid or address aren't specified.
-		if (it->attributes.find("liid") == it->attributes.end())
+	    for(std::list<xml::element>::iterator it = t_elt.children.begin();
+		it != t_elt.children.end();
+		it++) {
+
+		// For each target element, get the liid, address and optional
+		// class attributes.
+		if (it->name == "target") {
+		    
+		    // Bail if liid or address aren't specified.
+		    if (it->attributes.find("liid") == it->attributes.end())
+			continue;
+		    
+		    if (it->attributes.find("address") == it->attributes.end())
+			continue;
+
+		    std::string ip = it->attributes["address"];
+		    std::string liid = it->attributes["liid"];
+		    std::string cs = it->attributes["class"];
+
+		    if (cs != "ipv6") {
+			
+			// IPv4 case
+			
+			// Convert string to an IPv4 address.
+			tcpip::ip4_address addr;
+			addr.from_string(ip);
+			
+			// Create target specification.
+			target_spec* sp = new target_spec;
+			sp->set_ipv4(liid, addr);
+			lst.push_back(sp);
+			
+		    } else {
+			
+			// IPv6 case
+			
+			// Convert string to an IPv6 address.
+			tcpip::ip6_address addr;
+			addr.from_string(ip);
+			
+			// Create target specfication.
+			target_spec* sp = new target_spec;
+			sp->set_ipv6(liid, addr);
+			lst.push_back(sp);
+			
+		    }
+
 		    continue;
-
-		if (it->attributes.find("address") == it->attributes.end())
-		    continue;
-
-		std::string ip = it->attributes["address"];
-		std::string liid = it->attributes["liid"];
-		std::string cs = it->attributes["class"];
-
-		if (cs != "ipv6") {
-
-		    // IPv4 case
-
-		    // Convert string to an IPv4 address.
-		    tcpip::ip4_address addr;
-		    addr.from_string(ip);
-
-		    // Create target specification.
-		    target_spec* sp = new target_spec;
-		    sp->set_ipv4(liid, addr);
-		    lst.push_back(sp);
-
-		} else {
-
-		    // IPv6 case
-
-		    // Convert string to an IPv6 address.
-		    tcpip::ip6_address addr;
-		    addr.from_string(ip);
-
-		    // Create target specfication.
-		    target_spec* sp = new target_spec;
-		    sp->set_ipv6(liid, addr);
-		    lst.push_back(sp);
 
 		}
 
-		continue;
-
 	    }
+
+	} catch (std::exception& e) {
+	    
+	    std::cerr << "Error in targets: " << e.what() << std::endl;
 
 	}
 
