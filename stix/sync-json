@@ -126,7 +126,6 @@ for cb in resp.content_blocks:
     package = STIXPackage.from_xml(StringIO.StringIO(resp))
 
     for ind in package.indicators:
-        print ind
         combined.add_indicator(ind)
 
 # Dump combination package
