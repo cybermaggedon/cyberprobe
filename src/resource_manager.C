@@ -205,9 +205,9 @@ void resource_manager::get_file(const std::string& f, std::string& data)
     char buf[buflen];
 
     while(in) {
-	int len = in.readsome(buf, buflen);
-	if (len == 0) break;
-	data.append(buf, len);
+	in.read(buf, buflen);
+	int got = in.gcount();
+	data.append(buf, got);
     }
 
 }
