@@ -2,7 +2,10 @@
 bin_PROGRAMS = cyberprobe cybermon nhis11_rcvr etsi_rcvr cyberprobe_cli
 
 bin_SCRIPTS = ../stix/stix-create ../stix/taxii-server ../stix/taxii-client \
-	../stix/taxii-sync ../stix/taxii-sync-json
+	../stix/taxii-sync ../stix/taxii-sync-json ../stix/taxii-push
+
+EXTRA_DIST = ../stix/stix-create ../stix/taxii-server ../stix/taxii-client \
+	../stix/taxii-sync ../stix/taxii-sync-json ../stix/taxii-push
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C resource_manager.C sender.C \
 	delivery.C xml.C capture.C configuration.C control.C snort_alert.C \
