@@ -123,7 +123,7 @@ void config_manager::read(const std::string& file,
 
 	} catch (std::exception& e) {
 	    
-	    std::cerr << "Error in targets: " << e.what() << std::endl;
+	    std::cerr << "Error parsing targets: " << e.what() << std::endl;
 
 	}
 
@@ -131,39 +131,47 @@ void config_manager::read(const std::string& file,
 	// Scan the endpoints block.
 	/////////////////////////////////////////////////////////////
 
-	xml::element& e_elt = dec.root.locate("endpoints");
+	try {
 
-	for(std::list<xml::element>::iterator it = e_elt.children.begin();
-	    it != e_elt.children.end();
-	    it++) {
+	    xml::element& e_elt = dec.root.locate("endpoints");
 
-	    // For each endpoint attribute, get hostname, port and type
-	    // attributes.
-	    if (it->name == "endpoint") {
+	    for(std::list<xml::element>::iterator it = e_elt.children.begin();
+		it != e_elt.children.end();
+		it++) {
 		
-		// All three attributes are mandatory.
-		if (it->attributes.find("hostname") == it->attributes.end())
+		// For each endpoint attribute, get hostname, port and type
+		// attributes.
+		if (it->name == "endpoint") {
+		    
+		    // All three attributes are mandatory.
+		    if (it->attributes.find("hostname") == it->attributes.end())
+			continue;
+		    if (it->attributes.find("port") == it->attributes.end())
+			continue;
+		    if (it->attributes.find("type") == it->attributes.end())
+			continue;
+		    
+		    // Get the attributes.
+		    std::string hostname = it->attributes["hostname"];
+		    std::string type = it->attributes["type"];
+		    
+		    // Scan port string into an integer.
+		    std::istringstream buf(it->attributes["port"]);
+		    int port;
+		    buf >> port;
+		
+		    // Create an endpoint specification.
+		    specification* sp = new endpoint_spec(hostname, port, type);
+		    lst.push_back(sp);
 		    continue;
-		if (it->attributes.find("port") == it->attributes.end())
-		    continue;
-		if (it->attributes.find("type") == it->attributes.end())
-		    continue;
 
-		// Get the attributes.
-		std::string hostname = it->attributes["hostname"];
-		std::string type = it->attributes["type"];
-
-		// Scan port string into an integer.
-		std::istringstream buf(it->attributes["port"]);
-		int port;
-		buf >> port;
-
-		// Create an endpoint specification.
-		specification* sp = new endpoint_spec(hostname, port, type);
-		lst.push_back(sp);
-		continue;
-
+		}
+		
 	    }
+
+	} catch (std::exception& e) {
+
+	    std::cerr << "Error parsing endpoints: " << e.what() << std::endl;
 
 	}
 
@@ -203,9 +211,9 @@ void config_manager::read(const std::string& file,
 
 	    }
 	    
-	} catch (...) {
+	} catch (std::exception& e) {
 
-	    // Silently ignore broken configuration.
+	    std::cerr << "Error parsing parameters: " << e.what() << std::endl;
 
 	}
 
@@ -235,9 +243,9 @@ void config_manager::read(const std::string& file,
 
 	    }
 
-	} catch (...) {
-	    
-	    // Silently ignore broken configuration.
+	} catch (std::exception& e) {
+
+	    std::cerr << "Error parsing control: " << e.what() << std::endl;
 
 	}
 
@@ -265,15 +273,16 @@ void config_manager::read(const std::string& file,
 
 	    }
 
-	} catch (...) {
-	    
-	    // Silently ignore broken configuration.
+	} catch (std::exception& e) {
+
+	    std::cerr << "Error parsing snort_alter: " << e.what() << std::endl;
 
 	}
 
-    } catch (...) {
+    } catch (std::exception& e) {
 	    
-	// Silently ignore broken configuration.
+	std::cerr << "Error parsing configuration file: " << e.what() 
+		  << std::endl;
 
     }
 
