@@ -1294,6 +1294,14 @@ the URL <code>http://www.malware.com/malware.dat</code> is in a threat
 indicator and it is detected in both the HTTP request and response.
 </p>
 
+<p>
+The <code>cyberstix.lua</code> configuration file updates its configuration
+if the JSON configuration file has changed.  So, you can do a round-trip
+update by changing the input files, re-running <code>stix-create</code>,
+using <code>taxii-sync-json</code> to fetch the updates, and all without
+stopping the monitoring.
+</p>
+
 <h2>Conslusion</h2>
 
 <p>
