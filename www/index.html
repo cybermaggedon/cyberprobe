@@ -44,7 +44,7 @@ function pos(time, now) {
 }
 
 last_oid = get_oldest_oid();
-attempts = 10;
+attempts = 2;
 
 function db_check() {
 
@@ -59,7 +59,7 @@ function db_check() {
 
   var resp = eval('(' + cli.responseText + ')');
 
-  if (!resp.exists) {
+  if (!resp.found) {
 
     attempts--;
 
@@ -141,7 +141,7 @@ function db_check() {
     place(obs);
   }
     
-  last_oid += 1;
+  last_oid++;
   attempts = 10;
 
   if ((now - time) > 5)                // We catching up on the past?
