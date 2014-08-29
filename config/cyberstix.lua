@@ -43,7 +43,7 @@ stix.check_config = function(file)
   -- Read file
   local f = io.open(file, "r")
   stix.configuration = jsdec(f:read("*a"))
-  f.close()
+  f:close()
 
   -- Initialise the STIX indexes.
   stix.index = {}
@@ -172,6 +172,8 @@ end
 -- (e.g. TCP)
 observer.connection_up = function(context)
 
+  observer.check_config()
+
   lst = {}
 
   -- Source and destination addresses
@@ -210,6 +212,8 @@ end
 -- is not recognised.
 observer.unrecognised_datagram = function(context, data)
 
+  observer.check_config()
+
   lst = {}
 
   -- Source and destination addresses
@@ -233,6 +237,8 @@ end
 
 -- This function is called when an ICMP message is observed.
 observer.icmp = function(context, data)
+
+  observer.check_config()
 
   lst = {}
 
