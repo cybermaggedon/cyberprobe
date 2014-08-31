@@ -3,7 +3,7 @@ example1:2,ipv4,Malware server IP address,192.179.1.72
 example1:3,mac,Compromised wireless access point,aa:bb:cc:dd:ee:ff
 example1:4,path,File containing malware,/etc/malware
 example1:5,hostname,Hostname of malware server,www.malware.com
-example1:6,port,TCP port which malware observed to use,tcp,11111
+example1:6,port,TCP port which malware observed to use,tcp:11111
 example1:7,uri,URL of a page serving malware,http://www.malware.com/malware.dat
-example1:8,user_account,Account which malware is observed to use,finchy_mcglochlan,circle_nerd
+example1:8,user_account,Account which malware is observed to use,home:finchy_mcglochlan
 example1:9,hash,File containing malware,af64e8218ce50f3d4817fea4ce6fb911

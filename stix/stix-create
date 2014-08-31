@@ -17,9 +17,9 @@
 #   <id>,path,<description>,<filename>
 #   <id>,hash,<description>,<MD5 hash>
 #   <id>,hostname,<description>,<hostname>
-#   <id>,port,<description>,<tcp|udp>,<portnum>
+#   <id>,port,<description>,<tcp|udp>:<portnum>
 #   <id>,uri,<description>,<url>
-#   <id>,user_account,<description>,<username>,<domain>
+#   <id>,user_account,<description>,<domain>:<username>
 #
 
 from stix.core import STIXPackage, STIXHeader
@@ -97,10 +97,10 @@ def create_uri_observable(pkg, id, description, uri):
     o = URI(uri)
     add_indicator(pkg, id, description, o)
 
-def create_user_account_observable(pkg, id, description, username, domain):
+def create_user_account_observable(pkg, id, description, domain, username):
     o = UserAccount()
-    o.username = username
     o.domain = domain
+    o.username = username
     add_indicator(pkg, id, description, o)
 
 ############################################################################
@@ -164,13 +164,16 @@ for row in reader:
         create_hostname_observable(package, id, description, row[0])
 
     if type == 'port':
-        create_port_observable(package, id, description, row[0], row[1])
+        parts = row[0].split(':')
+        create_port_observable(package, id, description, parts[0], parts[1])
 
     if type == 'uri':
         create_uri_observable(package, id, description, row[0])
 
     if type == 'user_account':
-        create_user_account_observable(package, id, description, row[0], row[1])
+        parts = row[0].split(':')
+        create_user_account_observable(package, id, description, parts[0], 
+                                       parts[1])
 
 # Parsing complete, write object to output file
 f = open(output_file, 'w')
