@@ -14,7 +14,8 @@
 #   <id>,email,<description>,<email-address>
 #   <id>,ipv4,<description>,<x.x.x.x>
 #   <id>,mac,<description>,<x:x:x:x:x:x>
-#   <id>,file,<description>,<optional filename>,<optional hash>
+#   <id>,path,<description>,<filename>
+#   <id>,hash,<description>,<MD5 hash>
 #   <id>,hostname,<description>,<hostname>
 #   <id>,port,<description>,<tcp|udp>,<portnum>
 #   <id>,uri,<description>,<url>
@@ -70,12 +71,14 @@ def create_mac_observable(pkg, id, description, mac):
     o = Address(mac, Address.CAT_MAC)
     add_indicator(pkg, id, description, o)
 
-def create_file_observable(pkg, id, description, path, hash):
+def create_path_observable(pkg, id, description, path):
     o = File()
-    if hash != "":
-        o.add_hash(hash)
-    if path != "":
-        o.full_path = path
+    o.full_path = path
+    add_indicator(pkg, id, description, o)
+
+def create_hash_observable(pkg, id, description, hash):
+    o = File()
+    o.add_hash(hash)
     o.md5 = True
     add_indicator(pkg, id, description, o)
 
@@ -151,8 +154,11 @@ for row in reader:
     if type == 'mac':
         create_mac_observable(package, id, description, row[0])
 
-    if type == 'file':
-        create_file_observable(package, id, description, row[0], row[1])
+    if type == 'path':
+        create_path_observable(package, id, description, row[0])
+
+    if type == 'hash':
+        create_hash_observable(package, id, description, row[0])
 
     if type == 'hostname':
         create_hostname_observable(package, id, description, row[0])
