@@ -103,6 +103,9 @@ request["observation"]["properties"]["data"]["type"] = "binary"
 request["observation"]["properties"]["time"] = {}
 request["observation"]["properties"]["time"]["type"] = "integer"
 
+local c = http_req("http://localhost:9200/cybermon",
+  "PUT", jsenc(request))
+
 local c = http_req("http://localhost:9200/cybermon/observation/_mapping",
   "PUT", jsenc(request))
 
