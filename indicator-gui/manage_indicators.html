@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+
+<head>
+
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <meta name="author" content="cyberprobe.sourceforge.net" />
+  <meta name="description" content="Cyberprobe indicator management" />
+  <meta name="robots" content="all" />
+
+  <title>Cyberprobe threat indicator management</title>
+  <style type="text/css">
+          @import "cybermon.css";
+  </style>
+  <link rel="Shortcut Icon" type="image/x-icon" href="icon.ico" />
+
+</head>
+
+<script language="JavaScript">
+
+function query_response(text)
+{
+
+  var obj = JSON.parse(text);
+  var hits = obj.hits.hits;
+
+  text = JSON.stringify(hits);
+
+  var elt = document.getElementById("workspace");
+  while (elt.firstChild)
+    elt.removeChild(elt.firstChild);
+
+  var table = document.createElement("table");
+
+  for (hit in hits) {
+
+    var tr = document.createElement("tr");
+
+    var txt = document.createTextNode(hits[hit]._id);
+    tr.appendChild(document.createElement("td")).appendChild(txt);
+
+    var txt = document.createTextNode(hits[hit]._source.indicator.class);
+    tr.appendChild(document.createElement("td")).appendChild(txt);
+
+    var txt = document.createTextNode(hits[hit]._source.indicator.value);
+    tr.appendChild(document.createElement("td")).appendChild(txt);
+
+    table.appendChild(tr);
+
+  }
+
+  elt.appendChild(table);
+
+}
+
+var last_query = null;
+
+function update_workspace(force)
+{
+
+  var query = document.getElementById("query_text").value;
+
+  if (!force && (query == last_query)) return;
+
+  last_query = query;
+
+  var query_obj;
+  
+  if (query == "") {
+    query_obj = {
+      "query": {
+        "match_all": {}
+      }
+    };
+  } else {
+    query_obj = {
+      "query": {
+        "query_string": {
+          "query": query
+        }
+      }
+    };
+  }
+
+  var req = new XMLHttpRequest()
+  req.onreadystatechange = function() {
+    var DONE = this.DONE || 4;
+    if (this.readyState === DONE) {
+      query_response(this.responseText);
+    }
+  };
+  req.open("POST",
+           "http://localhost:9200/cyberprobe/indicator/_search",
+           true);
+  req.send(JSON.stringify(query_obj));
+
+}
+
+function add()
+{
+  var cls = document.getElementById("add_class").value;
+  var val = document.getElementById("add_value").value;
+
+  var new_obj = {
+    "indicator": {
+      "class": cls,
+      "value": val
+    }
+  };
+
+  var req = new XMLHttpRequest()
+  req.onreadystatechange = function() {
+    var DONE = this.DONE || 4;
+    if (this.readyState === DONE) {
+      update_workspace(true);
+    }
+  };
+  req.open("POST", "http://localhost:9200/cyberprobe/indicator/?refresh=true", true);
+  req.send(JSON.stringify(new_obj));
+
+}
+
+</script>
+
+<body>
+
+<div style="border: 1px solid black; margin: 12px; padding: 12px;">
+  <form onsubmit="add()">
+    <select id="add_class">
+      <option value="email"/>Email</option>
+      <option value="ipv4"/>IPv4 address</option>
+    </select>
+    <input type="text" size="30" id="add_value"/>
+    <input type="submit" value="Add"/>
+  </form>
+</div>
+
+<div style="border: 1px solid black; margin: 12px; padding: 12px;">
+  <form>
+    <input type="text" size="50" id="query_text" 
+	   onchange="update_workspace() onkeydown="update_workspace()"
+           onkeyup="update_workspace()" onpaste="update_workspace()"
+           oninput="update_workspace()"/>
+  </form>
+</div>
+
+<div id="workspace" style="border: 1px solid black; margin: 12px; padding: 12px;">
+</div>
+
+</body>
+
+</html>
+
+<script language="JavaScript">
+
+  update_workspace();
+
+</script>
+

@@ -1,0 +1,42 @@
+#!/usr/bin/env lua
+
+local jsenc = require("json.encode")
+local ltn12 = require("ltn12")
+local http = require("socket.http")
+local mime = require("mime")
+
+local http_req = function(u, meth, reqbody)
+
+  local r, c, rg
+  r, c, rg = http.request {
+    url = u;
+    method = meth;
+    headers = {["Content-Length"] = #reqbody};
+    source = ltn12.source.string(reqbody);
+  }
+
+  return c
+
+end
+
+print("Deleting index...")
+local c = http_req("http://localhost:9200/cyberprobe/indicator/", "DELETE", "")
+
+print("Create mapping...")
+local request = {}
+request["indicator"] = {}
+request["indicator"]["_ttl"] = {}
+request["indicator"]["_ttl"]["enabled"] = "true"
+request["indicator"]["properties"] = {}
+request["indicator"]["properties"]["class"] = {}
+request["indicator"]["properties"]["class"]["type"] = "string"
+request["indicator"]["properties"]["value"] = {}
+request["indicator"]["properties"]["value"]["type"] = "string"
+request["indicator"]["properties"]["time"] = {}
+request["indicator"]["properties"]["time"]["type"] = "integer"
+
+local c = http_req("http://localhost:9200/cyberprobe", "PUT", "")
+
+local c = http_req("http://localhost:9200/cyberprobe/indicator/_mapping",
+  "PUT", jsenc(request))
+
