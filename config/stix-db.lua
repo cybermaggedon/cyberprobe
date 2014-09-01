@@ -31,9 +31,6 @@ elastic.init()
 -- reload.
 local cur_mtime = 0
 
--- Configuration file.
-local config_file = "stix-default-combined.json"
-
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
 observer.trigger_up = function(liid, addr)

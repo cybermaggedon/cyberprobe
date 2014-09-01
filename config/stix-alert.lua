@@ -5,140 +5,13 @@
 -- JSON format.  Triggers when STIX Indicators are detected to hit.
 --
 
--- Load JSON decode, and filesystem module.
-local jsdec = require("json.decode")
-local lfs = require("lfs")
+-- STIX support.
+local stix = require("util.stix")
+local addr = require("util.addresses")
 
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
-
--- Last mod time of the configuration file.  This helps us work out when to
--- reload.
-local cur_mtime = 0
-
--- Configuration file.
-local config_file = "stix-default-combined.json"
-
--- STIX information gets stored here.
-local stix = {}
-
--- This stores the JSON decode.
-stix.configuration = {}
-
--- This stores an index, from various address information to the STIX
--- Indicators.
-stix.index = {}
-
--- Function, checks the modification time of the configuration file, and
--- if it's changed, reloads and regenerates the index.
-stix.check_config = function(file)
-
-  -- Get file mod time.
-  local mtime = lfs.attributes(file, "modification")
-
-  -- If modtime is the same, nothing to do.
-  if mtime == last_mtime then return end
-
-  -- Read file
-  local f = io.open(file, "r")
-  stix.configuration = jsdec(f:read("*a"))
-  f:close()
-
-  -- Initialise the STIX indexes.
-  stix.index = {}
-  stix.index.email = {}
-  stix.index.user_account = {}
-  stix.index.hostname = {}
-  stix.index.port = {}
-  stix.index.url = {}
-  stix.index.ipv4 = {}
-  stix.index.mac = {}
-  stix.index.file = {}
-  stix.index.hash = {}
-
-  -- Loop through indicators.
-  for key, value in pairs(stix.configuration.indicators) do
-
-    -- Get indicator object
-    local object = value.observable.object.properties
-
-    -- Pull out different interesting things for the index.
-
-    -- Address type
-    if object["xsi:type"] == "AddressObjectType" then
-
-      -- Index email address
-      if object.category == "e-mail" then
-	stix.index.email[object.address_value] = value
-      end
-
-      -- Index IPv4 address
-      if object.category == "ipv4-addr" then
-	stix.index.ipv4[object.address_value] = value
-      end
-
-      -- Index MAC address
-      if object.category == "mac" then
-	stix.index.mac[object.address_value] = value
-      end
-
-    -- UserAccount type
-    elseif object["xsi:type"] == "UserAccountObjectType" then
-
-      -- Index on concatenation of domain and username.
-      if object.domain and object.username then
-	ix = object.domain .. "|" .. object.username
-	stix.index.user_account[ix] = value
-      end
-
-    -- Hostname
-    elseif object["xsi:type"] == "HostnameObjectType" then
-
-      -- Index on hostname value
-      stix.index.hostname[object.hostname_value] = value
-
-    -- Port
-    elseif object["xsi:type"] == "PortObjectType" then
-
-      -- Index on concatenation of layer 4 protocol, and port number.
-      if object.port_value and object.layer4_protocol then
-	ix = object.layer4_protocol.value .. ":" .. object.port_value
-	stix.index.port[ix] = value
-      end
-
-    -- URI
-    elseif object["xsi:type"] == "URIObjectType" then
-
-      -- Index on the URI itself.
-      stix.index.url[object.value] = value
-
-    -- File
-    elseif object["xsi:type"] == "FileObjectType" then
-
-      -- Index on pathname
-      if object.full_path ~= nil then
-	stix.index.file[object.full_path] = value
-      end
-
-      -- Index on hash values
-      if object.hashes then
-	for k2, v2 in pairs(object.hashes) do
-	  if v2.type and v2.simple_hash_value then
-	    ix = v2.type .. ":" .. v2.simple_hash_value
-	    stix.index.hash[ix] = value
-	  end
-	end
-      end
-    end
-  end
-
-  io.write("Reloaded configuration file.\n")
-
-  -- Update file modification time to modtime of this file.
-  last_mtime = mtime
-
-end
 
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
@@ -149,57 +22,16 @@ end
 observer.trigger_down = function(liid)
 end
 
-observer.get_address = function(context, lst, cls, is_src)
-
-  local par = context:get_parent()
-  if par then
-    observer.get_address(par, lst, cls, is_src)
-  end
-
-  if is_src then
-    tcls, addr = context:get_src_addr()
-  else
-    tcls, addr = context:get_dest_addr()
-  end
-
-  if tcls == cls then
-    table.insert(lst, addr)
-  end
-
-end
-
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
 observer.connection_up = function(context)
 
-  observer.check_config()
+  indicators = {}
+  stix.check_addresses(context, indicators)
 
-  lst = {}
-
-  -- Source and destination addresses
-  observer.get_address(context, lst, "ipv4", true)
-  observer.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("Connection with address %s, hits %s (%s)", v,
-        check.id, check.description))
-    end
-  end
-
-  lst = {}
-
-  -- Source and destination addresses
-  observer.get_address(context, lst, "tcp", true)
-  observer.get_address(context, lst, "tcp", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.port["tcp:" .. v]
-    if check then
-      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
-        check.id, check.description))
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("Connection with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
   end
 
 end
@@ -212,20 +44,12 @@ end
 -- is not recognised.
 observer.unrecognised_datagram = function(context, data)
 
-  observer.check_config()
+  indicators = {}
+  stix.check_addresses(context, indicators)
 
-  lst = {}
-
-  -- Source and destination addresses
-  observer.get_address(context, lst, "ipv4", true)
-  observer.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("Datagram with address %s, hits %s (%s)", v,
-        check.id, check.description))
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("Datagram with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
   end
 
 end
@@ -238,48 +62,40 @@ end
 -- This function is called when an ICMP message is observed.
 observer.icmp = function(context, data)
 
-  observer.check_config()
+  indicators = {}
+  stix.check_addresses(context, indicators)
 
-  lst = {}
-
-  -- Source and destination addresses
-  observer.get_address(context, lst, "ipv4", true)
-  observer.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("ICMP with address %s, hits %s (%s)", v,
-        check.id, check.description))
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("ICMP with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
   end
 
-end
-
--- Call this to check, and if appropriate, update the configuration file
-observer.check_config = function()
-  stix.check_config(config_file)
 end
 
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
 
-  observer.check_config()
+  stix.check_config()
 
   -- Hacky.  Construct the URL from bits of stuff we know.
   -- FIXME: URL may already by correct.
   url = "http://" .. header['Host'] .. url
 
-  check = stix.index.url[url]
-  if check then
-    print(string.format("HTTP request to %s, hits %s (%s)", url,
-        check.id, check.description))
+  indicators = {}
+  stix.check_url(url, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("HTTP request to %s, hits %s (%s)", v.value,
+        v.id, v.description))
   end
 
-  check = stix.index.hostname[header['Host']]
-  if check then
-    print(string.format("HTTP request to %s, hits %s (%s)", header["Host"],
-        check.id, check.description))
+
+  indicators = {}
+  stix.check_dns(header['Host'], indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("HTTP request to %s, hits %s (%s)", v.value,
+        v.id, v.description))
   end
 
 end
@@ -287,12 +103,12 @@ end
 -- This function is called when an HTTP response is observed.
 observer.http_response = function(context, code, status, header, url, body)
 
-  observer.check_config()
+  indicators = {}
+  stix.check_url(url, indicators)
 
-  check = stix.index.url[url]
-  if check then
-    print(string.format("HTTP response from %s, hits %s (%s)", url,
-        check.id, check.description))
+  for k, v in pairs(indicators) do
+    print(string.format("HTTP response from %s, hits %s (%s)", v.value,
+        v.id, v.description))
   end
 
 end
@@ -308,18 +124,22 @@ end
 -- This function is called when an SMTP response is observed.
 observer.smtp_data = function(context, from, to, data)
 
-  check = stix.index.email[from]
-  if check then
-    print(string.format("SMTP email from %s, hits %s (%s)", from,
-        check.id, check.description))
+  indicators = {}
+  stix.check_email(from)
+
+  for k, v in pairs(indicators) do
+    print(string.format("SMTP email from %s, hits %s (%s)", v.value,
+        v.id, v.description))
   end
 
+  indicators = {}
   for k, v in pairs(to) do
-    check = stix.index.email[v]
-    if check then
-      print(string.format("SMTP email to %s, hits %s (%s)", to,
-          check.id, check.description))
-    end
+    stix.check_email(v)
+  end
+
+  for k, v in pairs(indicators) do
+    print(string.format("SMTP email to %s, hits %s (%s)", v.value,
+        v.id, v.description))
   end
 
 end
@@ -327,26 +147,22 @@ end
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
 
-  observer.check_config()
-
+  indicators = {}
   if header.qr == 0 and #queries == 1 then
-
-    check = stix.index.hostname[queries[1].name]
-    if check then
+    stix.check_dns(queries[1].name, indicators)
+    for k, v in pairs(indicators) do
       print(string.format("DNS query for %s, hits %s (%s)", queries[1].name,
-          check.id, check.description))
+          v.id, v.description))
     end
-
   end
 
+  indicators = {}
   if header.qr == 1 and #queries == 1 then
-
-    check = stix.index.hostname[queries[1].name]
-    if check then
+    stix.check_dns(queries[1].name, indicators)
+    for k, v in pairs(indicators) do
       print(string.format("DNS response for %s, hits %s (%s)", queries[1].name,
-          check.id, check.description))
+          v.id, v.description))
     end
-
   end
 
 end

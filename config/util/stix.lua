@@ -1,8 +1,12 @@
 
 local lfs = require("lfs")
 local jsdec = require("json.decode")
+local addr = require("util.addresses")
 
 local stix = {}
+
+-- Configuration file.
+local config_file = "stix-default-combined.json"
 
 -- This stores the JSON decode.
 stix.configuration = {}
@@ -13,7 +17,9 @@ stix.index = {}
 
 -- Function, checks the modification time of the configuration file, and
 -- if it's changed, reloads and regenerates the index.
-stix.check_config = function(file)
+stix.check_config = function()
+
+  local file = config_file
 
   -- Get file mod time.
   local mtime = lfs.attributes(file, "modification")
@@ -118,6 +124,95 @@ stix.check_config = function(file)
 
   -- Update file modification time to modtime of this file.
   last_mtime = mtime
+
+end
+
+stix.check_addresses = function(context, indicators)
+
+  stix.check_config()
+
+  -- Source and destination addresses
+  lst = {}
+  addr.get_address(context, lst, "ipv4", true)
+  addr.get_address(context, lst, "ipv4", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.ipv4[v]
+    if check then
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
+
+  -- Source and destination addresses
+  lst = {}
+  addr.get_address(context, lst, "tcp", true)
+  addr.get_address(context, lst, "tcp", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.port["tcp:" .. v]
+    if check then
+      local indicator = {}
+      indicator["on"] = "tcp"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
+
+  -- Source and destination addresses
+  lst = {}
+  addr.get_address(context, lst, "udp", true)
+  addr.get_address(context, lst, "udp", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.port["udp:" .. v]
+    if check then
+      local indicator = {}
+      indicator["on"] = "udp"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
+
+end
+
+stix.check_dns = function(name, indicators)
+
+  stix.check_config()
+
+  check = stix.index.hostname[name]
+  if check then
+    local indicator = {}
+    indicator["on"] = "dns"
+    indicator["value"] = name
+    indicator["id"] = check.id
+    indicator["description"] = check.description
+    indicators[#indicators + 1] = indicator
+  end
+
+end
+
+stix.check_url = function(url, indicators)
+
+  stix.check_config()
+
+  check = stix.index.url[url]
+  if check then
+    local indicator = {}
+    indicator["on"] = "url"
+    indicator["value"] = url
+    indicator["id"] = check.id
+    indicator["description"] = check.description
+    indicators[#indicators + 1] = indicator
+  end
 
 end
 
