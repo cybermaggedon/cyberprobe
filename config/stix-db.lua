@@ -17,7 +17,7 @@ local mime = require("mime")
 local id = 1
 
 -- Default TTL on objects.
-local default_ttl = "60s"
+local default_ttl = "5m"
 
 -- Base64 encoder.
 local b64 = function(x)
@@ -277,6 +277,7 @@ observer.connection_up = function(context)
   observer.check_config()
 
   lst = {}
+  indicators = {}
 
   -- Source and destination addresses
   observer.get_address(context, lst, "ipv4", true)
@@ -287,6 +288,12 @@ observer.connection_up = function(context)
     if check then
       print(string.format("Connection with address %s, hits %s (%s)", v,
         check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
     end
   end
 
@@ -301,6 +308,12 @@ observer.connection_up = function(context)
     if check then
       print(string.format("Connection with TCP port %s, hits %s (%s)", v,
         check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "tcp"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
     end
   end
 
@@ -311,6 +324,7 @@ observer.connection_up = function(context)
   request["observation"]["src"] = observer.get_stack(context, true)
   request["observation"]["dest"] = observer.get_stack(context, false)
   request["observation"]["action"] = "connected_up"
+  request["observation"]["indicators"] = indicators
   observation(request)
 
 end
@@ -336,6 +350,7 @@ observer.unrecognised_datagram = function(context, data)
   observer.check_config()
 
   lst = {}
+  indicators = {}
 
   -- Source and destination addresses
   observer.get_address(context, lst, "ipv4", true)
@@ -346,6 +361,12 @@ observer.unrecognised_datagram = function(context, data)
     if check then
       print(string.format("Datagram with address %s, hits %s (%s)", v,
         check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
     end
   end
 
@@ -357,6 +378,7 @@ observer.unrecognised_datagram = function(context, data)
   request["observation"]["dest"] = observer.get_stack(context, false)
   request["observation"]["action"] = "datagram"
   request["observation"]["data"] = b64(data)
+  request["observation"]["indicators"] = indicators
   observation(request)
 
 end
@@ -364,6 +386,47 @@ end
 -- This function is called when stream data  is observed, but the protocol
 -- is not recognised.
 observer.unrecognised_stream = function(context, data)
+
+  lst = {}
+  indicators = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "ipv4", true)
+  observer.get_address(context, lst, "ipv4", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.ipv4[v]
+    if check then
+      print(string.format("Datagram with address %s, hits %s (%s)", v,
+        check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
+
+  lst = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "tcp", true)
+  observer.get_address(context, lst, "tcp", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.port["tcp:" .. v]
+    if check then
+      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
+        check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "tcp"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
 
   local request = {}
   request["observation"] = {}
@@ -373,6 +436,7 @@ observer.unrecognised_stream = function(context, data)
   request["observation"]["dest"] = observer.get_stack(context, false)
   request["observation"]["action"] = "unrecognised_stream"
   request["observation"]["data"] = b64(data)
+  request["observation"]["indicators"] = indicators
   observation(request)
 
 end
@@ -383,6 +447,7 @@ observer.icmp = function(context, data)
   observer.check_config()
 
   lst = {}
+  indicators = {}
 
   -- Source and destination addresses
   observer.get_address(context, lst, "ipv4", true)
@@ -393,6 +458,12 @@ observer.icmp = function(context, data)
     if check then
       print(string.format("ICMP with address %s, hits %s (%s)", v,
         check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
     end
   end
 
@@ -404,6 +475,7 @@ observer.icmp = function(context, data)
   request["observation"]["dest"] = observer.get_stack(context, false)
   request["observation"]["action"] = "icmp"
   request["observation"]["data"] = b64(data)
+  request["observation"]["indicators"] = indicators
   observation(request)
 
 end
@@ -418,6 +490,8 @@ observer.http_request = function(context, method, url, header, body)
 
   observer.check_config()
 
+  indicators = {}
+
   -- Hacky.  Construct the URL from bits of stuff we know.
   -- FIXME: URL may already by correct.
   url = "http://" .. header['Host'] .. url
@@ -426,12 +500,24 @@ observer.http_request = function(context, method, url, header, body)
   if check then
     print(string.format("HTTP request to %s, hits %s (%s)", url,
         check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
   end
 
   check = stix.index.hostname[header['Host']]
   if check then
     print(string.format("HTTP request to %s, hits %s (%s)", header["Host"],
         check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
   end
 
   local request = {}
@@ -445,6 +531,7 @@ observer.http_request = function(context, method, url, header, body)
   request["observation"]["url"] = url
   request["observation"]["header"] = header
   request["observation"]["body"] = b64(body)
+  request["observation"]["indicators"] = indicators
   observation(request)
 
 end
@@ -454,10 +541,18 @@ observer.http_response = function(context, code, status, header, url, body)
 
   observer.check_config()
 
+  indicators = {}
+
   check = stix.index.url[url]
   if check then
     print(string.format("HTTP response from %s, hits %s (%s)", url,
         check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
   end
 
   local request = {}
@@ -472,20 +567,25 @@ observer.http_response = function(context, code, status, header, url, body)
   request["observation"]["header"] = header
   request["observation"]["url"] = url
   request["observation"]["body"] = b64(body)
+  request["observation"]["indicators"] = indicators
   observation(request)
 
 end
 
 -- This function is called when an SMTP command is observed.
 observer.smtp_command = function(context, command)
+  -- FIXME Make observation!
 end
 
 -- This function is called when an SMTP response is observed.
 observer.smtp_response = function(context, status, text)
+  -- FIXME: Make observation
 end
 
 -- This function is called when an SMTP response is observed.
 observer.smtp_data = function(context, from, to, data)
+
+  -- FIXME: Make observation
 
   check = stix.index.email[from]
   if check then
@@ -506,6 +606,8 @@ end
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
 
+  indicators = {}
+
   observer.check_config()
 
   if header.qr == 0 and #queries == 1 then
@@ -514,6 +616,12 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     if check then
       print(string.format("DNS query for %s, hits %s (%s)", queries[1].name,
           check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "hostname"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
     end
 
   end
@@ -524,6 +632,12 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     if check then
       print(string.format("DNS response for %s, hits %s (%s)", queries[1].name,
           check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "hostname"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
     end
 
   end
@@ -534,6 +648,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   request["observation"]["src"] = observer.get_stack(context, true)
   request["observation"]["dest"] = observer.get_stack(context, false)
   request["observation"]["action"] = "dns_message"
+  request["observation"]["indicators"] = indicators
 
   if header.qr == 0 then
     request["observation"]["type"] = "query"
@@ -567,6 +682,49 @@ end
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
 
+  observer.check_config()
+
+  lst = {}
+  indicators = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "ipv4", true)
+  observer.get_address(context, lst, "ipv4", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.ipv4[v]
+    if check then
+      print(string.format("Connection with address %s, hits %s (%s)", v,
+        check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
+
+  lst = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "tcp", true)
+  observer.get_address(context, lst, "tcp", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.port["tcp:" .. v]
+    if check then
+      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
+        check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "tcp"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
+
   local request = {}
   request["observation"] = {}
   request["_ttl"] = default_ttl
@@ -581,6 +739,49 @@ end
 
 -- This function is called when an FTP response is observed.
 observer.ftp_response = function(context, status, text)
+
+  observer.check_config()
+
+  lst = {}
+  indicators = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "ipv4", true)
+  observer.get_address(context, lst, "ipv4", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.ipv4[v]
+    if check then
+      print(string.format("Connection with address %s, hits %s (%s)", v,
+        check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "ipv4"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
+
+  lst = {}
+
+  -- Source and destination addresses
+  observer.get_address(context, lst, "tcp", true)
+  observer.get_address(context, lst, "tcp", false)
+
+  for k, v in pairs(lst) do
+    check = stix.index.port["tcp:" .. v]
+    if check then
+      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
+        check.id, check.description))
+      local indicator = {}
+      indicator["on"] = "tcp"
+      indicator["value"] = v
+      indicator["id"] = check.id
+      indicator["description"] = check.description
+      indicators[#indicators + 1] = indicator
+    end
+  end
 
   local request = {}
   request["observation"] = {}
