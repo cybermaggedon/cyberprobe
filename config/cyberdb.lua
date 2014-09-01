@@ -15,7 +15,7 @@ local elastic = require("util.elastic")
 
 local id = 1
 
-local default_ttl = "60s"
+local default_ttl = "1h"
 
 local b64 = function(x)
   local a, b = mime.b64(x)

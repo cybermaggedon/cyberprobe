@@ -1,6 +1,8 @@
 
 local module = {}
 
+-- Used to recurse up the stack getting all addresses in a particular protocol
+-- class.
 module.get_address = function(context, lst, cls, is_src)
 
   local par = context:get_parent()

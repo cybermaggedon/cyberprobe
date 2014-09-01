@@ -12,7 +12,7 @@ local addr = require("util.addresses")
 local elastic = require("util.elastic")
 
 -- Default TTL on objects.
-local default_ttl = "5m"
+local default_ttl = "1h"
 
 -- Base64 encoder.
 local b64 = function(x)
@@ -44,47 +44,12 @@ end
 -- (e.g. TCP)
 observer.connection_up = function(context)
 
-  observer.check_config()
-
-  lst = {}
   indicators = {}
+  stix.check_addresses(context, indicators)
 
-  -- Source and destination addresses
-  addr.get_address(context, lst, "ipv4", true)
-  addr.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("Connection with address %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
-  end
-
-  lst = {}
-
-  -- Source and destination addresses
-  addr.get_address(context, lst, "tcp", true)
-  addr.get_address(context, lst, "tcp", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.port["tcp:" .. v]
-    if check then
-      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "tcp"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("Connection opened to address %s, hits %s (%s)", 
+      v.value, v.id, v.description))
   end
 
   local request = {}
@@ -93,7 +58,8 @@ observer.connection_up = function(context)
   request["observation"]["liid"] = context:get_liid()
   request["observation"]["src"] = addr.get_stack(context, true)
   request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "connected_up"
+  request["observation"]["action"] = "connection_up"
+  request["observation"]["data"] = b64(data)
   request["observation"]["indicators"] = indicators
   elastic.create_observation(request)
 
@@ -102,13 +68,16 @@ end
 -- This function is called when a stream-orientated connection is closed
 observer.connection_down = function(context)
 
+-- No indicators reported on connection down
+
   local request = {}
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
   request["observation"]["src"] = addr.get_stack(context, true)
   request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "connected_down"
+  request["observation"]["action"] = "connection_down"
+  request["observation"]["data"] = b64(data)
   elastic.create_observation(request)
 
 end
@@ -117,27 +86,12 @@ end
 -- is not recognised.
 observer.unrecognised_datagram = function(context, data)
 
-  observer.check_config()
-
-  lst = {}
   indicators = {}
+  stix.check_addresses(context, indicators)
 
-  -- Source and destination addresses
-  addr.get_address(context, lst, "ipv4", true)
-  addr.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("Datagram with address %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("Unrecognised datagram with address %s, hits %s (%s)", 
+      v.value, v.id, v.description))
   end
 
   local request = {}
@@ -146,7 +100,7 @@ observer.unrecognised_datagram = function(context, data)
   request["observation"]["liid"] = context:get_liid()
   request["observation"]["src"] = addr.get_stack(context, true)
   request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "datagram"
+  request["observation"]["action"] = "unrecognised_datagram"
   request["observation"]["data"] = b64(data)
   request["observation"]["indicators"] = indicators
   elastic.create_observation(request)
@@ -157,45 +111,12 @@ end
 -- is not recognised.
 observer.unrecognised_stream = function(context, data)
 
-  lst = {}
   indicators = {}
+  stix.check_addresses(context, indicators)
 
-  -- Source and destination addresses
-  addr.get_address(context, lst, "ipv4", true)
-  addr.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("Datagram with address %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
-  end
-
-  lst = {}
-
-  -- Source and destination addresses
-  addr.get_address(context, lst, "tcp", true)
-  addr.get_address(context, lst, "tcp", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.port["tcp:" .. v]
-    if check then
-      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "tcp"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("Connection with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
   end
 
   local request = {}
@@ -214,27 +135,12 @@ end
 -- This function is called when an ICMP message is observed.
 observer.icmp = function(context, data)
 
-  observer.check_config()
-
-  lst = {}
   indicators = {}
+  stix.check_addresses(context, indicators)
 
-  -- Source and destination addresses
-  addr.get_address(context, lst, "ipv4", true)
-  addr.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("ICMP with address %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("ICMP with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
   end
 
   local request = {}
@@ -250,44 +156,20 @@ observer.icmp = function(context, data)
 
 end
 
--- Call this to check, and if appropriate, update the configuration file
-observer.check_config = function()
-  stix.check_config(config_file)
-end
-
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
-
-  observer.check_config()
-
-  indicators = {}
 
   -- Hacky.  Construct the URL from bits of stuff we know.
   -- FIXME: URL may already by correct.
   url = "http://" .. header['Host'] .. url
 
-  check = stix.index.url[url]
-  if check then
-    print(string.format("HTTP request to %s, hits %s (%s)", url,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-  end
+  indicators = {}
+  stix.check_url(url, indicators)
+  stix.check_dns(header['Host'], indicators)
 
-  check = stix.index.hostname[header['Host']]
-  if check then
-    print(string.format("HTTP request to %s, hits %s (%s)", header["Host"],
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
+  for k, v in pairs(indicators) do
+    print(string.format("HTTP request to %s, hits %s (%s)", v.value,
+        v.id, v.description))
   end
 
   local request = {}
@@ -309,20 +191,12 @@ end
 -- This function is called when an HTTP response is observed.
 observer.http_response = function(context, code, status, header, url, body)
 
-  observer.check_config()
-
   indicators = {}
+  stix.check_url(url, indicators)
 
-  check = stix.index.url[url]
-  if check then
-    print(string.format("HTTP response from %s, hits %s (%s)", url,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
+  for k, v in pairs(indicators) do
+    print(string.format("HTTP response from %s, hits %s (%s)", v.value,
+        v.id, v.description))
   end
 
   local request = {}
@@ -344,73 +218,104 @@ end
 
 -- This function is called when an SMTP command is observed.
 observer.smtp_command = function(context, command)
-  -- FIXME Make observation!
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("SMTP command with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+  local request = {}
+  request["observation"] = {}
+  request["_ttl"] = default_ttl
+  request["observation"]["liid"] = context:get_liid()
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
+  request["observation"]["action"] = "smtp_command"
+  request["observation"]["command"] = command
+  request["observation"]["indicators"] = indicators
+  elastic.create_observation(request)
+
 end
 
 -- This function is called when an SMTP response is observed.
 observer.smtp_response = function(context, status, text)
-  -- FIXME: Make observation
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("SMTP response with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+  local request = {}
+  request["observation"] = {}
+  request["_ttl"] = default_ttl
+  request["observation"]["liid"] = context:get_liid()
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
+  request["observation"]["action"] = "smtp_response"
+  request["observation"]["status"] = status
+  request["observation"]["text"] = text
+  request["observation"]["indicators"] = indicators
+  elastic.create_observation(request)
+
 end
 
 -- This function is called when an SMTP response is observed.
 observer.smtp_data = function(context, from, to, data)
 
-  -- FIXME: Make observation
-
-  check = stix.index.email[from]
-  if check then
-    print(string.format("SMTP email from %s, hits %s (%s)", from,
-        check.id, check.description))
-  end
+  indicators = {}
+  stix.check_email(from)
 
   for k, v in pairs(to) do
-    check = stix.index.email[v]
-    if check then
-      print(string.format("SMTP email to %s, hits %s (%s)", to,
-          check.id, check.description))
-    end
+    stix.check_email(v)
   end
+
+  for k, v in pairs(indicators) do
+    print(string.format("SMTP email from/to %s, hits %s (%s)", v.value,
+        v.id, v.description))
+  end
+
+  local request = {}
+  request["observation"] = {}
+  request["_ttl"] = default_ttl
+  request["observation"]["liid"] = context:get_liid()
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
+  request["observation"]["action"] = "smtp_data"
+  request["observation"]["from"] = from
+  request["observation"]["to"] = to
+  request["observation"]["data"] = b64(data)
+  request["observation"]["indicators"] = indicators
+  elastic.create_observation(request)
 
 end
 
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
 
+  local trans = "query"
+  if header.qr == 1 then
+    trans = "response"
+  end
+
+  if not(#queries == 1) then
+    return
+  end
+
   indicators = {}
 
-  observer.check_config()
+  stix.check_dns(queries[1].name, indicators)
 
-  if header.qr == 0 and #queries == 1 then
-
-    check = stix.index.hostname[queries[1].name]
-    if check then
-      print(string.format("DNS query for %s, hits %s (%s)", queries[1].name,
-          check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "hostname"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
-
+  for k, v in pairs(indicators) do
+    print(string.format("DNS %s for %s, hits %s (%s)", trans, queries[1].name,
+        v.id, v.description))
   end
 
-  if header.qr == 1 and #queries == 1 then
-
-    check = stix.index.hostname[queries[1].name]
-    if check then
-      print(string.format("DNS response for %s, hits %s (%s)", queries[1].name,
-          check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "hostname"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
-
-  end
   local request = {}
   request["observation"] = {}
   request["_ttl"] = default_ttl
@@ -419,12 +324,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "dns_message"
   request["observation"]["indicators"] = indicators
-
-  if header.qr == 0 then
-    request["observation"]["type"] = "query"
-  else
-    request["observation"]["type"] = "response"
-  end
+  request["observation"]["type"] = trans
 
   local q = {}
   for key, value in pairs(queries) do
@@ -452,47 +352,12 @@ end
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
 
-  observer.check_config()
-
-  lst = {}
   indicators = {}
+  stix.check_addresses(context, indicators)
 
-  -- Source and destination addresses
-  addr.get_address(context, lst, "ipv4", true)
-  addr.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("Connection with address %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
-  end
-
-  lst = {}
-
-  -- Source and destination addresses
-  addr.get_address(context, lst, "tcp", true)
-  addr.get_address(context, lst, "tcp", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.port["tcp:" .. v]
-    if check then
-      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "tcp"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("FTP response with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
   end
 
   local request = {}
@@ -503,6 +368,7 @@ observer.ftp_command = function(context, command)
   request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "ftp_command"
   request["observation"]["command"] = command
+  request["observation"]["indicators"] = indicators
   elastic.create_observation(request)
 
 end
@@ -510,47 +376,12 @@ end
 -- This function is called when an FTP response is observed.
 observer.ftp_response = function(context, status, text)
 
-  observer.check_config()
-
-  lst = {}
   indicators = {}
+  stix.check_addresses(context, indicators)
 
-  -- Source and destination addresses
-  addr.get_address(context, lst, "ipv4", true)
-  addr.get_address(context, lst, "ipv4", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.ipv4[v]
-    if check then
-      print(string.format("Connection with address %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "ipv4"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
-  end
-
-  lst = {}
-
-  -- Source and destination addresses
-  addr.get_address(context, lst, "tcp", true)
-  addr.get_address(context, lst, "tcp", false)
-
-  for k, v in pairs(lst) do
-    check = stix.index.port["tcp:" .. v]
-    if check then
-      print(string.format("Connection with TCP port %s, hits %s (%s)", v,
-        check.id, check.description))
-      local indicator = {}
-      indicator["on"] = "tcp"
-      indicator["value"] = v
-      indicator["id"] = check.id
-      indicator["description"] = check.description
-      indicators[#indicators + 1] = indicator
-    end
+  for k, v in pairs(indicators) do
+    print(string.format("FTP response with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
   end
 
   local request = {}
@@ -560,8 +391,9 @@ observer.ftp_response = function(context, status, text)
   request["observation"]["src"] = addr.get_stack(context, true)
   request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "ftp_response"
---  request["observation"]["status"] = status
+  request["observation"]["status"] = status
   request["observation"]["text"] = text
+  request["observation"]["indicators"] = indicators
   elastic.create_observation(request)
 
 end

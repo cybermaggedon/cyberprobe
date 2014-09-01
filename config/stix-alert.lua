@@ -75,8 +75,6 @@ end
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
 
-  stix.check_config()
-
   -- Hacky.  Construct the URL from bits of stuff we know.
   -- FIXME: URL may already by correct.
   url = "http://" .. header['Host'] .. url
