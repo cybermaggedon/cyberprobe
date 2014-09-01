@@ -14,7 +14,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="architecture.svg">
+   sodipodi:docname="architecture.svg"
+   inkscape:export-filename="architecture.png"
+   inkscape:export-xdpi="120.03896"
+   inkscape:export-ydpi="120.03896">
   <defs
      id="defs4">
     <marker
@@ -40,15 +43,15 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0424168"
-     inkscape:cx="526.18109"
+     inkscape:cx="506.51525"
      inkscape:cy="385"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1250"
      inkscape:window-height="1123"
-     inkscape:window-x="988"
-     inkscape:window-y="183"
+     inkscape:window-x="834"
+     inkscape:window-y="184"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -58,6 +61,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -876,5 +880,73 @@
          y="424.7327"
          style="font-size:14px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;font-family:Splash;-inkscape-font-specification:Splash Thin"
          id="tspan6850">here?</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Splash;-inkscape-font-specification:Splash Thin"
+       x="102.22772"
+       y="969.49005"
+       id="text2985-4-4-3-1-7-5-2"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="102.22772"
+         y="969.49005"
+         id="tspan2993-9-6-6-89-5-8-6"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin">?</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Splash;-inkscape-font-specification:Splash Thin"
+       x="147.03012"
+       y="921.56421"
+       id="text2985-4-4-3-7-3-7-7-9-5-2-4-0-9-7-7"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="147.03012"
+         y="921.56421"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin"
+         id="tspan6850-4">Are there</tspan><tspan
+         sodipodi:role="line"
+         x="147.03012"
+         y="939.06421"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin"
+         id="tspan6905">better ways</tspan><tspan
+         sodipodi:role="line"
+         x="147.03012"
+         y="956.56421"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin"
+         id="tspan6907">to create alters?</tspan><tspan
+         sodipodi:role="line"
+         x="147.03012"
+         y="974.06421"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin"
+         id="tspan6909">e.g. feed from</tspan><tspan
+         sodipodi:role="line"
+         x="147.03012"
+         y="991.56421"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin"
+         id="tspan6911">analytics?</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Splash;-inkscape-font-specification:Splash Thin"
+       x="77.285683"
+       y="933.03632"
+       id="text2985-4-4-3-1-7-5-2-2"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="77.285683"
+         y="933.03632"
+         id="tspan2993-9-6-6-89-5-8-6-0"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin">?</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Splash;-inkscape-font-specification:Splash Thin"
+       x="111.82082"
+       y="1015.5369"
+       id="text2985-4-4-3-1-7-5-2-5"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="111.82082"
+         y="1015.5369"
+         id="tspan2993-9-6-6-89-5-8-6-7"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Splash;-inkscape-font-specification:Splash Thin">?</tspan></text>
   </g>
 </svg>
