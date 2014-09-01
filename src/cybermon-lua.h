@@ -17,6 +17,9 @@ extern "C" {
 #include <lauxlib.h>
 }
 
+#include <libgen.h>
+#include <string.h>
+
 #include <string>
 #include <stdexcept>
 #include <map>
@@ -44,11 +47,56 @@ namespace cybermon {
 	~lua_state() {
 	    lua_close(lua);
 	}
-	
+
+	// Add module's parent directory to LUA's package.path, which allows
+	// this module to 
+	void add_parent_directory_path(const std::string& path) {
+
+	    // When loading a configuration file, this allows adding that
+	    // configuration file's parent directory to Lua package.path,
+	    // which allows the configuration file to require() other modules
+	    // without having to worry about where they are.
+
+	    // Create space for the config filename.
+	    char tmp[path.size() + 1];
+
+	    // Take a copy, as a C-string.
+	    memcpy(tmp, path.c_str(), path.size());
+	    tmp[path.size()] = 0;
+
+	    // Get directory name of config file.
+	    const char* dir = dirname(tmp);
+
+	    // Get package.path.
+	    get_global("package");
+	    get_field(-1, "path");
+	    std::string pkg_path;
+	    to_string(-1, pkg_path);
+	    pop(); // Pop return string
+	    // 'package' still on stack.
+
+	    // Append the config file's directory to the package path string.
+	    pkg_path += ";";
+	    pkg_path += dir;
+	    pkg_path += "/?.lua";
+
+	    // 'package' is still on stack.
+
+	    // Set package.path to this value.
+	    push("path");
+	    push(pkg_path);
+	    set_table(-3);
+
+	    // Pop package, stack is as it was.
+	    pop(); // package
+
+	}
+
 	// Loads a module.  If the module uses 'return' to pass back its
 	// compiled code, this will be on the stack.
 	void load_module(const std::string& path) {
-	    
+
+	    // Load config file.
 	    if (luaL_dofile(lua, path.c_str()) != 0) {
 		std::string err;
 		err = "Error running script: ";

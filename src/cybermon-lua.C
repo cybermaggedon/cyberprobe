@@ -441,6 +441,9 @@ void cybermon_lua::ftp_response(engine& an, const context_ptr f,
 cybermon_lua::cybermon_lua(const std::string& cfg)
 {
 
+    // Add configuration file's directory to package.path.
+    add_parent_directory_path(cfg);
+
     // Load the configuration file.
     load_module(cfg);
 
