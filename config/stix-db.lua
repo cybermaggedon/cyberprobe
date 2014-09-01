@@ -7,9 +7,9 @@
 
 -- Load JSON decode, and filesystem module.
 local mime = require("mime")
-local stix = require("stix")
-local util = require("util")
-local elastic = require("elastic")
+local stix = require("util.stix")
+local addr = require("util.addresses")
+local elastic = require("util.elastic")
 
 -- Default TTL on objects.
 local default_ttl = "5m"
@@ -53,8 +53,8 @@ observer.connection_up = function(context)
   indicators = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "ipv4", true)
-  util.get_address(context, lst, "ipv4", false)
+  addr.get_address(context, lst, "ipv4", true)
+  addr.get_address(context, lst, "ipv4", false)
 
   for k, v in pairs(lst) do
     check = stix.index.ipv4[v]
@@ -73,8 +73,8 @@ observer.connection_up = function(context)
   lst = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "tcp", true)
-  util.get_address(context, lst, "tcp", false)
+  addr.get_address(context, lst, "tcp", true)
+  addr.get_address(context, lst, "tcp", false)
 
   for k, v in pairs(lst) do
     check = stix.index.port["tcp:" .. v]
@@ -94,8 +94,8 @@ observer.connection_up = function(context)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "connected_up"
   request["observation"]["indicators"] = indicators
   elastic.create_observation(request)
@@ -109,8 +109,8 @@ observer.connection_down = function(context)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "connected_down"
   elastic.create_observation(request)
 
@@ -126,8 +126,8 @@ observer.unrecognised_datagram = function(context, data)
   indicators = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "ipv4", true)
-  util.get_address(context, lst, "ipv4", false)
+  addr.get_address(context, lst, "ipv4", true)
+  addr.get_address(context, lst, "ipv4", false)
 
   for k, v in pairs(lst) do
     check = stix.index.ipv4[v]
@@ -147,8 +147,8 @@ observer.unrecognised_datagram = function(context, data)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "datagram"
   request["observation"]["data"] = b64(data)
   request["observation"]["indicators"] = indicators
@@ -164,8 +164,8 @@ observer.unrecognised_stream = function(context, data)
   indicators = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "ipv4", true)
-  util.get_address(context, lst, "ipv4", false)
+  addr.get_address(context, lst, "ipv4", true)
+  addr.get_address(context, lst, "ipv4", false)
 
   for k, v in pairs(lst) do
     check = stix.index.ipv4[v]
@@ -184,8 +184,8 @@ observer.unrecognised_stream = function(context, data)
   lst = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "tcp", true)
-  util.get_address(context, lst, "tcp", false)
+  addr.get_address(context, lst, "tcp", true)
+  addr.get_address(context, lst, "tcp", false)
 
   for k, v in pairs(lst) do
     check = stix.index.port["tcp:" .. v]
@@ -205,8 +205,8 @@ observer.unrecognised_stream = function(context, data)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "unrecognised_stream"
   request["observation"]["data"] = b64(data)
   request["observation"]["indicators"] = indicators
@@ -223,8 +223,8 @@ observer.icmp = function(context, data)
   indicators = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "ipv4", true)
-  util.get_address(context, lst, "ipv4", false)
+  addr.get_address(context, lst, "ipv4", true)
+  addr.get_address(context, lst, "ipv4", false)
 
   for k, v in pairs(lst) do
     check = stix.index.ipv4[v]
@@ -244,8 +244,8 @@ observer.icmp = function(context, data)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "icmp"
   request["observation"]["data"] = b64(data)
   request["observation"]["indicators"] = indicators
@@ -297,8 +297,8 @@ observer.http_request = function(context, method, url, header, body)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "http_request"
   request["observation"]["method"] = method
   request["observation"]["url"] = url
@@ -332,8 +332,8 @@ observer.http_response = function(context, code, status, header, url, body)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "http_response"
   request["observation"]["code"] = code
   request["observation"]["status"] = status
@@ -418,8 +418,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "dns_message"
   request["observation"]["indicators"] = indicators
 
@@ -461,8 +461,8 @@ observer.ftp_command = function(context, command)
   indicators = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "ipv4", true)
-  util.get_address(context, lst, "ipv4", false)
+  addr.get_address(context, lst, "ipv4", true)
+  addr.get_address(context, lst, "ipv4", false)
 
   for k, v in pairs(lst) do
     check = stix.index.ipv4[v]
@@ -481,8 +481,8 @@ observer.ftp_command = function(context, command)
   lst = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "tcp", true)
-  util.get_address(context, lst, "tcp", false)
+  addr.get_address(context, lst, "tcp", true)
+  addr.get_address(context, lst, "tcp", false)
 
   for k, v in pairs(lst) do
     check = stix.index.port["tcp:" .. v]
@@ -502,8 +502,8 @@ observer.ftp_command = function(context, command)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "ftp_command"
   request["observation"]["command"] = command
   elastic.create_observation(request)
@@ -519,8 +519,8 @@ observer.ftp_response = function(context, status, text)
   indicators = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "ipv4", true)
-  util.get_address(context, lst, "ipv4", false)
+  addr.get_address(context, lst, "ipv4", true)
+  addr.get_address(context, lst, "ipv4", false)
 
   for k, v in pairs(lst) do
     check = stix.index.ipv4[v]
@@ -539,8 +539,8 @@ observer.ftp_response = function(context, status, text)
   lst = {}
 
   -- Source and destination addresses
-  util.get_address(context, lst, "tcp", true)
-  util.get_address(context, lst, "tcp", false)
+  addr.get_address(context, lst, "tcp", true)
+  addr.get_address(context, lst, "tcp", false)
 
   for k, v in pairs(lst) do
     check = stix.index.port["tcp:" .. v]
@@ -560,8 +560,8 @@ observer.ftp_response = function(context, status, text)
   request["observation"] = {}
   request["_ttl"] = default_ttl
   request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = util.get_stack(context, true)
-  request["observation"]["dest"] = util.get_stack(context, false)
+  request["observation"]["src"] = addr.get_stack(context, true)
+  request["observation"]["dest"] = addr.get_stack(context, false)
   request["observation"]["action"] = "ftp_response"
 --  request["observation"]["status"] = status
   request["observation"]["text"] = text

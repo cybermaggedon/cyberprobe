@@ -1,7 +1,7 @@
 
 local module = {}
 
-local http = require("http")
+local http = require("util.http")
 
 local jsenc = require("json.encode")
 
