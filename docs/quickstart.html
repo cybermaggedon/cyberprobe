@@ -1258,7 +1258,7 @@ Finally, stop any running cybermon processes, and run cybermon with a
 configuration file which reads the JSON file.
 </p>
 
-<pre>cybermon 10000 /usr/local/etc/cyberstix.lua</pre>
+<pre>cybermon 10000 /usr/local/etc/stix-alert.lua</pre>
 
 <p>Now, this produces no output, except when activity which hits on a cyber
 threat is observed.  If you used my sample data, then this activity should
@@ -1295,7 +1295,7 @@ indicator and it is detected in both the HTTP request and response.
 </p>
 
 <p>
-The <code>cyberstix.lua</code> configuration file updates its configuration
+The <code>stix-alert.lua</code> configuration file updates its configuration
 if the JSON configuration file has changed.  So, you can do a round-trip
 update by changing the input files, re-running <code>stix-create</code>,
 using <code>taxii-sync-json</code> to fetch the updates, and all without
