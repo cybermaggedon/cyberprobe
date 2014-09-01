@@ -143,40 +143,7 @@ namespace cybermon {
 	}
 
 	// Registers into a metatable.
-	void register_table(const std::map<std::string,lua_CFunction>& fns) {
-	    
-#ifdef HAVE_LUAL_REGISTER
-	    // LUA 5.1
-	    luaL_reg cfns[fns.size() + 1];
-#else
-	    // LUA 5.2 and on
-	    luaL_Reg cfns[fns.size() + 1];
-#endif
-
-	    int pos = 0;
-	    for(std::map<std::string,lua_CFunction>::const_iterator it = 
-		    fns.begin();
-		it != fns.end();
-		it++) {
-		cfns[pos].name = it->first.c_str();
-		cfns[pos].func = it->second;
-		pos++;
-	    }
-	    
-	    cfns[pos].name = 0;
-	    cfns[pos].func = 0;
-	   
-#ifdef HAVE_LUAL_REGISTER
-	    // LUA 5.1
-	    luaL_register(lua, 0, cfns);
-#else
-	    // LUA 5.2 and on
-	    luaL_setfuncs(lua, cfns, 0);
-	    // FIXME: Is this right?
-	    set_meta_table(-2);
-#endif
-	    
-	}
+	void register_table(const std::map<std::string,lua_CFunction>& fns);
 
 	// Create table on the stack, pre-allocating items.
 	void create_table(int arr, int narr) {
@@ -205,9 +172,29 @@ namespace cybermon {
 	    lua_pushvalue(lua, pos);
 	}
 	
-	// Push a string onto the stack.
+	// Push an integer onto the stack.
 	void push(int num) { 
 	    lua_pushinteger(lua, num);
+	}
+	
+	// Push an integer onto the stack.
+	void push(long num) { 
+	    lua_pushinteger(lua, num);
+	}
+		
+	// Push an integer onto the stack.
+	void push(unsigned int num) { 
+	    lua_pushinteger(lua, num);
+	}
+		
+	// Push an integer onto the stack.
+	void push(unsigned long num) { 
+	    lua_pushinteger(lua, num);
+	}
+	
+	// Push a float onto the stack.
+	void push(double num) { 
+	    lua_pushnumber(lua, num);
 	}
 
 	// Push a string (defined by iterators).
@@ -297,6 +284,10 @@ namespace cybermon {
 	    val = lua_tointeger(lua, pos);
 	}
 
+	void to_double(int pos, double& val) {
+	    val = lua_tonumber(lua, pos);
+	}
+
 	void to_userdata(int pos, void*& val) {
 	    val = lua_touserdata(lua, pos);
 	    if (val == 0)
@@ -379,6 +370,8 @@ namespace cybermon {
 	static int context_get_src_addr(lua_State*);
 	static int context_get_dest_addr(lua_State*);
 
+	static int context_get_creation_time(lua_State*);
+	static int context_get_event_time(lua_State*);
 
 	static int context_gc(lua_State*);
 

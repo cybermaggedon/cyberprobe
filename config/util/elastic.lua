@@ -2,21 +2,41 @@
 local module = {}
 
 local http = require("util.http")
+local addr = require("util.addresses")
 
 local jsenc = require("json.encode")
 
 -- Object ID counter
 local id = 1
 
+-- Time-to-live
+local default_ttl = "1h"
+
 -- Points to an ElasticSearch instance.
 module.base = "http://localhost:9200/"
 
+-- Initialise a basic observation
+module.initialise_observation = function(context)
+
+  local obs = {}
+  obs["_ttl"] = default_ttl
+  obs["observation"] = {}
+  obs["observation"]["liid"] = context:get_liid()
+  obs["observation"]["src"] = addr.get_stack(context, true)
+  obs["observation"]["dest"] = addr.get_stack(context, false)
+  obs["observation"]["time"] = context:get_event_time()
+
+  return obs
+
+end
+
+
+
 -- Create an observation object in ElasticSearch
-module.create_observation = function(request)
+module.submit_observation = function(request)
 
   local u = string.format(module.base .. "cybermon/observation/%d", id)
   request["observation"]["oid"] = id
-  request["observation"]["time"] = os.time()
 
   print(string.format("Observation %d", id))
   id = id + 1

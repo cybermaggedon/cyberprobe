@@ -27,10 +27,6 @@ local observer = {}
 -- Elasticsearch init
 elastic.init()
 
--- Last mod time of the configuration file.  This helps us work out when to
--- reload.
-local cur_mtime = 0
-
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
 observer.trigger_up = function(liid, addr)
@@ -52,16 +48,11 @@ observer.connection_up = function(context)
       v.value, v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "connection_up"
-  request["observation"]["data"] = b64(data)
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "connection_up"
+  obs["observation"]["data"] = b64(data)
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -70,15 +61,10 @@ observer.connection_down = function(context)
 
 -- No indicators reported on connection down
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "connection_down"
-  request["observation"]["data"] = b64(data)
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "connection_down"
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
 
 end
 
@@ -94,16 +80,11 @@ observer.unrecognised_datagram = function(context, data)
       v.value, v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "unrecognised_datagram"
-  request["observation"]["data"] = b64(data)
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "unrecognised_datagram"
+  obs["observation"]["data"] = b64(data)
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -119,16 +100,11 @@ observer.unrecognised_stream = function(context, data)
       v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "unrecognised_stream"
-  request["observation"]["data"] = b64(data)
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "unrecognised_stream"
+  obs["observation"]["data"] = b64(data)
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -143,16 +119,11 @@ observer.icmp = function(context, data)
       v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "icmp"
-  request["observation"]["data"] = b64(data)
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "icmp"
+  obs["observation"]["data"] = b64(data)
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -172,19 +143,14 @@ observer.http_request = function(context, method, url, header, body)
         v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "http_request"
-  request["observation"]["method"] = method
-  request["observation"]["url"] = url
-  request["observation"]["header"] = header
-  request["observation"]["body"] = b64(body)
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "http_request"
+  obs["observation"]["method"] = method
+  obs["observation"]["url"] = url
+  obs["observation"]["header"] = header
+  obs["observation"]["body"] = b64(body)
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -199,20 +165,15 @@ observer.http_response = function(context, code, status, header, url, body)
         v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "http_response"
-  request["observation"]["code"] = code
-  request["observation"]["status"] = status
-  request["observation"]["header"] = header
-  request["observation"]["url"] = url
-  request["observation"]["body"] = b64(body)
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "http_response"
+  obs["observation"]["code"] = code
+  obs["observation"]["status"] = status
+  obs["observation"]["header"] = header
+  obs["observation"]["url"] = url
+  obs["observation"]["body"] = b64(body)
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -227,16 +188,11 @@ observer.smtp_command = function(context, command)
       v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "smtp_command"
-  request["observation"]["command"] = command
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "smtp_command"
+  obs["observation"]["command"] = command
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -251,17 +207,12 @@ observer.smtp_response = function(context, status, text)
       v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "smtp_response"
-  request["observation"]["status"] = status
-  request["observation"]["text"] = text
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "smtp_response"
+  obs["observation"]["status"] = status
+  obs["observation"]["text"] = text
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -280,18 +231,13 @@ observer.smtp_data = function(context, from, to, data)
         v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "smtp_data"
-  request["observation"]["from"] = from
-  request["observation"]["to"] = to
-  request["observation"]["data"] = b64(data)
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "smtp_data"
+  obs["observation"]["from"] = from
+  obs["observation"]["to"] = to
+  obs["observation"]["data"] = b64(data)
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -316,21 +262,16 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
         v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "dns_message"
-  request["observation"]["indicators"] = indicators
-  request["observation"]["type"] = trans
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "dns_message"
+  obs["observation"]["indicators"] = indicators
+  obs["observation"]["type"] = trans
 
   local q = {}
   for key, value in pairs(queries) do
     q[#q + 1] = value.name
   end
-  request["observation"]["queries"] = q
+  obs["observation"]["queries"] = q
 
   q = {}
   for key, value in pairs(answers) do
@@ -344,8 +285,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     end
     q[#q + 1] = a
   end
-  request["observation"]["answers"] = q
-  elastic.create_observation(request)
+  obs["observation"]["answers"] = q
+  elastic.submit_observation(obs)
 
 end
 
@@ -360,16 +301,11 @@ observer.ftp_command = function(context, command)
       v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "ftp_command"
-  request["observation"]["command"] = command
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "ftp_command"
+  obs["observation"]["command"] = command
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 
@@ -384,17 +320,12 @@ observer.ftp_response = function(context, status, text)
       v.id, v.description))
   end
 
-  local request = {}
-  request["observation"] = {}
-  request["_ttl"] = default_ttl
-  request["observation"]["liid"] = context:get_liid()
-  request["observation"]["src"] = addr.get_stack(context, true)
-  request["observation"]["dest"] = addr.get_stack(context, false)
-  request["observation"]["action"] = "ftp_response"
-  request["observation"]["status"] = status
-  request["observation"]["text"] = text
-  request["observation"]["indicators"] = indicators
-  elastic.create_observation(request)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "ftp_response"
+  obs["observation"]["status"] = status
+  obs["observation"]["text"] = text
+  obs["observation"]["indicators"] = indicators
+  elastic.submit_observation(obs)
 
 end
 

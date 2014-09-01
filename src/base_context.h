@@ -36,6 +36,9 @@ namespace cybermon {
 
       public:
 
+	// Time of creation.
+	struct timeval creation;
+
 	context_ptr get_reverse() {
 	    return reverse.lock();
 	}

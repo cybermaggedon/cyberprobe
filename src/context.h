@@ -8,6 +8,8 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <sys/time.h>
+
 #include "socket.h"
 
 #include "address.h"
@@ -138,6 +140,9 @@ namespace cybermon {
 
 		ch = (*create_fn)(mc->mgr, f, mc);
 		parent->children[f] = ch;
+
+		// Set creation time.
+		gettimeofday(&(ch->creation), 0);
 
 		// We've just created a context!
 

@@ -474,6 +474,8 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     afns["forge_dns_response"] = &context_forge_dns_response;
     afns["forge_tcp_reset"] = &context_forge_tcp_reset;
     afns["forge_tcp_data"] = &context_forge_tcp_data;
+    afns["get_creation_time"] = &context_get_creation_time;
+    afns["get_event_time"] = &context_get_event_time;
 
     register_table(afns);
 
@@ -1014,6 +1016,43 @@ int cybermon_lua::context_get_type(lua_State* lua)
 
 }
 
+int cybermon_lua::context_get_creation_time(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    struct timeval* creation = &(cd->ctxt->creation);
+
+    double d = creation->tv_sec + (creation->tv_usec / 1000000.0);
+
+    cd->cml->pop(1);
+    cd->cml->push(d);
+
+    return 1;
+
+}
+
+int cybermon_lua::context_get_event_time(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    struct timeval event;
+    gettimeofday(&event, 0);
+
+    double d = event.tv_sec + (event.tv_usec / 1000000.0);
+
+    cd->cml->pop(1);
+    cd->cml->push(d);
+
+    return 1;
+
+}
+
 int cybermon_lua::context_get_liid(lua_State* lua)
 {
 
@@ -1151,3 +1190,38 @@ int cybermon_lua::context_forge_tcp_data(lua_State* lua)
 
 }
 
+// Registers into a metatable.
+void lua_state::register_table(const std::map<std::string,lua_CFunction>& fns) {
+	    
+#ifdef HAVE_LUAL_REGISTER
+    // LUA 5.1
+    luaL_reg cfns[fns.size() + 1];
+#else
+    // LUA 5.2 and on
+    luaL_Reg cfns[fns.size() + 1];
+#endif
+
+    int pos = 0;
+    for(std::map<std::string,lua_CFunction>::const_iterator it = 
+	    fns.begin();
+	it != fns.end();
+	it++) {
+	cfns[pos].name = it->first.c_str();
+	cfns[pos].func = it->second;
+	pos++;
+    }
+	    
+    cfns[pos].name = 0;
+    cfns[pos].func = 0;
+	   
+#ifdef HAVE_LUAL_REGISTER
+    // LUA 5.1
+    luaL_register(lua, 0, cfns);
+#else
+    // LUA 5.2 and on
+    luaL_setfuncs(lua, cfns, 0);
+    // FIXME: Is this right?
+    set_meta_table(-2);
+#endif
+	    
+}
