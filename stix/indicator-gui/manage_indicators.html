@@ -70,12 +70,14 @@ function update_workspace(force)
   
   if (query == "") {
     query_obj = {
+      "size": 20,
       "query": {
         "match_all": {}
       }
     };
   } else {
     query_obj = {
+      "size": 20,
       "query": {
         "query_string": {
           "query": query
@@ -131,6 +133,13 @@ function add()
     <select id="add_class">
       <option value="email"/>Email</option>
       <option value="ipv4"/>IPv4 address</option>
+      <option value="mac"/>MAC address</option>
+      <option value="path"/>File path</option>
+      <option value="hash"/>File hash</option>
+      <option value="hostname"/>Hostname</option>
+      <option value="port"/>Port (e.g. tcp:80)</option>
+      <option value="uri"/>URI</option>
+      <option value="user_account"/>User account</option>
     </select>
     <input type="text" size="30" id="add_value"/>
     <input type="submit" value="Add"/>
