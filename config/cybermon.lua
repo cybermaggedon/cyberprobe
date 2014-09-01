@@ -5,6 +5,8 @@
 -- observered events.  This can serve as a template.
 --
 
+local addr = require("util.addresses")
+
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
@@ -22,40 +24,12 @@ observer.trigger_down = function(liid)
   io.write(string.format("Target %s gone off air\n\n", liid))
 end
 
--- Used to recurse up the protocol stack and get protocol addresses as a
--- string.  context=protocol context, is_src=true to study source addresses,
--- otherwise it returns destination address stack.
-observer.describe_address = function(context, is_src)
-  local par = context:get_parent()
-  local str = ""
-  if par then
-    if is_src then
-      str = observer.describe_address(par, true)
-    else
-      str = observer.describe_address(par, false)
-    end
-  end
-  local cls, addr
-  if is_src then
-    cls, addr = context:get_src_addr()
-  else
-    cls, addr = context:get_dest_addr()
-  end
-  if not(addr == "") then
-    if not(str == "") then
-      str = str .. ":"
-    end
-    str = str .. addr
-  end
-  return str
-end
-
 -- Puts out a one-line description of the event.  Parameter action is a
 -- description of the event.
 observer.describe = function(context, action)
   local liid = context:get_liid()
-  local s = observer.describe_address(context, true)
-  local d = observer.describe_address(context, false)
+  local s = addr.describe_address(context, true)
+  local d = addr.describe_address(context, false)
   io.write(string.format("%s: %s -> %s. %s\n", liid, s, d, action))
 end
 
