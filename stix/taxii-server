@@ -112,6 +112,7 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # Apply a query criterion
     def apply_query_criterion(s, criterion, doc):
 
+        # Namespaces we'll use later
         namespaces = {
             "cybox": "http://cybox.mitre.org/cybox-2",
             "AddressObj": "http://cybox.mitre.org/objects#AddressObject-2",
@@ -142,34 +143,32 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         elif criterion.target == '//Information_Source/Identity/@idref':
             expr = '//stix:Information_Source/stixCommon:Identity/@idref'
 
-        suffix = ''
-
         relationship = criterion.test.relationship
         params = criterion.test.parameters
         value = params['value']
 
         if relationship == 'equals':
             if params['match_type'] == 'case_sensitive_string':
-                suffix = '[. = "%s"]' % value
+                expr +=  '[. = "%s"]' % value
             elif params['match_type'] == 'case_insensitive_string':
-                suffix = '[translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "%s"]' % value.lower()
+                expr += '[translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "%s"]' % value.lower()
             elif params['match_type'] == 'number':
-                suffix = '[. = "%s"]' % value
+                expr += '[. = "%s"]' % value
         elif relationship == 'not equals':
             if params['match_type'] == 'case_sensitive_string':
-                suffix = '[. != "%s"]' % value
+                expr += '[. != "%s"]' % value
             elif params['match_type'] == 'case_insensitive_string':
-                suffix = '[translate(%s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") != "%s"]' % value
+                expr += '[translate(%s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") != "%s"]' % value
             elif params['match_type'] == 'number':
-                suffix = '[. != "%s"]' % value
+                expr += = '[. != "%s"]' % value
         elif relationship == 'greater than':
-            suffix = '[. > "%s"]' % value
+            expr += '[. > "%s"]' % value
         elif relationship == 'greater than or equal':
-            suffix = '[. >= "%s"]' % value
+            expr += '[. >= "%s"]' % value
         elif relationship == 'less than':
-            suffix = '[. < "%s"]' % value
+            expr += '[. < "%s"]' % value
         elif relationship == 'less than or equal':
-            suffix = '[. <= "%s"]' % value
+            expr += '[. <= "%s"]' % value
         elif relationship == 'does not exist':
             expr = "not(%s)" % expr
         elif relationship == 'exists':
@@ -177,25 +176,23 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             pass
         elif relationship == 'begins with':
             if params['case_sensitive'] == 'false':
-                suffix = '[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value
+                expr += '[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value
             elif params['case_sensitive'] == 'true':
-                suffix = '[starts-with(., "%s")]' % value
+                expr += '[starts-with(., "%s")]' % value
         elif relationship == 'ends with':
             if params['case_sensitive'] == 'false':
-                suffix = '[substring(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
+                expr += '[substring(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
         elif params['case_sensitive'] == 'true':
-            suffix = '[substring(., string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
+            expr += '[substring(., string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
         elif relationship == 'contains':
             if params['case_sensitive'] == 'false':
-                suffix = '[contains(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value()
+                expr += '[contains(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value()
             elif params['case_sensitive'] == 'true':
-                suffix = '[contains(., "%s")]' % value()
+                expr += '[contains(., "%s")]' % value()
         
-        expr += suffix
+        result = doc.xpath(expr, namespaces=namespaces)
 
         print expr
-
-        result = doc.xpath(expr, namespaces=namespaces)
         
         if result == True:
             ret = True
