@@ -91,42 +91,51 @@ def dump_package(pkg):
 ############################################################################
 
 def perform_poll(args):
+    
+    if args.query != None:
 
-    # criterion = []
+        criterion = []
 
-    # target1 = '//Indicator/@id'
-    # value1 = 'example1:1'
+        for q in args.query:
 
-    # target2 = '//Port_Value'
-    # value2 = '11111'
+            type, value = q.split(":", 1)
 
-    # params1 = {'value':value1, 'match_type': 'case_sensitive_string'}
+            if type == "address":
+                target = "//Address_Value"
+            elif type == "addresstype":
+                target = "//Object/Properties/@category"
+            elif type == "hostname":
+                target = "//Hostname_Value"
+            elif type == "port":
+                target = "//Port_Value"
+            elif type == "hash":
+                target = "//Hash/Simple_Hash_Value"
+            elif type == "id":
+                target = "/STIX_Package/@id"
+            elif type == "source":
+                target = "//Information_Source/Identity/@idref"
 
-    # test1 = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
-    #                                         relationship='equals', 
-    #                                         parameters=params1)
+            params = {'value':value, 'match_type': 'case_sensitive_string'}
 
-    # cron1 = tdq.DefaultQuery.Criterion(target=target1, test=test1, negate=True)
-    # criterion.append(cron1)
+            test = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
+                                                   relationship='equals', 
+                                                   parameters=params)
 
-    # params2 = {'value':value2, 'match_type': 'case_sensitive_string'}
+            cron = tdq.DefaultQuery.Criterion(target=target, test=test, 
+                                              negate=False)
 
-    # test2 = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
-    #                                         relationship='equals', 
-    #                                         parameters=params2)
+            criterion.append(cron)
 
-    # cron2 = tdq.DefaultQuery.Criterion(target=target2, test=test2, negate=True)
-    # criterion.append(cron2)
+        criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
+                                             criterion=criterion)
 
-    # criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
-    #                                      criterion=criterion)
+        qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
 
-    # # FIXME: Hard-coded
-    # qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
+        poll_params=tm11.PollRequest.PollParameters(query=qry)
 
-#    poll_params=tm11.PollRequest.PollParameters(query=qry)
+    else:
 
-    poll_params=tm11.PollRequest.PollParameters()
+        poll_params=tm11.PollRequest.PollParameters()
 
     # Create poll request
     poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
@@ -269,7 +278,7 @@ def perform_manage_collection_subscription(args):
 ############################################################################
 
 # Parse command line arguments
-p = argparse.ArgumentParser(description="Poll Client")
+p = argparse.ArgumentParser(description="TAXII Client")
 p.add_argument("--host", dest="host", default="localhost", 
                help="Host where the Poll Service is hosted. "
                "Defaults to localhost.")
@@ -301,6 +310,11 @@ p.add_argument("--manage_collection_subscription", "-m", dest="action",
                default=None, help="Manage Collection Subscription request")
 p.add_argument("--action", "-a", dest="act", default=None, 
                help="Subscription action")
+p.add_argument("--query", "-q", dest="query", action="append",
+               help="Query in form type:value.  Type can be one of: address, "
+               "addresstype, hostname, port, hash, id, source. e.g. "
+               "address:1.2.3.4 addresstype:e-mail port:11111.",
+               default=None)
 
 args = p.parse_args()
 

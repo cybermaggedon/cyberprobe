@@ -114,8 +114,9 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         namespaces = {
             "cybox": "http://cybox.mitre.org/cybox-2",
-            "AddressObject": "http://cybox.mitre.org/objects#AddressObject-2",
+            "AddressObj": "http://cybox.mitre.org/objects#AddressObject-2",
             "stix": "http://stix.mitre.org/stix-1",
+            "stixCommon": "http://stix.mitre.org/common-1",
             "HostnameObj": "http://cybox.mitre.org/objects#HostnameObject-1",
             "PortObj": "http://cybox.mitre.org/objects#PortObject-2",
             "cyboxCommon": "http://cybox.mitre.org/common-2"
@@ -123,19 +124,23 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # Convert target to XPath pointer part
         if criterion.target == '//Address_Value':
-            expr = '//AddressObject:Address_Value'
+            expr = '//AddressObj:Address_Value'
         elif criterion.target == '//Indicator/@id':
             expr = '//stix:Indicator/@id'
         elif criterion.target == '//Package_Intent':
             expr = '//stix:Package_Intent'
-        elif criterion.target == '//AddressObjectType':
-            expr = '//cybox:Properties/AddressObj:AddressObjectType'
+        elif criterion.target == '//Object/Properties/@category':
+            expr = '//cybox:Object/cybox:Properties/@category'
         elif criterion.target == '//Hostname_Value':
             expr = '//HostnameObj:Hostname_Value'
         elif criterion.target == '//Port_Value':
             expr = '//PortObj:Port_Value'
         elif criterion.target == '//Hash/Simple_Hash_Value':
             expr = '//cyboxCommon:Hash/cyboxCommon:Simple_Hash_Value'
+        elif criterion.target == '/STIX_Package/@id':
+            expr = '/stix:STIX_Package/@id'
+        elif criterion.target == '//Information_Source/Identity/@idref':
+            expr = '//stix:Information_Source/stixCommon:Identity/@idref'
 
         suffix = ''
 
@@ -187,6 +192,8 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 suffix = '[contains(., "%s")]' % value()
         
         expr += suffix
+
+        print expr
 
         result = doc.xpath(expr, namespaces=namespaces)
         
@@ -385,7 +392,7 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 ############################################################################
 
 # Parse command line arguments
-p = argparse.ArgumentParser(description="Poll Client")
+p = argparse.ArgumentParser(description="TAXII server")
 p.add_argument("--host", dest="host", default="localhost", 
                help="Host to start the HTTP service on. "
                "Defaults to localhost.")

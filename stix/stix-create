@@ -31,22 +31,12 @@ from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
 from stix.indicator import Indicator
+from stix.common.information_source import InformationSource
+from stix.common.identity import Identity
 import sys
 import csv
+import argparse
 
-# Check arguments
-if len(sys.argv) < 3 or len(sys.argv) > 4:
-    print "Usage:"
-    print "  create <input> <output> [<id>]"
-    sys.exit(1)
-
-# Parse arguments
-input_file = sys.argv[1]
-output_file = sys.argv[2]
-if len(sys.argv) == 4:
-    id = sys.argv[3]
-else:
-    id = None
 
 ############################################################################
 # Helper functions to create different kinds of observable
@@ -107,15 +97,36 @@ def create_user_account_observable(pkg, id, description, domain, username):
 # main body
 ############################################################################
 
+p = argparse.ArgumentParser(description="STIX document creation")
+p.add_argument(dest="input", nargs=1,
+               help="Input file.")
+p.add_argument(dest="output", nargs=1,
+               help="Output file.")
+p.add_argument("--id", "-i", dest="id", required=False,
+               help="Document ID.")
+p.add_argument("--source-id", "-s", dest="source_id", required=False,
+               help="Source reference ID.")
+args = p.parse_args()
+
+# Parse arguments
+input_file = args.input[0]
+output_file = args.output[0]
+
 # Create STIX header
 header = STIXHeader()
 header.add_package_intent("Indicators - Watchlist")
 
+# Source ref
+if args.source_id != None:
+    ident=Identity(idref = args.source_id)
+    src = InformationSource(identity=ident)
+    header.information_source = src
+
 # Create STIX package
 package = STIXPackage()
 package.stix_header = header
-if id:
-    package.id_ = id
+if args.id:
+    package.id_ = args.id
 
 row_count = 0
 
