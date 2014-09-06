@@ -86,12 +86,9 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # Respond
         s.respond(resp.to_xml())
-
     
+    # Apply a query criteria
     def apply_query_criteria(s, criteria, doc):
-    
-        print "Criteria:"
-        print "  Operator:", criteria.operator
 
         for c in criteria.criteria:
             ret = s.apply_query_criteria(c, doc)
@@ -112,16 +109,106 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         return False
 
+    # Apply a query criterion
     def apply_query_criterion(s, criterion, doc):
-    
-        print "Criterion:", criterion.target, criterion.test.relationship, criterion.test.parameters
-        return True
+
+        namespaces = {
+            "cybox": "http://cybox.mitre.org/cybox-2",
+            "AddressObject": "http://cybox.mitre.org/objects#AddressObject-2",
+            "stix": "http://stix.mitre.org/stix-1",
+            "HostnameObj": "http://cybox.mitre.org/objects#HostnameObject-1",
+            "PortObj": "http://cybox.mitre.org/objects#PortObject-2",
+            "cyboxCommon": "http://cybox.mitre.org/common-2"
+        }
+
+        # Convert target to XPath pointer part
+        if criterion.target == '//Address_Value':
+            expr = '//AddressObject:Address_Value'
+        elif criterion.target == '//Indicator/@id':
+            expr = '//stix:Indicator/@id'
+        elif criterion.target == '//Package_Intent':
+            expr = '//stix:Package_Intent'
+        elif criterion.target == '//AddressObjectType':
+            expr = '//cybox:Properties/AddressObj:AddressObjectType'
+        elif criterion.target == '//Hostname_Value':
+            expr = '//HostnameObj:Hostname_Value'
+        elif criterion.target == '//Port_Value':
+            expr = '//PortObj:Port_Value'
+        elif criterion.target == '//Hash/Simple_Hash_Value':
+            expr = '//cyboxCommon:Hash/cyboxCommon:Simple_Hash_Value'
+
+        suffix = ''
+
+        relationship = criterion.test.relationship
+        params = criterion.test.parameters
+        value = params['value']
+
+        if relationship == 'equals':
+            if params['match_type'] == 'case_sensitive_string':
+                suffix = '[. = "%s"]' % value
+            elif params['match_type'] == 'case_insensitive_string':
+                suffix = '[translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "%s"]' % value.lower()
+            elif params['match_type'] == 'number':
+                suffix = '[. = "%s"]' % value
+        elif relationship == 'not equals':
+            if params['match_type'] == 'case_sensitive_string':
+                suffix = '[. != "%s"]' % value
+            elif params['match_type'] == 'case_insensitive_string':
+                suffix = '[translate(%s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") != "%s"]' % value
+            elif params['match_type'] == 'number':
+                suffix = '[. != "%s"]' % value
+        elif relationship == 'greater than':
+            suffix = '[. > "%s"]' % value
+        elif relationship == 'greater than or equal':
+            suffix = '[. >= "%s"]' % value
+        elif relationship == 'less than':
+            suffix = '[. < "%s"]' % value
+        elif relationship == 'less than or equal':
+            suffix = '[. <= "%s"]' % value
+        elif relationship == 'does not exist':
+            expr = "not(%s)" % expr
+        elif relationship == 'exists':
+            # Complete
+            pass
+        elif relationship == 'begins with':
+            if params['case_sensitive'] == 'false':
+                suffix = '[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value
+            elif params['case_sensitive'] == 'true':
+                suffix = '[starts-with(., "%s")]' % value
+        elif relationship == 'ends with':
+            if params['case_sensitive'] == 'false':
+                suffix = '[substring(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
+        elif params['case_sensitive'] == 'true':
+            suffix = '[substring(., string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
+        elif relationship == 'contains':
+            if params['case_sensitive'] == 'false':
+                suffix = '[contains(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value()
+            elif params['case_sensitive'] == 'true':
+                suffix = '[contains(., "%s")]' % value()
+        
+        expr += suffix
+
+        print expr
+        result = doc.xpath(expr, namespaces=namespaces)
+        
+        if result == True:
+            ret = True
+        elif result == False:
+            ret = False
+        elif len(result) > 0:
+            ret = True
+        else:
+            ret = False
+
+        if criterion.negate:
+            return not ret
+        else:
+            return ret
 
     # Handling a TAXII PollRequest
     def handle_poll_request(s, msg):
         
         query = msg.poll_parameters.query
-        print query
 
         # Get the time (now)
         now = datetime.datetime.now(gmt)
@@ -175,10 +262,10 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 ret = s.apply_query_criteria(query.criteria, doc)
 
                 if not ret:
-                    print "QUERY MISS"
+                    print "Query miss."
                     continue
                     
-                print "QUERY HIT"
+                print "Query hit."
 
             # Keep the 'latest' time up to date.
             if latest == None or then > latest:

@@ -17,8 +17,11 @@ from cybox.objects.user_account_object import UserAccount
 import StringIO
 import datetime
 
-target = 'STIX_Package/Indicators/Indicator/@id'
-value = 'example1:1'
+#target = '//Indicator/@id'
+#value = 'example1:1'
+
+target = '//Port_Value'
+value = '11111'
 
 ############################################################################
 # Dump a Cybox observable
@@ -97,11 +100,11 @@ def perform_poll(args):
 
     criterion = []
 
-    params = {'value':value, 'match_type': 'case_insensitive_string'}
+    params = {'value':value, 'match_type': 'case_sensitive_string'}
     test = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
                                            relationship='equals', 
                                            parameters=params)
-    cron = tdq.DefaultQuery.Criterion(target=target, test=test)
+    cron = tdq.DefaultQuery.Criterion(target=target, test=test, negate=True)
     criterion.append(cron)
 
     criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
@@ -122,8 +125,6 @@ def perform_poll(args):
 
     # Convert to XML for request body
     poll_req_xml = poll_req.to_xml(True)
-
-    print poll_req_xml
 
     # Create HTTP client
     client = tc.HttpClient()
