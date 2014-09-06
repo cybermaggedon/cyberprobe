@@ -86,6 +86,50 @@ def dump_package(pkg):
     for ind in pkg.indicators:
         dump_indicator(ind)
 
+def create_query(args):
+
+    criterion = []
+
+    for q in args.query:
+
+        type, value = q.split(":", 1)
+
+        if type == "address":
+            target = "//Address_Value"
+        elif type == "addresstype":
+            target = "//Object/Properties/@category"
+        elif type == "hostname":
+            target = "//Hostname_Value"
+        elif type == "port":
+            target = "//Port_Value"
+        elif type == "hash":
+            target = "//Hash/Simple_Hash_Value"
+        elif type == "id":
+            target = "/STIX_Package/@id"
+        elif type == "source":
+            target = "//Information_Source/Identity/@idref"
+        else:
+            raise TypeError("Don't understand type '" + type + "'")
+        
+
+        params = {'value':value, 'match_type': 'case_sensitive_string'}
+
+        test = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
+                                               relationship='equals', 
+                                               parameters=params)
+
+        cron = tdq.DefaultQuery.Criterion(target=target, test=test, 
+                                          negate=False)
+
+        criterion.append(cron)
+
+    criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
+                                         criterion=criterion)
+
+    qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
+
+    return qry
+
 ############################################################################
 # Perform a TAXII poll
 ############################################################################
@@ -93,45 +137,8 @@ def dump_package(pkg):
 def perform_poll(args):
     
     if args.query != None:
-
-        criterion = []
-
-        for q in args.query:
-
-            type, value = q.split(":", 1)
-
-            if type == "address":
-                target = "//Address_Value"
-            elif type == "addresstype":
-                target = "//Object/Properties/@category"
-            elif type == "hostname":
-                target = "//Hostname_Value"
-            elif type == "port":
-                target = "//Port_Value"
-            elif type == "hash":
-                target = "//Hash/Simple_Hash_Value"
-            elif type == "id":
-                target = "/STIX_Package/@id"
-            elif type == "source":
-                target = "//Information_Source/Identity/@idref"
-
-            params = {'value':value, 'match_type': 'case_sensitive_string'}
-
-            test = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
-                                                   relationship='equals', 
-                                                   parameters=params)
-
-            cron = tdq.DefaultQuery.Criterion(target=target, test=test, 
-                                              negate=False)
-
-            criterion.append(cron)
-
-        criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
-                                             criterion=criterion)
-
-        qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
-
-        poll_params=tm11.PollRequest.PollParameters(query=qry)
+        
+        poll_params=tm11.PollRequest.PollParameters(query=create_query(args))
 
     else:
 
