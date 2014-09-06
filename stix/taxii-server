@@ -164,6 +164,43 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         s.respond(resp.to_xml())
         body = resp.to_xml()
 
+    # Handling a TAXII DiscoveryRequest
+    def handle_discovery_request(s, msg):
+        
+        # Create poll response.
+        resp = tm11.DiscoveryResponse(message_id=tm11.generate_message_id(),
+                                      in_response_to=msg.message_id)
+
+        # Send response
+        s.respond(resp.to_xml())
+        body = resp.to_xml()
+
+    # Handling a TAXII CollectionInformationRequest
+    def handle_collection_information_request(s, msg):
+        
+        # Create poll response.
+        msg_id=tm11.generate_message_id()
+        resp = tm11.CollectionInformationResponse(message_id=msg_id,
+                                      in_response_to=msg.message_id)
+
+        # Send response
+        s.respond(resp.to_xml())
+        body = resp.to_xml()
+
+    # Handling a TAXII CollectionInformationRequest
+    def handle_manage_collection_subscription_request(s, msg):
+        
+        # Create poll response.
+        msg_id=tm11.generate_message_id()
+        resp = tm11.ManageCollectionSubscriptionResponse(message_id=msg_id,
+                                                         collection_name=msg.collection_name,
+                                                         in_response_to=
+                                                         msg.message_id)
+
+        # Send response
+        s.respond(resp.to_xml())
+        body = resp.to_xml()
+
     # HTTP head request
     def do_HEAD(s):
         s.send_response(200)
@@ -187,6 +224,18 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         if type(msg) == tm11.InboxMessage:
             s.handle_inbox_message(msg)
+            return
+
+        if type(msg) == tm11.DiscoveryRequest:
+            s.handle_discovery_request(msg)
+            return
+
+        if type(msg) == tm11.CollectionInformationRequest:
+            s.handle_collection_information_request(msg)
+            return
+
+        if type(msg) == tm11.ManageCollectionSubscriptionRequest:
+            s.handle_manage_collection_subscription_request(msg)
             return
 
         # Sorry, I only handle inbox and poll requests.

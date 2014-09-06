@@ -82,8 +82,153 @@ def dump_package(pkg):
     print
 
     # Walk through indicators
-    for ind in package.indicators:
+    for ind in pkg.indicators:
         dump_indicator(ind)
+
+############################################################################
+# Perform a TAXII poll
+############################################################################
+
+def perform_poll(args):
+
+    poll_params=tm11.PollRequest.PollParameters()
+
+
+    # Create poll request
+    poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
+                                collection_name=args.collection,
+                                exclusive_begin_timestamp_label=begin_ts,
+                                inclusive_end_timestamp_label=end_ts,
+                                poll_parameters=poll_params)
+
+    # Convert to XML for request body
+    poll_req_xml = poll_req.to_xml()
+
+    # Create HTTP client
+    client = tc.HttpClient()
+    client.setProxy('noproxy') 
+
+    # Call TAXII service, using the body
+    resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
+                                    poll_req_xml, args.port)
+
+    # Get response
+    resp = t.get_message_from_http_response(resp, '0')
+
+    print "End timestamp: %s" % resp.inclusive_end_timestamp_label
+
+    # Process each content block
+    for cb in resp.content_blocks:
+        
+        content = cb.content
+        
+        # Hack an XML header on the top?! and add the payload body.
+        resp = "<?xml version=\"1.0\"?>\n" + content
+        
+        # Parse the payload, should be a STIX document.
+        package = STIXPackage.from_xml(StringIO.StringIO(resp))
+        
+        # Dump package ID
+        if package.id_:
+            print "***** Package id: %s" % package.id_
+            
+            # Dump package
+            dump_package(package)
+
+############################################################################
+# Perform a TAXII discovery
+############################################################################
+
+def perform_discovery(args):
+
+    # Create discovery request
+    req = tm11.DiscoveryRequest(message_id=tm11.generate_message_id())
+
+    # Convert to XML for request body
+    req_xml = req.to_xml()
+
+    # Create HTTP client
+    client = tc.HttpClient()
+    client.setProxy('noproxy') 
+
+    # Call TAXII service, using the body
+    resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
+                                    req_xml, args.port)
+
+    # Get response
+    resp = t.get_message_from_http_response(resp, '0')
+
+    print resp.to_xml()
+
+############################################################################
+# Perform a TAXII CollecitonInformationRequest
+############################################################################
+
+def perform_collection_information(args):
+
+    # Create discovery request
+    msg_id=tm11.generate_message_id()
+    req = tm11.CollectionInformationRequest(message_id=msg_id)
+
+    # Convert to XML for request body
+    req_xml = req.to_xml()
+
+    # Create HTTP client
+    client = tc.HttpClient()
+    client.setProxy('noproxy') 
+
+    # Call TAXII service, using the body
+    resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
+                                    req_xml, args.port)
+
+    # Get response
+    resp = t.get_message_from_http_response(resp, '0')
+
+    print resp.to_xml()
+
+############################################################################
+# Perform a TAXII ManageCollectionSubscription
+############################################################################
+
+def perform_manage_collection_subscription(args):
+
+    if args.act == "subscribe":
+        action = tm11.ACT_SUBSCRIBE
+    elif args.act == "unsubscribe":
+        action = tm11.ACT_UNSUBSCRIBE
+    elif args.act == "pause":
+        action = tm11.ACT_PAUSE
+    elif args.act == "resume":
+        action = tm11.ACT_RESUME
+    elif args.act == "status":
+        action = tm11.ACT_STATUS
+    else:
+        print "Need a subscription action I recognise"
+        sys.exit(1)
+
+    # Create request
+    msg_id=tm11.generate_message_id()
+    req = tm11.ManageCollectionSubscriptionRequest(message_id=msg_id,
+                                                   collection_name=args.collection,
+                                                   action=action)
+
+    print args.act
+
+    # Convert to XML for request body
+    req_xml = req.to_xml()
+
+    # Create HTTP client
+    client = tc.HttpClient()
+    client.setProxy('noproxy') 
+
+    # Call TAXII service, using the body
+    resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
+                                    req_xml, args.port)
+
+    # Get response
+    resp = t.get_message_from_http_response(resp, '0')
+
+    print resp.to_xml()
 
 ############################################################################
 # main body
@@ -110,6 +255,18 @@ p.add_argument("--end_timestamp", dest="end_ts", default=None,
                help="The end timestamp (format: "
                "YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm) for the poll request. "
                "Defaults to None.")
+p.add_argument("--discovery", "-d", dest="action", action="store_const",
+               const="discovery", default=None, help="Discovery action")
+p.add_argument("--poll", "-p", dest="action", action="store_const",
+               const="poll", default=None, help="Poll action")
+p.add_argument("--collection_information", "-c", dest="action", 
+               action="store_const", const="collection_information", 
+               default=None, help="Collection Information request")
+p.add_argument("--manage_collection_subscription", "-m", dest="action", 
+               action="store_const", const="manage_collection_subscription", 
+               default=None, help="Manage Collection Subscription request")
+p.add_argument("--action", "-a", dest="act", default=None, 
+               help="Subscription action")
 
 args = p.parse_args()
 
@@ -133,45 +290,17 @@ except ValueError:
     print "Unable to parse timestamp value. Timestamp should include "
     "both date and time information along with a timezone or UTC offset "
     "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll."
-    sys.exit()
+    sys.exit(1)
 
-# Create poll request
-poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
-                            collection_name=args.collection,
-                            exclusive_begin_timestamp_label=begin_ts,
-                            inclusive_end_timestamp_label=end_ts,
-                            poll_parameters=tm11.PollRequest.PollParameters())
+if args.action == None:
+    print "An action must be specified (e.g. --poll)."
+    sys.exit(1)
 
-# Convert to XML for request body
-poll_req_xml = poll_req.to_xml()
-
-# Create HTTP client
-client = tc.HttpClient()
-client.setProxy('noproxy') 
-
-# Call TAXII service, using the body
-resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
-                                poll_req_xml, args.port)
-
-# Get response
-resp = t.get_message_from_http_response(resp, '0')
-
-print "End timestamp: %s" % resp.inclusive_end_timestamp_label
-
-# Process each content block
-for cb in resp.content_blocks:
-
-    content = cb.content
-
-    # Hack an XML header on the top?! and add the payload body.
-    resp = "<?xml version=\"1.0\"?>\n" + content
-
-    # Parse the payload, should be a STIX document.
-    package = STIXPackage.from_xml(StringIO.StringIO(resp))
-
-    # Dump package ID
-    if package.id_:
-        print "***** Package id: %s" % package.id_
-
-    # Dump package
-    dump_package(package)
+if args.action == "poll":
+    perform_poll(args)
+elif args.action == "discovery":
+    perform_discovery(args)
+elif args.action == "collection_information":
+    perform_collection_information(args)
+elif args.action == "manage_collection_subscription":
+    perform_manage_collection_subscription(args)
