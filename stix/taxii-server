@@ -188,7 +188,6 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         
         expr += suffix
 
-        print expr
         result = doc.xpath(expr, namespaces=namespaces)
         
         if result == True:

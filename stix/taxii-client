@@ -17,12 +17,6 @@ from cybox.objects.user_account_object import UserAccount
 import StringIO
 import datetime
 
-#target = '//Indicator/@id'
-#value = 'example1:1'
-
-target = '//Port_Value'
-value = '11111'
-
 ############################################################################
 # Dump a Cybox observable
 ############################################################################
@@ -98,23 +92,41 @@ def dump_package(pkg):
 
 def perform_poll(args):
 
-    criterion = []
+    # criterion = []
 
-    params = {'value':value, 'match_type': 'case_sensitive_string'}
-    test = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
-                                           relationship='equals', 
-                                           parameters=params)
-    cron = tdq.DefaultQuery.Criterion(target=target, test=test, negate=True)
-    criterion.append(cron)
+    # target1 = '//Indicator/@id'
+    # value1 = 'example1:1'
 
-    criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
-                                         criterion=criterion)
+    # target2 = '//Port_Value'
+    # value2 = '11111'
 
-    # FIXME: Hard-coded
-    qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
+    # params1 = {'value':value1, 'match_type': 'case_sensitive_string'}
 
-    poll_params=tm11.PollRequest.PollParameters(query=qry)
-#    poll_params=tm11.PollRequest.PollParameters()
+    # test1 = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
+    #                                         relationship='equals', 
+    #                                         parameters=params1)
+
+    # cron1 = tdq.DefaultQuery.Criterion(target=target1, test=test1, negate=True)
+    # criterion.append(cron1)
+
+    # params2 = {'value':value2, 'match_type': 'case_sensitive_string'}
+
+    # test2 = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
+    #                                         relationship='equals', 
+    #                                         parameters=params2)
+
+    # cron2 = tdq.DefaultQuery.Criterion(target=target2, test=test2, negate=True)
+    # criterion.append(cron2)
+
+    # criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
+    #                                      criterion=criterion)
+
+    # # FIXME: Hard-coded
+    # qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
+
+#    poll_params=tm11.PollRequest.PollParameters(query=qry)
+
+    poll_params=tm11.PollRequest.PollParameters()
 
     # Create poll request
     poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
