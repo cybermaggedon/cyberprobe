@@ -9,6 +9,8 @@ import os
 from stix.core import STIXPackage, STIXHeader
 import StringIO
 import argparse
+import libtaxii.taxii_default_query as tdq
+from lxml import etree
 
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>
@@ -85,9 +87,42 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         # Respond
         s.respond(resp.to_xml())
 
+    
+    def apply_query_criteria(s, criteria, doc):
+    
+        print "Criteria:"
+        print "  Operator:", criteria.operator
+
+        for c in criteria.criteria:
+            ret = s.apply_query_criteria(c, doc)
+            if criteria.operator == 'AND' and ret == False:
+                return False
+            if criteria.operator == 'OR' and ret == True:
+                return True
+
+        for c in criteria.criterion:
+            ret = s.apply_query_criterion(c, doc)
+            if criteria.operator == 'AND' and ret == False:
+                return False
+            if criteria.operator == 'OR' and ret == True:
+                return True
+
+        if criteria.operator == 'AND':
+            return True
+
+        return False
+
+    def apply_query_criterion(s, criterion, doc):
+    
+        print "Criterion:", criterion.target, criterion.test.relationship, criterion.test.parameters
+        return True
+
     # Handling a TAXII PollRequest
     def handle_poll_request(s, msg):
         
+        query = msg.poll_parameters.query
+        print query
+
         # Get the time (now)
         now = datetime.datetime.now(gmt)
 
@@ -127,16 +162,29 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if msg.inclusive_end_timestamp_label < then:
                     continue
 
+            # Open the file and read contents.
+            f = open(fname, "r")
+            content = f.read()
+            f.close()
+
+            if query != None:
+
+                # Parse XML
+                doc = etree.parse(StringIO.StringIO(content))
+
+                ret = s.apply_query_criteria(query.criteria, doc)
+
+                if not ret:
+                    print "QUERY MISS"
+                    continue
+                    
+                print "QUERY HIT"
+
             # Keep the 'latest' time up to date.
             if latest == None or then > latest:
                 latest = then
 
             print "Adding %s" % fname
-
-            # Open the file and read contents.
-            f = open(fname, "r")
-            content = f.read()
-            f.close()
 
             # Create content block.
             cb = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), 

@@ -6,6 +6,7 @@ import dateutil.parser
 import libtaxii as t
 import libtaxii.messages_11 as tm11
 import libtaxii.clients as tc
+import libtaxii.taxii_default_query as tdq
 from stix.core import STIXPackage, STIXHeader
 from cybox.objects.address_object import Address, EmailAddress
 from cybox.objects.file_object import File
@@ -15,6 +16,9 @@ from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
 import StringIO
 import datetime
+
+target = 'STIX_Package/Indicators/Indicator/@id'
+value = 'example1:1'
 
 ############################################################################
 # Dump a Cybox observable
@@ -91,8 +95,23 @@ def dump_package(pkg):
 
 def perform_poll(args):
 
-    poll_params=tm11.PollRequest.PollParameters()
+    criterion = []
 
+    params = {'value':value, 'match_type': 'case_insensitive_string'}
+    test = tdq.DefaultQuery.Criterion.Test(capability_id=tdq.CM_CORE,
+                                           relationship='equals', 
+                                           parameters=params)
+    cron = tdq.DefaultQuery.Criterion(target=target, test=test)
+    criterion.append(cron)
+
+    criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND, 
+                                         criterion=criterion)
+
+    # FIXME: Hard-coded
+    qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
+
+    poll_params=tm11.PollRequest.PollParameters(query=qry)
+#    poll_params=tm11.PollRequest.PollParameters()
 
     # Create poll request
     poll_req = tm11.PollRequest(message_id=tm11.generate_message_id(),
@@ -102,7 +121,9 @@ def perform_poll(args):
                                 poll_parameters=poll_params)
 
     # Convert to XML for request body
-    poll_req_xml = poll_req.to_xml()
+    poll_req_xml = poll_req.to_xml(True)
+
+    print poll_req_xml
 
     # Create HTTP client
     client = tc.HttpClient()
