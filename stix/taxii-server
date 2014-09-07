@@ -11,6 +11,7 @@ import StringIO
 import argparse
 import libtaxii.taxii_default_query as tdq
 from lxml import etree
+import sys
 
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>
@@ -34,80 +35,12 @@ class GMT(datetime.tzinfo):
 gmt = GMT()
 
 ############################################################################
-# HTTP request handler
-#################################################################
-class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+# STIX store
+############################################################################
+class STIXStore:
 
-    # Send a TAXII response payload
-    def respond(s, body):
-
-        # Send HTTP response
-        s.send_response(200)
-        s.send_header("Content-type", "text/xml")
-        s.send_header("Content-length", len(body))
-        s.send_header("X-TAXII-Content-Type", 
-                      "urn:taxii.mitre.org:message:xml:1.1")
-        s.send_header("X-TAXII-Protocol", 
-                      "urn:taxii.mitre.org:protocol:http:1.0")
-        s.send_header("X-TAXII-Services", 
-                      "urn:taxii.mitre.org:services:1.1")
-        s.end_headers()
-        s.wfile.write(body)
-
-    # Handling a TAXII InboxMessage
-    def handle_inbox_message(s, msg):
-
-        # Process each content block
-        for cb in msg.content_blocks:
-
-            content = cb.content
-
-            # Hack an XML header on the top?! and add the payload body.
-            resp = "<?xml version=\"1.0\"?>\n" + content
-
-            # Parse the payload, should be a STIX document.
-            package = STIXPackage.from_xml(StringIO.StringIO(resp))
-
-            for collection in msg.destination_collection_names:
-
-                # FIXME: Make sure this can't be used to write an arbitrary
-                # file.
-                path = os.path.join(data_dir, collection, package.id_)
-
-                f = open(path, 'w')
-                f.write(content)
-                f.close()
-
-                print "Wrote %s" % path
-
-        resp = tm11.StatusMessage(message_id=tm11.generate_message_id(),
-                                  in_response_to=msg.message_id,
-                                  status_type=tm11.ST_SUCCESS)
-
-        # Respond
-        s.respond(resp.to_xml())
-    
-    # Apply a query criteria
-    def apply_query_criteria(s, criteria, doc):
-
-        for c in criteria.criteria:
-            ret = s.apply_query_criteria(c, doc)
-            if criteria.operator == 'AND' and ret == False:
-                return False
-            if criteria.operator == 'OR' and ret == True:
-                return True
-
-        for c in criteria.criterion:
-            ret = s.apply_query_criterion(c, doc)
-            if criteria.operator == 'AND' and ret == False:
-                return False
-            if criteria.operator == 'OR' and ret == True:
-                return True
-
-        if criteria.operator == 'AND':
-            return True
-
-        return False
+    def __init__(s, directory):
+        s.directory = directory
 
     # Apply a query criterion
     def apply_query_criterion(s, criterion, doc):
@@ -160,7 +93,7 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             elif params['match_type'] == 'case_insensitive_string':
                 expr += '[translate(%s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") != "%s"]' % value
             elif params['match_type'] == 'number':
-                expr += = '[. != "%s"]' % value
+                expr += '[. != "%s"]' % value
         elif relationship == 'greater than':
             expr += '[. > "%s"]' % value
         elif relationship == 'greater than or equal':
@@ -192,7 +125,7 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         
         result = doc.xpath(expr, namespaces=namespaces)
 
-        print expr
+        #print expr
         
         if result == True:
             ret = True
@@ -208,26 +141,51 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             return ret
 
-    # Handling a TAXII PollRequest
-    def handle_poll_request(s, msg):
-        
-        query = msg.poll_parameters.query
+    # Apply a query criteria
+    def apply_query_criteria(s, criteria, doc):
+
+        for c in criteria.criteria:
+            ret = s.apply_query_criteria(c, doc)
+            if criteria.operator == 'AND' and ret == False:
+                return False
+            if criteria.operator == 'OR' and ret == True:
+                return True
+
+        for c in criteria.criterion:
+            ret = s.apply_query_criterion(c, doc)
+            if criteria.operator == 'AND' and ret == False:
+                return False
+            if criteria.operator == 'OR' and ret == True:
+                return True
+
+        if criteria.operator == 'AND':
+            return True
+
+        return False
+
+    def get_collections(s):
+        return os.listdir(s.directory)
+
+    def get_documents(s, collection):
+        path = os.path.join(s.directory, collection)
+        return os.listdir(path)
+
+    def get_document_paths(s, collection):
+        path = os.path.join(s.directory, collection)
+        files = os.listdir(path)
+
+        fullpath = lambda x: os.path.join(s.directory, collection, x)
+        return map(fullpath, files)
+
+    def get_matching(s, collection, begin, end, query, fn):
+
+        flst = s.get_document_paths(collection)
 
         # Get the time (now)
         now = datetime.datetime.now(gmt)
 
-        # Construct pathname of collection.
-        # FIXME: Security feature: Check collection name for attempts
-        # to navigate outside of the data directory.
-        dir = os.path.join(data_dir, msg.collection_name)
-
-        # Get a list of files.
-        flst = os.listdir(dir)
-
         # Start constructing the content block list
-        cbs = []
-
-        print "Building response..."
+        matches = []
 
         # Need to record the newest timestamp of all the data files, this 
         # variable keeps track.
@@ -236,24 +194,21 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         # Iterate over file list.
         for file in flst:
 
-            # Create filename
-            fname = os.path.join(dir, file)
-
             # Stat in order to get the last modification time.
-            st = os.stat(fname)
+            st = os.stat(file)
             then = datetime.datetime.fromtimestamp(st.st_mtime, gmt)
 
             # Check whether file's modification time falls within the
             # begin/end bounds.
-            if msg.exclusive_begin_timestamp_label:
-                if msg.exclusive_begin_timestamp_label >= then:
+            if begin:
+                if begin >= then:
                     continue
-            if msg.inclusive_end_timestamp_label:
-                if msg.inclusive_end_timestamp_label < then:
+            if end:
+                if end < then:
                     continue
 
             # Open the file and read contents.
-            f = open(fname, "r")
+            f = open(file, "r")
             content = f.read()
             f.close()
 
@@ -265,17 +220,94 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 ret = s.apply_query_criteria(query.criteria, doc)
 
                 if not ret:
-                    print "Query miss."
                     continue
-                    
-                print "Query hit."
 
             # Keep the 'latest' time up to date.
             if latest == None or then > latest:
                 latest = then
 
-            print "Adding %s" % fname
+            fn(content, file)
 
+        # If there's no latest (i.e. there were no content blocks in scope,
+        # then use current time.
+        if latest == None:
+            latest = now
+
+        return latest
+
+    def add_content(s, content, collection):
+
+        # Hack an XML header on the top?! and add the payload body.
+        content = "<?xml version=\"1.0\"?>\n" + content
+
+        # Parse the payload, should be a STIX document.
+        package = STIXPackage.from_xml(StringIO.StringIO(content))
+
+        # FIXME: Make sure this can't be used to write an arbitrary
+        # file.
+        path = os.path.join(s.directory, collection, package.id_)
+
+        f = open(path, 'w')
+        f.write(content)
+        f.close()
+
+        print "Wrote %s" % path
+
+############################################################################
+# HTTP request handler
+############################################################################
+class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+
+    # Send a TAXII response payload
+    def respond(s, body):
+
+        # Send HTTP response
+        s.send_response(200)
+        s.send_header("Content-type", "text/xml")
+        s.send_header("Content-length", len(body))
+        s.send_header("X-TAXII-Content-Type", 
+                      "urn:taxii.mitre.org:message:xml:1.1")
+        s.send_header("X-TAXII-Protocol", 
+                      "urn:taxii.mitre.org:protocol:http:1.0")
+        s.send_header("X-TAXII-Services", 
+                      "urn:taxii.mitre.org:services:1.1")
+        s.end_headers()
+        s.wfile.write(body)
+
+    # Handling a TAXII InboxMessage
+    def handle_inbox_message(s, msg):
+
+        # Process each content block
+        for cb in msg.content_blocks:
+
+            content = cb.content
+
+            for collection in msg.destination_collection_names:
+
+                s.store.add_content(content, collection)
+
+        resp = tm11.StatusMessage(message_id=tm11.generate_message_id(),
+                                  in_response_to=msg.message_id,
+                                  status_type=tm11.ST_SUCCESS)
+
+        # Respond
+        s.respond(resp.to_xml())
+    
+    # Handling a TAXII PollRequest
+    def handle_poll_request(s, msg):
+
+        collection = msg.collection_name
+        query = msg.poll_parameters.query
+        begin = msg.exclusive_begin_timestamp_label
+        end = msg.inclusive_end_timestamp_label
+
+        # Start constructing the content block list
+        cbs = []
+
+        def handle(content, file):
+
+            print "Adding %s..." % file
+    
             # Create content block.
             cb = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), 
                                    content)
@@ -283,12 +315,11 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             # Append content block to list.
             cbs.append(cb)
 
-        print "Done"
+        print "Building response..."
 
-        # If there's no latest (i.e. there were no content blocks in scope,
-        # then use current time.
-        if latest == None:
-            latest = now
+        latest = s.store.get_matching(collection, begin, end, query, handle)
+
+        print "Done"
 
         # Create poll response.
         resp = tm11.PollResponse(message_id=tm11.generate_message_id(),
@@ -300,8 +331,7 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # Send response
         s.respond(resp.to_xml())
-        body = resp.to_xml()
-
+        
     # Handling a TAXII DiscoveryRequest
     def handle_discovery_request(s, msg):
         
@@ -311,7 +341,6 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # Send response
         s.respond(resp.to_xml())
-        body = resp.to_xml()
 
     # Handling a TAXII CollectionInformationRequest
     def handle_collection_information_request(s, msg):
@@ -323,21 +352,20 @@ class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # Send response
         s.respond(resp.to_xml())
-        body = resp.to_xml()
 
     # Handling a TAXII CollectionInformationRequest
     def handle_manage_collection_subscription_request(s, msg):
         
         # Create poll response.
         msg_id=tm11.generate_message_id()
+        cn=msg.collection_name
+        msg_id=msg.message_id
         resp = tm11.ManageCollectionSubscriptionResponse(message_id=msg_id,
-                                                         collection_name=msg.collection_name,
-                                                         in_response_to=
-                                                         msg.message_id)
+                                                         collection_name=cn,
+                                                         in_response_to=msg_id)
 
         # Send response
         s.respond(resp.to_xml())
-        body = resp.to_xml()
 
     # HTTP head request
     def do_HEAD(s):
@@ -401,12 +429,13 @@ p.add_argument("--data_dir", dest="data_dir", default="data/",
                "'data'.")
 args = p.parse_args()
 
-# Create global variable?
-data_dir = args.data_dir
-
 # Construct HTTP server
 server_class = BaseHTTPServer.HTTPServer
 httpd = server_class((args.host, int(args.port)), TaxiiHandler)
+
+# Create STIX store object in the TaxiiHandler object.
+TaxiiHandler.store = STIXStore(args.data_dir)
+
 print time.asctime(), "Server Starts - %s:%s" % (args.host, args.port)
 
 # Serve indefinitely.
