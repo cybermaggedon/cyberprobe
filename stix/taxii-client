@@ -256,11 +256,19 @@ def perform_manage_collection_subscription(args):
         print "Need a subscription action I recognise"
         sys.exit(1)
 
+    query = create_query(args)
+    subs_id = args.subscription_id
+    params = tm11.SubscriptionParameters(query=query)
+
     # Create request
     msg_id=tm11.generate_message_id()
-    req = tm11.ManageCollectionSubscriptionRequest(message_id=msg_id,
-                                                   collection_name=args.collection,
-                                                   action=action)
+    req = tm11.ManageCollectionSubscriptionRequest(
+        message_id=msg_id,
+        collection_name=args.collection,
+        action=action,
+        subscription_id=subs_id,
+        subscription_parameters=params
+    )
 
     print args.act
 
@@ -292,9 +300,9 @@ p.add_argument("--host", dest="host", default="localhost",
 p.add_argument("--port", dest="port", default="8080", 
                help="Port where the Poll Service is hosted. Defaults to "
                "8080.")
-p.add_argument("--path", dest="path", default="/services/poll/", 
+p.add_argument("--path", dest="path", default="/", 
                help="Path where the Poll Service is hosted. Defaults to "
-               "/services/poll/.")
+               "/.")
 p.add_argument("--collection", dest="collection", default="default", 
                help="Data Collection to poll. Defaults to 'default'.")
 p.add_argument("--begin_timestamp", dest="begin_ts", default=None, 
@@ -322,6 +330,8 @@ p.add_argument("--query", "-q", dest="query", action="append",
                "addresstype, hostname, port, hash, id, source. e.g. "
                "address:1.2.3.4 addresstype:e-mail port:11111.",
                default=None)
+p.add_argument("--subs-id", "-s", dest="subscription_id",
+               help="Subscription ID", default=None)
 
 args = p.parse_args()
 

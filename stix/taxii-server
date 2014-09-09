@@ -4,413 +4,40 @@ import libtaxii as t
 import libtaxii.messages_11 as tm11
 import BaseHTTPServer
 import time
-import datetime
-import os
 from stix.core import STIXPackage, STIXHeader
 import StringIO
 import argparse
 import libtaxii.taxii_default_query as tdq
 from lxml import etree
 import sys
+import gmt
+from stix_store import STIXStore
+from taxii_server import TAXIIHandler, TAXIIServer
 
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>
 
 ############################################################################
-# Timezone class, representing GMT.
+# Request handler
 ############################################################################
-class GMT(datetime.tzinfo):
-    """GMT"""
+class Handler(TAXIIHandler):
 
-    def utcoffset(self, dt):
-        return datetime.timedelta(0)
+    def received(s, content, collection):
 
-    def tzname(self, dt):
-        return "GMT"
+        # Hack XML header on.
+#        content = "<?xml version=\"1.0\"?>\n" + content
 
-    def dst(self, dt):
-        return datetime.timedelta(0)
+        s.store.add_content(content, collection)
 
-# GMT timezone instance
-gmt = GMT()
-
-############################################################################
-# STIX store
-############################################################################
-class STIXStore:
-
-    def __init__(s, directory):
-        s.directory = directory
-
-    # Apply a query criterion
-    def apply_query_criterion(s, criterion, doc):
-
-        # Namespaces we'll use later
-        namespaces = {
-            "cybox": "http://cybox.mitre.org/cybox-2",
-            "AddressObj": "http://cybox.mitre.org/objects#AddressObject-2",
-            "stix": "http://stix.mitre.org/stix-1",
-            "stixCommon": "http://stix.mitre.org/common-1",
-            "HostnameObj": "http://cybox.mitre.org/objects#HostnameObject-1",
-            "PortObj": "http://cybox.mitre.org/objects#PortObject-2",
-            "cyboxCommon": "http://cybox.mitre.org/common-2"
-        }
-
-        # Convert target to XPath pointer part
-        if criterion.target == '//Address_Value':
-            expr = '//AddressObj:Address_Value'
-        elif criterion.target == '//Indicator/@id':
-            expr = '//stix:Indicator/@id'
-        elif criterion.target == '//Package_Intent':
-            expr = '//stix:Package_Intent'
-        elif criterion.target == '//Object/Properties/@category':
-            expr = '//cybox:Object/cybox:Properties/@category'
-        elif criterion.target == '//Hostname_Value':
-            expr = '//HostnameObj:Hostname_Value'
-        elif criterion.target == '//Port_Value':
-            expr = '//PortObj:Port_Value'
-        elif criterion.target == '//Hash/Simple_Hash_Value':
-            expr = '//cyboxCommon:Hash/cyboxCommon:Simple_Hash_Value'
-        elif criterion.target == '/STIX_Package/@id':
-            expr = '/stix:STIX_Package/@id'
-        elif criterion.target == '//Information_Source/Identity/@idref':
-            expr = '//stix:Information_Source/stixCommon:Identity/@idref'
-
-        relationship = criterion.test.relationship
-        params = criterion.test.parameters
-        value = params['value']
-
-        if relationship == 'equals':
-            if params['match_type'] == 'case_sensitive_string':
-                expr +=  '[. = "%s"]' % value
-            elif params['match_type'] == 'case_insensitive_string':
-                expr += '[translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "%s"]' % value.lower()
-            elif params['match_type'] == 'number':
-                expr += '[. = "%s"]' % value
-        elif relationship == 'not equals':
-            if params['match_type'] == 'case_sensitive_string':
-                expr += '[. != "%s"]' % value
-            elif params['match_type'] == 'case_insensitive_string':
-                expr += '[translate(%s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") != "%s"]' % value
-            elif params['match_type'] == 'number':
-                expr += '[. != "%s"]' % value
-        elif relationship == 'greater than':
-            expr += '[. > "%s"]' % value
-        elif relationship == 'greater than or equal':
-            expr += '[. >= "%s"]' % value
-        elif relationship == 'less than':
-            expr += '[. < "%s"]' % value
-        elif relationship == 'less than or equal':
-            expr += '[. <= "%s"]' % value
-        elif relationship == 'does not exist':
-            expr = "not(%s)" % expr
-        elif relationship == 'exists':
-            # Complete
-            pass
-        elif relationship == 'begins with':
-            if params['case_sensitive'] == 'false':
-                expr += '[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value
-            elif params['case_sensitive'] == 'true':
-                expr += '[starts-with(., "%s")]' % value
-        elif relationship == 'ends with':
-            if params['case_sensitive'] == 'false':
-                expr += '[substring(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
-        elif params['case_sensitive'] == 'true':
-            expr += '[substring(., string-length(.) - string-length("%s") + 1) = "%s"]' % (value, value.lower())
-        elif relationship == 'contains':
-            if params['case_sensitive'] == 'false':
-                expr += '[contains(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "%s")]' % value()
-            elif params['case_sensitive'] == 'true':
-                expr += '[contains(., "%s")]' % value()
-        
-        result = doc.xpath(expr, namespaces=namespaces)
-
-        #print expr
-        
-        if result == True:
-            ret = True
-        elif result == False:
-            ret = False
-        elif len(result) > 0:
-            ret = True
-        else:
-            ret = False
-
-        if criterion.negate:
-            return not ret
-        else:
-            return ret
-
-    # Apply a query criteria
-    def apply_query_criteria(s, criteria, doc):
-
-        for c in criteria.criteria:
-            ret = s.apply_query_criteria(c, doc)
-            if criteria.operator == 'AND' and ret == False:
-                return False
-            if criteria.operator == 'OR' and ret == True:
-                return True
-
-        for c in criteria.criterion:
-            ret = s.apply_query_criterion(c, doc)
-            if criteria.operator == 'AND' and ret == False:
-                return False
-            if criteria.operator == 'OR' and ret == True:
-                return True
-
-        if criteria.operator == 'AND':
-            return True
-
-        return False
-
-    def get_collections(s):
-        return os.listdir(s.directory)
-
-    def get_documents(s, collection):
-        path = os.path.join(s.directory, collection)
-        return os.listdir(path)
-
-    def get_document_paths(s, collection):
-        path = os.path.join(s.directory, collection)
-        files = os.listdir(path)
-
-        fullpath = lambda x: os.path.join(s.directory, collection, x)
-        return map(fullpath, files)
-
-    def get_matching(s, collection, begin, end, query, fn):
-
-        flst = s.get_document_paths(collection)
-
-        # Get the time (now)
-        now = datetime.datetime.now(gmt)
-
-        # Start constructing the content block list
-        matches = []
-
-        # Need to record the newest timestamp of all the data files, this 
-        # variable keeps track.
-        latest = None
-
-        # Iterate over file list.
-        for file in flst:
-
-            # Stat in order to get the last modification time.
-            st = os.stat(file)
-            then = datetime.datetime.fromtimestamp(st.st_mtime, gmt)
-
-            # Check whether file's modification time falls within the
-            # begin/end bounds.
-            if begin:
-                if begin >= then:
-                    continue
-            if end:
-                if end < then:
-                    continue
-
-            # Open the file and read contents.
-            f = open(file, "r")
-            content = f.read()
-            f.close()
-
-            if query != None:
-
-                # Parse XML
-                doc = etree.parse(StringIO.StringIO(content))
-
-                ret = s.apply_query_criteria(query.criteria, doc)
-
-                if not ret:
-                    continue
-
-            # Keep the 'latest' time up to date.
-            if latest == None or then > latest:
-                latest = then
-
-            fn(content, file)
-
-        # If there's no latest (i.e. there were no content blocks in scope,
-        # then use current time.
-        if latest == None:
-            latest = now
-
-        return latest
-
-    def add_content(s, content, collection):
-
-        # Hack an XML header on the top?! and add the payload body.
-        content = "<?xml version=\"1.0\"?>\n" + content
-
-        # Parse the payload, should be a STIX document.
-        package = STIXPackage.from_xml(StringIO.StringIO(content))
-
-        # FIXME: Make sure this can't be used to write an arbitrary
-        # file.
-        path = os.path.join(s.directory, collection, package.id_)
-
-        f = open(path, 'w')
-        f.write(content)
-        f.close()
-
-        print "Wrote %s" % path
-
-############################################################################
-# HTTP request handler
-############################################################################
-class TaxiiHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-
-    # Send a TAXII response payload
-    def respond(s, body):
-
-        # Send HTTP response
-        s.send_response(200)
-        s.send_header("Content-type", "text/xml")
-        s.send_header("Content-length", len(body))
-        s.send_header("X-TAXII-Content-Type", 
-                      "urn:taxii.mitre.org:message:xml:1.1")
-        s.send_header("X-TAXII-Protocol", 
-                      "urn:taxii.mitre.org:protocol:http:1.0")
-        s.send_header("X-TAXII-Services", 
-                      "urn:taxii.mitre.org:services:1.1")
-        s.end_headers()
-        s.wfile.write(body)
-
-    # Handling a TAXII InboxMessage
-    def handle_inbox_message(s, msg):
-
-        # Process each content block
-        for cb in msg.content_blocks:
-
-            content = cb.content
-
-            for collection in msg.destination_collection_names:
-
-                s.store.add_content(content, collection)
-
-        resp = tm11.StatusMessage(message_id=tm11.generate_message_id(),
-                                  in_response_to=msg.message_id,
-                                  status_type=tm11.ST_SUCCESS)
-
-        # Respond
-        s.respond(resp.to_xml())
-    
     # Handling a TAXII PollRequest
-    def handle_poll_request(s, msg):
+    def get_matching(s, collection, begin, end, query, handle):
+        return s.store.get_matching(collection, begin, end, query, handle)
 
-        collection = msg.collection_name
-        query = msg.poll_parameters.query
-        begin = msg.exclusive_begin_timestamp_label
-        end = msg.inclusive_end_timestamp_label
 
-        # Start constructing the content block list
-        cbs = []
+class CollectionManager:
 
-        def handle(content, file):
-
-            print "Adding %s..." % file
-    
-            # Create content block.
-            cb = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), 
-                                   content)
-
-            # Append content block to list.
-            cbs.append(cb)
-
-        print "Building response..."
-
-        latest = s.store.get_matching(collection, begin, end, query, handle)
-
-        print "Done"
-
-        # Create poll response.
-        resp = tm11.PollResponse(message_id=tm11.generate_message_id(),
-                                 in_response_to=msg.message_id,
-                                 collection_name=msg.collection_name,
-                                 inclusive_end_timestamp_label=latest,
-                                 content_blocks=cbs,
-                                 more=False)
-
-        # Send response
-        s.respond(resp.to_xml())
-        
-    # Handling a TAXII DiscoveryRequest
-    def handle_discovery_request(s, msg):
-        
-        # Create poll response.
-        resp = tm11.DiscoveryResponse(message_id=tm11.generate_message_id(),
-                                      in_response_to=msg.message_id)
-
-        # Send response
-        s.respond(resp.to_xml())
-
-    # Handling a TAXII CollectionInformationRequest
-    def handle_collection_information_request(s, msg):
-        
-        # Create poll response.
-        msg_id=tm11.generate_message_id()
-        resp = tm11.CollectionInformationResponse(message_id=msg_id,
-                                      in_response_to=msg.message_id)
-
-        # Send response
-        s.respond(resp.to_xml())
-
-    # Handling a TAXII CollectionInformationRequest
-    def handle_manage_collection_subscription_request(s, msg):
-        
-        # Create poll response.
-        msg_id=tm11.generate_message_id()
-        cn=msg.collection_name
-        msg_id=msg.message_id
-        resp = tm11.ManageCollectionSubscriptionResponse(message_id=msg_id,
-                                                         collection_name=cn,
-                                                         in_response_to=msg_id)
-
-        # Send response
-        s.respond(resp.to_xml())
-
-    # HTTP head request
-    def do_HEAD(s):
-        s.send_response(200)
-        s.send_header("Content-type", "text/html")
-        s.end_headers()
-
-    # HTTP POST request
-    def do_POST(s):
-
-        # Get the HTTP bdoy
-        varLen = int(s.headers['Content-Length'])
-        data = s.rfile.read(varLen)
-
-        # Parse body as TAXII message.
-        msg = tm11.get_message_from_xml(data)
-
-        # If it's a poll request, handle it.
-        if type(msg) == tm11.PollRequest:
-            s.handle_poll_request(msg)
-            return
-
-        if type(msg) == tm11.InboxMessage:
-            s.handle_inbox_message(msg)
-            return
-
-        if type(msg) == tm11.DiscoveryRequest:
-            s.handle_discovery_request(msg)
-            return
-
-        if type(msg) == tm11.CollectionInformationRequest:
-            s.handle_collection_information_request(msg)
-            return
-
-        if type(msg) == tm11.ManageCollectionSubscriptionRequest:
-            s.handle_manage_collection_subscription_request(msg)
-            return
-
-        # Sorry, I only handle inbox and poll requests.
-
-        resp = tm11.StatusMessage(message_id=tm11.generate_message_id(),
-                                  in_response_to=msg.message_id,
-                                  status_type=tm11.ST_FAILURE,
-                                  message="Your request type not supported.")
-        s.respond(resp.to_xml())
+    def __init__(s, data_dir):
+        pass
 
 ############################################################################
 # Main body
@@ -429,20 +56,9 @@ p.add_argument("--data_dir", dest="data_dir", default="data/",
                "'data'.")
 args = p.parse_args()
 
+Handler.store = STIXStore(args.data_dir)
+
 # Construct HTTP server
-server_class = BaseHTTPServer.HTTPServer
-httpd = server_class((args.host, int(args.port)), TaxiiHandler)
-
-# Create STIX store object in the TaxiiHandler object.
-TaxiiHandler.store = STIXStore(args.data_dir)
-
-print time.asctime(), "Server Starts - %s:%s" % (args.host, args.port)
-
-# Serve indefinitely.
-try:
-    httpd.serve_forever()
-except KeyboardInterrupt:
-    pass
-    httpd.server_close()
-    print time.asctime(), "Server Stops - %s:%s" % (args.host, args.port)
+server = TAXIIServer(args.host, int(args.port), Handler)
+server.run()
 
