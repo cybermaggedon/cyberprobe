@@ -130,7 +130,8 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         query=msg.subscription_parameters.query
         subs_id=msg.subscription_id
 
-        print query.to_xml()
+        if query:
+            print query.to_xml()
 
         if action == tm11.ACT_SUBSCRIBE:
 
@@ -140,7 +141,6 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 subscription_id=subs_id,
                 status=tm11.SS_ACTIVE
             )
-            
 
             resp = tm11.ManageCollectionSubscriptionResponse(
                 message_id=msg_id,

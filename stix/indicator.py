@@ -1,4 +1,11 @@
 
+from cybox.objects.address_object import Address, EmailAddress
+from cybox.objects.file_object import File
+from cybox.objects.hostname_object import Hostname
+from cybox.objects.port_object import Port
+from cybox.objects.uri_object import URI
+from cybox.objects.user_account_object import UserAccount
+
 ############################################################################
 # Dump a Cybox observable
 ############################################################################

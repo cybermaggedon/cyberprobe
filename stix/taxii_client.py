@@ -21,7 +21,7 @@ class TaxiiClient:
         s.host = host
         s.port = port
 
-    def create_query(query):
+    def create_query(s, query):
 
         criterion = []
 
@@ -65,16 +65,13 @@ class TaxiiClient:
         return qry
 
     # Perform a TAXII poll
-    def perform_poll(s, query=None, collection="default", path="/",
+    def poll(s, path="/", collection="default", query=None, 
                      begin_ts=None, end_ts=None):
     
         if query != None:
-        
-            q = create_query(query)
-            poll_params=tm11.PollRequest.PollParameters(query=q)
-
+            query=s.create_query(query)
+            poll_params=tm11.PollRequest.PollParameters(query=query)
         else:
-
             poll_params=tm11.PollRequest.PollParameters()
             
         # Create poll request
@@ -98,8 +95,6 @@ class TaxiiClient:
         
         # Get response
         resp = t.get_message_from_http_response(resp, '0')
-
-        print "End timestamp: %s" % resp.inclusive_end_timestamp_label
             
         pkgs = []
 
@@ -109,14 +104,14 @@ class TaxiiClient:
             content = cb.content
             
             # Hack an XML header on the top?! and add the payload body.
-            resp = "<?xml version=\"1.0\"?>\n" + content
+            content = "<?xml version=\"1.0\"?>\n" + content
             
             # Parse the payload, should be a STIX document.
-            package = STIXPackage.from_xml(StringIO.StringIO(resp))
+            package = STIXPackage.from_xml(StringIO.StringIO(content))
 
             pkgs.append(package)
             
-        return pkgs
+        return resp.inclusive_end_timestamp_label, pkgs
 
     # Perform a TAXII discovery
     def perform_discovery(path="/"):
@@ -157,6 +152,40 @@ class TaxiiClient:
         # Call TAXII service, using the body
         resp = client.callTaxiiService2(host, path, t.VID_TAXII_XML_11,
                                         req_xml, port)
+
+        # Get response
+        resp = t.get_message_from_http_response(resp, '0')
+
+        print resp.to_xml()
+        
+    def subscribe(s, path="/", collection="default", query=None):
+
+        if query != None:
+            query = s.create_query(query)
+        else:
+            query = None
+
+        params = tm11.SubscriptionParameters(query=query)
+
+        # Create request
+        msg_id=tm11.generate_message_id()
+        req = tm11.ManageCollectionSubscriptionRequest(
+            message_id=msg_id,
+            collection_name=collection,
+            action=tm11.ACT_SUBSCRIBE,
+            subscription_parameters=params
+        )
+
+        # Convert to XML for request body
+        req_xml = req.to_xml()
+        
+        # Create HTTP client
+        client = tc.HttpClient()
+        client.setProxy('noproxy') 
+
+        # Call TAXII service, using the body
+        resp = client.callTaxiiService2(s.host, path, t.VID_TAXII_XML_11,
+                                        req_xml, s.port)
 
         # Get response
         resp = t.get_message_from_http_response(resp, '0')
