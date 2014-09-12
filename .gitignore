@@ -21,3 +21,4 @@ config.h.in
 configure
 aclocal.m4
 cyberprobe-*.tar.gz
+*.pyc

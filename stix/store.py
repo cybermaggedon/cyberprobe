@@ -9,6 +9,8 @@ from urlparse import urlparse
 from taxii_client import TaxiiClient
 from taxii_query import TaxiiDefaultQuery
 from lxml import etree
+import libtaxii.taxii_default_query as tdq
+import sys
 
 class Sender(threading.Thread):
 
@@ -78,7 +80,21 @@ class Store:
 
         s.subscriptions = {}
 
-        s.query_engine = TaxiiDefaultQuery()
+        c = s.conn.cursor()
+        
+        c.execute("SELECT id, active, query, url, collection FROM subscription")
+
+        while True:
+
+            row = c.fetchone()
+
+            if row == None: break
+
+            print row
+
+            query = tdq.DefaultQuery.from_xml(row[2])
+
+            s.subscribe_impl(row[0], query, row[4], row[3])
 
     def __del__(s):
         s.senders_lock.acquire()
@@ -91,6 +107,25 @@ class Store:
 
         id = str(uuid.uuid1())
 
+        c = s.conn.cursor()
+
+        if query == None:
+            query_xml = ""
+        else:
+            query_xml = query.to_xml()
+
+        c.execute("INSERT INTO subscription VALUES (?, ?, ?, ?, ?)",
+                  (id, 1, query_xml, url, collection))
+        s.conn.commit()
+
+        s.subscribe_impl(id, query, collection, url)
+
+        return id
+
+    def subscribe_impl(s, id, query, collection, url):
+
+        s.senders_lock.acquire()
+
         if not s.subscriptions.has_key(collection):
             s.subscriptions[collection] = {}
 
@@ -101,24 +136,11 @@ class Store:
         s.subscriptions[collection][id]["url"] = url
         s.subscriptions[collection][id]["id"] = id
 
-        c = s.conn.cursor()
-
-        if query == None:
-            query = ""
-        else:
-            query = query.to_xml()
-
-        c.execute("INSERT INTO subscription VALUES (?, ?, ?, ?, ?)",
-                  (id, 1, query, url, collection))
-        s.conn.commit()
-
-        s.senders_lock.acquire()
         thr = Sender(s.dbname, s.subscriptions[collection][id])
         s.senders[id] = thr
         thr.start()
-        s.senders_lock.release()
 
-        return id
+        s.senders_lock.release()
 
     def initialise(s):
 
@@ -172,7 +194,8 @@ class Store:
                 query = s.subscriptions[collection][subs]["query"]
 
                 # Apply query here.
-                ret = s.query_engine.apply_query_criteria(query.criteria, doc)
+                ret = TaxiiDefaultQuery.apply_query_criteria(query.criteria, 
+                                                             doc)
 
                 if not ret:
                     continue

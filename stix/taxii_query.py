@@ -2,7 +2,8 @@
 class TaxiiDefaultQuery:
 
     # Apply a query criterion
-    def apply_query_criterion(s, criterion, doc):
+    @staticmethod
+    def apply_query_criterion(criterion, doc):
 
         # Namespaces we'll use later
         namespaces = {
@@ -101,17 +102,18 @@ class TaxiiDefaultQuery:
             return ret
 
     # Apply a query criteria
-    def apply_query_criteria(s, criteria, doc):
+    @staticmethod
+    def apply_query_criteria(criteria, doc):
 
         for c in criteria.criteria:
-            ret = s.apply_query_criteria(c, doc)
+            ret = TaxiiDefaultQuery.apply_query_criteria(c, doc)
             if criteria.operator == 'AND' and ret == False:
                 return False
             if criteria.operator == 'OR' and ret == True:
                 return True
 
         for c in criteria.criterion:
-            ret = s.apply_query_criterion(c, doc)
+            ret = TaxiiDefaultQuery.apply_query_criterion(c, doc)
             if criteria.operator == 'AND' and ret == False:
                 return False
             if criteria.operator == 'OR' and ret == True:
