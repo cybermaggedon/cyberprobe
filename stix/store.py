@@ -1,4 +1,5 @@
 
+from gmt import GMT
 import uuid
 from stix.core import STIXPackage
 import sqlite3
@@ -10,7 +11,7 @@ from taxii_client import TaxiiClient
 from taxii_query import TaxiiDefaultQuery
 from lxml import etree
 import libtaxii.taxii_default_query as tdq
-import sys
+import datetime
 
 class Sender(threading.Thread):
 
@@ -90,8 +91,6 @@ class Store:
 
             if row == None: break
 
-            print row
-
             query = tdq.DefaultQuery.from_xml(row[2])
 
             s.subscribe_impl(row[0], query, row[4], row[3])
@@ -102,6 +101,49 @@ class Store:
             s.senders[sndr].stop()
             s.senders[sndr].join()
         s.senders_lock.release()
+
+    def get_collections(s):
+
+        c = s.conn.cursor()
+
+        c.execute("SELECT DISTINCT collection FROM collection")
+
+        collections = []
+
+        while True:
+
+            row = c.fetchone()
+
+            if row == None: break
+
+            collections.append(row[0])
+
+        return collections
+
+    def get_documents(s, collection):
+
+        c = s.conn.cursor()
+
+        c.execute("SELECT content.id, time FROM content, collection "
+                  "WHERE content.id = collection.id AND collection = ?", 
+                  (collection,))
+
+        docs = []
+
+        return c.fetchall()
+
+    def get_document(s, id):
+
+        c = s.conn.cursor()
+
+        c.execute("SELECT content FROM content WHERE id = ?", (id,))
+
+        row = c.fetchone()
+
+        if row == None:
+            raise ValueError("No such document")
+
+        return row[0]
 
     def subscribe(s, query, collection, url):
 
@@ -238,3 +280,58 @@ class Store:
 
         s.senders_lock.release()
 
+    def get_matching(s, collection, begin, end, query, fn):
+
+        docs = s.get_documents(collection)
+
+        # Get the time (now)
+        now = datetime.datetime.now(GMT())
+
+        # Start constructing the content block list
+        matches = []
+
+        # Need to record the newest timestamp of all the data files, this 
+        # variable keeps track.
+        latest = None
+
+        # Iterate over file list.
+        for doc in docs:
+
+            # Stat in order to get the last modification time.
+            then = datetime.datetime.fromtimestamp(float(doc[1]), GMT())
+
+            # Check whether file's modification time falls within the
+            # begin/end bounds.
+            if begin:
+                if begin >= then:
+                    continue
+            if end:
+                if end < then:
+                    continue
+
+            # Open the file and read contents.
+            content = s.get_document(doc[0])
+
+            if query != None:
+
+                # Parse XML
+                content_xml = etree.parse(StringIO(content))
+
+                ret = TaxiiDefaultQuery.apply_query_criteria(query.criteria, 
+                                                             content_xml)
+
+                if not ret:
+                    continue
+
+            # Keep the 'latest' time up to date.
+            if latest == None or then > latest:
+                latest = then
+
+            fn(content, doc[0])
+
+        # If there's no latest (i.e. there were no content blocks in scope,
+        # then use current time.
+        if latest == None:
+            latest = now
+
+        return latest

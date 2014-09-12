@@ -51,6 +51,10 @@ query2="""
     </taxii_11:Query>
 """
 
+str = []
+def app(c, id):
+    str.append(id)
+
 query1 = tdq.DefaultQuery.from_xml(query1)
 query2 = tdq.DefaultQuery.from_xml(query2)
 try:
@@ -61,14 +65,28 @@ try:
     subs_id2 = stor.subscribe(query2, collection="default", 
                               url="http://localhost:8081");
 
-    for i in range(0, 40):
+    for i in range(0, 5):
         stor.store(content1, ['default', 'bunchy'])
 
-    for i in range(0, 40):
+    for i in range(0, 5):
         stor.store(content2, ['default', 'bunchy'])
 
     stor.unsubscribe(subs_id1)
     stor.unsubscribe(subs_id2)
+
+    print stor.get_collections()
+
+    docs = stor.get_documents("bunchy")
+    print "BUNCY"
+    print docs[0][0], docs[0][1]
+
+#    print stor.get_document(docs[0])
+
+#    print docs
+
+    valz = stor.get_matching("bunchy", None, None, None, app)
+    print "VALZ",valz
+    print str
 
     stor = None
 
