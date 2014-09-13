@@ -1,7 +1,7 @@
 
 import libtaxii.taxii_default_query as tdq
 import threading
-import store
+import stix_store
 import time
 import sys
 

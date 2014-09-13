@@ -15,13 +15,13 @@ import libtaxii.taxii_default_query as tdq
 class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def get_matching(s, collection, begin, end, query, handle):
-        pass
+        return None
 
     # Receive inbox data
     def received(s, content, collection):
         pass
 
-    def subscribe(s, collection, query):
+    def subscribe(s, collection, query, inbox):
         return "456"
 
     # Send a TAXII response payload
@@ -121,6 +121,8 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # Handling a TAXII CollectionInformationRequest
     def handle_manage_collection_subscription_request(s, msg):
+
+        print msg.to_xml(True)
         
         # Create poll response.
         msg_id=tm11.generate_message_id()
@@ -129,13 +131,15 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         action=msg.action
         query=msg.subscription_parameters.query
         subs_id=msg.subscription_id
+        inbox=msg.push_parameters.inbox_address
 
         if query:
             print query.to_xml()
 
         if action == tm11.ACT_SUBSCRIBE:
 
-            subs_id = s.subscribe(cn, query)
+            subs_id = s.subscribe(collection=cn, query=query, 
+                                  inbox=inbox)
 
             si = tm11.ManageCollectionSubscriptionResponse.SubscriptionInstance(
                 subscription_id=subs_id,
@@ -216,4 +220,6 @@ class TAXIIServer(BaseHTTPServer.HTTPServer):
         except KeyboardInterrupt:
             s.server_close()
             print time.asctime(), "Server Stops - %s:%d" % (s.host, s.port)
+
+
 

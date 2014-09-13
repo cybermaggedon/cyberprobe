@@ -95,7 +95,8 @@ def perform_subscribe(args):
     client = TaxiiClient(args.host, args.port)
 
     subs_id = client.subscribe(collection=args.collection,
-                               query=args.query)
+                               query=args.query,
+                               inbox=args.inbox)
 
     print "Subscription:", subs_id
 
@@ -141,8 +142,11 @@ p.add_argument("--query", "-q", dest="query", action="append",
                "addresstype, hostname, port, hash, id, source. e.g. "
                "address:1.2.3.4 addresstype:e-mail port:11111.",
                default=None)
-p.add_argument("--subs-id", "-S", dest="subscription_id",
+p.add_argument("--subs-id", "-Is", dest="subscription_id",
                help="Subscription ID", default=None)
+p.add_argument("--inbox", dest="inbox", default="http://localhost:8888/", 
+               help="URL where the subscription inbox Service is hosted. "
+               "Defaults to http://localhost:8888/.")
 
 args = p.parse_args()
 

@@ -17,6 +17,7 @@ from taxii_server import TAXIIHandler, TAXIIServer
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>
 
+str = []
 ############################################################################
 # Request handler
 ############################################################################
@@ -27,17 +28,12 @@ class Handler(TAXIIHandler):
         # Hack XML header on.
 #        content = "<?xml version=\"1.0\"?>\n" + content
 
-        s.store.add_content(content, collection)
+        s.store.store(content, [collection])
 
     # Handling a TAXII PollRequest
     def get_matching(s, collection, begin, end, query, handle):
         return s.store.get_matching(collection, begin, end, query, handle)
-
-
-class CollectionManager:
-
-    def __init__(s, data_dir):
-        pass
+        
 
 ############################################################################
 # Main body
@@ -56,7 +52,8 @@ p.add_argument("--data_dir", dest="data_dir", default="data/",
                "'data'.")
 args = p.parse_args()
 
-Handler.store = STIXStore(args.data_dir)
+# FIXME: All round
+Handler.store = STIXStore("FIXME.db")
 
 # Construct HTTP server
 server = TAXIIServer(args.host, int(args.port), Handler)

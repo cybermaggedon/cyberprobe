@@ -157,8 +157,37 @@ class TaxiiClient:
         resp = t.get_message_from_http_response(resp, '0')
 
         print resp.to_xml()
+
+    def push(s, collection, content, path="/"):
+
+        msg_id=tm11.generate_message_id()
+        content = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), 
+                                    content)
+
+        # Create inbox request
+        req = tm11.InboxMessage(message_id=msg_id,
+                                destination_collection_names=[collection],
+                                content_blocks=[content])
+
+        # Convert to XML for request body
+        req_xml = req.to_xml()
+
+        # Create HTTP client
+        client = tc.HttpClient()
+        client.setProxy('noproxy') 
+
+        # Call TAXII service, using the body
+        resp = client.callTaxiiService2(s.host, path, t.VID_TAXII_XML_11,
+                                        req_xml, s.port)
+
+        # Get response
+        resp = t.get_message_from_http_response(resp, '0')
+
+        if resp.status_type != tm11.ST_SUCCESS:
+            print "%s: %s" % (resp.status_type, resp.message)
         
-    def subscribe(s, path="/", collection="default", query=None):
+    def subscribe(s, path="/", collection="default", query=None,
+                  inbox="http://localhost:8888"):
 
         if query != None:
             query = s.create_query(query)
@@ -167,13 +196,19 @@ class TaxiiClient:
 
         params = tm11.SubscriptionParameters(query=query)
 
+        deliv = tm11.PushParameters(
+            inbox_protocol=t.VID_TAXII_HTTP_10,
+            inbox_address=inbox,
+            delivery_message_binding=t.VID_TAXII_XML_11)
+
         # Create request
         msg_id=tm11.generate_message_id()
         req = tm11.ManageCollectionSubscriptionRequest(
             message_id=msg_id,
             collection_name=collection,
             action=tm11.ACT_SUBSCRIBE,
-            subscription_parameters=params
+            subscription_parameters=params,
+            push_parameters=deliv
         )
 
         # Convert to XML for request body
