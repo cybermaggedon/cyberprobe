@@ -19,31 +19,46 @@ import sync
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>
 
+class S(sync.DbSynchroniser):
+
+    def __init__(s, dir, db, store):
+        sync.DbSynchroniser.__init__(s, dir, db)
+        s.store = store
+
+    def remove_internal(s, id):
+        print "Deleted", id
+        s.store.delete(id)
+        # FIXME: Delete stuff.
+
+    def add_internal(s, file):
+        print "Added", file
+
+        f = open(file, 'r')
+        content = f.read()
+        f.close()
+
+        id = s.store.store(content, ["bunchy"])
+
+        return id
+
 ############################################################################
 # Synchroniser
 ############################################################################
 class Sync(threading.Thread):
 
-    def __init__(s, dir, db, period=1):
+    def __init__(s, dir, db, period, store):
 
-        s.sync = sync.DbSynchroniser(dir, db)
+        s.sync = S(dir, db, store)
         s.sync.initialise()
         s.dir = dir
         s.db = db
         s.running = True
         s.period = period
+        s.store = store
         threading.Thread.__init__(s)
 
     def stop(s):
         s.running = False
-
-    def remove(s, item):
-        print "Deleted", item
-        super.remove(item)
-
-    def add(s, item):
-        print "Added", item
-        super.add(item)
 
     def run(s):
 
@@ -91,12 +106,12 @@ p.add_argument("--sync", dest="sync", default="1",
 
 args = p.parse_args()
 
-snc = Sync(args.data_dir, args.db, int(args.sync))
-snc.start()
-
 Handler.store = STIXStore(args.db)
 Handler.store.initialise()
 Handler.store.restart_subscriptions()
+
+snc = Sync(args.data_dir, args.db, int(args.sync), Handler.store)
+snc.start()
 
 # Construct HTTP server
 server = TAXIIServer(args.host, int(args.port), Handler)

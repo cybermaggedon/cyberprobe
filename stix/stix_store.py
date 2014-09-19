@@ -74,7 +74,6 @@ class STIXStore:
 
     def __init__(s, dbname, initialise=False):
         s.dbname = dbname
-        s.conn = sqlite3.connect(s.dbname)
 
         if initialise:
             s.initialise()
@@ -86,7 +85,9 @@ class STIXStore:
 
     def restart_subscriptions(s):
 
-        c = s.conn.cursor()
+        conn = sqlite3.connect(s.dbname)
+
+        c = conn.cursor()
         
         try:
 
@@ -114,7 +115,8 @@ class STIXStore:
 
     def get_collections(s):
 
-        c = s.conn.cursor()
+        conn = sqlite3.connect(s.dbname)
+        c = conn.cursor()
 
         c.execute("SELECT DISTINCT collection FROM collection")
 
@@ -132,7 +134,8 @@ class STIXStore:
 
     def get_documents(s, collection):
 
-        c = s.conn.cursor()
+        conn = sqlite3.connect(s.dbname)
+        c = conn.cursor()
 
         c.execute("SELECT content.id, time FROM content, collection "
                   "WHERE content.id = collection.id AND collection = ?", 
@@ -144,7 +147,8 @@ class STIXStore:
 
     def get_document(s, id):
 
-        c = s.conn.cursor()
+        conn = sqlite3.connect(s.dbname)
+        c = conn.cursor()
 
         c.execute("SELECT content FROM content WHERE id = ?", (id,))
 
@@ -159,7 +163,8 @@ class STIXStore:
 
         id = str(uuid.uuid1())
 
-        c = s.conn.cursor()
+        conn = sqlite3.connect(s.dbname)
+        c = conn.cursor()
 
         if query == None:
             query_xml = ""
@@ -168,7 +173,7 @@ class STIXStore:
 
         c.execute("INSERT INTO subscription VALUES (?, ?, ?, ?, ?)",
                   (id, 1, query_xml, url, collection))
-        s.conn.commit()
+        conn.commit()
 
         s.subscribe_impl(id, query, collection, url)
 
@@ -196,40 +201,46 @@ class STIXStore:
 
     def destroy(s):
 
-        try: s.conn.execute("DROP TABLE collection");
+        conn = sqlite3.connect(s.dbname)
+
+        try: conn.execute("DROP TABLE collection");
         except: pass
 
-        try: s.conn.execute("DROP TABLE content");
+        try: conn.execute("DROP TABLE content");
         except: pass
 
-        try: s.conn.execute("DROP TABLE subscription");
+        try: conn.execute("DROP TABLE subscription");
         except: pass
 
-        try: s.conn.execute("DROP TABLE push_queue");
+        try: conn.execute("DROP TABLE push_queue");
         except: pass
 
     def initialise(s):
 
-        s.conn.execute("CREATE TABLE IF NOT EXISTS collection "
-                       "(id text, collection text)");
+        conn = sqlite3.connect(s.dbname)
 
-        s.conn.execute("CREATE TABLE IF NOT EXISTS content "
-                       "(id text, time real, content text)");
+        conn.execute("CREATE TABLE IF NOT EXISTS collection "
+                     "(id text, collection text)");
+        
+        conn.execute("CREATE TABLE IF NOT EXISTS content "
+                     "(id text, time real, content text)");
 
-        s.conn.execute("CREATE TABLE IF NOT EXISTS subscription "
-                       "(id text, active integer, query text, url text,"
-                       "collection text)")
-
-        s.conn.execute("CREATE TABLE IF NOT EXISTS push_queue "
-                       "(id text, subs_id text)")
+        conn.execute("CREATE TABLE IF NOT EXISTS subscription "
+                     "(id text, active integer, query text, url text,"
+                     "collection text)")
+        
+        conn.execute("CREATE TABLE IF NOT EXISTS push_queue "
+                     "(id text, subs_id text)")
 
     def store(s, content, collections):
         
+        conn = sqlite3.connect(s.dbname)
+
         # Parse XML
         doc = etree.parse(StringIO(content))
         package = STIXPackage.from_xml(StringIO(content))
         id = str(uuid.uuid1())
-        c = s.conn.cursor()
+        c = conn.cursor()
         c.execute("INSERT INTO content VALUES (?, ?, ?)", 
                   (id, time.time(), content))
 
@@ -259,7 +270,7 @@ class STIXStore:
 
                 senders.append(subs_id)
 
-        s.conn.commit()
+        conn.commit()
 
         s.senders_lock.acquire()
 
@@ -272,6 +283,15 @@ class STIXStore:
         s.senders_lock.release()
 
         return id
+
+    def delete(s, id):
+        
+        conn = sqlite3.connect(s.dbname)
+        c = conn.cursor()
+        c.execute("DELETE FROM content WHERE id = ?", (id,))
+        c.execute("DELETE FROM collection WHERE id = ?", (id,))
+        c.execute("DELETE FROM push_queue WHERE id = ?", (id,))
+        conn.commit()
 
     def unsubscribe(s, id):
 
@@ -286,11 +306,12 @@ class STIXStore:
             del s.senders[id]
             del s.subscriptions[collection][id]
 
-            c = s.conn.cursor()
+            conn = sqlite3.connect(s.dbname)
+            c = conn.cursor()
 
             c.execute("DELETE FROM subscription WHERE id = ?", (id,))
 
-            s.conn.commit()
+            conn.commit()
 
         s.senders_lock.release()
 
