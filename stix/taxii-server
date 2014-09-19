@@ -13,27 +13,59 @@ import sys
 import gmt
 from stix_store import STIXStore
 from taxii_server import TAXIIHandler, TAXIIServer
+import threading
+import sync
 
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>
 
-str = []
+############################################################################
+# Synchroniser
+############################################################################
+class Sync(threading.Thread):
+
+    def __init__(s, dir, db, period=1):
+
+        s.sync = sync.DbSynchroniser(dir, db)
+        s.sync.initialise()
+        s.dir = dir
+        s.db = db
+        s.running = True
+        s.period = period
+        threading.Thread.__init__(s)
+
+    def stop(s):
+        s.running = False
+
+    def remove(s, item):
+        print "Deleted", item
+        super.remove(item)
+
+    def add(s, item):
+        print "Added", item
+        super.add(item)
+
+    def run(s):
+
+        while s.running:
+
+            time.sleep(s.period)
+            s.sync.check()
+
 ############################################################################
 # Request handler
 ############################################################################
 class Handler(TAXIIHandler):
 
     def received(s, content, collection):
-
-        # Hack XML header on.
-#        content = "<?xml version=\"1.0\"?>\n" + content
-
         s.store.store(content, [collection])
 
     # Handling a TAXII PollRequest
     def get_matching(s, collection, begin, end, query, handle):
         return s.store.get_matching(collection, begin, end, query, handle)
-        
+
+    def subscribe(s, collection, query, inbox):
+        return s.store.subscribe(query, collection, inbox)
 
 ############################################################################
 # Main body
@@ -50,12 +82,27 @@ p.add_argument("--port", dest="port", default="8080",
 p.add_argument("--data_dir", dest="data_dir", default="data/", 
                help="Directory where the STIX data is stored. Defaults to "
                "'data'.")
+p.add_argument("--db", dest="db", default="stix_store.db",
+               help="Database used to maintain local state.  Defaults to "
+               "'stix_store.db'.")
+p.add_argument("--sync", dest="sync", default="1",
+               help="Directory syncrhonisation period in seconds. "
+               "Defaults to 1.")
+
 args = p.parse_args()
 
-# FIXME: All round
-Handler.store = STIXStore("FIXME.db")
+snc = Sync(args.data_dir, args.db, int(args.sync))
+snc.start()
+
+Handler.store = STIXStore(args.db)
+Handler.store.initialise()
+Handler.store.restart_subscriptions()
 
 # Construct HTTP server
 server = TAXIIServer(args.host, int(args.port), Handler)
 server.run()
+
+# When HTTP service stops, stop the syncher.
+snc.stop()
+snc.join()
 

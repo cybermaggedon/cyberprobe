@@ -22,7 +22,7 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         pass
 
     def subscribe(s, collection, query, inbox):
-        return "456"
+        raise NotImplementedError("Not implemented")
 
     # Send a TAXII response payload
     def respond(s, body):

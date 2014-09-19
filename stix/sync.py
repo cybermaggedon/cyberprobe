@@ -1,5 +1,4 @@
 
-import threading
 import time
 import sys
 import os
@@ -35,8 +34,6 @@ class Synchroniser:
         for item in added:
             s.add(item)
 
-        print""
-
 class DbSynchroniser(Synchroniser):
 
     def __init__(s, dir, db):
@@ -44,20 +41,34 @@ class DbSynchroniser(Synchroniser):
         s.dir = dir
         s.db = db
 
+    def remove_internal(s, id):
+        print "Delete", id
+        pass
+
+    def add_internal(s, file):
+        id = "FIXME: Need id."
+        print "Add", file, id
+        return id
+
     def remove(s, item):
         conn = sqlite3.connect(s.db)
         c = conn.cursor()
+
+        c.execute("SELECT id FROM sync WHERE file = ?", (item[0],))
+        r = c.fetchone()
+        id = r[0]
+
+        s.remove_internal(id)
+
         c.execute("DELETE FROM sync WHERE file = ?", (item[0],))
         conn.commit()
-        print "Deleted", item
 
     def add(s, item):
+        id = s.add_internal(item[0])
         conn = sqlite3.connect(s.db)
         c = conn.cursor()
-        id = "FIXME"
         c.execute("INSERT INTO sync VALUES (?, ?, ?)", (id, item[0], item[1]))
         conn.commit()
-        print "Added", item
 
     def initialise(s):
         

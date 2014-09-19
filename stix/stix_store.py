@@ -84,19 +84,26 @@ class STIXStore:
 
         s.subscriptions = {}
 
+    def restart_subscriptions(s):
+
         c = s.conn.cursor()
         
-        c.execute("SELECT id, active, query, url, collection FROM subscription")
+        try:
 
-        while True:
+            c.execute("SELECT id, active, query, url, collection "
+                      "FROM subscription")
 
-            row = c.fetchone()
+            while True:
 
-            if row == None: break
+                row = c.fetchone()
 
-            query = tdq.DefaultQuery.from_xml(row[2])
+                if row == None: break
 
-            s.subscribe_impl(row[0], query, row[4], row[3])
+                query = tdq.DefaultQuery.from_xml(row[2])
+
+                s.subscribe_impl(row[0], query, row[4], row[3])
+
+        except: pass
 
     def __del__(s):
         s.senders_lock.acquire()
@@ -181,13 +188,13 @@ class STIXStore:
         s.subscriptions[collection][id]["url"] = url
         s.subscriptions[collection][id]["id"] = id
 
-        thr = Sender(s.dbname, s.subscriptions[collection][id])
+        thr = STIXSender(s.dbname, s.subscriptions[collection][id])
         s.senders[id] = thr
         thr.start()
 
         s.senders_lock.release()
 
-    def initialise(s):
+    def destroy(s):
 
         try: s.conn.execute("DROP TABLE collection");
         except: pass
@@ -201,17 +208,19 @@ class STIXStore:
         try: s.conn.execute("DROP TABLE push_queue");
         except: pass
 
-        s.conn.execute("CREATE TABLE collection "
+    def initialise(s):
+
+        s.conn.execute("CREATE TABLE IF NOT EXISTS collection "
                        "(id text, collection text)");
 
-        s.conn.execute("CREATE TABLE content "
+        s.conn.execute("CREATE TABLE IF NOT EXISTS content "
                        "(id text, time real, content text)");
 
-        s.conn.execute("CREATE TABLE subscription "
+        s.conn.execute("CREATE TABLE IF NOT EXISTS subscription "
                        "(id text, active integer, query text, url text,"
                        "collection text)")
 
-        s.conn.execute("CREATE TABLE push_queue "
+        s.conn.execute("CREATE TABLE IF NOT EXISTS push_queue "
                        "(id text, subs_id text)")
 
     def store(s, content, collections):
@@ -261,6 +270,8 @@ class STIXStore:
             s.senders[sender].cond.release()
 
         s.senders_lock.release()
+
+        return id
 
     def unsubscribe(s, id):
 

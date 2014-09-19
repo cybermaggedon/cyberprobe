@@ -61,7 +61,7 @@ def perform_discovery(args):
     print resp.to_xml()
 
 ############################################################################
-# Perform a TAXII CollecitonInformationRequest
+# Perform a TAXII CollectionInformationRequest
 ############################################################################
 
 def perform_collection_information(args):
@@ -186,3 +186,4 @@ elif args.action == "collection_information":
     perform_collection_information(args)
 elif args.action == "subscribe":
     perform_subscribe(args)
+
