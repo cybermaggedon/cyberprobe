@@ -1,4 +1,10 @@
 
+# Weird one.  Although it's not referenced in this file, something needs to
+# import taxii_default_query otherwise libtaxii doesn't install a
+# deserialiser for the TAXII default query, and parsing TAXII messages with
+# queries fails.
+import libtaxii.taxii_default_query as tdq
+
 class TaxiiDefaultQuery:
 
     # Apply a query criterion

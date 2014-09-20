@@ -19,36 +19,42 @@ import sync
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>
 
-class S(sync.DbSynchroniser):
+############################################################################
+# Synchroniser, synchronises database with the store.
+############################################################################
+class Sync(sync.DbSynchroniser):
 
     def __init__(s, dir, db, store):
         sync.DbSynchroniser.__init__(s, dir, db)
         s.store = store
 
     def remove_internal(s, id):
-        print "Deleted", id
         s.store.delete(id)
-        # FIXME: Delete stuff.
+        print "Deleted", id
 
     def add_internal(s, file):
-        print "Added", file
 
+        # Read file.
         f = open(file, 'r')
         content = f.read()
         f.close()
 
+        # Add to store.
         id = s.store.store(content, ["bunchy"])
 
+        print "Added", file
+
+        # Return the created ID.
         return id
 
 ############################################################################
-# Synchroniser
+# Synchroniser thread
 ############################################################################
-class Sync(threading.Thread):
+class SyncThread(threading.Thread):
 
     def __init__(s, dir, db, period, store):
 
-        s.sync = S(dir, db, store)
+        s.sync = Sync(dir, db, store)
         s.sync.initialise()
         s.dir = dir
         s.db = db
@@ -94,13 +100,13 @@ p.add_argument("--host", dest="host", default="localhost",
 p.add_argument("--port", dest="port", default="8080", 
                help="Port where the Poll Service is hosted. Defaults to "
                "8080.")
-p.add_argument("--data_dir", dest="data_dir", default="data/", 
+p.add_argument("--data-dir", dest="data_dir", default="data/", 
                help="Directory where the STIX data is stored. Defaults to "
                "'data'.")
 p.add_argument("--db", dest="db", default="stix_store.db",
                help="Database used to maintain local state.  Defaults to "
                "'stix_store.db'.")
-p.add_argument("--sync", dest="sync", default="1",
+p.add_argument("--sync-period", dest="sync_period", default="1",
                help="Directory syncrhonisation period in seconds. "
                "Defaults to 1.")
 
@@ -110,7 +116,7 @@ Handler.store = STIXStore(args.db)
 Handler.store.initialise()
 Handler.store.restart_subscriptions()
 
-snc = Sync(args.data_dir, args.db, int(args.sync), Handler.store)
+snc = SyncThread(args.data_dir, args.db, int(args.sync_period), Handler.store)
 snc.start()
 
 # Construct HTTP server

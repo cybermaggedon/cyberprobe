@@ -102,10 +102,7 @@ class TaxiiClient:
         for cb in resp.content_blocks:
             
             content = cb.content
-            
-            # Hack an XML header on the top?! and add the payload body.
-            content = "<?xml version=\"1.0\"?>\n" + content
-            
+
             # Parse the payload, should be a STIX document.
             package = STIXPackage.from_xml(StringIO.StringIO(content))
 
