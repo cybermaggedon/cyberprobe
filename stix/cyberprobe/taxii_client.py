@@ -1,19 +1,21 @@
+
 import sys
 import argparse
 import dateutil.parser
+import StringIO
+import datetime
+
+from stix.core import STIXPackage, STIXHeader
 import libtaxii as t
 import libtaxii.messages_11 as tm11
 import libtaxii.clients as tc
 import libtaxii.taxii_default_query as tdq
-from stix.core import STIXPackage, STIXHeader
 from cybox.objects.address_object import Address, EmailAddress
 from cybox.objects.file_object import File
 from cybox.objects.hostname_object import Hostname
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
-import StringIO
-import datetime
 
 class TaxiiClient:
 

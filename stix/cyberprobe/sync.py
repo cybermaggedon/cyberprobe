@@ -4,7 +4,7 @@ import sys
 import os
 import sqlite3
 
-import stix_store
+from cyberprobe import stix_store
 
 class Synchroniser:
 

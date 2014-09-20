@@ -16,6 +16,9 @@ AM_PROG_AR
 # Libtool
 LT_INIT
 
+# Python
+AM_PATH_PYTHON
+
 # Checks for libraries.
 # FIXME: Replace `main' with functions in libraries:
 
@@ -55,7 +58,8 @@ AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gethostbyname gettimeofday socket strdup uname])
 
-AC_CONFIG_FILES([Makefile src/Makefile config/Makefile docs/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile config/Makefile docs/Makefile
+	stix/Makefile])
 
 AC_OUTPUT
 

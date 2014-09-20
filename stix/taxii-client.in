@@ -2,14 +2,18 @@
 
 import sys
 import argparse
+import datetime
 import dateutil.parser
+
 import libtaxii as t
 import libtaxii.messages_11 as tm11
 import libtaxii.clients as tc
 import libtaxii.taxii_default_query as tdq
-import datetime
-from taxii_client import TaxiiClient
-import indicator
+
+sys.path.insert(1, '@pythondir@')
+
+from cyberprobe.taxii_client import TaxiiClient
+from cyberprobe import indicator
 
 ############################################################################
 # Perform a TAXII poll

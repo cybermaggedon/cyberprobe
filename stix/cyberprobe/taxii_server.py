@@ -1,9 +1,10 @@
 
-import libtaxii as t
-import libtaxii.messages_11 as tm11
 import BaseHTTPServer
 import time
 import argparse
+
+import libtaxii as t
+import libtaxii.messages_11 as tm11
 import libtaxii.taxii_default_query as tdq
 
 # Uses a directory containing STIX documents.  Directory structure is...

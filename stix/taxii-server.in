@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 
-import libtaxii as t
-import libtaxii.messages_11 as tm11
 import BaseHTTPServer
 import time
-from stix.core import STIXPackage, STIXHeader
 import StringIO
 import argparse
-import libtaxii.taxii_default_query as tdq
 from lxml import etree
 import sys
-import gmt
-from stix_store import STIXStore
-from taxii_server import TAXIIHandler, TAXIIServer
 import threading
-import sync
+
+import libtaxii as t
+import libtaxii.messages_11 as tm11
+from stix.core import STIXPackage, STIXHeader
+import libtaxii.taxii_default_query as tdq
+
+sys.path.insert(1, '@pythondir@')
+
+from cyberprobe import gmt
+from cyberprobe.stix_store import STIXStore
+from cyberprobe.taxii_server import TAXIIHandler, TAXIIServer
+from cyberprobe import sync
 
 # Uses a directory containing STIX documents.  Directory structure is...
 #   <data_dir/<collection>/<document>

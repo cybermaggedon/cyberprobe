@@ -22,3 +22,5 @@ configure
 aclocal.m4
 cyberprobe-*.tar.gz
 *.pyc
+stix/taxii-client
+stix/taxii-server
