@@ -221,5 +221,3 @@ class TAXIIServer(BaseHTTPServer.HTTPServer):
             s.server_close()
             print time.asctime(), "Server Stops - %s:%d" % (s.host, s.port)
 
-
-
