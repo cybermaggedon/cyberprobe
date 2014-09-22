@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>Cyberprobe - Architecture</title>
+
+<style type="text/css" media="all">
+@import "cyberprobe.css";
+</style>
+
+</head>
+<body>
+<h1>Cyberprobe Architecture</h1>
+
+<h2>Table of contents</h2>
+
+<ul>
+<li><a href="index.html">Overview</a></li>
+<li><a href="quickstart.html">Quick Start tutorial</a></li>
+<li><a href="architecture.html">Architecture</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="output.html">Output streaming protocols</a></li>
+<li><a href="management.html">Management interface</a></li>
+<li><a href="cybermon.html">Cybermon</a></li>
+<li><a href="licence.html">Licence</a></li>
+</ul>
+
+<h2>Cyberprobe Architecture</h2>
+
+<p>
+Cyberprobe consists of a set of loosely-coupled components which can be used
+together.  We prefer to use simple interfaces, and prefer to use interfaces
+which are standards.  Here's how we envisage these components being used:
+</p>
+
+<ul>
+<li><p><code>cyberprobe</code> - is a network sniffer which collects packets
+which match an IP address list.  The packets collected are streamed using
+network streaming protocols.  The IP address match list can be statically
+configured (in a configuration file), can be dynamically changed using a
+management interface, or can be dynamically changed as a result of Snort
+alerts.</p></li>
+<li><p><code>cybermon</code> - receives packets from <code>cyberprobe</code>,
+analyses them and generates session/transport level events which result in
+user-configurable actions.  For each event, a call is made to a Lua script
+which the caller provides.</p></li>
+<li><p><code>stix-db.lua</code> - is a <code>cybermon</code> configuration file
+we provide.  It translates the <code>cybermon</code> events into a JSON
+description which is fed into an ElasticSearch database.  This configuration
+file also reads a STIX configuration file for cyber threat indicators.  When
+these indicators are observed, the indicator meta-data is also added to the
+JSON events.</p></li>
+<li><p><code>taxii-server</code> - is a TAXII compliant server, which is used
+to distribute STIX rules over HTTP.</p></li>
+<li><p><code>taxii-client-json</code> - is a TAXII compliant client, which
+fetches STIX data over TAXII and write it to a JSON file in a way that
+<code>stix-db.lua</code> can read.</p></li>
+<li><p><code>snort</code> - is not part of cyberprobe, but it's a great NIDS, so
+we use that.</p></li>
+</ul>
+
+<img style="border: 1px solid black; padding: 8px;" src="architecture.png"/>
+
+</html>
+
