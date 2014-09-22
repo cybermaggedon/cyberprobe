@@ -648,7 +648,7 @@ software:
 </p>
 
 <pre>
-cybermon 10000 /usr/local/etc/cybermon.lua
+cybermon 10000 /usr/local/etc/cyberprobe/cybermon.lua
 </pre>
 
 <p>
@@ -724,7 +724,7 @@ little hex dumps of things like HTTP bodies:
 </p>
 
 <pre>
-cybermon 10000 /usr/local/etc/hexdump.lua
+cybermon 10000 /usr/local/etc/cyberprobe/hexdump.lua
 </pre>
 
 <p>
@@ -734,7 +734,7 @@ information to files in the <code>data</code> directory.
 
 <pre>
 mkdir data
-cybermon 10000 /usr/local/etc/dump.lua
+cybermon 10000 /usr/local/etc/cyberprobe/dump.lua
 </pre>
 
 <p>The <code>quiet.lua</code> configuration file does nothing.  It may be
@@ -1089,7 +1089,7 @@ So if you're continuing the tutorial, you can stop <code>cybermon</code>,
 and run:
 </p>
 
-<pre>cybermon 10000 /usr/local/etc/cyberdb.lua</pre>
+<pre>cybermon 10000 /usr/local/etc/cyberprobe/cyberdb.lua</pre>
 
 <p>
 After some network data has been observed, you should be able to see
@@ -1178,11 +1178,11 @@ should know that this is very prototype at the moment.
 This is just for convenience.</li>
 <li>A script, <code>stix-create</code> which reads the above configuration file,
 and converts into a STIX document containing Indicator objects.</li>
-<li>A script, <code>stix-server</code> which acts as a very simple TAXII
+<li>A script, <code>taxii-server</code> which acts as a very simple TAXII
 server, serving up STIX documents.</li>
-<li>A script, <code>stix-client</code> which connects to a STIX server, gets
+<li>A script, <code>taxii-client</code> which connects to a TAXII server, gets
 STIX documents and dumps some stuff out.</li>
-<li>A script <code>stix-sync-json</code> which connects to a STIX server,
+<li>A script <code>taxii-sync-json</code> which connects to a TAXII server,
 gets STIX documents, massages the whole lot into a single JSON form, and
 dumps that to a file.</li>
 <li>A configuration file for <code>cybermon</code> which reads the JSON 
@@ -1259,7 +1259,7 @@ Finally, stop any running cybermon processes, and run cybermon with a
 configuration file which reads the JSON file.
 </p>
 
-<pre>cybermon 10000 /usr/local/etc/stix-alert.lua</pre>
+<pre>cybermon 10000 /usr/local/etc/cyberprobe/stix-alert.lua</pre>
 
 <p>Now, this produces no output, except when activity which hits on a cyber
 threat is observed.  If you used my sample data, then this activity should

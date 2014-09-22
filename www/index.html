@@ -112,6 +112,15 @@ function db_check() {
   div.appendChild(document.createTextNode(action));
   obs["element"] = div;
 
+  if (resp._source.observation.indicators)
+    if (resp._source.observation.indicators.length == undefined)
+      obs["malicious"] = false;
+    else
+      obs["malicious"] = true;
+  else
+      obs["malicious"] = false;
+//    div.style["background"] = "red";
+
   if (action == "connected_up") {
     last_oid++;
     setTimeout(db_check, db_next_item_time);
@@ -159,7 +168,10 @@ function place(obs) {
     elt.style["top"] = obs["y"] + "px";
     elt.style["position"] = "absolute";
     elt.style["border"] = "1px solid black";
-    elt.style["background"] = "white";
+    if (obs["malicious"])
+      elt.style["background"] = "red";
+    else
+      elt.style["background"] = "white";
     elt.style["font"] = "8pt courier";
 
     document.getElementById("place").appendChild(elt);
