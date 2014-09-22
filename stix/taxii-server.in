@@ -44,7 +44,7 @@ class Sync(sync.DbSynchroniser):
         f.close()
 
         # Add to store.
-        id = s.store.store(content, ["bunchy"])
+        id = s.store.store(content, ["default"])
 
         print "Added", file
 
