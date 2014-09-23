@@ -113,7 +113,7 @@
           "exclude": [],
           "missing": false,
           "other": false,
-          "size": 20,
+          "size": 6,
           "order": "count",
           "style": {
             "font-size": "10pt"
@@ -122,7 +122,7 @@
           "tilt": false,
           "labels": true,
           "arrangement": "horizontal",
-          "chart": "pie",
+          "chart": "table",
           "counter_pos": "above",
           "spyable": true,
           "queries": {
@@ -135,6 +135,39 @@
           "tstat": "total",
           "valuefield": "",
           "title": "Content types"
+        },
+        {
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "field": "observation.header.User-Agent",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 10,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "table",
+          "counter_pos": "above",
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0
+            ]
+          },
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": "",
+          "title": "User agents"
         }
       ],
       "notice": false
