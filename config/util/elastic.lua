@@ -27,10 +27,10 @@ module.initialise_observation = function(context)
 
   local tm = context:get_event_time()
   local tmtab = os.date("*t", tm)
-  local tmstr = os.date("%Y%m%dT%H%M", tm)
-  local secs = (tm - math.floor(tm)) + tmtab.sec
+  local tmstr = os.date("%Y%m%dT%H%M%S", tm)
+  local millis = 1000 * (tm - math.floor(tm))
 
-  tmstr = tmstr .. string.format("%02.3fZ", secs)
+  tmstr = tmstr .. "." .. string.format("%03dZ", millis)
 
   obs["observation"]["time"] = tmstr  
 
@@ -51,7 +51,7 @@ module.submit_observation = function(request)
 
   local c = http.http_req(u, "PUT", jsenc.encode(request))
 
-  if not (c == 201) then
+  if not (c == 201 or c == 200) then
     io.write(string.format("Elasticsearch index failed: %s\n", c))
   end
 
@@ -74,23 +74,69 @@ module.init = function()
   request["observation"]["properties"]["data"] = {}
   request["observation"]["properties"]["data"]["type"] = "binary"
   request["observation"]["properties"]["time"] = {}
-  request["observation"]["properties"]["time"]["type"] = "time"
+  request["observation"]["properties"]["time"]["type"] = "date"
   request["observation"]["properties"]["time"]["format"] = "basic_date_time"
-  request["observation"]["properties"]["header.Content-Type"] = {}
-  request["observation"]["properties"]["header.Content-Type"]["type"] = "string"
-  request["observation"]["properties"]["header.Content-Type"]["index"] = "not_analyzed"
-  request["observation"]["properties"]["header.Host"] = {}
-  request["observation"]["properties"]["header.Host"]["type"] = "string"
-  request["observation"]["properties"]["header.Host"]["index"] = "not_analyzed"
-  request["observation"]["properties"]["dest.ipv4"] = {}
-  request["observation"]["properties"]["dest.ipv4"]["type"] = "ip"
-  request["observation"]["properties"]["src.ipv4"] = {}
-  request["observation"]["properties"]["src.ipv4"]["type"] = "ip"
+  request["observation"]["properties"]["header"] = {}
+  request["observation"]["properties"]["header"]["type"] = "object"
+  request["observation"]["properties"]["header"]["properties"] = {}
+  request["observation"]["properties"]["header"]["properties"]["Content-Type"] = {}
+  request["observation"]["properties"]["header"]["properties"]["Content-Type"]["type"] = "string"
+  request["observation"]["properties"]["header"]["properties"]["Content-Type"]["index"] = "analyzed"
+  request["observation"]["properties"]["header"]["properties"]["Content-Type"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["header"]["properties"]["Host"] = {}
+  request["observation"]["properties"]["header"]["properties"]["Host"]["type"] = "string"
+  request["observation"]["properties"]["header"]["properties"]["Host"]["index"] = "analyzed"
+  request["observation"]["properties"]["header"]["properties"]["Host"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["indicators"] = {}
+  request["observation"]["properties"]["indicators"]["type"] = "object"
+  request["observation"]["properties"]["dest"] = {}
+  request["observation"]["properties"]["dest"]["type"] = "nested"
+  request["observation"]["properties"]["dest"]["properties"] = {}
+  request["observation"]["properties"]["dest"]["properties"]["address"] = {}
+  request["observation"]["properties"]["dest"]["properties"]["address"]["type"] = "string"
+  request["observation"]["properties"]["dest"]["properties"]["address"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["dest"]["properties"]["protocol"] = {}
+  request["observation"]["properties"]["dest"]["properties"]["protocol"]["type"] = "string"
+  request["observation"]["properties"]["dest"]["properties"]["protocol"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["src"] = {}
+  request["observation"]["properties"]["src"]["type"] = "nested"
+  request["observation"]["properties"]["src"]["properties"] = {}
+  request["observation"]["properties"]["src"]["properties"]["address"] = {}
+  request["observation"]["properties"]["src"]["properties"]["address"]["type"] = "string"
+  request["observation"]["properties"]["src"]["properties"]["address"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["src"]["properties"]["protocol"] = {}
+  request["observation"]["properties"]["src"]["properties"]["protocol"]["type"] = "string"
+  request["observation"]["properties"]["src"]["properties"]["protocol"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["indicators"] = {}
+  request["observation"]["properties"]["indicators"]["type"] = "nested"
+  request["observation"]["properties"]["indicators"]["properties"] = {}
+  request["observation"]["properties"]["indicators"]["properties"]["id"] = {}
+  request["observation"]["properties"]["indicators"]["properties"]["id"]["type"] = "string"
+  request["observation"]["properties"]["indicators"]["properties"]["id"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["indicators"]["properties"]["description"] = {}
+  request["observation"]["properties"]["indicators"]["properties"]["description"]["type"] = "string"
+  request["observation"]["properties"]["indicators"]["properties"]["description"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["indicators"]["properties"]["value"] = {}
+  request["observation"]["properties"]["indicators"]["properties"]["value"]["type"] = "string"
+  request["observation"]["properties"]["indicators"]["properties"]["value"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["indicators"]["properties"]["on"] = {}
+  request["observation"]["properties"]["indicators"]["properties"]["on"]["type"] = "string"
+  request["observation"]["properties"]["indicators"]["properties"]["on"]["analyzer"] = "keyword"
+
+  req = {}
+  req["observation"] = {}
+  req["observation"]["properties"] = request
+
+  request = req
 
   local c = http.http_req(module.base .. "cybermon", "PUT", "")
 
+  print(jsenc(request))
+
   local c = http.http_req(module.base .. "cybermon/observation/_mapping", 
       "PUT", jsenc(request))
+
+  print(c)
 
 end
 
