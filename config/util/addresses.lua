@@ -44,8 +44,14 @@ module.get_stack = function(context, is_src)
     cls, addr = context:get_dest_addr()
   end
 
-  if not (addr == "") then
-    addrs[#addrs + 1] = { protocol = cls, address = addr }
+  if not (cls == "root") then
+
+    if addrs[cls] == nil then
+      addrs[cls] = {}
+    end
+
+    table.insert(addrs[cls], addr)
+
   end
 
   return addrs

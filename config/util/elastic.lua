@@ -24,7 +24,15 @@ module.initialise_observation = function(context)
   obs["observation"]["liid"] = context:get_liid()
   obs["observation"]["src"] = addr.get_stack(context, true)
   obs["observation"]["dest"] = addr.get_stack(context, false)
-  obs["observation"]["time"] = context:get_event_time()
+
+  local tm = context:get_event_time()
+  local tmtab = os.date("*t", tm)
+  local tmstr = os.date("%Y%m%dT%H%M", tm)
+  local secs = (tm - math.floor(tm)) + tmtab.sec
+
+  tmstr = tmstr .. string.format("%02.3fZ", secs)
+
+  obs["observation"]["time"] = tmstr  
 
   return obs
 
@@ -66,9 +74,20 @@ module.init = function()
   request["observation"]["properties"]["data"] = {}
   request["observation"]["properties"]["data"]["type"] = "binary"
   request["observation"]["properties"]["time"] = {}
-  request["observation"]["properties"]["time"]["type"] = "integer"
+  request["observation"]["properties"]["time"]["type"] = "time"
+  request["observation"]["properties"]["time"]["format"] = "basic_date_time"
+  request["observation"]["properties"]["header.Content-Type"] = {}
+  request["observation"]["properties"]["header.Content-Type"]["type"] = "string"
+  request["observation"]["properties"]["header.Content-Type"]["index"] = "not_analyzed"
+  request["observation"]["properties"]["header.Host"] = {}
+  request["observation"]["properties"]["header.Host"]["type"] = "string"
+  request["observation"]["properties"]["header.Host"]["index"] = "not_analyzed"
+  request["observation"]["properties"]["dest.ipv4"] = {}
+  request["observation"]["properties"]["dest.ipv4"]["type"] = "ip"
+  request["observation"]["properties"]["src.ipv4"] = {}
+  request["observation"]["properties"]["src.ipv4"]["type"] = "ip"
 
-  local c = http.http_req(module.base .. "cybermon", "PUT", jsenc(request))
+  local c = http.http_req(module.base .. "cybermon", "PUT", "")
 
   local c = http.http_req(module.base .. "cybermon/observation/_mapping", 
       "PUT", jsenc(request))
