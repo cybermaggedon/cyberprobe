@@ -4,13 +4,13 @@
     "query": {
       "list": {
         "0": {
-          "query": "*",
-          "alias": "",
-          "color": "#7EB26D",
           "id": 0,
+          "color": "#7EB26D",
+          "alias": "",
           "pin": false,
           "type": "lucene",
-          "enable": true
+          "enable": true,
+          "query": "*"
         },
         "1": {
           "id": 1,
@@ -32,9 +32,9 @@
         }
       },
       "ids": [
-        0,
         1,
-        2
+        2,
+        0
       ]
     },
     "filter": {
@@ -279,7 +279,7 @@
         },
         {
           "error": false,
-          "span": 4,
+          "span": 3,
           "editable": true,
           "type": "terms",
           "loadingEditor": false,
@@ -314,7 +314,7 @@
         },
         {
           "error": false,
-          "span": 2,
+          "span": 3,
           "editable": true,
           "type": "terms",
           "loadingEditor": false,
@@ -322,7 +322,7 @@
           "exclude": [],
           "missing": false,
           "other": false,
-          "size": 10,
+          "size": 15,
           "order": "count",
           "style": {
             "font-size": "10pt"
@@ -367,7 +367,7 @@
           "exclude": [],
           "missing": false,
           "other": false,
-          "size": 15,
+          "size": 20,
           "order": "count",
           "style": {
             "font-size": "10pt"
@@ -406,7 +406,7 @@
           "pages": 5,
           "offset": 0,
           "sort": [
-            "_score",
+            "observation.time",
             "desc"
           ],
           "style": {
@@ -420,10 +420,7 @@
             "observation.src.tcp",
             "observation.dest.ipv4",
             "observation.dest.tcp",
-            "observation.method",
             "observation.header.Content-Type",
-            "observation.code",
-            "observation.header.Host",
             "observation.url",
             "observation.indicators.description"
           ],
@@ -459,7 +456,7 @@
   "index": {
     "interval": "none",
     "pattern": "[logstash-]YYYY.MM.DD",
-    "default": "_all",
+    "default": "cybermon",
     "warm_fields": false
   },
   "style": "dark",
@@ -490,6 +487,8 @@
         "observation.indicators.value:*",
         "observation.src.tcp:80",
         "*",
+        "_index: cybermon",
+        "observation",
         "observation.indicators:*",
         "observation.src.http",
         "observation.src.dns",

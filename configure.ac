@@ -2,11 +2,14 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([cyberprobe], [0.40], [cyberprobe-general@lists.sourceforge.net])
+AC_INIT([cyberprobe], [0.50], [cyberprobe-general@lists.sourceforge.net])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
+
+# Optimiser settings
+CXXFLAGS="-O6"
 
 # Checks for programs.
 AC_PROG_CXX
@@ -59,7 +62,7 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gethostbyname gettimeofday socket strdup uname])
 
 AC_CONFIG_FILES([Makefile src/Makefile config/Makefile docs/Makefile
-	stix/Makefile])
+	stix/Makefile www/Makefile])
 
 AC_OUTPUT
 

@@ -61,6 +61,7 @@ namespace cybermon {
 	    connected = false;
 	    svc_idented = false;
 	    processor = 0;
+	    fin_observed = false;
 	}
 
 	// Constructor, describing flow address and parent pointer.
@@ -71,6 +72,7 @@ namespace cybermon {
 	    connected = false;
 	    svc_idented = false;
 	    processor = 0;
+	    fin_observed = false;
 	}
 
 	// Type is "tcp".

@@ -222,6 +222,8 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
     static const boost::regex http_response("HTTP/1\\.");
 
+    fc->lock.lock();
+
     if (!fc->svc_idented) {
 	
 	// Deal with the cases that don't ident by scanning data.
@@ -230,8 +232,9 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	    fc->processor = &smtp::process_client;
 	    fc->svc_idented = true;
 
-	    (*fc->processor)(mgr, fc, s, e);
 	    fc->lock.unlock();
+
+	    (*fc->processor)(mgr, fc, s, e);
 	    return;
 
 	} else if (fc->addr.src.get_uint16() == 25) {
@@ -239,8 +242,9 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	    fc->processor = &smtp::process_server;
 	    fc->svc_idented = true;
 
-	    (*fc->processor)(mgr, fc, s, e);
 	    fc->lock.unlock();
+
+	    (*fc->processor)(mgr, fc, s, e);
 	    return;
 
 	} else if (fc->addr.src.get_uint16() == 21) {
@@ -249,6 +253,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	    fc->svc_idented = true;
 
 	    (*fc->processor)(mgr, fc, s, e);
+
 	    fc->lock.unlock();
 	    return;
 
@@ -257,8 +262,9 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	    fc->processor = &ftp::process_client;
 	    fc->svc_idented = true;
 
-	    (*fc->processor)(mgr, fc, s, e);
 	    fc->lock.unlock();
+
+	    (*fc->processor)(mgr, fc, s, e);
 	    return;
 
 	} else {
@@ -284,7 +290,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 		fc->processor = &http::process_request;
 		fc->svc_idented = true;
 
-	    } else 	if (regex_search(fc->ident_buffer, what, http_response,
+	    } else if (regex_search(fc->ident_buffer, what, http_response,
 					 boost::match_continuous)) {
 
 		fc->processor = &http::process_response;
@@ -313,6 +319,8 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	return;
 
     }
+    
+    fc->lock.unlock();
 
     // Process the data using the defined processing function.
     (*fc->processor)(mgr, fc, s, e);

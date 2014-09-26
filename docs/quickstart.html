@@ -1144,22 +1144,54 @@ to the information is not stored for long.
 <h3>Step 16: Visualising observations</h3>
 
 <p>Having loaded the observations into ElasticSearch, it's easy to do some
-visualisation.  Start up Firefox: you need to use
-"Open File" on the File menu, navigate to your Cyberprobe build area, and load
-load the page <code>www/index.html</code>.  If it all works correctly, the
-page will query your ElasticSearch instance, and show a scrolling display
-of stuff that cybermon sees.  The horizontal space depicts time, with 'now'
-at the right-hand edge.  Thus, observations scroll gradually from right to
-left.  The vertical space depicts the IP address space, so things resulting
-from similar addresses appear close to each other.
+visualisation with Kibana.  Kibana is a brilliant, user-configurable
+dashboard package designed to sit on ElasticSearch.  The dashboard runs in your
+browser.</p>
+
+<p>First thing to do is to download and unpack Kibana.  Kibana is
+managed by the ElasticSearch people, download page is
+<a href="http://www.elasticsearch.org/overview/kibana/installation/">here</a>.
 </p>
+
+<p>For production, you would put Kibana on a web server, and configure it
+with access to ElasticSearch.  For the quickstart all you need to do is unpack
+it in a directory, and point your browser at it.</p>
+
+<p>So, to get running, download Kibana, unpack in a directory.  Kibana
+needs one configuration parameter changed in the <code>config.js</code> file.
+There's a parameter called <code>elasticsearch</code> which you need to change
+to point to your ElasticSearch instance, so something like this should work:
+</p>
+
+<pre>
+elasticsearch: "http://localhost:9200",
+</pre>
 
 <p>
-All observations appear as a rectangle containing the action type, except
-HTTP responses carrying images which also have a thumbnail attached.
+Having set that up, you point your browser at the unpacked Kibana file e.g. ...
 </p>
 
-<center><img class="screen" src="visualisation.png" width="400"/></center>
+<pre>
+file:///home/cybermac/dev/kibana/index.html
+</pre>
+
+<p>
+and hopefully you see Kibana's "Welcome to Kibana" screen.  I've already built
+a dashboard you can use, so click on "Load" in the top right-hand corner of the
+screen, hover over "Advanced", and then click "Browse" to find the configuration
+file I have left for you.  A Kibana dashboard schema is included with the
+source code, if you installed using <code>make install</code> it should be
+bundled in with the documentation at
+<code>/usr/local/share/doc/cyberprobe/kibana-dashboard.json</code>.
+If it loads successfully, you should get a dashboard looking like this...
+</p>
+
+<center><a href="kibana.png"><img class="screen" src="kibana.png" width="800"/></a></center>
+
+<p>
+Next step is to save the dashboard using a save icon in the top right of the
+dashboard.  That way you don't have to keep loading the schema.
+</p>
 
 <a name="stix"/>
 <h2>Chapter IV: Cyber threat indicators using STIX</h2>
@@ -1303,7 +1335,15 @@ using <code>taxii-sync-json</code> to fetch the updates, and all without
 stopping the monitoring.
 </p>
 
-<h2>Conslusion</h2>
+<p>
+The <code>stix-db.lua</code> configuration file generates ElasticSearch events
+as <code>cyberdb.lua</code> does, but it also adds indicator detection
+information to the events.  If you use <code>stix-db.lua</code>, with the
+Kibana dashboard, the "Indications" table on the right hand side of the
+dashboard will show detected indicators.
+</p>
+
+<h2>Conclusion</h2>
 
 <p>
 All done, I hope you enjoyed the tutorial!  Any comments on the software,
