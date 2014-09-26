@@ -81,8 +81,6 @@ module.init = function()
   local request = {}
   request["observation"] = {}
   request["observation"]["properties"] = {}
-  request["observation"]["properties"]["_ttl"] = {}
-  request["observation"]["properties"]["_ttl"]["enabled"] = "true"
   request["observation"]["properties"]["body"] = {}
   request["observation"]["properties"]["body"]["type"] = "binary"
   request["observation"]["properties"]["data"] = {}
@@ -140,6 +138,8 @@ module.init = function()
 
   req = {}
   req["observation"] = {}
+  req["observation"]["_ttl"] = {}
+  req["observation"]["_ttl"]["enabled"] = "true"
   req["observation"]["properties"] = request
 
   request = req

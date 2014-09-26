@@ -86,7 +86,7 @@
           },
           "auto_int": false,
           "resolution": 100,
-          "interval": "1s",
+          "interval": "10s",
           "intervals": [
             "auto",
             "1s",
