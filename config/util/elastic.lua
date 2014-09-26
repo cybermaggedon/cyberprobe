@@ -16,7 +16,7 @@ local default_ttl = "1h"
 module.base = "http://localhost:9200/"
 
 -- Initialise a basic observation
-module.initialise_observation = function(context)
+module.initialise_observation = function(context, indicators)
 
   local obs = {}
   obs["_ttl"] = default_ttl
@@ -24,6 +24,20 @@ module.initialise_observation = function(context)
   obs["observation"]["liid"] = context:get_liid()
   obs["observation"]["src"] = addr.get_stack(context, true)
   obs["observation"]["dest"] = addr.get_stack(context, false)
+
+  if indicators and not(#indicators == 0) then
+    obs["observation"]["indicators"] = {}
+    obs["observation"]["indicators"]["on"] = {}
+    obs["observation"]["indicators"]["description"] = {}
+    obs["observation"]["indicators"]["value"] = {}
+    obs["observation"]["indicators"]["id"] = {}
+    for key, value in pairs(indicators) do
+      table.insert(obs["observation"]["indicators"]["on"], value["on"])
+      table.insert(obs["observation"]["indicators"]["description"], value["description"])
+      table.insert(obs["observation"]["indicators"]["value"], value["value"])
+      table.insert(obs["observation"]["indicators"]["id"], value["id"])
+    end
+  end
 
   local tm = context:get_event_time()
   local tmtab = os.date("*t", tm)
@@ -66,9 +80,9 @@ module.init = function()
   print("Create mapping...")
   local request = {}
   request["observation"] = {}
-  request["observation"]["_ttl"] = {}
-  request["observation"]["_ttl"]["enabled"] = "true"
   request["observation"]["properties"] = {}
+  request["observation"]["properties"]["_ttl"] = {}
+  request["observation"]["properties"]["_ttl"]["enabled"] = "true"
   request["observation"]["properties"]["body"] = {}
   request["observation"]["properties"]["body"]["type"] = "binary"
   request["observation"]["properties"]["data"] = {}
@@ -79,6 +93,9 @@ module.init = function()
   request["observation"]["properties"]["url"] = {}
   request["observation"]["properties"]["url"]["type"] = "string"
   request["observation"]["properties"]["url"]["analyzer"] = "keyword"
+  request["observation"]["properties"]["queries"] = {}
+  request["observation"]["properties"]["queries"]["type"] = "string"
+  request["observation"]["properties"]["queries"]["analyzer"] = "keyword"
   request["observation"]["properties"]["header"] = {}
   request["observation"]["properties"]["header"]["type"] = "object"
   request["observation"]["properties"]["header"]["properties"] = {}
@@ -94,8 +111,6 @@ module.init = function()
   request["observation"]["properties"]["header"]["properties"]["Host"]["type"] = "string"
   request["observation"]["properties"]["header"]["properties"]["Host"]["index"] = "analyzed"
   request["observation"]["properties"]["header"]["properties"]["Host"]["analyzer"] = "keyword"
-  request["observation"]["properties"]["indicators"] = {}
-  request["observation"]["properties"]["indicators"]["type"] = "object"
   request["observation"]["properties"]["src"] = {}
   request["observation"]["properties"]["src"]["type"] = "object"
   request["observation"]["properties"]["src"]["properties"] = {}

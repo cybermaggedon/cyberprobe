@@ -48,10 +48,9 @@ observer.connection_up = function(context)
       v.value, v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "connection_up"
   obs["observation"]["data"] = b64(data)
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -61,7 +60,7 @@ observer.connection_down = function(context)
 
 -- No indicators reported on connection down
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "connection_down"
   obs["observation"]["data"] = b64(data)
   elastic.submit_observation(obs)
@@ -80,10 +79,9 @@ observer.unrecognised_datagram = function(context, data)
       v.value, v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "unrecognised_datagram"
   obs["observation"]["data"] = b64(data)
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -100,10 +98,9 @@ observer.unrecognised_stream = function(context, data)
       v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "unrecognised_stream"
   obs["observation"]["data"] = b64(data)
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -119,10 +116,9 @@ observer.icmp = function(context, data)
       v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "icmp"
   obs["observation"]["data"] = b64(data)
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -143,13 +139,12 @@ observer.http_request = function(context, method, url, header, body)
         v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "http_request"
   obs["observation"]["method"] = method
   obs["observation"]["url"] = url
   obs["observation"]["header"] = header
   obs["observation"]["body"] = b64(body)
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -165,14 +160,13 @@ observer.http_response = function(context, code, status, header, url, body)
         v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "http_response"
   obs["observation"]["code"] = code
   obs["observation"]["status"] = status
   obs["observation"]["header"] = header
   obs["observation"]["url"] = url
   obs["observation"]["body"] = b64(body)
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -188,10 +182,9 @@ observer.smtp_command = function(context, command)
       v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "smtp_command"
   obs["observation"]["command"] = command
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -207,11 +200,10 @@ observer.smtp_response = function(context, status, text)
       v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "smtp_response"
   obs["observation"]["status"] = status
   obs["observation"]["text"] = text
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -231,12 +223,11 @@ observer.smtp_data = function(context, from, to, data)
         v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "smtp_data"
   obs["observation"]["from"] = from
   obs["observation"]["to"] = to
   obs["observation"]["data"] = b64(data)
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -262,9 +253,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
         v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "dns_message"
-  obs["observation"]["indicators"] = indicators
   obs["observation"]["type"] = trans
 
   local q = {}
@@ -301,10 +291,9 @@ observer.ftp_command = function(context, command)
       v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "ftp_command"
   obs["observation"]["command"] = command
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end
@@ -320,11 +309,10 @@ observer.ftp_response = function(context, status, text)
       v.id, v.description))
   end
 
-  local obs = elastic.initialise_observation(context)
+  local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "ftp_response"
   obs["observation"]["status"] = status
   obs["observation"]["text"] = text
-  obs["observation"]["indicators"] = indicators
   elastic.submit_observation(obs)
 
 end

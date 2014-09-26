@@ -11,10 +11,30 @@
           "pin": false,
           "type": "lucene",
           "enable": true
+        },
+        "1": {
+          "id": 1,
+          "color": "#EAB839",
+          "alias": "Web traffic",
+          "pin": true,
+          "type": "lucene",
+          "enable": true,
+          "query": "observation.src.tcp:80"
+        },
+        "2": {
+          "id": 2,
+          "color": "#6ED0E0",
+          "alias": "Attack indicators",
+          "pin": true,
+          "type": "lucene",
+          "enable": true,
+          "query": "observation.indicators.value:*"
         }
       },
       "ids": [
-        0
+        0,
+        1,
+        2
       ]
     },
     "filter": {
@@ -31,7 +51,7 @@
       "collapsable": true,
       "panels": [
         {
-          "span": 4,
+          "span": 3,
           "editable": true,
           "type": "histogram",
           "loadingEditor": false,
@@ -49,7 +69,9 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "annotate": {
@@ -79,13 +101,13 @@
             "1w",
             "1y"
           ],
-          "lines": false,
+          "lines": true,
           "fill": 0,
-          "linewidth": 3,
+          "linewidth": 1,
           "points": false,
           "pointradius": 5,
-          "bars": true,
-          "stack": true,
+          "bars": false,
+          "stack": false,
           "spyable": true,
           "zoomlinks": true,
           "options": true,
@@ -128,7 +150,9 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "tmode": "terms",
@@ -138,7 +162,7 @@
         },
         {
           "error": false,
-          "span": 4,
+          "span": 3,
           "editable": true,
           "type": "terms",
           "loadingEditor": false,
@@ -161,13 +185,50 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "tmode": "terms",
           "tstat": "total",
           "valuefield": "",
           "title": "User agents"
+        },
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "field": "observation.indicators.value",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 10,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "table",
+          "counter_pos": "above",
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": "",
+          "title": "Indicators"
         }
       ],
       "notice": false
@@ -190,7 +251,9 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "field": "ipv4",
@@ -239,7 +302,9 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "tmode": "terms",
@@ -272,7 +337,9 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "tmode": "terms",
@@ -291,7 +358,9 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "field": "observation.action",
@@ -352,9 +421,15 @@
             "observation.dest.ipv4",
             "observation.dest.tcp",
             "observation.method",
-            "observation.header.Content-Type"
+            "observation.header.Content-Type",
+            "observation.code",
+            "observation.header.Host",
+            "observation.url",
+            "observation.indicators.description"
           ],
-          "highlight": [],
+          "highlight": [
+            "observation.indicators.id"
+          ],
           "sortable": true,
           "header": true,
           "paging": true,
@@ -362,14 +437,16 @@
           "queries": {
             "mode": "all",
             "ids": [
-              0
+              0,
+              1,
+              2
             ]
           },
           "field_list": true,
           "status": "Stable",
           "trimFactor": 300,
           "normTimes": true,
-          "title": "Documents",
+          "title": "Events",
           "all_fields": false,
           "localTime": false,
           "timeField": "@timestamp"
@@ -410,7 +487,12 @@
       "query": "*",
       "pinned": true,
       "history": [
+        "observation.indicators.value:*",
+        "observation.src.tcp:80",
         "*",
+        "observation.indicators:*",
+        "observation.src.http",
+        "observation.src.dns",
         "192.168.1.1"
       ],
       "remember": 10,
@@ -456,5 +538,5 @@
       "enable": true
     }
   ],
-  "refresh": "5s"
+  "refresh": "30s"
 }
