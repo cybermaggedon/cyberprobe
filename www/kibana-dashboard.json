@@ -1,5 +1,5 @@
 {
-  "title": "Dashboard",
+  "title": "Cyberprobe Dashboard",
   "services": {
     "query": {
       "list": {
@@ -32,14 +32,27 @@
         }
       },
       "ids": [
+        0,
         1,
-        2,
-        0
+        2
       ]
     },
     "filter": {
-      "list": {},
-      "ids": []
+      "list": {
+        "0": {
+          "type": "time",
+          "field": "observation.time",
+          "from": "now-30m",
+          "to": "now",
+          "mandate": "must",
+          "active": true,
+          "alias": "",
+          "id": 0
+        }
+      },
+      "ids": [
+        0
+      ]
     }
   },
   "rows": [
@@ -456,7 +469,7 @@
   "index": {
     "interval": "none",
     "pattern": "[logstash-]YYYY.MM.DD",
-    "default": "cybermon",
+    "default": "cyberprobe",
     "warm_fields": false
   },
   "style": "dark",
@@ -487,7 +500,7 @@
         "observation.indicators.value:*",
         "observation.src.tcp:80",
         "*",
-        "_index: cybermon",
+        "_index: cyberprobe",
         "observation",
         "observation.indicators:*",
         "observation.src.http",
@@ -513,6 +526,7 @@
       "time_options": [
         "5m",
         "15m",
+        "30m",
         "1h",
         "6h",
         "12h",
@@ -534,7 +548,9 @@
         "1d"
       ],
       "timefield": "observation.time",
-      "enable": true
+      "enable": true,
+      "now": true,
+      "filter_id": 0
     }
   ],
   "refresh": "30s"
