@@ -150,12 +150,16 @@ module.init = function()
 
   local c = http.http_req(module.base .. index, "PUT", "")
 
-  print(jsenc(request))
+  if not(c == 200) then
+    print("ERROR: Index creation failed")
+  end
 
   local c = http.http_req(module.base .. index .. "/" .. object .. "/_mapping", 
       "PUT", jsenc(request))
 
-  print(c)
+  if not(c == 200) then
+    print("ERROR: Mapping creation failed")
+  end
 
 end
 
