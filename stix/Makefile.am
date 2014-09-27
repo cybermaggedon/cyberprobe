@@ -5,6 +5,8 @@ bin_SCRIPTS = stix-create taxii-server taxii-client \
 EXTRA_DIST = stix-create taxii-server.in taxii-client.in \
 	taxii-sync taxii-sync-json taxii-push
 
+CLEANFILES = taxii-server taxii-client
+
 cyberprobe_PYTHON = cyberprobe/stix_store.py \
 	cyberprobe/gmt.py cyberprobe/taxii_query.py cyberprobe/taxii_client.py \
 	cyberprobe/taxii_server.py cyberprobe/indicator.py \
