@@ -57,7 +57,6 @@ module.initialise_observation = function(context, indicators)
 end
 
 
-
 -- Create an observation object in ElasticSearch
 module.submit_observation = function(request)
 
@@ -78,8 +77,22 @@ end
 -- Initialise elasticsearch
 module.init = function()
 
-  print("Deleting index...")
-  local c = http.http_req(module.base .. index .. "/", "DELETE", "")
+  -- Look for mapping.
+  local c = http.http_req(module.base .. index .. "/" .. object .. "/_mapping",
+  	    	          "GET", "")
+  
+  -- If mapping already exists, move on.
+  if c == 200 then
+    print("Index already exists.")
+    return
+  end
+
+  print("Create index...")
+  local c = http.http_req(module.base .. index, "PUT", "")
+
+  if not(c == 200) then
+    print("ERROR: Index creation failed")
+  end
 
   print("Create mapping...")
   local request = {}
@@ -147,12 +160,6 @@ module.init = function()
   req[object]["properties"] = request
 
   request = req
-
-  local c = http.http_req(module.base .. index, "PUT", "")
-
-  if not(c == 200) then
-    print("ERROR: Index creation failed")
-  end
 
   local c = http.http_req(module.base .. index .. "/" .. object .. "/_mapping", 
       "PUT", jsenc(request))
