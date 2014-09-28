@@ -1,4 +1,7 @@
 
+local geoip = require("geoip")
+local geodb = geoip.open_type("country")
+
 local module = {}
 
 -- Used to recurse up the stack getting all addresses in a particular protocol
@@ -51,6 +54,16 @@ module.get_stack = function(context, is_src)
     end
 
     table.insert(addrs[cls], addr)
+
+    if cls == "ipv4" then
+      lookup = geodb:lookup(addr)
+      if lookup and lookup.country_code then
+        if addrs["geo"] == nil then
+          addrs["geo"] = {}
+        end
+        table.insert(addrs["geo"], lookup.country_code)
+      end
+    end
 
   end
 
