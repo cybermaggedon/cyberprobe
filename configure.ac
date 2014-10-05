@@ -40,11 +40,14 @@ AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
 AC_CHECK_LIB([readline], [main], [], [AC_MSG_ERROR(Library readline missing.)])
 
 # LUA specifics
-AC_CHECK_LIB([lua], [luaL_register], 
+AC_SEARCH_LIBS([luaL_register], [lua lua5.1 lua5.2],
 		    [AC_DEFINE([HAVE_LUAL_REGISTER], 1, 
 		    [Set if luaL_register is supported (removed in 5.2)])])
-AC_CHECK_LIB([lua], [lua_rawlen], 
-		    [AC_DEFINE([HAVE_LUA_RAWLEN], 1, 
+AC_SEARCH_LIBS([luaL_setfuncs], [lua lua5.1 lua5.2],
+		    [AC_DEFINE([HAVE_LUAL_SETFUNCS], 1, 
+		    [Set if luaL_setfuncs is supported (added in 5.2)])])
+AC_SEARCH_LIBS([lua_rawlen], [lua lua5.1 lua5.2],
+		    [AC_DEFINE([HAVE_LUAL_RAWLEN], 1, 
 		    [Set if lua_rawlen is supported (added in 5.2)])])
 
 # Checks for header files.
