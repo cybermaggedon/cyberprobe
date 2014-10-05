@@ -28,8 +28,10 @@ AM_PATH_PYTHON
 BOOST_REQUIRE
 BOOST_REGEX([mt])
 
+
+
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
-AC_CHECK_LIB([lua], [main], [], [AC_MSG_ERROR(Library lua missing.)])
+AC_CHECK_LIB([lua], [main], [], [AC_CHECK_LIB([lua5.2], [main], [], [AC_MSG_ERROR(Library lua missing.)])])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
 AC_CHECK_LIB([pcap], [main], [], [AC_MSG_ERROR(Library pcap missing.)])
 AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
