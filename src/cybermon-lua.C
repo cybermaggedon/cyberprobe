@@ -1193,12 +1193,12 @@ int cybermon_lua::context_forge_tcp_data(lua_State* lua)
 // Registers into a metatable.
 void lua_state::register_table(const std::map<std::string,lua_CFunction>& fns) {
 	    
-#ifdef HAVE_LUAL_REGISTER
-    // LUA 5.1
-    luaL_reg cfns[fns.size() + 1];
-#else
+#ifdef HAVE_LUAL_SETFUNCS
     // LUA 5.2 and on
     luaL_Reg cfns[fns.size() + 1];
+#else
+    // LUA 5.1
+    luaL_reg cfns[fns.size() + 1];
 #endif
 
     int pos = 0;
@@ -1214,14 +1214,14 @@ void lua_state::register_table(const std::map<std::string,lua_CFunction>& fns) {
     cfns[pos].name = 0;
     cfns[pos].func = 0;
 	   
-#ifdef HAVE_LUAL_REGISTER
-    // LUA 5.1
-    luaL_register(lua, 0, cfns);
-#else
+#ifdef HAVE_LUAL_SETFUNCS
     // LUA 5.2 and on
     luaL_setfuncs(lua, cfns, 0);
     // FIXME: Is this right?
     set_meta_table(-2);
+#else
+    // LUA 5.1
+    luaL_register(lua, 0, cfns);
 #endif
 	    
 }
