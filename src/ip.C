@@ -34,10 +34,13 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     uint8_t header_length = ihl * 4;
     if ((e - s) < header_length) throw exception("IP packet IHL is invalid");
 
+    // This doesn't work on some systems.
+#ifdef CHECK_IP_CHECKSUM
     // Calculate checksum.
     uint16_t checked = calculate_cksum(s, s + header_length);
     if (checked != 0)
 	throw exception("IP packet has invalid checksum");
+#endif
 
     // Addresses.
     address src, dest;
