@@ -23,6 +23,4 @@ Description: The Cyberprobe project is a distrbuted architecture for real-time
   These components can be used together or separately.  For a simple
   configuration, they can be run on the same host, for more complex
   environments, a number of probes can feed a single monitor.
-
   Please see documentation in /usr/share/doc/cyberprobe.
-

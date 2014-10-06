@@ -30,12 +30,3 @@ autoreconf -fi
 ./configure --prefix=/usr/local
 make
 make install
-
-RPM
-===
-
-make dist
-rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
-cp cyberprobe-*.tar.gz RPM/SOURCES/
-rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
-sudo rpm -i RPM/RPMS/*/cyberprobe-0.50*
