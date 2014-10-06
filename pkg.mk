@@ -13,7 +13,7 @@ deb:
 
 rpm:
 	make dist
-	rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
+	mkdir -p RPM/SOURCES
 	cp cyberprobe-${VERSION}.tar.gz RPM/SOURCES/
 	rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
 
