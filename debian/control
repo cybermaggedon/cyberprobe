@@ -3,10 +3,10 @@ Maintainer: Cyber MacGeddon <cybermaggedon@gmail.com>
 Section: uknown
 Priority: optional
 Standards-Version: 3.9.2
-Build-Depends: liblua5.2-0:i386, python2.7, python-gobject-2, 
-  mime-support, libboost1.49-dev, python-minimal, libexpat1:i386,
-  liblua5.2-dev:i386, mawk, libpcap0.8:i386, python2.7-minimal,
-  libc6-i686:i386, lua5.2, python-support, libreadline6:i386, cpio,
+Build-Depends: liblua5.2-0, python2.7, python-gobject-2, 
+  mime-support, libboost-dev, python-minimal, libexpat1,
+  liblua5.2-dev, mawk, libpcap0.8, python2.7-minimal,
+  libc6, lua5.2, python-support, libreadline6, cpio,
    debhelper (>=9)
 Homepage: http://cyberprobe.sourceforge.net/
 
@@ -23,5 +23,6 @@ Description: The Cyberprobe project is a distrbuted architecture for real-time
   These components can be used together or separately.  For a simple
   configuration, they can be run on the same host, for more complex
   environments, a number of probes can feed a single monitor.
+
   Please see documentation in /usr/share/doc/cyberprobe.
 
