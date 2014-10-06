@@ -1,0 +1,41 @@
+Debian, Mint, (Ubuntu?)
+=======================
+
+- sudo apt-get install git
+- sudo apt-get install automake autoconf
+- sudo apt-get install libpcap-dev
+- sudo apt-get install g++
+- sudo apt-get install libboost-dev
+- sudo apt-get install libboost-regex-dev
+- sudo apt-get install libexpat-dev
+- sudo apt-get install lua5.2
+- sudo apt-get install liblua5.2-dev
+- sudo apt-get install ncurses-dev
+- sudo apt-get install make
+- git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+- autoreconf -fi
+- ./configure --prefix=/usr/local
+- make
+- make install
+
+Fedora, Centos 7, RHEL 7
+========================
+
+sudo yum install git autoconf automake
+sudo yum install libpcap-devel boost-devel gcc-c++
+sudo yum install expat-devel lua-devel 
+sudo yum install ncurses-devel readline-devel 
+git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+autoreconf -fi
+./configure --prefix=/usr/local
+make
+make install
+
+RPM
+===
+
+make dist
+rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
+cp cyberprobe-*.tar.gz RPM/SOURCES/
+rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
+sudo rpm -i RPM/RPMS/*/cyberprobe-0.50*
