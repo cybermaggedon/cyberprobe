@@ -2,6 +2,9 @@
 Well, it was a bit of a dog getting this thing to work on a Mac.  Here's what
 I did:
 - Install xcode
+- xcode command line tools:
+    xcode-select --install
+    sudo xcodebuild -license
 - Install macports (go to the Mac ports page and click on the download pkg).
 - Install a bunch of stuff:
   - sudo port install boost
