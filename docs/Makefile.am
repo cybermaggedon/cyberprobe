@@ -10,6 +10,8 @@ dist_doc_DATA = architecture.png config.html cybermon.html cyberprobe.css \
 
 info_TEXINFOS = cyberprobe.texi
 
+man1_MANS = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1
+
 MAINTAINERCLEANFILES = Makefile.in
 
 AM_MAKEINFOHTMLFLAGS = --no-split
