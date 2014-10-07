@@ -1,0 +1,45 @@
+.TH CYBERPROBE "1" "October 2014" "Cyberprobe 0.51" "User Commands"
+.SH NAME
+cyberprobe \- Captures network packets and streams to a receiver
+.SH SYNOPSIS
+.B cyberprobe
+[\fICONFIGURATION-FILE\fR]
+.SH DESCRIPTION
+.B cyberprobe
+is a network monitor which collects packets which match an IP address list.
+The packets collected are streamed using network streaming protocols.
+The IP address match list can be statically configured (in a configuration
+file), can be dynamically changed using a management interface, or can be
+dynamically changed as a result of
+.B snort
+alerts.
+.SS "Exit status:"
+.TP
+0
+if OK,
+.TP
+non-zero
+on error
+.SH "EXAMPLE USAGE"
+cyberprobe cyberprobe.xml
+.SH "CONFIGURATION FORMAT"
+The configuration file is an XML file which contains ...
+.SH AUTHOR
+Part of the Cyberprobe project.
+.SH "REPORTING BUGS"
+Visit <http://cyberprobe.sf.net> for support.
+.SH COPYRIGHT
+Copyright \(co 2013-2014 Cyber MacGeddon
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+.SH "SEE ALSO"
+.BR nhis_rcvr (1),
+.BR etsi_rcvr (1),
+.BR cyberprobe_cli (1),
+.BR cybermon (1),
+.BR snort (1)
+.PP
+Further documentation and a quickstart guide is available in
+/usr/share/doc/cyberprobe.
