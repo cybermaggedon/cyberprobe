@@ -81,6 +81,8 @@ and to see where we are going, read the @ref{Architecture} page.
 @node Overview
 @chapter Overview
 
+@cindex Overview of Cyberprobe
+
 @heading Summary
 
 Cyberprobe is a distrbuted architecture for real-time monitoring of networks
@@ -98,12 +100,15 @@ interprets the information.
 
 @end itemize
 
+@cindex @command{cyberprobe}, features
+@cindex Features, of @command{cyberprobe}
+
 These components can be used together or separately. For a simple
 configuration, they can be run on the same host, for more complex
 environments, a number of probes can feed a single monitor. For more detail,
 and to see where we are going, read the @ref{Architecture} page.
 
-The probe, cyberprobe has the following features:
+The probe, @command{cyberprobe} has the following features:
 
 @itemize @bullet
 
@@ -130,7 +135,10 @@ protocols.
 
 @end itemize
 
-The monitor tool, cybermon has the following features:
+The monitor tool, @command{cybermon} has the following features:
+
+@cindex @command{cybermon}, features
+@cindex Features, of @command{cybermon}
 
 @itemize @bullet
 
@@ -167,6 +175,7 @@ The easiest way to learn about the software is to follow our Quick Start
 tutorial.
 
 @heading Motivation
+@cindex Cyberprobe, motivation
 
 Cyberprobe started out as a research tool to study networked applications to
 find out what they were doing, as we all know how software suppliers
@@ -199,11 +208,17 @@ monitoring tool to develop your defences.
 
 @heading Warning
 
+@cindex Cybermaggedon
+@cindex Prophesy of doom
+
 There's a war coming... The enemy is resourceful, they can use your networks
 and systems as their own weapon. But with the right tools, you can prepare a
 defence. It's time to get ready for Cybermaggedon.
 
 @heading Revision history
+
+@cindex Release history
+@cindex Version history
 
 Cyberprobe releases:
 
@@ -248,15 +263,21 @@ First release on SourceForge.
 @node Obtaining code
 @chapter Obtaining code
 
-You can either download the latest release on the downloads page, or
-checkout the latest code using git:
+You can either download the latest release on the downloads page
+(@url{http://sourceforge.net/projects/cyberprobe/files/}), or checkout the
+latest code using git:
 
+@example
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+@end example
 
-Powered by SourceForge, project page is here. 
+Powered by SourceForge, project page is at
+@url{http://www.sourceforge.net/p/cyberprobe}.
 
 @node Quick start tutorial
 @chapter Quick start tutorial
+
+@cindex Getting started
 
 @menu
 * Preparation::
@@ -274,6 +295,12 @@ Powered by SourceForge, project page is here.
 
 @heading Build software
 
+@cindex Building
+@cindex Downloading
+@cindex Compilation
+@cindex Packages
+@cindex Installation
+
 There's a fair amount of development taking place in the git repository, so
 you probably want to get the latest release on the downloads page
 (@url{http://sourceforge.net/projects/cyberprobe/files/}). Download,
@@ -287,6 +314,9 @@ sudo make install
 @end example
 
 But if you do want to track the latest code, checkout the latest code from git:
+
+@cindex Checkout from @command{git} repository
+@cindex @command{git} repository
 
 @example
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
@@ -302,6 +332,15 @@ sudo make install
 @end example
 
 The code doesn't have many dependencies. Exotic dependencies are:
+
+@cindex dependencies
+@cindex Build dependencies
+@cindex Boost
+@cindex Lua
+@cindex @code{libpcap}
+@cindex @code{expat}
+@cindex @code{tcpdump}
+@cindex @code{telnet}
 
 @itemize
 
@@ -337,34 +376,46 @@ need to install a separate "developers kit" package. On Fedora, for
 instance, both @code{libpcap} and @code{libpcap-devel} are needed in order to
 be able to build this code.
 
+@cindex Executables
+@cindex Build targets
+
 The compilation process compiles the following executables:
 
 @table @command
 
 @item cyberprobe
+@cindex @command{cyberprobe}
 The Cyber Probe executable.
 
 @item cybermon
+@cindex @command{cybermon}
 Data analyser, analyses the data streams and reports events.
 
 @item etsi_rcvr
+@cindex @command{etsi_rcvr}
 Test decoder for ETSI format data.
 
 @item nhis11_rcvr
+@cindex @command{nhis11_rcvr}
 Test decoder for NHIS1.1 format data.
 
 @item cybermon_cli
+@cindex @command{cybermon_cli}
 Cyberprobe control command-line client.
 
 @end table
 
 FIXME: Mention packaging, and downloading packages.
 
+@cindex Discussion forums
+
 If that builds without errors, then it's time to start something up.  If you
 have problems you can't resolve head to the discussion forums
 (@url{https://sourceforge.net/p/cyberprobe/discussion/}).
 
 @heading Establish network parameters
+
+@cindex Network parameters
 
 The simplest way to use cyberprobe is to use it on a Linux workstation, or
 in a virtual machine.  Maybe you're using a Linux desktop now now?  If so,
@@ -376,6 +427,8 @@ In the next few steps, you'll use @command{cyberprobe} to capture some data,
 on your workstation, and stream it to @command{etsi_rcvr} so that you know it's
 working. But first, you'll need to collect some information about your
 configuration.
+
+@cindex @command{ifconfig}
 
 You need to know the name of the network interface you are using. The
 command @command{/sbin/ifconfig} will show you all the network interfaces
@@ -410,6 +463,8 @@ a particular IP address to this workstation, so that it won't change.
 
 @node Using @command{cyberprobe}
 @section Using @command{cyberprobe}
+@cindex @command{cyberprobe}
+@cindex @command{cyberprobe} configuration
 
 @heading Starting cyberprobe with a configuration file
 
@@ -421,7 +476,7 @@ interfaces, targets and endpoints. The system won't do anything useful
 without those three configuration elements defined. Let's start with a very
 simple configuration.
 
-Using your favourite text editor, create a text file, say c.xml with the
+Using your favourite text editor, create a text file, say @file{c.xml} with the
 following contents:
 
 @example
@@ -445,6 +500,8 @@ following contents:
 Note: You should replace the @code{eth0} string with the name of your
 network interface. Remember? We discovered that when playing with the
 @command{ifconfig} command.
+
+@cindex Privileged user
 
 We're ready to roll. We need to run as a privileged used because cyberprobe
 captures data off the network interface. So, running as root, you need to
@@ -504,6 +561,9 @@ configuration file is valid, if you're not getting the results you expect.
 
 @heading Adding a target
 
+@cindex Target
+@cindex @command{cyberprobe}, target
+
 We have @command{cyberprobe} running, but it isn't doing anything
 useful. Remember, I said that a useful configuration consists of three
 minimal elements: interfaces, targets and endpoints? Well, currently we only
@@ -541,6 +601,8 @@ something ready to receive the data.
 In a separate terminal window, navigate to the @command{cyberprobe} build,
 and run:
 
+@cindex @command{etsi_rcvr}
+
 @example
 etsi_rcvr 10000 | tcpdump -n -r -
 @end example
@@ -555,6 +617,9 @@ If that starts successfully, the next step is to plumb a connection from
 
 Next, edit the configuration file, and edit the endpoints block to deliver
 packets to a local service on port 10000:
+
+@cindex Endpoint
+@cindex @command{cyberprobe}, endpoint
 
 @example
 <endpoints>
@@ -594,6 +659,10 @@ At this step, it's worth having a quick play with the reconnection
 mechanism. Stop and start @command{etsi_rcvr}, and you'll see that
 @command{cyberprobe} reconnects automatically:
 
+@cindex Connection reset
+@cindex Connection restart
+@cindex Reconnection
+
 @example
 ETSI LI connection to localhost:10000 failed.
 Will reconnect...
@@ -605,11 +674,16 @@ We don't guarantee zero data loss on a reconnect.
 @node Management interface
 @section Management interface
 
+@cindex Management
+@cindex @command{cyberprobe}, management
+
 At this step, we'll setup a control port, and use it modify the
 configuration of @command{cyberprobe}.
 
 First step is to modify the configuration file to include this line, just
 after the @code{<configuration>} line:
+
+@cindex Authentication
 
 @example
 <control port="8888" username="admin" password="mypassword"/>
@@ -666,12 +740,17 @@ Note also that you may get some weird results if you use the configuration
 file AND the control interface to manage the same resources, so you probably
 don't want to do that.
 
+@cindex @command{cyberprobe_cli}
+
 FIXME: The @command{cyberprobe_cli} command can be used to access the
 management interface but provides a (slightly) nicer @code{readline}
 interface, and has auto-completion.
 
 @node Integration with @command{snort}
 @section Integration with @command{snort}
+
+@cindex @command{snort}, integration
+@cindex Integration with @command{snort}
 
 In this step, we'll add the excellent IDS, Snort to the mix. If you don't
 know Snort, it scans network traffic for patterns, and can take various
@@ -691,12 +770,16 @@ you'll want to make sure your Snort configuration file
 (@file{/etc/snort/snort.conf}) loads a local rules file. So, it should
 contain something like this:
 
+@cindex @command{snort}, rules
+@cindex @command{snort}, signatures
+
 @example
 # site specific rules
 include $RULE_PATH/local.rules
 @end example
 
-Then, to identify your workstation, add a rule like this to your local rules file (@file{/etc/snort/rules/local.rules}):
+Then, to identify your workstation, add a rule like this to your local rules
+file (@file{/etc/snort/rules/local.rules}):
 
 @example
 alert tcp 192.168.1.80 any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
@@ -719,6 +802,8 @@ remove the static IP address target line. Find this line and delete it:
 @end example
 
 @command{cyberprobe} should respond:
+
+@cindex @command{snort} alerts
 
 @example
 Removed target 192.168.1.80 -> 123456.
@@ -759,6 +844,9 @@ knowing.
 
 @heading Introducing a delay
 
+@cindex @command{cyberprobe}, delay
+@cindex Delay
+
 Your Snort integration suffers from a particular problem now. The time taken
 for Snort to inspect some packets, generate an alert and for
 @command{cyberprobe} to get the IP address targeted is not zero. It is hard
@@ -794,17 +882,22 @@ analyse and act on the captured data.
 
 @heading Introducing @command{cybermon}
 
+@cindex @command{cybermon}
+@cindex @command{cybermon}, configuration
+
 The previous 9 steps have all been about @command{cyberprobe}. If you've got
 this far successfully, you pretty much know all there is to know about
 @command{cyberprobe}. It is time to start doing something more useful with
 all that data you are capturing. In this step we'll start up
 @command{cybermon} and look at the data.
 
+@cindex @file{cybermon.lua}
+
 Remember that @command{etsi_rcvr} command you started in step @ref{Adding an
 endpoint}? Stop that, and start @command{cybermon}. Two arguments are
 needed: A TCP port number to receive the data on, and a configuration which
 tells it what to do. A number of configuration files are bundled in with the
-source code, there should be a basic one called @command{cybermon}.lua which
+source code, there should be a basic one called @file{cybermon.lua} which
 is now installed in the etc directory, depending on where you installed the
 software:
 
@@ -819,6 +912,8 @@ for @code{www.google.com}...
 @example
 host -t a www.slashdot.org
 @end example
+
+@cindex DNS
 
 The DNS protocol is parsed, and presented in a human readable form. I can
 see the request, and the response:
@@ -873,6 +968,8 @@ In the previous step, you started @command{cybermon} with the cybermon.lua
 configuration file. Have a play with a couple of the others. Configuration
 file hexdump.lua produces little hex dumps of things like HTTP bodies:
 
+@cindex @file{hexdump.lua}
+
 @example
 cybermon 10000 /usr/local/etc/cyberprobe/hexdump.lua
 @end example
@@ -897,6 +994,9 @@ at it. It consists of a bunch of functions written in the LUA language. LUA
 is a lightweight scripting langauge which is really good as a configuration
 language. For example, this function is called when a TCP connection is
 made:
+
+@cindex @code{connection_up}
+@cindex @code{http_response}
 
 @example
 observer.connection_up = function(context)
@@ -970,9 +1070,17 @@ http://pagead2.googlesyndication.com/pag                      0
 
 @heading Forging a TCP reset
 
+@cindex TCP reset
+@cindex Packet forgery
+
 So far, this has just been monitoring. It's time to add data to the network!
 From the LUA functions, there are a couple of functions available which
 allow you to put some packets back onto the network.
+
+@cindex Packet forgery
+@cindex Packet injection
+@cindex @command{cyberprobe}, delay
+@cindex Delay
 
 But first... there's a problem. You remember in step 9, we added a delay?
 That's not going to work with packet forgery, because by the time we've
@@ -995,6 +1103,8 @@ The LUA interface passes a context variable to many of the LUA functions,
 which gives access to @command{cybermon} information and the packet forgery
 functions. In this step, we're going to forge a TCP reset on any connections
 which are from or to port 80. Hack the configuration file:
+
+@cindex @code{context}
 
 @example
 observer.connection_up = function(context)
@@ -1064,6 +1174,8 @@ end
 
 @heading Forging a DNS response
 
+@cindex Forging, DNS response
+
 In this step, we'll detect a particular DNS request, and forge a
 response. First of all, you'll need to familiarise yourself with host which
 is a useful DNS test tool. e.g.
@@ -1075,6 +1187,8 @@ example.org has address 93.184.216.119
 
 The @code{example.org} name has been resolved to a particular IP
 address. Let's hack the DNS request function in my.lua:
+
+@cindex @code{dns_message}
 
 @example
 -- This function is called when a DNS message is observed.
@@ -1138,6 +1252,10 @@ FIXME: Above should be a reference link.
 @node Visualisation
 @section Visualisation
 
+@cindex Visualisation
+@cindex ElasticSearch
+@cindex Storing observations
+
 This is the most incomplete part of @command{Cyberprobe}. Look at this part
 as demonstrating what might be possible. If you find this interesting, and
 feel you could turn this into something more impressive, well... there's a
@@ -1180,6 +1298,8 @@ wget -q -O- http://localhost:9200
 
 The response will look something like this:
 
+@cindex JSON
+
 @example
 @{
   "ok" : true,
@@ -1196,11 +1316,16 @@ The response will look something like this:
 @}
 @end example
 
-Once ElasticSearch is running, you can get @command{cybermon} to load observations into it by using the cyberdb.lua configuration file. So if you're continuing the tutorial, you can stop @command{cybermon}, and run:
+Once ElasticSearch is running, you can get @command{cybermon} to load
+observations into it by using the cyberdb.lua configuration file. So if
+you're continuing the tutorial, you can stop @command{cybermon}, and run:
 
+@example
 cybermon 10000 /usr/local/etc/cyberprobe/cyberdb.lua
+@end example
 
-After some network data has been observed, you should be able to see results loaded into ElasticSearch using the following command:
+After some network data has been observed, you should be able to see results
+loaded into ElasticSearch using the following command:
 
 @example
 curl -s -XPOST "http://localhost:9200/cybermon/observation/_search?pretty=true" -d '
@@ -1212,7 +1337,10 @@ curl -s -XPOST "http://localhost:9200/cybermon/observation/_search?pretty=true" 
 '
 @end example
 
-You should see some stuff which looks like data scrolling past on the screen. If your response looks like the following result, that's not so good, as it means there are no results. See hits.total? Zero means no results.
+You should see some stuff which looks like data scrolling past on the
+screen. If your response looks like the following result, that's not so
+good, as it means there are no results. See @code{hits.total}? Zero means no
+results.
 
 @example
 @{
@@ -1239,6 +1367,9 @@ ElasticSearch. Each observation is stored with a 1 hour time-to-live, to
 the information is not stored for long.
 
 @heading Visualising observations
+
+@cindex Kibana, dashboard
+@cindex Dashboard
 
 Having loaded the observations into ElasticSearch, it's easy to do some
 visualisation with Kibana. Kibana is a brilliant, user-configurable
@@ -1286,6 +1417,12 @@ dashboard. That way you don't have to keep loading the schema.
 @node Threat indicators using STIX
 @section Threat indicators using STIX
 
+@cindex STIX
+@cindex TAXII
+@cindex STIX indicators
+@cindex Threat indicators
+@cindex Cyber threat indicators
+
 We've been experimenting with an open model for describing cyber
 threats. STIX is a community-driven effort to standardise a model for cyber
 theat information. TAXII defines a set of services for distributing STIX
@@ -1301,18 +1438,22 @@ There's a simple CSV file format we've created to describe cyber
 threats. This is just for convenience.
 
 @item
+@cindex @command{stix-create}
 A script, @command{stix-create} which reads the above configuration file,
 and converts into a STIX document containing Indicator objects.
 
 @item
+@cindex @command{taxii-server}
 A script, @command{taxii-server} which acts as a very simple TAXII server,
 serving up STIX documents.
 
 @item
+@cindex @command{taxii-client}
 A script, @command{taxii-client} which connects to a TAXII server, gets STIX
 documents and dumps some stuff out.
 
 @item
+@cindex @command{taxii-sync-json}
 A script @command{taxii-sync-json} which connects to a TAXII server, gets
 STIX documents, massages the whole lot into a single JSON form, and dumps
 that to a file.
@@ -1322,6 +1463,11 @@ A configuration file for @command{cybermon} which reads the JSON threat
 information and reports when theats are observed.
 
 @end itemize
+
+@cindex @code{pyOpenSSL}
+@cindex @code{libtaxx}
+@cindex @code{stix}
+@cindex @code{pip}
 
 Before taking this any further, you need to have Python installed, along
 with various dependencies (@code{pyOpenSSL}, @code{libtaxii} and
@@ -1380,6 +1526,8 @@ This should create a JSON file called @file{stix-default-combined.json}.
 
 Finally, stop any running @command{cybermon} processes, and run
 @command{cybermon} with a configuration file which reads the JSON file.
+
+@cindex @file{stix-alert.lua}
 
 @example
 cybermon 10000 /usr/local/etc/cyberprobe/stix-alert.lua
@@ -1445,6 +1593,17 @@ you found the experience.
 
 @node @command{cyberprobe} configuration
 @section @command{cyberprobe} configuration
+@cindex @command{cyberprobe}, configuration
+@cindex @command{cyberprobe}, @code{control}
+@cindex @command{cyberprobe}, @code{interfaces}
+@cindex @command{cyberprobe}, @code{targets}
+@cindex @command{cyberprobe}, @code{endpoints}
+@cindex @command{cyberprobe}, @code{snort_alert}
+@cindex @code{control}
+@cindex @code{interfaces}
+@cindex @code{targets}
+@cindex @code{endpoints}
+@cindex @code{snort_alert}
 
 The configuration file is re-read when it changes, and changes are
 immediately actioned.
@@ -1547,7 +1706,7 @@ Sample configuration:
 The @code{control} element is optional, if it exists, @command{cyberprobe} runs
 a management interface on the specified port. The @code{port},
 @code{username} and @code{password} attributes must be specified. See
-@xref{Management interface} for how to communicate with that interface.
+@ref{Management interface} for how to communicate with that interface.
 
 The @code{interfaces} block defines a set of interfaces to sniff. The
 @code{name} attribute is mandatory, the @code{filter} element is optional,
@@ -1585,6 +1744,14 @@ optional, meaningless defaults (e.g. unknown) will be used if not specified.
 @node Output streaming protocols
 @section Output streaming protocols
 
+@cindex NHIS 1.1 LI
+@cindex ETSI LI
+@cindex NHIS 1.1
+@cindex ETSI
+@cindex ETSI TS 102 232-1
+@cindex TS 102 232-1
+@cindex LIID
+
 @command{cyberprobe} supports packet output in one of two output formats,
 which are both LI formats. LI formats were chosen as they set good, open
 standards for streaming packets to a destination. There are also existing
@@ -1592,6 +1759,9 @@ security products such as firewalls, and analysis tools which understand
 with these protocols. The two formats are ETSI LI and NHIS 1.1.
 
 @heading ETSI
+
+@cindex TS 102 232-3
+@cindex ETSI TS 102 232-3
 
 The first of the formats supported is the ETSI LI format (see ETSI TS 102
 232), which is used in Europe and internationally. The protocol is described
@@ -1604,7 +1774,10 @@ Those adverse to the use of ASN.1 technology may prefer the second format.
 
 @heading NHIS 1
 
-NHIS 1.1 which was defined for use in the UK in the late 90s, based on GLIC
+@cindex TS 101 671
+@cindex ETSI TS 101 671
+
+NHIS 1.1 which was defined for use in the UK in the 90s, based on GLIC
 in ETSI TS 101 671. The protocol is a much simpler header protocol than ETSI
 LI, and needs less work to decode.
 
@@ -1656,6 +1829,7 @@ nhis11_rcvr 10000 | tcpdump -n -r-
 
 @node Management protocol
 @section Management protocol
+@cindex Management protocol
 
 @heading Overview
 
@@ -1862,6 +2036,9 @@ return observer
 
 @heading LUA event calls
 
+@cindex LUA events
+@cindex @code{cybermon} events
+
 The configuration file is expected to provide the following functions, which
 are called in response to @command{cybermon} events.
 
@@ -1963,6 +2140,9 @@ observed.
 
 @heading Context object
 
+@cindex @code{context} object
+@cindex @code{cybermon} @code{context} object
+
 From the LUA code there, the @code{context} variable has a number of method
 functions which can be called:
 
@@ -2030,6 +2210,7 @@ protocol data in the DNS encoder.
 
 @node Architecture
 @chapter Architecture
+@cindex Cyberprobe, architecture
 
 Cyberprobe consists of a set of loosely-coupled components which can be
 used together. We prefer to use simple interfaces, and prefer to use
