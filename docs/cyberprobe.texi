@@ -1,0 +1,1186 @@
+\input texinfo   @c -*-texinfo-*-
+
+@comment $Id@w{$}
+@comment %**start of header
+@setfilename cyberprobe.info
+@include version.texi
+@settitle Cyberprobe @value{VERSION}
+@syncodeindex pg cp
+@comment %**end of header
+
+@copying
+This manual is for Cyberprobe (version @value{VERSION}, @value{UPDATED}),
+which is an example in the Texinfo documentation.
+
+Copyright @copyright{} 2013-2014 Cyber MacGeddon
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+@end copying
+
+@dircategory Texinfo documentation system
+@direntry
+* overview: (overview)Overview.
+@end direntry
+
+@titlepage
+@title Cyberprobe
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Cyber MacGeddon (@email{cyberprobe-general@@lists.sourceforge.net})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@c @ifnottex
+@node Top
+@top Cyberprobe
+
+@image{cyberprobe, extension=png}
+
+This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
+
+Cyberprobe is a distrbuted architecture for real-time monitoring of networks
+against attack. The software consists of a number of components, including:
+
+@itemize @bullet
+
+@item
+a probe, which collects data packets and forwards it over a network in
+standard streaming protocols.
+
+@item
+a monitor, which receives the streamed packets, decodes the protocols, and
+interprets the information.
+
+@end itemize
+
+These components can be used together or separately. For a simple
+configuration, they can be run on the same host, for more complex
+environments, a number of probes can feed a single monitor. For more detail,
+and to see where we are going, read the @ref{Architecture} page.
+
+@c @end ifnottex
+
+@menu
+* Overview::
+* Architecture::
+* Quick start tutorial::
+* Obtaining code::
+* GNU Free Documentation License::
+* Index::
+@end menu
+
+@node Overview
+@chapter Overview
+
+@heading Summary
+
+Cyberprobe is a distrbuted architecture for real-time monitoring of networks
+against attack. The software consists of a number of components, including:
+
+@itemize @bullet
+
+@item
+a probe, which collects data packets and forwards it over a network in
+standard streaming protocols.
+
+@item
+a monitor, which receives the streamed packets, decodes the protocols, and
+interprets the information.
+
+@end itemize
+
+These components can be used together or separately. For a simple
+configuration, they can be run on the same host, for more complex
+environments, a number of probes can feed a single monitor. For more detail,
+and to see where we are going, read the @ref{Architecture} page.
+
+The probe, cyberprobe has the following features:
+
+@itemize @bullet
+
+@item
+The probe can be tasked to collect packets from an interface and forward any
+which match a configurable address list.
+
+@item
+The probe can be configured to receive Snort alerts. In this configuration,
+when an alert is received from Snort, the IP source address associated with
+the alert is dynamically targeted for a period of time. In such a
+configuration, the system will collect data from any network actor who
+triggers a snort rule and is thus identified as a potential attacker.
+
+@item
+The probe can optionally run a management interface which allows remote
+interrogation of the state, and alteration of the configuration. This
+allows dynamic alteration of the targeting map, and integration with other
+systems.
+
+@item
+The probe can be configured to deliver on one of two standard stream
+protocols.
+
+@end itemize
+
+The monitor tool, cybermon has the following features:
+
+@itemize @bullet
+
+@item
+Collects packets delivered in stream protocols.
+
+@item
+Decodes packet protocols in and raises events in near-real-time.
+
+@item
+Decoded information is made available to user-configurable logic to define
+how the decoded data is handled. A simple configuration language is used
+(LUA) and example configurations are provided to monitor data volumes,
+display data hexdumps, or stash the data in files.
+
+@item
+Packet forgery techniques are included, which allow resetting TCP
+connections, and forging DNS responses. This can be invoked from your LUA in
+order to fight back against attacks on your network.
+
+@item
+Supports IP, TCP, UDP, ICMP, HTTP and DNS protocols, currently.
+
+@end itemize
+
+The cybermon software is a bit of a work-in-progress at the moment, and
+needs more protocols added, but there's enough capability to be useful, and
+to demonstrate the value of this architecture.
+
+The code is targeted at the Linux platform, although it is generic enough to
+be applicable to other UN*X-like platforms.
+
+The easiest way to learn about the software is to follow our Quick Start
+tutorial.
+
+@heading Motivation
+
+Cyberprobe started out as a research tool to study networked applications to
+find out what they were doing, as we all know how software suppliers
+sometimes like to add some "extras" to their software :). So, a simple tool
+to configure how packets are captured from a network was produced. But as
+you are probably aware, the biggest threat to the safety of your information
+is from outside of your network. Thus, the ability to trigger collection of
+packets upon detection of a Snort rule hit was added.
+
+Snort is a powerful IDS system which studies packets on your network,
+analyses them against a set of signatures and creates logs and alerts. We
+felt there was a need to harness the Snort alerts, but use them to trigger
+collection and forwarding of packets from the address which caused the
+alert.
+
+You may be asking why you'd want to use Cyberprobe? After all, monitoring
+networks with tcpdump and Snort and collecting alerts and packet data for
+analysis is a straightforward process for many networks. However, real-time
+analysis is not possible if everything is file based. Collecting the data
+and forwarding over the network to a central collection point allows for a
+much more "industrialised" approach to intrusion detection. If you detect an
+attack attempt, and then observe vast quantities of data leaving your
+network from the credit card accounts database, then you know you need to
+act quickly.
+
+You need flexibility about how you monitor for network attacks. There isn't
+a one-size-fits-all solution. Attackers are ingenious in their approach to
+attacking your network, so you need to have a flexible, configurable
+monitoring tool to develop your defences.
+
+@heading Warning
+
+There's a war coming... The enemy is resourceful, they can use your networks
+and systems as their own weapon. But with the right tools, you can prepare a
+defence. It's time to get ready for Cybermaggedon.
+
+@heading Revision history
+
+Cyberprobe releases:
+
+@table @code
+
+@item 0.50
+ElasticSearch integration improved to get a much tighter integration with
+Kibana for a network dashboard. Also bug-fixes for memory management / lock
+problems.
+
+@item 0.40
+Now includes prototype STIX support: A TAXII server allows distrubution of
+threat information, and a TAXII client can read indicator information and
+store in a way that cybermon can use.
+
+@item 0.30
+The build process now uses the GNU toolset. It detects the LUA interface and
+can compile against LUA 5.1 and 5.2. Successfully compiled on a MacBook!
+
+@item 0.25
+Added SMTP and FTP capability. Also added a primitive mechanism to visualise
+network observations.
+
+@item 0.20
+HTTP and DNS protocol capability. TCP reset and DNS packet forgery
+added. Major overhaul of the LUA language interface.
+
+@item 0.12
+Cybermon utility is configurable using LUA.
+
+@item 0.11
+Added basic cybermon utility.
+
+@item 0.10
+Added management interface.
+
+@item 0.9
+First release on SourceForge.
+
+@end table
+
+@node Architecture
+@chapter Architecture
+
+Cyberprobe consists of a set of loosely-coupled components which can be
+used together. We prefer to use simple interfaces, and prefer to use
+interfaces which are standards. Here's how we envisage these components
+being used:
+
+@table @code
+
+@item cyberprobe
+is a network sniffer which collects packets which match an IP address
+list. The packets collected are streamed using network streaming
+protocols. The IP address match list can be statically configured (in a
+configuration file), can be dynamically changed using a management
+interface, or can be dynamically changed as a result of Snort alerts.
+
+@item cybermon
+receives packets from cyberprobe, analyses them and generates
+session/transport level events which result in user-configurable
+actions. For each event, a call is made to a Lua script which the caller
+provides.
+
+@item stix-db.lua
+is a cybermon configuration file we provide. It translates the cybermon
+events into a JSON description which is fed into an ElasticSearch
+database. This configuration file also reads a STIX configuration file for
+cyber threat indicators. When these indicators are observed, the indicator
+meta-data is also added to the JSON events.
+
+@item taxii-server
+is a TAXII compliant server, which is used to distribute STIX rules over
+HTTP.
+
+@item taxii-client-json
+is a TAXII compliant client, which fetches STIX data over TAXII and write it
+to a JSON file in a way that @code{stix-db.lua} can read.
+
+@item snort
+is not part of cyberprobe, but it's a great NIDS, so we use that.
+
+@end table
+
+@image{architecture, extension=png}
+
+@node Quick start tutorial
+@chapter Quick start tutorial
+
+@menu
+* Preparation::
+* Running @command{cyberprobe}::
+* Management interface::
+* Integration with @command{snort}::
+@end menu
+
+@node Preparation
+@section Preparation
+
+@heading Build software
+
+There's a fair amount of development taking place in the git repository, so
+you probably want to get the latest release on the downloads page. Download,
+unpack, and compile. The configure option 'prefix' can be used to say where
+the software will install. Choose a location or go with @file{/usr/local}.
+
+@example
+./configure --prefix=/usr/local
+make
+sudo make install
+@end example
+
+But if you do want to track the latest code, checkout the latest code from git:
+
+@example
+git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+@end example
+
+Compilation is a little more long-winded if you use the git source:
+
+@example
+autoreconf -fi
+./configure --prefix=/usr/local
+make
+sudo make install
+@end example
+
+The code doesn't have many dependencies. Exotic dependencies are:
+
+@itemize
+
+@item
+Boost regex.
+
+@item
+Boost shared pointer.
+
+@item
+LUA - 5.1 or later.
+
+@item
+GCC C++ compiler and development support.
+
+@item
+libpcap.
+
+@item
+Expat (XML parser).
+
+@item
+tcpdump - not needed to build the software, but we use it in this tutorial.
+
+@item
+telnet - not needed to build the software, but we use it in this tutorial.
+
+@end itemize
+
+Note: on many platforms, installing a package just adds the "run time" part
+of the code. In order to be able to compile code against the run time, you
+need to install a separate "developers kit" package. On Fedora, for
+instance, both @code{libpcap} and @code{libpcap-devel} are needed in order to
+be able to build this code.
+
+The compilation process compiles the following executables:
+
+@table @command
+
+@item cyberprobe
+The Cyber Probe executable.
+
+@item cybermon
+Data analyser, analyses the data streams and reports events.
+
+@item etsi_rcvr
+Test decoder for ETSI format data.
+
+@item nhis11_rcvr
+Test decoder for NHIS1.1 format data.
+
+@item cybermon_cli
+Cyberprobe control command-line client.
+
+@end table
+
+FIXME: Mention packaging, and downloading packages.
+
+If that builds without errors, then it's time to start something up.  If you
+have problems you can't resolve head to the discussion forums.
+
+@heading Establish network parameters
+
+The simplest way to use cyberprobe is to use it on a Linux workstation, or
+in a virtual machine.  Maybe you're using a Linux desktop now now?  If so,
+you could use it to capture all the data going to/from the internet. This
+will be a static configuration in order to keep things simple. We'll do
+dynamic tracking later.
+
+In the next few steps, you'll use @command{cyberprobe} to capture some data,
+on your workstation, and stream it to @command{etsi_rcvr} so that you know it's
+working. But first, you'll need to collect some information about your
+configuration.
+
+You need to know the name of the network interface you are using. The
+command @command{/sbin/ifconfig} will show you all the network interfaces
+your machine knows about. e.g.
+
+@example
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10
+        [etc.]
+
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.80  netmask 255.255.255.0  broadcast 192.168.1.255
+        inet6 fe80::a60:6eff:fe81:7a75  prefixlen 64  scopeid 0x20
+        [etc.]
+@end example
+
+The lo interface is a loopback interface, and isn't really on the network,
+so ignore that. It's an interface that gets packets going to
+@code{127.0.0.1} and makes sure they end up handled by your
+workstation. Your interface is quite likely to be called something like
+eth0. The other thing you need to know is the IP address of your
+workstation. The IP address is associated with an interface, so in the above
+example, I can see I have an IP address @code{192.168.1.80}.
+
+Note: on some networks (like mine) the IP address is allocated
+dynamically. In my case, the IP address is allocated by the broadband
+router. If things aren't working as you expect, you should check your IP
+address to check your workstation hasn't been allocated a new, different
+address. In my case, I can tell the broadband router to permanently allocate
+a particular IP address to this workstation, so that it won't change.
+
+@node Running @command{cyberprobe}
+@section Running @command{cyberprobe}
+
+@heading Starting cyberprobe with a configuration file
+
+The source code contains a file @file{config.xml} which is a good template
+for any configuration you're going to build. However, for the purpose of
+this discussion, let's start from scratch. In order to do anything useful,
+there are three essential elements to a cyberprobe configuration file:
+interfaces, targets and endpoints. The system won't do anything useful
+without those three configuration elements defined. Let's start with a very
+simple configuration.
+
+Using your favourite text editor, create a text file, say c.xml with the
+following contents:
+
+@example
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<configuration>
+
+  <interfaces>
+    <interface name="eth0"/>
+  </interfaces>
+
+  <targets>
+  </targets>
+
+  <endpoints>
+  </endpoints>
+
+</configuration>
+@end example
+
+Note: You should replace the @code{eth0} string with the name of your
+network interface. Remember? We discovered that when playing with the
+@command{ifconfig} command.
+
+We're ready to roll. We need to run as a privileged used because cyberprobe
+captures data off the network interface. So, running as root, you need to
+locate the place where you compiled the code, and run @command{cyberprobe}
+giving it the name of the configuration file you just created:
+
+@example
+cyberprobe c.xml
+@end example
+
+If everything goes to plan, you should see the following output:
+
+@example
+Capture on interface eth0 started.
+@end example
+
+If you see an error message, the obvious two things to check are:
+
+@itemize
+
+@item
+Did you name a network interface correctly? See @command{ifconfig}
+discussion above.
+
+@item
+Are you running as a privileged user?
+
+@end itemize
+
+If you see no output at all, check that your configuration file is correct.
+
+Once you are seeing the "Capture on interface eth0" line, then you've
+achieved success in this step, and are ready to move on.
+
+If you have everything working, there's one thing to note before moving on:
+cyberprobe treats a broken configuration file the same as an empty
+configuration file. With cyberprobe running, edit the configuration file,
+and delete the query (@samp{?}) prefix in the first line, so that it looks like
+this:
+
+@example
+<xml version="1.0" encoding="ISO-8859-1"?>
+@end example
+
+You've now broken the configuration file. It's not valid XML any more, so
+the parsing fails. You should see this output from @command{cyberprobe}:
+
+@example
+Capture on interface eth0 stopped.
+@end example
+
+If you repair the damage to the configuration file, everything will start
+working again. The lesson here is: If you find that @command{cyberprobe}
+won't recognise any resources, it's likely that your configuration file is
+invalid. The utility @command{xmlwf}x can be useful to check that an XML
+configuration file is valid, if you're not getting the results you expect.
+
+@heading Adding a target
+
+We have @command{cyberprobe} running, but it isn't doing anything
+useful. Remember, I said that a useful configuration consists of three
+minimal elements: interfaces, targets and endpoints? Well, currently we only
+have interfaces defined. That means that @command{cyberprobe} is capturing
+packets off of the network, but throwing them away.
+
+Let's add a target. Edit the targets block of the configuration file. We
+need an entry describing the IP address of my workstation. Remember? We
+discovered that with the ifconfig command earlier? Instead of
+@code{192.168.1.80} use the IP address of your workstation.
+
+@example
+<targets>
+  <target address="192.168.1.80" liid="123456"/>
+</targets>
+@end example
+
+If successful, you should see new output from @command{cyberprobe}:
+
+@example
+Added target 192.168.1.80 -> 123456.
+@end example
+
+At this step, we're capturing packets, spotting target addresses, but as
+there's no endpoint defined there's still nowhere to send the data. So, this
+is still a useless configuration. On to the next step...
+
+@heading Adding an endpoint
+
+Adding an endpoint to the configuration file will define a place where the
+captured data is sent. Before adding an endpoint, let's make sure there's
+something ready to receive the data.
+
+In a separate terminal window, navigate to the @command{cyberprobe} build,
+and run:
+
+@example
+etsi_rcvr 10000 | tcpdump -n -r -
+@end example
+
+The @command{etsi_rcvr} program opens a TCP port listening on port 10000 for
+a stream of ETSI data, and on standard output, writes the IP packets it sees
+in PCAP format. The tcpdump command receives this PCAP data, and outputs
+packet summaries.
+
+If that starts successfully, the next step is to plumb a connection from
+@command{cyberprobe} to @command{etsi_rcvr}.
+
+Next, edit the configuration file, and edit the endpoints block to deliver
+packets to a local service on port 10000:
+
+@example
+<endpoints>
+  <endpoint hostname="localhost" port="10000" type="etsi"/>
+</endpoints>
+@end example
+
+If that worked, you should see @command{cyberprobe} start the endpoint:
+
+@example
+Added endpoint localhost:10000 of type etsi
+@end example
+
+Hopefully you'll start to see some output from tcpdump...
+
+@heading Capturing data
+
+At this step, @command{cyberprobe} should be forwarding an network traffic
+your workstation generates to the tcpdump command, so that you see data. Any
+average workstation is generating network traffic all the time, so you won't
+need to do anything. But if you see nothing, you can do something like,
+visit the Google home page in a browser on your workstation. You should see
+something like this pouring from the tcpdump.
+
+@example
+18:54:24.376838 IP 192.168.1.80.54249 > 212.58.244.71.http: Flags [P.], seq 
+1:673, ack 1, win 115, options [nop,nop,TS val 129851063 ecr 3366955869], l
+ength 672
+18:54:24.390768 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [.], ack 
+673, win 124, options [nop,nop,TS val 3366955882 ecr 129851063], length 0
+18:54:24.392909 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [P.], seq 
+1:1796, ack 673, win 124, options [nop,nop,TS val 3366955884 ecr 129851063],
+ length 1795
+@end example
+
+At this step, it's worth having a quick play with the reconnection
+mechanism. Stop and start @command{etsi_rcvr}, and you'll see that
+@command{cyberprobe} reconnects automatically:
+
+@example
+ETSI LI connection to localhost:10000 failed.
+Will reconnect...
+ETSI LI connection to localhost:10000 established.
+@end example
+
+We don't guarantee zero data loss on a reconnect.
+
+@node Management interface
+@section Management interface
+
+At this step, we'll setup a control port, and use it modify the
+configuration of @command{cyberprobe}.
+
+First step is to modify the configuration file to include this line, just
+after the @code{<configuration>} line:
+
+@example
+<control port="8888" username="admin" password="mypassword"/>
+@end example
+
+That declares that a management service needs to be run on port 8888. The
+authentication details are provided too. You should see this output from
+@command{cyberprobe}:
+
+@example
+Starting control on port 8888
+@end example
+
+That's good! Now need to connect and interrogate the targets list: I use
+telnet to connect, the auth command to authenticate, and the target command
+to see a list of commands.
+
+@example
+$ telnet localhost 8888
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+auth admin mypassword
+200 Authenticated.
+targets
+201 Targets list follows.
+25
+123456:ipv4:192.168.1.80
+@end example
+
+I can use the help command to see the full list of commands permitted. There
+are commands for changing the address target list:
+
+@example
+targets
+201 Targets list follows.
+25
+123456:ipv4:192.168.1.80
+remove_target ipv4 192.168.1.80
+200 Removed target.
+add_target 654321 ipv4 192.168.1.80
+200 Added target.
+@end example
+
+The interface isn't pretty, but you get the idea. You can change almost
+everything that you can manage by changing the configuration file.
+
+Note: The the management interface changes the active state of
+@command{cyberprobe} but it doesn't change the configuration file. So,
+configuration changes made through the management interface are 'lost' when
+you restart @command{cyberprobe}.
+
+Note also that you may get some weird results if you use the configuration
+file AND the control interface to manage the same resources, so you probably
+don't want to do that.
+
+FIXME: The @command{cyberprobe_cli} command can be used to access the
+management interface but provides a (slightly) nicer @code{readline}
+interface, and has auto-completion.
+
+@node Integration with @command{snort}
+@section Integration with @command{snort}
+
+In this step, we'll add the excellent IDS, Snort to the mix. If you don't
+know Snort, it scans network traffic for patterns, and can take various
+actions when those patterns are discovered. It is typically used to detect
+network attacks, and the Snort folks maintain a huge collection of patterns
+that will identify known network attacks. The Snort team maintain the
+project at www.snort.org.
+
+If you want to try out the Snort integration, you need to head over to the
+Snort home page, download and install Snort.
+
+Once you have it installed, to simplify things, you'll want to put a rule in
+place that will definitely identify things on your network. The easiest way
+is to add a local rule that identifies your workstation. First of all,
+you'll want to make sure your Snort configuration file
+(/etc/snort/snort.conf) loads a local rules file. So, it should contain
+something like this:
+
+@example
+# site specific rules
+include $RULE_PATH/local.rules
+@end example
+
+
+Then, to identify your workstation, add a rule like this to your local rules file (/etc/snort/rules/local.rules):
+
+alert tcp 192.168.1.80 any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
+
+@command{Cyberprobe} itself needs to be configured to receive Snort alerts. You do that by adding some configuration, just after the <configuration> line:
+
+   <snort_alert socket="/var/log/snort/snort_alert" duration="60"/>
+
+That says, Snort alerts will result in dynamic collection of data for 60 seconds from identification. While you're in the configuration file, you can remove the static IP address target line. Find this line and delete it:
+
+    <target address="192.168.1.80" liid="123456"/>
+
+@command{Cyberprobe} should respond:
+
+Removed target 192.168.1.80 -> 123456.
+Start snort alerter on /var/log/snort/snort_alert
+
+Now I can run Snort in IDS mode. Snort needs to run as 'root':
+
+snort -i eth0 -A unsock -N -l /var/log/snort/ -c /etc/snort/snort.conf 
+
+Thanks to our Snort rule, when our workstation generates network data, Snort will detect it, trigger our rule, and alert @command{Cyberprobe}. You should see @command{Cyberprobe} say:
+
+Hit on signature ID 200, targeting 192.168.1.80
+
+Also, once the rule is triggered, you should see evidence of packet data from the tcpdump command, as before. @command{Cyberprobe} causes the targeting to time out after a period of time. If further alerts are seen, the targeting lifetime is targeted. If no further alerts are seen the IP address targeting is deleted. If you can convince your workstation to stop creating network data, by e.g. not using it for a minute or so, then you should see the rule time out:
+
+Stopped targeting on 192.168.1.80
+
+In practice this may be harder than you think, as workstations generate network traffic all the time. You may have to turn off your email clients and close the web browse. Your attempt to silence your workstation may be further thwarted by the operating system checking for patches without you knowing.
+Step 9: Introducing a delay
+
+Your Snort integration suffers from a particular problem now. The time taken for Snort to inspect some packets, generate an alert and for @command{cyberprobe} to get the IP address targeted is not zero. It is hard to measure, but it is going to be a significant chunk of a millisecond. The problem is that by the time @command{cyberprobe} is targeting the IP address, the network attcker's packets have long gone. The result is, that while @command{cyberprobe} is now targetting the attacker, it won't capture the original network attack.
+
+Our solution is to introduce a packet delay in @command{cyberprobe}. The packets entering @command{cyberprobe} are kept in a time-delay queue and are processed once that delay expires. You can configure a delay, by putting the delay attribute in an interface specfication. e.g.
+
+  <interfaces>
+    <interface name="eth0" delay="0.2"/>
+  </interfaces>
+
+0.2 second should be plenty enough. You should be able to see this delay in action: When you generate network traffic, you should be able to see the delay between network activity taking place, and the corresponding burst of activity from tcpdump.
+
+At this point, you've completed the guided tour of @command{cyberprobe}, the packet capture tool. If that's all you need, the rest of the tutorial will probably have less interest to you: In the following steps, we'll start to analyse and act on the captured data.
+Chapter II: Cybermon
+Step 10: Introducing Cybermon
+
+The previous 9 steps have all been about @command{cyberprobe}. If you've got this far successfully, you pretty much know all there is to know about @command{cyberprobe}. It is time to start doing something more useful with all that data you are capturing. In this step we'll start up cybermon and look at the data.
+
+So, that @command{etsi_rcvr} you started in step 5? Stop that, and start cybermon. Two arguments are needed: A TCP port number to receive the data on, and a configuration which tells it what to do. A number of configuration files are bundled in with the source code, there should be a basic one called cybermon.lua which is now installed in the etc directory, depending on where you installed the software:
+
+cybermon 10000 /usr/local/etc/cyberprobe/cybermon.lua
+
+Now when you generate network traffic, some of the traffic will be presented in a reasonably intelligent form. For example, I do a naming service lookup for www.google.com...
+
+host -t a www.slashdot.org
+
+The DNS protocol is parsed, and presented in a human readable form. I can see the request, and the response:
+
+SNORTc0a80150: 192.168.1.80:54633 -> 192.168.1.1:53. DNS query
+    Query: www.slashdot.org
+
+SNORTc0a80150: 192.168.1.1:53 -> 192.168.1.80:54633. DNS response
+    Query: www.slashdot.org
+    Answer: www.slashdot.org -> 216.34.181.48
+
+I see the query travelling from my workstation to the broadband router, and then the response from the broadband router contains an answer field mapping the name to an address. HTTP protocols are also decoded. Get the Slashdot home page...
+
+wget -O- 'http://www.slashdot.org/'
+
+...and amongst all the other stuff, you see the HTTP request and response...
+
+SNORTc0a80150: 192.168.1.80:34284 -> 216.34.181.45:80. HTTP GET request
+    URL /
+    Connection: Keep-Alive
+    User-Agent: Wget/1.14 (linux-gnu)
+    Host: slashdot.org
+    Accept: */*
+
+SNORTc0a80150: 216.34.181.45:80 -> 192.168.1.80:34284. HTTP response 200 OK
+    URL http://slashdot.org/
+    Connection: keep-alive
+    Content-Length: 113468
+    Date: Mon, 26 Aug 2013 13:13:25 GMT
+    Age: 17
+    X-Varnish: 1493567531 1493567417
+    X-XRDS-Location: http://slashdot.org/slashdot.xrds
+    Cache-Control: no-cache
+    Vary: Accept-Encoding
+    SLASH_LOG_DATA: shtml
+    Pragma: no-cache
+    Content-Type: text/html; charset=utf-8
+    Server: Apache/2.2.3 (CentOS)
+
+Step 11: Trying other configuration files
+
+In the previous step, you started cybermon with the cybermon.lua configuration file. Have a play with a couple of the others. Configuration file hexdump.lua produces little hex dumps of things like HTTP bodies:
+
+cybermon 10000 /usr/local/etc/cyberprobe/hexdump.lua
+
+Configuration file dump.lua causes cybermon to dump the information to files in the data directory.
+
+mkdir data
+cybermon 10000 /usr/local/etc/cyberprobe/dump.lua
+
+The quiet.lua configuration file does nothing. It may be a good place to start hacking your own configuration file. Which is exactly what we'll do in the next step.
+Step 12: Writing your own configuration file
+
+So, take a copy of the quiet.lua configuration file, and have a look at it. It consists of a bunch of functions written in the LUA language. LUA is a lightweight scripting langauge which is really good as a configuration language. For example, this function is called when a TCP connection is made:
+
+observer.connection_up = function(context)
+end
+
+And this function is called when an HTTP response is observed:
+
+observer.http_response = function(context, code, status, header, url, body)
+end
+
+Let's get hacking! The header parameter is a LUA table which contains key/value pairs from the header. The url parameter contains the full URL of the response. The body parameter contains the payload body as an empty string. Let's start simple:
+
+observer.http_response = function(context, code, status, header, url, body)
+  print(url)
+end
+
+Then run that up...
+
+cybermon 10000 my.lua
+
+Now, do some web browsing, and you should see a list of URLs flying past. Each web page typically consists of several HTTP requests, but you should be able to see the URLs associated with all of the web pages you visit. Let's tart that up a little more:
+
+-- This function is called when an HTTP response is observed.
+observer.http_response = function(context, code, status, header, url, body)
+
+  -- Take first 40 characters of URL
+  local u = url:sub(1,40)
+
+  -- Get Content-Type (first 20 characters)
+  local ct
+  ct = ""
+  for key, value in pairs(header) do
+    if key:lower() == "content-type" then
+      ct = value:sub(1,20)
+    end
+  end
+
+  io.write(string.format("%-40s %-20s %d\n", u, ct, #body))
+
+end
+
+That basically outputs three columns: The URL (truncated to 40 characters), the body content type (truncated to 20 characters) and the HTTP response payload length. Here's what I get from visiting Slashdot:
+
+http://widget-cdn.rpxnow.com/manifest/sh text/javascript;char 42980
+http://slashdot.org/                     text/html; charset=u 40105
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 5625
+http://pagead2.googlesyndication.com/pag application/x-shockw 33347
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 540
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 42
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 452
+http://pagead2.googlesyndication.com/pag                      0
+
+Step 13: Forging a TCP reset
+
+So far, this has all been very passive. It's time to make some noise! From the LUA functions, there are a couple of functions available which allow you to put some packets back onto the network.
+
+But first... there's a problem. You remember in step 9, we added a delay? That's not going to work with packet forgery, because by the time we've forged a packet and sent it on to the network, it's too late. So, we need to change our interface back so that there's no delay on the interface. That means, we're monitoring network data, but we'll miss the original attack which triggered a Snort alert.
+
+    <interface name="eth0" delay="0.0"/>
+
+Once you have this code working, you might be able to mess with the delay parameter to see if you can pick a low-latency value that works for you. On my network, the value 0.02 is low enough to allow a response to allow packet forgery to work. Any higher, and the forged packets are too late to beat the real packets.
+
+The LUA interface passes a context variable to many of the LUA functions, which gives access to cybermon information and the packet forgery functions. In this step, we're going to forge a TCP reset on any connections which are from or to port 80. Hack the configuration file:
+
+observer.connection_up = function(context)
+
+    -- Get TCP ports.
+    local cls, src_addr, dest_addr
+    cls, src_addr = context:get_src_addr()
+    cls, dest_addr = context:get_dest_addr()
+
+    -- check if it is port 80.
+    if not((src_addr == "80") or (dest_addr == "80")) then
+      -- Ignore non-HTTP traffic
+      return
+    end
+
+    -- TCP reset    
+    print("Spike! on HTTP connection.")
+    context:forge_tcp_reset(context)
+
+end
+
+Now before we go any further, cybermon needs to run as root in order to use either of the packet forgery functions. Packet forgery needs access to the raw IP socket layer, which is a privileged operation. Start that up:
+
+cybermon 10000 my.lua
+
+Now start web browsing, and you should see a bunch of "Spike! on HTTP connection" messages. Also, you'll see a page saying "The connection was reset" in your web browser. That's a fairly anti-social configuration to run on any network. See the tcp_reset.lua example for a more useful configuration. It disrupts network traffic going to/from an SSH server which isn't from your administration workstation.
+
+On any network with an SSH service open to the outside world, you might want to use firewall rules to prevent access to the SSH service from addresses outside of your network, but you could use cybermon as a belt-and-braces protection mechanism.
+
+Another example is where you know the user community on your network is being targeted by phishing emails. Your first step is to try to get the phishing emails out of their inboxes, getting your email provider to filter the attacks. But a backup attack would be to make sure your users can't get to the phisher's web site. The http_request function allows us to reset requests going to a particular web site.
+
+-- This function is called when an HTTP request is observed.
+observer.http_request = function(context, method, url, header, body)
+
+    if header["Host"] == "example.org" then
+      print("Spike! on HTTP request")
+      context:forge_tcp_reset(context)
+    end
+
+    if header["Host"] == "www.example.org" then
+      print("Spike! on HTTP request")
+      context:forge_tcp_reset(context)
+    end
+
+end
+
+Step 14: Forging a DNS response
+
+In this step, we'll detect a particular DNS request, and forge a response. First of all, you'll need to familiarise yourself with host which is a useful DNS test tool. e.g.
+
+$ host -t a example.org
+example.org has address 93.184.216.119
+
+The example.org name has been resolved to a particular IP address. Let's hack the DNS request function in my.lua:
+
+@example
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
+
+  -- Check my assumptions.  Need a DNS query request, with one query,
+  -- name is example.org, type 'A', class 'IN'.
+  if header.qr == 0 and #queries == 1 and queries[1].name == "example.org"
+    and queries[1].type == 1 and queries[1].class == 1 then
+
+    -- Send a fake response
+
+    -- Set query/response flag to 'response'
+    header.qr = 1
+
+    -- 1 answer
+    answers = @{@}
+    answers[1] = @{@}
+    answers[1].name = "example.org"
+    answers[1].type = 1
+    answers[1].class = 1
+    answers[1].rdaddress = "1.2.3.4"
+
+    -- 1 answer
+    header.ancount = 1
+
+    io.write("Forging DNS response!\n")
+
+    context:forge_dns_response(context, header, queries, answers, @{@}, @{@})
+
+  end
+
+end
+@end example
+
+So, this example, checks that the query is one we want to mess with. If it is, we turn the query structures into response structures, and hand them back to cybermon to do a forgery. The above example forges the address 1.2.3.4. Start up cybermon with the script:
+
+cybermon 10000 my.lua
+
+If everything is working your host command will show a different result:
+
+$ host -t a example.org
+example.org has address 1.2.3.4
+
+Haha! Spike! DNS forgery has applications in blocking access to a phishers resources on the internet, you might want to redirect your users to an address which is inside your network.
+
+The Cybermon reference page details the LUA interface in detail if you want to find out what else you can do in your LUA code.
+Chapter III: Visualisation
+
+This is the most incomplete part of @command{Cyberprobe}. Look at this part as demonstrating what might be possible. If you find this interesting, and feel you could turn this into something more impressive, well... there's a git check-in with your name on.
+Step 15: Storing observations
+
+Now we need somewhere to store the observations which cybermon discovers. There are many candidates for a storage repository, but my favourite for this sort of scenario is the excellent ElasticSearch. It is flexible, offers a huge amount of functionality, and is incredibly simple to interface with, thanks to its JSON API. So, your next action is to head over to the download page and get hold of the latest version. I'm using version 1.3.2 to build this tutorial but the ElasticSearch API has proven hugely stable, so should work with the latest.
+
+Having downloaded the latest version, you unpack it, and run it e.g.
+
+tar xvfz elasticsearch-0.90.3.tar.gz
+cd elasticsearch-0.90.3
+bin/elasticsearch -f
+
+Another brilliant thing about ElasticSearch is that it needs almost no configuration to get an instance started. You will need to make one configuration change to ElasticSearch if there are other instances running on your network: you need need to change cluster.name to some unique string in config/elasticsearch.yml, otherwise your ElasticSearch instance might join another cluster on your network, which could complicate things.
+
+You can check you have ElasticSearch up and running using a command such as this:
+
+wget -q -O- http://localhost:9200
+
+The response will look something like this:
+
+@example
+@{
+  "ok" : true,
+  "status" : 200,
+  "name" : "Cybermon",
+  "version" : @{
+    "number" : "0.90.3",
+    "build_hash" : "5c38d6076448b899d758f29443329571e2522410",
+    "build_timestamp" : "2013-08-06T13:18:31Z",
+    "build_snapshot" : false,
+    "lucene_version" : "4.4"
+  @},
+  "tagline" : "You Know, for Search"
+@}
+@end example
+
+Once ElasticSearch is running, you can get cybermon to load observations into it by using the cyberdb.lua configuration file. So if you're continuing the tutorial, you can stop cybermon, and run:
+
+cybermon 10000 /usr/local/etc/cyberprobe/cyberdb.lua
+
+After some network data has been observed, you should be able to see results loaded into ElasticSearch using the following command:
+
+@example
+curl -s -XPOST "http://localhost:9200/cybermon/observation/_search?pretty=true" -d '
+@{
+  "query" : @{
+    "match_all": @{@}
+  @}
+@}
+'
+@end example
+
+You should see some stuff which looks like data scrolling past on the screen. If your response looks like the following result, that's not so good, as it means there are no results. See hits.total? Zero means no results.
+
+@example
+@{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : @{
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  @},
+  "hits" : @{
+    "total" : 0,
+    "max_score" : null,
+    "hits" : [ ]
+  @}
+@}
+@end example
+
+If you see a lot of information scrolling past on the screen, that's good.
+
+The cyberdb.lua configuration file maps the cybermon observations into a form which is appropriate to store in ElasticSearch. Each observation is stored with a 60 second time-to-live, to the information is not stored for long.
+Step 16: Visualising observations
+
+Having loaded the observations into ElasticSearch, it's easy to do some visualisation with Kibana. Kibana is a brilliant, user-configurable dashboard package designed to sit on ElasticSearch. The dashboard runs in your browser.
+
+First thing to do is to download and unpack Kibana. Kibana is managed by the ElasticSearch people, download page is here.
+
+For production, you would put Kibana on a web server, and configure it with access to ElasticSearch. For the quickstart all you need to do is unpack it in a directory, and point your browser at it.
+
+So, to get running, download Kibana, unpack in a directory. Kibana needs one configuration parameter changed in the config.js file. There's a parameter called elasticsearch which you need to change to point to your ElasticSearch instance, so something like this should work:
+
+elasticsearch: "http://localhost:9200",
+
+Having set that up, you point your browser at the unpacked Kibana file e.g. ...
+
+file:///home/cybermac/dev/kibana/index.html
+
+and hopefully you see Kibana's "Welcome to Kibana" screen. I've already built a dashboard you can use, so click on "Load" in the top right-hand corner of the screen, hover over "Advanced", and then click "Browse" to find the configuration file I have left for you. A Kibana dashboard schema is included with the source code, if you installed using make install it should be bundled in with the documentation at /usr/local/share/doc/cyberprobe/kibana-dashboard.json. If it loads successfully, you should get a dashboard looking like this...
+
+Next step is to save the dashboard using a save icon in the top right of the dashboard. That way you don't have to keep loading the schema.
+Chapter IV: Cyber threat indicators using STIX
+
+We've been experimenting with an open model for describing cyber threats. STIX is a community-driven effort to standardise a model for cyber theat information. TAXII defines a set of services for distributing STIX information. There's some support in @command{Cyberprobe}, but you should know that this is very prototype at the moment.
+
+This is what we've got so far:
+
+    There's a simple CSV file format we've created to describe cyber threats. This is just for convenience.
+    A script, stix-create which reads the above configuration file, and converts into a STIX document containing Indicator objects.
+    A script, taxii-server which acts as a very simple TAXII server, serving up STIX documents.
+    A script, taxii-client which connects to a TAXII server, gets STIX documents and dumps some stuff out.
+    A script taxii-sync-json which connects to a TAXII server, gets STIX documents, massages the whole lot into a single JSON form, and dumps that to a file.
+    A configuration file for cybermon which reads the JSON threat information and reports when theats are observed.
+
+Before taking this any further, you need to have Python installed, along with various dependencies (pyOpenSSL, libtaxii and stix). The easiest way to install the dependencies is to install pip, and issue this command:
+
+sudo pip install libtaxii pyOpenSSL stix
+
+Step 17: A STIX document service
+
+The installation bundle includes a couple of CSV files containing some fictional cyber theats. Search for example1.txt and example2.txt. They may be in /usr/local/share/doc/cyberprobe once you've installed everything. You need to create a data area, and convert these files into STIX ready for serving:
+
+mkdir /tmp/stix
+cd /tmp/stix
+mkdir -p data/default
+stix-create /usr/local/share/doc/cyberprobe/example1.txt data/default/1 -i ex:1
+stix-create /usr/local/share/doc/cyberprobe/example2.txt data/default/2 -i ex:2
+
+Check that you have two new XML files in data/default directory. If they're there, you're ready to start a STIX server. This will run on port 8080, so you'll need to use a different port number if you don't like this one. It's important that this is run from the directory where you just created the data directory.
+
+taxii-server --port 8080
+
+If that works, use the test client to communicate:
+
+taxii-client --port 8080
+
+And you should see some stuff that looks like cyber threat information dumped on the screen.
+Step 18: Deploying theat information to Cybermon
+
+Now, we use taxii-sync-json to fetch the STIX information in a JSON form I can easily ingest into the LUA code:
+
+taxii-sync-json --port 8080
+
+This should create a JSON file called stix-default-combined.json.
+
+Finally, stop any running cybermon processes, and run cybermon with a configuration file which reads the JSON file.
+
+cybermon 10000 /usr/local/etc/cyberprobe/stix-alert.lua
+
+Now, this produces no output, except when activity which hits on a cyber threat is observed. If you used my sample data, then this activity should trigger a theat:
+
+wget -q -O- http://www.malware.com/malware.dat
+
+I should just say at this point, I have no idea if the malware.com site is dodgy or not, it just seems to redirect to Wikipedia. Hope they don't mind us using them for this test.
+
+If this works, you should see the following output:
+
+DNS query for www.malware.com, hits example1:5 (Hostname of malware server)!
+DNS query for www.malware.com, hits example1:5 (Hostname of malware server)!
+DNS response for www.malware.com, hits example1:5 (Hostname of malware server)!
+DNS response for www.malware.com, hits example1:5 (Hostname of malware server)!
+HTTP request to http://www.malware.com/malware.dat, hits example1:7 (URL of a page serving malware)!
+HTTP request to www.malware.com, hits example1:5 (Hostname of malware server)!
+HTTP response from http://www.malware.com/malware.dat, hits example1:7 (URL of a page serving malware)!
+
+This hits on a number of theat indicators. The hostname www.malware.com is present in a theat indicator, and it is detected in the HTTP request, and both the DNS query and response. Also, the URL http://www.malware.com/malware.dat is in a threat indicator and it is detected in both the HTTP request and response.
+
+The stix-alert.lua configuration file updates its configuration if the JSON configuration file has changed. So, you can do a round-trip update by changing the input files, re-running stix-create, using taxii-sync-json to fetch the updates, and all without stopping the monitoring.
+
+The stix-db.lua configuration file generates ElasticSearch events as cyberdb.lua does, but it also adds indicator detection information to the events. If you use stix-db.lua, with the Kibana dashboard, the "Indications" table on the right hand side of the dashboard will show detected indicators.
+Conclusion
+
+All done, I hope you enjoyed the tutorial! Any comments on the software, or tutorial itself are very welcome! Positive, or negative, we want to hear how you found the experience.
+
+
+
+@node Obtaining code
+@chapter Obtaining code
+
+You can either download the latest release on the downloads page, or
+checkout the latest code using git:
+
+git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+
+Powered by SourceForge, project page is here. 
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl.texi
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye
+
