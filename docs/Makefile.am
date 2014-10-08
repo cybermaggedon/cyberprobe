@@ -31,7 +31,7 @@ cyberprobe.1: cyberprobe.1.in Makefile
 
 CLEANFILES = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1
 
-cyberprobe_TEXINFOS = paths.texi
+cyberprobe_TEXINFOS = paths.texi fdl.texi
 
 paths.texi: Makefile
 	( \
