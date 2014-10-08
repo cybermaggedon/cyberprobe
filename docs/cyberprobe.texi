@@ -4,6 +4,8 @@
 @comment %**start of header
 @setfilename cyberprobe.info
 @include version.texi
+@include paths.texi
+
 @settitle Cyberprobe @value{VERSION}
 @syncodeindex pg cp
 @comment %**end of header
@@ -763,12 +765,12 @@ If you want to try out the Snort integration, you need to head over to the
 Snort home page, download and install Snort.  Or install the appropriate
 package with your distribution.
 
-Once you have it installed, to simplify things, you'll want to put a rule in
-place that will definitely identify things on your network. The easiest way
-is to add a local rule that identifies your workstation. First of all,
-you'll want to make sure your Snort configuration file
-(@file{/etc/snort/snort.conf}) loads a local rules file. So, it should
-contain something like this:
+Once you have it installed, to simplify things, you'll want to put a
+rule in place that will definitely identify things on your
+network. The easiest way is to add a local rule that identifies your
+workstation. First of all, you'll want to make sure your Snort
+configuration file (probably @file{/etc/snort/snort.conf}) loads a
+local rules file. So, it should contain something like this:
 
 @cindex @command{snort}, rules
 @cindex @command{snort}, signatures
@@ -779,7 +781,7 @@ include $RULE_PATH/local.rules
 @end example
 
 Then, to identify your workstation, add a rule like this to your local rules
-file (@file{/etc/snort/rules/local.rules}):
+file (probably @file{/etc/snort/rules/local.rules}):
 
 @example
 alert tcp 192.168.1.80 any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
@@ -902,7 +904,7 @@ is now installed in the etc directory, depending on where you installed the
 software:
 
 @example
-cybermon 10000 /usr/local/etc/cyberprobe/cybermon.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/cybermon.lua
 @end example
 
 Now when you generate network traffic, some of the traffic will be presented
@@ -971,7 +973,7 @@ file hexdump.lua produces little hex dumps of things like HTTP bodies:
 @cindex @file{hexdump.lua}
 
 @example
-cybermon 10000 /usr/local/etc/cyberprobe/hexdump.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/hexdump.lua
 @end example
 
 Configuration file @file{dump.lua} causes @command{cybermon} to dump the
@@ -979,7 +981,7 @@ information to files in the data directory.
 
 @example
 mkdir data
-cybermon 10000 /usr/local/etc/cyberprobe/dump.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/dump.lua
 @end example
 
 The @file{quiet.lua} configuration file does nothing. It may be a good place
@@ -1321,7 +1323,7 @@ observations into it by using the cyberdb.lua configuration file. So if
 you're continuing the tutorial, you can stop @command{cybermon}, and run:
 
 @example
-cybermon 10000 /usr/local/etc/cyberprobe/cyberdb.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/cyberdb.lua
 @end example
 
 After some network data has been observed, you should be able to see results
@@ -1406,7 +1408,7 @@ corner of the screen, hover over "Advanced", and then click "Browse" to find
 the configuration file I have left for you. A Kibana dashboard schema is
 included with the source code, if you installed using make install it should
 be bundled in with the documentation at
-@file{/usr/local/share/doc/cyberprobe/kibana-dashboard.json}. If it loads
+@file{@value{PREFIX}/share/doc/cyberprobe/kibana-dashboard.json}. If it loads
 successfully, you should get a dashboard looking like this...
 
 @image{kibana-scaled, extension=png}
@@ -1482,7 +1484,7 @@ sudo pip install libtaxii pyOpenSSL stix
 
 The installation bundle includes a couple of CSV files containing some
 fictional cyber theats. Search for @file{example1.txt} and
-@file{example2.txt}. They may be in @file{/usr/local/share/doc/cyberprobe}
+@file{example2.txt}. They may be in @file{@value{PREFIX}/share/doc/cyberprobe}
 once you've installed everything. You need to create a data area, and
 convert these files into STIX ready for serving:
 
@@ -1490,8 +1492,8 @@ convert these files into STIX ready for serving:
 mkdir /tmp/stix
 cd /tmp/stix
 mkdir -p data/default
-stix-create /usr/local/share/doc/cyberprobe/example1.txt data/default/1 -i ex:1
-stix-create /usr/local/share/doc/cyberprobe/example2.txt data/default/2 -i ex:2
+stix-create @value{PREFIX}/share/doc/cyberprobe/example1.txt data/default/1 -i ex:1
+stix-create @value{PREFIX}/share/doc/cyberprobe/example2.txt data/default/2 -i ex:2
 @end example
 
 Check that you have two new XML files in data/default directory. If they're
@@ -1530,7 +1532,7 @@ Finally, stop any running @command{cybermon} processes, and run
 @cindex @file{stix-alert.lua}
 
 @example
-cybermon 10000 /usr/local/etc/cyberprobe/stix-alert.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/stix-alert.lua
 @end example
 
 Now, this produces no output, except when activity which hits on a cyber

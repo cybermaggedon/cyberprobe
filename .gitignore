@@ -24,3 +24,8 @@ cyberprobe-*.tar.gz
 *.pyc
 stix/taxii-client
 stix/taxii-server
+docs/cyberprobe.1
+docs/nhis_rcvr.1
+docs/etsi_rcvr.1
+docs/cyberprobe.info
+docs/cyberprobe.html

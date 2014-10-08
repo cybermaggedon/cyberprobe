@@ -29,3 +29,14 @@ etsi_rcvr.1: etsi_rcvr.1.in Makefile
 cyberprobe.1: cyberprobe.1.in Makefile
 	$(do_substitution) < $(srcdir)/$< > $@
 
+CLEANFILES = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1
+
+cyberprobe_TEXINFOS = paths.texi
+
+paths.texi: Makefile
+	( \
+	echo "@set PREFIX $(prefix)"; \
+	echo "@set DOCDIR $(docdir)"; \
+	echo "@set BINDIR $(bindir)"; \
+	echo "@set LIBDIR $(libdir)"; \
+	) > $@
