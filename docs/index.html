@@ -12,25 +12,11 @@
 <body>
 <h1>Cyberprobe</h1>
 
-<h2>Table of contents</h2>
-
-<ul>
-<li><a href="index.html">Overview</a></li>
-<li><a href="quickstart.html">Quick Start tutorial</a></li>
-<li><a href="architecture.html">Architecture</a></li>
-<li><a href="config.html">Configuration</a></li>
-<li><a href="output.html">Output streaming protocols</a></li>
-<li><a href="management.html">Management interface</a></li>
-<li><a href="cybermon.html">Cybermon</a></li>
-<li><a href="licence.html">Licence</a></li>
-</ul>
-
 <div class="standout">
-<div style="padding: 22px">
-Version 0.50 is here!  Cyberprobe integrates with ElasticSearch and Kibana
-to give you a powerful <a href="kibana.png">network dashboard</a>.<br>
-See <a href="#revisions">revision history</a> below.
-Also see
+<div style="padding: 6px">
+Version 0.50 is here!  Cyberprobe integrates with ElasticSearch and Kibana<br>
+to give you a powerful <a href="kibana.png">network dashboard</a>.
+See
 <a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>.
 </div>
 
@@ -39,6 +25,15 @@ Also see
 </center>
 
 </div>
+
+<ul>
+<li><a href="cyberprobe.html">Cyberprobe documentation</a></li>
+<li><a href="work-in-progress.html">Current project</a></li>
+<li><a href="licence.html">Licence</a></li>
+<li><a href="cyberprobe.html#Architecture">Architecture</a></li>
+<li><a href="cyberprobe.html#Quick-start-tutorial">Quick-start tutorial</a></li>
+<li><a href="#download">Downloads</a></li>
+</ul>
 
 <h2>Overview</h2>
 
@@ -53,7 +48,8 @@ and interprets the information.</li>
 These components can be used together or separately.  For a simple
 configuration, they can be run on the same host, for more complex environments,
 a number of probes can feed a single monitor.  For more detail, and to
-see where we are going, read the <a href="architecture.html">architecture</a>
+see where we are going, read the 
+<a href="cyberprobe.html#Architecture">architecture</a>
 page.
 </p>
 
@@ -104,119 +100,65 @@ to be applicable to other UN*X-like platforms.
 </p>
 
 <p>The easiest way to learn about the software is to follow our
-<a href="quickstart.html">Quick Start tutorial</a>.
+<a href="cyberprobe.html#Quick-start-tutorial">Quick Start tutorial</a>.
 </p>
 
-<h2>Motivation</h2>
+<a name="download"/>
+<h2>Download</h2>
 
-<p>Cyberprobe started out as a research tool to study networked applications
-to find out what they were doing, as we all know how software suppliers
-sometimes like to add some "extras" to their software :).  So, a simple tool
-to configure how packets are captured from a network was produced.  But as
-you are probably aware, the biggest
-threat to the safety of your information is from <u>outside</u> of
-your network.  Thus, the ability to trigger collection of packets upon
-detection of a Snort rule hit was added.
-</p>
-
-<p>Snort is a powerful IDS system which studies packets on your network,
-analyses them against a set of signatures and creates logs and alerts.
-We felt there was a need to harness the Snort alerts, but use them to
-trigger collection and forwarding of packets from the address which caused
-the alert.
-</p>
-
-<p>
-You may be asking why you'd want to use Cyberprobe?  
-After all, monitoring networks with tcpdump and Snort and collecting alerts and
-packet data for analysis is a straightforward process for many networks.
-However, real-time analysis is not possible if everything is file based.
-Collecting the data and forwarding over the network to a central
-collection point allows for a much more "industrialised" approach to intrusion
-detection.  If you detect an attack attempt, and then observe vast quantities
-of data leaving your network from the credit card accounts database, then
-you know you need to act quickly.
-</p>
-
-<p>
-You need flexibility about how you monitor for network attacks.  There isn't
-a one-size-fits-all solution.  Attackers are ingenious in their approach to
-attacking your network, so you need to have a flexible, configurable
-monitoring tool to develop your defences.
-</p>
-
-<p>There's a war coming... The enemy is resourceful, they can use your 
-networks and systems as their own weapon.  But with the right tools, you
-can prepare a defence.  It's time to get ready for Cybermaggedon.
-</p>
-
-<a name="revisions"/><h2>Revision history</h2>
-
-<p>Cyberprobe releases:</p>
+We've got downloads available for the following architectures...
 
 <table>
-<tr><td><code>0.50</code></td><td>ElasticSearch integration improved to get
-a much tighter integration with Kibana for a network dashboard.
-Also bug-fixes for memory management / lock problems.</td></tr>
-<tr><td><code>0.40</code></td><td>Now includes prototype STIX support:
-A TAXII server allows distrubution of threat information, and
-a TAXII client can read indicator information and store in a way that
-cybermon can use.</td></tr>
-<tr><td><code>0.30</code></td><td>The build process now uses the GNU toolset.
-It detects the LUA interface and can compile against LUA 5.1 and 5.2.
-Successfully compiled on a MacBook!</td></tr>
-<tr><td><code>0.25</code></td><td>Added SMTP and FTP capability.
-Also added a primitive mechanism to
-<a href="quickstart.html#visualisation">visualise network observations</a>.
-</td></tr>
-<tr><td><code>0.20</code></td><td>HTTP and DNS protocol capability.  TCP
-reset and DNS packet forgery added.  Major overhaul of the LUA language
-interface.</td></tr>
-<tr><td><code>0.12</code></td><td>Cybermon utility is configurable
-using LUA.</td></tr>
-<tr><td><code>0.11</code></td><td>Added basic cybermon utility.</td></tr>
-<tr><td><code>0.10</code></td><td>Added management interface.</td></tr>
-<tr><td><code>0.9</code></td><td>First release on SourceForge.</td></tr>
+
+<tr>
+<th>Operating System</th><th>Architecture</th><th>Download</th>
+</tr>
+
+<tr>
+<td rowspan="3">Fedora 20</td>
+<td>64-bit</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe-0.51-1.fc20.x86_64.rpm/download">64-bit RPM</a></td>
+</tr>
+
+<tr>
+<td>32-bit</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe-0.51-1.fc20.i686.rpm/download">32-bit RPM</a></td>
+</tr>
+
+<tr>
+<td>Source</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe-0.51-1.fc20.src.rpm/download">Source RPM</a></td>
+</tr>
+
+<tr>
+<td rowspan="2">RHEL7 / Centos 7</td>
+<td>64-bit</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe-0.51-1.el7.centos.x86_64.rpm/download">64-bit RPM</a></td>
+</tr>
+
+<tr>
+<td>Source</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe-0.51-1.el7.centos.src.rpm/download">64-bit RPM</a></td>
+</tr>
+
+<tr>
+<td rowspan="2">Debian / Ubuntu / Mint</td>
+<td>64-bit</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe_0.51-1_amd64.deb/download">64-bit Debian package</a></td>
+</tr>
+
+<tr>
+<td>32-bit</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe_0.51-1_i386.deb/download">64-bit Debian package</a></td>
+</tr>
+
+<tr>
+<td>Everything</td>
+<td>Source</td>
+<td><a href="http://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.51/cyberprobe-0.51.tar.gz/download">Source bundle</a></td>
+</tr>
+
 </table>
-
-<p>See
-<a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>.
-</p>
-
-<h2>Code</h2>
-
-
-<p>You can either download the latest release on the 
-<a href="http://sourceforge.net/projects/cyberprobe/files/">downloads</a>
-page, or checkout the latest code using git:
-<pre>
-git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
-</pre>
-</p>
-
-<p>Have a play, and let us <a href="https://sourceforge.net/p/cyberprobe/discussion/">know what you think</a>.  We'd love to hear questions, comments, what's good, what disappointed you etc. etc.
-</p>
-
-<p>Powered by SourceForge, project page is <a href="https://sourceforge.net/p/cyberprobe">here</a>.
-
-<h2>For improvement</h2>
-
-<p>
-<ul>
-<li>While the system supports IPv6 match, it only supports IPv4 for
-delivery.</li>
-<li>Endpoint failure affects all endpoints.  (Not worth changing?)</li>
-<li>The ETSI LI support is bare basics, for instance, doesn't support 
-keep-alive.</li>
-<li>The IPv6 matching has had little testing.</li>
-<li>Cybermon needs more protocol capability e.g. SMTP support.</li>
-</ul>
-</p>
-
-<p>
-Suggestions, offers of code, help, etc. very welcome.  Get in touch if you'd 
-like to be involved!
-</p>
 
 </body>
 

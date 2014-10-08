@@ -44,7 +44,7 @@ Texts.  A copy of the license is included in the section entitled
 @node Top
 @top Cyberprobe
 
-@image{cyberprobe,,,,.png}
+@image{@value{DOCDIR}/cyberprobe,,,,.png}
 
 This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
 
@@ -1411,7 +1411,7 @@ be bundled in with the documentation at
 @file{@value{PREFIX}/share/doc/cyberprobe/kibana-dashboard.json}. If it loads
 successfully, you should get a dashboard looking like this...
 
-@image{kibana-scaled,,,,.png}
+@image{@value{DOCDIR}/kibana-scaled,,,,.png}
 
 Next step is to save the dashboard using a save icon in the top right of the
 dashboard. That way you don't have to keep loading the schema.
@@ -2254,7 +2254,7 @@ is not part of cyberprobe, but it's a great NIDS, so we use that.
 
 @end table
 
-@image{architecture,,,,.png}
+@image{@value{DOCDIR}/architecture,,,,.png}
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License

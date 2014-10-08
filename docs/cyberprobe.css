@@ -18,9 +18,7 @@ pre {
 }
 
 .standout {
-  border: 1px solid #808080;
-  background: #c04040;
-  color: white;
+  border: 4px solid black;
   margin: 12px;
   padding: 12px;
   font-size: 18pt;
