@@ -36,8 +36,11 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 
 %files
+%exclude /usr/share/info/dir
 %defattr(-,root,root) 
 %doc /usr/share/doc/cyberprobe
+%doc /usr/share/info/
+%doc /usr/share/man
 %dir /etc/cyberprobe
 /etc/cyberprobe/*
 /usr/bin/*

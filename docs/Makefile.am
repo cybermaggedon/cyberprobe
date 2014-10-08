@@ -14,7 +14,8 @@ man_MANS = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1
 
 AM_MAKEINFOHTMLFLAGS = --no-split
 
-EXTRA_DIST = nhis_rcvr.1.in etsi_rcvr.1.in cyberprobe.1.in
+EXTRA_DIST = nhis_rcvr.1.in etsi_rcvr.1.in cyberprobe.1.in \
+	architecture.eps cyberprobe.eps kibana-scaled.eps
 
 do_substitution = sed -e 's,[@]DOCDIR[@],$(docdir),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
@@ -29,7 +30,7 @@ etsi_rcvr.1: etsi_rcvr.1.in Makefile
 cyberprobe.1: cyberprobe.1.in Makefile
 	$(do_substitution) < $(srcdir)/$< > $@
 
-CLEANFILES = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1
+CLEANFILES = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1 paths.texi
 
 cyberprobe_TEXINFOS = paths.texi fdl.texi
 
