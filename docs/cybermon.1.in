@@ -1,0 +1,302 @@
+.TH CYBERMON "1" "October 2014" "Cyberprobe 0.51" "User Commands"
+.SH NAME
+cybermon \- Configurable network packet stream analyser
+.SH SYNOPSIS
+.B cybermon
+[\fIPORT-NUM\fR]
+[\fICONFIGURATION-FILE\fR]
+.SH DESCRIPTION
+.B cybermon
+is a configurable network packet stream analyser.  It is designed to
+receive packets from
+.B cyberprobe,
+analyse them and generate
+session/transport level events which result in user-configurable
+actions. For each event, a call is made to a Lua script which the caller
+provides.
+.SS "Exit status:"
+.TP
+0
+if OK,
+.TP
+non-zero
+on error
+.SH "EXAMPLE USAGE"
+cybermon 10000 @LUADIR@/cybermon.lua
+.SH "CONFIGURATION"
+Here is an example configuration file:
+
+local observer = {}
+
+-- This function is called when a trigger events starts collection
+.br
+-- of an attacker. liid=the trigger ID, addr=trigger address
+.br
+observer.trigger_up = function(liid, addr)
+.br
+end
+
+-- This function is called when an attacker goes off the air
+.br
+observer.trigger_down = function(liid)
+.br
+end
+
+-- This function is called when a stream-orientated connection is made
+.br
+-- (e.g. TCP)
+.br
+observer.connection_up = function(context)
+.br
+end
+
+-- This function is called when a stream-orientated connection is
+.br
+-- closed
+.br
+observer.connection_down = function(context)
+.br
+end
+
+-- This function is called when a datagram is observed, but the protocol
+.br
+-- is not recognised.
+.br
+observer.unrecognised_datagram = function(context, data)
+.br
+end
+
+-- This function is called when stream data  is observed, but the
+.br
+-- protocol is not recognised.
+.br
+observer.unrecognised_stream = function(context, data)
+.br
+end
+
+-- This function is called when an ICMP message is observed.
+.br
+observer.icmp = function(context, data)
+.br
+end
+
+-- This function is called when an HTTP request is observed.
+.br
+observer.http_request = function(context, method, url, header, body)
+.br
+end
+
+-- This function is called when an HTTP response is observed.
+.br
+observer.http_response = function(context, code, status, header, url, body)
+
+  -- Take first 40 characters of URL
+.br
+  local u = url:sub(1,40)
+
+  -- Get Content-Type (first 20 characters)
+.br
+  local ct
+.br
+  ct = ""
+.br
+  for key, value in pairs(header) do
+.br
+    if key:lower() == "content-type" then
+.br
+      ct = value:sub(1,20)
+.br
+    end
+.br
+  end
+
+  io.write(string.format("%-40s %-20s %d\n", u, ct, #body))
+
+end
+
+-- This function is called when a DNS message is observed.
+.br
+observer.dns_message = function(context, header, queries, answers, auth, add)
+.br
+end
+
+-- Return the table
+.br
+return observer
+
+.SH "LUA EVENT CALLS"
+The configuration file is expected to provide the following functions,
+which are called in response to cybermon events.
+.TP
+.B trigger_up(liid, address)
+Called when an attacker is seen coming on-stream. The liid parameter
+describes the target ID, and address contains the IP address in string
+form.
+.TP
+.B trigger_down(liid)
+Called when an attacker is seen going off-stream. The liid parameter
+describes the target ID.
+.TP
+.B connection_up(context)
+Called when a stream-based connection (e.g. TCP) is made. The context
+parameter is a LUA userdata variable which can’t be access directly,
+but can be used with the functions described below to access further
+information from cybermon.
+.TP
+.B connection_down(context)
+Similar to connection_up, called when a connection closes.
+.TP
+.B icmp(context, data)
+Called when an ICMP message is detected. The data parameter contains
+the ICMP message body.
+.TP
+.B http_request(context, method, url, header, body)
+Called when an HTTP request is observed. The HTTP method and URL are
+described in the method and url parameters. The header parameter is a
+LUA table, which describes the HTTP header key/value pairs. If there
+is an HTTP payload in the request, it is contained in the body
+parameter, which is a string. Otherwise body will be an empty string.
+.TP
+.B http_response(context, code, status, header, url, body)
+Called when an HTTP response is observed. The HTTP response code and
+status are described in the code and status parameters. The header
+parameter is a LUA table, which describes the HTTP header key/value
+pairs. If there is an HTTP payload in the response, it is contained in
+the body parameter, which is a string. Otherwise body will be an empty
+string.
+.TP
+.B smtp_command(context, command)
+Called when an SMTP command is observed i.e. a single line message
+going to the server from a client. The command parameter contains the
+command string.
+.TP
+.B smtp_response(context, status, text)
+Called when an SMTP response is observed. That is, status going from
+server to client following a command. The status parameter is the
+status number e.g. 200. The text parameter contains the response text,
+described as a list of strings. Responses may occur over a number of
+lines, hence the parameter is a list: For single-line responses, there
+is only a single item in the list.
+.TP
+.B smtp_data(context, from, to, data)
+Called when an SMTP payload is observed i.e. the body of text
+following the DATA command. To aid processing, the SMTP protocol
+processor assembles information from other commands: the from
+parameter contains the email From address described in the MAIL FROM
+command. The to parameter is a list of addresses contained in all RCPT
+TO commands. The data parameter contains the email body - it will be
+an RFC822 payload.
+.TP
+.B ftp_command(context, command)
+Called when an FTP command is observed i.e. a single line message
+going to the server from a client. The command parameter contains the
+command string.
+.TP
+.B ftp_response(context, status, text)
+Called when an FTP response is observed. That is, status going from
+server to client following a command. The status parameter is the
+status number e.g. 200. The text parameter contains the response text,
+described as a list of strings. Responses may occur over a number of
+lines, hence the parameter is a list: For single-line responses, there
+is only a single item in the list.
+.TP
+.B dns_message(context, header, queries, answers, auth, add)
+Called when a DNS message is observed. The decoded DNS message is
+described in the parameters: header is the DNS header, queries
+contains the DNS queries, answers contains the answers in a response
+message, auth contains DNS nameserver authority descriptions, and add
+provides additional information.
+.TP
+.B unrecognised_datagram(context, data)
+Called when a datagram is received using a protocol which isn’t
+recognised. Currently, only DNS and ICMP are recognised. Any other UDP
+protocol results in a call to this function.
+.TP
+.B unrecognised_stream(context, data)
+Called when connection-orientated data is received using a protocol
+which isn’t recognised. Currently, only HTTP, SMTP and FTP are
+recognised. Any other TCP protocol results in calls to this function
+whenever data is observed.
+.SH "CONTEXT OBJECT"
+From the LUA code there, the context variable has a number of method
+functions which can be called:
+.TP
+.B context:get_type()
+Returns the protocol type of the context e.g. http, tcp, udp, dns,
+ip4
+.TP
+.B context:get_parent()
+Returns the parent context relating to a context. This can be used to
+travel "up" the protocol stack. For example, call get_parent on a TCP
+context will return the IP context.
+.TP
+.B context:get_src_addr()
+Returns the source address relating to a context. Returns two string
+variables: the first is the address class e.g. ipv4, the second is the
+address value e.g. 1.2.3.4.
+.TP
+.B context:get_dest_addr()
+Returns the destination address relating to a context. Returns two
+string variables: the first is the address class e.g. ipv4, the second
+is the address value e.g. 1.2.3.4.
+.TP
+.B context:get_reverse()
+Returns the context relating to the "other side" of a communication,
+but only if this has been identified. On an HTTP response, get_reverse
+will return the HTTP request. In the http_request function you will
+not be able to use get_reverse to find the HTTP response because the
+response does not exist at the point the request is identified.
+.TP
+.B context:get_id()
+Returns a context’s unique ID. Can be useful for tracking, or can be
+used as index into your own LUA structures to associate information
+with contexts.
+.TP
+.B context:describe_src()
+Returns a human readable description of the protocol stack using source
+addresses.
+.TP
+.B
+context:describe_dest()
+Returns a human readable description of the protocol stack using
+source addresses.
+.TP
+.B context:get_liid()
+Returns the trigger ID associated with a "target".
+.TP
+.B context:get_network_info()
+Returns two variables: the source and destination network addresses
+(IP addresses) for this data. These are in normal IP address string
+format.
+.TP
+.B context:get_trigger_info()
+Returns the IP address which triggered this collection, if known. If
+not, 0.0.0.0x is returned. This is in normal IP address string format.
+.TP
+.B context:forge_tcp_reset()
+Creates a TCP reset packet and directs it at the source address
+associated with this context. Must have TCP protocol present in the
+stack.
+.TP
+.B context:forge_dns_response(header, queries, answers, add)
+Creates a DNS message and directs it at the source address associated
+with this context. The provided parameters are used as protocol data
+in the DNS encoder.
+.SH "REPORTING BUGS"
+Visit <http://cyberprobe.sf.net> for support.
+.SH COPYRIGHT
+Copyright \(co 2013-2014 Cyber MacGeddon
+.br
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+.SH "SEE ALSO"
+.BR cyberprobe (1)
+.PP
+Further documentation and a quickstart guide is available in
+@DOCDIR@.  The command
+.IP
+.B info cyberprobe
+.PP
+accesses the complete manual.

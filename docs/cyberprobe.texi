@@ -224,6 +224,10 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.55
+Packages released for Debian, Fedora and Centos, documentation
+re-worked into info and man formats.
+
 @item 0.50
 ElasticSearch integration improved to get a much tighter integration with
 Kibana for a network dashboard. Also bug-fixes for memory management / lock
