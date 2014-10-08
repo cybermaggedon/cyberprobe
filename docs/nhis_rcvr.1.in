@@ -34,4 +34,8 @@ There is NO WARRANTY, to the extent permitted by law.
 .BR cyberprobe (1)
 .PP
 Further documentation and a quickstart guide is available in
-/usr/share/doc/cyberprobe.
+@DOCDIR@.  The command
+.IP
+.B info cyberprobe
+.PP
+accesses the complete manual.
