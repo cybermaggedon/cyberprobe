@@ -1,4 +1,4 @@
-.TH ETSI_RCVR "1" "October 2014" "Cyberprobe 0.51" "User Commands"
+.TH ETSI_RCVR "1" "October 2014" "Cyberprobe 0.55" "User Commands"
 .SH NAME
 etsi_rcvr \- Decode ETSI LI streams to PCAP data
 .SH SYNOPSIS

@@ -1,4 +1,4 @@
-.TH CYBERMON "1" "October 2014" "Cyberprobe 0.51" "User Commands"
+.TH CYBERMON "1" "October 2014" "Cyberprobe 0.55" "User Commands"
 .SH NAME
 cybermon \- Configurable network packet stream analyser
 .SH SYNOPSIS
