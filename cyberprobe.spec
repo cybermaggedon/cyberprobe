@@ -42,7 +42,7 @@ rm -rf $RPM_BUILD_ROOT
 %exclude /usr/share/info/dir
 %defattr(-,root,root) 
 %doc /usr/share/doc/cyberprobe
-/usr/share/info/
+%doc /usr/share/info/
 %doc /usr/share/man
 %dir /etc/cyberprobe
 /etc/cyberprobe/*
