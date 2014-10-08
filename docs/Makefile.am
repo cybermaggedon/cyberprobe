@@ -4,6 +4,12 @@ dist_doc_DATA = architecture.png cyberprobe.css \
 	../stix/example1.txt ../stix/example2.txt \
 	cyberprobe.html
 
+figuresdir = ${infodir}/cyberprobe-figures
+figures_DATA = cyberprobe-figures/architecture.eps \
+	cyberprobe-figures/kibana-scaled.eps cyberprobe-figures/cyberprobe.eps \
+	cyberprobe-figures/architecture.png \
+	cyberprobe-figures/kibana-scaled.png cyberprobe-figures/cyberprobe.png
+
 info_TEXINFOS = cyberprobe.texi
 
 man_MANS = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1
@@ -11,7 +17,10 @@ man_MANS = nhis_rcvr.1 etsi_rcvr.1 cyberprobe.1
 AM_MAKEINFOHTMLFLAGS = --no-split
 
 EXTRA_DIST = nhis_rcvr.1.in etsi_rcvr.1.in cyberprobe.1.in \
-	architecture.eps cyberprobe.eps kibana-scaled.eps
+	cyberprobe-figures/architecture.eps cyberprobe-figures/cyberprobe.eps \
+	cyberprobe-figures/kibana-scaled.eps \
+	cyberprobe-figures/architecture.png \
+	cyberprobe-figures/kibana-scaled.png cyberprobe-figures/cyberprobe.png
 
 do_substitution = sed -e 's,[@]DOCDIR[@],$(docdir),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \

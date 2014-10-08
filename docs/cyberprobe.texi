@@ -44,8 +44,6 @@ Texts.  A copy of the license is included in the section entitled
 @node Top
 @top Cyberprobe
 
-@image{cyberprobe-figures/cyberprobe,,,,.png}
-
 This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
 
 Cyberprobe is a distrbuted architecture for real-time monitoring of networks
@@ -1409,9 +1407,7 @@ the configuration file I have left for you. A Kibana dashboard schema is
 included with the source code, if you installed using make install it should
 be bundled in with the documentation at
 @file{@value{PREFIX}/share/doc/cyberprobe/kibana-dashboard.json}. If it loads
-successfully, you should get a dashboard looking like this...
-
-@image{cyberprobe-figures/kibana-scaled,,,,.png}
+successfully, you should get a dashboard.
 
 Next step is to save the dashboard using a save icon in the top right of the
 dashboard. That way you don't have to keep loading the schema.
@@ -2253,8 +2249,6 @@ to a JSON file in a way that @code{stix-db.lua} can read.
 is not part of cyberprobe, but it's a great NIDS, so we use that.
 
 @end table
-
-@image{cyberprobe-figures/architecture,,,,.png}
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License

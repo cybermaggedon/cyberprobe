@@ -9,6 +9,9 @@ Source0:	%{name}-%{version}.tar.gz
 #BuildRequires:	
 #Requires:	
 
+# Compression disabler?
+%define _\_os\_install_post %{nil}
+
 %description
 The Cyberprobe project is a distrbuted architecture for real-time
 monitoring of networks against attack.  The software consists of two components:
@@ -39,7 +42,7 @@ rm -rf $RPM_BUILD_ROOT
 %exclude /usr/share/info/dir
 %defattr(-,root,root) 
 %doc /usr/share/doc/cyberprobe
-%doc /usr/share/info/
+/usr/share/info/
 %doc /usr/share/man
 %dir /etc/cyberprobe
 /etc/cyberprobe/*
