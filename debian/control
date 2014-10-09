@@ -4,7 +4,7 @@ Section: uknown
 Priority: optional
 Standards-Version: 3.9.2
 Build-Depends: liblua5.2-0, python2.7, python-gobject-2, 
-  mime-support, libboost-regex (>=1.49.0), python-minimal, libexpat1,
+  mime-support, libboost-dev, python-minimal, libexpat1,
   liblua5.2-dev, mawk, libpcap0.8, python2.7-minimal,
   libc6, lua5.2, python-support, libreadline6, cpio,
    debhelper (>=9)
