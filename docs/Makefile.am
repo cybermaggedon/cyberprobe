@@ -18,16 +18,16 @@ do_substitution = sed -e 's,[@]DOCDIR[@],$(docdir),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g' 
 
 nhis11_rcvr.1: nhis11_rcvr.1.in Makefile
-	$(do_substitution) < $(srcdir)/$< > $@
+	$(do_substitution) < $< > $@
 
 etsi_rcvr.1: etsi_rcvr.1.in Makefile
-	$(do_substitution) < $(srcdir)/$< > $@
+	$(do_substitution) < $< > $@
 
 cyberprobe.1: cyberprobe.1.in Makefile
-	$(do_substitution) < $(srcdir)/$< > $@
+	$(do_substitution) < $< > $@
 
 cybermon.1: cybermon.1.in Makefile
-	$(do_substitution) < $(srcdir)/$< > $@
+	$(do_substitution) < $< > $@
 
 CLEANFILES = nhis11_rcvr.1 etsi_rcvr.1 cyberprobe.1 cybermon.1 paths.texi
 
