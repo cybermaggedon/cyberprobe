@@ -17,7 +17,8 @@ $(srcdir)/package.m4: $(top_srcdir)/configure.ac
 	  echo '  [$(PACKAGE_URL)])'; \
 	} >'$(srcdir)/package.m4'
 
-EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) atlocal.in \
+EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) \
+	atlocal.in \
 	samples/cpsfnet.pcap samples/cpsfnet.pcap.indicators \
 	samples/cpsfnet.pcap.monitor samples/dns2.pcap \
 	samples/dns2.pcap.indicators samples/dns2.pcap.monitor \
@@ -32,7 +33,7 @@ EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) atlocal.in \
 	stix/stix-default-combined.json
 
 TESTSUITE = $(srcdir)/testsuite
-DISTCLEANFILES = $(srcdir)/testsuite $(srcdir)/atconfig
+DISTCLEANFILES = $(TESTSUITE) atconfig
 
 check-local: atconfig atlocal $(TESTSUITE)
 	$(SHELL) '$(TESTSUITE)' $(TESTSUITEFLAGS)
