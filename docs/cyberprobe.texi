@@ -82,7 +82,6 @@ and to see where we are going, read the @ref{Architecture} page.
 @chapter Overview
 
 @cindex Overview of Cyberprobe
-
 @heading Summary
 
 Cyberprobe is a distrbuted architecture for real-time monitoring of networks
@@ -135,10 +134,10 @@ protocols.
 
 @end itemize
 
-The monitor tool, @command{cybermon} has the following features:
-
 @cindex @command{cybermon}, features
 @cindex Features, of @command{cybermon}
+
+The monitor tool, @command{cybermon} has the following features:
 
 @itemize @bullet
 
@@ -174,8 +173,8 @@ be applicable to other UN*X-like platforms.
 The easiest way to learn about the software is to follow our Quick Start
 tutorial.
 
-@heading Motivation
 @cindex Cyberprobe, motivation
+@heading Motivation
 
 Cyberprobe started out as a research tool to study networked applications to
 find out what they were doing, as we all know how software suppliers
@@ -206,19 +205,17 @@ a one-size-fits-all solution. Attackers are ingenious in their approach to
 attacking your network, so you need to have a flexible, configurable
 monitoring tool to develop your defences.
 
-@heading Warning
-
 @cindex Cybermaggedon
 @cindex Prophesy of doom
+@heading Warning
 
 There's a war coming... The enemy is resourceful, they can use your networks
 and systems as their own weapon. But with the right tools, you can prepare a
 defence. It's time to get ready for Cybermaggedon.
 
-@heading Revision history
-
 @cindex Release history
 @cindex Version history
+@heading Revision history
 
 Cyberprobe releases:
 
@@ -279,9 +276,9 @@ Powered by SourceForge, project page is at
 @url{http://www.sourceforge.net/p/cyberprobe}.
 
 @node Quick start tutorial
+@cindex Getting started
 @chapter Quick start tutorial
 
-@cindex Getting started
 
 @menu
 * Preparation::
@@ -297,13 +294,13 @@ Powered by SourceForge, project page is at
 @node Preparation
 @section Preparation
 
-@heading Build software
 
 @cindex Building
 @cindex Downloading
 @cindex Compilation
 @cindex Packages
 @cindex Installation
+@heading Build software
 
 There's a fair amount of development taking place in the git repository, so
 you probably want to get the latest release on the downloads page
@@ -317,7 +314,9 @@ make
 sudo make install
 @end example
 
-But if you do want to track the latest code, checkout the latest code from git:
+If compiling for Mac OS, read README.mac.
+
+If you do want to track the latest code, checkout the latest code from git:
 
 @cindex Checkout from @command{git} repository
 @cindex @command{git} repository
@@ -387,24 +386,24 @@ The compilation process compiles the following executables:
 
 @table @command
 
-@item cyberprobe
 @cindex @command{cyberprobe}
+@item cyberprobe
 The Cyber Probe executable.
 
-@item cybermon
 @cindex @command{cybermon}
+@item cybermon
 Data analyser, analyses the data streams and reports events.
 
-@item etsi_rcvr
 @cindex @command{etsi_rcvr}
+@item etsi_rcvr
 Test decoder for ETSI format data.
 
-@item nhis11_rcvr
 @cindex @command{nhis11_rcvr}
+@item nhis11_rcvr
 Test decoder for NHIS1.1 format data.
 
-@item cybermon_cli
 @cindex @command{cybermon_cli}
+@item cybermon_cli
 Cyberprobe control command-line client.
 
 @end table
@@ -417,9 +416,8 @@ If that builds without errors, then it's time to start something up.  If you
 have problems you can't resolve head to the discussion forums
 (@url{https://sourceforge.net/p/cyberprobe/discussion/}).
 
-@heading Establish network parameters
-
 @cindex Network parameters
+@heading Establish network parameters
 
 The simplest way to use cyberprobe is to use it on a Linux workstation, or
 in a virtual machine.  Maybe you're using a Linux desktop now now?  If so,
@@ -466,9 +464,9 @@ address. In my case, I can tell the broadband router to permanently allocate
 a particular IP address to this workstation, so that it won't change.
 
 @node Using @command{cyberprobe}
-@section Using @command{cyberprobe}
 @cindex @command{cyberprobe}
 @cindex @command{cyberprobe} configuration
+@section Using @command{cyberprobe}
 
 @heading Starting cyberprobe with a configuration file
 
@@ -563,10 +561,9 @@ won't recognise any resources, it's likely that your configuration file is
 invalid. The utility @command{xmlwf}x can be useful to check that an XML
 configuration file is valid, if you're not getting the results you expect.
 
-@heading Adding a target
-
 @cindex Target
 @cindex @command{cyberprobe}, target
+@heading Adding a target
 
 We have @command{cyberprobe} running, but it isn't doing anything
 useful. Remember, I said that a useful configuration consists of three
@@ -676,10 +673,9 @@ ETSI LI connection to localhost:10000 established.
 We don't guarantee zero data loss on a reconnect.
 
 @node Management interface
-@section Management interface
-
 @cindex Management
 @cindex @command{cyberprobe}, management
+@section Management interface
 
 At this step, we'll setup a control port, and use it modify the
 configuration of @command{cyberprobe}.
@@ -751,10 +747,9 @@ management interface but provides a (slightly) nicer @code{readline}
 interface, and has auto-completion.
 
 @node Integration with @command{snort}
-@section Integration with @command{snort}
-
 @cindex @command{snort}, integration
 @cindex Integration with @command{snort}
+@section Integration with @command{snort}
 
 In this step, we'll add the excellent IDS, Snort to the mix. If you don't
 know Snort, it scans network traffic for patterns, and can take various
@@ -846,10 +841,9 @@ and close the web browse. Your attempt to silence your workstation may be
 further thwarted by the operating system checking for patches without you
 knowing.
 
-@heading Introducing a delay
-
 @cindex @command{cyberprobe}, delay
 @cindex Delay
+@heading Introducing a delay
 
 Your Snort integration suffers from a particular problem now. The time taken
 for Snort to inspect some packets, generate an alert and for
@@ -883,11 +877,9 @@ analyse and act on the captured data.
 
 @node Using @command{cybermon}
 @section Using @command{cybermon}
-
-@heading Introducing @command{cybermon}
-
 @cindex @command{cybermon}
 @cindex @command{cybermon}, configuration
+@heading Introducing @command{cybermon}
 
 The previous 9 steps have all been about @command{cyberprobe}. If you've got
 this far successfully, you pretty much know all there is to know about
@@ -1072,10 +1064,9 @@ http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 452
 http://pagead2.googlesyndication.com/pag                      0
 @end example
 
-@heading Forging a TCP reset
-
 @cindex TCP reset
 @cindex Packet forgery
+@heading Forging a TCP reset
 
 So far, this has just been monitoring. It's time to add data to the network!
 From the LUA functions, there are a couple of functions available which
@@ -1254,11 +1245,10 @@ you want to find out what else you can do in your LUA code.
 FIXME: Above should be a reference link.
 
 @node Visualisation
-@section Visualisation
-
 @cindex Visualisation
 @cindex ElasticSearch
 @cindex Storing observations
+@section Visualisation
 
 This is the most incomplete part of @command{Cyberprobe}. Look at this part
 as demonstrating what might be possible. If you find this interesting, and
@@ -1370,10 +1360,9 @@ observations into a form which is appropriate to store in
 ElasticSearch. Each observation is stored with a 1 hour time-to-live, to
 the information is not stored for long.
 
-@heading Visualising observations
-
 @cindex Kibana, dashboard
 @cindex Dashboard
+@heading Visualising observations
 
 Having loaded the observations into ElasticSearch, it's easy to do some
 visualisation with Kibana. Kibana is a brilliant, user-configurable
@@ -1417,13 +1406,12 @@ Next step is to save the dashboard using a save icon in the top right of the
 dashboard. That way you don't have to keep loading the schema.
 
 @node Threat indicators using STIX
-@section Threat indicators using STIX
-
 @cindex STIX
 @cindex TAXII
 @cindex STIX indicators
 @cindex Threat indicators
 @cindex Cyber threat indicators
+@section Threat indicators using STIX
 
 We've been experimenting with an open model for describing cyber
 threats. STIX is a community-driven effort to standardise a model for cyber
@@ -1439,23 +1427,23 @@ This is what we've got so far:
 There's a simple CSV file format we've created to describe cyber
 threats. This is just for convenience.
 
-@item
 @cindex @command{stix-create}
+@item
 A script, @command{stix-create} which reads the above configuration file,
 and converts into a STIX document containing Indicator objects.
 
-@item
 @cindex @command{taxii-server}
+@item
 A script, @command{taxii-server} which acts as a very simple TAXII server,
 serving up STIX documents.
 
-@item
 @cindex @command{taxii-client}
+@item
 A script, @command{taxii-client} which connects to a TAXII server, gets STIX
 documents and dumps some stuff out.
 
-@item
 @cindex @command{taxii-sync-json}
+@item
 A script @command{taxii-sync-json} which connects to a TAXII server, gets
 STIX documents, massages the whole lot into a single JSON form, and dumps
 that to a file.
@@ -1594,7 +1582,6 @@ you found the experience.
 @end menu
 
 @node @command{cyberprobe} configuration
-@section @command{cyberprobe} configuration
 @cindex @command{cyberprobe}, configuration
 @cindex @command{cyberprobe}, @code{control}
 @cindex @command{cyberprobe}, @code{interfaces}
@@ -1606,6 +1593,7 @@ you found the experience.
 @cindex @code{targets}
 @cindex @code{endpoints}
 @cindex @code{snort_alert}
+@section @command{cyberprobe} configuration
 
 The configuration file is re-read when it changes, and changes are
 immediately actioned.
@@ -1760,10 +1748,9 @@ standards for streaming packets to a destination. There are also existing
 security products such as firewalls, and analysis tools which understand
 with these protocols. The two formats are ETSI LI and NHIS 1.1.
 
-@heading ETSI
-
 @cindex TS 102 232-3
 @cindex ETSI TS 102 232-3
+@heading ETSI
 
 The first of the formats supported is the ETSI LI format (see ETSI TS 102
 232), which is used in Europe and internationally. The protocol is described
@@ -1774,10 +1761,9 @@ putting the IP packets in the transport.
 
 Those adverse to the use of ASN.1 technology may prefer the second format.
 
-@heading NHIS 1
-
 @cindex TS 101 671
 @cindex ETSI TS 101 671
+@heading NHIS 1
 
 NHIS 1.1 which was defined for use in the UK in the 90s, based on GLIC
 in ETSI TS 101 671. The protocol is a much simpler header protocol than ETSI
@@ -1830,8 +1816,8 @@ nhis11_rcvr 10000 | tcpdump -n -r-
 @end example
 
 @node Management protocol
-@section Management protocol
 @cindex Management protocol
+@section Management protocol
 
 @heading Overview
 
@@ -2036,10 +2022,9 @@ end
 return observer
 @end example
 
-@heading LUA event calls
-
 @cindex LUA events
 @cindex @code{cybermon} events
+@heading LUA event calls
 
 The configuration file is expected to provide the following functions, which
 are called in response to @command{cybermon} events.
@@ -2140,10 +2125,9 @@ observed.
 
 @end table
 
-@heading Context object
-
 @cindex @code{context} object
 @cindex @code{cybermon} @code{context} object
+@heading Context object
 
 From the LUA code there, the @code{context} variable has a number of method
 functions which can be called:
@@ -2211,8 +2195,8 @@ protocol data in the DNS encoder.
 @end table
 
 @node Architecture
-@chapter Architecture
 @cindex Cyberprobe, architecture
+@chapter Architecture
 
 Cyberprobe consists of a set of loosely-coupled components which can be
 used together. We prefer to use simple interfaces, and prefer to use

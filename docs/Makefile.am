@@ -1,8 +1,8 @@
 
 dist_doc_DATA = architecture.png cyberprobe.css \
-	cyberprobe.png index.html licence.html kibana-scaled.png \
+	cyberprobe.png index.html licence.html kibana.png \
 	../stix/example1.txt ../stix/example2.txt \
-	cyberprobe.html
+	cyberprobe.html kibana-small.png
 
 info_TEXINFOS = cyberprobe.texi
 
