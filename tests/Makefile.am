@@ -1,6 +1,6 @@
 
 # The `:;' works around a Bash 3.2 bug when the output is not writeable.
-$(top_srcdir)/package.m4: $(top_srcdir)/configure.ac
+$(srcdir)/package.m4: $(top_srcdir)/configure.ac
 	:;{ \
 	  echo '# Signature of the current package.' && \
 	  echo 'm4_define([AT_PACKAGE_NAME],' && \
@@ -15,9 +15,9 @@ $(top_srcdir)/package.m4: $(top_srcdir)/configure.ac
 	  echo '  [$(PACKAGE_BUGREPORT)])'; \
 	  echo 'm4_define([AT_PACKAGE_URL],' && \
 	  echo '  [$(PACKAGE_URL)])'; \
-	} >'$(top_srcdir)/package.m4'
+	} >'$(srcdir)/package.m4'
 
-EXTRA_DIST = testsuite.at $(top_srcdir)/package.m4 $(TESTSUITE) atlocal.in
+EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) atlocal.in
 TESTSUITE = $(srcdir)/testsuite
 DISTCLEANFILE = ${srcdir}/testsuite
 
@@ -35,7 +35,7 @@ clean-local:
 AUTOM4TE = $(SHELL) $(top_srcdir)/missing --run autom4te
 AUTOTEST = $(AUTOM4TE) --language=autotest
 
-$(TESTSUITE): $(srcdir)/testsuite.at $(top_srcdir)/package.m4
+$(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
