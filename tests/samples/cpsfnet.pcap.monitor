@@ -1,0 +1,108 @@
+PCAP: 192.168.122.11:40499 -> 216.34.181.96:80. HTTP GET request
+    URL /
+    Connection: keep-alive
+    Accept-Encoding: gzip, deflate
+    Host: cyberprobe.sourceforge.net
+    Accept-Language: en-US,en;q=0.5
+    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+    User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0
+
+PCAP: 216.34.181.96:80 -> 192.168.122.11:40499. HTTP response 200 OK
+    URL http://cyberprobe.sourceforge.net/
+    Accept-Ranges: bytes
+    ETag: "2194-5040d4870fc4d"
+    Date: Fri, 10 Oct 2014 20:50:19 GMT
+    Expires: Sun, 12 Oct 2014 20:50:19 GMT
+    Server: Apache/2.2.15 (CentOS)
+    Vary: Host, Accept-Encoding, User-Agent
+    Via: 1.1 varnish
+    X-Varnish: 1515310257
+    Content-Type: text/html
+    Content-Encoding: gzip
+    Cache-Control: max-age=172800
+    Age: 0
+    Content-Length: 4289
+    Last-Modified: Sat, 27 Sep 2014 14:59:40 GMT
+    Connection: keep-alive
+
+PCAP: 192.168.122.11:40499 -> 216.34.181.96:80. HTTP GET request
+    URL /kibana-small.png
+    Connection: keep-alive
+    Referer: http://cyberprobe.sourceforge.net/
+    Accept-Encoding: gzip, deflate
+    Host: cyberprobe.sourceforge.net
+    Accept-Language: en-US,en;q=0.5
+    Accept: image/png,image/*;q=0.8,*/*;q=0.5
+    User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0
+
+PCAP: 192.168.122.11:40500 -> 216.34.181.96:80. HTTP GET request
+    URL /cyberprobe.png
+    Connection: keep-alive
+    Referer: http://cyberprobe.sourceforge.net/
+    Accept-Encoding: gzip, deflate
+    Host: cyberprobe.sourceforge.net
+    Accept-Language: en-US,en;q=0.5
+    Accept: image/png,image/*;q=0.8,*/*;q=0.5
+    User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0
+
+PCAP: 192.168.122.11:40501 -> 216.34.181.96:80. HTTP GET request
+    URL /cyberprobe.css
+    Connection: keep-alive
+    Referer: http://cyberprobe.sourceforge.net/
+    Accept-Encoding: gzip, deflate
+    Host: cyberprobe.sourceforge.net
+    Accept-Language: en-US,en;q=0.5
+    Accept: text/css,*/*;q=0.1
+    User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0
+
+PCAP: 216.34.181.96:80 -> 192.168.122.11:40500. HTTP response 200 OK
+    URL http://cyberprobe.sourceforge.net/cyberprobe.png
+    Accept-Ranges: bytes
+    ETag: "55fe-5040d481cff81"
+    Date: Fri, 10 Oct 2014 20:50:19 GMT
+    Expires: Mon, 13 Oct 2014 20:50:19 GMT
+    Vary: Host
+    Via: 1.1 varnish
+    X-Varnish: 11327757
+    Server: Apache/2.2.15 (CentOS)
+    Content-Type: image/png
+    Cache-Control: max-age=259200
+    Age: 0
+    Content-Length: 22014
+    Last-Modified: Sat, 27 Sep 2014 14:59:34 GMT
+    Connection: keep-alive
+
+PCAP: 216.34.181.96:80 -> 192.168.122.11:40501. HTTP response 200 OK
+    URL http://cyberprobe.sourceforge.net/cyberprobe.css
+    Accept-Ranges: bytes
+    ETag: "358-5040d48b51e5a"
+    Date: Fri, 10 Oct 2014 20:50:19 GMT
+    Expires: Sat, 11 Oct 2014 20:50:19 GMT
+    Vary: Host
+    Via: 1.1 varnish
+    X-Varnish: 1447365568
+    Server: Apache/2.2.15 (CentOS)
+    Content-Type: text/css
+    Cache-Control: max-age=86400
+    Age: 0
+    Content-Length: 856
+    Last-Modified: Sat, 27 Sep 2014 14:59:44 GMT
+    Connection: keep-alive
+
+PCAP: 216.34.181.96:80 -> 192.168.122.11:40499. HTTP response 200 OK
+    URL http://cyberprobe.sourceforge.net/kibana-small.png
+    Accept-Ranges: bytes
+    ETag: "114bd-5040d4824d764"
+    Date: Fri, 10 Oct 2014 20:50:19 GMT
+    Expires: Mon, 13 Oct 2014 20:50:19 GMT
+    Vary: Host
+    Via: 1.1 varnish
+    X-Varnish: 1515310267
+    Server: Apache/2.2.15 (CentOS)
+    Content-Type: image/png
+    Cache-Control: max-age=259200
+    Age: 0
+    Content-Length: 70845
+    Last-Modified: Sat, 27 Sep 2014 14:59:35 GMT
+    Connection: keep-alive
+

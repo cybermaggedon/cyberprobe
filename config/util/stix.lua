@@ -6,7 +6,11 @@ local addr = require("util.addresses")
 local stix = {}
 
 -- Configuration file.
-local config_file = "stix-default-combined.json"
+local config_file = os.getenv("STIX_INDICATORS")
+
+if config_file == nil then
+  config_file = "stix-default-combined.json"
+end
 
 -- This stores the JSON decode.
 stix.configuration = {}
@@ -209,6 +213,22 @@ stix.check_url = function(url, indicators)
     local indicator = {}
     indicator["on"] = "url"
     indicator["value"] = url
+    indicator["id"] = check.id
+    indicator["description"] = check.description
+    indicators[#indicators + 1] = indicator
+  end
+
+end
+
+stix.check_email = function(email, indicators)
+
+  stix.check_config()
+
+  check = stix.index.email[email]
+  if check then
+    local indicator = {}
+    indicator["on"] = "email"
+    indicator["value"] = email
     indicator["id"] = check.id
     indicator["description"] = check.description
     indicators[#indicators + 1] = indicator

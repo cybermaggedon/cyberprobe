@@ -1,0 +1,1074 @@
+PCAP: 192.168.1.80:44692 -> 192.168.1.1:53. DNS query
+    Query: fbcdn-photos-b-a.akamaihd.net
+
+PCAP: 192.168.1.80:44692 -> 192.168.1.1:53. DNS query
+    Query: fbcdn-photos-b-a.akamaihd.net
+
+PCAP: 192.168.1.80:48252 -> 192.168.1.1:53. DNS query
+    Query: fbcdn-photos-b-a.akamaihd.net
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:44692. DNS response
+    Query: fbcdn-photos-b-a.akamaihd.net
+    Answer: fbcdn-photos-b-a.akamaihd.net -> fbcdn-photos-b-a.akamaihd.net.edgesuite.net
+    Answer: fbcdn-photos-b-a.akamaihd.net.edgesuite.net -> a1791.dspmm1.akamai.net
+    Answer: a1791.dspmm1.akamai.net -> 92.122.123.25
+    Answer: a1791.dspmm1.akamai.net -> 92.122.123.73
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:44692. DNS response
+    Query: fbcdn-photos-b-a.akamaihd.net
+    Answer: fbcdn-photos-b-a.akamaihd.net -> fbcdn-photos-b-a.akamaihd.net.edgesuite.net
+    Answer: fbcdn-photos-b-a.akamaihd.net.edgesuite.net -> a1791.dspmm1.akamai.net
+    Answer: a1791.dspmm1.akamai.net -> 2a02:26f0:26::5c7a:d0a3
+    Answer: a1791.dspmm1.akamai.net -> 2a02:26f0:26::5c7a:d09a
+    Answer: a1791.dspmm1.akamai.net -> 2a02:26f0:26::5c7a:d0aa
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:48252. DNS response
+    Query: fbcdn-photos-b-a.akamaihd.net
+    Answer: fbcdn-photos-b-a.akamaihd.net -> fbcdn-photos-b-a.akamaihd.net.edgesuite.net
+    Answer: fbcdn-photos-b-a.akamaihd.net.edgesuite.net -> a1791.dspmm1.akamai.net
+    Answer: a1791.dspmm1.akamai.net -> 92.122.123.73
+    Answer: a1791.dspmm1.akamai.net -> 92.122.123.25
+
+PCAP: 192.168.1.80:51546 -> 192.168.1.1:53. DNS query
+    Query: pixel.facebook.com
+
+PCAP: 192.168.1.80:51546 -> 192.168.1.1:53. DNS query
+    Query: pixel.facebook.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51546. DNS response
+    Query: pixel.facebook.com
+    Answer: pixel.facebook.com -> star.facebook.com
+    Answer: star.facebook.com -> star.c10r.facebook.com
+    Answer: star.c10r.facebook.com -> 31.13.72.65
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51546. DNS response
+    Query: pixel.facebook.com
+    Answer: pixel.facebook.com -> star.facebook.com
+    Answer: star.facebook.com -> star.c10r.facebook.com
+    Answer: star.c10r.facebook.com -> 2a03:2880:f00a:401:face:b00c:0:1
+
+PCAP: 192.168.1.80:47342 -> 192.168.1.1:53. DNS query
+    Query: 2-pct.channel.facebook.com
+
+PCAP: 192.168.1.80:47342 -> 192.168.1.1:53. DNS query
+    Query: 2-pct.channel.facebook.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47342. DNS response
+    Query: 2-pct.channel.facebook.com
+    Answer: 2-pct.channel.facebook.com -> 69.171.235.16
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47342. DNS response
+    Query: 2-pct.channel.facebook.com
+
+PCAP: 192.168.1.80:37720 -> 192.168.1.1:53. DNS query
+    Query: news.bbc.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37720. DNS response
+    Query: news.bbc.co.uk
+    Answer: news.bbc.co.uk -> newswww.bbc.net.uk
+    Answer: newswww.bbc.net.uk -> 212.58.246.83
+    Answer: newswww.bbc.net.uk -> 212.58.246.82
+
+PCAP: 192.168.1.80:48048 -> 192.168.1.1:53. DNS query
+    Query: stats.bbc.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:48048. DNS response
+    Query: stats.bbc.co.uk
+    Answer: stats.bbc.co.uk -> stats.bbc.net.uk
+    Answer: stats.bbc.net.uk -> 212.58.244.130
+    Answer: stats.bbc.net.uk -> 212.58.244.131
+
+PCAP: 192.168.1.80:50478 -> 192.168.1.1:53. DNS query
+    Query: open.live.bbc.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:50478. DNS response
+    Query: open.live.bbc.co.uk
+    Answer: open.live.bbc.co.uk -> open-live.bbc.net.uk
+    Answer: open-live.bbc.net.uk -> 212.58.246.110
+    Answer: open-live.bbc.net.uk -> 212.58.246.109
+
+PCAP: 192.168.1.80:42816 -> 192.168.1.1:53. DNS query
+    Query: giffgaff.com
+
+PCAP: 192.168.1.80:42816 -> 192.168.1.1:53. DNS query
+    Query: giffgaff.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42816. DNS response
+    Query: giffgaff.com
+    Answer: giffgaff.com -> 95.138.157.240
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42816. DNS response
+    Query: giffgaff.com
+
+PCAP: 192.168.1.80:44459 -> 192.168.1.1:53. DNS query
+    Query: giffgaff.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:44459. DNS response
+    Query: giffgaff.com
+    Answer: giffgaff.com -> 95.138.157.240
+
+PCAP: 192.168.1.80:49503 -> 192.168.1.1:53. DNS query
+    Query: ssl.google-analytics.com
+
+PCAP: 192.168.1.80:49503 -> 192.168.1.1:53. DNS query
+    Query: ssl.google-analytics.com
+
+PCAP: 192.168.1.80:59695 -> 192.168.1.1:53. DNS query
+    Query: fls.doubleclick.net
+
+PCAP: 192.168.1.80:59695 -> 192.168.1.1:53. DNS query
+    Query: fls.doubleclick.net
+
+PCAP: 192.168.1.80:34976 -> 192.168.1.1:53. DNS query
+    Query: apis.google.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49503. DNS response
+    Query: ssl.google-analytics.com
+    Answer: ssl.google-analytics.com -> ssl-google-analytics.l.google.com
+    Answer: ssl-google-analytics.l.google.com -> 173.194.34.158
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49503. DNS response
+    Query: ssl.google-analytics.com
+    Answer: ssl.google-analytics.com -> ssl-google-analytics.l.google.com
+    Answer: ssl-google-analytics.l.google.com -> 2a00:1450:4009:808::101e
+
+PCAP: 192.168.1.80:60091 -> 192.168.1.1:53. DNS query
+    Query: ssl.gstatic.com
+
+PCAP: 192.168.1.80:50946 -> 192.168.1.1:53. DNS query
+    Query: accounts.google.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59695. DNS response
+    Query: fls.doubleclick.net
+    Answer: fls.doubleclick.net -> dart.l.doubleclick.net
+    Answer: dart.l.doubleclick.net -> 173.194.34.188
+    Answer: dart.l.doubleclick.net -> 173.194.34.187
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59695. DNS response
+    Query: fls.doubleclick.net
+    Answer: fls.doubleclick.net -> dart.l.doubleclick.net
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:34976. DNS response
+    Query: apis.google.com
+    Answer: apis.google.com -> plus.l.google.com
+    Answer: plus.l.google.com -> 173.194.34.161
+    Answer: plus.l.google.com -> 173.194.34.163
+    Answer: plus.l.google.com -> 173.194.34.164
+    Answer: plus.l.google.com -> 173.194.34.168
+    Answer: plus.l.google.com -> 173.194.34.160
+    Answer: plus.l.google.com -> 173.194.34.165
+    Answer: plus.l.google.com -> 173.194.34.162
+    Answer: plus.l.google.com -> 173.194.34.174
+    Answer: plus.l.google.com -> 173.194.34.167
+    Answer: plus.l.google.com -> 173.194.34.169
+    Answer: plus.l.google.com -> 173.194.34.166
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:50946. DNS response
+    Query: accounts.google.com
+    Answer: accounts.google.com -> accounts.l.google.com
+    Answer: accounts.l.google.com -> 173.194.67.84
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60091. DNS response
+    Query: ssl.gstatic.com
+    Answer: ssl.gstatic.com -> 173.194.34.175
+
+PCAP: 192.168.1.80:45190 -> 192.168.1.1:53. DNS query
+    Query: 2888261.fls.doubleclick.net
+
+PCAP: 192.168.1.80:45190 -> 192.168.1.1:53. DNS query
+    Query: 2888261.fls.doubleclick.net
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45190. DNS response
+    Query: 2888261.fls.doubleclick.net
+    Answer: 2888261.fls.doubleclick.net -> dart.l.doubleclick.net
+    Answer: dart.l.doubleclick.net -> 173.194.34.187
+    Answer: dart.l.doubleclick.net -> 173.194.34.188
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45190. DNS response
+    Query: 2888261.fls.doubleclick.net
+    Answer: 2888261.fls.doubleclick.net -> dart.l.doubleclick.net
+
+PCAP: 192.168.1.80:38980 -> 192.168.1.1:53. DNS query
+    Query: segment-pixel.invitemedia.com
+
+PCAP: 192.168.1.80:38980 -> 192.168.1.1:53. DNS query
+    Query: segment-pixel.invitemedia.com
+
+PCAP: 192.168.1.80:34250 -> 192.168.1.1:53. DNS query
+    Query: uk.view.adjug.com
+
+PCAP: 192.168.1.80:34250 -> 192.168.1.1:53. DNS query
+    Query: uk.view.adjug.com
+
+PCAP: 192.168.1.80:49798 -> 192.168.1.1:53. DNS query
+    Query: secureads.audience2media.com
+
+PCAP: 192.168.1.80:49798 -> 192.168.1.1:53. DNS query
+    Query: secureads.audience2media.com
+
+PCAP: 192.168.1.80:59308 -> 192.168.1.1:53. DNS query
+    Query: p.rfihub.com
+
+PCAP: 192.168.1.80:59308 -> 192.168.1.1:53. DNS query
+    Query: p.rfihub.com
+
+PCAP: 192.168.1.80:60879 -> 192.168.1.1:53. DNS query
+    Query: at.amgdgt.com
+
+PCAP: 192.168.1.80:60879 -> 192.168.1.1:53. DNS query
+    Query: at.amgdgt.com
+
+PCAP: 192.168.1.80:51710 -> 192.168.1.1:53. DNS query
+    Query: us.ebayobjects.com
+
+PCAP: 192.168.1.80:51710 -> 192.168.1.1:53. DNS query
+    Query: us.ebayobjects.com
+
+PCAP: 192.168.1.80:51582 -> 192.168.1.1:53. DNS query
+    Query: ak1s.abmr.net
+
+PCAP: 192.168.1.80:51582 -> 192.168.1.1:53. DNS query
+    Query: ak1s.abmr.net
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:38980. DNS response
+    Query: segment-pixel.invitemedia.com
+    Answer: segment-pixel.invitemedia.com -> pixel.prod2.invitemedia.com
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.91
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.152
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.154
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.153
+    Answer: pixel.prod2.invitemedia.com -> 108.170.204.97
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.43
+    Answer: pixel.prod2.invitemedia.com -> 108.170.204.99
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.72
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.44
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.42
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.45
+    Answer: pixel.prod2.invitemedia.com -> 108.170.204.98
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.71
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:38980. DNS response
+    Query: segment-pixel.invitemedia.com
+    Answer: segment-pixel.invitemedia.com -> pixel.prod2.invitemedia.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:34250. DNS response
+    Query: uk.view.adjug.com
+    Answer: uk.view.adjug.com -> 85.90.254.45
+
+PCAP: 192.168.1.80:39719 -> 192.168.1.1:53. DNS query
+    Query: www.google.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:34250. DNS response
+    Query: uk.view.adjug.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49798. DNS response
+    Query: secureads.audience2media.com
+    Answer: secureads.audience2media.com -> 64.237.103.146
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59308. DNS response
+    Query: p.rfihub.com
+    Answer: p.rfihub.com -> a.rfihub.com
+    Answer: a.rfihub.com -> tca-ad-lb3.rfihub.com
+    Answer: tca-ad-lb3.rfihub.com -> 193.0.160.244
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49798. DNS response
+    Query: secureads.audience2media.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59308. DNS response
+    Query: p.rfihub.com
+    Answer: p.rfihub.com -> a.rfihub.com
+    Answer: a.rfihub.com -> tca-ad-lb3.rfihub.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60879. DNS response
+    Query: at.amgdgt.com
+    Answer: at.amgdgt.com -> 193.149.47.99
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60879. DNS response
+    Query: at.amgdgt.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51710. DNS response
+    Query: us.ebayobjects.com
+    Answer: us.ebayobjects.com -> 92.242.132.15
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51710. DNS response
+    Query: us.ebayobjects.com
+
+PCAP: 192.168.1.80:33727 -> 192.168.1.1:53. DNS query
+    Query: secure.adnxs.com
+
+PCAP: 192.168.1.80:33727 -> 192.168.1.1:53. DNS query
+    Query: secure.adnxs.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51582. DNS response
+    Query: ak1s.abmr.net
+    Answer: ak1s.abmr.net -> wildcard.abmr.net.edgekey.net
+    Answer: wildcard.abmr.net.edgekey.net -> e2181.b.akamaiedge.net
+    Answer: e2181.b.akamaiedge.net -> 2.19.233.8
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51582. DNS response
+    Query: ak1s.abmr.net
+    Answer: ak1s.abmr.net -> wildcard.abmr.net.edgekey.net
+    Answer: wildcard.abmr.net.edgekey.net -> e2181.b.akamaiedge.net
+
+PCAP: 192.168.1.80:40258 -> 192.168.1.1:53. DNS query
+    Query: segment-pixel.invitemedia.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:39719. DNS response
+    Query: www.google.com
+    Answer: www.google.com -> 173.194.67.106
+    Answer: www.google.com -> 173.194.67.103
+    Answer: www.google.com -> 173.194.67.147
+    Answer: www.google.com -> 173.194.67.105
+    Answer: www.google.com -> 173.194.67.104
+    Answer: www.google.com -> 173.194.67.99
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33727. DNS response
+    Query: secure.adnxs.com
+    Answer: secure.adnxs.com -> 68.67.179.129
+    Answer: secure.adnxs.com -> 68.67.179.239
+    Answer: secure.adnxs.com -> 68.67.179.230
+    Answer: secure.adnxs.com -> 68.67.179.229
+    Answer: secure.adnxs.com -> 68.67.179.241
+    Answer: secure.adnxs.com -> 68.67.179.128
+    Answer: secure.adnxs.com -> 68.67.179.233
+    Answer: secure.adnxs.com -> 68.67.179.237
+
+PCAP: 192.168.1.80:33424 -> 192.168.1.1:53. DNS query
+    Query: ads.adrdgt.com
+
+PCAP: 192.168.1.80:33424 -> 192.168.1.1:53. DNS query
+    Query: ads.adrdgt.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40258. DNS response
+    Query: segment-pixel.invitemedia.com
+    Answer: segment-pixel.invitemedia.com -> pixel.prod2.invitemedia.com
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.153
+    Answer: pixel.prod2.invitemedia.com -> 108.170.204.97
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.43
+    Answer: pixel.prod2.invitemedia.com -> 108.170.204.99
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.72
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.44
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.42
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.45
+    Answer: pixel.prod2.invitemedia.com -> 108.170.204.98
+    Answer: pixel.prod2.invitemedia.com -> 108.170.194.71
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.91
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.152
+    Answer: pixel.prod2.invitemedia.com -> 108.170.206.154
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33727. DNS response
+    Query: secure.adnxs.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33424. DNS response
+    Query: ads.adrdgt.com
+    Answer: ads.adrdgt.com -> ib.adnxs.com
+    Answer: ib.adnxs.com -> 68.67.185.174
+    Answer: ib.adnxs.com -> 68.67.179.154
+    Answer: ib.adnxs.com -> 68.67.179.213
+    Answer: ib.adnxs.com -> 68.67.185.197
+    Answer: ib.adnxs.com -> 68.67.185.173
+    Answer: ib.adnxs.com -> 68.67.185.147
+    Answer: ib.adnxs.com -> 68.67.185.177
+    Answer: ib.adnxs.com -> 68.67.179.161
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33424. DNS response
+    Query: ads.adrdgt.com
+    Answer: ads.adrdgt.com -> ib.adnxs.com
+
+PCAP: 192.168.1.80:55547 -> 192.168.1.1:53. DNS query
+    Query: us.ebayobjects.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:55547. DNS response
+    Query: us.ebayobjects.com
+    Answer: us.ebayobjects.com -> 92.242.132.15
+
+PCAP: 192.168.1.80:60020 -> 192.168.1.1:53. DNS query
+    Query: ads.adrdgt.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60020. DNS response
+    Query: ads.adrdgt.com
+    Answer: ads.adrdgt.com -> ib.adnxs.com
+    Answer: ib.adnxs.com -> 68.67.185.177
+    Answer: ib.adnxs.com -> 68.67.179.161
+    Answer: ib.adnxs.com -> 68.67.185.174
+    Answer: ib.adnxs.com -> 68.67.179.154
+    Answer: ib.adnxs.com -> 68.67.179.213
+    Answer: ib.adnxs.com -> 68.67.185.197
+    Answer: ib.adnxs.com -> 68.67.185.173
+    Answer: ib.adnxs.com -> 68.67.185.147
+
+PCAP: 192.168.1.80:42583 -> 192.168.1.1:53. DNS query
+    Query: pct.channel.facebook.com
+
+PCAP: 192.168.1.80:42583 -> 192.168.1.1:53. DNS query
+    Query: pct.channel.facebook.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42583. DNS response
+    Query: pct.channel.facebook.com
+    Answer: pct.channel.facebook.com -> 69.171.235.16
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42583. DNS response
+    Query: pct.channel.facebook.com
+
+PCAP: 192.168.1.80:41759 -> 192.168.1.1:53. DNS query
+    Query: cm.g.doubleclick.net
+
+PCAP: 192.168.1.80:41759 -> 192.168.1.1:53. DNS query
+    Query: cm.g.doubleclick.net
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41759. DNS response
+    Query: cm.g.doubleclick.net
+    Answer: cm.g.doubleclick.net -> pagead.l.doubleclick.net
+    Answer: pagead.l.doubleclick.net -> 173.194.34.186
+    Answer: pagead.l.doubleclick.net -> 173.194.34.185
+    Answer: pagead.l.doubleclick.net -> 173.194.34.173
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41759. DNS response
+    Query: cm.g.doubleclick.net
+    Answer: cm.g.doubleclick.net -> pagead.l.doubleclick.net
+
+PCAP: 192.168.1.80:54943 -> 192.168.1.1:53. DNS query
+    Query: simage2.pubmatic.com
+
+PCAP: 192.168.1.80:54943 -> 192.168.1.1:53. DNS query
+    Query: simage2.pubmatic.com
+
+PCAP: 192.168.1.80:39395 -> 192.168.1.1:53. DNS query
+    Query: simage2.pubmatic.com
+
+PCAP: 192.168.1.80:42117 -> 192.168.1.1:53. DNS query
+    Query: stags.bluekai.com
+
+PCAP: 192.168.1.80:42117 -> 192.168.1.1:53. DNS query
+    Query: stags.bluekai.com
+
+PCAP: 192.168.1.80:33251 -> 192.168.1.1:53. DNS query
+    Query: load.exelator.com
+
+PCAP: 192.168.1.80:33251 -> 192.168.1.1:53. DNS query
+    Query: load.exelator.com
+
+PCAP: 192.168.1.80:60935 -> 192.168.1.1:53. DNS query
+    Query: secure-us.imrworldwide.com
+
+PCAP: 192.168.1.80:60935 -> 192.168.1.1:53. DNS query
+    Query: secure-us.imrworldwide.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54943. DNS response
+    Query: simage2.pubmatic.com
+    Answer: simage2.pubmatic.com -> 217.72.250.71
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54943. DNS response
+    Query: simage2.pubmatic.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:39395. DNS response
+    Query: simage2.pubmatic.com
+    Answer: simage2.pubmatic.com -> 217.72.250.71
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42117. DNS response
+    Query: stags.bluekai.com
+    Answer: stags.bluekai.com -> 208.43.117.200
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42117. DNS response
+    Query: stags.bluekai.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33251. DNS response
+    Query: load.exelator.com
+    Answer: load.exelator.com -> geo.tm.exelator.com
+    Answer: geo.tm.exelator.com -> west.eu.tm.exelator.com
+    Answer: west.eu.tm.exelator.com -> 72.251.243.38
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33251. DNS response
+    Query: load.exelator.com
+    Answer: load.exelator.com -> geo.tm.exelator.com
+    Answer: geo.tm.exelator.com -> west.eu.tm.exelator.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60935. DNS response
+    Query: secure-us.imrworldwide.com
+    Answer: secure-us.imrworldwide.com -> 138.108.7.20
+
+PCAP: 192.168.1.80:36863 -> 192.168.1.1:53. DNS query
+    Query: b.voicefive.com
+
+PCAP: 192.168.1.80:36863 -> 192.168.1.1:53. DNS query
+    Query: b.voicefive.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36863. DNS response
+    Query: b.voicefive.com
+    Answer: b.voicefive.com -> b.voicefive.com.edgesuite.net
+    Answer: b.voicefive.com.edgesuite.net -> a1294.w20.akamai.net
+    Answer: a1294.w20.akamai.net -> 217.32.26.11
+    Answer: a1294.w20.akamai.net -> 217.32.26.25
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60935. DNS response
+    Query: secure-us.imrworldwide.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36863. DNS response
+    Query: b.voicefive.com
+    Answer: b.voicefive.com -> b.voicefive.com.edgesuite.net
+    Answer: b.voicefive.com.edgesuite.net -> a1294.w20.akamai.net
+
+PCAP: 192.168.1.80:40559 -> 192.168.1.1:53. DNS query
+    Query: ocsp.entrust.net
+
+PCAP: 192.168.1.80:40559 -> 192.168.1.1:53. DNS query
+    Query: ocsp.entrust.net
+
+PCAP: 192.168.1.80:52698 -> 192.168.1.1:53. DNS query
+    Query: load.exelator.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40559. DNS response
+    Query: ocsp.entrust.net
+    Answer: ocsp.entrust.net -> ocsp.entrust.net.edgekey.net
+    Answer: ocsp.entrust.net.edgekey.net -> e6913.dscx.akamaiedge.net
+    Answer: e6913.dscx.akamaiedge.net -> 23.36.5.231
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40559. DNS response
+    Query: ocsp.entrust.net
+    Answer: ocsp.entrust.net -> ocsp.entrust.net.edgekey.net
+    Answer: ocsp.entrust.net.edgekey.net -> e6913.dscx.akamaiedge.net
+    Answer: e6913.dscx.akamaiedge.net -> 2a02:26f0:26:3:8100::1b01
+    Answer: e6913.dscx.akamaiedge.net -> 2a02:26f0:26:3:9400::1b01
+    Answer: e6913.dscx.akamaiedge.net -> 2a02:26f0:26:3:9600::1b01
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:52698. DNS response
+    Query: load.exelator.com
+    Answer: load.exelator.com -> geo.tm.exelator.com
+    Answer: geo.tm.exelator.com -> west.eu.tm.exelator.com
+    Answer: west.eu.tm.exelator.com -> 72.251.243.38
+
+PCAP: 192.168.1.80:58885 -> 192.168.1.1:53. DNS query
+    Query: stags.bluekai.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:58885. DNS response
+    Query: stags.bluekai.com
+    Answer: stags.bluekai.com -> 208.43.117.200
+
+PCAP: 192.168.1.80:45257 -> 192.168.1.1:53. DNS query
+    Query: s0.2mdn.net
+
+PCAP: 192.168.1.80:45257 -> 192.168.1.1:53. DNS query
+    Query: s0.2mdn.net
+
+PCAP: 192.168.1.80:51966 -> 192.168.1.1:53. DNS query
+    Query: a.scorecardresearch.com
+
+PCAP: 192.168.1.80:51966 -> 192.168.1.1:53. DNS query
+    Query: a.scorecardresearch.com
+
+PCAP: 192.168.1.80:47682 -> 192.168.1.1:53. DNS query
+    Query: pixel.adsafeprotected.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45257. DNS response
+    Query: s0.2mdn.net
+    Answer: s0.2mdn.net -> s0-2mdn-net.l.google.com
+    Answer: s0-2mdn-net.l.google.com -> 173.194.34.187
+    Answer: s0-2mdn-net.l.google.com -> 173.194.34.188
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45257. DNS response
+    Query: s0.2mdn.net
+    Answer: s0.2mdn.net -> s0-2mdn-net.l.google.com
+
+PCAP: 192.168.1.80:35841 -> 192.168.1.1:53. DNS query
+    Query: load.s3.amazonaws.com
+
+PCAP: 192.168.1.80:35841 -> 192.168.1.1:53. DNS query
+    Query: load.s3.amazonaws.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51966. DNS response
+    Query: a.scorecardresearch.com
+    Answer: a.scorecardresearch.com -> adxpose.tmrg.akadns.net
+    Answer: adxpose.tmrg.akadns.net -> 66.119.33.173
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51966. DNS response
+    Query: a.scorecardresearch.com
+    Answer: a.scorecardresearch.com -> adxpose.tmrg.akadns.net
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47682. DNS response
+    Query: pixel.adsafeprotected.com
+    Answer: pixel.adsafeprotected.com -> 69.172.216.55
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35841. DNS response
+    Query: load.s3.amazonaws.com
+    Answer: load.s3.amazonaws.com -> s3-1-w.amazonaws.com
+    Answer: s3-1-w.amazonaws.com -> 176.32.100.240
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35841. DNS response
+    Query: load.s3.amazonaws.com
+    Answer: load.s3.amazonaws.com -> s3-1-w.amazonaws.com
+
+PCAP: 192.168.1.80:37751 -> 192.168.1.1:53. DNS query
+    Query: l.betrad.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37751. DNS response
+    Query: l.betrad.com
+    Answer: l.betrad.com -> log-2048315323.us-east-1.elb.amazonaws.com
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 54.243.74.249
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 54.235.93.131
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 54.243.212.244
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 54.243.102.115
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 23.23.114.103
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 23.23.166.142
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 184.73.167.136
+    Answer: log-2048315323.us-east-1.elb.amazonaws.com -> 50.17.224.16
+
+PCAP: 192.168.1.80:54994 -> 192.168.1.1:53. DNS query
+    Query: napa.i.lithium.com
+
+PCAP: 192.168.1.80:54994 -> 192.168.1.1:53. DNS query
+    Query: napa.i.lithium.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54994. DNS response
+    Query: napa.i.lithium.com
+    Answer: napa.i.lithium.com -> cs71.wac.edgecastcdn.net
+    Answer: cs71.wac.edgecastcdn.net -> 93.184.220.97
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54994. DNS response
+    Query: napa.i.lithium.com
+    Answer: napa.i.lithium.com -> cs71.wac.edgecastcdn.net
+
+PCAP: 192.168.1.80:37580 -> 192.168.1.1:53. DNS query
+    Query: ocsp.godaddy.com
+
+PCAP: 192.168.1.80:37580 -> 192.168.1.1:53. DNS query
+    Query: ocsp.godaddy.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37580. DNS response
+    Query: ocsp.godaddy.com
+    Answer: ocsp.godaddy.com -> ocsp.godaddy.com.akadns.net
+    Answer: ocsp.godaddy.com.akadns.net -> 188.121.36.239
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37580. DNS response
+    Query: ocsp.godaddy.com
+    Answer: ocsp.godaddy.com -> ocsp.godaddy.com.akadns.net
+
+PCAP: 192.168.1.80:36047 -> 192.168.1.1:53. DNS query
+    Query: feeds.feedburner.com
+
+PCAP: 192.168.1.80:36047 -> 192.168.1.1:53. DNS query
+    Query: feeds.feedburner.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36047. DNS response
+    Query: feeds.feedburner.com
+    Answer: feeds.feedburner.com -> www4.l.google.com
+    Answer: www4.l.google.com -> 173.194.34.164
+    Answer: www4.l.google.com -> 173.194.34.169
+    Answer: www4.l.google.com -> 173.194.34.165
+    Answer: www4.l.google.com -> 173.194.34.160
+    Answer: www4.l.google.com -> 173.194.34.162
+    Answer: www4.l.google.com -> 173.194.34.168
+    Answer: www4.l.google.com -> 173.194.34.167
+    Answer: www4.l.google.com -> 173.194.34.166
+    Answer: www4.l.google.com -> 173.194.34.161
+    Answer: www4.l.google.com -> 173.194.34.174
+    Answer: www4.l.google.com -> 173.194.34.163
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36047. DNS response
+    Query: feeds.feedburner.com
+    Answer: feeds.feedburner.com -> www4.l.google.com
+    Answer: www4.l.google.com -> 2a00:1450:4009:805::1009
+
+PCAP: 192.168.1.80:49386 -> 192.168.1.1:53. DNS query
+    Query: www.theregister.co.uk
+
+PCAP: 192.168.1.80:49386 -> 192.168.1.1:53. DNS query
+    Query: www.theregister.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49386. DNS response
+    Query: www.theregister.co.uk
+    Answer: www.theregister.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49386. DNS response
+    Query: www.theregister.co.uk
+
+PCAP: 192.168.1.80:37739 -> 192.168.1.1:53. DNS query
+    Query: www.theregister.co.uk
+
+PCAP: 192.168.1.80:47420 -> 192.168.1.1:53. DNS query
+    Query: www.googletagservices.com
+
+PCAP: 192.168.1.80:47420 -> 192.168.1.1:53. DNS query
+    Query: www.googletagservices.com
+
+PCAP: 192.168.1.80:41998 -> 192.168.1.1:53. DNS query
+    Query: regmedia.co.uk
+
+PCAP: 192.168.1.80:41998 -> 192.168.1.1:53. DNS query
+    Query: regmedia.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37739. DNS response
+    Query: www.theregister.co.uk
+    Answer: www.theregister.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47420. DNS response
+    Query: www.googletagservices.com
+    Answer: www.googletagservices.com -> pagead46.l.doubleclick.net
+    Answer: pagead46.l.doubleclick.net -> 173.194.34.173
+    Answer: pagead46.l.doubleclick.net -> 173.194.34.185
+    Answer: pagead46.l.doubleclick.net -> 173.194.34.186
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47420. DNS response
+    Query: www.googletagservices.com
+    Answer: www.googletagservices.com -> pagead46.l.doubleclick.net
+    Answer: pagead46.l.doubleclick.net -> 2a00:1450:4009:805::1019
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41998. DNS response
+    Query: regmedia.co.uk
+    Answer: regmedia.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41998. DNS response
+    Query: regmedia.co.uk
+
+PCAP: 192.168.1.80:45195 -> 192.168.1.1:53. DNS query
+    Query: regmedia.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45195. DNS response
+    Query: regmedia.co.uk
+    Answer: regmedia.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.80:42498 -> 192.168.1.1:53. DNS query
+    Query: nir.theregister.co.uk
+
+PCAP: 192.168.1.80:42498 -> 192.168.1.1:53. DNS query
+    Query: nir.theregister.co.uk
+
+PCAP: 192.168.1.80:51109 -> 192.168.1.1:53. DNS query
+    Query: nir.theregister.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42498. DNS response
+    Query: nir.theregister.co.uk
+    Answer: nir.theregister.co.uk -> www.theregister.co.uk
+    Answer: www.theregister.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42498. DNS response
+    Query: nir.theregister.co.uk
+    Answer: nir.theregister.co.uk -> www.theregister.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51109. DNS response
+    Query: nir.theregister.co.uk
+    Answer: nir.theregister.co.uk -> www.theregister.co.uk
+    Answer: www.theregister.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.80:53834 -> 192.168.1.1:53. DNS query
+    Query: partner.googleadservices.com
+
+PCAP: 192.168.1.80:53834 -> 192.168.1.1:53. DNS query
+    Query: partner.googleadservices.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53834. DNS response
+    Query: partner.googleadservices.com
+    Answer: partner.googleadservices.com -> partnerad.l.doubleclick.net
+    Answer: partnerad.l.doubleclick.net -> 173.194.34.185
+    Answer: partnerad.l.doubleclick.net -> 173.194.34.186
+    Answer: partnerad.l.doubleclick.net -> 173.194.34.173
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53834. DNS response
+    Query: partner.googleadservices.com
+    Answer: partner.googleadservices.com -> partnerad.l.doubleclick.net
+
+PCAP: 192.168.1.80:60148 -> 192.168.1.1:53. DNS query
+    Query: adfarm.mediaplex.com
+
+PCAP: 192.168.1.80:60148 -> 192.168.1.1:53. DNS query
+    Query: adfarm.mediaplex.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60148. DNS response
+    Query: adfarm.mediaplex.com
+    Answer: adfarm.mediaplex.com -> ad.mediaplex.com
+    Answer: ad.mediaplex.com -> adfarm.mplx.akadns.net
+    Answer: adfarm.mplx.akadns.net -> 89.207.18.182
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60148. DNS response
+    Query: adfarm.mediaplex.com
+    Answer: adfarm.mediaplex.com -> ad.mediaplex.com
+    Answer: ad.mediaplex.com -> adfarm.mplx.akadns.net
+
+PCAP: 192.168.1.80:45280 -> 192.168.1.1:53. DNS query
+    Query: img.mediaplex.com
+
+PCAP: 192.168.1.80:45280 -> 192.168.1.1:53. DNS query
+    Query: img.mediaplex.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45280. DNS response
+    Query: img.mediaplex.com
+    Answer: img.mediaplex.com -> img.mplx.akadns.net
+    Answer: img.mplx.akadns.net -> img-global.mplx.akadns.net
+    Answer: img-global.mplx.akadns.net -> 89.207.18.181
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45280. DNS response
+    Query: img.mediaplex.com
+    Answer: img.mediaplex.com -> img.mplx.akadns.net
+    Answer: img.mplx.akadns.net -> img-global.mplx.akadns.net
+
+PCAP: 192.168.1.80:54657 -> 192.168.1.1:53. DNS query
+    Query: google-sync.rutarget.ru
+
+PCAP: 192.168.1.80:54657 -> 192.168.1.1:53. DNS query
+    Query: google-sync.rutarget.ru
+
+PCAP: 192.168.1.80:37986 -> 192.168.1.1:53. DNS query
+    Query: go.theregister.com
+
+PCAP: 192.168.1.80:37986 -> 192.168.1.1:53. DNS query
+    Query: go.theregister.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54657. DNS response
+    Query: google-sync.rutarget.ru
+    Answer: google-sync.rutarget.ru -> app25.rutarget.ru
+    Answer: app25.rutarget.ru -> 5.9.122.209
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54657. DNS response
+    Query: google-sync.rutarget.ru
+    Answer: google-sync.rutarget.ru -> app25.rutarget.ru
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37986. DNS response
+    Query: go.theregister.com
+    Answer: go.theregister.com -> 92.52.96.89
+
+PCAP: 192.168.1.80:53861 -> 192.168.1.1:53. DNS query
+    Query: resources.reed.co.uk
+
+PCAP: 192.168.1.80:53861 -> 192.168.1.1:53. DNS query
+    Query: resources.reed.co.uk
+
+PCAP: 192.168.1.80:54558 -> 192.168.1.1:53. DNS query
+    Query: resources.reed.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37986. DNS response
+    Query: go.theregister.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53861. DNS response
+    Query: resources.reed.co.uk
+    Answer: resources.reed.co.uk -> 217.64.230.225
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53861. DNS response
+    Query: resources.reed.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54558. DNS response
+    Query: resources.reed.co.uk
+    Answer: resources.reed.co.uk -> 217.64.230.225
+
+PCAP: 192.168.1.80:49666 -> 192.168.1.1:53. DNS query
+    Query: whitepapers.theregister.co.uk
+
+PCAP: 192.168.1.80:49666 -> 192.168.1.1:53. DNS query
+    Query: whitepapers.theregister.co.uk
+
+PCAP: 192.168.1.80:49427 -> 192.168.1.1:53. DNS query
+    Query: www.channelregister.co.uk
+
+PCAP: 192.168.1.80:49427 -> 192.168.1.1:53. DNS query
+    Query: www.channelregister.co.uk
+
+PCAP: 192.168.1.80:35949 -> 192.168.1.1:53. DNS query
+    Query: forums.theregister.co.uk
+
+PCAP: 192.168.1.80:35949 -> 192.168.1.1:53. DNS query
+    Query: forums.theregister.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49666. DNS response
+    Query: whitepapers.theregister.co.uk
+    Answer: whitepapers.theregister.co.uk -> app1.theregister.co.uk
+    Answer: app1.theregister.co.uk -> 92.52.96.115
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49666. DNS response
+    Query: whitepapers.theregister.co.uk
+    Answer: whitepapers.theregister.co.uk -> app1.theregister.co.uk
+
+PCAP: 192.168.1.80:53726 -> 192.168.1.1:53. DNS query
+    Query: account.theregister.co.uk
+
+PCAP: 192.168.1.80:53726 -> 192.168.1.1:53. DNS query
+    Query: account.theregister.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49427. DNS response
+    Query: www.channelregister.co.uk
+    Answer: www.channelregister.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49427. DNS response
+    Query: www.channelregister.co.uk
+
+PCAP: 192.168.1.80:56659 -> 192.168.1.1:53. DNS query
+    Query: www.reed.co.uk
+
+PCAP: 192.168.1.80:56659 -> 192.168.1.1:53. DNS query
+    Query: www.reed.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35949. DNS response
+    Query: forums.theregister.co.uk
+    Answer: forums.theregister.co.uk -> www.theregister.co.uk
+    Answer: www.theregister.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35949. DNS response
+    Query: forums.theregister.co.uk
+    Answer: forums.theregister.co.uk -> www.theregister.co.uk
+
+PCAP: 192.168.1.80:32770 -> 192.168.1.1:53. DNS query
+    Query: forms.theregister.co.uk
+
+PCAP: 192.168.1.80:32770 -> 192.168.1.1:53. DNS query
+    Query: forms.theregister.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53726. DNS response
+    Query: account.theregister.co.uk
+    Answer: account.theregister.co.uk -> app2.theregister.co.uk
+    Answer: app2.theregister.co.uk -> 92.52.96.116
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53726. DNS response
+    Query: account.theregister.co.uk
+    Answer: account.theregister.co.uk -> app2.theregister.co.uk
+
+PCAP: 192.168.1.80:37334 -> 192.168.1.1:53. DNS query
+    Query: www.facebook.com
+
+PCAP: 192.168.1.80:37334 -> 192.168.1.1:53. DNS query
+    Query: www.facebook.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:56659. DNS response
+    Query: www.reed.co.uk
+    Answer: www.reed.co.uk -> 217.64.230.225
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:56659. DNS response
+    Query: www.reed.co.uk
+
+PCAP: 192.168.1.80:53600 -> 192.168.1.1:53. DNS query
+    Query: www.youtube.com
+
+PCAP: 192.168.1.80:53600 -> 192.168.1.1:53. DNS query
+    Query: www.youtube.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:32770. DNS response
+    Query: forms.theregister.co.uk
+    Answer: forms.theregister.co.uk -> app2.theregister.co.uk
+    Answer: app2.theregister.co.uk -> 92.52.96.116
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:32770. DNS response
+    Query: forms.theregister.co.uk
+    Answer: forms.theregister.co.uk -> app2.theregister.co.uk
+
+PCAP: 192.168.1.80:42197 -> 192.168.1.1:53. DNS query
+    Query: media.theregister.co.uk
+
+PCAP: 192.168.1.80:42197 -> 192.168.1.1:53. DNS query
+    Query: media.theregister.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37334. DNS response
+    Query: www.facebook.com
+    Answer: www.facebook.com -> star.c10r.facebook.com
+    Answer: star.c10r.facebook.com -> 31.13.72.65
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37334. DNS response
+    Query: www.facebook.com
+    Answer: www.facebook.com -> star.c10r.facebook.com
+    Answer: star.c10r.facebook.com -> 2a03:2880:f00a:401:face:b00c:0:1
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53600. DNS response
+    Query: www.youtube.com
+    Answer: www.youtube.com -> youtube-ui.l.google.com
+    Answer: youtube-ui.l.google.com -> 173.194.34.166
+    Answer: youtube-ui.l.google.com -> 173.194.34.169
+    Answer: youtube-ui.l.google.com -> 173.194.34.161
+    Answer: youtube-ui.l.google.com -> 173.194.34.174
+    Answer: youtube-ui.l.google.com -> 173.194.34.162
+    Answer: youtube-ui.l.google.com -> 173.194.34.165
+    Answer: youtube-ui.l.google.com -> 173.194.34.163
+    Answer: youtube-ui.l.google.com -> 173.194.34.164
+    Answer: youtube-ui.l.google.com -> 173.194.34.168
+    Answer: youtube-ui.l.google.com -> 173.194.34.167
+    Answer: youtube-ui.l.google.com -> 173.194.34.160
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53600. DNS response
+    Query: www.youtube.com
+    Answer: www.youtube.com -> youtube-ui.l.google.com
+    Answer: youtube-ui.l.google.com -> 2a00:1450:400c:c03::be
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42197. DNS response
+    Query: media.theregister.co.uk
+    Answer: media.theregister.co.uk -> www.theregister.co.uk
+    Answer: www.theregister.co.uk -> 92.52.96.89
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42197. DNS response
+    Query: media.theregister.co.uk
+    Answer: media.theregister.co.uk -> www.theregister.co.uk
+
+PCAP: 192.168.1.80:42196 -> 192.168.1.1:53. DNS query
+    Query: www.bbc.co.uk
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42196. DNS response
+    Query: www.bbc.co.uk
+    Answer: www.bbc.co.uk -> www.bbc.net.uk
+    Answer: www.bbc.net.uk -> 212.58.246.94
+    Answer: www.bbc.net.uk -> 212.58.246.95
+
+PCAP: 192.168.1.80:45465 -> 192.168.1.1:53. DNS query
+    Query: twitter.com
+
+PCAP: 192.168.1.80:45465 -> 192.168.1.1:53. DNS query
+    Query: twitter.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45465. DNS response
+    Query: twitter.com
+    Answer: twitter.com -> 199.16.156.198
+    Answer: twitter.com -> 199.59.149.198
+    Answer: twitter.com -> 199.16.156.38
+
+PCAP: 192.168.1.80:55916 -> 192.168.1.1:53. DNS query
+    Query: cdn.api.twitter.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45465. DNS response
+    Query: twitter.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:55916. DNS response
+    Query: cdn.api.twitter.com
+    Answer: cdn.api.twitter.com -> san.twitter.com.edgekey.net
+    Answer: san.twitter.com.edgekey.net -> e5903.g.akamaiedge.net
+    Answer: e5903.g.akamaiedge.net -> 23.35.209.224
+
+PCAP: 192.168.1.80:51449 -> 192.168.1.1:53. DNS query
+    Query: www.imore.com
+
+PCAP: 192.168.1.80:51449 -> 192.168.1.1:53. DNS query
+    Query: www.imore.com
+
+PCAP: 192.168.1.80:40791 -> 192.168.1.1:53. DNS query
+    Query: techcrunch.com
+
+PCAP: 192.168.1.80:40791 -> 192.168.1.1:53. DNS query
+    Query: techcrunch.com
+
+PCAP: 192.168.1.80:52248 -> 192.168.1.1:53. DNS query
+    Query: bookmarks.yahoo.com
+
+PCAP: 192.168.1.80:52248 -> 192.168.1.1:53. DNS query
+    Query: bookmarks.yahoo.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51449. DNS response
+    Query: www.imore.com
+    Answer: www.imore.com -> imore.com
+    Answer: imore.com -> 166.70.42.30
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51449. DNS response
+    Query: www.imore.com
+    Answer: www.imore.com -> imore.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40791. DNS response
+    Query: techcrunch.com
+    Answer: techcrunch.com -> 76.74.255.117
+    Answer: techcrunch.com -> 72.233.104.123
+    Answer: techcrunch.com -> 66.155.9.244
+    Answer: techcrunch.com -> 76.74.255.123
+    Answer: techcrunch.com -> 72.233.127.217
+    Answer: techcrunch.com -> 66.155.11.244
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40791. DNS response
+    Query: techcrunch.com
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:52248. DNS response
+    Query: bookmarks.yahoo.com
+    Answer: bookmarks.yahoo.com -> bookmarks.a03.yahoodns.net
+    Answer: bookmarks.a03.yahoodns.net -> 98.139.102.55
+
+PCAP: 192.168.1.1:53 -> 192.168.1.80:52248. DNS response
+    Query: bookmarks.yahoo.com
+    Answer: bookmarks.yahoo.com -> bookmarks.a03.yahoodns.net
+

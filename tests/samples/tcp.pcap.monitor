@@ -1,0 +1,31 @@
+PCAP: 192.168.122.11:40036 -> 192.168.122.1:53. DNS query
+    Query: fedora64
+
+PCAP: 192.168.122.11:40036 -> 192.168.122.1:53. DNS query
+    Query: fedora64
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:40036. DNS response
+    Query: fedora64
+    Answer: fedora64 -> 192.168.122.11
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:40036. DNS response
+    Query: fedora64
+
+PCAP: 192.168.122.11:50485 -> 192.168.122.1:53. DNS query
+    Query: www.google.com
+
+PCAP: 192.168.122.11:50485 -> 192.168.122.1:53. DNS query
+    Query: www.google.com
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:50485. DNS response
+    Query: www.google.com
+    Answer: www.google.com -> 74.125.230.244
+    Answer: www.google.com -> 74.125.230.241
+    Answer: www.google.com -> 74.125.230.242
+    Answer: www.google.com -> 74.125.230.243
+    Answer: www.google.com -> 74.125.230.240
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:50485. DNS response
+    Query: www.google.com
+    Answer: www.google.com -> 2a00:1450:4009:80c::1013
+

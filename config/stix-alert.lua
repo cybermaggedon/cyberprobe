@@ -123,7 +123,7 @@ end
 observer.smtp_data = function(context, from, to, data)
 
   indicators = {}
-  stix.check_email(from)
+  stix.check_email(from, indicators)
 
   for k, v in pairs(indicators) do
     print(string.format("SMTP email from %s, hits %s (%s)", v.value,

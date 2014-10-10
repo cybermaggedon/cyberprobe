@@ -1,0 +1,70 @@
+PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS query
+    Query: fedora64
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS response
+    Query: fedora64
+    Answer: fedora64 -> 192.168.122.11
+
+PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS query
+    Query: fedora64
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS response
+    Query: fedora64
+
+PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS query
+    Query: test.smtp.org
+
+PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS query
+    Query: test.smtp.org
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS response
+    Query: test.smtp.org
+    Answer: test.smtp.org -> 149.20.54.225
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS response
+    Query: test.smtp.org
+    Answer: test.smtp.org -> 2001:4f8:3:36::225
+
+PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command HELO malware.com
+
+PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command MAIL FROM: <malware@malware.com>
+
+PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command RCPT TO: <bit-bucket@test.smtp.org>
+
+PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 220
+    test.smtp.org ESMTP Sendmail 8.14.9 ready at Fri, 10 Oct 2014 14:11:49 -0700 (PDT); see http://test.smtp.org/
+
+PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 250
+    test.smtp.org Hello host86-157-105-113.range86-157.btcentralplus.com [86.157.105.113], pleased to meet you
+
+PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 250
+    2.1.0 <malware@malware.com>... Sender ok
+
+PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 250
+    2.1.5 <bit-bucket@test.smtp.org>... Recipient ok
+
+PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command DATA
+
+PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 354
+    Enter mail, end with "." on a line by itself
+
+PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP data
+    From: malware@malware.com
+    To: bit-bucket@test.smtp.org
+
+PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 250
+    2.0.0 s9ALBn7m032410 Message accepted for delivery
+
+PCAP: 192.168.122.11:123 -> 176.9.92.196:123. Datagram (size is 48)
+
+PCAP: 176.9.92.196:123 -> 192.168.122.11:123. Datagram (size is 48)
+
+PCAP: 192.168.122.11:123 -> 217.73.16.2:123. Datagram (size is 48)
+
+PCAP: 217.73.16.2:123 -> 192.168.122.11:123. Datagram (size is 48)
+
+PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command QUIT
+
+PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 221
+    2.0.0 test.smtp.org closing connection
+
