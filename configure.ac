@@ -7,6 +7,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_TESTDIR([tests])
 
 # Optimiser settings
 CXXFLAGS="-O6"
@@ -69,7 +70,7 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gethostbyname gettimeofday socket strdup uname])
 
 AC_CONFIG_FILES([Makefile src/Makefile config/Makefile docs/Makefile
-	stix/Makefile www/Makefile])
+	stix/Makefile www/Makefile tests/Makefile tests/atlocal])
 
 AC_OUTPUT
 

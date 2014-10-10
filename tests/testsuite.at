@@ -1,0 +1,26 @@
+
+AT_INIT
+AT_COLOR_TESTS
+
+AT_BANNER([Regression tests.])
+
+AT_SETUP([LICENCE test])
+cat $abs_top_srcdir/LICENCE | wc -c > expout
+AT_CHECK([cat expout],,[712
+])
+AT_CLEANUP
+
+
+AT_SETUP([README test])
+cat $abs_top_srcdir/README | wc -c > expout
+AT_CHECK([cat expout],,[124
+])
+AT_CLEANUP
+
+
+AT_SETUP([README.mac test])
+cat $abs_top_srcdir/README.mac | wc -c > expout
+AT_CHECK([cat expout],,[1306
+])
+AT_CLEANUP
+
