@@ -271,7 +271,13 @@ int main(int argc, char** argv)
 	an.start();
 
 	std::string arg1(argv[1]);
-	if (arg1 == "-") {
+
+	if (arg1.substr(0, 5) == "file:") {
+
+	    pcap_input pin(arg1.substr(5), an);
+	    pin.run();
+	    
+	} else if (arg1 == "-") {
 
 	    pcap_input pin("-", an);
 	    pin.run();

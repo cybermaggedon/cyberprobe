@@ -252,9 +252,9 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 	    fc->processor = &ftp::process_server;
 	    fc->svc_idented = true;
 
-	    (*fc->processor)(mgr, fc, s, e);
-
 	    fc->lock.unlock();
+
+	    (*fc->processor)(mgr, fc, s, e);
 	    return;
 
 	} else if (fc->addr.dest.get_uint16() == 21) {

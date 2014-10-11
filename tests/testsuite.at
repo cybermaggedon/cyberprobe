@@ -38,13 +38,13 @@ sort < $abs_srcdir/samples/exampleorg.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
-#AT_SETUP([ftp.pcap])
-#cat $abs_srcdir/samples/ftp.pcap | \
-#    $abs_top_srcdir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
-#    sort > output1
-#sort < $abs_srcdir/samples/ftp.pcap.monitor > output2
-#AT_CHECK([diff output1 output2],,[])
-#AT_CLEANUP
+AT_SETUP([ftp.pcap])
+cat $abs_srcdir/samples/ftp.pcap | \
+    $abs_top_srcdir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/ftp.pcap.monitor > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
 
 AT_SETUP([malware.pcap])
 cat $abs_srcdir/samples/malware.pcap | \
@@ -114,13 +114,13 @@ sort < $abs_srcdir/samples/exampleorg.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
-#AT_SETUP([ftp.pcap])
-#cat $abs_srcdir/samples/ftp.pcap | \
-#    $abs_top_srcdir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
-#    sort > output1
-#sort < $abs_srcdir/samples/ftp.pcap.indicators > output2
-#AT_CHECK([diff output1 output2],,[])
-#AT_CLEANUP
+AT_SETUP([ftp.pcap])
+cat $abs_srcdir/samples/ftp.pcap | \
+    $abs_top_srcdir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/ftp.pcap.indicators > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
 
 AT_SETUP([malware.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json

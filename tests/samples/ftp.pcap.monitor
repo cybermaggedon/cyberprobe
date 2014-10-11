@@ -1,0 +1,140 @@
+PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS query
+    Query: ftp.swfwmd.state.fl.us
+
+PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS query
+    Query: ftp.swfwmd.state.fl.us
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS response
+    Query: ftp.swfwmd.state.fl.us
+    Answer: ftp.swfwmd.state.fl.us -> 204.76.241.31
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS response
+    Query: ftp.swfwmd.state.fl.us
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 220
+    
+     Reverse IP-address lookups are in effect. You will not be able to 
+    -------------------------------------------------------------------------
+     prohibited. All connections and activity to this server are logged, 
+     access this FTP server if your internet domain name server is not 
+     properly configured to do reverse IP-address mapping. Contact your 
+     monitored, and subject to public inspection.
+     Internet Service Provider or network administrator for more infomation 
+     Unauthorized access and/or misuse of this FTP server is strictly 
+    
+    -------------------------------------------------------------------------
+     on this topic. 
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command USER ftp
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 331
+    Please specify the password.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command PASS asdasd
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 230
+    Login successful.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command SYST
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 215
+    UNIX Type: L8
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command PASV
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 227
+    Entering Passive Mode (204,76,241,31,181,224).
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command LIST
+
+PCAP: 204.76.241.31:46560 -> 192.168.122.11:57218. Stream data (size is 329)
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 150
+    Here comes the directory listing.
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 226
+    Directory send OK.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command CWD pub
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 250
+    Directory successfully changed.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command PASV
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 227
+    Entering Passive Mode (204,76,241,31,254,207).
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command LIST
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 150
+    Here comes the directory listing.
+
+PCAP: 204.76.241.31:65231 -> 192.168.122.11:34699. Stream data (size is 1902)
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 226
+    Directory send OK.
+
+PCAP: 192.168.122.11:123 -> 85.10.246.226:123. Datagram (size is 48)
+
+PCAP: 85.10.246.226:123 -> 192.168.122.11:123. Datagram (size is 48)
+
+PCAP: 192.168.122.11:123 -> 176.9.92.196:123. Datagram (size is 48)
+
+PCAP: 176.9.92.196:123 -> 192.168.122.11:123. Datagram (size is 48)
+
+PCAP: 192.168.122.11:123 -> 78.47.249.19:123. Datagram (size is 48)
+
+PCAP: 78.47.249.19:123 -> 192.168.122.11:123. Datagram (size is 48)
+
+PCAP: 192.168.122.11:123 -> 217.73.16.2:123. Datagram (size is 48)
+
+PCAP: 217.73.16.2:123 -> 192.168.122.11:123. Datagram (size is 48)
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command CWD amr
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 250
+    Directory successfully changed.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command PASV
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 227
+    Entering Passive Mode (204,76,241,31,50,170).
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command LIST
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 150
+    Here comes the directory listing.
+
+PCAP: 204.76.241.31:12970 -> 192.168.122.11:38609. Stream data (size is 1440)
+
+PCAP: 204.76.241.31:12970 -> 192.168.122.11:38609. Stream data (size is 1361)
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 226
+    Directory send OK.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command TYPE I
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 200
+    Switching to Binary mode.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command PASV
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 227
+    Entering Passive Mode (204,76,241,31,36,82).
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command RETR 20140930104000_3362.dat
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 150
+    Opening BINARY mode data connection for 20140930104000_3362.dat (804 bytes).
+
+PCAP: 204.76.241.31:9298 -> 192.168.122.11:57431. Stream data (size is 804)
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 226
+    Transfer complete.
+
+PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command QUIT
+
+PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 221
+    Goodbye.
+
