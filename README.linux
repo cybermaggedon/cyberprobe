@@ -1,5 +1,5 @@
-Debian, Mint, (Ubuntu?)
-=======================
+Debian, Ubuntu
+==============
 
 - sudo apt-get install git
 - sudo apt-get install automake autoconf
@@ -8,8 +8,8 @@ Debian, Mint, (Ubuntu?)
 - sudo apt-get install libboost-dev
 - sudo apt-get install libboost-regex-dev
 - sudo apt-get install libexpat-dev
-- sudo apt-get install lua5.2
-- sudo apt-get install liblua5.2-dev
+- sudo apt-get install lua5.1
+- sudo apt-get install liblua5.1-dev
 - sudo apt-get install lua-filesystem
 - sudo apt-get install lua-json
 - sudo apt-get install ncurses-dev
@@ -19,6 +19,26 @@ Debian, Mint, (Ubuntu?)
 - ./configure --prefix=/usr/local
 - make
 - make install
+
+Ubuntu seems to install a buggy lua-lpeg library.  Fix is to install manually.
+Use synaptic to delete the lua-json, lua-lpeg libraries, then:
+
+    sudo luarocks install lpeg 0.10.2-1
+    sudo luarocks install luajson
+    sudo luarocks install luafilesystem
+
+Mint
+====
+
+Seems to have a buggy Lua library, SEGV in 5.2 LUA at lua_getglobal.  Using
+lua5.1 seems to work, but you have to fight with the package manager to make
+sure there are no 5.2 traces.  Similar to Ubuntu, lua-lpeg is buggy. Fix
+is to install manually.  Use synaptic to delete the lua-json, lua-lpeg
+libraries, then:
+
+    sudo luarocks install lpeg 0.10.2-1
+    sudo luarocks install luajson
+    sudo luarocks install luafilesystem
 
 Fedora, Centos 7, RHEL 7
 ========================
