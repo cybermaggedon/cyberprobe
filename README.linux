@@ -13,6 +13,7 @@ Debian, Ubuntu
 - sudo apt-get install lua-filesystem
 - sudo apt-get install lua-json
 - sudo apt-get install ncurses-dev
+- sudo apt-get install texinfo texlive
 - sudo apt-get install make
 - git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 - autoreconf -fi
@@ -29,6 +30,8 @@ Use synaptic to delete the lua-json, lua-lpeg libraries, then:
 
 Mint
 ====
+
+Like Debian.
 
 Seems to have a buggy Lua library, SEGV in 5.2 LUA at lua_getglobal.  Using
 lua5.1 seems to work, but you have to fight with the package manager to make
@@ -48,6 +51,7 @@ sudo yum install libpcap-devel boost-devel gcc-c++
 sudo yum install expat-devel lua-devel 
 sudo yum install ncurses-devel readline-devel 
 sudo yum install lua-filesystem lua-json
+sudo yum install texinfo texlive
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 autoreconf -fi
 ./configure --prefix=/usr/local
