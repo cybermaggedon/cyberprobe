@@ -276,8 +276,8 @@ Powered by SourceForge, project page is at
 @url{http://www.sourceforge.net/p/cyberprobe}.
 
 @node Quick start tutorial
-@cindex Getting started
 @chapter Quick start tutorial
+@cindex Getting started
 
 
 @menu
@@ -464,9 +464,9 @@ address. In my case, I can tell the broadband router to permanently allocate
 a particular IP address to this workstation, so that it won't change.
 
 @node Using @command{cyberprobe}
+@section Using @command{cyberprobe}
 @cindex @command{cyberprobe}
 @cindex @command{cyberprobe} configuration
-@section Using @command{cyberprobe}
 
 @heading Starting cyberprobe with a configuration file
 
@@ -673,9 +673,9 @@ ETSI LI connection to localhost:10000 established.
 We don't guarantee zero data loss on a reconnect.
 
 @node Management interface
+@section Management interface
 @cindex Management
 @cindex @command{cyberprobe}, management
-@section Management interface
 
 At this step, we'll setup a control port, and use it modify the
 configuration of @command{cyberprobe}.
@@ -747,9 +747,9 @@ management interface but provides a (slightly) nicer @code{readline}
 interface, and has auto-completion.
 
 @node Integration with @command{snort}
+@section Integration with @command{snort}
 @cindex @command{snort}, integration
 @cindex Integration with @command{snort}
-@section Integration with @command{snort}
 
 In this step, we'll add the excellent IDS, Snort to the mix. If you don't
 know Snort, it scans network traffic for patterns, and can take various
@@ -1245,10 +1245,10 @@ you want to find out what else you can do in your LUA code.
 FIXME: Above should be a reference link.
 
 @node Visualisation
+@section Visualisation
 @cindex Visualisation
 @cindex ElasticSearch
 @cindex Storing observations
-@section Visualisation
 
 This is the most incomplete part of @command{Cyberprobe}. Look at this part
 as demonstrating what might be possible. If you find this interesting, and
@@ -1406,12 +1406,12 @@ Next step is to save the dashboard using a save icon in the top right of the
 dashboard. That way you don't have to keep loading the schema.
 
 @node Threat indicators using STIX
+@section Threat indicators using STIX
 @cindex STIX
 @cindex TAXII
 @cindex STIX indicators
 @cindex Threat indicators
 @cindex Cyber threat indicators
-@section Threat indicators using STIX
 
 We've been experimenting with an open model for describing cyber
 threats. STIX is a community-driven effort to standardise a model for cyber
@@ -1582,6 +1582,7 @@ you found the experience.
 @end menu
 
 @node @command{cyberprobe} configuration
+@section @command{cyberprobe} configuration
 @cindex @command{cyberprobe}, configuration
 @cindex @command{cyberprobe}, @code{control}
 @cindex @command{cyberprobe}, @code{interfaces}
@@ -1593,7 +1594,6 @@ you found the experience.
 @cindex @code{targets}
 @cindex @code{endpoints}
 @cindex @code{snort_alert}
-@section @command{cyberprobe} configuration
 
 The configuration file is re-read when it changes, and changes are
 immediately actioned.
@@ -1816,8 +1816,8 @@ nhis11_rcvr 10000 | tcpdump -n -r-
 @end example
 
 @node Management protocol
-@cindex Management protocol
 @section Management protocol
+@cindex Management protocol
 
 @heading Overview
 
@@ -2195,8 +2195,8 @@ protocol data in the DNS encoder.
 @end table
 
 @node Architecture
-@cindex Cyberprobe, architecture
 @chapter Architecture
+@cindex Cyberprobe, architecture
 
 Cyberprobe consists of a set of loosely-coupled components which can be
 used together. We prefer to use simple interfaces, and prefer to use
