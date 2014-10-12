@@ -101,7 +101,7 @@ namespace cybermon {
 		std::string err;
 		err = "Error running script: ";
 		err += lua_tostring(lua, -1);
-		throw std::runtime_error(err);
+		throw exception(err);
 	    }
 	    
 	}
@@ -219,8 +219,6 @@ namespace cybermon {
 	    // Pop error message.
 	    pop();
 
-	    std::cerr << "LUA error: " << errmsg << std::endl;
-
 	    throw exception(errmsg);
 
 	}
@@ -254,7 +252,7 @@ namespace cybermon {
 	    size_t len = 0;
 	    const char* c = lua_tolstring(lua, pos, &len);
 	    if (c == 0)
-		throw std::runtime_error("Not a LUA string.");
+		throw std::invalid_argument("Not a LUA string.");
 	    s.assign(c, len);
 	}
 
@@ -262,7 +260,7 @@ namespace cybermon {
 	    size_t len = 0;
 	    const char* c = lua_tolstring(lua, pos, &len);
 	    if (c == 0)
-		throw std::runtime_error("Not a LUA string.");
+		throw std::invalid_argument("Not a LUA string.");
 	    s.clear();
 	    std::back_insert_iterator<pdu> bk = back_inserter(s);
 	    std::copy(c, c + len, bk);
@@ -291,7 +289,7 @@ namespace cybermon {
 	void to_userdata(int pos, void*& val) {
 	    val = lua_touserdata(lua, pos);
 	    if (val == 0)
-		throw std::runtime_error("Not a LUA userdata.");
+		throw std::invalid_argument("Not a LUA userdata.");
 	}
 
 	int raw_len(int pos) {

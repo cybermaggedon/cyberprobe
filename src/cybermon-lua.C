@@ -23,7 +23,12 @@ void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
     push(ta);
 	
     // config.trigger_up(liid, addr)
-    call(2, 0);
+    try {
+	call(2, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
 
     // Still got 'config' left on stack, it can go.
     pop();
@@ -42,7 +47,12 @@ void cybermon_lua::trigger_down(const std::string& liid)
     push(liid);
 	
     // config.trigger_down(liid)
-    call(1, 0);
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
 
     // Still got 'config' left on stack, it can go.
     pop();
@@ -64,10 +74,15 @@ void cybermon_lua::connection_up(engine& an,
     push(f);
     
     // config.connection_up(context)
-    call(1, 0);
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -87,10 +102,15 @@ void cybermon_lua::connection_down(engine& an,
     push(f);
     
     // config.connection_down(context)
-    call(1, 0);
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -115,10 +135,15 @@ void cybermon_lua::unrecognised_stream(engine& an,
     push(s, e);
     
     // config.unrecognised_stream(context, data)
-    call(2, 0);
+    try {
+	call(2, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -143,10 +168,15 @@ void cybermon_lua::unrecognised_datagram(engine& an,
     push(s, e);
     
     // config.unrecognised_datagram(context, data)
-    call(2, 0);
+    try {
+	call(2, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -168,10 +198,15 @@ void cybermon_lua::icmp(engine& an,
     push(s, e);
     
     // config.icmp(context, data)
-    call(2, 0);
+    try {
+	call(2, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -215,10 +250,15 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     push(s, e);
 
     // config.http_request(context, method, url, header, body)
-    call(5, 0);
+    try {
+	call(5, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -266,10 +306,15 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     push(s, e);
 
     // config.http_response(context, code, status, header, url, body)
-    call(6, 0);
+    try {
+	call(6, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -288,10 +333,15 @@ void cybermon_lua::smtp_command(engine& an, const context_ptr f,
     push(command);
 
     // config.smtp_command(context, command)
-    call(2, 0);
+    try {
+	call(2, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -327,10 +377,15 @@ void cybermon_lua::smtp_response(engine& an, const context_ptr f,
     }
 
     // config.smtp_response(context, status, texts)
-    call(3, 0);
+    try {
+	call(3, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -370,10 +425,15 @@ void cybermon_lua::smtp_data(engine& an, const context_ptr f,
     push(s, e);
 
     // config.smtp_data(context, from, to, data)
-    call(4, 0);
+    try {
+	call(4, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -392,10 +452,15 @@ void cybermon_lua::ftp_command(engine& an, const context_ptr f,
     push(command);
 
     // config.ftp_command(context, command)
-    call(2, 0);
+    try {
+	call(2, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -431,10 +496,15 @@ void cybermon_lua::ftp_response(engine& an, const context_ptr f,
     }
 
     // config.ftp_response(context, status, texts)
-    call(3, 0);
+    try {
+	call(3, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -507,10 +577,15 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
 
     // config.dns_message(context, hdr, queries, answers, authorities,
     // additional)
-    call(6, 0);
+    try {
+	call(6, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
     
     // Still got 'config' left on stack, it can go.
-    pop(1);
+    pop();
 
 }
 
@@ -1090,7 +1165,7 @@ int cybermon_lua::context_get_trigger_info(lua_State* lua)
 	try {
 	    cd->cml->push(trigger_address.to_ip_string());
 	} catch (...) {
-	cd->cml->push();
+	    cd->cml->push();
 	}
 
     return 1;

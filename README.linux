@@ -10,6 +10,8 @@ Debian, Mint, (Ubuntu?)
 - sudo apt-get install libexpat-dev
 - sudo apt-get install lua5.2
 - sudo apt-get install liblua5.2-dev
+- sudo apt-get install lua-filesystem
+- sudo apt-get install lua-json
 - sudo apt-get install ncurses-dev
 - sudo apt-get install make
 - git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
@@ -25,8 +27,32 @@ sudo yum install git autoconf automake
 sudo yum install libpcap-devel boost-devel gcc-c++
 sudo yum install expat-devel lua-devel 
 sudo yum install ncurses-devel readline-devel 
+sudo yum install lua-filesystem lua-json
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 autoreconf -fi
 ./configure --prefix=/usr/local
 make
 make install
+
+Centos 7, RHEL7
+===============
+
+As for Fedora, but...
+
+Doesn't include LUA json or filesystem, and doesn't have luarocks in order to
+be able to install them.
+
+Have to download luarocks:
+   wget http://luarocks.org/releases/luarocks-2.0.6.tar.gz
+./configure --with-lua-include=/usr/include
+make
+make install
+
+/usr/local/bin/luarocks install luajson
+/usr/local/bin/luarocks install luafilesystem
+
+Luarocks installs to /usr/local, so you need to move the 'json' directory
+from somewhere under /usr/local/share/lua/5.1 to /usr/share/lua/5.1.  Also
+lpeg.so and lfs.so from /usr/local/{lib,lib64}/lua/5.1 to
+/usr/{lib,lib64}/lua/5.1.
+

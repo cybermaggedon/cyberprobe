@@ -45,28 +45,48 @@ public:
 
     // Connection-orientated.
     virtual void connection_up(const cybermon::context_ptr cp) {
-	cml.connection_up(*this, cp);
+	try {
+	    cml.connection_up(*this, cp);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     virtual void connection_down(const cybermon::context_ptr cp) {
-	cml.connection_down(*this, cp);
+	try{
+	    cml.connection_down(*this, cp);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     virtual void unrecognised_stream(const cybermon::context_ptr cp,
 				     cybermon::pdu_iter s, 
 				     cybermon::pdu_iter e) {
-	cml.unrecognised_stream(*this, cp, s, e);
+	try {
+	    cml.unrecognised_stream(*this, cp, s, e);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     // Connection-less
     virtual void unrecognised_datagram(const cybermon::context_ptr cp,
 			  cybermon::pdu_iter s, cybermon::pdu_iter e) {
-	cml.unrecognised_datagram(*this, cp, s, e);
+	try {
+	    cml.unrecognised_datagram(*this, cp, s, e);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     virtual void icmp(const cybermon::context_ptr cp,
 		      cybermon::pdu_iter s, cybermon::pdu_iter e) {
-	cml.icmp(*this, cp, s, e);
+	try {
+	    cml.icmp(*this, cp, s, e);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     // HTTP
@@ -76,7 +96,11 @@ public:
 			      const cybermon::observer::http_hdr_t& hdr,
 			      cybermon::pdu_iter body_start,
 			      cybermon::pdu_iter body_end) {
-	cml.http_request(*this, cp, method, url, hdr, body_start, body_end);
+	try {
+	    cml.http_request(*this, cp, method, url, hdr, body_start, body_end);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     virtual void http_response(const cybermon::context_ptr cp,
@@ -86,20 +110,32 @@ public:
 			       const std::string& url,
 			       cybermon::pdu_iter body_start,
 			       cybermon::pdu_iter body_end) {
-	cml.http_response(*this, cp, code, status, hdr, url, 
-			  body_start, body_end);
+	try {
+	    cml.http_response(*this, cp, code, status, hdr, url, 
+			      body_start, body_end);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     // SMTP
     virtual void smtp_command(const cybermon::context_ptr cp,
 			      const std::string& command) {
-	cml.smtp_command(*this, cp, command);
+	try {
+	    cml.smtp_command(*this, cp, command);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     virtual void smtp_response(const cybermon::context_ptr cp,
 			       int status,
 			       const std::list<std::string>& text) {
-	cml.smtp_response(*this, cp, status, text);
+	try {
+	    cml.smtp_response(*this, cp, status, text);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     virtual void smtp_data(const cybermon::context_ptr cp,
@@ -107,28 +143,48 @@ public:
 			   const std::list<std::string>& to,
 			   std::vector<unsigned char>::const_iterator s,
 			   std::vector<unsigned char>::const_iterator e) {
-	cml.smtp_data(*this, cp, from, to, s, e);
+	try {
+	    cml.smtp_data(*this, cp, from, to, s, e);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     // FTP
     virtual void ftp_command(const cybermon::context_ptr cp,
 			     const std::string& command) {
-	cml.ftp_command(*this, cp, command);
+	try {
+	    cml.ftp_command(*this, cp, command);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
     
     virtual void ftp_response(const cybermon::context_ptr cp,
 			      int status,
 			      const std::list<std::string>& responses) {
-	cml.ftp_response(*this, cp, status, responses);
+	try {
+	    cml.ftp_response(*this, cp, status, responses);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     // Trigger
     void trigger_up(const std::string& liid, const tcpip::address& a) {
-	cml.trigger_up(liid, a);
+	try {
+	    cml.trigger_up(liid, a);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     void trigger_down(const std::string& liid) {
-	cml.trigger_down(liid);
+	try {
+	    cml.trigger_down(liid);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
     // DNS
@@ -138,8 +194,12 @@ public:
 			     const std::list<cybermon::dns_rr> answers,
 			     const std::list<cybermon::dns_rr> authorities,
 			     const std::list<cybermon::dns_rr> additional) {
-	cml.dns_message(*this, cp, hdr, queries, answers, authorities,
-			additional);
+	try {
+	    cml.dns_message(*this, cp, hdr, queries, answers, authorities,
+			    additional);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
     }
 
 };
