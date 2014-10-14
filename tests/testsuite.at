@@ -8,7 +8,7 @@ AT_BANNER([PCAP samples decoded with cybermon.])
 
 AT_SETUP([cpsfnet.pcap])
 cat $abs_srcdir/samples/cpsfnet.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/cpsfnet.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -16,7 +16,7 @@ AT_CLEANUP
 
 AT_SETUP([dns2.pcap])
 cat $abs_srcdir/samples/dns2.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/dns2.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -24,7 +24,7 @@ AT_CLEANUP
 
 AT_SETUP([ether.pcap])
 cat $abs_srcdir/samples/ether.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/ether.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -32,7 +32,7 @@ AT_CLEANUP
 
 AT_SETUP([exampleorg.pcap])
 cat $abs_srcdir/samples/exampleorg.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/exampleorg.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -40,7 +40,7 @@ AT_CLEANUP
 
 AT_SETUP([ftp.pcap])
 cat $abs_srcdir/samples/ftp.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/ftp.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -48,7 +48,7 @@ AT_CLEANUP
 
 AT_SETUP([malware.pcap])
 cat $abs_srcdir/samples/malware.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/malware.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -56,7 +56,7 @@ AT_CLEANUP
 
 AT_SETUP([smtp.pcap])
 cat $abs_srcdir/samples/smtp.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/smtp.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -64,7 +64,7 @@ AT_CLEANUP
 
 AT_SETUP([tcp.pcap])
 cat $abs_srcdir/samples/tcp.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/cybermon.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/monitor.lua | \
     sort > output1
 sort < $abs_srcdir/samples/tcp.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
@@ -78,7 +78,7 @@ AT_SETUP([cpsfnet.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
 export STIX_INDICATORS
 cat $abs_srcdir/samples/cpsfnet.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/cpsfnet.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
@@ -88,7 +88,7 @@ AT_SETUP([dns2.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
 export STIX_INDICATORS
 cat $abs_srcdir/samples/dns2.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/dns2.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
@@ -98,7 +98,7 @@ AT_SETUP([ether.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
 export STIX_INDICATORS
 cat $abs_srcdir/samples/ether.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/ether.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
@@ -108,7 +108,7 @@ AT_SETUP([exampleorg.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
 export STIX_INDICATORS
 cat $abs_srcdir/samples/exampleorg.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/exampleorg.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
@@ -116,7 +116,7 @@ AT_CLEANUP
 
 AT_SETUP([ftp.pcap])
 cat $abs_srcdir/samples/ftp.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/ftp.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
@@ -126,7 +126,7 @@ AT_SETUP([malware.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
 export STIX_INDICATORS
 cat $abs_srcdir/samples/malware.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/malware.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
@@ -136,7 +136,7 @@ AT_SETUP([smtp.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
 export STIX_INDICATORS
 cat $abs_srcdir/samples/smtp.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/smtp.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
@@ -146,7 +146,7 @@ AT_SETUP([tcp.pcap])
 STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
 export STIX_INDICATORS
 cat $abs_srcdir/samples/tcp.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-alert.lua | \
+    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/tcp.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
