@@ -961,18 +961,18 @@ this far successfully, you pretty much know all there is to know about
 all that data you are capturing. In this step we'll start up
 @command{cybermon} and look at the data.
 
-@cindex @file{cybermon.lua}
+@cindex @file{monitor.lua}
 
 Remember that @command{etsi_rcvr} command you started in step @ref{Adding an
 endpoint}? Stop that, and start @command{cybermon}. Two arguments are
 needed: A TCP port number to receive the data on, and a configuration which
 tells it what to do. A number of configuration files are bundled in with the
-source code, there should be a basic one called @file{cybermon.lua} which
+source code, there should be a basic one called @file{monitor.lua} which
 is now installed in the etc directory, depending on where you installed the
 software:
 
 @example
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/cybermon.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/monitor.lua
 @end example
 
 Now when you generate network traffic, some of the traffic will be presented
@@ -1035,7 +1035,7 @@ OK
 
 @heading Trying other configuration files
 
-In the previous step, you started @command{cybermon} with the cybermon.lua
+In the previous step, you started @command{cybermon} with the monitor.lua
 configuration file. Have a play with a couple of the others. Configuration
 file hexdump.lua produces little hex dumps of things like HTTP bodies:
 
@@ -1212,7 +1212,7 @@ cybermon 10000 my.lua
 Now start web browsing, and you should see a bunch of "Spike! on HTTP
 connection" messages. Also, you'll see a page saying "The connection was
 reset" in your web browser. That's a fairly anti-social configuration to run
-on any network. See the @file{tcp_reset.lua} example for a more useful
+on any network. See the @file{forge-reset.lua} example for a more useful
 configuration. It disrupts network traffic going to/from an SSH server which
 isn't from your administration workstation.
 
@@ -1392,11 +1392,11 @@ The response will look something like this:
 @end example
 
 Once ElasticSearch is running, you can get @command{cybermon} to load
-observations into it by using the cyberdb.lua configuration file. So if
+observations into it by using the @file{db.lua} configuration file. So if
 you're continuing the tutorial, you can stop @command{cybermon}, and run:
 
 @example
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/cyberdb.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/db.lua
 @end example
 
 After some network data has been observed, you should be able to see results
@@ -1437,7 +1437,7 @@ results.
 
 If you see a lot of information scrolling past on the screen, that's good.
 
-The @file{cyberdb.lua} configuration file maps the @command{cybermon}
+The @file{db.lua} configuration file maps the @command{cybermon}
 observations into a form which is appropriate to store in
 ElasticSearch. Each observation is stored with a 1 hour time-to-live, to
 the information is not stored for long.
@@ -1601,10 +1601,10 @@ This should create a JSON file called @file{stix-default-combined.json}.
 Finally, stop any running @command{cybermon} processes, and run
 @command{cybermon} with a configuration file which reads the JSON file.
 
-@cindex @file{stix-alert.lua}
+@cindex @file{stix+alert.lua}
 
 @example
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/stix-alert.lua
+cybermon 10000 @value{PREFIX}/etc/cyberprobe/stix+alert.lua
 @end example
 
 Now, this produces no output, except when activity which hits on a cyber
@@ -1644,15 +1644,15 @@ both the DNS query and response. Also, the URL
 @code{http://www.malware.com/malware.dat} is in a threat indicator and it is
 detected in both the HTTP request and response.
 
-The @file{stix-alert.lua} configuration file updates its configuration if
+The @file{stix+alert.lua} configuration file updates its configuration if
 the JSON configuration file has changed. So, you can do a round-trip update
 by changing the input files, re-running stix-create, using
 @command{taxii-sync-json} to fetch the updates, and all without stopping the
 monitoring.
 
-The @file{stix-db.lua} configuration file generates ElasticSearch events as
-@file{cyberdb.lua} does, but it also adds indicator detection information to
-the events. If you use @file{stix-db.lua}, with the Kibana dashboard, the
+The @file{stix+db.lua} configuration file generates ElasticSearch events as
+@file{db.lua} does, but it also adds indicator detection information to
+the events. If you use @file{stix+db.lua}, with the Kibana dashboard, the
 "Indications" table on the right hand side of the dashboard will show
 detected indicators.
 
@@ -1672,6 +1672,7 @@ you found the experience.
 * Management protocol::
 * @command{cybermon} invocation::
 * @command{cybermon} configuration::
+* @command{cybermon} example configurations::
 * @command{nhis11_rcvr} invocation::
 * @command{etsi_rcvr} invocation::
 @end menu
@@ -2378,6 +2379,107 @@ protocol data in the DNS encoder.
 
 @end table
 
+@node @command{cybermon} example configurations
+@section @command{cybermon} example configurations
+
+@cindex @command{cybermon}, example configurations
+@cindex @command{cybermon}, configuration
+@heading Example configuration files
+
+@table @file
+
+@item db.lua
+
+Connects to a local ElasticSearch instance, and generates observations
+which are stored as @code{observation} objects in the @code{cyberprobe}
+index.  A mapping is applied which applies a time-to-live of 1 hour on
+all objects.
+
+@item dump.lua
+
+Outputs event payloads to @file{data/dump.*} files.
+
+@item forge-dns.lua
+
+Example Lua script, spots DNS queries for @samp{example.org}, and responds
+with made-up IP addresses.
+
+@item forge-reset.lua
+
+Example script, spots TCP port 22 sessions (which is the port number normally
+used for SSH sessions).  If detected, a TCP reset is forged.
+
+@item hexdump.lua
+
+Like @file{monitor.lua}, but adds a hex-dump of event payloads to the output.
+
+@item monitor.lua
+
+For each Lua event, outputs a plain text summary of the output on standard
+output.
+
+@item quiet.lua
+
+Does nothing.  This is an empty code shell, and a good template to write
+your own event handler.
+
+@item stix+alert.lua
+
+Looks in the current directory for the JSON file
+@file{stix-default-combined.json} which is read for STIX indicators.
+
+Then, scans events for threats, and if detected are alerted on standard output
+in a human-readable form.
+
+@item stix+db.lua
+
+Like @file{stix+alert.lua} but also generates ElasticSearch observations
+as @file{db.lua} does.  The ElasticSearch observations have threat hit
+information added.q
+
+@item volmon+alert.lua
+
+Like @file{volmon} but alerts are written to a TCP server on port 10101.
+
+@item volmon.lua
+
+Monitors all sessions and calculates volumes of data.  Creates a human-readable
+alert when volumes exceed a certain value.
+
+@end table
+
+@heading Utilities
+
+The @file{@value{PREFIX}/etc/cyberprobe/util} directory contains some Lua
+utilities which can be used by other Lua configuration files.  They can be
+loaded as modules e.g.
+
+@example
+local addr = require("util.addresses")
+@end example
+
+The utilities are:
+
+@table @file
+
+@item addresses.lua
+
+Some @code{cybermon} address handling functions.
+
+@item elastic.lua
+
+ElasticSearch observation creation.
+
+@item http.lua
+
+HTTP transport functions.
+
+@item stix.lua
+
+Utilities used to read STIX threat specifications, and detect their presence
+in @code{cybermon} events.
+
+@end table
 
 @node @command{nhis11_rcvr} invocation
 @section @command{nhis11_rcvr} invocation
@@ -2465,7 +2567,7 @@ session/transport level events which result in user-configurable
 actions. For each event, a call is made to a Lua script which the caller
 provides.
 
-@item stix-db.lua
+@item stix+db.lua
 is a cybermon configuration file we provide. It translates the cybermon
 events into a JSON description which is fed into an ElasticSearch
 database. This configuration file also reads a STIX configuration file for
@@ -2478,7 +2580,7 @@ HTTP.
 
 @item taxii-client-json
 is a TAXII compliant client, which fetches STIX data over TAXII and write it
-to a JSON file in a way that @code{stix-db.lua} can read.
+to a JSON file in a way that @code{stix+db.lua} can read.
 
 @item snort
 is not part of cyberprobe, but it's a great NIDS, so we use that.
