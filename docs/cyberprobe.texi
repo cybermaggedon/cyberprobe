@@ -45,7 +45,7 @@ Texts.  A copy of the license is included in the section entitled
 @top Cyberprobe
 
 This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
-
+  
 Cyberprobe is a distrbuted architecture for real-time monitoring of networks
 against attack. The software consists of a number of components, including:
 
@@ -70,7 +70,7 @@ and to see where we are going, read the @ref{Architecture} page.
 
 @menu
 * Overview::
-* Obtaining code::
+* Obtaining the software::
 * Quick start tutorial::
 * Reference::
 * Architecture::
@@ -261,15 +261,160 @@ First release on SourceForge.
 
 @end table
 
-@node Obtaining code
-@chapter Obtaining code
+@node Obtaining the software
+@chapter Obtaining the software
 
-You can either download the latest release on the downloads page
-(@url{http://sourceforge.net/projects/cyberprobe/files/}), or checkout the
-latest code using git:
+The code doesn't have many dependencies. Exotic dependencies are:
+
+@cindex dependencies
+@cindex Build dependencies
+@cindex Boost
+@cindex Lua
+@cindex @code{libpcap}
+@cindex @code{expat}
+@cindex @code{tcpdump}
+@cindex @code{telnet}
+@cindex @code{luafilesystem}
+@cindex @code{luajson}
+@cindex @code{libtaxii}
+@cindex @code{stix}
+
+@itemize
+
+@item
+Boost regex.
+
+@item
+Boost shared pointer.
+
+@item
+LUA - 5.1 or later.
+
+@item
+GCC C++ compiler and development support.
+
+@item
+@code{libpcap}.
+
+@item
+Expat (XML parser).
+
+@item
+@code{tcpdump} - not needed to build the software, but we use it in the
+tutorial.
+
+@item
+@code{telnet} - not needed to build the software, but we use it in the
+tutorial.
+
+@item
+@code{luafilesystem}, if using certain Lua configuration files.
+
+@item
+@code{luajson}, if using certain Lua configuration files.
+
+@item
+For STIX support, @code{libtaxii} and @code{stix} are Python modules
+made available at @url{http://mitre.org} which can be downloaded using
+@code{pip}.
+
+@end itemize
+
+Note: on many platforms, installing a package just adds the "run time" part
+of the code. In order to be able to compile code against the run time, you
+need to install a separate "developers kit" package. On Fedora, for
+instance, both @code{libpcap} and @code{libpcap-devel} are needed in order to
+be able to build this code.
+
+
+
+
+
+There are a number of ways to obtain the software:
+
+@heading Download packages
+
+The easiest way to obtain the software is to download the package for the
+operating system you are using.  Packages are currently available for:
+
+@itemize
+
+@item
+Fedora 20
+
+@item
+Debian Wheezy
+
+@item
+Mint 17
+
+@item
+Debian Trusty
+
+@item
+Centos 7 (64-bit only).
+
+@end itemize
+
+Downloads are available on the project page at
+@url{http://cyberprobe.sourceforge.net}.
+
+Fedora/CentOS packages are installed using @code{yum}:
+
+@example
+sudo yum install <package>
+@end example
+
+Debian, Mint and Ubuntu packages are installed using @code{dpkg}:
+
+@example
+sudo dpkg -i <package>
+@end example
+
+If there are dependency errors e.g. because you don't have some dependencies
+installed, you can install them thus:
+
+@example
+sudo apt-get install -f
+@end example
+
+
+
+@heading Install from source
+
+Source downloads are available on the project page at
+@url{http://cyberprobe.sourceforge.net}, look for the @file{.tar.gz} file.
+
+These files can be unwrapped, then configured:
+
+@example
+tar xvfz cyberprobe-X.Y.tar.gz
+cd cyberprobe-X.Y
+./configure
+make
+sudo make install
+@end example
+
+@file{README.linux} provides some hints for Linux users.
+If installing on MacOS, read @file{README.mac}.
+
+@cindex Checkout from @command{git} repository
+@cindex @command{git} repository
+@heading Installing from git
+
+To checkout the latest code using git:
 
 @example
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+@end example
+
+To build, use:
+
+@example
+autoreconf -fi
+./configure
+make
+sudo make install
 @end example
 
 Powered by SourceForge, project page is at
@@ -294,7 +439,6 @@ Powered by SourceForge, project page is at
 @node Preparation
 @section Preparation
 
-
 @cindex Building
 @cindex Downloading
 @cindex Compilation
@@ -302,82 +446,10 @@ Powered by SourceForge, project page is at
 @cindex Installation
 @heading Build software
 
+For installation, see @ref{Obtaining the software}.
 There's a fair amount of development taking place in the git repository, so
-you probably want to get the latest release on the downloads page
-(@url{http://sourceforge.net/projects/cyberprobe/files/}). Download,
-unpack, and compile. The configure option 'prefix' can be used to say where
-the software will install. Choose a location or go with @file{/usr/local}.
-
-@example
-./configure --prefix=/usr/local
-make
-sudo make install
-@end example
-
-If compiling for Mac OS, read README.mac.
-
-If you do want to track the latest code, checkout the latest code from git:
-
-@cindex Checkout from @command{git} repository
-@cindex @command{git} repository
-
-@example
-git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
-@end example
-
-Compilation is a little more long-winded if you use the git source:
-
-@example
-autoreconf -fi
-./configure --prefix=/usr/local
-make
-sudo make install
-@end example
-
-The code doesn't have many dependencies. Exotic dependencies are:
-
-@cindex dependencies
-@cindex Build dependencies
-@cindex Boost
-@cindex Lua
-@cindex @code{libpcap}
-@cindex @code{expat}
-@cindex @code{tcpdump}
-@cindex @code{telnet}
-
-@itemize
-
-@item
-Boost regex.
-
-@item
-Boost shared pointer.
-
-@item
-LUA - 5.1 or later.
-
-@item
-GCC C++ compiler and development support.
-
-@item
-libpcap.
-
-@item
-Expat (XML parser).
-
-@item
-tcpdump - not needed to build the software, but we use it in this tutorial.
-
-@item
-telnet - not needed to build the software, but we use it in this tutorial.
-
-@end itemize
-
-Note: on many platforms, installing a package just adds the "run time" part
-of the code. In order to be able to compile code against the run time, you
-need to install a separate "developers kit" package. On Fedora, for
-instance, both @code{libpcap} and @code{libpcap-devel} are needed in order to
-be able to build this code.
+you probably want to get the a package, or use the latest release on the
+downloads page (@url{http://sourceforge.net/projects/cyberprobe/files/}).
 
 @cindex Executables
 @cindex Build targets
@@ -442,9 +514,9 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         inet6 ::1  prefixlen 128  scopeid 0x10
         [etc.]
 
-eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.168.1.80  netmask 255.255.255.0  broadcast 192.168.1.255
-        inet6 fe80::a60:6eff:fe81:7a75  prefixlen 64  scopeid 0x20
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
+        inet 192.168.1.80  netmask 255.255.255.0
+        inet6 fe80::a60:6eff:fe81:7a75  prefixlen 64
         [etc.]
 @end example
 
@@ -646,14 +718,15 @@ visit the Google home page in a browser on your workstation. You should see
 something like this pouring from the tcpdump.
 
 @example
-18:54:24.376838 IP 192.168.1.80.54249 > 212.58.244.71.http: Flags [P.], seq 
-1:673, ack 1, win 115, options [nop,nop,TS val 129851063 ecr 3366955869], l
-ength 672
-18:54:24.390768 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [.], ack 
-673, win 124, options [nop,nop,TS val 3366955882 ecr 129851063], length 0
-18:54:24.392909 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [P.], seq 
-1:1796, ack 673, win 124, options [nop,nop,TS val 3366955884 ecr 129851063],
- length 1795
+18:54:24.376838 IP 192.168.1.80.54249 > 212.58.244.71.http: Flags [P.],
+ seq 1:673, ack 1, win 115, options [nop,nop,TS val 129851063 ecr 33669
+55869], length 672
+18:54:24.390768 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [.], 
+ack 673, win 124, options [nop,nop,TS val 3366955882 ecr 129851063], le
+ngth 0
+18:54:24.392909 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [P.],
+ seq 1:1796, ack 673, win 124, options [nop,nop,TS val 3366955884 ecr 1
+29851063], length 1795
 @end example
 
 At this step, it's worth having a quick play with the reconnection
@@ -781,7 +854,8 @@ Then, to identify your workstation, add a rule like this to your local rules
 file (probably @file{/etc/snort/rules/local.rules}):
 
 @example
-alert tcp 192.168.1.80 any -> any 80 (msg:"Web"; classtype:misc-activity; sid:200; rev:1;)
+alert tcp 192.168.1.80 any -> any 80 (msg:"Web"; 
+classtype:misc-activity;sid:200; rev:1;)
 @end example
 
 @command{cyberprobe} itself needs to be configured to receive Snort
@@ -942,7 +1016,8 @@ SNORTc0a80150: 192.168.1.80:34284 -> 216.34.181.45:80. HTTP GET request
     Host: slashdot.org
     Accept: */*
 
-SNORTc0a80150: 216.34.181.45:80 -> 192.168.1.80:34284. HTTP response 200 OK
+SNORTc0a80150: 216.34.181.45:80 -> 192.168.1.80:34284. HTTP response 200
+OK
     URL http://slashdot.org/
     Connection: keep-alive
     Content-Length: 113468
@@ -1002,7 +1077,8 @@ end
 And this function is called when an HTTP response is observed:
 
 @example
-observer.http_response = function(context, code, status, header, url, body)
+observer.http_response = function(context, code, status, header, url,
+                                  body)
 end
 @end example
 
@@ -1012,7 +1088,8 @@ the response. The body parameter contains the payload body as an empty
 string. Let's start simple:
 
 @example
-observer.http_response = function(context, code, status, header, url, body)
+observer.http_response = function(context, code, status, header, url,
+                                  body)
   print(url)
 end
 @end example
@@ -1030,7 +1107,8 @@ visit. Let's tart that up a little more:
 
 @example
 -- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url, body)
+observer.http_response = function(context, code, status, header, url,
+                                  body)
 
   -- Take first 40 characters of URL
   local u = url:sub(1,40)
@@ -1187,12 +1265,14 @@ address. Let's hack the DNS request function in my.lua:
 
 @example
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(context, header, queries, answers, auth,
+                                add)
 
   -- Check my assumptions.  Need a DNS query request, with one query,
   -- name is example.org, type 'A', class 'IN'.
-  if header.qr == 0 and #queries == 1 and queries[1].name == "example.org"
-    and queries[1].type == 1 and queries[1].class == 1 then
+  if header.qr == 0 and #queries == 1 and
+    queries[1].name == "example.org" and queries[1].type == 1 and
+    queries[1].class == 1 then
 
     -- Send a fake response
 
@@ -1212,7 +1292,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
     io.write("Forging DNS response!\n")
 
-    context:forge_dns_response(context, header, queries, answers, @{@}, @{@})
+    context:forge_dns_response(context, header, queries, answers,
+                               @{@}, @{@})
 
   end
 
@@ -1322,7 +1403,8 @@ After some network data has been observed, you should be able to see results
 loaded into ElasticSearch using the following command:
 
 @example
-curl -s -XPOST "http://localhost:9200/cybermon/observation/_search?pretty=true" -d '
+curl -s -XPOST \
+  "http://localhost:9200/cybermon/observation/_search?pretty=true" -d '
 @{
   "query" : @{
     "match_all": @{@}
@@ -1455,7 +1537,7 @@ information and reports when theats are observed.
 @end itemize
 
 @cindex @code{pyOpenSSL}
-@cindex @code{libtaxx}
+@cindex @code{libtaxii}
 @cindex @code{stix}
 @cindex @code{pip}
 
@@ -1480,8 +1562,10 @@ convert these files into STIX ready for serving:
 mkdir /tmp/stix
 cd /tmp/stix
 mkdir -p data/default
-stix-create @value{PREFIX}/share/doc/cyberprobe/example1.txt data/default/1 -i ex:1
-stix-create @value{PREFIX}/share/doc/cyberprobe/example2.txt data/default/2 -i ex:2
+stix-create @value{PREFIX}/share/doc/cyberprobe/example1.txt \
+        data/default/1 -i ex:1
+stix-create @value{PREFIX}/share/doc/cyberprobe/example2.txt \
+        data/default/2 -i ex:2
 @end example
 
 Check that you have two new XML files in data/default directory. If they're
@@ -1538,13 +1622,20 @@ don't mind us using them for this test.
 If this works, you should see the following output:
 
 @example
-DNS query for www.malware.com, hits example1:5 (Hostname of malware server)!
-DNS query for www.malware.com, hits example1:5 (Hostname of malware server)!
-DNS response for www.malware.com, hits example1:5 (Hostname of malware server)!
-DNS response for www.malware.com, hits example1:5 (Hostname of malware server)!
-HTTP request to http://www.malware.com/malware.dat, hits example1:7 (URL of a page serving malware)!
-HTTP request to www.malware.com, hits example1:5 (Hostname of malware server)!
-HTTP response from http://www.malware.com/malware.dat, hits example1:7 (URL of a page serving malware)!
+DNS query for www.malware.com, hits example1:5 (Hostname of malware
+server)!
+DNS query for www.malware.com, hits example1:5 (Hostname of malware
+ server)!
+DNS response for www.malware.com, hits example1:5 (Hostname of malware
+ server)!
+DNS response for www.malware.com, hits example1:5 (Hostname of malware
+ server)!
+HTTP request to http://www.malware.com/malware.dat, hits example1:7 (URL
+ of a page serving malware)!
+HTTP request to www.malware.com, hits example1:5 (Hostname of malware
+ server)!
+HTTP response from http://www.malware.com/malware.dat, hits example1:7
+ (URL of a page serving malware)!
 @end example
 
 This hits on a number of theat indicators. The hostname www.malware.com is
@@ -1575,11 +1666,48 @@ you found the experience.
 @chapter Reference
 
 @menu
+* @command{cyberprobe} invocation::
 * @command{cyberprobe} configuration::
 * Output streaming protocols::
 * Management protocol::
+* @command{cybermon} invocation::
 * @command{cybermon} configuration::
+* @command{nhis11_rcvr} invocation::
+* @command{etsi_rcvr} invocation::
 @end menu
+
+@node @command{cyberprobe} invocation
+@section @command{cyberprobe} invocation
+
+@cindex @command{cyberprobe}, invocation
+
+@command{cyberprobe} is a network monitor which collects packets which match an
+IP address list.  The packets collected are streamed using network streaming
+protocols.  The IP address match list can be statically conqfigured (in a
+configuration file), can be dynamically changed using a management
+interface, or can be dynamically changed as a result of snort alerts.
+Synopsis:
+
+@example
+cyberprobe @var{configuration-file}
+@end example
+
+@itemize @bullet
+
+@item
+@var{configuration-file} is the name of an XML configuration file. 
+See @ref{@command{cyberprobe} configuration}.
+
+@end itemize
+
+@cindex @command{cyberprobe}, configuration
+
+@command{cyberprobe} executes indefinitely - to end the program, a signal should
+be sent. e.g.
+
+@example
+killall cyberprobe
+@end example
 
 @node @command{cyberprobe} configuration
 @section @command{cyberprobe} configuration
@@ -1615,8 +1743,8 @@ Sample configuration:
          sniff the outbound streams. -->
     <interface name="eth0" filter="not port 10001 and not port 10002"/>
 
-    <-- The delay attribute can be used to specify a delay before packets
-           are processed.  In seconds. --> 
+    <-- The delay attribute can be used to specify a delay before
+           packets are processed.  In seconds. --> 
     <interface name="eth1" delay="0.5"/>
 
   </interfaces>
@@ -1642,10 +1770,12 @@ Sample configuration:
   <!-- Endpoints for delivery of collected packets. -->
   <endpoints>
 
-    <!-- Send collected packets to monitor1:10001 in NHIS 1.1 stream. -->
+    <!-- Send collected packets to monitor1:10001 in NHIS 1.1
+         stream. -->
     <endpoint hostname="monitor1" port="10001" type="nhis1.1"/>
 
-    <!-- Send collected packets to monitor2:10002 in ETSI LI stream. -->
+    <!-- Send collected packets to monitor2:10002 in ETSI LI
+         stream. -->
     <endpoint hostname="monitor2" port="10002" type="etsi"/>
 
   </endpoints>
@@ -1658,8 +1788,8 @@ Sample configuration:
          in LI PS PDU. Should be 2-character string. -->
     <parameter key="country" value="DE"/>
 
-    <!-- Value used for operatorIdentifier in LI PS PDU. A string up to 16
-         characters. -->
+    <!-- Value used for operatorIdentifier in LI PS PDU. A string up to
+         16 characters. -->
     <parameter key="operator" value="Cyber"/>
 
     <!-- Value used for networkElementIdentifier in LI PS PDU. String up
@@ -1677,15 +1807,15 @@ Sample configuration:
     <parameter key="username.981235" value="user03@@example.org"/>
 
     <!-- Parameters in this form are used select the LIID which is used
-         when packets are collected on Snort alerts.  Basically, this maps
-	 the Snort signature ID to a LIID. -->
+         when packets are collected on Snort alerts.  Basically, this
+         maps the Snort signature ID to a LIID. -->
     <parameter key="snort.1.liid" value="SNORT1"/>
     <parameter key="snort.2.liid" value="SNORT2"/>
 
    </parameters>
 
-   <!-- Optional element.  Listens for Snort alerts, and dynamically targets
-        addresses for 60 seconds. -->
+   <!-- Optional element.  Listens for Snort alerts, and dynamically
+        targets addresses for 60 seconds. -->
    <!--
    <snort_alert socket="/var/log/snort/snort_alert" duration="60"/>
    -->
@@ -1750,7 +1880,8 @@ with these protocols. The two formats are ETSI LI and NHIS 1.1.
 
 @cindex TS 102 232-3
 @cindex ETSI TS 102 232-3
-@heading ETSI
+@anchor{ETSI LI}
+@heading ETSI LI
 
 The first of the formats supported is the ETSI LI format (see ETSI TS 102
 232), which is used in Europe and internationally. The protocol is described
@@ -1763,7 +1894,9 @@ Those adverse to the use of ASN.1 technology may prefer the second format.
 
 @cindex TS 101 671
 @cindex ETSI TS 101 671
-@heading NHIS 1
+@cindex GLIC
+@anchor{NHIS LI}
+@heading NHIS LI
 
 NHIS 1.1 which was defined for use in the UK in the 90s, based on GLIC
 in ETSI TS 101 671. The protocol is a much simpler header protocol than ETSI
@@ -1943,6 +2076,55 @@ quit
 200 Tra, then.
 @end example
 
+@node @command{cybermon} invocation
+@section @command{cybermon} invocation
+
+@cindex @command{cybermon}, invocation
+
+@command{cybermon} is a configurable network packet stream analyser.  It is
+designed to receive packets from cyberprobe, analyse them and generate
+session/transport level events which result in user-configurable
+actions. For each event, a call is made to a Lua script which the caller
+provides.  Synposes:
+
+@example
+cybermon @var{port-number} @var{configuration-file}
+cybermon file:@var{pcap-file} @var{configuration-file}
+cybermon -
+@end example
+
+@itemize @bullet
+
+@item
+@var{port-number}
+is a TCP port number.  This form of the command runs as a TCP server
+listening for ETSI LI streams.  See @ref{ETSI LI}.
+
+@item
+@var{pcap-file}
+is a PCAP file to read.  This form of the command reads the PCAP file, and
+then exits.
+
+@item
+The third form of the command specifies that @command{cybermon} should read
+standard input for PCAP data.  This form of the command will exit when 
+EOF is received on standard input.
+
+@item
+@var{configuration-file}
+is a Lua configuration file, which specifies the action @command{cybermon}
+should take when certain events are observed.  See
+@ref{@command{cybermon} configuration}.
+
+@end itemize
+
+The first form of the command will execute indefinitely - to end the program, a
+signal should be sent. e.g.
+
+@example
+killall cyberprobe
+@end example
+
 @node @command{cybermon} configuration
 @section @command{cybermon} configuration
 
@@ -1997,8 +2179,8 @@ end
 observer.unrecognised_datagram = function(context, data)
 end
 
--- This function is called when stream data  is observed, but the protocol
--- is not recognised.
+-- This function is called when stream data  is observed, but the
+-- protocol is not recognised.
 observer.unrecognised_stream = function(context, data)
 end
 
@@ -2011,11 +2193,13 @@ observer.http_request = function(context, method, url, header, body)
 end
 
 -- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url, body)
+observer.http_response = function(context, code, status, header, url,
+                         body)
 end
 
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(context, header, queries, answers, auth,
+                                add)
 end
 
 -- Return the table
@@ -2193,6 +2377,69 @@ address associated with this context. The provided parameters are used as
 protocol data in the DNS encoder.
 
 @end table
+
+
+@node @command{nhis11_rcvr} invocation
+@section @command{nhis11_rcvr} invocation
+
+@cindex @command{nhis11_rcvr}, invocation
+
+@command{nhis11_rcvr} provides a TCP server which accepts connections from
+NHIS LI clients,  decodes NHIS LI streams and outputs contained IP  packets  on
+the standard output in PCAP format.  TCP port number to use is provided
+on the command line.  Synopsis:
+
+@example
+nhis11_rcvr @var{port-number}
+@end example
+
+@itemize @bullet
+
+@item
+@var{port-number} is the TCP port number to list to for connections.
+See @ref{NHIS LI}.
+
+@end itemize
+
+@cindex @command{cyberprobe}, configuration
+
+@command{nhis11_rcvr} executes indefinitely - to end the program, a signal
+should be sent. e.g.
+
+@example
+killall nhis11_rcvr
+@end example
+
+@node @command{etsi_rcvr} invocation
+@section @command{etsi_rcvr} invocation
+
+@cindex @command{etsi_rcvr}, invocation
+
+@command{etsi_rcvr} provides a TCP server which accepts connections from
+ETSI LI clients,  decodes ETSI LI streams and outputs contained IP  packets  on
+the standard output in PCAP format.  TCP port number to use is provided
+on the command line.  Synopsis:
+
+@example
+etsi_rcvr @var{port-number}
+@end example
+
+@itemize @bullet
+
+@item
+@var{port-number} is the TCP port number to list to for connections.
+See @ref{ETSI LI}.
+
+@end itemize
+
+@cindex @command{cyberprobe}, configuration
+
+@command{etsi_rcvr} executes indefinitely - to end the program, a signal
+should be sent. e.g.
+
+@example
+killall etsi_rcvr
+@end example
 
 @node Architecture
 @chapter Architecture
