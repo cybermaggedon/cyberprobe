@@ -45,7 +45,9 @@ Texts.  A copy of the license is included in the section entitled
 @top Cyberprobe
 
 This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
-  
+
+@image{cyberprobe-overview,125mm,,png}
+
 Cyberprobe is a distrbuted architecture for real-time monitoring of networks
 against attack. The software consists of a number of components, including:
 
@@ -1484,6 +1486,8 @@ be bundled in with the documentation at
 @file{@value{PREFIX}/share/doc/cyberprobe/kibana-dashboard.json}. If it loads
 successfully, you should get a dashboard.
 
+@image{kibana-scaled,135mm,,png}
+
 Next step is to save the dashboard using a save icon in the top right of the
 dashboard. That way you don't have to keep loading the schema.
 
@@ -2493,6 +2497,7 @@ on the command line.  Synopsis:
 
 @example
 nhis11_rcvr @var{port-number}
+
 @end example
 
 @itemize @bullet
@@ -2546,6 +2551,8 @@ killall etsi_rcvr
 @node Architecture
 @chapter Architecture
 @cindex Cyberprobe, architecture
+
+@image{architecture-small,145mm,,png}
 
 Cyberprobe consists of a set of loosely-coupled components which can be
 used together. We prefer to use simple interfaces, and prefer to use

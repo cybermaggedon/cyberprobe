@@ -212,10 +212,10 @@ end
 observer.smtp_data = function(context, from, to, data)
 
   indicators = {}
-  stix.check_email(from)
+  stix.check_email(from, indicators)
 
   for k, v in pairs(to) do
-    stix.check_email(v)
+    stix.check_email(v, indicators)
   end
 
   for k, v in pairs(indicators) do

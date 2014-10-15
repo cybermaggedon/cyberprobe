@@ -35,6 +35,11 @@ make %{?_smp_mflags}
 %install
 %make_install
 
+%post
+ln -sf %{_docdir}/cyberprobe/cyberprobe-overview.png ${RPM_BUILD_ROOT}%{_infodir}/cyberprobe-overview.png
+ln -sf %{_docdir}/cyberprobe/kibana-scaled.png ${RPM_BUILD_ROOT}%{_infodir}/kibana-scaled.png
+ln -sf %{_docdir}/cyberprobe/architecture-small.png ${RPM_BUILD_ROOT}%{_infodir}/architecture-small.png
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
