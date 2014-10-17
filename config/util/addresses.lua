@@ -1,16 +1,15 @@
 
+-- Open geoip module if it exists.
 local geoip
-
 status, rtn, geoip = pcall(function() return require("geoip") end)
-
 if status then
   geoip = rtn
 else
   print("Module geoip not found, GeoIP disabled.")
 end 
 
+-- Open geoip database if it exists.
 local geodb
-
 if geoip then
   geodb = geoip.open_type("country")
   print(geodb)
