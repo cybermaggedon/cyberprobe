@@ -2663,6 +2663,8 @@ An object describing the full stack of protocol destination addresses, like
 @cindex ElasticSearch model, actions
 @cindex Actions
 
+The following @code{action} fields are defined:
+
 @table @samp
 @item connected_up
 Records the creation of a stream-orientated connection (currently, only TCP).
@@ -2702,9 +2704,56 @@ Records an FTP command (client to server).
 Records an FTP response (server to client).
 @end table
 
+@heading Connection up
+@cindex Connection up
+
+Connection up events are created when connection-orientated transports
+(e.g. TCP) are created, and have an @code{action} field of @samp{connection_up}.
+
+@heading Connection down
+@cindex Connection down
+
+Connection down events are created when connection-orientated transports
+(e.g. TCP) are closed and have an @code{action} field of @samp{connection_down}.
+
+@heading Unrecognised datagram
+@cindex Unrecognised datagram
+
+Unrecognised datagram events are created when a datagram is observed
+on an unrecognised protocol, and have an @code{action} field of
+@samp{unrecognised_datagram}.  Such events include the following fields:
+@table @code 
+@item observation.data
+The datagram payload, base64 encoded.
+@end table
+
+@heading Unrecognised stream
+@cindex Unrecognised stream
+
+Unrecognised stream events are created when data is observed to be
+sent on an unrecognised connection-orientated protocol (e.g. TCP),
+and have an @code{action} field of
+@samp{unrecognised_stream}.  Such events include the following fields:
+@table @code 
+@item observation.data
+The datagram payload, base64 encoded.
+@end table
+
+@heading ICMP
+@cindex ICMP
+
+ICMP events are created when an ICMP message is observed
+and have an @code{action} field of @samp{icmp}.  Such events include the
+following fields:
+@table @code 
+@item observation.data
+The datagram payload, base64 encoded.
+@end table
+
 @heading DNS messages
 
-DNS events are created for DNS query and response messages, and include
+DNS events are created for DNS query and response messages, and have an
+@code{action} field of @samp{dns_message}.  Such events include
 the following fields:
 
 @table @code 
@@ -2744,7 +2793,8 @@ Contains a list of DNS responses.  Example:
 @heading HTTP request
 @cindex HTTP request
 
-HTTP request events are created for HTTP requests, and include fields:
+HTTP request events are created for HTTP requests, and have an
+@code{action} field of @samp{http_request}.  Such events include fields:
 
 @table @code
 
@@ -2776,8 +2826,9 @@ Describes the HTTP body.  This is a base64 encoding of the body.
 @heading HTTP response
 @cindex HTTP response
 
-HTTP response events are created for responses to HTTP requests, and include
-fields:
+HTTP response events are created for responses to HTTP requests, and have an
+@code{action} field of @samp{http_response}.  Such events include
+the following fields:
 
 @table @code
 
@@ -2806,19 +2857,72 @@ Describes the HTTP response body, base64 encoded.
 
 @end table
 
-@heading MISC
+@heading SMTP command
+@cindex SMTP command
 
-@table @code
+SMTP commands events are created when an SMTP command is sent from client
+to server, and have an @code{action} field of @samp{smtp_command}.
+Such events include the
+following fields:
+@table @code 
+@item observation.command
+The SMTP command e.g. @samp{EHLO}.
+@end table
 
+@heading SMTP response
+@cindex SMTP response
+
+SMTP response events are created when an SMTP response is sent from server
+to client, and have an @code{action} field of @samp{smtp_response}.
+Such events include the following fields:
+
+@table @code 
+@item observation.status
+The SMTP status e.g. @samp{400}.
+@item observation.text
+The SMTP text e.g. @samp{["Hello malware.com.  Pleased to meet you."]}.
+@end table
+
+@heading SMTP data
+@cindex SMTP data
+
+SMTP data events are created when an SMTP email is sent from client
+to server, and have an @code{action} field of @samp{smtp_data}.
+Such events include the following fields:
+
+@table @code 
+@item observation.from
+The SMTP ``from'' address.  A string.
+@item observation.to
+The SMTP ``to'' addresses.  An array of strings.
 @item observation.data
-Describes PDU payload for payloads which are not interpreted.  This is a
-base64 encoding of the payload.  Payloads are described for events
-of type:
-@samp{unrecognised_datagram},
-@samp{unrecognised_stream},
-@samp{icmp},
-@samp{smtp_data}.
+The SMTP payload (RFC822), base64 encoded.
+@end table
 
+@heading FTP command
+@cindex FTP command
+
+FTP commands events are created when an FTP command is sent from client
+to server, and have an @code{action} field of @samp{ftp_command}.
+Such events include the
+following fields:
+@table @code 
+@item observation.command
+The FTP command.
+@end table
+
+@heading FTP response
+@cindex SMTP response
+
+FTP response events are created when an FTP response is sent from server
+to client, and have an @code{action} field of @samp{ftp_response}.
+Such events include the following fields:
+
+@table @code 
+@item observation.status
+The FTP status.
+@item observation.text
+The FTP text.
 @end table
 
 @node Architecture
