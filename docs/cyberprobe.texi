@@ -2912,7 +2912,7 @@ The FTP command.
 @end table
 
 @heading FTP response
-@cindex SMTP response
+@cindex FTP response
 
 FTP response events are created when an FTP response is sent from server
 to client, and have an @code{action} field of @samp{ftp_response}.
@@ -2928,6 +2928,7 @@ The FTP text.
 @node Architecture
 @chapter Architecture
 @cindex Cyberprobe, architecture
+@cindex Architecture
 
 @image{architecture-small,145mm,,png}
 
