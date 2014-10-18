@@ -51,7 +51,7 @@ end
 -- is not recognised.
 observer.unrecognised_datagram = function(context, data)
   local obs = elastic.initialise_observation(context)
-  obs["observation"]["action"] = "datagram"
+  obs["observation"]["action"] = "unrecognised_datagram"
   obs["observation"]["data"] = b64(data)
   elastic.submit_observation(obs)
 end
