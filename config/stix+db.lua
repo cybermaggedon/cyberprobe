@@ -50,7 +50,6 @@ observer.connection_up = function(context)
 
   local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "connection_up"
-  obs["observation"]["data"] = b64(data)
   elastic.submit_observation(obs)
 
 end
@@ -62,7 +61,6 @@ observer.connection_down = function(context)
 
   local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "connection_down"
-  obs["observation"]["data"] = b64(data)
   elastic.submit_observation(obs)
 
 end
