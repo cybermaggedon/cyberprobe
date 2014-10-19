@@ -5,7 +5,7 @@
 #include <list>
 #include <map>
 
-#include "socket.h"
+#include <cybermon/socket.h>
 
 class interface_info {
   public:

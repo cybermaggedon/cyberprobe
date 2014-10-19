@@ -18,14 +18,14 @@ Usage:
 #include <iomanip>
 #include <map>
 
-#include "engine.h"
-#include "monitor.h"
-#include "etsi_li.h"
-#include "thread.h"
-#include "packet_capture.h"
-#include "flow.h"
-#include "context.h"
-#include "cybermon-lua.h"
+#include <cybermon/engine.h>
+#include <cybermon/monitor.h>
+#include <cybermon/etsi_li.h>
+#include <cybermon/thread.h>
+#include <cybermon/packet_capture.h>
+#include <cybermon/flow.h>
+#include <cybermon/context.h>
+#include <cybermon/cybermon-lua.h>
 
 // My observation engine.  Uses the cybermon engine, takes the data
 // events and keep tabs on how much data has flowed out to attackers.
@@ -354,7 +354,7 @@ int main(int argc, char** argv)
 	    etsi_monitor m(an);
 
 	    // Start an ETSI receiver.
-	    etsi_li::receiver r(port, m);
+	    cybermon::etsi_li::receiver r(port, m);
 	    r.start();
 
 	    // Wait forever.

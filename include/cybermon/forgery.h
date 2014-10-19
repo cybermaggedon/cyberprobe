@@ -1,6 +1,9 @@
 
-#include "context.h"
-#include "dns_protocol.h"
+#ifndef CYBERMON_FORGERY_H
+#define CYBERMON_FORGERY_H
+
+#include <cybermon/context.h>
+#include <cybermon/dns_protocol.h>
 
 namespace cybermon {
 
@@ -46,4 +49,6 @@ namespace cybermon {
     };
 
 };
+
+#endif
 

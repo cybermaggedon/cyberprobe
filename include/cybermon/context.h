@@ -5,19 +5,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef CONTEXT_H
-#define CONTEXT_H
+#ifndef CYBERMON_CONTEXT_H
+#define CYBERMON_CONTEXT_H
 
 #include <sys/time.h>
 
-#include "socket.h"
-
-#include "address.h"
-#include "flow.h"
-#include "exception.h"
-#include "reaper.h"
-#include "base_context.h"
-#include "manager.h"
+#include <cybermon/socket.h>
+#include <cybermon/address.h>
+#include <cybermon/flow.h>
+#include <cybermon/exception.h>
+#include <cybermon/reaper.h>
+#include <cybermon/base_context.h>
+#include <cybermon/manager.h>
 
 namespace cybermon {
 

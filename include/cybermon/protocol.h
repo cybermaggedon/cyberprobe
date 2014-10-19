@@ -1,10 +1,10 @@
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef CYBERMON_PROTOCOL_H
+#define CYBERMON_PROTOCOL_H
 
-#include "manager.h"
-#include "context.h"
-#include "pdu.h"
+#include <cybermon/manager.h>
+#include <cybermon/context.h>
+#include <cybermon/pdu.h>
 
 namespace cybermon {
 

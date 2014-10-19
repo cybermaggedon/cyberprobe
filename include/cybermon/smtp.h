@@ -5,8 +5,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef SMTP_H
-#define SMTP_H
+#ifndef CYBERMON_SMTP_H
+#define CYBERMON_SMTP_H
 
 #include <stdint.h>
 #include <boost/regex.hpp>

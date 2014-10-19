@@ -1,11 +1,11 @@
 
-#include "address.h"
-#include "ftp.h"
-#include "ctype.h"
-#include "manager.h"
-#include "ip.h"
+#include <cybermon/address.h>
+#include <cybermon/ftp.h>
+#include <cybermon/manager.h>
+#include <cybermon/ip.h>
 
 #include <iostream>
+#include <ctype.h>
 
 using namespace cybermon;
 

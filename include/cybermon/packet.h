@@ -1,6 +1,6 @@
 
-#ifndef PACKET_H
-#define PACKET_H
+#ifndef CYBERMON_PACKET_H
+#define CYBERMON_PACKET_H
 
 #include <string>
 #include <vector>

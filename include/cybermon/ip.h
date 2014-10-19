@@ -1,6 +1,6 @@
 
-#ifndef IP_H
-#define IP_H
+#ifndef CYBERMON_IP_H
+#define CYBERMON_IP_H
 
 #include <stdint.h>
 

@@ -1,6 +1,6 @@
 
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef CYBERMON_SOCKET_H
+#define CYBERMON_SOCKET_H
 
 #include <stdexcept>
 #include <string>

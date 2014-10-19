@@ -1,18 +1,18 @@
 
-#include "nhis11.h"
+#include <cybermon/nhis11.h>
 
-#include "transport.h"
+#include <cybermon/transport.h>
 
 #include <string>
 #include <vector>
 
-using namespace nhis11;
+using namespace cybermon::nhis11;
 
 // Next CID counter.
 unsigned long sender::next_cid;
 
 // Send a START PDU.
-void nhis11::sender::send_start(const std::string& liid)
+void sender::send_start(const std::string& liid)
 {
 
     pdu_ptr buffer = pdu_ptr(new pdu);

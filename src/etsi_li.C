@@ -1,11 +1,12 @@
 
 #include <fstream>
-#include "etsi_li.h"
-#include "ber.h"
+
+#include <cybermon/etsi_li.h>
+#include <cybermon/ber.h>
 
 // Support for a simple usage of ETSI LI protocol, defined in ETSI TS 102 232.
 
-using namespace etsi_li;
+using namespace cybermon::etsi_li;
 
 // The next CIN which will be used.
 uint32_t mux::next_cin = 0;

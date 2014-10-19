@@ -5,8 +5,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef DNS_H
-#define DNS_H
+#ifndef CYBERMON_DNS_H
+#define CYBERMON_DNS_H
 
 #include <stdint.h>
 

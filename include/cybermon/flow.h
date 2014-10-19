@@ -1,8 +1,8 @@
 
-#ifndef FLOW_H
-#define FLOW_H
+#ifndef CYBERMON_FLOW_H
+#define CYBERMON_FLOW_H
 
-#include "address.h"
+#include <cybermon/address.h>
 
 namespace cybermon {
 

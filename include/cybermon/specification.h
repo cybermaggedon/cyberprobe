@@ -1,6 +1,6 @@
 
-#ifndef NHIS_SPECIFICATION_H
-#define NHIS_SPECIFICATION_H
+#ifndef CYBERMON_SPECIFICATION_H
+#define CYBERMON_SPECIFICATION_H
 
 #include <string>
 

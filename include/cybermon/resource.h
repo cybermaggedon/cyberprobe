@@ -20,11 +20,11 @@
 // You then call the 'check' method on your resource manager periodically
 // to get it to check the configuration file for changes.
 
-#ifndef NHIS_RESOURCE_H
-#define NHIS_RESOURCE_H
+#ifndef CYBERMON_RESOURCE_H
+#define CYBERMON_RESOURCE_H
 
-#include "thread.h"
-#include "specification.h"
+#include <cybermon/thread.h>
+#include <cybermon/specification.h>
 
 #include <string>
 #include <list>

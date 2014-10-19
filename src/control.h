@@ -5,11 +5,12 @@
 #include <vector>
 #include <queue>
 
-#include "socket.h"
-#include "thread.h"
+#include <cybermon/socket.h>
+#include <cybermon/thread.h>
+#include <cybermon/specification.h>
+#include <cybermon/resource.h>
+
 #include "management.h"
-#include "specification.h"
-#include "resource.h"
 
 namespace control {
 

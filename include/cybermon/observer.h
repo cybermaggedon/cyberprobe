@@ -1,9 +1,9 @@
 
-#ifndef OBSERVER_H
-#define OBSERVER_H
+#ifndef CYBERMON_OBSERVER_H
+#define CYBERMON_OBSERVER_H
 
-#include "context.h"
-#include "dns_protocol.h"
+#include <cybermon/context.h>
+#include <cybermon/dns_protocol.h>
 
 namespace cybermon {
 

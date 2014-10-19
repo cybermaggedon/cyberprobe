@@ -1,6 +1,6 @@
 
-#ifndef ICMP_H
-#define ICMP_H
+#ifndef CYBERMON_ICMP_H
+#define CYBERMON_ICMP_H
 
 #include "context.h"
 #include "observer.h"

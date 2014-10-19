@@ -8,7 +8,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "resource.h"
+#include <cybermon/resource.h>
+
 #include "delivery.h"
 
 // Configuration file manager.

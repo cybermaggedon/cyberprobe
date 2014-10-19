@@ -1,10 +1,11 @@
 
-#include "address.h"
-#include "smtp.h"
-#include "ctype.h"
-#include "manager.h"
+#include <cybermon/address.h>
+#include <cybermon/smtp.h>
+#include <cybermon/manager.h>
 
 #include <iostream>
+
+#include <ctype.h>
 
 using namespace cybermon;
 

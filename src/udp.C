@@ -1,10 +1,10 @@
 
-#include "udp.h"
-#include "address.h"
-#include "flow.h"
-#include "manager.h"
-#include "unrecognised.h"
-#include "dns.h"
+#include <cybermon/udp.h>
+#include <cybermon/address.h>
+#include <cybermon/flow.h>
+#include <cybermon/manager.h>
+#include <cybermon/unrecognised.h>
+#include <cybermon/dns.h>
 
 using namespace cybermon;
 

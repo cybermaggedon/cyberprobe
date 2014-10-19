@@ -1,8 +1,8 @@
 
 #include <sstream>
 
-#include "cybermon-lua.h"
-#include "forgery.h"
+#include <cybermon/cybermon-lua.h>
+#include <cybermon/forgery.h>
 
 using namespace cybermon;
 

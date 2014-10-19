@@ -3,11 +3,11 @@
 *~
 Makefile
 Makefile.bak
-cybermon
-cyberprobe
-cyberprobe_cli
-etsi_rcvr
-nhis11_rcvr
+src/cybermon
+src/cyberprobe
+src/cyberprobe_cli
+src/etsi_rcvr
+src/nhis11_rcvr
 .deps
 .libs
 libcybermon.la

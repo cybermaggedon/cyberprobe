@@ -1,6 +1,6 @@
 
-#include "icmp.h"
-#include "manager.h"
+#include <cybermon/icmp.h>
+#include <cybermon/manager.h>
 
 using namespace cybermon;
 

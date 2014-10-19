@@ -5,8 +5,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef CYBERMON_EXCEPTION_H
+#define CYBERMON_EXCEPTION_H
 
 namespace cybermon {
 

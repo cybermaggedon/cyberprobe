@@ -6,9 +6,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include "management.h"
-#include "thread.h"
-#include "nhis11.h"
-#include "etsi_li.h"
+#include <cybermon/thread.h>
+#include <cybermon/nhis11.h>
+#include <cybermon/etsi_li.h>
 #include "parameters.h"
 
 // Shared pointers to TCP/IP address.
@@ -89,7 +89,7 @@ class nhis11_sender : public sender {
   private:
   
     // NHIS 1.1 transport.
-    std::map<std::string,nhis11::sender> transport;
+    std::map<std::string,cybermon::nhis11::sender> transport;
 
     // Connection details, host, port and LIID.
     std::string h;
@@ -132,8 +132,8 @@ class etsi_li_sender : public sender {
   private:
   
     // ETSI LI transport and mux
-    etsi_li::sender transport;
-    etsi_li::mux mux;
+    cybermon::etsi_li::sender transport;
+    cybermon::etsi_li::mux mux;
 
     // Connection details, host, port and LIID.
     std::string h;

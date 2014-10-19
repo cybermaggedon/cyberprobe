@@ -1,5 +1,6 @@
 
-#include <socket.h>
+#include <cybermon/socket.h>
+
 #include <errno.h>
 #include <arpa/inet.h>
 #include <sys/utsname.h>

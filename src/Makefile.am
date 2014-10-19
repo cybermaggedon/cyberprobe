@@ -34,7 +34,7 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 
 ACLOCAL_AMFLAGS = -I m4
 
-AM_CPPFLAGS =
+AM_CPPFLAGS = -I../include
 AM_LDFLAGS = 
 
 LDFLAGS_BOOST = \

@@ -5,8 +5,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef TCP_H
-#define TCP_H
+#ifndef CYBERMON_TCP_H
+#define CYBERMON_TCP_H
 
 #include <stdint.h>
 

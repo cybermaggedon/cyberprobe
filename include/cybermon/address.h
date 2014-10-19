@@ -5,15 +5,15 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ADDRESS_H
-#define ADDRESS_H
+#ifndef CYBERMON_ADDRESS_H
+#define CYBERMON_ADDRESS_H
 
 #include <vector>
 #include <iostream>
 
-#include "pdu.h"
-#include "socket.h"
-#include "exception.h"
+#include <cybermon/pdu.h>
+#include <cybermon/socket.h>
+#include <cybermon/exception.h>
 
 namespace cybermon {
 

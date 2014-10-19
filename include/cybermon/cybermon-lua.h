@@ -6,6 +6,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#ifndef CYBERMON_CYBERMON_LUA_H
+#define CYBERMON_CYBERMON_LUA_H
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -471,4 +474,6 @@ namespace cybermon {
     };
 
 };
+
+#endif
 

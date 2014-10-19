@@ -9,7 +9,7 @@
 //     name in CNAME data, the name in PTR data, the name in MX data, or one
 //     of the names in SOA data. 
 
-#include "dns_protocol.h"
+#include <cybermon/dns_protocol.h>
 
 using namespace cybermon;
 

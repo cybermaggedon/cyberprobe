@@ -1,8 +1,8 @@
 
-#include "thread.h"
-#include "context.h"
-#include "engine.h"
-#include "ip.h"
+#include <cybermon/thread.h>
+#include <cybermon/context.h>
+#include <cybermon/engine.h>
+#include <cybermon/ip.h>
 
 using namespace cybermon;
 

@@ -1,17 +1,19 @@
 
-#ifndef NHIS11_H
-#define NHIS11_H
+#ifndef CYBERMON_NHIS11_H
+#define CYBERMON_NHIS11_H
 
-#include "socket.h"
-#include "thread.h"
-#include "monitor.h"
-#include "transport.h"
+#include <cybermon/socket.h>
+#include <cybermon/thread.h>
+#include <cybermon/monitor.h>
+#include <cybermon/transport.h>
 
 #include <vector>
 #include <list>
 #include <queue>
 
 #include <boost/shared_ptr.hpp>
+
+namespace cybermon {
 
 namespace nhis11 {
 
@@ -117,6 +119,8 @@ class receiver : public threads::thread {
     virtual void run();
     virtual void close_me(connection* c);
     
+};
+
 };
 
 };

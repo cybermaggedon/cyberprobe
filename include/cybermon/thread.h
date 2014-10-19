@@ -21,8 +21,8 @@
 
 ****************************************************************************/
 
-#ifndef THREAD_THREAD_H
-#define THREAD_THREAD_H
+#ifndef CYBERMON_THREAD_H
+#define CYBERMON_THREAD_H
 
 #include <stdexcept>
 #include <pthread.h>

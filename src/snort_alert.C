@@ -8,7 +8,7 @@
 #include <string>
 #include <arpa/inet.h>
 
-#include "socket.h"
+#include <cybermon/socket.h>
 #include "snort_alert.h"
 
 ////////////////////////////////////////////////////////////////////////////

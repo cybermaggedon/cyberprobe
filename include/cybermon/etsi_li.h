@@ -19,19 +19,21 @@ need to be called on the etsi_li object are connect and close.
 
 ****************************************************************************/
 
-#ifndef ETSI_LI_H
-#define ETSI_LI_H
+#ifndef CYBERMON_ETSI_LI_H
+#define CYBERMON_ETSI_LI_H
 
-#include <socket.h>
+#include <cybermon/socket.h>
+#include <cybermon/ber.h>
+#include <cybermon/thread.h>
+#include <cybermon/monitor.h>
+#include <cybermon/transport.h>
+
 #include <vector>
 #include <string>
 #include <map>
 #include <queue>
 
-#include "ber.h"
-#include "thread.h"
-#include "monitor.h"
-#include "transport.h"
+namespace cybermon {
 
 namespace etsi_li {
 
@@ -225,6 +227,8 @@ class receiver : public threads::thread {
     virtual void run();
     virtual void close_me(connection* c);
     
+};
+
 };
 
 };

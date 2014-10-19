@@ -5,14 +5,16 @@ LI transport.
 
 ****************************************************************************/
 
-#ifndef TRANSPORT_H
-#define TRANSPORT_H
+#ifndef CYBERMON_TRANSPORT_H
+#define CYBERMON_TRANSPORT_H
 
 #include <deque>
 
-#include <socket.h>
+#include <cybermon/socket.h>
 
 #include <boost/shared_ptr.hpp>
+
+namespace cybermon {
 
 namespace etsi_li {
 
@@ -110,6 +112,8 @@ class transport {
 	cap_bytes = bytes;
 	cap_pdus = pdus;
     }
+
+};
 
 };
 

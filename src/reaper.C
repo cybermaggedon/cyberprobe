@@ -3,7 +3,7 @@
 #include <iostream>
 #include <list>
 
-#include "reaper.h"
+#include <cybermon/reaper.h>
 
 void reaper::run()
 {

@@ -1,14 +1,14 @@
 
-#ifndef DNS_PROTOCOL_H
-#define DNS_PROTOCOL_H
+#ifndef CYBERMON_DNS_PROTOCOL_H
+#define CYBERMON_DNS_PROTOCOL_H
 
 #include <stdint.h>
 
 #include <string>
 #include <list>
 
-#include "pdu.h"
-#include "address.h"
+#include <cybermon/pdu.h>
+#include <cybermon/address.h>
 
 namespace cybermon {
 

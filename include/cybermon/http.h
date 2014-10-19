@@ -5,8 +5,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef HTTP_H
-#define HTTP_H
+#ifndef CYBERMON_HTTP_H
+#define CYBERMON_HTTP_H
 
 #include <stdint.h>
 #include <boost/regex.hpp>

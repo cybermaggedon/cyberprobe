@@ -1,15 +1,17 @@
 
-#ifndef NHIS_BER_H
-#define NHIS_BER_H
+#ifndef CYBERMON_BER_H
+#define CYBERMON_BER_H
 
 #include <boost/shared_ptr.hpp>
 
-#include <socket.h>
+#include <cybermon/socket.h>
 
 #include <algorithm>
 #include <list>
 #include <vector>
 #include <functional>
+
+namespace cybermon {
 
 /** BER decoding utilities. */
 namespace ber {
@@ -443,6 +445,8 @@ namespace ber {
 	bool read_pdu(tcpip::tcp_socket& sock);
 
     };
+
+};
 
 };
 

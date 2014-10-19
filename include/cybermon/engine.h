@@ -6,8 +6,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef CYBERMON_ENGINE_H
+#define CYBERMON_ENGINE_H
 
 #include <string>
 #include <vector>

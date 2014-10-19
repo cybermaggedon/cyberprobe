@@ -1,11 +1,11 @@
 
 #include <stdint.h>
 
-#include "ip.h"
-#include "tcp.h"
-#include "udp.h"
-#include "icmp.h"
-#include "manager.h"
+#include <cybermon/ip.h>
+#include <cybermon/tcp.h>
+#include <cybermon/udp.h>
+#include <cybermon/icmp.h>
+#include <cybermon/manager.h>
 
 using namespace cybermon;
 

@@ -1,15 +1,15 @@
 
-#ifndef BASE_CONTEXT_H
-#define BASE_CONTEXT_H
+#ifndef CYBERMON_BASE_CONTEXT_H
+#define CYBERMON_BASE_CONTEXT_H
 
 #include <exception>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <map>
 
-#include "flow.h"
-#include "thread.h"
-#include "exception.h"
+#include <cybermon/flow.h>
+#include <cybermon/thread.h>
+#include <cybermon/exception.h>
 
 namespace cybermon {
 

@@ -5,16 +5,16 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef UNRECOGNISED_H
-#define UNRECOGNISED_H
+#ifndef CYBERMON_UNRECOGNISED_H
+#define CYBERMON_UNRECOGNISED_H
 
 #include <stdint.h>
 
 #include <set>
 
-#include "context.h"
+#include <cybermon/context.h>
 #include "manager.h"
-#include "serial.h"
+//#include "serial.h"
 #include "protocol.h"
 
 namespace cybermon {

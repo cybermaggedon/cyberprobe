@@ -1,12 +1,12 @@
 
-#ifndef REAPER_H
-#define REAPER_H
+#ifndef CYBERMON_REAPER_H
+#define CYBERMON_REAPER_H
 
 #include <map>
 #include <set>
 #include <list>
 
-#include "thread.h"
+#include <cybermon/thread.h>
 
 class reapable;
 

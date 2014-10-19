@@ -5,11 +5,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef HEXDUMP_H
-#define HEXDUMP_H
+#ifndef CYBERMON_HEXDUMP_H
+#define CYBERMON_HEXDUMP_H
 
 #include <iostream>
 #include <iomanip>
+
+namespace cybermon {
 
 class hexdump {
 
@@ -58,6 +60,8 @@ public:
 	}
 	
     }
+
+};
 
 };
 

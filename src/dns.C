@@ -1,10 +1,9 @@
 
-#include "dns.h"
-#include "manager.h"
-#include "address.h"
-
-#include "udp.h"
-#include "ip.h"
+#include <cybermon/dns.h>
+#include <cybermon/manager.h>
+#include <cybermon/address.h>
+#include <cybermon/udp.h>
+#include <cybermon/ip.h>
 
 using namespace cybermon;
 

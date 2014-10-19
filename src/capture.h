@@ -8,9 +8,9 @@
 #ifndef CAPTURE_H
 #define CAPTURE_H
 
-#include "packet_capture.h"
-#include "packet_consumer.h"
-#include "thread.h"
+#include <cybermon/packet_capture.h>
+#include <cybermon/thread.h>
+#include <packet_consumer.h>
 
 #include <sys/time.h>
 

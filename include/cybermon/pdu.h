@@ -1,6 +1,6 @@
 
-#ifndef PDU_H
-#define PDU_H
+#ifndef CYBERMON_PDU_H
+#define CYBERMON_PDU_H
 
 #include <vector>
 

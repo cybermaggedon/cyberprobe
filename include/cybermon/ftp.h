@@ -5,8 +5,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef FTP_H
-#define FTP_H
+#ifndef CYBERMON_FTP_H
+#define CYBERMON_FTP_H
 
 #include <stdint.h>
 #include <boost/regex.hpp>

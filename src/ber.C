@@ -1,9 +1,12 @@
 
-#include <ber.h>
+#include <cybermon/ber.h>
+
 #include <algorithm>
 #include <iterator>
 
-bool ber::berpdu::read_pdu(tcpip::tcp_socket& sock)
+using namespace cybermon::ber;
+
+bool berpdu::read_pdu(tcpip::tcp_socket& sock)
 {
 
     data->clear();

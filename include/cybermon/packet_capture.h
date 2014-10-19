@@ -4,8 +4,8 @@
 // To use this, sub-class the interface_capture class, and implement
 // the 'handle' method which is called when a packet is received.
 
-#ifndef PACKET_CAPTURE_H
-#define PACKET_CAPTURE_H
+#ifndef CYBERMON_PACKET_CAPTURE_H
+#define CYBERMON_PACKET_CAPTURE_H
 
 #include <string>
 #include <stdexcept>

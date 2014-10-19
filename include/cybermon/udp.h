@@ -5,11 +5,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef UDP_H
-#define UDP_H
+#ifndef CYBERMON_UDP_H
+#define CYBERMON_UDP_H
 
-#include "context.h"
-#include "manager.h"
+#include <cybermon/context.h>
+#include <cybermon/manager.h>
 
 namespace cybermon {
     
