@@ -13,4 +13,4 @@ cybermoninc_HEADERS = cybermon/address.h cybermon/base_context.h \
 	cybermon/reaper.h cybermon/resource.h cybermon/smtp.h \
 	cybermon/socket.h cybermon/specification.h \
 	cybermon/tcp.h cybermon/thread.h cybermon/transport.h cybermon/udp.h \
-	cybermon/unrecognised.h cybermon/xml.h
+	cybermon/unrecognised.h cybermon/xml.h cybermon/serial.h
