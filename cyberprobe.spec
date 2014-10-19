@@ -53,6 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/cyberprobe/*
 /usr/bin/*
 /usr/lib/python2.7/site-packages/cyberprobe
+/usr/include/cybermon/*
 %{_libdir}/lib*
 
 %changelog
