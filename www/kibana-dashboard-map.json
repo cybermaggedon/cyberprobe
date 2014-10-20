@@ -1,0 +1,543 @@
+{
+  "title": "Cyberprobe Dashboard",
+  "services": {
+    "query": {
+      "list": {
+        "0": {
+          "id": 0,
+          "color": "#7EB26D",
+          "alias": "",
+          "pin": false,
+          "type": "lucene",
+          "enable": true,
+          "query": "*"
+        },
+        "1": {
+          "id": 1,
+          "color": "#EAB839",
+          "alias": "Web traffic",
+          "pin": true,
+          "type": "lucene",
+          "enable": true,
+          "query": "observation.src.tcp:80"
+        },
+        "2": {
+          "id": 2,
+          "color": "#6ED0E0",
+          "alias": "Attack indicators",
+          "pin": true,
+          "type": "lucene",
+          "enable": true,
+          "query": "observation.indicators.value:*"
+        }
+      },
+      "ids": [
+        0,
+        1,
+        2
+      ]
+    },
+    "filter": {
+      "list": {
+        "0": {
+          "type": "time",
+          "field": "observation.time",
+          "from": "now-30m",
+          "to": "now",
+          "mandate": "must",
+          "active": true,
+          "alias": "",
+          "id": 0
+        }
+      },
+      "ids": [
+        0
+      ]
+    }
+  },
+  "rows": [
+    {
+      "title": "Timeline",
+      "height": "150px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": true,
+      "panels": [
+        {
+          "span": 3,
+          "editable": true,
+          "type": "histogram",
+          "loadingEditor": false,
+          "mode": "count",
+          "time_field": "observation.time",
+          "value_field": null,
+          "x-axis": true,
+          "y-axis": true,
+          "scale": 1,
+          "y_format": "none",
+          "grid": {
+            "max": null,
+            "min": 0
+          },
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "annotate": {
+            "enable": false,
+            "query": "*",
+            "size": 20,
+            "field": "_type",
+            "sort": [
+              "_score",
+              "desc"
+            ]
+          },
+          "auto_int": false,
+          "resolution": 100,
+          "interval": "10s",
+          "intervals": [
+            "auto",
+            "1s",
+            "1m",
+            "5m",
+            "10m",
+            "30m",
+            "1h",
+            "3h",
+            "12h",
+            "1d",
+            "1w",
+            "1y"
+          ],
+          "lines": true,
+          "fill": 0,
+          "linewidth": 1,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "spyable": true,
+          "zoomlinks": true,
+          "options": true,
+          "legend": true,
+          "show_query": true,
+          "interactive": true,
+          "legend_counts": true,
+          "timezone": "browser",
+          "percentage": false,
+          "zerofill": true,
+          "derivative": false,
+          "tooltip": {
+            "value_type": "cumulative",
+            "query_as_alias": true
+          },
+          "title": "Events over time"
+        },
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "field": "observation.header.Content-Type",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 6,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "table",
+          "counter_pos": "above",
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": "",
+          "title": "Content types"
+        },
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "field": "observation.header.User-Agent",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 10,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "table",
+          "counter_pos": "above",
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": "",
+          "title": "User agents"
+        },
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "field": "observation.indicators.value",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 10,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "table",
+          "counter_pos": "above",
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": "",
+          "title": "Indicators"
+        }
+      ],
+      "notice": false
+    },
+    {
+      "title": "Graph",
+      "height": "200px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": true,
+      "panels": [
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "map",
+          "loadingEditor": false,
+          "map": "world",
+          "colors": [
+            "#A0E2E2",
+            "#265656"
+          ],
+          "size": 200,
+          "exclude": [],
+          "spyable": true,
+          "queries": {
+            "mode": "unpinned",
+            "ids": [
+              0
+            ]
+          },
+          "field": "observation.src.geo",
+          "title": "Event source"
+        },
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "field": "observation.queries",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 20,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "bar",
+          "counter_pos": "above",
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": "",
+          "title": "DNS queries"
+        },
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "field": "observation.header.Host",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 15,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "bar",
+          "counter_pos": "above",
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": "",
+          "title": "HTTP servers"
+        },
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "group": [
+            "default"
+          ],
+          "type": "terms",
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "field": "observation.action",
+          "exclude": [],
+          "missing": false,
+          "other": false,
+          "size": 20,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "pie",
+          "counter_pos": "above",
+          "title": "Event types",
+          "spyable": true,
+          "tmode": "terms",
+          "tstat": "total",
+          "valuefield": ""
+        }
+      ],
+      "notice": false
+    },
+    {
+      "title": "Events",
+      "height": "200px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": true,
+      "panels": [
+        {
+          "error": false,
+          "span": 12,
+          "editable": true,
+          "group": [
+            "default"
+          ],
+          "type": "table",
+          "size": 20,
+          "pages": 5,
+          "offset": 0,
+          "sort": [
+            "observation.time",
+            "desc"
+          ],
+          "style": {
+            "font-size": "9pt"
+          },
+          "overflow": "min-height",
+          "fields": [
+            "observation.time",
+            "observation.action",
+            "observation.src.ipv4",
+            "observation.src.tcp",
+            "observation.dest.ipv4",
+            "observation.dest.tcp",
+            "observation.header.Content-Type",
+            "observation.url",
+            "observation.indicators.description"
+          ],
+          "highlight": [
+            "observation.indicators.id"
+          ],
+          "sortable": true,
+          "header": true,
+          "paging": true,
+          "spyable": true,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              0,
+              1,
+              2
+            ]
+          },
+          "field_list": true,
+          "status": "Stable",
+          "trimFactor": 300,
+          "normTimes": true,
+          "title": "Events",
+          "all_fields": false,
+          "localTime": false,
+          "timeField": "@timestamp"
+        }
+      ],
+      "notice": false
+    }
+  ],
+  "editable": true,
+  "index": {
+    "interval": "none",
+    "pattern": "[logstash-]YYYY.MM.DD",
+    "default": "cyberprobe",
+    "warm_fields": false
+  },
+  "style": "dark",
+  "failover": false,
+  "panel_hints": true,
+  "loader": {
+    "save_gist": false,
+    "save_elasticsearch": true,
+    "save_local": true,
+    "save_default": true,
+    "save_temp": true,
+    "save_temp_ttl_enable": true,
+    "save_temp_ttl": "30d",
+    "load_gist": true,
+    "load_elasticsearch": true,
+    "load_elasticsearch_size": 20,
+    "load_local": true,
+    "hide": false
+  },
+  "pulldowns": [
+    {
+      "type": "query",
+      "collapse": false,
+      "notice": false,
+      "query": "*",
+      "pinned": true,
+      "history": [
+        "observation.indicators.value:*",
+        "observation.src.tcp:80",
+        "*",
+        "_index: cyberprobe",
+        "observation",
+        "observation.indicators:*",
+        "observation.src.http",
+        "observation.src.dns",
+        "192.168.1.1"
+      ],
+      "remember": 10,
+      "enable": true
+    },
+    {
+      "type": "filtering",
+      "collapse": false,
+      "notice": true,
+      "enable": true
+    }
+  ],
+  "nav": [
+    {
+      "type": "timepicker",
+      "collapse": false,
+      "notice": false,
+      "status": "Stable",
+      "time_options": [
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ],
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "timefield": "observation.time",
+      "enable": true,
+      "now": true,
+      "filter_id": 0
+    }
+  ],
+  "refresh": "30s"
+}
