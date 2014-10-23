@@ -1,4 +1,20 @@
 
+-- Open geoip module if it exists.
+local geoip
+status, rtn, geoip = pcall(function() return require("geoip") end)
+if status then
+  geoip = rtn
+else
+  print("Module geoip not found, GeoIP disabled.")
+end 
+
+-- Open geoip database if it exists.
+local geodb
+if geoip then
+  geodb = geoip.open_type("country")
+  print(geodb)
+end
+
 local module = {}
 
 -- Used to recurse up the stack getting all addresses in a particular protocol
@@ -51,6 +67,18 @@ module.get_stack = function(context, is_src)
     end
 
     table.insert(addrs[cls], addr)
+
+    if cls == "ipv4" then
+      if geodb then
+	lookup = geodb:lookup(addr)
+	if lookup and lookup.country_code then
+	  if addrs["geo"] == nil then
+	    addrs["geo"] = {}
+	  end
+	  table.insert(addrs["geo"], lookup.country_code)
+	end
+      end
+    end
 
   end
 

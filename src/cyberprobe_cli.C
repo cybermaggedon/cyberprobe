@@ -2,7 +2,7 @@
 #include "readline.h"
 #include <iostream>
 #include <sstream>
-#include "socket.h"
+#include <cybermon/socket.h>
 #include <vector>
 #include <boost/regex.hpp>
 #include <iomanip>

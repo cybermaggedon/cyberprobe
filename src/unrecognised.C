@@ -1,6 +1,6 @@
 
-#include "unrecognised.h"
-#include "manager.h"
+#include <cybermon/unrecognised.h>
+#include <cybermon/manager.h>
 
 using namespace cybermon;
 

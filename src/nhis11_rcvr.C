@@ -7,11 +7,10 @@ NHIS 1.1 test receiver.  Usage:
 
 ****************************************************************************/
 
-#include "monitor.h"
-#include "nhis11.h"
-
-#include "thread.h"
-#include "packet_capture.h"
+#include <cybermon/monitor.h>
+#include <cybermon/nhis11.h>
+#include <cybermon/thread.h>
+#include <cybermon/packet_capture.h>
 
 class output : public monitor {
 private:
@@ -45,7 +44,7 @@ int main(int argc, char** argv)
 
     output o(p);
 
-    nhis11::receiver r(port, o);
+    cybermon::nhis11::receiver r(port, o);
 
     r.start();
 

@@ -8,7 +8,8 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
 
-#include "resource.h"
+#include <cybermon/resource.h>
+
 #include "delivery.h"
 
 // A paramter, represents a key/val pair.

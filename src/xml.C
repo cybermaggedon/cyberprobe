@@ -6,7 +6,7 @@
 
 #include <expat.h>
 
-#include "xml.h"
+#include <cybermon/xml.h>
 
 using namespace xml;
 

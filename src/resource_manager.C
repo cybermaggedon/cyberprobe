@@ -1,5 +1,5 @@
 
-#include <resource.h>
+#include <cybermon/resource.h>
 
 #include <sys/stat.h>
 

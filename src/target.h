@@ -8,7 +8,7 @@
 #ifndef TARGET_H
 #define TARGET_H
 
-#include "resource.h"
+#include <cybermon/resource.h>
 
 // A target specification: Maps an IP address to a LIID.
 class target_spec : public specification {

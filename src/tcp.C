@@ -1,15 +1,15 @@
 
 #include <boost/regex.hpp>
 
-#include "tcp.h"
-#include "manager.h"
-#include "pdu.h"
-#include "context.h"
-#include "http.h"
-#include "unrecognised.h"
-#include "forgery.h"
-#include "smtp.h"
-#include "ftp.h"
+#include <cybermon/tcp.h>
+#include <cybermon/manager.h>
+#include <cybermon/pdu.h>
+#include <cybermon/context.h>
+#include <cybermon/http.h>
+#include <cybermon/unrecognised.h>
+#include <cybermon/forgery.h>
+#include <cybermon/smtp.h>
+#include <cybermon/ftp.h>
 
 using namespace cybermon;
 

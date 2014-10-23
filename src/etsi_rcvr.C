@@ -7,11 +7,10 @@ ETSI LI test receiver.  Usage:
 
 ****************************************************************************/
 
-#include "monitor.h"
-#include "etsi_li.h"
-
-#include "thread.h"
-#include "packet_capture.h"
+#include <cybermon/monitor.h>
+#include <cybermon/etsi_li.h>
+#include <cybermon/thread.h>
+#include <cybermon/packet_capture.h>
 
 class output : public monitor {
 private:
@@ -50,7 +49,7 @@ int main(int argc, char** argv)
 
     output o(p);
 
-    etsi_li::receiver r(port, o);
+    cybermon::etsi_li::receiver r(port, o);
 
     r.start();
 

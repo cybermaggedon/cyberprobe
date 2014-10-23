@@ -1,10 +1,11 @@
 
 // Derived: http://www.jmarshall.com/easy/http
 
-#include "address.h"
-#include "http.h"
-#include "ctype.h"
-#include "manager.h"
+#include <cybermon/address.h>
+#include <cybermon/http.h>
+#include <cybermon/manager.h>
+
+#include <ctype.h>
 
 using namespace cybermon;
 

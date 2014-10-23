@@ -3,13 +3,13 @@ bin_PROGRAMS = cyberprobe cybermon nhis11_rcvr etsi_rcvr cyberprobe_cli
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C resource_manager.C sender.C \
 	delivery.C xml.C capture.C configuration.C control.C snort_alert.C \
-	nhis11.h resource.h sender.h delivery.h xml.h capture.h \
-	configuration.h control.h snort_alert.h target.h specification.h \
-	parameters.h packet_capture.h packet_consumer.h interface.h \
+	sender.h delivery.h capture.h \
+	configuration.h control.h snort_alert.h target.h \
+	parameters.h packet_consumer.h interface.h \
 	endpoint.h parameter.h
 cyberprobe_LDADD = libcybermon.la
 
-cybermon_SOURCES = cybermon.C
+cybermon_SOURCES = cybermon.C management.h 
 cybermon_LDADD = libcybermon.la
 
 cyberprobe_cli_SOURCES = cyberprobe_cli.C readline.C readline.h
@@ -25,16 +25,29 @@ lib_LTLIBRARIES = libcybermon.la
 
 libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	ip.C tcp.C udp.C http.C address.C icmp.C cybermon-lua.C reaper.C \
-	unrecognised.C dns.C dns_protocol.C forgery.C smtp.C ftp.C engine.h \
-	etsi_li.h socket.h ber.h base_context.h ip.h tcp.h udp.h http.h \
-	address.h icmp.h cybermon-lua.h reaper.h unrecognised.h dns.h \
-	dns_protocol.h forgery.h smtp.h ftp.h thread.h context.h pdu.h \
-	exception.h flow.h manager.h observer.h monitor.h transport.h \
-	serial.h protocol.h management.h
+	unrecognised.C dns.C dns_protocol.C forgery.C smtp.C ftp.C 
+	../include/cybermon/engine.h ../include/cybermon/etsi_li.h \
+	../include/cybermon/socket.h ../include/cybermon/ber.h \
+	../include/cybermon/base_context.h ../include/cybermon/ip.h \
+	../include/cybermon/tcp.h ../include/cybermon/udp.h \
+	../include/cybermon/http.h ../include/cybermon/address.h \
+	../include/cybermon/icmp.h ../include/cybermon/nhis11.h \
+	../include/cybermon/resource.h \
+	../include/cybermon/cybermon-lua.h ../include/cybermon/reaper.h \
+	../include/cybermon/unrecognised.h ../include/cybermon/dns.h \
+	../include/cybermon/dns_protocol.h ../include/cybermon/forgery.h \
+	../include/cybermon/smtp.h ../include/cybermon/ftp.h \
+	../include/cybermon/thread.h ../include/cybermon/context.h \
+	../include/cybermon/pdu.h ../include/cybermon/exception.h \
+	../include/cybermon/flow.h ../include/cybermon/manager.h \
+	../include/cybermon/observer.h monitor.h transport.h \
+	../include/cybermon/serial.h ../include/cybermon/protocol.h \
+	../include/cybermon/xml.h \
+	../include/cybermon/specification.h ../include/cybermon/packet_capture.h
 
 ACLOCAL_AMFLAGS = -I m4
 
-AM_CPPFLAGS =
+AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_LDFLAGS = 
 
 LDFLAGS_BOOST = \

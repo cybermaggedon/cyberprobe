@@ -8,8 +8,9 @@
 #ifndef SNORT_ALERT_H
 #define SNORT_ALERT_H
 
-#include "resource.h"
-#include "thread.h"
+#include <cybermon/resource.h>
+#include <cybermon/thread.h>
+
 #include "delivery.h"
 
 // Specification for a snort alerter.

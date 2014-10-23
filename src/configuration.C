@@ -1,6 +1,6 @@
 
 #include "configuration.h"
-#include "xml.h"
+#include <cybermon/xml.h>
 #include "interface.h"
 #include "target.h"
 #include "endpoint.h"

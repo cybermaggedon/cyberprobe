@@ -1,7 +1,6 @@
 
-#include "socket.h"
-
-#include "address.h"
+#include <cybermon/socket.h>
+#include <cybermon/address.h>
 
 #include <iomanip>
 
@@ -68,6 +67,16 @@ void address::get(std::string& cls, std::string& address) const
 	return;
     }
 
+    if (proto == SMTP) {
+	cls = "smtp"; address = "";
+	return;
+    }
+
+    if (proto == FTP) {
+	cls = "ftp"; address = "";
+	return;
+    }
+
     if (proto == UNRECOGNISED) {
 	cls = "unrecognised"; address = "";
 	return;
@@ -130,6 +139,16 @@ void address::describe(std::ostream& out) const
 
     if (proto == DNS) {
 	out << "DNS";
+	return;
+    }
+
+    if (proto == SMTP) {
+	out << "SMTP";
+	return;
+    }
+
+    if (proto == FTP) {
+	out << "FTP";
 	return;
     }
 
