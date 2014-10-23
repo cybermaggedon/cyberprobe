@@ -49,6 +49,13 @@ clean-local:
 AUTOM4TE = $(SHELL) $(top_srcdir)/missing --run autom4te
 AUTOTEST = $(AUTOM4TE) --language=autotest
 
+AM_CPPFLAGS = -I../include
+
+noinst_PROGRAMS = test_socket
+
+test_socket_SOURCES = test_socket.C
+test_socket_LDADD = ../src/libcybermon.la
+
 $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@

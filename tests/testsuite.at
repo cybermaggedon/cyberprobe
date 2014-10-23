@@ -156,26 +156,36 @@ AT_CLEANUP
 
 # ----------------------------------------------------------------------------
 
-AT_BANNER([PCAP samples decoded with cybermon, with ElasticSearch stub.])
+# AT_BANNER([PCAP samples decoded with cybermon, with ElasticSearch stub.])
 
-AT_SETUP([cpsfnet.pcap])
-rm -f OUTPUT
-nohup $abs_srcdir/elastic-stub &
-cat $abs_srcdir/samples/cpsfnet.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-db.lua
-curl http://localhost:9200/exit > /dev/null
-cat OUTPUT | sort > output1
-cat $abs_srcdir/samples/cpsfnet.pcap.elastic | sort > output2
-AT_CHECK([diff output1 output2],,[])
+# AT_SETUP([cpsfnet.pcap])
+# rm -f OUTPUT
+# nohup $abs_srcdir/elastic-stub &
+# cat $abs_srcdir/samples/cpsfnet.pcap | \
+#     $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-db.lua
+# curl http://localhost:9200/exit > /dev/null
+# cat OUTPUT | sort > output1
+# cat $abs_srcdir/samples/cpsfnet.pcap.elastic | sort > output2
+# AT_CHECK([diff output1 output2],,[])
+# AT_CLEANUP
+
+# AT_SETUP([dns2.pcap])
+# rm -f OUTPUT
+# nohup $abs_srcdir/elastic-stub &
+# cat $abs_srcdir/samples/dns2.pcap | \
+#     $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-db.lua
+# curl http://localhost:9200/exit > /dev/null
+# cat OUTPUT | sort > output1
+# cat $abs_srcdir/samples/dns2.pcap.elastic | sort > output2
+# AT_CHECK([diff output1 output2],,[])
+#AT_CLEANUP
+
+# ----------------------------------------------------------------------------
+
+AT_BANNER([Unit tests.])
+
+AT_SETUP([libcybermon/socket])
+AT_CHECK([$abs_builddir/test_socket],,[])
 AT_CLEANUP
 
-AT_SETUP([dns2.pcap])
-rm -f OUTPUT
-nohup $abs_srcdir/elastic-stub &
-cat $abs_srcdir/samples/dns2.pcap | \
-    $abs_top_builddir/src/cybermon - $abs_top_srcdir/config/stix-db.lua
-curl http://localhost:9200/exit > /dev/null
-cat OUTPUT | sort > output1
-cat $abs_srcdir/samples/dns2.pcap.elastic | sort > output2
-AT_CHECK([diff output1 output2],,[])
-AT_CLEANUP
+
