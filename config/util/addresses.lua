@@ -4,8 +4,6 @@ local geoip
 status, rtn, geoip = pcall(function() return require("geoip") end)
 if status then
   geoip = rtn
-else
-  print("Module geoip not found, GeoIP disabled.")
 end 
 
 -- Open geoip database if it exists.
