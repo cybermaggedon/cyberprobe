@@ -38,3 +38,9 @@ tests/test_socket
 tests/test_resource
 docs/version.texi
 tests/testsuite.log
+tests/testsuite
+tests/atconfig
+tests/atlocal
+docs/texinfo.tex
+docs/cyberprobe.pdf
+docs/cyberprobe.t2p

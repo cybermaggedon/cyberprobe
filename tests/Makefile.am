@@ -49,7 +49,7 @@ clean-local:
 AUTOM4TE = $(SHELL) $(top_srcdir)/missing --run autom4te
 AUTOTEST = $(AUTOM4TE) --language=autotest
 
-AM_CPPFLAGS = -I../include
+AM_CPPFLAGS = -I$(srcdir)/../include
 
 noinst_PROGRAMS = test_socket test_resource
 
