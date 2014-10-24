@@ -34,6 +34,7 @@ EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) \
 
 TESTSUITE = $(srcdir)/testsuite
 DISTCLEANFILES = $(TESTSUITE) atconfig
+CLEANFILES = package.m4
 
 check-local: atconfig atlocal $(TESTSUITE)
 	$(SHELL) '$(TESTSUITE)' $(TESTSUITEFLAGS)
