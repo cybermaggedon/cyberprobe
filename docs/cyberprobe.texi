@@ -49,7 +49,11 @@ This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
 @image{cyberprobe-overview,125mm,,png}
 
 Cyberprobe is a distrbuted architecture for real-time monitoring of networks
-against attack. The software consists of a number of components, including:
+against attack. This has applications in network monitoring,
+intrusion detection, forensic analysis, and as a defensive platform during
+an attack.
+
+The software consists of a number of components, including:
 
 @itemize @bullet
 
@@ -662,6 +666,10 @@ If successful, you should see new output from @command{cyberprobe}:
 Added target 192.168.1.80 -> 123456.
 @end example
 
+The target configuration allows specification of IPv4 and IPv6 addresses, and
+addresses can include a mask, which allows IP address matching to be applied
+in a wildcard configuration.  See @ref{@command{cyberprobe} configuration}
+
 At this step, we're capturing packets, spotting target addresses, but as
 there's no endpoint defined there's still nowhere to send the data. So, this
 is still a useless configuration. On to the next step...
@@ -786,7 +794,7 @@ auth admin mypassword
 targets
 201 Targets list follows.
 25
-123456:ipv4:192.168.1.80
+123456:ipv4:192.168.1.80/32
 @end example
 
 I can use the help command to see the full list of commands permitted. There
@@ -799,7 +807,7 @@ targets
 123456:ipv4:192.168.1.80
 remove_target ipv4 192.168.1.80
 200 Removed target.
-add_target 654321 ipv4 192.168.1.80
+add_target 654321 ipv4 192.168.0.0/16
 200 Added target.
 @end example
 
@@ -1728,6 +1736,9 @@ killall cyberprobe
 @cindex @code{targets}
 @cindex @code{endpoints}
 @cindex @code{snort_alert}
+@cindex IP address matching
+@cindex IP address mask
+@cindex @code{targets}, address mask
 
 The configuration file is re-read when it changes, and changes are
 immediately actioned.
@@ -1759,6 +1770,8 @@ Sample configuration:
   <targets>
     <target address="192.168.1.1" liid="123456"/>
     <target address="192.168.1.2" liid="123981"/>
+    <target address="10.2.0.0/16" liid="9123780"/>
+    <target address="10.1.1.1" liid="9123780"/>
     <target address="10.1.1.1" liid="9123780"/>
     <target address="10.1.1.0" liid="591875"/>
     <target address="10.1.1.2" liid="492895"/>
@@ -1770,7 +1783,8 @@ Sample configuration:
     <target address="10.1.1.8" liid="591875"/>
     <target address="10.1.1.9" liid="591875"/>
     <target address="10.1.1.10" liid="591875"/>
-    <target address="::4:5:6" class="ipv6" liid="983898"/>
+    <target address="aaaa:bbbb:cccc:dddd::4:5:6" class="ipv6" liid="983898"/>
+    <target address="aaaa:bbbb:cccc::/48" class="ipv6" liid="983800"/>
   </targets>
 
   <!-- Endpoints for delivery of collected packets. -->
@@ -1841,9 +1855,16 @@ expression. The @code{delay} element can be used to specify, in seconds, the
 duration to wait before packets are processed. The delay is specified as a
 floating point decimal.
 
-The @code{targets} block defines an IP address to LIID mapping. The
-@code{address} attribute defines the IP address used to match on, and the
-@code{liid} attribute defines the LIID which will be applied if this
+The @code{targets} block defines IP address to match. The
+@code{address} attribute defines the IP address with optional mask used for
+the address match. If a mask is specified, this describes the subset of the
+address which will be used for matching.  For instance, if
+@code{192.168.0.0/16} is specified, then a 16-bit mask will be applied, which
+makes this a class-B address match.  That is, any address in the
+@code{192.168.0.0}-@code{192.168.255.255} range will match.
+If no mask is specified, then this is an exact match against a single address.
+The @code{liid} attribute defines the LIID which will be applied
+if this
 particular IP address is detected. The address must be an IP address, and
 not a hostname. The address can be an IPv6 address if the @code{class}
 attribute is included, and set to @code{ipv6}.
@@ -2005,15 +2026,19 @@ where type is one of: @code{etsi} @code{nhis1.1}.
 Lists endpoints, format is @code{host:port:type:description}.
 
 @item add_target <liid> <class> <address>
+@itemx add_target <liid> <class> <address>/<mask>
 Adds a new targeted IP address.
 where class is one of: @code{ipv4} @code{ipv6}
 
 @item remove_target <liid> <class> <address>
+@itemx remove_target <liid> <class> <address>/<mask>
 Removes a previously targeted IP address.
 where class is one of: @code{ipv4} @code{ipv6}
 
 @item targets
-Lists targets, format is @code{liid:class:address}.
+Lists targets, format is @code{liid:class:address/mask}.  The mask
+value is always present, even when no mask was present when the target
+was added.
 
 @item add_parameter <key> <val>
 Adds a new parameter, or changes a parameter value.
@@ -2057,29 +2082,32 @@ eth0:1:
 
 @heading Example session
 
+For clarity, commands sent to the server are highlighted with @samp{>>}
+although this is not present as a prompt or in the protocol dialogue.
+
 @example
-interfaces
-330 Authenticate before continuing.
-auth user password
-200 Authenticated.
-interfaces
-201 Interfaces list follows.
-8
-p4p1:1:
-remove_interface p4p1 1
-200 Removed interface.
-add_interface p4p1 8
-200 Added interface.
-add_target 123456 ipv4 1.2.3.4
-200 Added target.
-targets
-201 Targets list follows.
-65
-123456:ipv4:1.2.3.4
-123456:ipv4:192.168.1.80
-123456:ipv6:::4:5:6
-quit
-200 Tra, then.
+>>  interfaces
+    330 Authenticate before continuing.
+>>  auth user password
+    200 Authenticated.
+>>  interfaces
+    201 Interfaces list follows.
+    8
+    p4p1:1:
+>>  remove_interface p4p1 1
+    200 Removed interface.
+>>  add_interface p4p1 8
+    200 Added interface.
+>>  add_target 123456 ipv4 1.2.3.4
+    200 Added target.
+>>  targets
+    201 Targets list follows.
+    65
+    123456:ipv4:1.2.3.4/32
+    123456:ipv4:192.168.1.80/32
+    123456:ipv6:aaaa:bbbb:cccc:dddd::4:5:6/128
+>>  quit
+    200 Tra, then.
 @end example
 
 @node @command{cybermon} invocation
