@@ -26,17 +26,17 @@ do_substitution = sed -e 's,[@]DOCDIR[@],$(docdir),g' \
 	-e 's,[@]LUADIR[@],$(sysconfdir)/$(PACKAGE),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g' 
 
-nhis11_rcvr.1: nhis11_rcvr.1.in Makefile
-	$(do_substitution) < nhis11_rcvr.1.in > nhis11_rcvr.1
+nhis11_rcvr.1: $(srcdir)/nhis11_rcvr.1.in Makefile
+	$(do_substitution) < $(srcdir)/nhis11_rcvr.1.in > nhis11_rcvr.1
 
-etsi_rcvr.1: etsi_rcvr.1.in Makefile
-	$(do_substitution) < etsi_rcvr.1.in > etsi_rcvr.1
+etsi_rcvr.1: $(srcdir)/etsi_rcvr.1.in Makefile
+	$(do_substitution) < $(srcdir)/etsi_rcvr.1.in > etsi_rcvr.1
 
-cyberprobe.1: cyberprobe.1.in Makefile
-	$(do_substitution) < cyberprobe.1.in > cyberprobe.1
+cyberprobe.1: $(srcdir)/cyberprobe.1.in Makefile
+	$(do_substitution) < $(srcdir)/cyberprobe.1.in > cyberprobe.1
 
-cybermon.1: cybermon.1.in Makefile
-	$(do_substitution) < cybermon.1.in > cybermon.1
+cybermon.1: $(srcdir)/cybermon.1.in Makefile
+	$(do_substitution) < $(srcdir)/cybermon.1.in > cybermon.1
 
 CLEANFILES = nhis11_rcvr.1 etsi_rcvr.1 cyberprobe.1 cybermon.1 paths.texi
 

@@ -12,6 +12,7 @@ src/nhis11_rcvr
 .libs
 libcybermon.la
 stamp-h1
+libtool
 autom4te.cache
 config.h
 config.log
