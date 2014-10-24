@@ -53,6 +53,7 @@ Here is an example configuration file:
   <targets>
     <target address="192.168.1.1" liid="123456"/>
     <target address="192.168.1.2" liid="123981"/>
+    <target address="10.2.0.0/16" liid="9123780"/>
     <target address="10.1.1.1" liid="9123780"/>
     <target address="10.1.1.0" liid="591875"/>
     <target address="10.1.1.2" liid="492895"/>
@@ -64,7 +65,8 @@ Here is an example configuration file:
     <target address="10.1.1.8" liid="591875"/>
     <target address="10.1.1.9" liid="591875"/>
     <target address="10.1.1.10" liid="591875"/>
-    <target address="::4:5:6" class="ipv6" liid="983898"/>
+    <target address="aaaa:bbbb:cccc:dddd::4:5:6" class="ipv6" liid="983898"/>
+    <target address="aaaa:bbbb:cccc::/48" class="ipv6" liid="983898"/>
   </targets>
 
   <!-- Endpoints for delivery of collected packets. -->
@@ -351,7 +353,7 @@ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 .SH "SEE ALSO"
-.BR nhis_rcvr (1),
+.BR nhis11_rcvr (1),
 .BR etsi_rcvr (1),
 .BR cyberprobe_cli (1),
 .BR cybermon (1),

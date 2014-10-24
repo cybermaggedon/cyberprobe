@@ -84,6 +84,8 @@ and to see where we are going, read the @ref{Architecture} page.
 * Index::
 @end menu
 
+@comment ----------------------------------------------------------------------
+
 @node Overview
 @chapter Overview
 
@@ -272,6 +274,8 @@ First release on SourceForge.
 
 @end table
 
+@comment ----------------------------------------------------------------------
+
 @node Obtaining the software
 @chapter Obtaining the software
 
@@ -431,6 +435,8 @@ sudo make install
 Powered by SourceForge, project page is at
 @url{http://www.sourceforge.net/p/cyberprobe}.
 
+@comment ----------------------------------------------------------------------
+
 @node Quick start tutorial
 @chapter Quick start tutorial
 @cindex Getting started
@@ -446,6 +452,8 @@ Powered by SourceForge, project page is at
 * Visualisation::
 * Threat indicators using STIX::
 @end menu
+
+@comment ----------------------------------------------------------------------
 
 @node Preparation
 @section Preparation
@@ -543,6 +551,8 @@ router. If things aren't working as you expect, you should check your IP
 address to check your workstation hasn't been allocated a new, different
 address. In my case, I can tell the broadband router to permanently allocate
 a particular IP address to this workstation, so that it won't change.
+
+@comment ----------------------------------------------------------------------
 
 @node Using @command{cyberprobe}
 @section Using @command{cyberprobe}
@@ -758,6 +768,8 @@ ETSI LI connection to localhost:10000 established.
 
 We don't guarantee zero data loss on a reconnect.
 
+@comment ----------------------------------------------------------------------
+
 @node Management interface
 @section Management interface
 @cindex Management
@@ -836,6 +848,8 @@ cyberprobe_cli @var{host} @var{port}
 @end example
 Once you're in, you can type help to get help, or press TAB for auto-completion
 of commands.
+
+@comment ----------------------------------------------------------------------
 
 @node Integration with @command{snort}
 @section Integration with @command{snort}
@@ -967,6 +981,8 @@ packet capture tool. If that's all you need, the rest of the tutorial will
 probably have less interest to you: In the following steps, we'll start to
 analyse and act on the captured data.
 
+@comment ----------------------------------------------------------------------
+
 @node Using @command{cybermon}
 @section Using @command{cybermon}
 @cindex @command{cybermon}
@@ -1074,6 +1090,8 @@ cybermon 10000 @value{PREFIX}/etc/cyberprobe/dump.lua
 The @file{quiet.lua} configuration file does nothing. It may be a good place
 to start hacking your own configuration file. Which is exactly what we'll do
 in the next step.
+
+@comment ----------------------------------------------------------------------
 
 @node Writing your own configuration file
 @section Writing your own configuration file
@@ -1342,6 +1360,8 @@ The @ref{@command{cybermon} configuration} documentation details the LUA
 interface in detail if
 you want to find out what else you can do in your LUA code.
 
+@comment ----------------------------------------------------------------------
+
 @node Visualisation
 @section Visualisation
 @cindex Visualisation
@@ -1506,6 +1526,8 @@ successfully, you should get a dashboard.
 Next step is to save the dashboard using a save icon in the top right of the
 dashboard. That way you don't have to keep loading the schema.
 
+@comment ----------------------------------------------------------------------
+
 @node Threat indicators using STIX
 @section Threat indicators using STIX
 @cindex STIX
@@ -1547,7 +1569,8 @@ documents and dumps some stuff out.
 @item
 A script @command{taxii-sync-json} which connects to a TAXII server, gets
 STIX documents, massages the whole lot into a single JSON form, and dumps
-that to a file.
+that to a file.  This is intended to be used with the
+@file{stix+db.lua} and @file{stix+alert.lua} configuration files.
 
 @item
 A configuration file for @command{cybermon} which reads the JSON threat
@@ -1622,6 +1645,9 @@ Finally, stop any running @command{cybermon} processes, and run
 
 @cindex @file{stix+alert.lua}
 
+@cindex @file{stix+alert.lua} configuration file
+@cindex @command{cybermon}, @file{stix+alert.lua} configuration file
+
 @example
 cybermon 10000 @value{PREFIX}/etc/cyberprobe/stix+alert.lua
 @end example
@@ -1663,11 +1689,16 @@ both the DNS query and response. Also, the URL
 @code{http://www.malware.com/malware.dat} is in a threat indicator and it is
 detected in both the HTTP request and response.
 
+@cindex @file{stix+alert.lua} configuration file
+@cindex @command{cybermon}, @file{stix+alert.lua} configuration file
 The @file{stix+alert.lua} configuration file updates its configuration if
 the JSON configuration file has changed. So, you can do a round-trip update
 by changing the input files, re-running stix-create, using
 @command{taxii-sync-json} to fetch the updates, and all without stopping the
 monitoring.
+
+@cindex @file{stix+db.lua} configuration file
+@cindex @command{cybermon}, @file{stix+db.lua} configuration file
 
 The @file{stix+db.lua} configuration file generates ElasticSearch events as
 @file{db.lua} does, but it also adds indicator detection information to
@@ -1681,6 +1712,8 @@ All done, I hope you enjoyed the tutorial! Any comments on the software, or
 tutorial itself are very welcome! Positive, or negative, we want to hear how
 you found the experience.
 
+@comment ----------------------------------------------------------------------
+
 @node Reference
 @chapter Reference
 
@@ -1692,10 +1725,15 @@ you found the experience.
 * @command{cybermon} invocation::
 * @command{cybermon} configuration::
 * @command{cybermon} example configurations::
+* @command{taxii-client} invocation::
+* @command{taxii-sync-json} invocation::
+* @command{taxii-server} invocation::
 * @command{nhis11_rcvr} invocation::
 * @command{etsi_rcvr} invocation::
 * ElasticSearch model::
 @end menu
+
+@comment ----------------------------------------------------------------------
 
 @node @command{cyberprobe} invocation
 @section @command{cyberprobe} invocation
@@ -1729,6 +1767,8 @@ be sent. e.g.
 @example
 killall cyberprobe
 @end example
+
+@comment ----------------------------------------------------------------------
 
 @node @command{cyberprobe} configuration
 @section @command{cyberprobe} configuration
@@ -1895,6 +1935,8 @@ value is the literal @code{username.} suffixed with the LIID. If such an
 entry is present, it is used for the @code{username}. All parameters are
 optional, meaningless defaults (e.g. unknown) will be used if not specified.
 
+@comment ----------------------------------------------------------------------
+
 @node Output streaming protocols
 @section Output streaming protocols
 
@@ -1981,6 +2023,8 @@ would be:
 etsi_rcvr 10001 | tcpdump -n -r-
 nhis11_rcvr 10000 | tcpdump -n -r-
 @end example
+
+@comment ----------------------------------------------------------------------
 
 @node Management protocol
 @section Management protocol
@@ -2117,6 +2161,8 @@ although this is not present as a prompt or in the protocol dialogue.
     200 Tra, then.
 @end example
 
+@comment ----------------------------------------------------------------------
+
 @node @command{cybermon} invocation
 @section @command{cybermon} invocation
 
@@ -2165,6 +2211,8 @@ signal should be sent. e.g.
 @example
 killall cyberprobe
 @end example
+
+@comment ----------------------------------------------------------------------
 
 @node @command{cybermon} configuration
 @section @command{cybermon} configuration
@@ -2419,6 +2467,8 @@ protocol data in the DNS encoder.
 
 @end table
 
+@comment ----------------------------------------------------------------------
+
 @node @command{cybermon} example configurations
 @section @command{cybermon} example configurations
 
@@ -2472,6 +2522,8 @@ Then, scans events for threats, and if detected are alerted on standard output
 in a human-readable form.
 
 @item stix+db.lua
+@cindex @file{stix+db.lua} configuration file
+@cindex @code{cybermon}, @file{stix+db.lua} configuration file
 
 Like @file{stix+alert.lua} but also generates ElasticSearch observations
 as @file{db.lua} does.  The ElasticSearch observations have threat hit
@@ -2521,6 +2573,250 @@ in @code{cybermon} events.
 
 @end table
 
+@comment ----------------------------------------------------------------------
+
+@node @command{taxii-client} invocation
+@section @command{taxii-client} invocation
+
+@cindex @command{taxii-client}, invocation
+
+@command{taxii-client} provides a means to connect with a TAXII compliant
+server to acquire cyber threat information.  TAXII/STIX implementation
+is experimental and incomplete.
+
+See
+@url{https://taxii.mitre.org/} for more information on TAXII and STIX.
+Synopsis:
+
+@example
+taxii-client [-h] [--host HOST] [--port PORT] [--path PATH]
+        [--collection COLLECTION] [--begin_timestamp BEGIN_TS]
+        [--end_timestamp END_TS] [--discovery] [--poll]
+        [--collection_information] [--subscribe] [--action ACT]
+        [--query QUERY] [--subs-id SUBSCRIPTION_ID]
+        [--inbox INBOX]
+@end example
+
+Example:
+@example
+taxii-client -h taxii.com --poll
+@end example
+
+@table @samp
+
+@item -h
+@itemx --help
+Shows command line usage.
+
+@item --host @var{HOST}
+Specifies host to connect to.
+
+@item --port @var{PORT}
+Specifies port number of the TAXII service.
+
+@item --path @var{PATH}
+Specifies the URI of the service.  Default is @samp{/}.
+
+@item --collection @var{COLLECTION}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --begin_timestamp @var{BEGIN}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --end_timestamp @var{END}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --discovery
+Invokes a TAXII discovery action.
+
+@item --poll
+Invokes a TAXII poll action.
+
+@item --collection_information
+Invokes a collection information action.
+
+@item --subscribe
+Invokes a TAXII subscribe action.
+
+@item --action @var{ACT}
+Specieis the subscription action to perform.
+
+@item --query @var{QUERY}
+Specifies the query to use for an inbox or poll action.  Query takes the
+form: @samp{type:value}.  Type can be one of:
+
+@table @samp
+
+@item address
+CybOX address object value e.g. @samp{address:1.2.3.4}
+
+@item addresstype
+CybOX address object type e.g. @samp{addresstype:e-mail}
+
+@item hostname
+CybOX DNS name
+
+@item port
+TCP/UDP port number e.g. @samp{port:11111}
+
+@item hash
+File object hash value.
+
+@item id
+Object ID.
+
+@item source
+Object source identifier.
+
+@end table
+
+Multiple query values may be specified in which case they are combined with
+a logical AND.
+
+@item --subs-id @var{SUBS-ID}
+Specifies the subscription ID for a subscription operation.
+
+@item --inbox @var{INBOX}
+Specifies the inbox destination for subscriptions.  Defaults to
+@code{http://localhost:8888/}.
+
+@end table
+
+Begin/end timestamps take the following form:
+@example
+YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm
+@end example
+
+@comment ----------------------------------------------------------------------
+
+@node @command{taxii-sync-json} invocation
+@section @command{taxii-sync-json} invocation
+
+@cindex @command{taxii-sync-json}, invocation
+
+@cindex @file{stix+db.lua} configuration file
+@cindex @command{cybermon}, @file{stix+db.lua} configuration file
+@cindex @file{stix+alert.lua} configuration file
+@cindex @command{cybermon}, @file{stix+alert.lua} configuration file
+
+@command{taxii-sync-json} provides a means to connect with a TAXII compliant
+server to acquire cyber threat information.  @command{taxii-sync-json}
+uses a TAXII poll request, and reformats all STIX information into a single
+JSON file which is written to the current directory.  This JSON form is
+intended to be used with the @file{stix+db.lua} and @file{stix+alert.lua}
+configuration files for @command{cybermon}.  See
+@ref{@command{cybermon} example configurations}.
+
+TAXII/STIX implementation is experimental and incomplete.
+
+See
+@url{https://taxii.mitre.org/} for more information on TAXII and STIX.
+Synopsis:
+
+@example
+taxii-sync-json [-h] [--host HOST] [--port PORT] [--path PATH]
+        [--collection COLLECTION] [--begin_timestamp BEGIN_TS]
+        [--end_timestamp END_TS]
+@end example
+
+Example:
+@example
+taxii-sync-json -h taxii.com
+@end example
+
+@table @samp
+
+@item -h
+@itemx --help
+Shows command line usage.
+
+@item --host @var{HOST}
+Specifies host to connect to.
+
+@item --port @var{PORT}
+Specifies port number of the TAXII service.
+
+@item --path @var{PATH}
+Specifies the URI of the service.  Default is @samp{/}.
+
+@item --collection @var{COLLECTION}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --begin_timestamp @var{BEGIN}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --end_timestamp @var{END}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@end table
+
+The JSON information is written to the current directory to a file called
+@file{stix-@var{COLLECTION}-combined.json} where @var{COLLECTION} is the
+collection name chosen.
+
+Begin/end timestamps take the following form:
+@example
+YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm
+@end example
+
+@comment ----------------------------------------------------------------------
+
+@node @command{taxii-server} invocation
+@section @command{taxii-server} invocation
+
+@cindex @command{taxii-server}, invocation
+
+@command{taxii-server} provides a TAXII compliant
+server to distribute cyber threat information.  TAXII/STIX implementation
+is experimental and incomplete.
+
+See
+@url{https://taxii.mitre.org/} for more information on TAXII and STIX.
+Synopsis:
+
+@example
+taxii-server [-h] [--host HOST] [--port PORT] [--data-dir DATA_DIR]
+        [--db DB] [--sync-period SYNC_PERIOD]
+@end example
+
+Example:
+@example
+taxii-server --port 8100 --data-dir data/ --db stix.db
+@end example
+
+@table @samp
+
+@item -h
+@itemx --help
+Shows command line usage.
+
+@item --host @var{HOST}
+Host to bind the HTTP service to.
+
+@item --port @var{PORT}
+Specifies port number of the TAXII service.
+
+@item --data-dir @var{PATH}
+Specifies the directory where STIX files are to be placed.  Directory
+structure should be @var{PATH}/@var{COLLECTION}/@var{STIX-FILE}.
+
+@item --db @var{DB}
+Specifies a file to hold the STIX data.  Default is @file{stix_store.db}.
+This is created if it does not exist.
+
+@item --sync-period @var{PERIOD}
+Specifies the period for synchronising the data directory with the database.
+Default is @samp{1}.
+
+@end table
+
+The TAXII server periodically checks the data directory with the contents
+of the database, and updates the database accordingly.  Deleting files results
+in deletion from the database, adding files results in creation.  Thus, the
+data directory is the master copy for the sync process.
+
+@comment ----------------------------------------------------------------------
+
 @node @command{nhis11_rcvr} invocation
 @section @command{nhis11_rcvr} invocation
 
@@ -2553,6 +2849,8 @@ should be sent. e.g.
 killall nhis11_rcvr
 @end example
 
+@comment ----------------------------------------------------------------------
+
 @node @command{etsi_rcvr} invocation
 @section @command{etsi_rcvr} invocation
 
@@ -2584,6 +2882,8 @@ should be sent. e.g.
 killall etsi_rcvr
 @end example
 
+@comment ----------------------------------------------------------------------
+
 @node ElasticSearch model
 @section ElasticSearch model
 @cindex ElasticSearch
@@ -2591,6 +2891,8 @@ killall etsi_rcvr
 
 @heading Overview
 
+@cindex @file{stix+db.lua} configuration file
+@cindex @code{cybermon}, @file{stix+db.lua} configuration file
 When @command{cybermon} is used with the @file{stix+db.lua} or @file{db.lua}
 configuration files, observations are created in an ElasticSearch database.
 These configuration files call the @file{elastic.lua} utility module.
@@ -2960,6 +3262,8 @@ The FTP status.
 The FTP text.
 @end table
 
+@comment ----------------------------------------------------------------------
+
 @node Architecture
 @chapter Architecture
 @cindex Cyberprobe, architecture
@@ -2988,6 +3292,8 @@ actions. For each event, a call is made to a Lua script which the caller
 provides.
 
 @item stix+db.lua
+@cindex @file{stix+db.lua} configuration file
+@cindex @code{cybermon}, @file{stix+db.lua} configuration file
 is a cybermon configuration file we provide. It translates the cybermon
 events into a JSON description which is fed into an ElasticSearch
 database. This configuration file also reads a STIX configuration file for
@@ -3006,6 +3312,8 @@ to a JSON file in a way that @code{stix+db.lua} can read.
 is not part of cyberprobe, but it's a great NIDS, so we use that.
 
 @end table
+
+@comment ----------------------------------------------------------------------
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
