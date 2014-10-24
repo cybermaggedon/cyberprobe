@@ -1,4 +1,4 @@
-.TH CYBERPROBE "1" "October 2014" "Cyberprobe 0.55" "User Commands"
+.TH CYBERPROBE "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
 .SH NAME
 cyberprobe \- Captures network packets and streams to a receiver
 .SH SYNOPSIS

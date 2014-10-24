@@ -1,4 +1,4 @@
-.TH NHIS_RCVR "1" "October 2014" "Cyberprobe 0.55" "User Commands"
+.TH NHIS_RCVR "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
 .SH NAME
 nhis_rcvr \- Decode NHIS LI streams to PCAP data
 .SH SYNOPSIS

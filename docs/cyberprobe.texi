@@ -227,6 +227,11 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.60
+IP address matching now permits specification of a mask.
+Documentation improved, regression suite added, a few unit tests starting to
+form.  
+
 @item 0.55
 Packages released for Debian, Fedora and Centos, documentation
 re-worked into info and man formats.
