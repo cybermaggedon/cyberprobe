@@ -1,0 +1,56 @@
+diff -c geoip-0.1-1/geoip.c geoip-0.1-1.mod/geoip.c
+*** geoip-0.1-1/geoip.c	2009-03-04 11:37:27.000000000 +0000
+--- geoip-0.1-1.mod/geoip.c	2014-10-24 23:22:06.585697658 +0100
+***************
+*** 147,153 ****
+  
+  static int country_field_access(lua_State *L, Result *r, Field *f)
+  {
+!     int id = (int) r->data;
+      return _push_opt_string(L, country_funcs[f->offset](id));
+  }
+  
+--- 147,153 ----
+  
+  static int country_field_access(lua_State *L, Result *r, Field *f)
+  {
+!     int id = (long) r->data;
+      return _push_opt_string(L, country_funcs[f->offset](id));
+  }
+  
+***************
+*** 160,166 ****
+  
+  static int country_tostring(lua_State *L, Result *r)
+  {
+!     int id = (int) r->data;
+      lua_pushfstring(L, "%s (%s)", GeoIP_name_by_id(id), GeoIP_code_by_id(id));
+      return 1;
+  }
+--- 160,166 ----
+  
+  static int country_tostring(lua_State *L, Result *r)
+  {
+!     int id = (long) r->data;
+      lua_pushfstring(L, "%s (%s)", GeoIP_name_by_id(id), GeoIP_code_by_id(id));
+      return 1;
+  }
+***************
+*** 307,313 ****
+  
+      switch (lgi->gi->databaseType) {
+  	case GEOIP_COUNTRY_EDITION: {
+! 	int id = GeoIP_id_by_name(lgi->gi, hostname);
+  	if (!id)
+  	    return 0;
+  	gir.meta = &result_meta_country;
+--- 307,313 ----
+  
+      switch (lgi->gi->databaseType) {
+  	case GEOIP_COUNTRY_EDITION: {
+! 	long id = GeoIP_id_by_name(lgi->gi, hostname);
+  	if (!id)
+  	    return 0;
+  	gir.meta = &result_meta_country;
+Only in geoip-0.1-1.mod/: geoip.c~
+Only in geoip-0.1-1.mod/: geoip.o
