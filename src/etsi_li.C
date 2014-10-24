@@ -611,31 +611,40 @@ void mux::target_ip(const std::string& liid,               // LIID
 void receiver::run()
 {
 
-    svr.bind(port);
-    svr.listen();
+    try {
 
-    while (running) {
+	svr.bind(port);
+	svr.listen();
 
-	bool activ = svr.poll(1.0);
+	while (running) {
 
-	if (activ) {
+	    bool activ = svr.poll(1.0);
 
-	    tcpip::tcp_socket cn;
-	    svr.accept(cn);
+	    if (activ) {
 
-	    connection* c = new connection(cn, p, *this);
-	    c->start();
+		tcpip::tcp_socket cn;
+		svr.accept(cn);
+
+		connection* c = new connection(cn, p, *this);
+		c->start();
+
+	    }
+
+	    close_me_lock.lock();
+
+	    while (!close_mes.empty()) {
+		close_mes.front()->join();
+		delete close_mes.front();
+		close_mes.pop();
+	    }
+	    close_me_lock.unlock();
 
 	}
 
-	close_me_lock.lock();
+    } catch (std::exception& e) {
 
-	while (!close_mes.empty()) {
-	    close_mes.front()->join();
-	    delete close_mes.front();
-	    close_mes.pop();
-	}
-	close_me_lock.unlock();
+	std::cerr << "Exception: " << e.what() << std::endl;
+	return;
 
     }
 

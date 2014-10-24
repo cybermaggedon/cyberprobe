@@ -41,19 +41,31 @@ public:
 int main(int argc, char** argv)
 {
     
-    std::istringstream buf(argv[1]);
-    int port;
-    buf >> port;
+    if (argc != 2) {
+	std::cerr << "Usage:" << std::endl
+		  << "\tetsi_rcvr <port>" << std::endl;
+	exit(1);
+    }
 
-    pcap_writer p;
+    try {
 
-    output o(p);
+	std::istringstream buf(argv[1]);
+	int port;
+	buf >> port;
 
-    cybermon::etsi_li::receiver r(port, o);
+	pcap_writer p;
 
-    r.start();
+	output o(p);
 
-    r.join();
+	cybermon::etsi_li::receiver r(port, o);
+
+	r.start();
+	r.join();
+
+    } catch (std::exception& e) {
+	std::cerr << "Exception: " << e.what() << std::endl;
+	exit(1);
+    }
 
 }
 

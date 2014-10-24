@@ -95,32 +95,39 @@ void sender::send_ip(const std::vector<unsigned char>& pkt,
 void receiver::run()
 {
 
-    svr.bind(port);
-    svr.listen();
+    try {
 
-    while (running) {
+	svr.bind(port);
+	svr.listen();
 
-	bool activ = svr.poll(1.0);
-
-	if (activ) {
-
-	    tcpip::tcp_socket cn;
-	    svr.accept(cn);
-
-	    connection* c = new connection(cn, p, *this);
-	    c->start();
+	while (running) {
+	    
+	    bool activ = svr.poll(1.0);
+	    
+	    if (activ) {
+		
+		tcpip::tcp_socket cn;
+		svr.accept(cn);
+		
+		connection* c = new connection(cn, p, *this);
+		c->start();
+		
+	    }
+	    
+	    close_me_lock.lock();
+	    
+	    while (!close_mes.empty()) {
+		close_mes.front()->join();
+		delete close_mes.front();
+		close_mes.pop();
+	    }
+	    close_me_lock.unlock();
 
 	}
 
-	close_me_lock.lock();
-
-	while (!close_mes.empty()) {
-	    close_mes.front()->join();
-	    delete close_mes.front();
-	    close_mes.pop();
-	}
-	close_me_lock.unlock();
-
+    } catch (std::exception& e) {
+	std::cerr << "Exception: " << e.what() << std::endl;
+	return;
     }
 
 }

@@ -12,6 +12,8 @@ NHIS 1.1 test receiver.  Usage:
 #include <cybermon/thread.h>
 #include <cybermon/packet_capture.h>
 
+#include <getopt.h>
+
 class output : public monitor {
 private:
     pcap_writer& p;
@@ -35,20 +37,33 @@ public:
 
 int main(int argc, char** argv)
 {
-    
-    std::istringstream buf(argv[1]);
-    int port;
-    buf >> port;
 
-    pcap_writer p;
+    if (argc != 2) {
+	std::cerr << "Usage:" << std::endl
+		  << "\tnhis11_rcvr <port>" << std::endl;
+	exit(1);
+    }
 
-    output o(p);
+    try {
 
-    cybermon::nhis11::receiver r(port, o);
+	std::istringstream buf(argv[1]);
+	int port;
+	buf >> port;
 
-    r.start();
+	pcap_writer p;
 
-    r.join();
+	output o(p);
+
+	cybermon::nhis11::receiver r(port, o);
+
+	r.start();
+	r.join();
+
+    } catch (std::exception& e) {
+
+	std::cout << "Exception: " << e.what() << std::endl;
+
+    }
 
 }
 
