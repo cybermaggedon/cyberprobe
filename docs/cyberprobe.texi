@@ -486,12 +486,10 @@ Cyberprobe control command-line client.
 
 @end table
 
-FIXME: Mention packaging, and downloading packages.
-
 @cindex Discussion forums
 
-If that builds without errors, then it's time to start something up.  If you
-have problems you can't resolve head to the discussion forums
+If it installs / builds without errors, then it's time to start something up. 
+If you have problems you can't resolve head to the discussion forums
 (@url{https://sourceforge.net/p/cyberprobe/discussion/}).
 
 @cindex Network parameters
@@ -825,9 +823,14 @@ don't want to do that.
 
 @cindex @command{cyberprobe_cli}
 
-FIXME: The @command{cyberprobe_cli} command can be used to access the
+The @command{cyberprobe_cli} command can be used to access the
 management interface but provides a (slightly) nicer @code{readline}
-interface, and has auto-completion.
+interface, and has auto-completion.  Usage is of the form
+@example
+cyberprobe_cli @var{host} @var{port}
+@end example
+Once you're in, you can type help to get help, or press TAB for auto-completion
+of commands.
 
 @node Integration with @command{snort}
 @section Integration with @command{snort}
@@ -1330,10 +1333,9 @@ Haha! Spike! DNS forgery has applications in blocking access to a phishers
 resources on the internet, you might want to redirect your users to an
 address which is inside your network.
 
-The @command{cybermon} reference page details the LUA interface in detail if
+The @ref{@command{cybermon} configuration} documentation details the LUA
+interface in detail if
 you want to find out what else you can do in your LUA code.
-
-FIXME: Above should be a reference link.
 
 @node Visualisation
 @section Visualisation
