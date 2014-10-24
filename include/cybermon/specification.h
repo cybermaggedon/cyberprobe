@@ -4,6 +4,8 @@
 
 #include <string>
 
+namespace cybermon {
+
 class specification {
   public:
     
@@ -28,6 +30,7 @@ class specification {
     
 };
 
+};
 
 #endif
 

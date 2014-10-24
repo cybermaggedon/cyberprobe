@@ -14,7 +14,7 @@
 #include "delivery.h"
 
 // Specification for a snort alerter.
-class snort_alerter_spec : public specification {
+class snort_alerter_spec : public cybermon::specification {
 
  public:
 
@@ -45,7 +45,7 @@ class snort_alerter_spec : public specification {
 
 // Snort alerter, receives snort alerts and enables targeting on alerted
 // IP addresses.
-class snort_alerter : public threads::thread, public resource {
+class snort_alerter : public threads::thread, public cybermon::resource {
 
   private:
 

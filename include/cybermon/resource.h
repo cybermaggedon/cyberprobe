@@ -30,6 +30,8 @@
 #include <list>
 #include <map>
 
+namespace cybermon {
+
 // Resource base class.  Resources are an implementation of a specification.
 // Then can be started and stopped.
 class resource {
@@ -51,15 +53,16 @@ class resource {
 // in the specifications.
 class resource_manager {
 
-  private:
-
-    // Returns true if the file has been modified since the specified
-    // timestamp.
-    bool newer(const std::string& file, long& tm);
+private:
 
     // Time of last file update.
     long last_update;
-  protected:
+
+protected:
+
+    // Returns true if the file has been modified since the specified
+    // timestamp.
+    virtual bool newer(const std::string& file, long& tm);
 
     // Resources, indexed by specification hash.
     std::map<std::string, resource*> resources;
@@ -74,7 +77,7 @@ class resource_manager {
     // to meet the new specification list.
     virtual void update(std::map<std::string, specification*>& upd);
 
-  protected:
+protected:
 
     // Users should implement this - it knows how to turn specifications
     // into resources.
@@ -85,7 +88,7 @@ class resource_manager {
     virtual void read(const std::string& file,
 		      std::list<specification*>&) = 0;
 
-  public:
+public:
 
     // Constructor.
     resource_manager() { 
@@ -108,6 +111,8 @@ class resource_manager {
 
     // Reads the contents of a file into a string.
     static void get_file(const std::string& f, std::string& str);
+
+};
 
 };
 

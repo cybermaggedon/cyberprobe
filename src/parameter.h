@@ -13,7 +13,7 @@
 #include "delivery.h"
 
 // A paramter, represents a key/val pair.
-class parameter_spec : public specification {
+class parameter_spec : public cybermon::specification {
 public:
 
     // Type is 'target'.
@@ -36,7 +36,7 @@ public:
 };
 
 // Parameter resource.  Just instantiated as changes to the delivery engine.
-class parameter : public resource {
+class parameter : public cybermon::resource {
 private:
 
     // Spec.

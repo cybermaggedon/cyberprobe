@@ -34,3 +34,7 @@ docs/mdate-sh
 docs/paths.texi
 docs/stamp-vti
 package.m4
+tests/test_socket
+tests/test_resource
+docs/version.texi
+tests/testsuite.log

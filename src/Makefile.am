@@ -1,7 +1,7 @@
 
 bin_PROGRAMS = cyberprobe cybermon nhis11_rcvr etsi_rcvr cyberprobe_cli
 
-cyberprobe_SOURCES = cyberprobe.C nhis11.C resource_manager.C sender.C \
+cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C xml.C capture.C configuration.C control.C snort_alert.C \
 	sender.h delivery.h capture.h \
 	configuration.h control.h snort_alert.h target.h \
@@ -25,7 +25,8 @@ lib_LTLIBRARIES = libcybermon.la
 
 libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	ip.C tcp.C udp.C http.C address.C icmp.C cybermon-lua.C reaper.C \
-	unrecognised.C dns.C dns_protocol.C forgery.C smtp.C ftp.C 
+	unrecognised.C dns.C dns_protocol.C forgery.C smtp.C ftp.C \
+	resource_manager.C \
 	../include/cybermon/engine.h ../include/cybermon/etsi_li.h \
 	../include/cybermon/socket.h ../include/cybermon/ber.h \
 	../include/cybermon/base_context.h ../include/cybermon/ip.h \
@@ -40,7 +41,8 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	../include/cybermon/thread.h ../include/cybermon/context.h \
 	../include/cybermon/pdu.h ../include/cybermon/exception.h \
 	../include/cybermon/flow.h ../include/cybermon/manager.h \
-	../include/cybermon/observer.h monitor.h transport.h \
+	../include/cybermon/observer.h ../include/cybermon/monitor.h \
+	../include/cybermon/transport.h \
 	../include/cybermon/serial.h ../include/cybermon/protocol.h \
 	../include/cybermon/xml.h \
 	../include/cybermon/specification.h ../include/cybermon/packet_capture.h

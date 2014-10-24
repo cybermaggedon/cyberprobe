@@ -11,7 +11,7 @@
 #include "capture.h"
 
 // An interface specification
-class iface_spec : public specification {
+class iface_spec : public cybermon::specification {
 public:
 
     // Type is 'iface'
@@ -41,7 +41,7 @@ public:
 
 // An interface resources, basically wraps the 'cap' class in a thread
 // which can started and stopped.
-class iface : public resource {
+class iface : public cybermon::resource {
 private:
 
     // Specification.

@@ -10,7 +10,7 @@
 
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
-			  std::list<specification*>& lst)
+			  std::list<cybermon::specification*>& lst)
 {
 
     try {
@@ -183,7 +183,8 @@ void config_manager::read(const std::string& file,
 		    buf >> port;
 		
 		    // Create an endpoint specification.
-		    specification* sp = new endpoint_spec(hostname, port, type);
+		    cybermon::specification* sp = 
+			new endpoint_spec(hostname, port, type);
 		    lst.push_back(sp);
 		    continue;
 
@@ -224,7 +225,7 @@ void config_manager::read(const std::string& file,
 		    std::string val = it->attributes["value"];
 		    
 		    // Create and return a specfication.
-		    specification* sp = new parameter_spec(key, val);
+		    cybermon::specification* sp = new parameter_spec(key, val);
 		    lst.push_back(sp);
 		    
 		    continue;
@@ -312,7 +313,7 @@ void config_manager::read(const std::string& file,
 }
 
 // Create resources from specifications.
-resource* config_manager::create(specification& spec)
+cybermon::resource* config_manager::create(cybermon::specification& spec)
 {
     
     // Interface.

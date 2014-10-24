@@ -9,7 +9,7 @@
 #define ENDPOINT_H
 
 // An endpoint, describes where to send stuff.
-class endpoint_spec : public specification {
+class endpoint_spec : public cybermon::specification {
 public:
 
     // Type is 'endpoint'.
@@ -49,7 +49,7 @@ public:
 
 // Endpoint resource.  The endpoint resources are just instantiated as
 // changes to the endpoint list in the delivery engine.
-class endpoint : public resource {
+class endpoint : public cybermon::resource {
 private:
 
     // Spec.

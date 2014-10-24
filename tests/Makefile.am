@@ -51,10 +51,13 @@ AUTOTEST = $(AUTOM4TE) --language=autotest
 
 AM_CPPFLAGS = -I../include
 
-noinst_PROGRAMS = test_socket
+noinst_PROGRAMS = test_socket test_resource
 
 test_socket_SOURCES = test_socket.C
 test_socket_LDADD = ../src/libcybermon.la
+
+test_resource_SOURCES = test_resource.C
+test_resource_LDADD = ../src/libcybermon.la
 
 $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at

@@ -11,7 +11,7 @@
 #include <cybermon/resource.h>
 
 // A target specification: Maps an IP address to a LIID.
-class target_spec : public specification {
+class target_spec : public cybermon::specification {
 public:
 
     // Type is 'target'.
@@ -66,7 +66,7 @@ public:
 
 // Target resource.  The target resources are just instantiated as
 // changes to the target map in the delivery engine.
-class target : public resource {
+class target : public cybermon::resource {
 private:
 
     // Spec.

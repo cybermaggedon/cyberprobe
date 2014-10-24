@@ -15,7 +15,7 @@
 namespace control {
 
     // Management interface specification.
-    class spec : public specification {
+    class spec : public cybermon::specification {
       public:
 
 	// Type is 'control'.
@@ -118,7 +118,7 @@ namespace control {
     };
 
     // Management service.
-    class service : public resource, public threads::thread {
+    class service : public cybermon::resource, public threads::thread {
 
       private:
 	

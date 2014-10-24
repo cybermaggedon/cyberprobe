@@ -13,7 +13,7 @@
 #include "delivery.h"
 
 // Configuration file manager.
-class config_manager : public resource_manager {
+class config_manager : public cybermon::resource_manager {
 private:
 
     // Delivery engine.
@@ -26,10 +26,10 @@ protected:
 
     // Read the configuration file.
     virtual void read(const std::string& file,
-		      std::list<specification*>&);
+		      std::list<cybermon::specification*>&);
 
     // Convert a specification into a resource.
-    virtual resource* create(specification& spec);
+    virtual cybermon::resource* create(cybermon::specification& spec);
 
 public:
 

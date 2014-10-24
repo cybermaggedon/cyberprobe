@@ -11,6 +11,8 @@
 
 #include <string>
 
+using namespace cybermon;
+
 void resource_manager::update(const std::string& file)
 {
     
