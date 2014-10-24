@@ -24,19 +24,26 @@ public:
     tcpip::ip4_address addr;
     tcpip::ip6_address addr6;
 
+    // Mask
+    unsigned int mask;
+
     enum { IPv4, IPv6} universe;
 
     // Constructors.
     target_spec() { universe = IPv4; }
 
     // Set IPv4 address match.
-    void set_ipv4(const std::string& liid, const tcpip::ip4_address& addr) {
-	this->liid = liid; this->addr = addr; universe = IPv4;
+    void set_ipv4(const std::string& liid, const tcpip::ip4_address& addr,
+		  unsigned int mask = 32) {
+	this->liid = liid; this->addr = addr; universe = IPv4; 
+	this->mask = mask;
     }
 
     // Set IPv6 address match.
-    void set_ipv6(const std::string& liid, const tcpip::ip6_address& addr) {
+    void set_ipv6(const std::string& liid, const tcpip::ip6_address& addr,
+		  unsigned int mask = 128) {
 	this->liid = liid; this->addr6 = addr; universe = IPv6;
+	this->mask = mask;
     }
 
     // Hash is form ipaddr:liid.
@@ -49,6 +56,9 @@ public:
 	    buf << "IPv6:" << addr6;
 
 	buf << ":" << liid;
+
+	buf << ":" << mask;
+
 	return buf.str();
     }
 
@@ -76,15 +86,16 @@ public:
 
 	std::string txt;
 	if (spec.universe == target_spec::IPv4) {
-	    deliv.add_target(spec.addr, spec.liid);
+	    deliv.add_target(spec.addr, spec.mask, spec.liid);
 	    spec.addr.to_string(txt);
 	} else {
-	    deliv.add_target(spec.addr6, spec.liid);
+	    deliv.add_target(spec.addr6, spec.mask, spec.liid);
 	    spec.addr6.to_string(txt);
 	}
 
-	std::cerr << "Added target " << txt << " -> " << spec.liid << "." 
-		  << std::endl;
+	std::cerr << "Added target " << txt << "/" << spec.mask
+		  << " -> " 
+		  << spec.liid << "." << std::endl;
 
     }
 
@@ -93,14 +104,14 @@ public:
 
 	std::string txt;
 	if (spec.universe == target_spec::IPv4) {
-	    deliv.remove_target(spec.addr);
+	    deliv.remove_target(spec.addr, spec.mask);
 	    spec.addr.to_string(txt);
 	} else {
-	    deliv.remove_target(spec.addr6);
+	    deliv.remove_target(spec.addr6, spec.mask);
 	    spec.addr6.to_string(txt);
 	}
 
-	std::cerr << "Removed target " << txt
+	std::cerr << "Removed target " << txt << "/" << spec.mask
 		  << " -> " 
 		  << spec.liid << "." << std::endl;
     }

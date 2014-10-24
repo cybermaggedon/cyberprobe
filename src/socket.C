@@ -10,21 +10,21 @@
 tcpip::ip_address tcpip::ip_address::my_address()
 {
 
-  int ret;
-  struct utsname uts;
-  struct hostent *hent;
+    int ret;
+    struct utsname uts;
+    struct hostent *hent;
 
-  ret = uname(&uts);
-  if (ret < 0)
-      return ip_address(127 << 24 | 1);
+    ret = uname(&uts);
+    if (ret < 0)
+	return ip_address(127 << 24 | 1);
 
-  hent = gethostbyname(uts.nodename);
-  if (hent == NULL)
-      return ip_address(127 << 24 | 1);
+    hent = gethostbyname(uts.nodename);
+    if (hent == NULL)
+	return ip_address(127 << 24 | 1);
 
-  struct in_addr addr;
-  memcpy(&addr, hent->h_addr_list[0], sizeof(addr));
-  return ip_address((long)(ntohl(addr.s_addr)));
+    struct in_addr addr;
+    memcpy(&addr, hent->h_addr_list[0], sizeof(addr));
+    return ip_address((long)(ntohl(addr.s_addr)));
 
 }
 

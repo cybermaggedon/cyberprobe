@@ -214,27 +214,44 @@ void connection::cmd_parameters()
 void connection::cmd_targets()
 {
 
-    std::map<tcpip::ip4_address, std::string> t4;
-    std::map<tcpip::ip6_address, std::string> t6;
+    std::map<int, std::map<tcpip::ip4_address, std::string> > t4;
+    std::map<int, std::map<tcpip::ip6_address, std::string> > t6;
 		    
     d.get_targets(t4, t6);
 
     std::ostringstream buf;
-    
-    for(std::map<tcpip::ip4_address, std::string>::iterator it
+
+    for(std::map<int, std::map< tcpip::ip4_address, std::string> >::iterator it
 	    = t4.begin();
 	it != t4.end();
 	it++) {
-	buf << it->second << ":" << "ipv4" << ":" 
-	    << it->first << "\n";
+
+	for(std::map<tcpip::ip4_address, std::string>::iterator it2
+		= it->second.begin();
+	    it2 != it->second.end();
+	    it2++) {
+
+	    buf << it2->second << ":" << "ipv4" << ":" 
+		<< it2->first << "/" << it->first << "\n";
+
+	}
     }
     
-    for(std::map<tcpip::ip6_address, std::string>::iterator it
+    for(std::map<int, std::map<tcpip::ip6_address, std::string> >::iterator it
 	    = t6.begin();
 	it != t6.end();
 	it++) {
-	buf << it->second << ":" << "ipv6" << ":" 
-	    << it->first << "\n";
+	
+	for(std::map<tcpip::ip6_address, std::string>::iterator it2
+		= it->second.begin();
+	    it2 != it->second.end();
+	    it2++) {
+
+	    buf << it2->second << ":" << "ipv6" << ":" 
+		<< it2->first << "/" << it->first << "\n";
+
+	}
+
     }
     
     response(201, "Targets list follows.", buf.str());
@@ -311,8 +328,13 @@ void connection::cmd_add_target(const std::vector<std::string>& lst)
     if (cls == "ipv4") {
 	
 	try {
-	    tcpip::ip4_address a4(lst[3]);
-	    d.add_target(a4, liid);
+
+	    tcpip::ip4_address a4;
+	    unsigned int mask;
+	    tcpip::ip4_address::parse(lst[3], a4, mask);
+
+	    d.add_target(a4, mask, liid);
+
 	} catch (...) {
 	    error(302, "Failed to parse address.");
 	    return;
@@ -326,8 +348,10 @@ void connection::cmd_add_target(const std::vector<std::string>& lst)
     if (cls == "ipv6") {
 	
 	try {
-	    tcpip::ip6_address a6(lst[3]);
-	    d.add_target(a6, liid);
+	    unsigned int mask;
+	    tcpip::ip6_address a6;
+	    tcpip::ip6_address::parse(lst[3], a6, mask);
+	    d.add_target(a6, mask, liid);
 	} catch (...) {
 	    error(302, "Failed to parse address.");
 	    return;
@@ -356,8 +380,10 @@ void connection::cmd_remove_target(const std::vector<std::string>& lst)
     if (cls == "ipv4") {
 	
 	try {
-	    tcpip::ip4_address a4(lst[2]);
-	    d.remove_target(a4);
+	    unsigned int mask;
+	    tcpip::ip4_address a4;
+	    tcpip::ip4_address::parse(lst[2], a4, mask);
+	    d.remove_target(a4, mask);
 	} catch (...) {
 	    error(302, "Failed to parse address.");
 	    return;
@@ -371,8 +397,10 @@ void connection::cmd_remove_target(const std::vector<std::string>& lst)
     if (cls == "ipv6") {
 	
 	try {
-	    tcpip::ip6_address a6(lst[2]);
-	    d.remove_target(a6);
+	    unsigned int mask;
+	    tcpip::ip6_address a6;
+	    tcpip::ip6_address::parse(lst[2], a6, mask);
+	    d.remove_target(a6, mask);
 	} catch (...) {
 	    error(302, "Failed to parse address.");
 	    return;

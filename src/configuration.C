@@ -90,27 +90,49 @@ void config_manager::read(const std::string& file,
 		    if (cs != "ipv6") {
 			
 			// IPv4 case
+			int mask = 32;
 			
+			if (ip.find("/") != -1) {
+			    std::string m = ip.substr(ip.find("/") + 1);
+			    std::istringstream buf(m);
+			    buf >> mask;
+			    ip = ip.substr(0, ip.find("/"));
+			}
+			
+			std::cout << "Mask is " << mask << std::endl;
+			std::cout << "IP is " << ip << std::endl;
+
 			// Convert string to an IPv4 address.
 			tcpip::ip4_address addr;
 			addr.from_string(ip);
 			
 			// Create target specification.
 			target_spec* sp = new target_spec;
-			sp->set_ipv4(liid, addr);
+			sp->set_ipv4(liid, addr, mask);
 			lst.push_back(sp);
 			
 		    } else {
 			
 			// IPv6 case
+			int mask = 128;
+
+			if (ip.find("/") != -1) {
+			    std::string m = ip.substr(ip.find("/") + 1);
+			    std::istringstream buf(m);
+			    buf >> mask;
+			    ip = ip.substr(0, ip.find("/"));
+			}
 			
+			std::cout << "Mask is " << mask << std::endl;
+			std::cout << "IP is " << ip << std::endl;
+
 			// Convert string to an IPv6 address.
 			tcpip::ip6_address addr;
 			addr.from_string(ip);
 			
 			// Create target specfication.
 			target_spec* sp = new target_spec;
-			sp->set_ipv6(liid, addr);
+			sp->set_ipv6(liid, addr, mask);
 			lst.push_back(sp);
 			
 		    }

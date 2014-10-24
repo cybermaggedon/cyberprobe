@@ -85,6 +85,41 @@ namespace tcpip {
 	    ::inet_ntop(AF_INET, &a, dest, 128);
 	    str = dest;
 	}
+        static void parse(const std::string& str, ip4_address& addr, 
+                          unsigned int& mask) {
+
+            unsigned int pos = str.find("/");
+            
+            std::string rem;
+
+            if (str.find("/") != -1) {
+                std::string m = str.substr(str.find("/") + 1);
+                std::istringstream buf(m);
+                buf >> mask;
+                rem = str.substr(0, str.find("/"));
+                if (mask > 32) mask = 32;
+            } else {
+                mask = 32;
+                rem = str;
+            }
+
+            addr.from_string(rem);
+
+        }
+	virtual ip4_address operator&(unsigned int mask) {
+	    ip4_address a = *this;
+	    for(int i = 0; i < a.addr.size(); i++) {
+		if (mask > 8) { mask -=8; continue; }
+		if (mask == 0) { a.addr[i] = 0; continue; }
+		
+		unsigned int tmask = 255 - ((1 << (8 - mask)) - 1);
+		a.addr[i] &= tmask;
+
+		mask = 0;
+
+	    }
+	    return a;
+	}
     };
 
     /** IPv6 address */
@@ -113,6 +148,41 @@ namespace tcpip {
 	    char dest[128];
 	    ::inet_ntop(AF_INET6, &a, dest, 128);
 	    str = dest;
+	}
+        static void parse(const std::string& str, ip6_address& addr, 
+                          unsigned int& mask) {
+
+            unsigned int pos = str.find("/");
+            
+            std::string rem;
+
+            if (str.find("/") != -1) {
+                std::string m = str.substr(str.find("/") + 1);
+                std::istringstream buf(m);
+                buf >> mask;
+                rem = str.substr(0, str.find("/"));
+                if (mask > 128) mask = 128;
+            } else {
+                mask = 128;
+                rem = str;
+            }
+
+            addr.from_string(rem);
+
+        }
+	virtual ip6_address operator&(unsigned int mask) {
+	    ip6_address a = *this;
+	    for(int i = 0; i < a.addr.size(); i++) {
+		if (mask > 8) { mask -=8; continue; }
+		if (mask == 0) { a.addr[i] = 0; continue; }
+		
+		unsigned int tmask = 255 - ((1 << (8 - mask)) - 1);
+		a.addr[i] &= tmask;
+
+		mask = 0;
+
+	    }
+	    return a;
 	}
     };
 

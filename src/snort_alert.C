@@ -76,7 +76,14 @@ void snort_alerter::run()
     std::map<tcpip::ip6_address, long> timeout6; // For IPv6.
 
     // Bind the socket to its pathname
-    sock.bind(spec.path);
+
+    try {
+	sock.bind(spec.path);
+    } catch (...) {
+	std::cerr << "Couldn't bind snort alert to path " << spec.path
+		  << std::endl;
+	return;
+    }
 
     // Loop until shutdown.
     while (running) {
@@ -118,6 +125,8 @@ void snort_alerter::run()
 	    tcpip::address* src;
 	    bool targeting = false;
 
+	    unsigned int mask;
+
 	    // IP version.
 	    if ((ip_hdr[0] & 0xf0) == 0x40) {
 
@@ -125,6 +134,8 @@ void snort_alerter::run()
 		src4.addr.assign(ip_hdr + 12, ip_hdr + 16);
 		src = &src4;
 		targeting = (timeout4.find(src4) != timeout4.end());
+		// Just targeting single IP address, so use full mask.
+		mask = 32;	
 
 	    } else {
 
@@ -132,6 +143,8 @@ void snort_alerter::run()
 		src6.addr.assign(ip_hdr + 8, ip_hdr + 24);
 		src = &src6;
 		targeting = (timeout6.find(src6) != timeout6.end());
+		// Just targeting single IP address, so use full mask.
+		mask = 128;
 
 	    }
 	    
@@ -161,7 +174,7 @@ void snort_alerter::run()
 
 		std::string liid = deliv.get_parameter(buf.str(), fallb.str());
 
-		deliv.add_target(*src, liid);
+		deliv.add_target(*src, mask, liid);
 
 	    }
 
@@ -200,7 +213,8 @@ void snort_alerter::run()
 			      << it->first
 			      << std::endl;
 
-		    deliv.remove_target(it->first);
+		    // IPv4 address, use full address mask.
+		    deliv.remove_target(it->first, 32);
 
 		    std::map<tcpip::ip4_address, long>::iterator nxt = it;
 		    nxt++;
@@ -226,7 +240,8 @@ void snort_alerter::run()
 			      << it->first
 			      << std::endl;
 
-		    deliv.remove_target(it->first);
+		    // IPv6 address, use full address mask.
+		    deliv.remove_target(it->first, 128);
 
 		    std::map<tcpip::ip6_address, long>::iterator nxt = it;
 		    nxt++;
@@ -253,7 +268,8 @@ void snort_alerter::run()
 		  << it->first
 		  << std::endl;
 
-	deliv.remove_target(it->first);
+	// Currently only targeting single addresses, use full address mask.
+	deliv.remove_target(it->first, 32);
 
     }
 
@@ -267,7 +283,8 @@ void snort_alerter::run()
 		  << it->first
 		  << std::endl;
 
-	deliv.remove_target(it->first);
+	// Currently only targeting single addresses, use full address mask.
+	deliv.remove_target(it->first, 128);
 
     }
 

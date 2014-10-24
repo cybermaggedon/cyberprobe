@@ -86,8 +86,8 @@ class delivery : public parameters, public management, public packet_consumer {
 
     // Targets : an IP address to LIID mapping.
     threads::mutex targets_lock;
-    std::map<tcpip::ip4_address, std::string> targets;   // IPv4
-    std::map<tcpip::ip6_address, std::string> targets6;  // IPv6
+    std::map<int, std::map<tcpip::ip4_address, std::string> > targets;   // IPv4
+    std::map<int, std::map<tcpip::ip6_address, std::string> > targets6;  // IPv6
 
     // Endpoints
     threads::mutex senders_lock;
@@ -167,14 +167,18 @@ class delivery : public parameters, public management, public packet_consumer {
 
     // Modifies the target map to include a mapping from address to target.
     void add_target(const tcpip::address& addr, 
+		    unsigned int mask,
 		    const std::string& liid);
 
     // Removes a target mapping.
-    void remove_target(const tcpip::address& addr);
+    void remove_target(const tcpip::address& addr,
+		       unsigned int mask);
 
     // Fetch current target list.
-    virtual void get_targets(std::map<tcpip::ip4_address, std::string>& t4,
-			     std::map<tcpip::ip6_address, std::string>& t6);
+    virtual void get_targets(std::map<int,
+			     std::map<tcpip::ip4_address, std::string> >& t4,
+			     std::map<int,
+			     std::map<tcpip::ip6_address, std::string> >& t6);
 
     // Adds an endpoint
     virtual void add_endpoint(const std::string& host, unsigned int port,

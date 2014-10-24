@@ -65,7 +65,7 @@ namespace cybermon {
 
 	// Called when attacker is detected.
 	void target_up(const std::string& liid,
-			const tcpip::address& addr) {
+		       const tcpip::address& addr) {
 
 	    // Get the root context for this LIID.
 	    context_ptr c = get_root_context(liid);

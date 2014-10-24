@@ -95,26 +95,36 @@ bool delivery::ipv4_match(const_iterator& start,
     // Get the target map lock.
     targets_lock.lock();
 
-    // Find a match against the source or destination IP address.
-    std::map<tcpip::ip4_address, std::string>::const_iterator it;
-    it = targets.find(saddr);
-    if (it == targets.end())
-	it = targets.find(daddr);
+    // Search mask map
+    typedef std::map<tcpip::ip4_address, std::string> addr_map;
+    std::map<int, addr_map>::const_iterator it;
+    for(it = targets.begin(); it != targets.end(); it++) {
+
+	// mask
+	unsigned int mask = it->first;
+
+	// FIXME: Apply the mask
+
+	// Find a match against the source or destination IP address.
+	std::map<tcpip::ip4_address, std::string>::const_iterator it2;
 	
-    // If no match, then ignore the packet.
-    if (it == targets.end()) {
-	targets_lock.unlock();
-	return false;
+	it2 = it->second.find(saddr & mask);
+	if (it2 == it->second.end())
+	    it2 = it->second.find(daddr & mask);
+	
+	// If match, then return info.
+	if (it2 != it->second.end()) {
+	    hit = it2->first;
+	    liid = it2->second;
+	    targets_lock.unlock();
+	    return true;
+	}
+
     }
-	
-    // At this point 'it' definitely points at a target entry.
-    // Get LIID and address information.
-    hit = it->first;
-    liid = it->second;
 
+    // No match.
     targets_lock.unlock();
-
-    return true;
+    return false;
 
 }
 
@@ -140,25 +150,35 @@ bool delivery::ipv6_match(const_iterator& start,
     // Get the target map lock.
     targets_lock.lock();
 
-    // Find a match against the source or destination IP address.
-    std::map<tcpip::ip6_address, std::string>::const_iterator it;
-    it = targets6.find(saddr);
-    if (it == targets6.end())
-	it = targets6.find(daddr);
+    // Search mask map
+    typedef std::map<tcpip::ip6_address, std::string> addr_map;
+    std::map<int, addr_map>::iterator it;
+    for(it = targets6.begin(); it != targets6.end(); it++) {
 
-    // If no match, then ignore the packet.
-    if (it == targets6.end()) {
-	targets_lock.unlock();
-	return false;
+	// Find a match against the source or destination IP address.
+	std::map<tcpip::ip6_address, std::string>::iterator it2;
+
+	// mask
+	unsigned int mask = it->first;
+
+	// Find a match against the source or destination IP address.
+	it2 = it->second.find(saddr & mask);
+	if (it2 == it->second.end())
+	    it2 = it->second.find(daddr & mask);
+	
+	// If match, then return info.
+	if (it2 != it->second.end()) {
+	    hit = it2->first;
+	    liid = it2->second;
+	    targets_lock.unlock();
+	    return true;
+	}
+
     }
-    // At this point 'it' definitely points at a target entry.
-    // Get LIID and address information.
-    hit = it->first;
-    liid = it->second;
 
+    // No match.
     targets_lock.unlock();
-
-    return true;
+    return false;
 
 }
 
@@ -323,6 +343,7 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 
 // Modifies the target map to include a mapping from address to target.
 void delivery::add_target(const tcpip::address& addr, 
+			  unsigned int mask,
 			  const std::string& liid) 
 {
 
@@ -331,11 +352,11 @@ void delivery::add_target(const tcpip::address& addr,
     if (addr.universe == addr.ipv4) {
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
-	targets[a] = liid;
+	targets[mask][a] = liid;
     } else {
 	const tcpip::ip6_address& a =
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
-	targets6[a] = liid;
+	targets6[mask][a] = liid;
     }
 
     // Tell all senders, target up.
@@ -352,7 +373,7 @@ void delivery::add_target(const tcpip::address& addr,
 }
 
 // Removes a target mapping.
-void delivery::remove_target(const tcpip::address& addr) 
+void delivery::remove_target(const tcpip::address& addr, unsigned int mask) 
 {
     
     targets_lock.lock();
@@ -364,7 +385,13 @@ void delivery::remove_target(const tcpip::address& addr)
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
 
-	if (targets.find(a) == targets.end()) {
+	if (targets.find(mask) == targets.end()) {
+	    // Mask not in the target map.  Silenty ignore.
+	    targets_lock.unlock();
+	    return;
+	}
+
+	if (targets[mask].find(a) == targets[mask].end()) {
 	    // Target not in the target map.  Silenty ignore.
 	    targets_lock.unlock();
 	    return;
@@ -375,18 +402,24 @@ void delivery::remove_target(const tcpip::address& addr)
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->target_down(targets[a]);
+	    it->second->target_down(targets[mask][a]);
 	}
 	senders_lock.unlock();
 
-	targets.erase(a);
+	targets[mask].erase(a);
 
     } else {
 
 	const tcpip::ip6_address& a =
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
 
-	if (targets6.find(a) == targets6.end()) {
+	if (targets6.find(mask) == targets6.end()) {
+	    // Mask not in the target map.  Silenty ignore.
+	    targets_lock.unlock();
+	    return;
+	}
+
+	if (targets6[mask].find(a) == targets6[mask].end()) {
 	    // Target not in the target map.  Silenty ignore.
 	    targets_lock.unlock();
 	    return;
@@ -397,12 +430,12 @@ void delivery::remove_target(const tcpip::address& addr)
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->target_down(targets6[a]);
+	    it->second->target_down(targets6[mask][a]);
 	}
 
 	senders_lock.unlock();
 
-	targets6.erase(a);
+	targets6[mask].erase(a);
 
     }
 
@@ -411,8 +444,10 @@ void delivery::remove_target(const tcpip::address& addr)
 }
 
 // Fetch current target list.
-void delivery::get_targets(std::map<tcpip::ip4_address, std::string>& t4,
-			   std::map<tcpip::ip6_address, std::string>& t6) 
+void delivery::get_targets(std::map<int, 
+			   std::map<tcpip::ip4_address, std::string> >& t4,
+			   std::map<int,
+			   std::map<tcpip::ip6_address, std::string> >& t6) 
 {
     t4 = targets;
     t6 = targets6;
