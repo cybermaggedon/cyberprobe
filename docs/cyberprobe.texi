@@ -80,6 +80,7 @@ and to see where we are going, read the @ref{Architecture} page.
 * Quick start tutorial::
 * Reference::
 * Architecture::
+* Adding a map to the dashboard::
 * GNU Free Documentation License::
 * Index::
 @end menu
@@ -451,7 +452,6 @@ Powered by SourceForge, project page is at
 * Writing your own configuration file::
 * Visualisation::
 * Threat indicators using STIX::
-* Adding a map to the dashboard::
 @end menu
 
 @comment ----------------------------------------------------------------------
@@ -1706,81 +1706,6 @@ The @file{stix+db.lua} configuration file generates ElasticSearch events as
 the events. If you use @file{stix+db.lua}, with the Kibana dashboard, the
 "Indications" table on the right hand side of the dashboard will show
 detected indicators.
-
-@comment ----------------------------------------------------------------------
-
-@node Adding a map to the dashboard
-@section Adding a map to the dashboard
-@cindex GeoIP
-@cindex Dashboard
-@cindex Map on the dashboard
-@cindex Map widget
-@cindex IP event location
-
-Wouldn't it be good if our
-visual dashboard had a world map that showed the source of packets?
-This last bit involves some experimental software.
-
-First step is to get hold of a database which maps IP addresses to countries.
-There are several, but the GeoIP database is widely available and free.
-Check out the licence for yourself, though.  The packages for your distribution
-are probably called GeoIP-devel and GeoIP.  Debian has libgeoip-dev.
-So, install those with your favourite package manager:
-@example
-yum install GeoIP-devel and GeoIP
-@end example
-Next step is to download the database:
-@example
-geoipupdate
-@end example
-
-Next, we need Lua support for GeoIP.  First, download:
-@example
-mkdir lua-geoip
-cd lua-geoip
-wget \
-http://files.luaforge.net/releases/geoip/geoip/0.1-1/\
-geoip-0.1-1.tar.gz
-tar xvfz geoip-0.1-1.tar.gz
-cd geoip-0.1-1
-@end example
-On my distribution, the code doesn't compile, so need to apply a patch 
-which I have stashed in the cyberprobe source code.
-@example
-# Check patch applies without error.
-patch -p1 --dry-run  < ../../lua-geoip.patch
-# Apply patch for real.
-patch -p1  < ../../geoip.patch
-@end example
-Finally, the Makefile supplied doesn't work, so compile by hand:
-@example
-gcc -fPIC -c geoip.c -o geoip.o
-gcc -shared geoip.o -o geoip.so -lGeoIP
-@end example
-At this point, you should have a file @file{geoip.so}.  You should test whether
-it loads in Lua.  You type the bits after the @samp{>} prompt:
-@example
-$ lua
-Lua 5.2.2  Copyright (C) 1994-2013 Lua.org, PUC-Rio
-> =require("geoip")
-table: 0xf55bb0
-> =require("geoip").open_type
-function: 0x7f738c9db24f
-@end example
-
-As long as you see a table and a function returned in Lua, this is good to go.
-Next step, is to copy that geoip.so file to the place where you were running
-@command{cybermon}.  It has to be in your current directory.  Then,
-restart Cybermon, it should be loaded by the @file{stix+db.lua} configuration
-file.
-
-Finally, on Kibana, load a new dashboard, instead of loading
-@file{kibana-dashboard.json}, load @file{kibana-dashboard-map.json}, and
-you'll see a map.  When sources of data are located to a particular location,
-it will start to colour as the counts increase.
-
-As I say, we're reliant on some Lua software which doesn't seem to be
-actively maintained, so you may have problems here.
 
 @heading Conclusion
 
@@ -3388,6 +3313,87 @@ to a JSON file in a way that @code{stix+db.lua} can read.
 is not part of cyberprobe, but it's a great NIDS, so we use that.
 
 @end table
+
+@comment ----------------------------------------------------------------------
+
+@node Adding a map to the dashboard
+@appendix Adding a map to the dashboard
+@cindex GeoIP
+@cindex Dashboard
+@cindex Map on the dashboard
+@cindex Map widget
+@cindex IP event location
+
+Wouldn't it be good if our
+visual dashboard had a world map that showed the source of packets?
+This last bit involves some experimental software.
+
+First step is to get hold of a database which maps IP addresses to countries.
+There are several, but the GeoIP database is widely available and free.
+Check out the licence for yourself, though.  The packages for your distribution
+are probably called GeoIP-devel and GeoIP.  Debian has libgeoip-dev.
+So, install those with your favourite package manager.  On Redhat/Fedora:
+@example
+sudo yum install GeoIP-devel and GeoIP
+@end example
+or Debian/Ubuntu:
+@example
+sudo apt-get install geoip-database # GeoLite Country only
+sudo apt-get install libgeoip-dev
+@end example
+
+Next step is to download the database:
+@example
+geoipupdate
+@end example
+
+Next, we need Lua support for GeoIP.  First, download:
+@example
+mkdir lua-geoip
+cd lua-geoip
+wget \
+http://files.luaforge.net/releases/geoip/geoip/0.1-1/\
+geoip-0.1-1.tar.gz
+tar xvfz geoip-0.1-1.tar.gz
+cd geoip-0.1-1
+@end example
+On my distribution, the code doesn't compile, so need to apply a patch 
+which I have stashed in the cyberprobe source code.
+@example
+# Check patch applies without error.
+patch -p1 --dry-run  < ../../lua-geoip.patch
+# Apply patch for real.
+patch -p1  < ../../geoip.patch
+@end example
+Finally, the Makefile supplied doesn't work, so compile by hand:
+@example
+gcc -fPIC -c geoip.c -o geoip.o
+gcc -shared geoip.o -o geoip.so -lGeoIP
+@end example
+At this point, you should have a file @file{geoip.so}.  You should test whether
+it loads in Lua.  You type the bits after the @samp{>} prompt:
+@example
+$ lua
+Lua 5.2.2  Copyright (C) 1994-2013 Lua.org, PUC-Rio
+> =require("geoip")
+table: 0xf55bb0
+> =require("geoip").open_type
+function: 0x7f738c9db24f
+@end example
+
+As long as you see a table and a function returned in Lua, this is good to go.
+Next step, is to copy that geoip.so file to the place where you were running
+@command{cybermon}.  It has to be in your current directory.  Then,
+restart Cybermon, it should be loaded by the @file{stix+db.lua} configuration
+file.
+
+Finally, on Kibana, load a new dashboard, instead of loading
+@file{kibana-dashboard.json}, load @file{kibana-dashboard-map.json}, and
+you'll see a map.  When sources of data are located to a particular location,
+it will start to colour as the counts increase.
+
+As I say, we're reliant on some Lua software which doesn't seem to be
+actively maintained, so you may have problems here.
 
 @comment ----------------------------------------------------------------------
 
