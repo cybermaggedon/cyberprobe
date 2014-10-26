@@ -23,9 +23,7 @@ LT_INIT
 # Python
 AM_PATH_PYTHON
 
-# Checks for libraries.
-# FIXME: Replace `main' with functions in libraries:
-
+# Check for Boost.
 BOOST_REQUIRE
 BOOST_REGEX([mt])
 
@@ -33,6 +31,14 @@ BOOST_REGEX([mt])
 AX_PROG_LUA([5.1], [], [], [AC_MSG_ERROR([Lua interpreter missing.])])
 AX_LUA_HEADERS([], [AC_MSG_ERROR([Lua headers missing.])])
 AX_LUA_LIBS([], [AC_MSG_ERROR([Lua library missing.])])
+
+# Check for some Lua modules.
+AC_MSG_CHECKING([Lua json.encode module])
+AS_IF([echo 'if require("json.encode") then print("yes") end' | lua -], [], 
+	    [AC_MSG_ERROR([Lua json.encode module is not installed.])])
+AC_MSG_CHECKING([Lua lfs (luafilesystem) module])
+AS_IF([echo 'if require("lfs") then print("yes") end' | lua -], [], 
+	    [AC_MSG_ERROR([Lua lfs module is not installed.])])
 
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
