@@ -1510,7 +1510,7 @@ Having set that up, you point your browser at the unpacked Kibana file
 e.g. ...
 
 @example
-file://@value{PREFIX}/dev/kibana/index.html
+file://@var{path-to-kibana}/index.html
 @end example
 
 and hopefully you see Kibana's "Welcome to Kibana" screen. I've already

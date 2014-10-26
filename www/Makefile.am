@@ -1,3 +1,3 @@
 
-dist_doc_DATA = kibana-dashboard.json
+dist_doc_DATA = kibana-dashboard.json kibana-dashboard-map.json
 
