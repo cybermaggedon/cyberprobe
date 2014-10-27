@@ -1,7 +1,7 @@
 
 from cybox.objects.address_object import Address, EmailAddress
 from cybox.objects.file_object import File
-from cybox.objects.hostname_object import Hostname
+from cybox.objects.domain_name_object import DomainName
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
@@ -47,8 +47,8 @@ def dump_indicator(ind):
                 if h.type_:
                     print "    Type: %s" % h.type_
 
-    if isinstance(obj, Hostname):
-        print "Hostname: %s" % obj.hostname_value
+    if isinstance(obj, DomainName):
+        print "Hostname (%s): %s" % (obj.type_, obj.value)
 
     if isinstance(obj, Port):
         print "Port: %s (%s)" % (obj.port_value, obj.layer4_protocol)

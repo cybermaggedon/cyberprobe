@@ -9,6 +9,7 @@
 local mime = require("mime")
 local stix = require("util.stix")
 local addr = require("util.addresses")
+local md5 = require("md5")
 local elastic = require("util.elastic")
 
 -- Default TTL on objects.
@@ -130,6 +131,7 @@ observer.http_request = function(context, method, url, header, body)
 
   indicators = {}
   stix.check_url(url, indicators)
+  stix.check_hash(md5.sumhexa(body), indicators)
   stix.check_dns(header['Host'], indicators)
 
   for k, v in pairs(indicators) do
@@ -152,6 +154,7 @@ observer.http_response = function(context, code, status, header, url, body)
 
   indicators = {}
   stix.check_url(url, indicators)
+  stix.check_hash(md5.sumhexa(body), indicators)
 
   for k, v in pairs(indicators) do
     print(string.format("HTTP response from %s, hits %s (%s)", v.value,
@@ -210,6 +213,7 @@ end
 observer.smtp_data = function(context, from, to, data)
 
   indicators = {}
+
   stix.check_email(from, indicators)
 
   for k, v in pairs(to) do

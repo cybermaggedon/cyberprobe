@@ -2654,7 +2654,7 @@ CybOX address object value e.g. @samp{address:1.2.3.4}
 @item addresstype
 CybOX address object type e.g. @samp{addresstype:e-mail}
 
-@item hostname
+@item domainname
 CybOX DNS name
 
 @item port

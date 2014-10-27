@@ -17,7 +17,7 @@ class TaxiiDefaultQuery:
             "AddressObj": "http://cybox.mitre.org/objects#AddressObject-2",
             "stix": "http://stix.mitre.org/stix-1",
             "stixCommon": "http://stix.mitre.org/common-1",
-            "HostnameObj": "http://cybox.mitre.org/objects#HostnameObject-1",
+            "DomainNameObj": "http://cybox.mitre.org/objects#DomainNameObject-1",
             "PortObj": "http://cybox.mitre.org/objects#PortObject-2",
             "cyboxCommon": "http://cybox.mitre.org/common-2"
         }
@@ -31,8 +31,10 @@ class TaxiiDefaultQuery:
             expr = '//stix:Package_Intent'
         elif criterion.target == '//Object/Properties/@category':
             expr = '//cybox:Object/cybox:Properties/@category'
-        elif criterion.target == '//Hostname_Value':
-            expr = '//HostnameObj:Hostname_Value'
+        # FIXME: This namespace stuff is messed up
+        elif criterion.target == '//Object/Properties/Value':
+            # FIXME: This namespace stuff is messed up
+            expr = '//cybox:Object/cybox:Properties/DomainNameObj:Value'
         elif criterion.target == '//Port_Value':
             expr = '//PortObj:Port_Value'
         elif criterion.target == '//Hash/Simple_Hash_Value':

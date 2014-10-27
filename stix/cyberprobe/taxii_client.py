@@ -12,7 +12,6 @@ import libtaxii.clients as tc
 import libtaxii.taxii_default_query as tdq
 from cybox.objects.address_object import Address, EmailAddress
 from cybox.objects.file_object import File
-from cybox.objects.hostname_object import Hostname
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
@@ -35,8 +34,10 @@ class TaxiiClient:
                 target = "//Address_Value"
             elif type == "addresstype":
                 target = "//Object/Properties/@category"
-            elif type == "hostname":
-                target = "//Hostname_Value"
+            elif type == "domainname":
+                # FIXME: Namespace is messed.  Lucky this is the only thing
+                # that uses Value at the moment.
+                target = "//Object/Properties/Value"
             elif type == "port":
                 target = "//Port_Value"
             elif type == "hash":

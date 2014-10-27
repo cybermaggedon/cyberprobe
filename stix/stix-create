@@ -16,7 +16,7 @@
 #   <id>,mac,<description>,<x:x:x:x:x:x>
 #   <id>,path,<description>,<filename>
 #   <id>,hash,<description>,<MD5 hash>
-#   <id>,hostname,<description>,<hostname>
+#   <id>,domainname,<description>,<domainname>
 #   <id>,port,<description>,<tcp|udp>:<portnum>
 #   <id>,uri,<description>,<url>
 #   <id>,user_account,<description>,<domain>:<username>
@@ -26,7 +26,7 @@ from stix.core import STIXPackage, STIXHeader
 from cybox.core import Observable
 from cybox.objects.address_object import Address, EmailAddress
 from cybox.objects.file_object import File
-from cybox.objects.hostname_object import Hostname
+from cybox.objects.domain_name_object import DomainName
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
@@ -72,9 +72,10 @@ def create_hash_observable(pkg, id, description, hash):
     o.md5 = True
     add_indicator(pkg, id, description, o)
 
-def create_hostname_observable(pkg, id, description, hostname):
-    o = Hostname()
-    o.hostname_value = hostname
+def create_domainname_observable(pkg, id, description, domainname):
+    o = DomainName()
+    o.type_ = "FQDN"
+    o.value = domainname
     add_indicator(pkg, id, description, o)
 
 def create_port_observable(pkg, id, description, proto, port):
@@ -140,9 +141,6 @@ for row in reader:
     if row_count % 1000 == 0:
         print row_count, "..."
 
-    # Print row.
-#    print ', '.join(row)
-
     # Parser id
     id = row[0]
     del row[0]
@@ -171,8 +169,8 @@ for row in reader:
     if type == 'hash':
         create_hash_observable(package, id, description, row[0])
 
-    if type == 'hostname':
-        create_hostname_observable(package, id, description, row[0])
+    if type == 'domainname':
+        create_domainname_observable(package, id, description, row[0])
 
     if type == 'port':
         parts = row[0].split(':')

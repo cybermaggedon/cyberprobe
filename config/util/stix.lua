@@ -116,8 +116,9 @@ stix.check_config = function()
       if object.hashes then
 	for k2, v2 in pairs(object.hashes) do
 	  if v2.type and v2.simple_hash_value then
-	    ix = v2.type .. ":" .. v2.simple_hash_value
-	    stix.index.hash[ix] = value
+            if v2.type == "MD5" then
+ 	      stix.index.hash[v2.simple_hash_value] = value
+            end
 	  end
 	end
       end
@@ -213,6 +214,22 @@ stix.check_url = function(url, indicators)
     local indicator = {}
     indicator["on"] = "url"
     indicator["value"] = url
+    indicator["id"] = check.id
+    indicator["description"] = check.description
+    indicators[#indicators + 1] = indicator
+  end
+
+end
+
+stix.check_hash = function(hash, indicators)
+
+  stix.check_config()
+
+  check = stix.index.hash[hash]
+  if check then
+    local indicator = {}
+    indicator["on"] = "hash"
+    indicator["value"] = hash
     indicator["id"] = check.id
     indicator["description"] = check.description
     indicators[#indicators + 1] = indicator

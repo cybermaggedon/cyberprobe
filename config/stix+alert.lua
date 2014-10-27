@@ -8,6 +8,7 @@
 -- STIX support.
 local stix = require("util.stix")
 local addr = require("util.addresses")
+local md5 = require("md5")
 
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
@@ -81,14 +82,7 @@ observer.http_request = function(context, method, url, header, body)
 
   indicators = {}
   stix.check_url(url, indicators)
-
-  for k, v in pairs(indicators) do
-    print(string.format("HTTP request to %s, hits %s (%s)", v.value,
-        v.id, v.description))
-  end
-
-
-  indicators = {}
+  stix.check_hash(md5.sumhexa(body), indicators)
   stix.check_dns(header['Host'], indicators)
 
   for k, v in pairs(indicators) do
@@ -103,6 +97,7 @@ observer.http_response = function(context, code, status, header, url, body)
 
   indicators = {}
   stix.check_url(url, indicators)
+  stix.check_hash(md5.sumhexa(body), indicators)
 
   for k, v in pairs(indicators) do
     print(string.format("HTTP response from %s, hits %s (%s)", v.value,
@@ -113,10 +108,28 @@ end
 
 -- This function is called when an SMTP command is observed.
 observer.smtp_command = function(context, command)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("SMTP command with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
 end
 
 -- This function is called when an SMTP response is observed.
 observer.smtp_response = function(context, status, text)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("SMTP response with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
 end
 
 -- This function is called when an SMTP response is observed.
@@ -145,8 +158,8 @@ end
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
 
-  indicators = {}
   if header.qr == 0 and #queries == 1 then
+    indicators = {}
     stix.check_dns(queries[1].name, indicators)
     for k, v in pairs(indicators) do
       print(string.format("DNS query for %s, hits %s (%s)", queries[1].name,
@@ -154,8 +167,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     end
   end
 
-  indicators = {}
   if header.qr == 1 and #queries == 1 then
+    indicators = {}
     stix.check_dns(queries[1].name, indicators)
     for k, v in pairs(indicators) do
       print(string.format("DNS response for %s, hits %s (%s)", queries[1].name,
@@ -167,10 +180,28 @@ end
 
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("FTP response with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
 end
 
 -- This function is called when an FTP response is observed.
 observer.ftp_response = function(context, status, text)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("FTP response with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
 end
 
 -- Return the table
