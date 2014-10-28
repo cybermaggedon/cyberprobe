@@ -48,4 +48,5 @@ paths.texi: Makefile
 	echo "@set DOCDIR $(docdir)"; \
 	echo "@set BINDIR $(bindir)"; \
 	echo "@set LIBDIR $(libdir)"; \
+	echo "@set SYSCONFDIR $(sysconfdir)"; \
 	) > $@

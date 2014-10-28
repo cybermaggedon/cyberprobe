@@ -1007,7 +1007,7 @@ is now installed in the etc directory, depending on where you installed the
 software:
 
 @example
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/monitor.lua
+cybermon 10000 @value{SYSCONFDIR}/cyberprobe/monitor.lua
 @end example
 
 Now when you generate network traffic, some of the traffic will be presented
@@ -1077,7 +1077,7 @@ file hexdump.lua produces little hex dumps of things like HTTP bodies:
 @cindex @file{hexdump.lua}
 
 @example
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/hexdump.lua
+cybermon 10000 @value{SYSCONFDIR}/cyberprobe/hexdump.lua
 @end example
 
 Configuration file @file{dump.lua} causes @command{cybermon} to dump the
@@ -1085,7 +1085,7 @@ information to files in the data directory.
 
 @example
 mkdir data
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/dump.lua
+cybermon 10000 @value{SYSCONFDIR}/cyberprobe/dump.lua
 @end example
 
 The @file{quiet.lua} configuration file does nothing. It may be a good place
@@ -1434,7 +1434,7 @@ observations into it by using the @file{db.lua} configuration file. So if
 you're continuing the tutorial, you can stop @command{cybermon}, and run:
 
 @example
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/db.lua
+cybermon 10000 @value{SYSCONFDIR}/cyberprobe/db.lua
 @end example
 
 After some network data has been observed, you should be able to see results
@@ -1650,7 +1650,7 @@ Finally, stop any running @command{cybermon} processes, and run
 @cindex @command{cybermon}, @file{stix+alert.lua} configuration file
 
 @example
-cybermon 10000 @value{PREFIX}/etc/cyberprobe/stix+alert.lua
+cybermon 10000 @value{SYSCONFDIR}/cyberprobe/stix+alert.lua
 @end example
 
 Now, this produces no output, except when activity which hits on a cyber
@@ -2543,7 +2543,7 @@ alert when volumes exceed a certain value.
 
 @heading Utilities
 
-The @file{@value{PREFIX}/etc/cyberprobe/util} directory contains some Lua
+The @file{@value{SYSCONFDIR}/cyberprobe/util} directory contains some Lua
 utilities which can be used by other Lua configuration files.  They can be
 loaded as modules e.g.
 
