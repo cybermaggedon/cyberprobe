@@ -230,6 +230,9 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.61
+Fixed HTTP crashing problem in cybermon.
+
 @item 0.60
 IP address matching now permits specification of a mask.
 Documentation improved, regression suite added, a few unit tests starting to
