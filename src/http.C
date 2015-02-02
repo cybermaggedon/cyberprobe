@@ -430,8 +430,14 @@ void http_parser::complete_response(context_ptr c, manager& mgr)
 
 	// ... then use it to get the URL of this HTTP response.
 	sp_rev->lock.lock();
-	url = sp_rev->urls_requested.front();
-	sp_rev->urls_requested.pop_front();
+
+	// If list is not empty, get the URL on the URL queue to be the
+	// URL of this payload.
+	if (sp_rev->urls_requested.size() > 0) {
+	    url = sp_rev->urls_requested.front();
+	    sp_rev->urls_requested.pop_front();
+	}
+
 	sp_rev->lock.unlock();
     }
 
