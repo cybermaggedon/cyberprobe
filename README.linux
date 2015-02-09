@@ -12,6 +12,7 @@ Debian, Ubuntu
 - sudo apt-get install liblua5.1-dev
 - sudo apt-get install lua-filesystem
 - sudo apt-get install lua-json
+- sudo apt-get install lua-md5
 - sudo apt-get install ncurses-dev
 - sudo apt-get install texinfo texlive
 - sudo apt-get install make
@@ -50,7 +51,7 @@ sudo yum install git autoconf automake
 sudo yum install libpcap-devel boost-devel gcc-c++
 sudo yum install expat-devel lua-devel 
 sudo yum install ncurses-devel readline-devel 
-sudo yum install lua-filesystem lua-json
+sudo yum install lua-filesystem lua-json lua-md5
 sudo yum install texinfo texlive
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 autoreconf -fi
