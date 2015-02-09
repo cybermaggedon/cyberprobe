@@ -203,9 +203,11 @@ namespace cybermon {
 	// Push a string (defined by iterators).
 	void push(std::vector<unsigned char>::const_iterator s,
 		  std::vector<unsigned char>::const_iterator e) {
-	    unsigned char buf[e - s];
+	    // FIXME: Lot of copying?
+	    unsigned char* buf = new unsigned char[e - s];
 	    std::copy(s, e, buf);
 	    lua_pushlstring(lua, (char*) buf, e - s);
+	    delete buf;
 	}
 
 	// Call a function.  args = number of arguments on the stack
