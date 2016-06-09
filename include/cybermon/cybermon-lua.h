@@ -207,7 +207,7 @@ namespace cybermon {
 	    unsigned char* buf = new unsigned char[e - s];
 	    std::copy(s, e, buf);
 	    lua_pushlstring(lua, (char*) buf, e - s);
-	    delete buf;
+	    delete[] buf;
 	}
 
 	// Call a function.  args = number of arguments on the stack

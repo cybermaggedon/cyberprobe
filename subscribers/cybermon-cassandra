@@ -410,6 +410,10 @@ skt.setsockopt(zmq.SUBSCRIBE, "")
 init()
 
 while True:
-    msg = skt.recv()
-    handle(json.loads(msg))
+    try:
+        msg = skt.recv()
+        handle(json.loads(msg))
+    except Exception, e:
+        sys.stderr.write("Exception: %s\n" % str(e))
+        
 
