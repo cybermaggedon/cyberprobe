@@ -106,7 +106,7 @@ namespace tcpip {
             addr.from_string(rem);
 
         }
-	virtual ip4_address operator&(unsigned int mask) {
+	virtual ip4_address operator&(unsigned int mask) const {
 	    ip4_address a = *this;
 	    for(int i = 0; i < a.addr.size(); i++) {
 		if (mask > 8) { mask -=8; continue; }
@@ -170,7 +170,7 @@ namespace tcpip {
             addr.from_string(rem);
 
         }
-	virtual ip6_address operator&(unsigned int mask) {
+	virtual ip6_address operator&(unsigned int mask) const {
 	    ip6_address a = *this;
 	    for(int i = 0; i < a.addr.size(); i++) {
 		if (mask > 8) { mask -=8; continue; }
