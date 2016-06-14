@@ -16,6 +16,14 @@ local addr = require("util.addresses")
 local http = require("util.http")
 local jsenc = require("json.encode")
 
+-- Common data type URI
+local cybtype = "http://cyberprobe.sf.net/type/"
+local cybprop = "http://cyberprobe.sf.net/prop/"
+local cybobj = "http://cyberprobe.sf.net/obj/"
+
+local rdfschema = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+local dubcore = "http://purl.org/dc/elements/1.1/"
+
 local b64 = function(x)
   local a, b = mime.b64(x)
   if (a == nil) then
@@ -26,17 +34,11 @@ end
 
 observer.base = "http://localhost:8080/example-rest/v1"
 
--- Elasticsearch init
--- gaffer.init()
-
--- The table should contain functions.
-
 -- Add edge to observation
+local add_edge_basic = function(edges, s, e, d, tp)
 
-local add_edge_basic = function(obs, s, e, d, tp)
-
-  if not obs["elements"] then
-    obs["elements"] = {}
+  if not edges["elements"] then
+    edges["elements"] = {}
   end
 
   local elt = {}
@@ -51,80 +53,190 @@ local add_edge_basic = function(obs, s, e, d, tp)
   elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"][tp] = 1
   elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"][e] = 1
 
-  obs["elements"][#obs["elements"] + 1] = elt
+  edges["elements"][#edges["elements"] + 1] = elt
 
 end
 
-local add_edge_u = function(obs, s, p, o)
+local add_edge_u = function(edges, s, p, o)
   -- print("---");
   --if (s) then print("s:" .. s) end
   -- if (p) then print("p:" .. p) end
   -- if (o) then print("o:" .. o) end
-  add_edge_basic(obs, "n:u:" .. s, "r:u:" .. p, "n:u:" .. o, "@r")
-  add_edge_basic(obs, "n:u:" .. s, "n:u:" .. o, "r:u:" .. p, "@n")
+  add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:u:" .. o, "@r")
+  add_edge_basic(edges, "n:u:" .. s, "n:u:" .. o, "r:u:" .. p, "@n")
 end
 
-local add_edge_s = function(obs, s, p, o)
+local add_edge_s = function(edges, s, p, o)
   -- if (s) then print("ss:" .. s) end
   -- if (p) then print("ps:" .. p) end
   -- if (o) then print("os:" .. o) end
-  add_edge_basic(obs, "n:u:" .. s, "r:u:" .. p, "n:s:" .. o, "@r")
-  add_edge_basic(obs, "n:u:" .. s, "n:s:" .. o, "r:u:" .. p, "@n")
+  add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:s:" .. o, "@r")
+  add_edge_basic(edges, "n:u:" .. s, "n:s:" .. o, "r:u:" .. p, "@n")
 end
 
-local add_edge_i = function(obs, s, p, o)
-  add_edge_basic(obs, "n:u:" .. s, "r:u:" .. p, "n:i:" .. math.floor(o), "@r")
-  add_edge_basic(obs, "n:u:" .. s, "n:i:" .. math.floor(o), "r:u:" .. p, "@n")
+local add_edge_i = function(edges, s, p, o)
+  add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:i:" .. math.floor(o), "@r")
+  add_edge_basic(edges, "n:u:" .. s, "n:i:" .. math.floor(o), "r:u:" .. p, "@n")
+end
+
+local submit_edges = function(edges)
+  local c = http.http_req(observer.base .. "/graph/doOperation/add/elements",
+  	                  "PUT", jsenc.encode(edges),
+			  "application/json")
+  print(c)
+end
+
+local init = function()
+
+  edges = {}
+
+  add_edge_u(edges, cybtype .. "observation", rdfschema .. "type",
+             rdfschema .. "Resource")
+  add_edge_s(edges, cybtype .. "observation", dubcore .. "title",
+             "Observation")
+
+  add_edge_u(edges, cybtype .. "liid", rdfschema .. "type",
+             rdfschema .. "Resource")
+  add_edge_s(edges, cybtype .. "liid", dubcore .. "title",
+             "LIID")
+
+  add_edge_u(edges, cybprop .. "method", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "method", dubcore .. "title",
+             "Method")
+
+  add_edge_u(edges, cybprop .. "action", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "action", dubcore .. "title",
+             "Action")
+
+  add_edge_u(edges, cybprop .. "code", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "code", dubcore .. "title",
+             "Response code")
+
+  add_edge_u(edges, cybprop .. "status", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "status", dubcore .. "title",
+             "Response status")
+
+  add_edge_u(edges, cybprop .. "url", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "url", dubcore .. "title",
+             "URL")
+
+  -- For DNS
+
+  add_edge_u(edges, cybprop .. "dns_type", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "dns_type", dubcore .. "title",
+             "DNS type")
+
+  add_edge_u(edges, cybprop .. "query", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "query", dubcore .. "title",
+             "DNS query")
+
+  add_edge_u(edges, cybprop .. "answer_name", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "answer_name", dubcore .. "title",
+             "Answer (name)")
+
+  add_edge_u(edges, cybprop .. "answer_address", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "answer_address", dubcore .. "title",
+             "Answer (address)")
+
+  -- Addresses
+
+  add_edge_u(edges, cybprop .. "source", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "source", dubcore .. "title",
+             "Source address")
+
+  add_edge_u(edges, cybprop .. "dest", rdfschema .. "type",
+             rdfschema .. "Property")
+  add_edge_s(edges, cybprop .. "dest", dubcore .. "title",
+             "Destination address")
+
+  add_edge_u(edges, cybtype .. "ipv4", rdfschema .. "type",
+             rdfschema .. "Resource")
+  add_edge_s(edges, cybtype .. "ipv4", dubcore .. "title",
+             "IPv4 address")
+
+  add_edge_u(edges, cybtype .. "tcp", rdfschema .. "type",
+             rdfschema .. "Resource")
+  add_edge_s(edges, cybtype .. "tcp", dubcore .. "title",
+             "TCP port")
+
+  add_edge_u(edges, cybtype .. "udp", rdfschema .. "type",
+             rdfschema .. "Resource")
+  add_edge_s(edges, cybtype .. "udp", dubcore .. "title",
+             "UDP port")
+
+  submit_edges(edges)
+
 end
 
 local next_id = 0
 
 local get_next_id = function()
-  local id = "http://cyberprobe.sf.net/obs/" .. next_id
+  local id = next_id
   next_id = next_id + 1
   return id
 end
 
 -- Initialise a basic observation
-local initialise_observation = function(obs, context, id, action)
+local create_basic = function(edges, context, action)
 
-  add_edge_u(obs, id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-  	     "http://cyberprobe.sf.net/type/observation")
+  local id = get_next_id()
+  local uri = cybobj .. "obs/" .. id
+  add_edge_u(edges, uri, rdfschema .. "type", cybtype .. "observation")
+  add_edge_s(edges, uri, dubcore .. "title", "Observation " .. id)
 
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/liid",
-  	     context:get_liid())
+  local liid = cybobj .. "liid/" .. context:get_liid()
+  add_edge_u(edges, uri, cybprop .. "liid", liid)
+  add_edge_u(edges, liid, rdfschema .. "type", cybtype .. "liid")
+  add_edge_s(edges, liid, dubcore .. "title", "LIID " .. context:get_liid())
 
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/action", action)
+  add_edge_s(edges, uri, cybprop .. "action", action)
   
   for key, value in pairs(addr.get_stack(context, true)) do
     for i = 1, #value do
-      add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/source",
-                 "http://cyberprobe.sf.net/addr/" .. key .. ":" .. value[i])
-    end
-  end
-  
-  for key, value in pairs(addr.get_stack(context, false)) do
-    for i = 1, #value do
-      add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/source",
-                 "http://cyberprobe.sf.net/addr/" .. key .. ":" .. value[i])
+      if key == "ipv4" or key == "tcp" or key == "udp" then
+        add_edge_u(edges, uri, cybprop .. "source",
+	           cybobj .. key .. "/" .. value[i])
+        add_edge_u(edges, cybobj .. key .. "/" .. value[i], rdfschema .. "type",
+	           cybtype .. key)
+        add_edge_s(edges, cybobj .. key .. "/" .. value[i], dubcore .. "title",
+	           value[i] .. " (" .. key .. ")")
+      end
     end
   end
 
+  for key, value in pairs(addr.get_stack(context, false)) do
+    for i = 1, #value do
+      if key == "ipv4" or key == "tcp" or key == "udp" then
+        add_edge_u(edges, uri, cybprop .. "dest",
+	           cybobj .. key .. "/" .. value[i])
+        add_edge_u(edges, cybobj .. key .. "/" .. value[i], rdfschema .. "type",
+	           cybtype .. key)
+        add_edge_s(edges, cybobj .. key .. "/" .. value[i], dubcore .. "title",
+	           value[i] .. " (" .. key .. ")")
+      end		    
+    end
+  end
+  
   local tm = context:get_event_time()
   local tmstr = os.date("!%Y%m%dT%H%M%S", math.floor(tm))
   local millis = 1000 * (tm - math.floor(tm))
 
   tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
 
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/time", tmstr)
+  add_edge_s(edges, uri, cybprop .. "time", tmstr)
 
-end
+  return uri
 
-local submit_observation = function(obs)
-  local c = http.http_req(observer.base .. "/graph/doOperation/add/elements",
-  	                  "PUT", jsenc.encode(obs),
-			  "application/json")
-  print(c)
 end
 
 -- This function is called when a trigger events starts collection of an
@@ -139,132 +251,125 @@ end
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
 observer.connection_up = function(context)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "connection_up")
-  submit_observation(obs)
+  local edges = {}
+  local id = create_basic(edges, context, "connection_up")
+  submit_edges(edges)
 end
 
 -- This function is called when a stream-orientated connection is closed
 observer.connection_down = function(context)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "connection_down")
-  submit_observation(obs)
+  local edges = {}
+  local id = create_basic(edges, context, "connection_down")
+  submit_edges(edges)
 end
 
 -- This function is called when a datagram is observed, but the protocol
 -- is not recognised.
 observer.unrecognised_datagram = function(context, data)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "unrecognised_datagram")
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
-  submit_observation(obs)
+  local edges = {}
+  local id = create_basic(edges, context, "unrecognised_datagram")
+  add_edge_s(edges, id, cybprop .. "data", b64(data))
+  submit_edges(edges)
 end
 
 -- This function is called when stream data  is observed, but the protocol
 -- is not recognised.
 observer.unrecognised_stream = function(context, data)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "unrecognised_stream")
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
-  submit_observation(obs)
+  local edges = {}
+  local id = create_basic(edges, context, "unrecognised_stream")
+  add_edge_s(edges, id, cybprop .. "data", b64(data))
+  submit_edges(edges)
 end
 
 -- This function is called when an ICMP message is observed.
 observer.icmp = function(context, data)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "icmp")
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
-  submit_observation(obs)
+  local edges = {}
+  local id = create_basic(edges, context, "icmp")
+  add_edge_s(edges, id, cybprop .. "data", b64(data))
+  submit_edges(edges)
 end
 
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "http_request")
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/method", method)
-  add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/url", url)
+  local edges = {}
+  local id = create_basic(edges, context, "http_request")
+  add_edge_s(edges, id, cybprop .. "method", method)
+  add_edge_u(edges, id, cybprop .. "url", url)
   for key, value in pairs(header) do
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/header:" .. key, value)
+    add_edge_s(edges, id, cybprop .. "header:" .. key, value)
   end
   if (body and not body == "") then
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/body", b64(body))
+    add_edge_s(edges, id, cybprop .. "body", b64(body))
   end
-  submit_observation(obs)
+  submit_edges(edges)
 end
 
 -- This function is called when an HTTP response is observed.
 observer.http_response = function(context, code, status, header, url, body)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "http_response")
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/code", code)
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/status", status)
-  add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/url", url)
+  local edges = {}
+  local id = create_basic(edges, context, "http_response")
+  add_edge_s(edges, id, cybprop .. "code", code)
+  add_edge_s(edges, id, cybprop .. "status", status)
+  add_edge_u(edges, id, cybprop .. "url", url)
   for key, value in pairs(header) do
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/header:" .. key, value)
+    add_edge_s(edges, id, cybprop .. "header:" .. key, value)
   end
   if (body) then
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/body", b64(body))
+    add_edge_s(edges, id, cybprop .. "body", b64(body))
   end
-  submit_observation(obs)
+  submit_edges(edges)
 end
 
 
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "dns_message")
+  local edges = {}
+  local id = create_basic(edges, context, "dns_message")
 
   if header.qr == 0 then
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/dns_type", "query")
+    add_edge_s(edges, id, cybprop .. "dns_type", "query")
   else
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/dns_type", "response")
+    add_edge_s(edges, id, cybprop .. "dns_type", "answer")
   end
 
   for key, value in pairs(queries) do
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/query", value.name)
+    add_edge_s(edges, id, cybprop .. "query", value.name)
   end
 
   for key, value in pairs(answers) do
-    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/answer_name", value.name)
+    add_edge_s(edges, id, cybprop .. "answer_name", value.name)
     if value.rdaddress then
-       add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/answer:address",
+       add_edge_s(edges, id, cybprop .. "answer_address",
                   value.rdaddress)
     end
     if value.rdname then
-       add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/answer:name",
+       add_edge_s(edges, id, cybprop .. "answer_name",
                             value.rdname)
     end
   end
-  submit_observation(obs)
+  submit_edges(edges)
 end
 
 
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "ftp_command")
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/command", command)
-  submit_observation(obs)
+  local edges = {}
+  local id = create_basic(edges, context, "ftp_command")
+  add_edge_s(edges, id, cybprop .. "command", command)
+  submit_edges(edges)
 end
 
 -- This function is called when an FTP response is observed.
 observer.ftp_response = function(context, status, text)
-  local obs = {}
-  local id = get_next_id()
-  initialise_observation(obs, context, id, "ftp_response")
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/status", status)
-  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/text", text)
-  submit_observation(obs)
+  local edges = {}
+  local id = create_basic(edges, context, "ftp_response")
+  add_edge_s(edges, id, cybprop .. "status", status)
+  add_edge_s(edges, id, cybprop .. "text", text)
+  submit_edges(edges)
 end
+
+-- Initialise
+init()
 
 -- Return the table
 return observer
