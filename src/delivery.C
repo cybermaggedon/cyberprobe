@@ -82,7 +82,7 @@ bool delivery::ipv4_match(const_iterator& start,
 {
 
     // FIXME: What if it matches on more than one address?!
-    // FIXME: Should be tagged with more than one LIID? 
+    // FIXME: Should be tagged with more than one LIID?
 
     // Too small to be an IP packet?
     if (end - start < 20) return false;
@@ -352,11 +352,11 @@ void delivery::add_target(const tcpip::address& addr,
     if (addr.universe == addr.ipv4) {
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
-	targets[mask][a] = liid;
+	targets[mask][a & mask] = liid;
     } else {
 	const tcpip::ip6_address& a =
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
-	targets6[mask][a] = liid;
+	targets6[mask][a & mask] = liid;
     }
 
     // Tell all senders, target up.
