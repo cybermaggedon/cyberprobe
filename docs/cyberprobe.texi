@@ -297,6 +297,9 @@ The code doesn't have many dependencies. Exotic dependencies are:
 @cindex @code{luajson}
 @cindex @code{libtaxii}
 @cindex @code{stix}
+@cindex @code{lua-md5}
+@cindex @code{ncurses}
+@cindex @code{readline}
 
 @itemize
 
@@ -333,21 +336,20 @@ tutorial.
 @code{luajson}, if using certain Lua configuration files.
 
 @item
+@code{lua-md5}, for MD5 hashing payloads.
+
+@item
+@code{ncurses}, needed for the command line admin utility.
+
+@item
+@code{readline}, needed for the command line admin utility.
+
+@item
 For STIX support, @code{libtaxii} and @code{stix} are Python modules
 made available at @url{http://mitre.org} which can be downloaded using
 @code{pip}.
 
 @end itemize
-
-Note: on many platforms, installing a package just adds the "run time" part
-of the code. In order to be able to compile code against the run time, you
-need to install a separate "developers kit" package. On Fedora, for
-instance, both @code{libpcap} and @code{libpcap-devel} are needed in order to
-be able to build this code.
-
-
-
-
 
 There are a number of ways to obtain the software:
 
@@ -400,6 +402,16 @@ sudo apt-get install -f
 
 
 @heading Install from source
+
+Note: on many platforms, installing a package just adds the "run time" part
+of the code. In order to be able to compile code against the run time, you
+need to install a separate "developers kit" package. On Fedora, for
+instance, both @code{libpcap} and @code{libpcap-devel} are needed in order to
+be able to build this code from source.
+
+Note also that @code{lua} packages can be a little strange: sometimes the
+package will exist in your distribution, at other times you need to install a
+utility called @code{luarocks} to install the package.
 
 Source downloads are available on the project page at
 @url{http://cyberprobe.sourceforge.net}, look for the @file{.tar.gz} file.
