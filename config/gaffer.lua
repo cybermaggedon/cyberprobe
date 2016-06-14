@@ -18,6 +18,9 @@ local jsenc = require("json.encode")
 
 local b64 = function(x)
   local a, b = mime.b64(x)
+  if (a == nil) then
+    return ""
+  end
   return a
 end
 
@@ -30,7 +33,7 @@ observer.base = "http://localhost:8080/example-rest/v1"
 
 -- Add edge to observation
 
-local add_edge = function(obs, subject, pred, object)
+local add_edge_basic = function(obs, s, e, d, tp)
 
   if not obs["elements"] then
     obs["elements"] = {}
@@ -40,30 +43,38 @@ local add_edge = function(obs, subject, pred, object)
   elt["directed"] = true
   elt["class"] = "gaffer.data.element.Edge"
   elt["group"] = "BasicEdge"
-  elt["source"] = "n:u:" .. subject
-  elt["destination"] = "n:u:" .. object
+  elt["source"] = s
+  elt["destination"] = d
   elt["properties"] = {}
   elt["properties"]["name"] = {}
   elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"] = {}
-  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["@r"] = 1
-  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["r:u:" .. pred] = 1
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"][tp] = 1
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"][e] = 1
 
   obs["elements"][#obs["elements"] + 1] = elt
 
-  local elt = {}
-  elt["directed"] = true
-  elt["class"] = "gaffer.data.element.Edge"
-  elt["group"] = "BasicEdge"
-  elt["source"] = "n:u:" .. subject
-  elt["destination"] = "r:u:" .. pred
-  elt["properties"] = {}
-  elt["properties"]["name"] = {}
-  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"] = {}
-  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["@n"] = 1
-  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["n:u:" .. object] = 1
+end
 
-  obs["elements"][#obs["elements"] + 1] = elt
+local add_edge_u = function(obs, s, p, o)
+  -- print("---");
+  --if (s) then print("s:" .. s) end
+  -- if (p) then print("p:" .. p) end
+  -- if (o) then print("o:" .. o) end
+  add_edge_basic(obs, "n:u:" .. s, "r:u:" .. p, "n:u:" .. o, "@r")
+  add_edge_basic(obs, "n:u:" .. s, "n:u:" .. o, "r:u:" .. p, "@n")
+end
 
+local add_edge_s = function(obs, s, p, o)
+  -- if (s) then print("ss:" .. s) end
+  -- if (p) then print("ps:" .. p) end
+  -- if (o) then print("os:" .. o) end
+  add_edge_basic(obs, "n:u:" .. s, "r:u:" .. p, "n:s:" .. o, "@r")
+  add_edge_basic(obs, "n:u:" .. s, "n:s:" .. o, "r:u:" .. p, "@n")
+end
+
+local add_edge_i = function(obs, s, p, o)
+  add_edge_basic(obs, "n:u:" .. s, "r:u:" .. p, "n:i:" .. math.floor(o), "@r")
+  add_edge_basic(obs, "n:u:" .. s, "n:i:" .. math.floor(o), "r:u:" .. p, "@n")
 end
 
 local next_id = 0
@@ -77,25 +88,25 @@ end
 -- Initialise a basic observation
 local initialise_observation = function(obs, context, id, action)
 
-  add_edge(obs, id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-  			 "http://cyberprobe.sf.net/type/observation")
+  add_edge_u(obs, id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+  	     "http://cyberprobe.sf.net/type/observation")
 
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/liid",
-  			 context:get_liid())
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/liid",
+  	     context:get_liid())
 
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/action", action)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/action", action)
   
   for key, value in pairs(addr.get_stack(context, true)) do
     for i = 1, #value do
-      add_edge(obs, id, "http://cyberprobe.sf.net/prop/src:" .. key,
-                        value[i])
+      add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/source",
+                 "http://cyberprobe.sf.net/addr/" .. key .. ":" .. value[i])
     end
   end
   
   for key, value in pairs(addr.get_stack(context, false)) do
     for i = 1, #value do
-      add_edge(obs, id, "http://cyberprobe.sf.net/prop/dest:" .. key,
-                        value[i])
+      add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/source",
+                 "http://cyberprobe.sf.net/addr/" .. key .. ":" .. value[i])
     end
   end
 
@@ -105,11 +116,11 @@ local initialise_observation = function(obs, context, id, action)
 
   tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
 
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/time", tmstr)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/time", tmstr)
 
 end
 
-observer.submit_observation = function(obs)
+local submit_observation = function(obs)
   local c = http.http_req(observer.base .. "/graph/doOperation/add/elements",
   	                  "PUT", jsenc.encode(obs),
 			  "application/json")
@@ -131,7 +142,7 @@ observer.connection_up = function(context)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "connection_up")
-  observer.submit_observation(obs)
+  submit_observation(obs)
 end
 
 -- This function is called when a stream-orientated connection is closed
@@ -139,7 +150,7 @@ observer.connection_down = function(context)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "connection_down")
-  observer.submit_observation(obs)
+  submit_observation(obs)
 end
 
 -- This function is called when a datagram is observed, but the protocol
@@ -148,8 +159,8 @@ observer.unrecognised_datagram = function(context, data)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "unrecognised_datagram")
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
-  observer.submit_observation(obs)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
+  submit_observation(obs)
 end
 
 -- This function is called when stream data  is observed, but the protocol
@@ -158,8 +169,8 @@ observer.unrecognised_stream = function(context, data)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "unrecognised_stream")
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
-  observer.submit_observation(obs)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
+  submit_observation(obs)
 end
 
 -- This function is called when an ICMP message is observed.
@@ -167,8 +178,8 @@ observer.icmp = function(context, data)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "icmp")
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
-  observer.submit_observation(obs)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/data", b64(data))
+  submit_observation(obs)
 end
 
 -- This function is called when an HTTP request is observed.
@@ -176,14 +187,15 @@ observer.http_request = function(context, method, url, header, body)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "http_request")
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/method", method)
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/url", url)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/method", method)
+  add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/url", url)
   for key, value in pairs(header) do
-    add_edge(obs, id, "http://cyberprobe.sf.net/prop/header:" .. key,
-                      value)
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/header:" .. key, value)
   end
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/body", b64(body))
-  observer.submit_observation(obs)
+  if (body and not body == "") then
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/body", b64(body))
+  end
+  submit_observation(obs)
 end
 
 -- This function is called when an HTTP response is observed.
@@ -191,15 +203,16 @@ observer.http_response = function(context, code, status, header, url, body)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "http_response")
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/code", code)
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/status", status)
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/url", url)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/code", code)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/status", status)
+  add_edge_u(obs, id, "http://cyberprobe.sf.net/prop/url", url)
   for key, value in pairs(header) do
-    add_edge(obs, id, "http://cyberprobe.sf.net/prop/header:" .. key,
-                      value)
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/header:" .. key, value)
   end
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/body", b64(body))
-  observer.submit_observation(obs)
+  if (body) then
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/body", b64(body))
+  end
+  submit_observation(obs)
 end
 
 
@@ -210,26 +223,27 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   initialise_observation(obs, context, id, "dns_message")
 
   if header.qr == 0 then
-    add_edge(obs, id, "http://cyberprobe.sf.net/prop/dns_type", "query")
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/dns_type", "query")
   else
-    add_edge(obs, id, "http://cyberprobe.sf.net/prop/dns_type", "response")
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/dns_type", "response")
   end
 
   for key, value in pairs(queries) do
-    add_edge(obs, id, "http://cyberprobe.sf.net/prop/query", value.name)
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/query", value.name)
   end
 
   for key, value in pairs(answers) do
-    add_edge(obs, id, "http://cyberprobe.sf.net/prop/answer_name", value.name)
+    add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/answer_name", value.name)
     if value.rdaddress then
-       add_edge(obs, id, "http://cyberprobe.sf.net/prop/answer:address", value.rdaddress)
+       add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/answer:address",
+                  value.rdaddress)
     end
     if value.rdname then
-       add_edge(obs, id, "http://cyberprobe.sf.net/prop/answer:name",
-                         value.rdname)
+       add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/answer:name",
+                            value.rdname)
     end
   end
-  observer.submit_observation(obs)
+  submit_observation(obs)
 end
 
 
@@ -238,8 +252,8 @@ observer.ftp_command = function(context, command)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "ftp_command")
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/command", command)
-  observer.submit_observation(obs)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/command", command)
+  submit_observation(obs)
 end
 
 -- This function is called when an FTP response is observed.
@@ -247,9 +261,9 @@ observer.ftp_response = function(context, status, text)
   local obs = {}
   local id = get_next_id()
   initialise_observation(obs, context, id, "ftp_response")
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/status", status)
-  add_edge(obs, id, "http://cyberprobe.sf.net/prop/text", text)
-  elastic.submit_observation(obs)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/status", status)
+  add_edge_s(obs, id, "http://cyberprobe.sf.net/prop/text", text)
+  submit_observation(obs)
 end
 
 -- Return the table
