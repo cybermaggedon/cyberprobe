@@ -58,18 +58,11 @@ local add_edge_basic = function(edges, s, e, d, tp)
 end
 
 local add_edge_u = function(edges, s, p, o)
-  -- print("---");
-  --if (s) then print("s:" .. s) end
-  -- if (p) then print("p:" .. p) end
-  -- if (o) then print("o:" .. o) end
   add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:u:" .. o, "@r")
   add_edge_basic(edges, "n:u:" .. s, "n:u:" .. o, "r:u:" .. p, "@n")
 end
 
 local add_edge_s = function(edges, s, p, o)
-  -- if (s) then print("ss:" .. s) end
-  -- if (p) then print("ps:" .. p) end
-  -- if (o) then print("os:" .. o) end
   add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:s:" .. o, "@r")
   add_edge_basic(edges, "n:u:" .. s, "n:s:" .. o, "r:u:" .. p, "@n")
 end
@@ -77,6 +70,11 @@ end
 local add_edge_i = function(edges, s, p, o)
   add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:i:" .. math.floor(o), "@r")
   add_edge_basic(edges, "n:u:" .. s, "n:i:" .. math.floor(o), "r:u:" .. p, "@n")
+end
+
+local add_edge_dt = function(edges, s, p, o)
+  add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:d:" .. o, "@r")
+  add_edge_basic(edges, "n:u:" .. s, "n:d:" .. o, "r:u:" .. p, "@n")
 end
 
 local submit_edges = function(edges)
@@ -124,6 +122,11 @@ local init = function()
              rdfschema .. "Property")
   add_edge_s(edges, cybprop .. "url", dubcore .. "title",
              "URL")
+
+  add_edge_u(edges, cybtype .. "time", rdfschema .. "type",
+             rdfschema .. "Resource")
+  add_edge_s(edges, cybtype .. "time", dubcore .. "title",
+             "Time of observation")
 
   -- For DNS
 
@@ -233,7 +236,7 @@ local create_basic = function(edges, context, action)
 
   tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
 
-  add_edge_s(edges, uri, cybprop .. "time", tmstr)
+  add_edge_dt(edges, uri, cybprop .. "time", tmstr)
 
   return uri
 
