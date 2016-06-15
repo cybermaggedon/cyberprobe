@@ -13,11 +13,15 @@ local observer = {}
 local mime = require("mime")
 local jsenc = require("json.encode")
 local addr = require("util.addresses")
+local http = require("util.http")
+local jsenc = require("json.encode")
 
 local b64 = function(x)
   local a, b = mime.b64(x)
   return a
 end
+
+observer.base = "http://localhost:8080/example-rest/v1"
 
 -- Elasticsearch init
 -- gaffer.init()
@@ -25,11 +29,41 @@ end
 -- The table should contain functions.
 
 -- Add edge to observation
+
 observer.add_edge = function(obs, subject, pred, object)
-  if not obs[pred] then
-    obs[pred] = {}
+
+  if not obs["elements"] then
+    obs["elements"] = {}
   end
-  obs[pred][#obs[pred] + 1] = object
+
+  local elt = {}
+  elt["directed"] = true
+  elt["class"] = "gaffer.data.element.Edge"
+  elt["group"] = "BasicEdge"
+  elt["source"] = "n:u:" .. subject
+  elt["destination"] = "n:u:" .. object
+  elt["properties"] = {}
+  elt["properties"]["name"] = {}
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"] = {}
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["@r"] = 1
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["r:u:" .. pred] = 1
+
+  obs["elements"][#obs["elements"] + 1] = elt
+
+  local elt = {}
+  elt["directed"] = true
+  elt["class"] = "gaffer.data.element.Edge"
+  elt["group"] = "BasicEdge"
+  elt["source"] = "n:u:" .. subject
+  elt["destination"] = "r:u:" .. pred
+  elt["properties"] = {}
+  elt["properties"]["name"] = {}
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"] = {}
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["@n"] = 1
+  elt["properties"]["name"]["gaffer.function.simple.types.FreqMap"]["n:u:" .. object] = 1
+
+  obs["elements"][#obs["elements"] + 1] = elt
+
 end
 
 local next_id = 0
@@ -76,8 +110,10 @@ observer.initialise_observation = function(obs, context, id, action)
 end
 
 observer.submit_observation = function(obs)
-  str = jsenc(obs)
-  print(str)
+  local c = http.http_req(observer.base .. "/graph/doOperation/add/elements",
+  	                  "PUT", jsenc.encode(obs),
+			  "application/json")
+  print(c)
 end
 
 -- This function is called when a trigger events starts collection of an
