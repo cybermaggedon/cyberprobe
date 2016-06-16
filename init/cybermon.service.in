@@ -1,0 +1,12 @@
+
+[Unit]
+Description=cybermon service
+Documentation=http://cyberprobe.sourceforge.net/cyberprobe.html
+
+[Service]
+PIDFile=/var/run/cybermon.pid
+ExecStart=@bindir@/cybermon 9000 @sysconfdir@/@PACKAGE@/cybermon.lua
+
+[Install]
+WantedBy=multi-user.target
+

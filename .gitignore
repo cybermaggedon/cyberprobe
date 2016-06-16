@@ -45,3 +45,5 @@ tests/atlocal
 docs/texinfo.tex
 docs/cyberprobe.pdf
 docs/cyberprobe.t2p
+init/cyberprobe.service
+init/cybermon.service
