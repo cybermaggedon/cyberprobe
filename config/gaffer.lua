@@ -99,6 +99,9 @@ end
 -- Add an edge, with object type of string.
 -- s=subject, p=predicate, o=object
 local add_edge_s = function(edges, s, p, o)
+  if p == cybprop .. "body" then
+    return
+  end
   add_edge_basic(edges, "n:u:" .. s, "r:u:" .. p, "n:s:" .. o, "@r")
   add_edge_basic(edges, "n:u:" .. s, "n:s:" .. o, "r:u:" .. p, "@n")
 end
@@ -122,7 +125,9 @@ local submit_edges = function(edges)
   local c = http.http_req(gaffer_base .. "/graph/doOperation/add/elements",
   	                  "PUT", jsenc.encode(edges),
 			  "application/json")
-  print(c)
+  if not (c == 204) then
+    print("Gaffer REST error: status " .. c)
+  end
 end
 
 local init = function()
@@ -230,6 +235,11 @@ local init = function()
   add_edge_s(edges, cybtype .. "udp", rdfs .. "label",
              "UDP port")
 
+  add_edge_u(edges, cybprop .. "port", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "port", rdfs .. "label",
+             "Port number")
+
   submit_edges(edges)
 
 end
@@ -288,6 +298,7 @@ local function get_stack(context, addrs, is_src)
     p["type"] = cybtype .. "tcp"
     p["description"] = ipv4 .. ":" .. addr
     p["context"] = cybobj .. "ipv4/" .. ipv4
+    p["port"] = addr
     table.insert(addrs, p)
 
   end
@@ -304,6 +315,7 @@ local function get_stack(context, addrs, is_src)
     p["type"] = cybtype .. "udp"
     p["description"] = ipv4 .. ":" .. addr
     p["context"] = cybobj .. "ipv4/" .. ipv4
+    p["port"] = addr
     table.insert(addrs, p)
 
   end
@@ -336,6 +348,9 @@ local create_basic = function(edges, context, action)
     if value.context then
       add_edge_u(edges, value.id, cybprop .. "context", value.context)
     end
+    if value.port then
+      add_edge_i(edges, value.id, cybprop .. "port", value.port)
+    end
     add_edge_u(edges, uri, cybprop .. "source", value.id)
   end
 
@@ -350,11 +365,14 @@ local create_basic = function(edges, context, action)
     if value.context then
       add_edge_u(edges, value.id, cybprop .. "context", value.context)
     end
+    if value.port then
+      add_edge_i(edges, value.id, cybprop .. "port", value.port)
+    end
     add_edge_u(edges, uri, cybprop .. "dest", value.id)
   end
   
   local tm = context:get_event_time()
-  local tmstr = os.date("!%Y%m%dT%H%M%S", math.floor(tm))
+  local tmstr = os.date("!%Y-%m-%dT%H:%M:%S", math.floor(tm))
   local millis = 1000 * (tm - math.floor(tm))
 
   tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
@@ -368,24 +386,29 @@ end
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
 observer.trigger_up = function(liid, addr)
+--  print("trigger_up")
 end
 
 -- This function is called when an attacker goes off the air
 observer.trigger_down = function(liid)
+--  print("trigger_down")
 end
 
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
 observer.connection_up = function(context)
+--  print("connection_up")
 end
 
 -- This function is called when a stream-orientated connection is closed
 observer.connection_down = function(context)
+--  print("connection_down")
 end
 
 -- This function is called when a datagram is observed, but the protocol
 -- is not recognised.
 observer.unrecognised_datagram = function(context, data)
+--  print("unrecognised_datagram")
   local edges = {}
   local id = create_basic(edges, context, "unrecognised_datagram")
   add_edge_s(edges, id, cybprop .. "data", b64(data))
@@ -396,6 +419,7 @@ end
 -- This function is called when stream data  is observed, but the protocol
 -- is not recognised.
 observer.unrecognised_stream = function(context, data)
+--  print("unrecognised_stream")
   local edges = {}
   local id = create_basic(edges, context, "unrecognised_stream")
   add_edge_s(edges, id, cybprop .. "data", b64(data))
@@ -405,6 +429,7 @@ end
 
 -- This function is called when an ICMP message is observed.
 observer.icmp = function(context, data)
+--  print("icmp")
   local edges = {}
   local id = create_basic(edges, context, "icmp")
   add_edge_s(edges, id, cybprop .. "data", b64(data))
@@ -414,6 +439,7 @@ end
 
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
+--  print("http_request")
   local edges = {}
   local id = create_basic(edges, context, "http_request")
   add_edge_s(edges, id, cybprop .. "method", method)
@@ -430,6 +456,7 @@ end
 
 -- This function is called when an HTTP response is observed.
 observer.http_response = function(context, code, status, header, url, body)
+--  print("http_response")
   local edges = {}
   local id = create_basic(edges, context, "http_response")
   add_edge_s(edges, id, cybprop .. "code", code)
@@ -457,17 +484,18 @@ end
 
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
+--  print("dns_message")
   local edges = {}
   local id = create_basic(edges, context, "dns_message")
 
-  local label = ""
+  local label = "DNS"
   
   if header.qr == 0 then
-    add_edge_s(edges, id, cybprop .. "dns_type", "DNS query")
-    label = "query"
+    add_edge_s(edges, id, cybprop .. "dns_type", "query")
+    label = "DNS query"
   else
-    add_edge_s(edges, id, cybprop .. "dns_type", "DNS answer")
-    label = "answer"
+    add_edge_s(edges, id, cybprop .. "dns_type", "answer")
+    label = "DNS answer"
   end
 
   for key, value in pairs(queries) do
@@ -486,12 +514,16 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
                             value.rdname)
     end
   end
+
+  add_edge_s(edges, id, rdfs .. "label", label)
+
   submit_edges(edges)
 end
 
 
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
+--  print("ftp_command")
   local edges = {}
   local id = create_basic(edges, context, "ftp_command")
   add_edge_s(edges, id, cybprop .. "command", command)
@@ -501,11 +533,69 @@ end
 
 -- This function is called when an FTP response is observed.
 observer.ftp_response = function(context, status, text)
+--  print("ftp_response")
   local edges = {}
   local id = create_basic(edges, context, "ftp_response")
   add_edge_s(edges, id, cybprop .. "status", status)
-  add_edge_s(edges, id, cybprop .. "text", text)
+  local t = ""
+  for k, v in ipairs(text) do
+    if not (t == "") then
+      t = t .. " "
+    end
+    t = t .. v
+  end
+  add_edge_s(edges, id, cybprop .. "text", t)
   add_edge_s(edges, id, rdfs .. "label", "FTP " .. status)
+  submit_edges(edges)
+end
+
+-- This function is called when an SMTP command is observed.
+observer.smtp_command = function(context, command)
+--  print("smtp_command")
+  local edges = {}
+  local id = create_basic(edges, context, "smtp_command")
+  add_edge_s(edges, id, cybprop .. "command", command)
+  add_edge_s(edges, id, rdfs .. "label", "SMTP " .. command)
+  submit_edges(edges)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_response = function(context, status, text)
+--  print("smtp_response")
+  local edges = {}
+  local id = create_basic(edges, context, "smtp_response")
+  add_edge_s(edges, id, cybprop .. "status", status)
+  local t = ""
+  for k, v in ipairs(text) do
+    if not (t == "") then
+      t = t .. " "
+    end
+    t = t .. v
+  end
+  add_edge_s(edges, id, cybprop .. "text", t)
+  add_edge_s(edges, id, rdfs .. "label", "SMTP " .. status)
+  submit_edges(edges)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_data = function(context, from, to, data)
+--  print("smtp_data")
+  local edges = {}
+  local id = create_basic(edges, context, "smtp_data")
+  add_edge_s(edges, id, cybprop .. "from", from)
+  local t = ""
+  for k, v in ipairs(to) do
+    if not (t == "") then
+      t = t .. " "
+    end
+    t = t .. v
+    add_edge_s(edges, id, cybprop .. "to", v)
+  end
+  local body = b64(data)
+  if (body) then
+    add_edge_s(edges, id, cybprop .. "body", body)
+  end
+  add_edge_s(edges, id, rdfs .. "label", "SMTP " .. from .. " " .. t)
   submit_edges(edges)
 end
 
