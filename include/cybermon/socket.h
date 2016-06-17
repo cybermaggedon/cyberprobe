@@ -88,15 +88,14 @@ namespace tcpip {
         static void parse(const std::string& str, ip4_address& addr, 
                           unsigned int& mask) {
 
-            unsigned int pos = str.find("/");
-            
             std::string rem;
 
-            if (str.find("/") != -1) {
-                std::string m = str.substr(str.find("/") + 1);
+	    int pos = str.find("/");
+            if (pos != -1) {
+                std::string m = str.substr(pos + 1);
                 std::istringstream buf(m);
                 buf >> mask;
-                rem = str.substr(0, str.find("/"));
+                rem = str.substr(0, pos);
                 if (mask > 32) mask = 32;
             } else {
                 mask = 32;
@@ -108,7 +107,7 @@ namespace tcpip {
         }
 	virtual ip4_address operator&(unsigned int mask) const {
 	    ip4_address a = *this;
-	    for(int i = 0; i < a.addr.size(); i++) {
+	    for(unsigned int i = 0; i < a.addr.size(); i++) {
 		if (mask > 8) { mask -=8; continue; }
 		if (mask == 0) { a.addr[i] = 0; continue; }
 		
@@ -151,16 +150,15 @@ namespace tcpip {
 	}
         static void parse(const std::string& str, ip6_address& addr, 
                           unsigned int& mask) {
-
-            unsigned int pos = str.find("/");
             
             std::string rem;
 
-            if (str.find("/") != -1) {
-                std::string m = str.substr(str.find("/") + 1);
+	    int pos = str.find("/");
+            if (pos != -1) {
+                std::string m = str.substr(pos + 1);
                 std::istringstream buf(m);
                 buf >> mask;
-                rem = str.substr(0, str.find("/"));
+                rem = str.substr(0, pos);
                 if (mask > 128) mask = 128;
             } else {
                 mask = 128;
@@ -172,7 +170,7 @@ namespace tcpip {
         }
 	virtual ip6_address operator&(unsigned int mask) const {
 	    ip6_address a = *this;
-	    for(int i = 0; i < a.addr.size(); i++) {
+	    for(unsigned int i = 0; i < a.addr.size(); i++) {
 		if (mask > 8) { mask -=8; continue; }
 		if (mask == 0) { a.addr[i] = 0; continue; }
 		

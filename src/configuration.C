@@ -91,12 +91,13 @@ void config_manager::read(const std::string& file,
 			
 			// IPv4 case
 			int mask = 32;
-			
-			if (ip.find("/") != -1) {
-			    std::string m = ip.substr(ip.find("/") + 1);
+
+			int pos = ip.find("/");
+			if (pos != -1) {
+			    std::string m = ip.substr(pos + 1);
 			    std::istringstream buf(m);
 			    buf >> mask;
-			    ip = ip.substr(0, ip.find("/"));
+			    ip = ip.substr(0, pos);
 			}
 			
 			std::cout << "Mask is " << mask << std::endl;
@@ -116,11 +117,12 @@ void config_manager::read(const std::string& file,
 			// IPv6 case
 			int mask = 128;
 
-			if (ip.find("/") != -1) {
-			    std::string m = ip.substr(ip.find("/") + 1);
+			int pos = ip.find("/");
+			if (pos != -1) {
+			    std::string m = ip.substr(pos + 1);
 			    std::istringstream buf(m);
 			    buf >> mask;
-			    ip = ip.substr(0, ip.find("/"));
+			    ip = ip.substr(0, pos);
 			}
 			
 			std::cout << "Mask is " << mask << std::endl;
