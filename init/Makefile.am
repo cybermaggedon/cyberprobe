@@ -3,6 +3,10 @@ if HAVE_SYSTEMD
 systemdsystemunit_DATA = cyberprobe.service cybermon.service
 endif
 
+EXTRA_DIST=cyberprobe.service.in cybermon.service.in
+
+CLEANFILES = cyberprobe.service cybermon.service
+
 do_substitution = sed \
 	-e 's,[@]bindir[@],$(bindir),g' \
 	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
