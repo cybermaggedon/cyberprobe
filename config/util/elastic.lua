@@ -66,7 +66,7 @@ module.submit_observation = function(request)
   print(string.format("Observation %d", id))
   id = id + 1
 
-  local c = http.http_req(u, "PUT", jsenc.encode(request))
+  local c = http.http_req(u, "PUT", jsenc.encode(request), "application/json")
 
   if not (c == 201 or c == 200) then
     io.write(string.format("Elasticsearch index failed: %s\n", c))
@@ -79,7 +79,7 @@ module.init = function()
 
   -- Look for mapping.
   local c = http.http_req(module.base .. index .. "/" .. object .. "/_mapping",
-  	    	          "GET", "")
+  	    	          "GET", "", "application/json")
   
   -- If mapping already exists, move on.
   if c == 200 then
@@ -88,7 +88,7 @@ module.init = function()
   end
 
   print("Create index...")
-  local c = http.http_req(module.base .. index, "PUT", "")
+  local c = http.http_req(module.base .. index, "PUT", "", "application/json")
 
   if not(c == 200) then
     print("ERROR: Index creation failed")
@@ -162,7 +162,7 @@ module.init = function()
   request = req
 
   local c = http.http_req(module.base .. index .. "/" .. object .. "/_mapping", 
-      "PUT", jsenc(request))
+      "PUT", jsenc(request), "application/json")
 
   if not(c == 200) then
     print("ERROR: Mapping creation failed")
