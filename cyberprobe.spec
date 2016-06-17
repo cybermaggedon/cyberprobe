@@ -1,17 +1,16 @@
 Name:		cyberprobe
-Version:	0.61
+Version:	0.62
 Release:	1%{?dist}
 Summary:	Distrbuted real-time monitoring of networks against attack.
 Group:		Applications/Internet
 License:	GPLv3
 URL:		http://cyberprobe.sourceforge.net
-Source0:	%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.tar.gz
 BuildRequires: systemd
 %{?systemd_requires}
 #Requires:	
 
 # Compression disabler?
-%define _\_os\_install_post %{nil}
 
 %description
 The Cyberprobe project is a distrbuted architecture for real-time
@@ -57,7 +56,8 @@ rm -rf $RPM_BUILD_ROOT
 %doc /usr/share/doc/cyberprobe
 %doc /usr/share/info/
 %doc /usr/share/man
-%dir /etc/cyberprobe
+/etc/cyberprobe/*.lua
+/etc/cyberprobe/util/*.lua
 %config /etc/cyberprobe.cfg
 /usr/bin/*
 /usr/lib/python2.7/site-packages/cyberprobe
