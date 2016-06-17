@@ -1,7 +1,7 @@
 
 -- Open geoip module if it exists.
 local geoip
-status, rtn, geoip = pcall(function() return require("geoip") end)
+status, rtn, geoip = pcall(function() return require("geoip.country") end)
 if status then
   geoip = rtn
 end 
@@ -9,8 +9,8 @@ end
 -- Open geoip database if it exists.
 local geodb
 if geoip then
-  geodb = geoip.open_type("country")
-  print(geodb)
+  geodb = geoip.open()
+  print("Using GeoIP: " .. tostring(geodb))
 end
 
 local module = {}
@@ -68,12 +68,12 @@ module.get_stack = function(context, is_src)
 
     if cls == "ipv4" then
       if geodb then
-	lookup = geodb:lookup(addr)
-	if lookup and lookup.country_code then
+	lookup = geodb:query_by_addr(addr)
+	if lookup and lookup.code and not (lookup.code == "--") then
 	  if addrs["geo"] == nil then
 	    addrs["geo"] = {}
 	  end
-	  table.insert(addrs["geo"], lookup.country_code)
+	  table.insert(addrs["geo"], lookup.code)
 	end
       end
     end
