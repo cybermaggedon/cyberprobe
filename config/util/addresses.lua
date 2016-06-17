@@ -10,7 +10,8 @@ end
 local geodb
 if geoip then
   geodb = geoip.open()
-  print("Using GeoIP: " .. tostring(geodb))
+-- Don't output, this breaks the tests.
+--  print("Using GeoIP: " .. tostring(geodb))
 end
 
 local module = {}

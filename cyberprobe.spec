@@ -6,7 +6,8 @@ Group:		Applications/Internet
 License:	GPLv3
 URL:		http://cyberprobe.sourceforge.net
 Source0:	%{name}-%{version}.tar.gz
-#BuildRequires:	
+BuildRequires: systemd
+%{?systemd_requires}
 #Requires:	
 
 # Compression disabler?
@@ -39,6 +40,13 @@ make %{?_smp_mflags}
 ln -sf %{_docdir}/cyberprobe/cyberprobe-overview.png ${RPM_BUILD_ROOT}%{_infodir}/cyberprobe-overview.png
 ln -sf %{_docdir}/cyberprobe/kibana-scaled.png ${RPM_BUILD_ROOT}%{_infodir}/kibana-scaled.png
 ln -sf %{_docdir}/cyberprobe/architecture-small.png ${RPM_BUILD_ROOT}%{_infodir}/architecture-small.png
+%systemd_post cyberprobe.service cybermon.service
+
+%preun
+%systemd_preun cyberprobe.service cybermon.service
+
+%postun
+%systemd_postun_with_restart cyberprobe.service cybermon.service
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -50,10 +58,12 @@ rm -rf $RPM_BUILD_ROOT
 %doc /usr/share/info/
 %doc /usr/share/man
 %dir /etc/cyberprobe
-/etc/cyberprobe/*
+%config /etc/cyberprobe.cfg
 /usr/bin/*
 /usr/lib/python2.7/site-packages/cyberprobe
 /usr/include/cybermon/*
 %{_libdir}/lib*
+/usr/lib/systemd/system/cyberprobe.service
+/usr/lib/systemd/system/cybermon.service
 
 %changelog
