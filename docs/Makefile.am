@@ -14,7 +14,7 @@ AM_MAKEINFOHTMLFLAGS = --no-split
 EXTRA_DIST = nhis11_rcvr.1.in etsi_rcvr.1.in cyberprobe.1.in cybermon.1.in \
 	cyberprobe-overview.eps kibana-scaled.eps architecture-small.eps
 
-# FIXME: chmod needed to get make distcheck to work.  Why?
+# FIXME: chmod needed to get make distcheck to work.
 install-data-hook:
 	chmod +w $(DESTDIR)$(infodir)
 	ln -sf $(docdir)/cyberprobe-overview.png $(DESTDIR)$(infodir)/cyberprobe-overview.png
@@ -42,7 +42,9 @@ CLEANFILES = nhis11_rcvr.1 etsi_rcvr.1 cyberprobe.1 cybermon.1 paths.texi
 
 cyberprobe_TEXINFOS = paths.texi fdl.texi
 
-paths.texi: Makefile
+# FIXME: Want to put a dependency on the Makefile, so that paths.texi gets
+# updated on a change of paths.  However, this causes distcheck to fail.
+paths.texi:
 	( \
 	echo "@set PREFIX $(prefix)"; \
 	echo "@set DOCDIR $(docdir)"; \
