@@ -9,9 +9,6 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_TESTDIR([tests])
 
-# Optimiser settings
-CXXFLAGS="-O6"
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
