@@ -76,6 +76,15 @@ end
 observer.ftp_response = function(context, status, text)
 end
 
+observer.smtp_command = function(context, command)
+end
+
+observer.smtp_response = function(context, status, text)
+end
+
+observer.smtp_data = function(context, from, to, data)
+end
+
 -- Return the table
 return observer
 
