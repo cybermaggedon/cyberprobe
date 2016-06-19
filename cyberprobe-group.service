@@ -1,0 +1,9 @@
+
+[Unit]
+Description=cyberprobe group
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+

@@ -1,0 +1,10 @@
+
+[Unit]
+Description=cyberprobe service
+DefaultDependencies=no
+PartOf=cyberprobe-group.service
+
+[Service]
+PIDFile=/var/run/cyberprobe.pid
+ExecStart=/usr/local/bin/cyberprobe /usr/local/etc/cyberprobe.cfg
+

@@ -1,0 +1,11 @@
+
+[Unit]
+Description=cybermon service
+DefaultDependencies=no
+PartOf=cyberprobe-group.service
+After=cyberprobe.service
+
+[Service]
+PIDFile=/var/run/cybermon.pid
+ExecStart=/usr/local/bin/cybermon 9002 /usr/local/etc/cyberprobe/gaffer.lua
+
