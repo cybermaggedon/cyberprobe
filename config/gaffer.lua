@@ -468,7 +468,7 @@ observer.http_request = function(context, method, url, header, body)
   local edges = {}
   local id = create_basic(edges, context, "http_request")
   add_edge_s(edges, id, cybprop .. "method", method)
-  if not (url == nil) and not (url == "")
+  if not (url == nil) and not (url == "") then
     add_edge_u(edges, id, cybprop .. "url", url)
   end
   for key, value in pairs(header) do
@@ -490,7 +490,7 @@ observer.http_response = function(context, code, status, header, url, body)
   local id = create_basic(edges, context, "http_response")
   add_edge_s(edges, id, cybprop .. "code", code)
   add_edge_s(edges, id, cybprop .. "status", status)
-  if not (url == nil) and not (url == "")
+  if not (url == nil) and not (url == "") then
     add_edge_u(edges, id, cybprop .. "url", url)
   end
   for key, value in pairs(header) do
