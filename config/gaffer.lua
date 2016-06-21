@@ -496,7 +496,7 @@ observer.http_response = function(context, code, status, header, url, body)
   for key, value in pairs(header) do
     add_edge_s(edges, id, cybprop .. "header:" .. key, value)
   end
---  body = b64(body)
+  body = b64(body)
 --  if (body) then
 --    add_edge_s(edges, id, cybprop .. "body", body)
 --  end
