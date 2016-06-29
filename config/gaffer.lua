@@ -168,6 +168,12 @@ local init = function()
   add_edge_s(edges, cybprop .. "code", rdfs .. "label",
              "Response code")
 
+  -- RDF type definition of command property.
+  add_edge_u(edges, cybprop .. "command", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "command", rdfs .. "label",
+             "Command")
+
   -- RDF type definition of status property.
   add_edge_u(edges, cybprop .. "status", rdf .. "type",
              rdfs .. "Property")
