@@ -16,8 +16,9 @@ local http = require("util.http")
 
 -- Gaffer config -----------------------------------------------------------
 
--- Gaffer REST interface URL 
-gaffer_base = "http://localhost:8080/example-rest/v1"
+-- Gaffer REST interface URL
+-- Change to point at your Gaffer instance.
+gaffer_base = "http://gaffer:8080/example-rest/v1"
 
 -- GeoIP -------------------------------------------------------------------
 
