@@ -230,6 +230,14 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.63
+ElasticSearch integration brought up to latest ES verison.
+Cybermon Gaffer integration work completed to point of release.
+
+@item 0.62
+Source-code updated to work with latest dependencies, operating systems and
+compiler versions.  Early Gaffer integration.
+
 @item 0.61
 Fixed HTTP crashing problem in cybermon.
 
@@ -1398,14 +1406,14 @@ favourite for this sort of scenario is the excellent ElasticSearch (
 of functionality, and is incredibly simple to interface with, thanks to its
 JSON API. So, your next action is to head over to the download page
 (@url{http://www.elasticsearch.org/download/}) and get hold of the latest
-version. I'm using version 1.3.2 to build this tutorial but the
+version. I'm using version 2.3.3 to build this tutorial but the
 ElasticSearch API has proven hugely stable, so should work with the latest.
 
 Having downloaded the latest version, you unpack it, and run it e.g.
 
 @example
-tar xvfz elasticsearch-0.90.3.tar.gz
-cd elasticsearch-0.90.3
+tar xvfz elasticsearch-2.3.3.tar.gz
+cd elasticsearch-2.3.3
 bin/elasticsearch -f
 @end example
 
@@ -1434,11 +1442,7 @@ The response will look something like this:
   "status" : 200,
   "name" : "Cybermon",
   "version" : @{
-    "number" : "0.90.3",
-    "build_hash" : "5c38d6076448b899d758f29443329571e2522410",
-    "build_timestamp" : "2013-08-06T13:18:31Z",
-    "build_snapshot" : false,
-    "lucene_version" : "4.4"
+    "number" : "2.3.3"
   @},
   "tagline" : "You Know, for Search"
 @}
@@ -1499,6 +1503,8 @@ the information is not stored for long.
 @cindex Dashboard
 @heading Visualising observations
 
+Note: This section is out of date.  
+
 Having loaded the observations into ElasticSearch, it's easy to do some
 visualisation with Kibana. Kibana is a brilliant, user-configurable
 dashboard package designed to sit on ElasticSearch. The dashboard runs in
@@ -1528,19 +1534,8 @@ e.g. ...
 file://@var{path-to-kibana}/index.html
 @end example
 
-and hopefully you see Kibana's "Welcome to Kibana" screen. I've already
-built a dashboard you can use, so click on "Load" in the top right-hand
-corner of the screen, hover over "Advanced", and then click "Browse" to find
-the configuration file I have left for you. A Kibana dashboard schema is
-included with the source code, if you installed using make install it should
-be bundled in with the documentation at
-@file{@value{PREFIX}/share/doc/cyberprobe/kibana-dashboard.json}. If it loads
-successfully, you should get a dashboard.
-
-@image{kibana-scaled,135mm,,png}
-
-Next step is to save the dashboard using a save icon in the top right of the
-dashboard. That way you don't have to keep loading the schema.
+and hopefully you see Kibana's "Welcome to Kibana" screen.  Read the Kibana
+tutorial and start playing with the data.
 
 @comment ----------------------------------------------------------------------
 
