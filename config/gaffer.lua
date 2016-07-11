@@ -180,6 +180,12 @@ local init = function()
   add_edge_s(edges, cybprop .. "time", rdfs .. "label",
              "Time of observation")
 
+  -- RDF type definition of time property.
+  add_edge_u(edges, cybprop .. "window", rdf .. "type",
+             rdfs .. "Resource")
+  add_edge_s(edges, cybprop .. "window", rdfs .. "label",
+             "Time window")
+
   -- Geo, country property.
   add_edge_u(edges, cybtype .. "country", rdf .. "type",
              rdfs .. "Resource")
@@ -351,11 +357,20 @@ end
 -- Initialise a basic observation
 local create_basic = function(edges, context, action)
 
+  -- Create time string.
+  local tm = context:get_event_time()
+  local tmstr_s = os.date("!%Y-%m-%dT%H:%M:%S", math.floor(tm))
+  local millis = 1000 * (tm - math.floor(tm))
+  local tmstr = tmstr_s .. "." .. string.format("%03dZ", math.floor(millis))
+
+  -- Just minutes, no seconds
+  local window = os.date("!%Y%m%d/%H%M", math.floor(tm))
+
   -- Get ID
   local id = get_next_id()
 
   -- Get resource URI
-  local uri = cybobj .. "obs/" .. id
+  local uri = cybobj .. "obs/" .. tmstr_s .. "/" .. id
 
   -- URI -> observation type
   add_edge_u(edges, uri, rdf .. "type", cybtype .. "observation")
@@ -406,11 +421,10 @@ local create_basic = function(edges, context, action)
   end
   
   -- Time, in xsd:dateTime format
-  local tm = context:get_event_time()
-  local tmstr = os.date("!%Y-%m-%dT%H:%M:%S", math.floor(tm))
-  local millis = 1000 * (tm - math.floor(tm))
-  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
   add_edge_dt(edges, uri, cybprop .. "time", tmstr)
+
+  -- Window (tag each observation with a time window)
+  add_edge_dt(edges, uri, cybprop .. "window", window)
 
   return uri
 
