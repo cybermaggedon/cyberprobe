@@ -406,7 +406,7 @@ local create_basic = function(edges, context, action)
   local id = get_next_id()
 
   -- Get resource URI
-  local uri = cybobj .. "obs/" .. tmstr_s .. "/" .. id
+  local uri = cybobj .. "obs/" .. context:get_liid() .. "/" .. tmstr_s .. "/" .. id
 
   -- URI -> observation type
   add_edge_u(edges, uri, rdf .. "type", cybtype .. "observation")
