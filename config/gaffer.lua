@@ -16,8 +16,9 @@ local http = require("util.http")
 
 -- Gaffer config -----------------------------------------------------------
 
--- Gaffer REST interface URL 
-gaffer_base = "http://localhost:8080/example-rest/v1"
+-- Gaffer REST interface URL
+-- Change to point at your Gaffer instance.
+gaffer_base = "http://gaffer:8080/example-rest/v1"
 
 -- GeoIP -------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ if geoip then
   print("Using GeoIP: " .. tostring(geodb))
 end
 
--- RDF URI basesI ----------------------------------------------------------
+-- RDF URI bases -----------------------------------------------------------
 
 local cybtype = "http://cyberprobe.sf.net/type/"
 local cybprop = "http://cyberprobe.sf.net/prop/"
@@ -144,6 +145,12 @@ local init = function()
   add_edge_s(edges, cybtype .. "liid", rdfs .. "label",
              "Device")
 
+  -- RDF type information for liid type.
+  add_edge_u(edges, cybprop .. "liid", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "liid", rdfs .. "label",
+             "Device")
+
   -- RDF type definition of method property.
   add_edge_u(edges, cybprop .. "method", rdf .. "type",
              rdfs .. "Property")
@@ -161,6 +168,12 @@ local init = function()
              rdfs .. "Property")
   add_edge_s(edges, cybprop .. "code", rdfs .. "label",
              "Response code")
+
+  -- RDF type definition of command property.
+  add_edge_u(edges, cybprop .. "command", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "command", rdfs .. "label",
+             "Command")
 
   -- RDF type definition of status property.
   add_edge_u(edges, cybprop .. "status", rdf .. "type",
@@ -192,10 +205,16 @@ local init = function()
   add_edge_s(edges, cybtype .. "country", rdfs .. "label",
              "Country of origin")
 
-  -- Protocol context.
-  add_edge_u(edges, cybtype .. "context", rdf .. "type",
+  -- Geo, country property.
+  add_edge_u(edges, cybprop .. "country", rdf .. "type",
              rdfs .. "Resource")
-  add_edge_s(edges, cybtype .. "context", rdfs .. "label",
+  add_edge_s(edges, cybprop .. "country", rdfs .. "label",
+             "Country of origin")
+
+  -- Protocol context.
+  add_edge_u(edges, cybprop .. "context", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "context", rdfs .. "label",
              "Protocol context")
 
   -- For DNS, DNS message type (query, answer).
@@ -221,6 +240,17 @@ local init = function()
              rdfs .. "Property")
   add_edge_s(edges, cybprop .. "answer_address", rdfs .. "label",
              "Answer (address)")
+
+  -- SMTP
+  add_edge_u(edges, cybprop .. "from", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "from", rdfs .. "label",
+             "From")
+
+  add_edge_u(edges, cybprop .. "to", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "to", rdfs .. "label",
+             "To")
 
   -- Addresses, source
   add_edge_u(edges, cybprop .. "source", rdf .. "type",
@@ -257,6 +287,12 @@ local init = function()
              rdfs .. "Property")
   add_edge_s(edges, cybprop .. "port", rdfs .. "label",
              "Port number")
+
+  -- address property, IP address associated with IP object
+  add_edge_u(edges, cybprop .. "address", rdf .. "type",
+             rdfs .. "Property")
+  add_edge_s(edges, cybprop .. "address", rdfs .. "label",
+             "Address")
 
   -- Send to Gaffer
   submit_edges(edges)
@@ -396,6 +432,9 @@ local create_basic = function(edges, context, action)
     if value.context then
       add_edge_u(edges, value.id, cybprop .. "context", value.context)
     end
+    if value.ipv4 then
+      add_edge_s(edges, value.id, cybprop .. "address", value.ipv4)
+    end
     if value.port then
       add_edge_i(edges, value.id, cybprop .. "port", value.port)
     end
@@ -413,6 +452,9 @@ local create_basic = function(edges, context, action)
     end
     if value.context then
       add_edge_u(edges, value.id, cybprop .. "context", value.context)
+    end
+    if value.ipv4 then
+      add_edge_s(edges, value.id, cybprop .. "address", value.ipv4)
     end
     if value.port then
       add_edge_i(edges, value.id, cybprop .. "port", value.port)
@@ -453,7 +495,7 @@ end
 observer.unrecognised_datagram = function(context, data)
   local edges = {}
   local id = create_basic(edges, context, "unrecognised_datagram")
-  add_edge_s(edges, id, cybprop .. "data", b64(data))
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
   add_edge_s(edges, id, rdfs .. "label", "unrecognised datagram")
   submit_edges(edges)
 end
@@ -463,7 +505,7 @@ end
 observer.unrecognised_stream = function(context, data)
   local edges = {}
   local id = create_basic(edges, context, "unrecognised_stream")
-  add_edge_s(edges, id, cybprop .. "data", b64(data))
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
   add_edge_s(edges, id, rdfs .. "label", "unrecognised stream")
   submit_edges(edges)
 end
@@ -472,7 +514,7 @@ end
 observer.icmp = function(context, data)
   local edges = {}
   local id = create_basic(edges, context, "icmp")
-  add_edge_s(edges, id, cybprop .. "data", b64(data))
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
   add_edge_s(edges, id, rdfs .. "label", "ICMP")
   submit_edges(edges)
 end
@@ -487,6 +529,12 @@ observer.http_request = function(context, method, url, header, body)
   end
   for key, value in pairs(header) do
     add_edge_s(edges, id, cybprop .. "header:" .. key, value)
+
+    add_edge_u(edges, cybprop .. "header:" .. key, rdf .. "type",
+               rdfs .. "Property")
+    add_edge_s(edges, cybprop .. "header:" .. key, rdfs .. "label",
+               key)
+
   end
 --  if (body and not body == "") then
 --    add_edge_s(edges, id, cybprop .. "body", b64(body))
@@ -509,8 +557,14 @@ observer.http_response = function(context, code, status, header, url, body)
   end
   for key, value in pairs(header) do
     add_edge_s(edges, id, cybprop .. "header:" .. key, value)
+
+    add_edge_u(edges, cybprop .. "header:" .. key, rdf .. "type",
+               rdfs .. "Property")
+    add_edge_s(edges, cybprop .. "header:" .. key, rdfs .. "label",
+               key)
+
   end
---  body = b64(body)
+  body = b64(body)
 --  if (body) then
 --    add_edge_s(edges, id, cybprop .. "body", body)
 --  end

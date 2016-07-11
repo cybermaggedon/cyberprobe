@@ -411,8 +411,9 @@ void http_parser::complete_request(context_ptr c, manager& mgr)
     sp->urls_requested.push_back(norm);
 
     // Raise an HTTP request event.
-    mgr.http_request(c, method, url, header, 
+    mgr.http_request(c, method, norm, header, 
 		     body.begin(), body.end());
+    
 }
 
 void http_parser::complete_response(context_ptr c, manager& mgr)

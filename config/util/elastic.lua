@@ -23,7 +23,6 @@ module.base = "http://localhost:9200/"
 module.initialise_observation = function(context, indicators)
 
   local obs = {}
-  obs["_ttl"] = default_ttl
   obs[object] = {}
   obs[object]["liid"] = context:get_liid()
   obs[object]["src"] = addr.get_stack(context, true)
@@ -44,11 +43,10 @@ module.initialise_observation = function(context, indicators)
   end
 
   local tm = context:get_event_time()
-  local tmtab = os.date("!*t", tm)
-  local tmstr = os.date("!%Y%m%dT%H%M%S", tm)
+  local tmstr = os.date("!%Y%m%dT%H%M%S", math.floor(tm))
   local millis = 1000 * (tm - math.floor(tm))
 
-  tmstr = tmstr .. "." .. string.format("%03dZ", millis)
+  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
 
   obs[object]["time"] = tmstr
 
@@ -60,7 +58,9 @@ end
 -- Create an observation object in ElasticSearch
 module.submit_observation = function(request)
 
-  local u = string.format(module.base .. index .. "/" .. object .. "/%d", id)
+  local u = string.format("%s%s/%s/%d?ttl=%s", module.base, index, object, id,
+  	default_ttl)
+print(u)
   request[object]["oid"] = id
 
   print(string.format("Observation %d", id))
