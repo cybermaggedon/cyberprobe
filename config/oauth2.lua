@@ -8,6 +8,12 @@ local http = require("socket.http")
 local https = require("ssl.https")
 local url = require("socket.url")
 
+local f = assert(io.open("private.json", "r"))
+local data = json.decode(f:read("*all"))
+
+email = data["client_email"]
+private = data["private_key"]
+
 param = function(tbl)
   local tuples
   do
@@ -63,7 +69,7 @@ header = json.encode(header)
 header = b64(header)
 
 cs = {
-    iss = "xxxxxxxx-compute@developer.gserviceaccount.com",
+    iss = email,
     scope = "https://www.googleapis.com/auth/cloud-platform",
     aud = "https://www.googleapis.com/oauth2/v4/token",
     exp = os.time() + 120,
@@ -74,7 +80,7 @@ cs = b64(cs)
 
 sig_input = header .. "." .. cs
 
-private = crypto.pkey.read("priv.pem", true)
+private = crypto.pkey.from_pem(private, true)
 
 sig = mime.b64(crypto.sign("sha256WithRSAEncryption", sig_input, private))
 
