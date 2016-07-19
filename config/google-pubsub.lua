@@ -18,8 +18,8 @@ local addr = require("util.addresses")
 
 -- Config ------------------------------------------------------------------
 local private = "private.json"
-local project = "INSERT-PROJECT-NAME"
-local topic = "INSERT-TOPIC-NAME"
+local project = "INSERT_YOUR_PROJECT"
+local topic = "INSERT_YOUR_TOPIC"
 
 -- GeoIP -------------------------------------------------------------------
 
@@ -118,8 +118,19 @@ local initialise_observation = function(context, indicators)
 end
 
 local submit_observation = function(obs)
-  local txt = json.encode(obs)
-  print(txt)
+  local msgs = {}
+  msgs[1] = { ["data"] = b64(json.encode(obs)) }
+  local txt = json.encode({ ["messages"] = msgs })
+  uri =
+    string.format("https://pubsub.googleapis.com/v1/projects/%s/topics/%s:publish",
+         project, topic)
+  a, st, b, c = req(uri, "POST", txt, token)
+  print(st)
+  if not (st == 200) then
+    print("Status: " .. st)
+    print(c)
+  end
+
 end
 
 -- This function is called when a trigger events starts collection of an
