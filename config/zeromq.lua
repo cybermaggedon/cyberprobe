@@ -161,7 +161,7 @@ end
 observer.unrecognised_datagram = function(context, data)
   local obs = initialise_observation(context)
   obs["action"] = "unrecognised_datagram"
-  obs["data"] = b64(data)
+  obs["payload"] = b64(data)
   submit_observation(obs)
 end
 
@@ -170,7 +170,7 @@ end
 observer.unrecognised_stream = function(context, data)
   local obs = initialise_observation(context)
   obs["action"] = "unrecognised_stream"
-  obs["data"] = b64(data)
+  obs["payload"] = b64(data)
   submit_observation(obs)
 end
 
@@ -178,7 +178,7 @@ end
 observer.icmp = function(context, data)
   local obs = initialise_observation(context)
   obs["action"] = "icmp"
-  obs["data"] = b64(data)
+  obs["payload"] = b64(data)
   submit_observation(obs)
 end
 
@@ -208,6 +208,7 @@ end
 
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
+
   local obs = initialise_observation(context)
 
   obs["action"] = "dns_message"
@@ -237,10 +238,10 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     q[#q + 1] = a
   end
   obs["answers"] = q
+  
   submit_observation(obs)
 
 end
-
 
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
@@ -282,7 +283,7 @@ observer.smtp_data = function(context, from, to, data)
   obs["action"] = "smtp_data"
   obs["from"] = from
   obs["to"] = to
-  obs["data"] = data
+  obs["body"] = data
   submit_observation(obs)
 end
 
