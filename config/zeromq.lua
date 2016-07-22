@@ -12,8 +12,8 @@ local observer = {}
 
 local mime = require("mime")
 local jsenc = require("json.encode")
-local addr = require("util.addresses")
 local lzmq = require("lzmq")
+local os = require("os")
 
 -- Config ------------------------------------------------------------------
 local binding = "tcp://*:5555"
@@ -51,20 +51,56 @@ local init = function()
 
   context = lzmq.context()
   skt = context:socket(lzmq.PUB)
-  print(skt)
-  print(binding)
   ret = skt:bind(binding)
-  print(ret)
 
+  if ret == false then
+    print("ZeroMQ bind failed")
+    os.exit(1)
+  end
+
+end
+
+-- Gets the stack of addresses on the src/dest side of a context.
+local function get_stack(context, addrs, is_src)
+
+  local par = context:get_parent()
+
+  if par then
+    get_stack(par, addrs, is_src)
+  end
+
+  local cls, addr
+  if is_src then
+    cls, addr = context:get_src_addr()
+  else
+    cls, addr = context:get_dest_addr()
+  end
+
+  if cls == "root" then
+    return
+  end
+
+  if addr == "" then
+    table.insert(addrs, cls)
+  else
+    table.insert(addrs, cls .. ":" .. addr)
+  end
+  
 end
 
 -- Initialise a basic observation
 local initialise_observation = function(context, indicators)
 
   local obs = {}
-  obs["liid"] = context:get_liid()
-  obs["src"] = addr.get_stack(context, true)
-  obs["dest"] = addr.get_stack(context, false)
+  obs["device"] = context:get_liid()
+
+  local addrs = {}
+  get_stack(context, addrs, true)
+  obs["src"] = addrs
+
+  addrs = {}
+  get_stack(context, addrs, false)
+  obs["dest"] = addrs
 
   if indicators and not(#indicators == 0) then
     obs["indicators"] = {}
@@ -94,7 +130,6 @@ end
 
 local submit_observation = function(obs)
   ret = skt:send(jsenc(obs))
-  print(ret)
 end
 
 -- This function is called when a trigger events starts collection of an
