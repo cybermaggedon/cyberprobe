@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
 binding = "tcp://localhost:5555"
-gaffer = "http://gaffer:8080/example-rest/v1"
+es_index = "cyberprobe"
+es_object = "observation"
+es_url = "http://localhost:9200/"
+ttl = "1h"
 
 ############################################################################
 
 import zmq
 import json
-import uuid
 import sys
 
 ############################################################################
@@ -22,8 +24,7 @@ def output(obs):
 
 def handle(msg):
 
-    # FIXME: Make a UUID up-stream.  How are we supposed to correlate things??
-    id = str(uuid.uuid1())
+    id = msg["id"]
 
     observation = {
         "id": id,

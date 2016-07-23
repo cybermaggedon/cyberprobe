@@ -14,6 +14,7 @@ local mime = require("mime")
 local jsenc = require("json.encode")
 local lzmq = require("lzmq")
 local os = require("os")
+local uuid = require("uuid")
 
 -- Config ------------------------------------------------------------------
 local binding = "tcp://*:5555"
@@ -123,6 +124,7 @@ local initialise_observation = function(context, indicators)
   tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
 
   obs["time"] = tmstr
+  obs["id"] = uuid()
 
   return obs
 

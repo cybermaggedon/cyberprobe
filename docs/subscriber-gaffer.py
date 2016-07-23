@@ -207,8 +207,9 @@ def output(obs):
 
 def handle(msg):
 
-    id = str(uuid.uuid1())
     obs = []
+
+    id = msg["id"]
 
     uri = obj_uri("obs", id)
     add_string(obs, uri, rdftype, type_uri("observation"))
