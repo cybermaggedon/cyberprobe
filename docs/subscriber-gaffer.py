@@ -148,8 +148,6 @@ def init():
     add_uri(obs, type_uri("udp"), rdftype, rdf + "Resource")
     add_string(obs, type_uri("udp"), rdfslabel, "UDP port")
 
-    output(obs)
-
     # Port property on TCP and UDP
     add_uri(obs, prop_uri("port"), rdftype, rdf + "Property")
     add_string(obs, prop_uri("port"), rdfslabel, "Port")
@@ -157,6 +155,8 @@ def init():
     # IP property on IP, TCP and UDP
     add_uri(obs, prop_uri("ip"), rdftype, rdf + "Property")
     add_string(obs, prop_uri("ip"), rdfslabel, "IP")
+
+    output(obs)
 
 def output(obs):
     edges = {}
