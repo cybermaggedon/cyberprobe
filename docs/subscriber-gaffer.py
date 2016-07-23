@@ -158,9 +158,49 @@ def init():
     add_string(obs, prop_uri("ip"), rdfslabel, "IP")
 
 def output(obs):
+    edges = {}
+    edges["elements"] = []
+
     for v in obs:
-        print "%-75s %-65s %s" % (v[0], v[1], v[2])
-    print
+
+        elt = {}
+        elt["directed"] = True
+        elt["class"] = "gaffer.data.element.Edge"
+        elt["group"] = "BasicEdge"
+        elt["source"] = "n:" + v[0]
+        elt["destination"] = "n:" + v[2]
+        elt["properties"] = {
+            "name": {
+                "gaffer.function.simple.types.FreqMap": {
+                    "@r": 1,
+                    "r:" + v[1]: 1
+                    }
+                }
+            }
+
+        edges["elements"].append(elt)
+
+        elt = {}
+        elt["directed"] = True
+        elt["class"] = "gaffer.data.element.Edge"
+        elt["group"] = "BasicEdge"
+        elt["source"] = "n:" + v[0]
+        elt["destination"] = "r:" + v[1]
+        elt["properties"] = {
+            "name": {
+                "gaffer.function.simple.types.FreqMap": {
+                    "@n": 1,
+                    "n:" + v[2]: 1
+                    }
+                }
+            }
+
+        edges["elements"].append(elt)
+
+    print json.dumps(edges, indent=4)
+
+#        print "%-75s %-65s %s" % (v[0], v[1], v[2])
+#    print
 
 ############################################################################
 
