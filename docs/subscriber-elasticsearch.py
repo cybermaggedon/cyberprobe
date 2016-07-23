@@ -11,14 +11,24 @@ ttl = "1h"
 import zmq
 import json
 import sys
+import requests
 
 ############################################################################
 
 def init():
     pass
 
-def output(obs):
-    print(json.dumps(obs))
+def output(obs, id):
+    obs = {
+        es_object: obs
+        }
+
+    u = "%s%s/%s/%s?ttl=%s" % (es_url, es_index, es_object, id, ttl)
+    print u
+
+    r = requests.put(u, data=json.dumps(obs),
+                     headers={"Content-Type": "application/json"})
+    print r
 
 ############################################################################
 
@@ -91,7 +101,7 @@ def handle(msg):
 
             observation["dest"][cls].append(addr)
 
-    output(observation)
+    output(observation, id)
 
 ############################################################################
 
