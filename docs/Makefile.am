@@ -3,7 +3,7 @@ dist_doc_DATA = architecture.png cyberprobe.css \
 	cyberprobe-overview.png index.html licence.html kibana.png \
 	../stix/example1.txt ../stix/example2.txt \
 	cyberprobe.html kibana-small.png kibana-scaled.png \
-	architecture-small.png cyberprobe.pdf subscriber.lua
+	architecture-small.png cyberprobe.pdf
 
 info_TEXINFOS = cyberprobe.texi
 
