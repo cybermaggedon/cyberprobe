@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 binding = "tcp://localhost:5555"
+gaffer = "http://gaffer:8080/example-rest/v1"
 
 ############################################################################
 
