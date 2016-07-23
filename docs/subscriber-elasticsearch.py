@@ -63,7 +63,6 @@ def handle(msg):
     observation["dest"] = {}
 
     if msg.has_key("src"):
-        ip = None
         for v in msg["src"]:
             if v.find(":") < 0:
                 cls = v
@@ -72,38 +71,12 @@ def handle(msg):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if cls == "tcp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("src"), obj_uri("tcp", fulladdr))
-                add_uri(obs, obj_uri("tcp", fulladdr), rdftype, type_uri("tcp"))
-                add_string(obs, obj_uri("tcp", fulladdr), rdfslabel,
-                           "TCP " + fulladdr)
-                add_uri(obs, obj_uri("tcp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("port"),
-                           addr)
+            if not observation["src"].has_key(cls):
+                observation["src"][cls] = []
 
-            if cls == "udp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("src"), obj_uri("udp", fulladdr))
-                add_uri(obs, obj_uri("udp", fulladdr), rdftype, type_uri("udp"))
-                add_string(obs, obj_uri("udp", fulladdr), rdfslabel,
-                           "UDP " + fulladdr)
-                add_uri(obs, obj_uri("udp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("port"),
-                           addr)
-
-            if cls == "ipv4":
-                ip = addr
-                add_uri(obs, obj_uri("ip", addr), rdftype, type_uri("ip"))
-                add_string(obs, obj_uri("ip", addr), rdfslabel, addr)
-                add_string(obs, obj_uri("ip", addr), prop_uri("ip"), addr)
+            observation["src"][cls].append(addr)
 
     if msg.has_key("dest"):
-        ip = None
         for v in msg["dest"]:
             if v.find(":") < 0:
                 cls = v
@@ -112,37 +85,12 @@ def handle(msg):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if cls == "tcp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("dest"), obj_uri("tcp", fulladdr))
-                add_uri(obs, obj_uri("tcp", fulladdr), rdftype, type_uri("tcp"))
-                add_string(obs, obj_uri("tcp", fulladdr), rdfslabel,
-                           "TCP " + fulladdr)
-                add_uri(obs, obj_uri("tcp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("port"),
-                           addr)
+            if not observation["dest"].has_key(cls):
+                observation["dest"][cls] = []
 
-            if cls == "udp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("dest"), obj_uri("udp", fulladdr))
-                add_uri(obs, obj_uri("udp", fulladdr), rdftype, type_uri("udp"))
-                add_string(obs, obj_uri("udp", fulladdr), rdfslabel,
-                           "UDP " + fulladdr)
-                add_uri(obs, obj_uri("udp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("port"),
-                           addr)
+            observation["dest"][cls].append(addr)
 
-            if cls == "ipv4":
-                ip = addr
-                add_uri(obs, obj_uri("ip", addr), rdftype, type_uri("ip"))
-                add_string(obs, obj_uri("ip", addr), rdfslabel, addr)
-                add_string(obs, obj_uri("ip", addr), prop_uri("ip"), addr)
-
-    output(obs)
+    output(observation)
 
 ############################################################################
 
