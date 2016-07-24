@@ -33,11 +33,12 @@ def output(obs, id):
         }
 
     u = "%s%s/%s/%s?ttl=%s" % (es_url, es_index, es_object, id, ttl)
-    print u
 
     r = requests.put(u, data=json.dumps(obs),
                      headers={"Content-Type": "application/json"})
-    print r
+    if r.status_code != 201:
+        print "Error sending to ElasticSearch"
+        print "HTTP code: " + str(r.status_code)
 
 ############################################################################
 
