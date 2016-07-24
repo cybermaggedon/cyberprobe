@@ -221,12 +221,52 @@ def output(obs):
 
 def handle(msg):
 
+    if msg["action"] == "connected_up":
+        return
+
+    if msg["action"] == "connected_down":
+        return
+
     obs = []
 
     id = msg["id"]
 
     uri = obj_uri("obs", id)
     add_string(obs, uri, rdftype, type_uri("observation"))
+
+    if msg["action"] == "unrecognised_datagram":
+        add_string(obs, uri, rdfslabel, "unrecognised datagram")
+    elif msg["action"] == "unrecognised_stream":
+        add_string(obs, uri, rdfslabel, "unrecognised stream")
+    elif msg["action"] == "icmp":
+        add_string(obs, uri, rdfslabel, "ICMP")
+    elif msg["action"] == "http_request":
+        add_string(obs, uri, rdfslabel, "HTTP " + msg["method"] + " " +
+                   msg["url"])
+    elif msg["action"] == "http_response":
+        add_string(obs, uri, rdfslabel, "HTTP " + str(msg["code"]) + " " +
+                   msg["status"] + " " + msg["url"])
+    elif msg["action"] == "dns_message":
+        if msg["type"] == "query":
+            lbl = "DNS query"
+        else:
+            lbl = "DNS answer"
+        for v in msg["queries"]:
+            lbl = lbl + " " + v
+        add_string(obs, uri, rdfslabel, lbl)
+    elif msg["action"] == "ftp_command":
+        add_string(obs, uri, rdfslabel, "FTP " + msg["command"])
+    elif msg["action"] == "ftp_response":
+        add_string(obs, uri, rdfslabel, "FTP " + msg["status"])
+    elif msg["action"] == "smtp_command":
+        add_string(obs, uri, rdfslabel, "SMTP " + msg["command"])
+    elif msg["action"] == "smtp_response":
+        add_string(obs, uri, rdfslabel, "SMTP " + msg["status"])
+    elif msg["action"] == "smtp_data":
+        lbl = "SMTP " + msg["from"]
+        for v in msg["to"]:
+            lbl = lbl + " " + v
+        add_string(obs, uri, rdfslabel, lbl)
     
     add_string(obs, uri, prop_uri("action"), msg["action"])
     add_uri(obs, uri, prop_uri("device"), obj_uri("device", msg["device"]))
