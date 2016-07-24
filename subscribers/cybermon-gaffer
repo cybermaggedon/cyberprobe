@@ -10,12 +10,12 @@ import requests
 
 ############################################################################
 
-if len(sys.argv) < 1:
+if len(sys.argv) < 2:
     binding = "tcp://localhost:5555"
 else:
     binding = sys.argv[1]
 
-if len(sys.argv) < 2:
+if len(sys.argv) < 3:
     gaffer = "http://gaffer:8080/example-rest/v1"
 else:
     gaffer = sys.argv[2]
