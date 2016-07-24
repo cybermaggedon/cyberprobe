@@ -1,14 +1,24 @@
 #!/usr/bin/env python
 
-binding = "tcp://localhost:5555"
-gaffer = "http://gaffer:8080/example-rest/v1"
-
 ############################################################################
 
 import zmq
 import json
 import uuid
 import sys
+import requests
+
+############################################################################
+
+if len(sys.argv) < 1:
+    binding = "tcp://localhost:5555"
+else:
+    binding = sys.argv[1]
+
+if len(sys.argv) < 2:
+    gaffer = "http://gaffer:8080/example-rest/v1"
+else:
+    gaffer = sys.argv[2]
 
 ############################################################################
 
@@ -20,6 +30,8 @@ rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 
 rdftype = rdf + "type"
 rdfslabel = rdfs + "label"
+
+session = requests.session()
 
 ############################################################################
 
@@ -198,10 +210,12 @@ def output(obs):
 
         edges["elements"].append(elt)
 
-    print json.dumps(edges, indent=4)
-
-#        print "%-75s %-65s %s" % (v[0], v[1], v[2])
-#    print
+    r = requests.put(gaffer + "/graph/doOperation/add/elements",
+                     data=json.dumps(edges),
+                     headers={"Content-Type": "application/json"})
+    if r.status_code != 204:
+        print "Error sending to " +  gaffer + "/graph/doOperation/add/elements"
+        print "HTTP code: " + str(r.status_code)
 
 ############################################################################
 
