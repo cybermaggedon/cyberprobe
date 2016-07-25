@@ -30,6 +30,7 @@ docs/cybermon.1
 docs/nhis11_rcvr.1
 docs/etsi_rcvr.1
 docs/cybermon-elasticsearch.1
+docs/cybermon-monitor.1
 docs/cybermon-gaffer.1
 docs/cyberprobe.info
 docs/cyberprobe.html

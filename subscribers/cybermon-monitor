@@ -3,6 +3,11 @@
 import zmq
 import json
 
+if len(sys.argv) < 2:
+    binding = "tcp://localhost:5555"
+else:
+    binding = sys.argv[1]
+    
 def handle(msg):
     print
     print "Action: %s" % msg["action"]
@@ -45,7 +50,7 @@ def handle(msg):
 
 ctxt = zmq.Context()
 skt = ctxt.socket(zmq.SUB)
-skt.connect("tcp://localhost:5555")
+skt.connect(binding)
 skt.setsockopt(zmq.SUBSCRIBE, "")
 
 while True:
