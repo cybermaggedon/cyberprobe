@@ -63,6 +63,7 @@ http = Http()
 http_auth = credentials.authorize(http)
 service = build('bigquery', 'v2', http=http_auth)
 tables = service.tables()
+tabledata = service.tabledata()
 
 ############################################################################
 
@@ -147,12 +148,12 @@ else:
                 },
                 {
                     "name": "queries",
-                    "mode": "REPEATABLE",
+                    "mode": "REPEATED",
                     "type": "STRING"
                 },
                 {
                     "name": "answers",
-                    "mode": "REQUIRED",
+                    "mode": "REPEATED",
                     "type": "RECORD",
                     "fields": [
                         {
@@ -221,32 +222,31 @@ else:
                             "name": "connection",
                             "mode": "NULLABLE",
                             "type": "STRING"
-                        },
-                        {
-                            "name": "url",
-                            "mode": "NULLABLE",
-                            "type": "STRING"
-                        },
-                        {
-                            "name": "from",
-                            "mode": "NULLABLE",
-                            "type": "STRING"
-                        },
-                        {
-                            "name": "to",
-                            "mode": "REPEATABLE",
-                            "type": "STRING"
                         }
                     ]
                 },
-
+                {
+                    "name": "url",
+                    "mode": "NULLABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "from",
+                    "mode": "NULLABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "to",
+                    "mode": "REPEATED",
+                    "type": "STRING"
+                }
             ]
         }
     }
 
     try: 
-#        table_info = tables.insert(projectId=project, datasetId=dataset,
-#                                   body=body).execute(http)
+        table_info = tables.insert(projectId=project, datasetId=dataset,
+                                   body=body).execute(http)
         print "Table %s created." % table
     except googleapiclient.errors.HttpError, e:
         print "Table creation failed."
@@ -260,7 +260,25 @@ def init():
 
 def output(obs, id):
 
-    print(json.dumps(obs, indent=4))
+    body = {
+        "kind": "biquery#tableDataInsertAllRequest",
+        "rows": [
+            {
+                "json": obs
+            }
+        ]
+    }
+
+    try:
+        result = tabledata.insertAll(projectId=project, datasetId=dataset,
+                                     tableId=table, body=body).\
+                                     execute(http)
+        if result.has_key("insertErrors"):
+            print json.dumps(obs)
+            print json.dumps(result)
+    except googleapiclient.errors.HttpError, e:
+        print "Table insert failed."
+        print e
 
     return
 
@@ -321,7 +339,8 @@ def handle(msg):
     if msg.has_key("queries"):
         observation["queries"] = msg["queries"]
     if msg.has_key("answers"):
-        observation["answers"] = msg["answers"]
+        if len(msg["answers"]) > 0:
+            observation["answers"] = msg["answers"]
 
     if msg.has_key("src"):
         for v in msg["src"]:
