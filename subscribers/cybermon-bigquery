@@ -5,6 +5,21 @@ import json
 import sys
 import requests
 
+from httplib2 import Http
+from oauth2client.service_account import ServiceAccountCredentials
+from apiclient.discovery import build
+import googleapiclient.errors
+
+# Don't forget to update schema below.
+wanted_http_headers = {
+    'Content-Type': True,
+    'Date': True,
+    'Server': True,
+    'Set-Cookie': True,
+    'Host': True,
+    'Connection': True
+}
+
 ############################################################################
 
 if len(sys.argv) < 2:
@@ -13,9 +28,230 @@ else:
     binding = sys.argv[1]
 
 if len(sys.argv) < 3:
-    es_url = "http://localhost:9200/"
+    private = "/etc/cyberprobe/private.json"
 else:
-    es_url = sys.argv[2]
+    private = sys.argv[2]
+
+if len(sys.argv) < 4:
+    project = None
+else:
+    project = sys.argv[3]
+
+if len(sys.argv) < 5:
+    dataset = "cyberprobe"
+else:
+    dataset = sys.argv[4]
+
+if len(sys.argv) < 6:
+    table = "cyberprobe"
+else:
+    table = sys.argv[5]
+
+############################################################################
+
+# Creds
+scopes = ['https://www.googleapis.com/auth/bigquery']
+
+credentials = ServiceAccountCredentials.from_json_keyfile_name(private,
+                                                               scopes=scopes)
+
+if project == None:
+    project = json.loads(open(private,'r').read())['project_id']
+    print project
+
+http = Http()
+http_auth = credentials.authorize(http)
+service = build('bigquery', 'v2', http=http_auth)
+tables = service.tables()
+
+############################################################################
+
+# Create table if not exists.
+
+try:
+    table_info = tables.get(projectId=project, datasetId=dataset,
+                            tableId=table).\
+                            execute(http)
+    found=True
+except googleapiclient.errors.HttpError:
+    found=False
+
+if found:
+    print "Table %s exists." % table
+else:
+
+    body = {
+        "tableReference": {
+            "projectId": project,
+            "datasetId": dataset,
+            "tableId": table
+        },
+        "kind": "bigquery#table",
+        "description": "cyberprobe event table",
+        "schema": {
+            "fields": [
+                {
+                    "name": "id",
+                    "mode": "REQUIRED",
+                    "type": "STRING"
+                },
+                {
+                    "name": "time",
+                    "mode": "REQUIRED",
+                    "type": "TIMESTAMP"
+                },
+                {
+                    "name": "action",
+                    "mode": "REQUIRED",
+                    "type": "STRING"
+                },
+                {
+                    "name": "device",
+                    "mode": "REQUIRED",
+                    "type": "STRING"
+                },
+                {
+                    "name": "udp_src",
+                    "mode": "NULLABLE",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "udp_dest",
+                    "mode": "NULLABLE",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "tcp_src",
+                    "mode": "NULLABLE",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "tcp_dest",
+                    "mode": "NULLABLE",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "ipv4_src",
+                    "mode": "NULLABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "ipv4_dest",
+                    "mode": "NULLABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "type",
+                    "mode": "NULLABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "queries",
+                    "mode": "REPEATABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "answers",
+                    "mode": "REQUIRED",
+                    "type": "RECORD",
+                    "fields": [
+                        {
+                            "name": "name",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "address",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        }
+                    ]
+                },
+                {
+                    "name": "method",
+                    "mode": "NULLABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "status",
+                    "mode": "NULLABLE",
+                    "type": "STRING"
+                },
+                {
+                    "name": "code",
+                    "mode": "NULLABLE",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "size",
+                    "mode": "NULLABLE",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "header",
+                    "mode": "NULLABLE",
+                    "type": "RECORD",
+                    "fields": [
+                        {
+                            "name": "contenttype",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "date",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "server",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "setcookie",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "host",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "connection",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "url",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "from",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "to",
+                            "mode": "REPEATABLE",
+                            "type": "STRING"
+                        }
+                    ]
+                },
+
+            ]
+        }
+    }
+
+    try: 
+#        table_info = tables.insert(projectId=project, datasetId=dataset,
+#                                   body=body).execute(http)
+        print "Table %s created." % table
+    except googleapiclient.errors.HttpError, e:
+        print "Table creation failed."
+        print e
+        sys.exit(0)
 
 ############################################################################
 
@@ -61,8 +297,10 @@ def handle(msg):
         observation["command"] = msg["command"]
     if msg.has_key("status"):
         observation["status"] = msg["status"]
-    if msg.has_key("text"):
-        observation["text"] = msg["text"]
+    if msg.has_key("code"):
+        observation["code"] = int(msg["code"])
+#    if msg.has_key("text"):
+#        observation["text"] = msg["text"]
     if msg.has_key("payload"):
         observation["size"] = len(msg["payload"])
     if msg.has_key("body"):
@@ -72,7 +310,12 @@ def handle(msg):
     if msg.has_key("to"):
         observation["to"] = msg["to"]
     if msg.has_key("header"):
-        observation["header"] = msg["header"]
+        observation["header"] = {}
+#        observation["header"] = msg["header"]
+        for k in msg["header"]:
+            nk = k.replace("-", "").lower()
+            if wanted_http_headers.has_key(k):
+                observation["header"][nk] = msg["header"][k]
     if msg.has_key("type"):
         observation["type"] = msg["type"]
     if msg.has_key("queries"):
@@ -89,8 +332,11 @@ def handle(msg):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if cls == "ipv4" or cls == "tcp" or cls == "udp":
+            if cls == "ipv4":
                 observation[cls + "_src"] = addr
+
+            if cls == "tcp" or cls == "udp":
+                observation[cls + "_src"] = int(addr)
 
     if msg.has_key("dest"):
         for v in msg["dest"]:
@@ -101,9 +347,11 @@ def handle(msg):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-
-            if cls == "ipv4" or cls == "tcp" or cls == "udp":
+            if cls == "ipv4":
                 observation[cls + "_dest"] = addr
+
+            if cls == "tcp" or cls == "udp":
+                observation[cls + "_dest"] = int(addr)
 
     output(observation, id)
 
