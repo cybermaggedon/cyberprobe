@@ -2,6 +2,7 @@
 
 import zmq
 import json
+import sys
 
 if len(sys.argv) < 2:
     binding = "tcp://localhost:5555"
