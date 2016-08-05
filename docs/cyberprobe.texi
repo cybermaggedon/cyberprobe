@@ -230,6 +230,10 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.70
+Added ZeroMQ pub/sub support, with subscribers for ElasticSearch, Gaffer,
+Google BigQuery.
+
 @item 0.63
 ElasticSearch integration brought up to latest ES verison.
 Cybermon Gaffer integration work completed to point of release.

@@ -1,5 +1,5 @@
 
-VERSION=0.63
+VERSION=0.70
 
 deb:
 	rm -rf cyberprobe-${VERSION}
