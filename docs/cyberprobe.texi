@@ -1740,6 +1740,11 @@ you found the experience.
 * @command{cybermon} invocation::
 * @command{cybermon} configuration::
 * @command{cybermon} example configurations::
+* Cybermon ZeroMQ message format::
+* @command{cybermon-monitor} invocation::
+* @command{cybermon-elasticsearch} invocation::
+* @command{cybermon-bigquery} invocation::
+* @command{cybermon-gaffer} invocation::
 * @command{taxii-client} invocation::
 * @command{taxii-sync-json} invocation::
 * @command{taxii-server} invocation::
@@ -2523,6 +2528,16 @@ Like @file{monitor.lua}, but adds a hex-dump of event payloads to the output.
 For each Lua event, outputs a plain text summary of the output on standard
 output.
 
+@item zeromq.lua
+
+@cindex ZeroMQ
+@cindex Cybermon ZeroMQ message format
+@cindex publish/subscribe
+@cindex pub/sub
+
+For each Lua event, a JSON record is formatted and published to a ZeroMQ
+queue on port 5555.  See @ref{Cybermon ZeroMQ message format}.
+
 @item quiet.lua
 
 Does nothing.  This is an empty code shell, and a good template to write
@@ -2585,6 +2600,177 @@ HTTP transport functions.
 
 Utilities used to read STIX threat specifications, and detect their presence
 in @code{cybermon} events.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node Cybermon ZeroMQ message format
+@section Cybermon ZeroMQ message format
+
+@cindex ZeroMQ
+@cindex Cybermon ZeroMQ message format
+@cindex publish/subscribe
+@cindex pub/sub
+
+FIXME: Not documented.
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-monitor} invocation
+@section @command{cybermon-monitor} invocation
+
+@cindex @command{cybermon-monitor}, invocation
+
+@command{cybermon-monitor} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for output in a human-readable
+manner.
+
+Synopsis:
+
+@example
+cybermon-monitor [BINDING]
+@end example
+
+Example:
+@example
+cybermon-monitor
+cybermon-monitor tcp://localhost:5555
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-elasticsearch} invocation
+@section @command{cybermon-elasticsearch} invocation
+
+@cindex @command{cybermon-elasticsearch}, invocation
+
+@command{cybermon-elasticsearch} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for delivery to an
+ElasticSearch store.
+
+Synopsis:
+
+@example
+cybermon-elasticsearch [BINDING [ELASTICSEARCH-URL] ]
+@end example
+
+Example:
+@example
+cybermon-elasticsearch
+cybermon-elasticsearch tcp://localhost:5555 http://elastic-store:9200/
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@item ELASTICSEARCH-URL
+Specifies the base URL for ElasticSearch.  If not specified, defaults
+to @samp{http://localhost:9200}.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-bigquery} invocation
+@section @command{cybermon-bigquery} invocation
+
+@cindex @command{cybermon-bigquery}, invocation
+
+@command{cybermon-bigquery} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for delivery to a Google
+BigQuery table.
+
+Synopsis:
+
+@example
+cybermon-bigquery [BINDING [KEY-FILE [PROJECT [DATASET [TABLE] ] ] ] ]
+@end example
+
+Example:
+@example
+cybermon-bigquery
+cybermon-bigquery tcp://localhost:5555 /priv.json
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@item KEY-FILE
+Specifies the path to a Google cloud key file in 'private JSON' format.
+If not specified, defaults
+to @file{/etc/cyberprobe/private.json}.
+
+@item PROJECT
+Specifies the Google Cloud project ID to use.  Defaults to the project ID
+specified in the private JSON key file.
+
+@item DATASET
+Specifies the BigQuery data set, defaults to @samp{cyberprobe}.  You need to
+create this dataset, it is not created for you.
+
+@item TABLE
+Specifies the BigQuery table within the dataset.  This is created if it does
+not already exist.  Don't try to create this yourself, if you use the wrong
+schema, data won't load correctly.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-gaffer} invocation
+@section @command{cybermon-gaffer} invocation
+
+@cindex @command{cybermon-gaffer}, invocation
+
+@command{cybermon-gaffer} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for delivery to a
+Gaffer store.  The format used is intended to allow Gaffer to be used
+as an RDF store with SPARQL query.  To query and visualise the data stored in
+Gaffer, see @url{https://github.com/cybermaggedon/gaffer-tools}.
+To get started with Gaffer quickly, a docker container for development
+can be found at
+@url{https://docker.io/cybermaggedon/gaffer}.
+
+Synopsis:
+
+@example
+cybermon-elasticsearch [BINDING [GAFFER-URL] ]
+@end example
+
+Example:
+@example
+cybermon-elasticsearch
+cybermon-elasticsearch tcp://localhost:5555 http://gaffer-store:8080/
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@item GAFFER-URL
+Specifies the base URL for ElasticSearch.  If not specified, defaults
+to @samp{http://gaffer:8080/example-rest/v1}.
 
 @end table
 
