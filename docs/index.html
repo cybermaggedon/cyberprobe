@@ -14,7 +14,7 @@
 
 <div class="standout">
 <div style="padding: 6px">
-  Version 0.70 is here!  Introduces ZeoMQ pub/sub support and subscribers
+  Version 0.70 is here!  Introduces ZeroMQ pub/sub support and subscribers
   for deliery to ElasticSearch, Gaffer and Google BigQuery.  See
 <a href="#download">downloads</a>.
 </div>
@@ -83,7 +83,9 @@ how the decoded data is handled.  A simple configuration language is used
 display data hexdumps, or stash the data in files.</li>
 <li>Packet forgery techniques are included, which allow resetting TCP
 connections, and forging DNS responses.  This can be invoked from your LUA
-in order to fight back against attacks on your network.</li>
+  in order to fight back against attacks on your network.</li>
+<li>Has a pub/sub delivery mechanism with subscribers for ElasticSearch,
+  Google BigQuery and Gaffer graph store.
 <li>Supports IP, TCP, UDP, ICMP, HTTP and DNS protocols, currently.</li>
 </ul>
 </p>
@@ -103,6 +105,11 @@ to be applicable to other UN*X-like platforms.
 <a name="download"/>
 <h2>Download</h2>
 
+Downloads
+
+<a href="https://sourceforge.net/projects/cyberprobe/files/cyberprobe/0.70/">here</a>.
+
+<!--
 We've got downloads available for the following architectures...
 
 <table>
@@ -156,6 +163,8 @@ We've got downloads available for the following architectures...
 </tr>
 
 </table>
+
+-->
 
 </body>
 
