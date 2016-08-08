@@ -216,16 +216,6 @@ else:
                     "type": "RECORD",
                     "fields": [
                         {
-                            "name": "contenttype",
-                            "mode": "NULLABLE",
-                            "type": "STRING"
-                        },
-                        {
-                            "name": "contenttype",
-                            "mode": "NULLABLE",
-                            "type": "STRING"
-                        },
-                        {
                             "name": "accept",
                             "mode": "NULLABLE",
                             "type": "STRING"
