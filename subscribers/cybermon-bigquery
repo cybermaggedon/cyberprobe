@@ -12,12 +12,34 @@ import googleapiclient.errors
 
 # Don't forget to update schema below.
 wanted_http_headers = {
+    'Accept': True,
+    'Accept-Charset': True,
+    'Accept-Language': True,
+    'Access-Control-Allow-Origin': True,
+    'Authorization': True,
+    'Connection': True,
+    'Content-Encoding': True,
+    'Content-Language': True,
+    'Content-Location': True,
     'Content-Type': True,
+    'Cookie': True,
     'Date': True,
+    'ETag': True,
+    'Forwarded': True,
+    'Host': True,
+    'Link': True,
+    'Location': True,
+    'Origin': True,
+    'Proxy-Authorization': True,
+    'Referer': True,
     'Server': True,
     'Set-Cookie': True,
-    'Host': True,
-    'Connection': True
+    'Upgrade': True,
+    'User-Agent': True,
+    'Via': True,
+    'WWW-Authenticate': True,
+    'X-Forwarded-For': True,
+    'X-Forwarded-Host': True
 }
 
 ############################################################################
@@ -199,7 +221,107 @@ else:
                             "type": "STRING"
                         },
                         {
+                            "name": "contenttype",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "accept",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "acceptcharset",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "acceptlanguage",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "accesscontrolalloworigin",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "authorization",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "connection",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "contentencoding",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "contentlanguage",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "contentlocation",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "contenttype",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "cookie",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
                             "name": "date",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "etag",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "forwarded",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "host",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "link",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "location",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "origin",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "proxyauthorization",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "referer",
                             "mode": "NULLABLE",
                             "type": "STRING"
                         },
@@ -214,12 +336,32 @@ else:
                             "type": "STRING"
                         },
                         {
-                            "name": "host",
+                            "name": "upgrade",
                             "mode": "NULLABLE",
                             "type": "STRING"
                         },
                         {
-                            "name": "connection",
+                            "name": "useragent",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "via",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "wwwauthenticate",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "xforwardedfor",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "xforwardedhost",
                             "mode": "NULLABLE",
                             "type": "STRING"
                         }
