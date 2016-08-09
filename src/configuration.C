@@ -99,9 +99,6 @@ void config_manager::read(const std::string& file,
 			    buf >> mask;
 			    ip = ip.substr(0, pos);
 			}
-			
-			std::cout << "Mask is " << mask << std::endl;
-			std::cout << "IP is " << ip << std::endl;
 
 			// Convert string to an IPv4 address.
 			tcpip::ip4_address addr;
@@ -124,9 +121,6 @@ void config_manager::read(const std::string& file,
 			    buf >> mask;
 			    ip = ip.substr(0, pos);
 			}
-			
-			std::cout << "Mask is " << mask << std::endl;
-			std::cout << "IP is " << ip << std::endl;
 
 			// Convert string to an IPv6 address.
 			tcpip::ip6_address addr;
