@@ -72,6 +72,15 @@ configuration, they can be run on the same host, for more complex
 environments, a number of probes can feed a single monitor. For more detail,
 and to see where we are going, read the @ref{Architecture} page.
 
+@quotation Note
+FIXME: This manual page is slightly out-of-date, and needs to cover the
+visualisation components.
+@end quotation
+
+@quotation Note
+FIXME: Architecture diagram needs an update.
+@end quotation
+
 @c @end ifnottex
 
 @menu
@@ -1850,8 +1859,10 @@ Sample configuration:
     <target address="10.1.1.8" liid="591875"/>
     <target address="10.1.1.9" liid="591875"/>
     <target address="10.1.1.10" liid="591875"/>
-    <target address="aaaa:bbbb:cccc:dddd::4:5:6" class="ipv6" liid="983898"/>
-    <target address="aaaa:bbbb:cccc::/48" class="ipv6" liid="983800"/>
+    <target address="aaaa:bbbb:cccc:dddd::4:5:6"
+      class="ipv6" liid="983898"/>
+    <target address="aaaa:bbbb:cccc::/48"
+      class="ipv6" liid="983800"/>
   </targets>
 
   <!-- Endpoints for delivery of collected packets. -->
@@ -2612,6 +2623,95 @@ in @code{cybermon} events.
 @cindex Cybermon ZeroMQ message format
 @cindex publish/subscribe
 @cindex pub/sub
+
+Cybermon's @samp{zeromq.lua} configuration file transmits messages to a
+ZeroMQ message queue in JSON format.  Each message is a JSON object
+with the following fields:
+
+@table @samp
+
+@item id
+Unique ID for the event: UUID format
+(e.g. 3c55d830-8d99-48a1-c8cd-ca77514a6d10).
+
+@item device
+Device identifier / LIID.
+
+@item action
+The event type.  One of:
+@table @samp
+@item connected_up
+Records the creation of a stream-orientated connection (currently, only TCP).
+This event is created for all connections whether the protocol is
+recognised or not.
+@item connected_down
+Records the closing of a stream-orientated connection (currently, only TCP).
+This event is created for all connections whether the protocol is
+recognised or not.
+@item unrecognised_stream
+Records the sending of a PDU on a connection-less transport (currently, only
+UDP) whose protocol has not been recognised.
+@item unrecognised_datagram
+Records the sending of a PDU on a connection-less transport (currently, only
+UDP) whose protocol has not been recognised.
+@item http_request
+Records the sending of an HTTP request.
+@item http_response
+Records the sending of an HTTP response.
+@item dns_message
+Records the sending of a DNS message (request and response).
+@item icmp
+Records the sending of an ICMP message.
+@item smtp_command
+Records the sending of an SMTP command.  This is a message from client
+to server.  Data commands are not recorded with this event - there is an
+@samp{smtp_data} event which records this.
+@item smtp_response
+Records the sending of a response to an SMTP command.  This is a status
+message from server to client.
+@item smtp_data
+Records an SMTP data transaction, including the full SMTP data payload
+(essentially an email).
+@item ftp_command
+Records an FTP command (client to server).
+@item ftp_response
+Records an FTP response (server to client).
+@end table
+
+@item queries
+A list of strings describing the set of DNS queries in
+@samp{dns_message} actions.
+
+@item answers
+Describes DNS answer records in @samp{dns_message} actions.  Is a list
+of objects with @samp{name} and @samp{address} fields containing strings
+for name and IP address.
+
+@item type
+DNS message type, one of @samp{query} or @samp{response}.
+
+@item method
+HTTP method
+
+@item url
+HTTP URL.
+
+@item header
+An object containing key/value pairs for HTTP header.
+
+@item code
+A response code in HTTP response, SMTP response or FTP response.
+
+@item status
+A human-readable status string in HTTP response, SMTP response or FTP response.
+
+@item command
+Command string in FTP or SMTP protocols.
+
+@item text
+Reply text in FTP or SMTP protocols.
+
+@end table
 
 FIXME: Not documented.
 
