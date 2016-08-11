@@ -239,6 +239,12 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.72
+Cassanda subscriber support.
+
+@item 0.71
+Fixes.
+
 @item 0.70
 Added ZeroMQ pub/sub support, with subscribers for ElasticSearch, Gaffer,
 Google BigQuery.

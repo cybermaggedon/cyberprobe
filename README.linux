@@ -1,3 +1,4 @@
+
 Debian, Ubuntu
 ==============
 
@@ -81,4 +82,33 @@ Luarocks installs to /usr/local, so you need to move the 'json' directory
 from somewhere under /usr/local/share/lua/5.1 to /usr/share/lua/5.1.  Also
 lpeg.so and lfs.so from /usr/local/{lib,lib64}/lua/5.1 to
 /usr/{lib,lib64}/lua/5.1.
+
+Optional extras
+===============
+
+To use zeromq.lua:
+
+  dnf install -y cppzmq-devel
+  dnf install -y luarocks
+  luarocks install lzmq
+  luarocks install uuid
+
+To use cybermon-monitor:
+
+  dnf install -y python-zmq
+
+To use cybermon-bigquery:
+  
+  pip install --upgrade google-api-python-client
+  dnf install -y python-zmq
+  dnf install -y python-requests python-httplib2
+
+To use cybermon-cassandra:
+
+  dnf install -y python-zmq
+  pip install cassandra-driver
+
+To use cybermon-elasticsearch:
+
+  dnf install -y python-zmq python-requests python-httplib2
 
