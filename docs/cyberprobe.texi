@@ -1760,6 +1760,7 @@ you found the experience.
 * @command{cybermon-elasticsearch} invocation::
 * @command{cybermon-bigquery} invocation::
 * @command{cybermon-gaffer} invocation::
+* @command{cybermon-cassandra} invocation::
 * @command{taxii-client} invocation::
 * @command{taxii-sync-json} invocation::
 * @command{taxii-server} invocation::
@@ -2845,6 +2846,8 @@ schema, data won't load correctly.
 @section @command{cybermon-gaffer} invocation
 
 @cindex @command{cybermon-gaffer}, invocation
+@cindex Gaffer
+@cindex Graph store
 
 @command{cybermon-gaffer} subscribes to a ZeroMQ pub/sub queue for
 @command{cybermon}
@@ -2859,13 +2862,13 @@ can be found at
 Synopsis:
 
 @example
-cybermon-elasticsearch [BINDING [GAFFER-URL] ]
+cybermon-gaffer [BINDING [GAFFER-URL] ]
 @end example
 
 Example:
 @example
-cybermon-elasticsearch
-cybermon-elasticsearch tcp://localhost:5555 http://gaffer-store:8080/
+cybermon-gaffer
+cybermon-gaffer tcp://localhost:5555 http://gaffer-store:8080/example-rest/v1
 @end example
 
 @table @samp
@@ -2875,8 +2878,49 @@ Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
 to @samp{tcp://localhost:5555}.
 
 @item GAFFER-URL
-Specifies the base URL for ElasticSearch.  If not specified, defaults
+Specifies the base URL for Gaffer.  If not specified, defaults
 to @samp{http://gaffer:8080/example-rest/v1}.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-cassandra} invocation
+@section @command{cybermon-cassandra} invocation
+
+@cindex @command{cybermon-cassandra}, invocation
+@cindex Cassandra
+@cindex Graph store
+
+@command{cybermon-cassandra} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for delivery to a
+Cassandra store.  The format used is intended to allow Cassandra to be used
+as an RDF store with SPARQL query.  To query and visualise the data stored in
+Cassandra, see @url{https://github.com/cybermaggedon/cassandra-redland}.
+
+Synopsis:
+
+@example
+cybermon-cassandra [BINDING [CASSANDRA-HOSTS] ]
+@end example
+
+Example:
+@example
+cybermon-cassandra
+cybermon-cassandra tcp://localhost:5555 cassandra1,cassandra2
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@item CASSANDRA-HOSTS
+Specifies a comma-separated list of Cassandra store hosts to contact.
+If not specified, defaults
+to @samp{localhost}.
 
 @end table
 

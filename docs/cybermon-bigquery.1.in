@@ -1,4 +1,4 @@
-.TH CYBERMON-ELASTICSEARCH "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
+.TH CYBERMON-BIGQUERY "1" "August 2016" "@PACKAGE@ @VERSION@" "User Commands"
 .SH NAME
 cybermon-bigquery \- Subscribes to a cybermon event stream and sends
 events to a Google BigQuery store

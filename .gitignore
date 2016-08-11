@@ -33,6 +33,7 @@ docs/cybermon-elasticsearch.1
 docs/cybermon-monitor.1
 docs/cybermon-gaffer.1
 docs/cybermon-bigquery.1
+docs/cybermon-cassandra.1
 docs/cyberprobe.info
 docs/cyberprobe.html
 docs/mdate-sh

@@ -1,4 +1,4 @@
-.TH CYBERMON-MONITOR "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
+.TH CYBERMON-MONITOR "1" "August 2016" "@PACKAGE@ @VERSION@" "User Commands"
 .SH NAME
 cybermon-monitor \- Subscribes to a cybermon event stream and outputs events
 in human-readable form.
