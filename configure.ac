@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([cyberprobe], [0.71], [cyberprobe-general@lists.sourceforge.net])
+AC_INIT([cyberprobe], [0.72], [cyberprobe-general@lists.sourceforge.net])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
