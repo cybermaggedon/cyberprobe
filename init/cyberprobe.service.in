@@ -2,7 +2,6 @@
 [Unit]
 Description=cyberprobe service
 Documentation=http://cyberprobe.sourceforge.net/cyberprobe.html
-Requires=cybermon.service
 
 [Service]
 PIDFile=/var/run/cyberprobe.pid
