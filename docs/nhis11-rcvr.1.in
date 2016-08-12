@@ -1,11 +1,11 @@
-.TH NHIS_RCVR "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
+.TH NHIS11-RCVR "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
 .SH NAME
-nhis_rcvr \- Decode NHIS LI streams to PCAP data
+nhis11-rcvr \- Decode NHIS LI streams to PCAP data
 .SH SYNOPSIS
-.B nhis_rcvr
+.B nhis11-rcvr
 [\fIPORT-NUMBER\fR]
 .SH DESCRIPTION
-.B nhis_rcvr
+.B nhis11-rcvr
 provides a TCP server which accepts connections from NHIS LI
 clients,  decodes NHIS LI streams and outputs contained IP packets on the
 standard output in PCAP format.  TCP port number to use is provided on the
@@ -18,7 +18,7 @@ if OK,
 non-zero
 on error
 .SH EXAMPLE USAGE
-nhis_rcvr 10000 | tcpdump -n -r-
+nhis11-rcvr 10000 | tcpdump -n -r-
 .SH AUTHOR
 Part of the Cyberprobe project.
 .SH "REPORTING BUGS"
@@ -31,7 +31,7 @@ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 .SH "SEE ALSO"
-.BR etsi_rcvr (1),
+.BR etsi-rcvr (1),
 .BR cyberprobe (1)
 .PP
 Further documentation and a quickstart guide is available in

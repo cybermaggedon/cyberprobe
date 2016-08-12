@@ -1,0 +1,122 @@
+.TH CYBERPROBE-CLI "1" "August 2016" "@PACKAGE@" "@VERSION@" "User Commands"
+.SH NAME
+cyberprobe-cli \- administration utility for cyberprobe management service.
+.SH SYNOPSIS
+.B cyberprobe-cli
+\fIHOST\fR
+\fIPORT\fR
+.SH DESCRIPTION
+.B cyberprobe-cli
+administrates a running
+.B cyberprobe
+via the management service.
+
+The first argument specifies a hostname, the second the port number to
+connect to.  Upon connection, there is an immediate prompt for username
+and password, and once authenticated, a command-line dialogue takes place.
+.SS "Exit status:"
+.TP
+0
+if OK,
+.TP
+non-zero
+on error
+.SH "EXAMPLE USAGE"
+cyberprobe-cli localhost 8888
+.SH COMMANDS
+The following commands are supported by 'cyberprobe-cli':
+.TP
+.B add endpoint HOST PORT TYPE
+Adds a delivery endpoint.  HOST specifies the delivery host.
+PORT specifies TCP port to deliver to. TYPE
+can be one of
+.B nhis
+or
+.B etsi
+for delivery protocol.
+.TP
+.B add interface INTERFACE DELAY [FILTER]
+Adds an interface for packet sniffing.
+INTERFACE specifies the network interface name. DELAY specifies
+delay between packet acquisiton and delivery.  Defaults to
+zero.  FILTER is optional, species a filter to be applied for positive
+selection of packets, in BPF / libpcap format.
+.TP
+.B add parameter KEY VALUE
+Adds a parameter.  KEY is parameter key, VALUE is parameter value.
+.TP
+.B add target LIID PROTOCOL ADDRESS
+Adds an address target for packet capture.
+LIID specifies the LIID / device identifier.
+PROTOCOL specifies address protocol, one of
+.B ip4
+or
+.B ip6.
+ADDRESS specifies address value, in IPv4 or IPv6 format, according to the
+PROTOCOL value.
+.TP
+.B help
+Displays help.
+.TP
+.B quit
+Causes the client to close the connection and terminate.
+.TP
+.B remove endpoint HOST PORT TYPE
+Removes an endpoint added through the
+.B add endpoint
+command.  The
+HOST, PORT and TYPE values are the same as for
+.B add endpoint.
+.TP
+.B remove interface INTERFACE DELAY [FILTER]
+Removes an interface added through the
+.B add interface
+command.
+The INTERFACE, DELAY and FILTER values are the same as for
+.B add interface.
+.TP
+.B remove paramter KEY VALUE
+Removes a paramter added through the
+.B add parameter
+command.  The
+KEY and VALUE values are the same as for
+.B remove parameter.
+.TP
+.B remove target PROTOCOL ADDRESS
+Removes a target added through the
+.B add target
+command.  The
+PROTOCOL and ADDRESS values are the same as for
+.B add target.
+.TP
+.B show endpoints
+Displays a table showing endpoints.
+.TP
+.B show interfaces
+Displays a table showing interfaces.
+.TP
+.B show parameters
+Displays a table showing parameters.
+.TP
+.B show targets
+Displays a table showing targets.
+.SH AUTHOR
+Part of the Cyberprobe project.
+.SH "REPORTING BUGS"
+Visit <http://cyberprobe.sf.net> for support.
+.SH COPYRIGHT
+Copyright \(co 2013-2014 Cyber MacGeddon
+.br
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+.SH "SEE ALSO"
+.BR cyberprobe (1)
+.PP
+Further documentation and a quickstart guide is available in
+/usr/share/doc/cyberprobe.  The command
+.IP
+.B info cyberprobe
+.PP
+accesses the complete manual.

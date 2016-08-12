@@ -3,7 +3,7 @@
 
 ETSI LI test receiver.  Usage:
 
-  etsi_rcvr <portnum> | tcpdump -n -r-
+  etsi-rcvr <portnum> | tcpdump -n -r-
 
 ****************************************************************************/
 
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     
     if (argc != 2) {
 	std::cerr << "Usage:" << std::endl
-		  << "\tetsi_rcvr <port>" << std::endl;
+		  << "\tetsi-rcvr <port>" << std::endl;
 	exit(1);
     }
 

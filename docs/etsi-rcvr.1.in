@@ -1,11 +1,11 @@
-.TH ETSI_RCVR "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
+.TH ETSI-RCVR "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
 .SH NAME
-etsi_rcvr \- Decode ETSI LI streams to PCAP data
+etsi-rcvr \- Decode ETSI LI streams to PCAP data
 .SH SYNOPSIS
-.B etsi_rcvr
+.B etsi-rcvr
 [\fIPORT-NUMBER\fR]
 .SH DESCRIPTION
-.B etsi_rcvr
+.B etsi-rcvr
 provides a TCP server which accepts connections from ETSI LI
 clients,  decodes ETSI LI streams and outputs contained IP packets on the
 standard output in PCAP format.  TCP port number to use is provided on the
@@ -18,7 +18,7 @@ if OK,
 non-zero
 on error
 .SH EXAMPLE USAGE
-etsi_rcvr 10000 | tcpdump -n -r-
+etsi-rcvr 10000 | tcpdump -n -r-
 .SH AUTHOR
 Part of the Cyberprobe project.
 .SH "REPORTING BUGS"
@@ -31,7 +31,7 @@ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 .SH "SEE ALSO"
-.BR nhis11_rcvr (1),
+.BR nhis11-rcvr (1),
 .BR cyberprobe (1)
 .PP
 Further documentation and a quickstart guide is available in

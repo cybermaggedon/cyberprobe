@@ -3,7 +3,7 @@
 
 NHIS 1.1 test receiver.  Usage:
 
-  nhis11_rcvr <portnum> | tcpdump -n -r-
+  nhis11-rcvr <portnum> | tcpdump -n -r-
 
 ****************************************************************************/
 
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 
     if (argc != 2) {
 	std::cerr << "Usage:" << std::endl
-		  << "\tnhis11_rcvr <port>" << std::endl;
+		  << "\tnhis11-rcvr <port>" << std::endl;
 	exit(1);
     }
 

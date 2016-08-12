@@ -26,6 +26,7 @@ cyberprobe-*.tar.gz
 stix/taxii-client
 stix/taxii-server
 docs/cyberprobe.1
+docs/cyberprobe-cli.1
 docs/cybermon.1
 docs/nhis11-rcvr.1
 docs/etsi-rcvr.1

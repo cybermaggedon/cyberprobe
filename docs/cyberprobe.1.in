@@ -353,9 +353,9 @@ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 .SH "SEE ALSO"
-.BR nhis11_rcvr (1),
-.BR etsi_rcvr (1),
-.BR cyberprobe_cli (1),
+.BR nhis11-rcvr (1),
+.BR etsi-rcvr (1),
+.BR cyberprobe-cli (1),
 .BR cybermon (1),
 .BR snort (1)
 .PP
