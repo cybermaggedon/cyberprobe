@@ -87,6 +87,8 @@ FIXME: Architecture diagram needs an update.
 * Overview::
 * Obtaining the software::
 * Quick start tutorial::
+* Running cyberprobe/cybermon::
+* The pub/sub infrastructure::
 * Reference::
 * Architecture::
 * Adding a map to the dashboard::
@@ -388,29 +390,23 @@ operating system you are using.  Packages are currently available for:
 @itemize
 
 @item
-Fedora 20
+Fedora 24, 64-bit.
 
 @item
-Debian Wheezy
+Debian Jessie, 64-bit.
 
 @item
-Mint 17
-
-@item
-Debian Trusty
-
-@item
-Centos 7 (64-bit only).
+Ubuntu, 64-bit.  FIXME: What version?
 
 @end itemize
 
 Downloads are available on the project page at
 @url{http://cyberprobe.sourceforge.net}.
 
-Fedora/CentOS packages are installed using @code{yum}:
+Fedora packages are installed using @code{yum}:
 
 @example
-sudo yum install <package>
+sudo dnf install <package>
 @end example
 
 Debian, Mint and Ubuntu packages are installed using @code{dpkg}:
@@ -1743,6 +1739,230 @@ detected indicators.
 All done, I hope you enjoyed the tutorial! Any comments on the software, or
 tutorial itself are very welcome! Positive, or negative, we want to hear how
 you found the experience.
+
+@comment ----------------------------------------------------------------------
+
+@node Running cyberprobe/cybermon
+@chapter Running cyberprobe/cybermon
+
+The @command{cyberprobe} and @command{cybermon} utilities are used as a pair
+to analyse network data.  The @command{cyberprobe} component is used to
+capture data and forward to @command{cybermon}.  When running on a network,
+you can decide to run several @command{cyberprobe} deployments into a single
+@command{cybermon}.  Or run a @command{cybermon} process everywhere you
+run a @command{cyberprobe}.
+
+Once you have decided your checklist, your setup checklist for using
+@command{cyberprobe} and @command{cybermon} consists of:
+
+@itemize
+
+@item
+Install the software, see @ref{Obtaining the software}.
+
+@item
+If you are going to run @command{cyberprobe}, provide the appropriate
+configuration
+in file
+@file{@value{SYSCONFDIR}/cyberprobe.cfg}.  The standard installation
+will install a template at this location.
+See @ref{@command{cyberprobe} configuration} on managing this configuration
+file.
+Make sure that the configuration file includes the delivery address of the
+appropriate @command{cybermon}.
+
+@item
+@cindex @command{cybermon}, pub/sub
+@cindex Pub/sub delivery
+If you are going to run @command{cybermon}, provide the
+appropriate configuration in file
+@file{@value{SYSCONFDIR}/cyberprobe/cybermon.lua}.  The standard installation
+does not create a file at this location, and you should create one.  You can
+copy an example from the @file{@value{SYSCONFDIR}/cyberprobe} directory.
+Use @file{@value{SYSCONFDIR}/cyberprobe/zeromq.lua} if you want to use
+pub/sub delivery.  See @ref{@command{cybermon} configuration} for more
+information on constructing the configuration file.
+See @ref{@command{cybermon} example configurations} for descriptions of the
+example configuration files.
+
+@item
+The installation installs appropriate @command{systemd} configuration, and
+you can enable boot-time starting of @command{cyberprobe} or
+@command{cybermon} by using either or both of these commands:
+@example
+systemctl enable cyberprobe
+systemctl enable cybermon
+@end example
+Once enabled, you can reboot, or immediately start the processes using either
+or both of these commands:
+@example
+systemctl start cyberprobe
+systemctl start cybermon
+@end example
+
+@end itemize
+
+@comment ----------------------------------------------------------------------
+
+@node The pub/sub infrastructure
+@chapter The pub/sub infrastructure
+
+@menu
+* Pub/sub overview::
+* The Cassandra subscriber::
+* The ElasticSearch subscriber::
+* The Gaffer subscriber::
+* The Google BigQuery subscriber::
+* The debug monitor subscriber::
+@end menu
+
+@comment ----------------------------------------------------------------------
+
+@node Pub/sub overview
+@section Pub/sub overview
+
+@cindex @command{cybermon}, pub/sub
+@cindex Pub/sub delivery
+
+Events from @command{cybermon} can be delivered to a pub/sub mechanism which
+allows subscribers to connect and disconnect without disrupting delivery
+to other subscribers.  The pub/sub mechanism used is ZeroMQ, which is a
+simple non-persistent, broker-less mechanism.
+
+In order to use this mechanism, you need to ensure you have configured
+@command{cybermon} appropriately.  This is normally done by copying the
+configuration file at @file{@value{SYSCONFDIR}/cyberprobe/zeromq.lua}
+to @file{@value{SYSCONFDIR}/cyberprobe/cybermon.lua} prior to executing
+@command{cybermon}.  Once running, @command{cybermon} will publish all events
+to it's publisher port on TCP port 5555.
+
+ZeroMQ allows subscribers to be started and stopped without affecting the
+delivery of events to other receivers.  That is, you can start
+@command{cybermon} with no subscribers, discarding data, and introduce
+subscribers later.
+
+@comment ----------------------------------------------------------------------
+
+@node The Cassandra subscriber
+@section The Cassandra subscriber
+
+@cindex @command{cybermon-cassandra}, invocation
+@cindex Cassandra
+@cindex Apache Cassandra
+
+This subscriber writes data to a Cassandra store in a schema useful for
+graph analysis.
+
+The schema is experimental, but see
+@url{https://github.com/cybermaggedon/cassandra-redland} for the tooling
+I'm using.
+
+On the command-line you need to tell the subscriber the location
+of the Cassandra contact points e.g.
+
+@example
+cybermon-cassandra tcp://localhost:5555 cas1,cas2,cas3
+@end example
+
+See @ref{@command{cybermon-cassandra} invocation}.
+
+
+@comment ----------------------------------------------------------------------
+
+@node The ElasticSearch subscriber
+@section The ElasticSearch subscriber
+
+@cindex @command{cybermon-elasticsearch}, invocation
+@cindex ElasticSearch
+
+This suscriber extracts events from pub/sub and formats them for delivery
+to ElasticSearch.  The only piece of information you need is the ElasticSearch
+base URI, which is used as a command-line parameter e.g.
+
+@example
+cybermon-elasticsearch tcp://localhost:5555 http://es-host1:9200
+@end example
+
+See @ref{@command{cybermon-elasticsearch} invocation}.
+
+@comment ----------------------------------------------------------------------
+
+@node The Gaffer subscriber
+@section The Gaffer subscriber
+
+@cindex @command{cybermon-gaffer}, invocation
+@cindex Gaffer
+
+Gaffer is an experimental graph database built on top of Accumulo, Zookeeper
+and Hadoop.  This subscriber writes data to Gaffer in a form intended to
+be used for querying with SPARQL.
+
+Documentation on Gaffer is sparse.  If you want to use this, you will need
+to get familiar with some of my tooling at
+@url{https://github.com/cybermaggedon/gaffer-tools}.  To get started,
+you may also want to use my stand-alone Docker container at
+@url{https://hub.docker.com/r/cybermaggedon/gaffer/}.
+
+On the command-line you need to tell the subscriber the location
+of the Gaffer REST API. e.g.
+
+@example
+cybermon-elasticsearch tcp://localhost:5555 http://gaffer-host1:8080/example-rest/v1
+@end example
+
+See @ref{@command{cybermon-gaffer} invocation}.
+
+@comment ----------------------------------------------------------------------
+
+@node The Google BigQuery subscriber
+@section The Google BigQuery subscriber
+
+@cindex @command{cybermon-bigquery}, invocation
+@cindex Google BigQuery
+@cindex Google Cloud Platform
+
+Google BigQuery is a cloud data storage mechanism which is part of the
+Google Cloud Platform, available to Google Cloud subscribers.
+
+BigQuery is a 'big data' relational style database, with a query language
+familiar to SQL users.
+
+To use BigQuery, you need to get a private key file in private JSON format
+from the cloud interface, and store this at
+@file{@value{SYSCONFDIR}/cyberprobe/private.json}.  One way to do this is
+to go to the IAM interface and create a use with BigQuery access, and download
+the private JSON file.
+
+You need to also to create the BigQuery dataset.  Call it @samp{cyberprobe}.
+The BigQuery table is created automatically when the subscriber is started.
+
+If the key is installed at the above location, you do not need to
+provide any further parameters on the command line.  Just run:
+
+@example
+cybermon-bigquery
+@end example
+
+@quotation Note
+FIXME: Document the schema.  The easiest way to see the schema is to use
+this subscriber, and view the schema in the Google BigQuery interface.
+@end quotation
+
+See @ref{@command{cybermon-bigquery} invocation}.
+
+@comment ----------------------------------------------------------------------
+
+@node The debug monitor subscriber
+@section The debug monitor subscriber
+
+@cindex @command{cybermon-monitor}, invocation
+
+The @command{cybermon-monitor} subscriber is a subscriber which takes
+events and writes human-readable output on standard output.  This is a
+useful means to verify that @command{cyberprobe}, @command{cybermon} and
+pub/sub are configured correctly.
+
+See @ref{@command{cybermon-monitor} invocation}.
 
 @comment ----------------------------------------------------------------------
 
