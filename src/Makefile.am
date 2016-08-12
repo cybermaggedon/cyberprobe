@@ -1,5 +1,5 @@
 
-bin_PROGRAMS = cyberprobe cybermon nhis11_rcvr etsi_rcvr cyberprobe-cli
+bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C xml.C capture.C configuration.C control.C snort_alert.C \

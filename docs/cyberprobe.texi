@@ -526,8 +526,8 @@ Packet capture.
 @item cybermon
 Data analyser, analyses the data streams and reports events.
 
-@cindex @command{etsi_rcvr}
-@item etsi_rcvr
+@cindex @command{etsi-rcvr}
+@item etsi-rcvr
 Test decoder for ETSI format data.
 
 @cindex @command{cyberprobe-cli}
@@ -568,7 +568,7 @@ will be a static configuration in order to keep things simple. We'll do
 dynamic tracking later.
 
 In the next few steps, you'll use @command{cyberprobe} to capture some data,
-on your workstation, and stream it to @command{etsi_rcvr} so that you know it's
+on your workstation, and stream it to @command{etsi-rcvr} so that you know it's
 working. But first, you'll need to collect some information about your
 configuration.
 
@@ -750,19 +750,19 @@ something ready to receive the data.
 In a separate terminal window, navigate to the @command{cyberprobe} build,
 and run:
 
-@cindex @command{etsi_rcvr}
+@cindex @command{etsi-rcvr}
 
 @example
-etsi_rcvr 10000 | tcpdump -n -r -
+etsi-rcvr 10000 | tcpdump -n -r -
 @end example
 
-The @command{etsi_rcvr} program opens a TCP port listening on port 10000 for
+The @command{etsi-rcvr} program opens a TCP port listening on port 10000 for
 a stream of ETSI data, and on standard output, writes the IP packets it sees
 in PCAP format. The tcpdump command receives this PCAP data, and outputs
 packet summaries.
 
 If that starts successfully, the next step is to plumb a connection from
-@command{cyberprobe} to @command{etsi_rcvr}.
+@command{cyberprobe} to @command{etsi-rcvr}.
 
 Next, edit the configuration file, and edit the endpoints block to deliver
 packets to a local service on port 10000:
@@ -806,7 +806,7 @@ ngth 0
 @end example
 
 At this step, it's worth having a quick play with the reconnection
-mechanism. Stop and start @command{etsi_rcvr}, and you'll see that
+mechanism. Stop and start @command{etsi-rcvr}, and you'll see that
 @command{cyberprobe} reconnects automatically:
 
 @cindex Connection reset
@@ -1050,7 +1050,7 @@ all that data you are capturing. In this step we'll start up
 
 @cindex @file{monitor.lua}
 
-Remember that @command{etsi_rcvr} command you started in step @ref{Adding an
+Remember that @command{etsi-rcvr} command you started in step @ref{Adding an
 endpoint}? Stop that, and start @command{cybermon}. Two arguments are
 needed: A TCP port number to receive the data on, and a configuration which
 tells it what to do. A number of configuration files are bundled in with the
@@ -1768,8 +1768,8 @@ you found the experience.
 * @command{taxii-client} invocation::
 * @command{taxii-sync-json} invocation::
 * @command{taxii-server} invocation::
-* @command{nhis11_rcvr} invocation::
-* @command{etsi_rcvr} invocation::
+* @command{nhis11-rcvr} invocation::
+* @command{etsi-rcvr} invocation::
 * ElasticSearch model::
 @end menu
 
@@ -2193,14 +2193,14 @@ all endpoints. This may be a problem for operational scenarios where high
 data availability is required.
 
 @command{cyberprobe} includes some code to decode the ETSI and NHIS streams,
-and also includes two test utilities, @command{etsi_rcvr} and
-@command{nhis11_rcvr} which listen on a specified port number, decode the
+and also includes two test utilities, @command{etsi-rcvr} and
+@command{nhis11-rcvr} which listen on a specified port number, decode the
 stream data, and forward in PCAP format on standard output. Example usage
 would be:
 
 @example
-etsi_rcvr 10001 | tcpdump -n -r-
-nhis11_rcvr 10000 | tcpdump -n -r-
+etsi-rcvr 10001 | tcpdump -n -r-
+nhis11-rcvr 10000 | tcpdump -n -r-
 @end example
 
 @comment ----------------------------------------------------------------------
@@ -3307,18 +3307,18 @@ data directory is the master copy for the sync process.
 
 @comment ----------------------------------------------------------------------
 
-@node @command{nhis11_rcvr} invocation
-@section @command{nhis11_rcvr} invocation
+@node @command{nhis11-rcvr} invocation
+@section @command{nhis11-rcvr} invocation
 
-@cindex @command{nhis11_rcvr}, invocation
+@cindex @command{nhis11-rcvr}, invocation
 
-@command{nhis11_rcvr} provides a TCP server which accepts connections from
+@command{nhis11-rcvr} provides a TCP server which accepts connections from
 NHIS LI clients,  decodes NHIS LI streams and outputs contained IP  packets  on
 the standard output in PCAP format.  TCP port number to use is provided
 on the command line.  Synopsis:
 
 @example
-nhis11_rcvr @var{port-number}
+nhis11-rcvr @var{port-number}
 
 @end example
 
@@ -3332,27 +3332,27 @@ See @ref{NHIS LI}.
 
 @cindex @command{cyberprobe}, configuration
 
-@command{nhis11_rcvr} executes indefinitely - to end the program, a signal
+@command{nhis11-rcvr} executes indefinitely - to end the program, a signal
 should be sent. e.g.
 
 @example
-killall nhis11_rcvr
+killall nhis11-rcvr
 @end example
 
 @comment ----------------------------------------------------------------------
 
-@node @command{etsi_rcvr} invocation
-@section @command{etsi_rcvr} invocation
+@node @command{etsi-rcvr} invocation
+@section @command{etsi-rcvr} invocation
 
-@cindex @command{etsi_rcvr}, invocation
+@cindex @command{etsi-rcvr}, invocation
 
-@command{etsi_rcvr} provides a TCP server which accepts connections from
+@command{etsi-rcvr} provides a TCP server which accepts connections from
 ETSI LI clients,  decodes ETSI LI streams and outputs contained IP  packets  on
 the standard output in PCAP format.  TCP port number to use is provided
 on the command line.  Synopsis:
 
 @example
-etsi_rcvr @var{port-number}
+etsi-rcvr @var{port-number}
 @end example
 
 @itemize @bullet
@@ -3365,11 +3365,11 @@ See @ref{ETSI LI}.
 
 @cindex @command{cyberprobe}, configuration
 
-@command{etsi_rcvr} executes indefinitely - to end the program, a signal
+@command{etsi-rcvr} executes indefinitely - to end the program, a signal
 should be sent. e.g.
 
 @example
-killall etsi_rcvr
+killall etsi-rcvr
 @end example
 
 @comment ----------------------------------------------------------------------
