@@ -426,8 +426,6 @@ installed, you can install them thus:
 sudo apt-get install -f
 @end example
 
-
-
 @heading Install from source
 
 Note: on many platforms, installing a package just adds the "run time" part
@@ -516,13 +514,13 @@ downloads page (@url{http://sourceforge.net/projects/cyberprobe/files/}).
 @cindex Executables
 @cindex Build targets
 
-The compilation process compiles the following executables:
+The compilation process compiles the following commands:
 
 @table @command
 
 @cindex @command{cyberprobe}
 @item cyberprobe
-The Cyber Probe executable.
+Packet capture.
 
 @cindex @command{cybermon}
 @item cybermon
@@ -532,13 +530,25 @@ Data analyser, analyses the data streams and reports events.
 @item etsi_rcvr
 Test decoder for ETSI format data.
 
-@cindex @command{nhis11_rcvr}
-@item nhis11_rcvr
-Test decoder for NHIS1.1 format data.
-
-@cindex @command{cybermon_cli}
-@item cybermon_cli
+@cindex @command{cyberprobe-cli}
+@item cyberprobe-cli
 Cyberprobe control command-line client.
+
+@cindex @command{cybermon-bigquery}
+@item cybermon-bigquery
+Pub/sub subscriber, delivers events to Google Bigquery.
+
+@cindex @command{cybermon-cassandra}
+@item cybermon-cassandra
+Pub/sub subscriber, delivers events to Cassandra.
+
+@cindex @command{cybermon-elasticsearch}
+@item cybermon-elasticsearch
+Pub/sub subscriber, delivers events to ElasticSearch.
+
+@cindex @command{cybermon-gaffer}
+@item cybermon-gaffer
+Pub/sub subscriber, delivers events to Gaffer.
 
 @end table
 
@@ -881,13 +891,13 @@ Note also that you may get some weird results if you use the configuration
 file AND the control interface to manage the same resources, so you probably
 don't want to do that.
 
-@cindex @command{cyberprobe_cli}
+@cindex @command{cyberprobe-cli}
 
-The @command{cyberprobe_cli} command can be used to access the
+The @command{cyberprobe-cli} command can be used to access the
 management interface but provides a (slightly) nicer @code{readline}
 interface, and has auto-completion.  Usage is of the form
 @example
-cyberprobe_cli @var{host} @var{port}
+cyberprobe-cli @var{host} @var{port}
 @end example
 Once you're in, you can type help to get help, or press TAB for auto-completion
 of commands.
@@ -1273,7 +1283,7 @@ observer.connection_up = function(context)
     end
 
     -- TCP reset    
-    print("Spike! on HTTP connection.")
+    print("Reset on HTTP connection.")
     context:forge_tcp_reset(context)
 
 end
@@ -1288,7 +1298,7 @@ that up:
 cybermon 10000 my.lua
 @end example
 
-Now start web browsing, and you should see a bunch of "Spike! on HTTP
+Now start web browsing, and you should see a bunch of "Reset on HTTP
 connection" messages. Also, you'll see a page saying "The connection was
 reset" in your web browser. That's a fairly anti-social configuration to run
 on any network. See the @file{forge-reset.lua} example for a more useful
@@ -1312,12 +1322,12 @@ requests going to a particular web site.
 observer.http_request = function(context, method, url, header, body)
 
     if header["Host"] == "example.org" then
-      print("Spike! on HTTP request")
+      print("Reset on HTTP request")
       context:forge_tcp_reset(context)
     end
 
     if header["Host"] == "www.example.org" then
-      print("Spike! on HTTP request")
+      print("Reset on HTTP request")
       context:forge_tcp_reset(context)
     end
 
@@ -1395,7 +1405,7 @@ $ host -t a example.org
 example.org has address 1.2.3.4
 @end example
 
-Haha! Spike! DNS forgery has applications in blocking access to a phishers
+DNS forgery has applications in blocking access to a phishers
 resources on the internet, you might want to redirect your users to an
 address which is inside your network.
 
@@ -1425,18 +1435,18 @@ favourite for this sort of scenario is the excellent ElasticSearch (
 of functionality, and is incredibly simple to interface with, thanks to its
 JSON API. So, your next action is to head over to the download page
 (@url{http://www.elasticsearch.org/download/}) and get hold of the latest
-version. I'm using version 2.3.3 to build this tutorial but the
+version. I'm using version 2.3.5 to build this tutorial but the
 ElasticSearch API has proven hugely stable, so should work with the latest.
 
 Having downloaded the latest version, you unpack it, and run it e.g.
 
 @example
-tar xvfz elasticsearch-2.3.3.tar.gz
-cd elasticsearch-2.3.3
-bin/elasticsearch -f
+tar xvfz elasticsearch-2.3.5.tar.gz
+cd elasticsearch-2.3.5
+bin/elasticsearch
 @end example
 
-Another brilliant thing about ElasticSearch is that it needs almost no
+One brilliant thing about ElasticSearch is that it needs almost no
 configuration to get an instance started. You will need to make one
 configuration change to ElasticSearch if there are other instances running
 on your network: you need need to change @code{cluster.name} to some unique
@@ -1457,11 +1467,14 @@ The response will look something like this:
 
 @example
 @{
-  "ok" : true,
-  "status" : 200,
-  "name" : "Cybermon",
+  "name" : "Ellie Phimster",
+  "cluster_name" : "elasticsearch",
   "version" : @{
-    "number" : "2.3.3"
+    "number" : "2.3.5",
+    "build_hash" : "90f439ff60a3c0f497f91663701e64ccd01edbb4",
+    "build_timestamp" : "2016-07-27T10:36:52Z",
+    "build_snapshot" : false,
+    "lucene_version" : "5.5.0"
   @},
   "tagline" : "You Know, for Search"
 @}
@@ -1480,7 +1493,7 @@ loaded into ElasticSearch using the following command:
 
 @example
 curl -s -XPOST \
-  "http://localhost:9200/cybermon/observation/_search?pretty=true" -d '
+  "http://localhost:9200/cyberprobe/observation/_search?pretty=true" -d '
 @{
   "query" : @{
     "match_all": @{@}
@@ -1522,8 +1535,6 @@ the information is not stored for long.
 @cindex Dashboard
 @heading Visualising observations
 
-Note: This section is out of date.  
-
 Having loaded the observations into ElasticSearch, it's easy to do some
 visualisation with Kibana. Kibana is a brilliant, user-configurable
 dashboard package designed to sit on ElasticSearch. The dashboard runs in
@@ -1531,27 +1542,18 @@ your browser.
 
 First thing to do is to download and unpack Kibana. Kibana is managed by the
 ElasticSearch people, download page is at
-@url{http://www.elasticsearch.org/overview/kibana/installation/}.
+@url{http://www.elasticsearch.co/downloads/kibana}.
 
-For production, you would put Kibana on a web server, and configure it with
-access to ElasticSearch. For the quickstart all you need to do is unpack it
-in a directory, and point your browser at it.
-
-So, to get running, download Kibana, unpack in a directory. Kibana needs one
-configuration parameter changed in the config.js file. There's a parameter
-called elasticsearch which you need to change to point to your ElasticSearch
-instance, so something like this should work:
+Unpack and execute:
 
 @example
-elasticsearch: "http://localhost:9200",
+tar xvfz kibana-4.5.4-linux-x64.tar.gz
+cd cd kibana-4.5.4-linux-x64
+bin/kibana
 @end example
 
-Having set that up, you point your browser at the unpacked Kibana file
-e.g. ...
-
-@example
-file://@var{path-to-kibana}/index.html
-@end example
+Kibana starts on port 5601, so point your browser at e.g.
+@url{http://localhost:5601}
 
 and hopefully you see Kibana's "Welcome to Kibana" screen.  Read the Kibana
 tutorial and start playing with the data.
@@ -1750,6 +1752,8 @@ you found the experience.
 @menu
 * @command{cyberprobe} invocation::
 * @command{cyberprobe} configuration::
+* @command{cyberprobe-cli} invocation::
+* @command{cyberprobe-cli} commands::
 * Output streaming protocols::
 * Management protocol::
 * @command{cybermon} invocation::
@@ -1972,6 +1976,143 @@ the @code{username} values in the IPIRI construct in ETSI LI. The @code{key}
 value is the literal @code{username.} suffixed with the LIID. If such an
 entry is present, it is used for the @code{username}. All parameters are
 optional, meaningless defaults (e.g. unknown) will be used if not specified.
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cyberprobe-cli} invocation
+@section @command{cyberprobe-cli} invocation
+
+@cindex @command{cyberprobe-cli}, invocation
+@cindex Management client
+
+@command{cyberprobe-cli} connects to @command{cyberprobe} on the
+management port to allow dynamic administration.  This permits
+dynamic management of resources.
+
+@quotation Note
+You can end up in a confusing situation if you use both the configuration
+file, and the management interface to configure resources.  It is best to
+use one or the other.  You can safely use the configuration file
+for resources that you don't intend to change through the management interface,
+but you shouldn't use both the configuration file and management interface
+to change the same resources.
+@end quotation
+
+Synopsis:
+
+@example
+cyberprobe-cli HOST PORT
+@end example
+
+Example:
+@example
+cyberprobe-cli vpn-host031 8888
+@end example
+
+@table @samp
+
+@item HOST
+Specifies the hostname or  IP address of the host to connect to.
+
+@item PORT
+Specifies the management port number.
+
+@end table
+
+Upon connection, you are prompted to enter a username and password.  Upon
+successful authentication, you are then offered a command line prompt for
+administration commands.
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cyberprobe-cli} commands
+@section @command{cyberprobe-cli} commands
+
+@cindex @command{cyberprobe-cli}, commands
+@cindex Management client
+
+The following commands are supported by @command{cyberprobe-cli}:
+
+@table @samp
+
+@item add endpoint HOST PORT TYPE
+Adds a delivery endpoint.
+@table @samp
+@item HOST
+Specifies the delivery host.
+@item PORT
+Specifies TCP port to deliver to.
+@item TYPE
+Can be one of @samp{nhis} or @samp{etsi} for delivery protocol.
+@end table
+
+@item add interface INTERFACE DELAY [FILTER]
+Adds an interface for packet sniffing.
+@table @samp
+@item INTERFACE
+Interface name.
+@item DELAY
+Delay between packet acquisiton and delivery.  Defaults to zero.
+@item FILTER
+Optional, species a filter to be applied for positive selection of packets,
+in BPF / libpcap format.
+@end table
+
+@item add parameter KEY VALUE
+Adds a parameter.
+@table @samp
+@item KEY
+Parameter key.
+@item VALUE
+Parameter value.
+@end table
+
+@item add target LIID PROTOCOL ADDRESS
+Adds an address target for packet capture.
+@table @samp
+@item LIID
+LIID / device identifier.
+@item PROTOCOL
+Address protocol, one of @samp{ip4} or @samp{ip6}.
+@item ADDRESS
+Address value, in IPv4 or IPv6 format, according to the PROTOCOL value.
+@end table
+
+@item help
+Displays help (not implemented).
+
+@item quit
+Causes the client to close the connection and terminate.
+
+@item remove endpoint HOST PORT TYPE
+Removes an endpoint added through the @samp{add endpoint} command.
+The HOST, PORT and TYPE values are the same as for @samp{add endpoint}.
+
+@item remove interface INTERFACE DELAY [FILTER]
+Removes an interface added through the @samp{add interface} command.
+The INTERFACE, DELAY and FILTER values are the same as for @samp{add interface}.
+
+@item remove paramter KEY VALUE
+Removes a paramter added through the @samp{add parameter} command.
+The KEY and VALUE values are the same as for @samp{remove parameter}.
+
+@item remove target PROTOCOL ADDRESS
+Removes a target added through the @samp{remove target} command.
+The PROTOCOL and ADDRESS values are the same as for @samp{add target}.
+
+@item show endpoints
+Displays a table showing endpoints.
+
+@item show interfaces
+Displays a table showing interfaces.
+
+@item show parameters
+Displays a table showing parameters.
+
+@item show targets
+Displays a table showing targets.
+
+@end table
 
 @comment ----------------------------------------------------------------------
 
@@ -2719,8 +2860,6 @@ Command string in FTP or SMTP protocols.
 Reply text in FTP or SMTP protocols.
 
 @end table
-
-FIXME: Not documented.
 
 @comment ----------------------------------------------------------------------
 
@@ -3673,6 +3812,11 @@ is not part of cyberprobe, but it's a great NIDS, so we use that.
 @cindex Map on the dashboard
 @cindex Map widget
 @cindex IP event location
+
+@quotation Note
+FIXME: This bit of the documentation is out of date with respect to the
+main documentation.
+@end quotation
 
 Wouldn't it be good if our
 visual dashboard had a world map that showed the source of packets?
