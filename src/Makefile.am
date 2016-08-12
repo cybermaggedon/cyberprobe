@@ -1,5 +1,5 @@
 
-bin_PROGRAMS = cyberprobe cybermon nhis11_rcvr etsi_rcvr cyberprobe_cli
+bin_PROGRAMS = cyberprobe cybermon nhis11_rcvr etsi_rcvr cyberprobe-cli
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C xml.C capture.C configuration.C control.C snort_alert.C \
@@ -12,7 +12,7 @@ cyberprobe_LDADD = libcybermon.la
 cybermon_SOURCES = cybermon.C management.h 
 cybermon_LDADD = libcybermon.la
 
-cyberprobe_cli_SOURCES = cyberprobe_cli.C readline.C readline.h
+cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h
 cyberprobe_cli_LDADD = libcybermon.la
 
 nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C

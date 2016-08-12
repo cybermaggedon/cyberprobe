@@ -415,12 +415,13 @@ void completer(const std::vector<std::string>& tokens,
 
 }
 
-int main(int argc, char** argv)
+int client(int argc, char** argv)
 {
 
     if (argc != 3) {
 	std::cerr << "Usage:" << std::endl
 		  << "\tcyberprobe_cli host port" << std::endl;
+	exit(1);
     }
 
     commands.push_back("add");
@@ -611,3 +612,12 @@ int main(int argc, char** argv)
 
 }
 
+int main(int argc, char** argv)
+{
+    try {
+	client(argc, argv);
+    } catch (std::exception& e) {
+	std::cerr << "Exception: " << e.what() << std::endl;
+    }
+    exit(0);
+}
