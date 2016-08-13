@@ -1,0 +1,12 @@
+
+[Unit]
+Description=cybermon bigquery service
+Documentation=http://cyberprobe.sourceforge.net/cyberprobe.html
+
+[Service]
+PIDFile=/var/run/cybermon-bigquery.pid
+ExecStart=@bindir@/cybermon-bigquery
+
+[Install]
+WantedBy=multi-user.target
+

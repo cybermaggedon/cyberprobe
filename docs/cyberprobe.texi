@@ -1227,14 +1227,13 @@ http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 452
 http://pagead2.googlesyndication.com/pag                      0
 @end example
 
-@cindex TCP reset
-@cindex Packet forgery
 @heading Forging a TCP reset
 
 So far, this has just been monitoring. It's time to add data to the network!
 From the LUA functions, there are a couple of functions available which
 allow you to put some packets back onto the network.
 
+@cindex TCP reset
 @cindex Packet forgery
 @cindex Packet injection
 @cindex @command{cyberprobe}, delay
@@ -1849,6 +1848,7 @@ subscribers later.
 @cindex @command{cybermon-cassandra}, invocation
 @cindex Cassandra
 @cindex Apache Cassandra
+@cindex Graph store
 
 This subscriber writes data to a Cassandra store in a schema useful for
 graph analysis.
@@ -1892,6 +1892,7 @@ See @ref{@command{cybermon-elasticsearch} invocation}.
 
 @cindex @command{cybermon-gaffer}, invocation
 @cindex Gaffer
+@cindex Graph store
 
 Gaffer is an experimental graph database built on top of Accumulo, Zookeeper
 and Hadoop.  This subscriber writes data to Gaffer in a form intended to
@@ -3248,6 +3249,7 @@ to @samp{http://gaffer:8080/example-rest/v1}.
 @section @command{cybermon-cassandra} invocation
 
 @cindex @command{cybermon-cassandra}, invocation
+@cindex Apache Cassandra
 @cindex Cassandra
 @cindex Graph store
 

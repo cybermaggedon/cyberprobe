@@ -1,0 +1,12 @@
+
+[Unit]
+Description=cybermon Cassandra service
+Documentation=http://cyberprobe.sourceforge.net/cyberprobe.html
+
+[Service]
+PIDFile=/var/run/cybermon-cassandra.pid
+ExecStart=@bindir@/cybermon-cassandra
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,12 @@
+
+[Unit]
+Description=cybermon Gaffer service
+Documentation=http://cyberprobe.sourceforge.net/cyberprobe.html
+
+[Service]
+PIDFile=/var/run/cybermon-gaffer.pid
+ExecStart=@bindir@/cybermon-gaffer
+
+[Install]
+WantedBy=multi-user.target
+

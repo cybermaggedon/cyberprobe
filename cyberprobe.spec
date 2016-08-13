@@ -65,5 +65,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/lib*
 /usr/lib/systemd/system/cyberprobe.service
 /usr/lib/systemd/system/cybermon.service
+/usr/lib/systemd/system/cybermon-bigquery.service
+/usr/lib/systemd/system/cybermon-cassandra.service
+/usr/lib/systemd/system/cybermon-elasticsearch.service
+/usr/lib/systemd/system/cybermon-gaffer.service
 
 %changelog
