@@ -3981,7 +3981,7 @@ The FTP text.
 @cindex Cyberprobe, architecture
 @cindex Architecture
 
-@image{architecture-small,145mm,,png}
+@image{architecture,145mm,,png}
 
 Cyberprobe consists of a set of loosely-coupled components which can be
 used together. We prefer to use simple interfaces, and prefer to use
@@ -4005,12 +4005,45 @@ provides.
 
 @item stix+db.lua
 @cindex @file{stix+db.lua} configuration file
-@cindex @code{cybermon}, @file{stix+db.lua} configuration file
+@cindex @command{cybermon}, @file{stix+db.lua} configuration file
 is a cybermon configuration file we provide. It translates the cybermon
 events into a JSON description which is fed into an ElasticSearch
 database. This configuration file also reads a STIX configuration file for
 cyber threat indicators. When these indicators are observed, the indicator
 meta-data is also added to the JSON events.
+
+@item zeromq.lua
+@cindex @file{zeromq.lua} configuration file
+@cindex @code{cybermon}, @file{zeromq.lua} configuration file
+is a cybermon configuration file we provide which publishes data to a
+ZeroMQ pub/sub queue.  It allows connection of consumers to the
+@command{cybermon} event stream.
+
+@item cybermon-bigquery
+@cindex @command{cybermon-bigquery}
+@cindex Google BigQuery
+@cindex BigQuery
+is a ZeroMQ subscriber which output @command{cybermon} events to a
+Google BigQuery table.
+
+@item cybermon-cassandra
+@cindex @command{cybermon-cassanra}
+@cindex Cassandra
+@cindex Apache Cassandra
+is a ZeroMQ subscriber which output @command{cybermon} events to a
+Cassandra store.
+
+@item cybermon-elasticsearch
+@cindex @command{cybermon-elasticsearch}
+@cindex ElasticSearch
+is a ZeroMQ subscriber which output @command{cybermon} events to a
+ElasticSearch store.
+
+@item cybermon-gaffer
+@cindex @command{cybermon-gaffer}
+@cindex Gaffer
+is a ZeroMQ subscriber which output @command{cybermon} events to a
+Gaffer store.
 
 @item taxii-server
 is a TAXII compliant server, which is used to distribute STIX rules over

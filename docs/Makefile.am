@@ -3,7 +3,7 @@ dist_doc_DATA = architecture.png cyberprobe.css \
 	cyberprobe-overview.png index.html licence.html kibana.png \
 	../stix/example1.txt ../stix/example2.txt \
 	cyberprobe.html kibana-small.png kibana-scaled.png \
-	architecture-small.png cyberprobe.pdf
+	cyberprobe.pdf
 
 info_TEXINFOS = cyberprobe.texi
 
@@ -16,14 +16,13 @@ AM_MAKEINFOHTMLFLAGS = --no-split
 EXTRA_DIST = nhis11-rcvr.1.in etsi-rcvr.1.in cyberprobe.1.in cybermon.1.in \
 	cybermon-gaffer.1.in cybermon-elasticsearch.1.in cybermon-monitor.1.in \
 	cybermon-bigquery.1.in cybermon-cassandra.1.in cyberprobe-cli.1.in \
-	cyberprobe-overview.eps kibana-scaled.eps architecture-small.eps
+	cyberprobe-overview.eps kibana-scaled.eps architecture.eps
 
 # FIXME: chmod needed to get make distcheck to work.
 install-data-hook:
 	chmod +w $(DESTDIR)$(infodir)
 	ln -sf $(docdir)/cyberprobe-overview.png $(DESTDIR)$(infodir)/cyberprobe-overview.png
-	ln -sf $(docdir)/kibana-scaled.png $(DESTDIR)$(infodir)/kibana-scaled.png
-	ln -sf $(docdir)/architecture-small.png $(DESTDIR)$(infodir)/architecture-small.png
+	ln -sf $(docdir)/architecture.png $(DESTDIR)$(infodir)/architecture.png
 
 do_substitution = sed -e 's,[@]DOCDIR[@],$(docdir),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
