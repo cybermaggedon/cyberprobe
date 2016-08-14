@@ -472,6 +472,66 @@ sudo make install
 Powered by SourceForge, project page is at
 @url{http://www.sourceforge.net/p/cyberprobe}.
 
+@cindex Docker
+@cindex Containers
+@cindex Cyberprobe, docker repository
+@cindex @command{cyberprobe}, docker repository
+@cindex @command{cybermon}, docker repository
+@heading Docker repository
+
+There are two Docker repositories containing the Cyberprobe distribution.
+See @url{http://hub.docker.com/r/cybermaggedon/cyberprobe}.
+
+@itemize
+
+@item
+@code{docker.io/cybermaggedon/cyberprobe}
+
+@item
+@code{docker.io/cybermaggedon/cybermon}
+
+@end itemize
+
+The only difference is the default command which is executed on running
+the container.  Here are some container invocations you may find useful:
+
+@itemize
+
+@item
+Run @command{cyberprobe}.  You will need to create a configuration file
+and map it in to the container.
+@example
+sudo docker -it --rm -v /etc/cyberprobe:/etc/cyberprobe_host \
+  docker.io/cybermaggedon/cyberprobe \
+  cyberprobe /etc/cyberprobe_host/cyberprobe.fg
+@end example
+
+@item
+Run @command{cybermon}.  The @command{cybermon} container exposes ports
+9000 and 5555.
+@example
+sudo docker -it --rm -p 9000:9000 -v \
+  --net=host --privileged --cap-add=NET_ADMIN \
+  docker.io/cybermaggedon/cybermon \
+  cybermon /etc/cyberprobe/zeromq.lua
+@end example
+
+@item
+Run @command{cybermon-cassandra}.  You need to know the IP address
+of the host side of the Docker bridge network, and provide addresses
+of the Cassandra servers.
+@example
+sudo docker -it --rm -v \
+  docker.io/cybermaggedon/cybermon \
+  cybermon-cassandra tcp://147.146.0.1:5555 10.142.146.6,10.142.146.8
+@end example
+
+@end itemize
+
+Running cyberprobe in a container makes the deployment easier, but it needs
+to run with elevated privileges in order to sniff the network, which reduces
+some of the advantages of running it in a container.
+
 @comment ----------------------------------------------------------------------
 
 @node Quick start tutorial
