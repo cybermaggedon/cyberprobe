@@ -17,7 +17,22 @@ local os = require("os")
 local uuid = require("uuid")
 
 -- Config ------------------------------------------------------------------
-local binding = "tcp://*:5555"
+
+--
+-- To offer a local publication port: either just do nothing, and accept
+-- the default 5555 port, or set ZMQ_BINDING to something like tcp://*:12345
+-- to specify the port number.  To push to a remote port, 
+local binding
+local connection
+if os.getenv("ZMQ_BINDING") then
+  binding = os.getenv("ZMQ_BINDING")
+else
+  if os.getenv("ZMQ_CONNECT") then
+    connection = os.getenv("ZMQ_CONNECT")
+  else
+    binding = "tcp://*:5555"
+  end
+end
 
 -- GeoIP -------------------------------------------------------------------
 
@@ -51,13 +66,24 @@ local skt
 local init = function()
 
   context = lzmq.context()
-  skt = context:socket(lzmq.PUB)
-  ret = skt:bind(binding)
 
-  if ret == false then
-    print("ZeroMQ bind failed")
-    os.exit(1)
-  end
+  if binding then
+    skt = context:socket(lzmq.PUB)
+    ret = skt:bind(binding)
+
+    if ret == false then
+      print("ZeroMQ bind failed")
+      os.exit(1)
+    end
+  else
+     skt = context:socket(lzmq.PUSH)
+     ret = skt:connect(connection)
+
+     if ret == false then
+       print("ZeroMQ connect failed")
+       os.exit(1)
+    end
+ end
 
 end
 
