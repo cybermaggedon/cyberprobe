@@ -18,7 +18,7 @@ local os = require("os")
 -- Initialise UUID ---------------------------------------------------------
 
 -- Needed to help initialise UUID.
-localhost socket = require("socket")
+local socket = require("socket")
 local uuid = require("uuid")
 
 uuid.seed()
