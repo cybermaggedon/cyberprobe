@@ -14,7 +14,14 @@ local mime = require("mime")
 local jsenc = require("json.encode")
 local lzmq = require("lzmq")
 local os = require("os")
+
+-- Initialise UUID ---------------------------------------------------------
+
+-- Needed to help initialise UUID.
+localhost socket = require("socket")
 local uuid = require("uuid")
+
+uuid.seed()
 
 -- Config ------------------------------------------------------------------
 
