@@ -23,6 +23,7 @@ namespace cybermon {
     // SMTP client parser.
     class smtp_client_parser {
     public:
+    virtual ~smtp_client_parser() = default;
 
     private:
 
