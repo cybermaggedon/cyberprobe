@@ -223,6 +223,7 @@ namespace tcpip {
 
 	/** Actual socket creation */
 	void create() {
+	    close();
 	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	    if (sock < 0)
 		throw std::runtime_error("Socket creation failed.");
@@ -339,6 +340,7 @@ namespace tcpip {
 
 	/** Actual socket creation */
 	void create() {
+	    close();
 	    sock = ::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	    if (sock < 0)
 		throw std::runtime_error("Socket creation failed.");
@@ -410,6 +412,7 @@ namespace tcpip {
 
 	/** Actual socket creation */
 	void create() {
+	    close();
 	    sock = ::socket(PF_UNIX, SOCK_DGRAM, 0);
 	    if (sock < 0)
 		throw std::runtime_error("Socket creation failed.");
