@@ -1,5 +1,5 @@
 Name:		cyberprobe
-Version:	0.77
+Version:	0.79
 Release:	1%{?dist}
 Summary:	Distrbuted real-time monitoring of networks against attack.
 Group:		Applications/Internet
