@@ -2,6 +2,8 @@
 #ifndef CYBERMON_SOCKET_H
 #define CYBERMON_SOCKET_H
 
+#include <openssl/ssl.h>
+
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -539,6 +541,199 @@ namespace tcpip {
 	/** Destructor.  You must call close() before destroying socket,
 	    otherwise a file descriptor gets leaked. */
 	virtual ~raw_socket() { }
+
+    };
+
+    /** An SSL/TLS socket. */
+    class ssl_socket : public socket {
+      private:
+	static const int buflen = 8192;
+	int bufstart;
+	int bufsize;
+	char buf[buflen];
+      public:
+	int sock;
+      private:
+
+	/** Socket port number. */
+	int port;
+
+	/** Certificates and keys */
+	const std::string certificate;
+	const std::string key;
+	const std::string ca_certificate;
+
+	SSL* ssl;
+	SSL_CTX* context;
+
+	static bool ssl_init;
+
+	void use_certificate_file(const std::string& f) {
+	    if (context == 0)
+		throw std::runtime_error("No SSL context.");
+	    int ret = SSL_CTX_use_certificate_file(context, f.c_str(),
+						   SSL_FILETYPE_PEM);
+	    if (ret < 0)
+		throw std::runtime_error("Couldn't load certificate file.");
+	}
+
+	void use_key_file(const std::string& f) {
+	    if (context == 0)
+		throw std::runtime_error("No SSL context.");
+	    int ret = SSL_CTX_use_PrivateKey_file(context, f.c_str(),
+						  SSL_FILETYPE_PEM);
+	    if (ret < 0)
+		throw std::runtime_error("Couldn't load private key file.");
+	}
+
+	void use_certificate_chain_file(const std::string& f) {
+	    if (context == 0)
+		throw std::runtime_error("No SSL context.");
+	    int ret = SSL_CTX_use_certificate_chain_file(context, f.c_str());
+	    if (ret < 0)
+		throw std::runtime_error("Couldn't load certificate file.");
+	}
+
+	/** Actual socket creation */
+	void create() {
+	    close();
+	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
+	    SSL_set_fd(ssl, sock);
+	}
+
+      public:
+
+	/** Bind to port */
+	void bind(int port = 0);
+
+	/** Create a socket. */
+	ssl_socket() { 
+	    sock = -1;
+	    bufstart = bufsize = 0;
+	    ssl = 0;
+	    context = 0;
+	    if (!ssl_init) {
+		SSL_library_init();
+		ssl_init = true;
+	    }
+	    if (ssl) {
+		SSL_free(ssl);
+		ssl = 0;
+	    }
+	    if (context) {
+		SSL_CTX_free(context);
+		context = 0;
+	    }
+	    context = SSL_CTX_new(SSLv23_method());
+	    if (context == 0)
+		throw std::runtime_error("Couldn't initialise SSL context.");
+	    ssl = SSL_new(context);
+	    if (ssl == 0)
+		throw std::runtime_error("Couldn't initialise SSL.");
+	};
+
+	bool is_open() {
+	    return sock != -1;
+	}
+
+	/** Read from the socket. With buffering. */
+	virtual int read(char* buffer, int len);
+
+	/** Read from the socket. With buffering. */
+	virtual int read(std::string& buf, int len) {
+	    char tmp[len];
+	    int ret = read(tmp, len);
+	    buf.assign(tmp, len);
+	    return ret;
+	}
+
+	/** Read from the socket. With buffering. */
+	virtual int read(std::vector<unsigned char>& buffer, int len);
+
+	/** Read a line of text, LF. CR is discarded. */
+	virtual void readline(std::string& line);
+
+	/** Write to the socket. */
+	virtual int write(const char* buffer, int len) {
+	    return SSL_write(ssl, buffer, len);
+	}
+	
+	// Short-hand
+	typedef std::vector<unsigned char>::const_iterator const_iterator;
+
+	/** Write to the socket. */
+	virtual int write(const_iterator& start,
+			  const_iterator& end) {
+	    unsigned char tmp[end - start];
+	    copy(start, end, tmp);
+	    return write((char*) tmp, end - start);
+	}
+
+	/** Write to the socket. */
+	virtual int write(const std::vector<unsigned char>& buffer) {
+	    unsigned char tmp[buffer.size()];
+	    copy(buffer.begin(), buffer.end(), tmp);
+	    return write((char*) tmp, buffer.size());
+	}
+	
+	/** Write to the socket. */
+	virtual int write(const std::string& str) {
+	    return write(str.c_str(), str.length());
+	}
+
+	unsigned short bound_port();
+
+	/** Put socket in listen mode. */
+	virtual void listen(int backlog=10) {
+	    ::listen(sock, backlog);
+	}
+
+	/** Accept a connection. */
+	virtual void accept(ssl_socket& conn) {
+	    int ns = ::accept(sock, 0, 0);
+	    if (-1 == ns) {
+		throw std::runtime_error("Socket accept failed");
+	    }
+	    conn.sock = ns;
+	    conn.port = port;
+	    int ret = SSL_accept(ssl);
+	    if (ret < 0)
+		throw std::runtime_error("SSL accept failed");
+	}
+
+	/** Connection to a remote service */
+	virtual void connect(const std::string& hostname, int port);
+
+	/** Close the connection. */
+	virtual void close() {
+	    if (ssl)
+		SSL_shutdown(ssl);
+            if (sock >= 0) {
+		::shutdown(sock, SHUT_RDWR);
+                ::close(sock);
+		sock = -1;
+            }
+	}
+
+	/** Destructor.  You must call close() before destroying socket,
+	    otherwise a file descriptor gets leaked. */
+	virtual ~ssl_socket() {
+	    if (ssl) {
+		SSL_shutdown(ssl);
+		SSL_free(ssl);
+		ssl = 0;
+	    }
+	    if (context) {
+		SSL_CTX_free(context);
+		context = 0;
+	    }
+	}
+	
+	/** Poll, waits for timeout (in seconds) and returns true if there's
+	    activity on the socket. */
+	virtual bool poll(float timeout);
 
     };
 
