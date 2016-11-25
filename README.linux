@@ -16,7 +16,7 @@ Debian, Ubuntu
 - sudo apt-get install lua-md5
 - sudo apt-get install lua-socket
 - sudo apt-get install ncurses-dev
-- sudo apt-get install texinfo texlive
+- sudo apt-get install texinfo texlive texinfo-tex
 - sudo apt-get install make
 - git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 - autoreconf -fi
@@ -54,7 +54,8 @@ sudo yum install libpcap-devel boost-devel gcc-c++
 sudo yum install expat-devel lua-devel 
 sudo yum install ncurses-devel readline-devel 
 sudo yum install lua-filesystem lua-json lua-md5 lua-socket
-sudo yum install texinfo texlive
+sudo yum install texinfo texlive texinfo-tex
+sudo yum install libtool
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
 autoreconf -fi
 ./configure --prefix=/usr/local
@@ -70,18 +71,20 @@ Doesn't include LUA json or filesystem, and doesn't have luarocks in order to
 be able to install them.
 
 Have to download luarocks:
-   wget http://luarocks.org/releases/luarocks-2.0.6.tar.gz
+   wget http://luarocks.org/releases/luarocks-2.x.x.tar.gz
 ./configure --with-lua-include=/usr/include
 make
 make install
 
-/usr/local/bin/luarocks install luajson
-/usr/local/bin/luarocks install luafilesystem
+yum install openssl-devel
 
-Luarocks installs to /usr/local, so you need to move the 'json' directory
-from somewhere under /usr/local/share/lua/5.1 to /usr/share/lua/5.1.  Also
-lpeg.so and lfs.so from /usr/local/{lib,lib64}/lua/5.1 to
-/usr/{lib,lib64}/lua/5.1.
+/usr/local/bin/luarocks --tree=/usr install luajson
+/usr/local/bin/luarocks --tree=/usr install luafilesystem
+/usr/local/bin/luarocks --tree=/usr install lmd5
+/usr/local/bin/luarocks --tree=/usr install luasocket
+
+Some amount of hacking around of directories is needed e.g. things are put
+in /usr/lib/lua.5.1 when Lua expects /usr/lib64/lua/5.1
 
 Optional extras
 ===============
