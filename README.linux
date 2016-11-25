@@ -62,6 +62,9 @@ autoreconf -fi
 make
 make install
 
+lua-md5 seems to be for Lua v5.2.  So, you need to install luarocks and then
+luarocks install md5.
+
 Centos 7, RHEL7
 ===============
 

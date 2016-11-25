@@ -26,7 +26,7 @@ class sender_info {
 class management {
 
   public:
-    virtual ~management() = default;
+    virtual ~management() {}
 
     // Modifies interface capture
     virtual void add_interface(const std::string& iface,

@@ -83,7 +83,7 @@ namespace cybermon {
 	    else
 		state = IN_RESPONSE_PROTOCOL;
 	}
-	virtual ~http_parser() = default;
+	virtual ~http_parser() {}
 
 	void normalise_url(const std::string& host, const std::string url,
 			   std::string& out) {

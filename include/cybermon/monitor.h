@@ -10,7 +10,7 @@
 // Monitor function, handles packets.
 class monitor {
   public:
-  	virtual ~monitor() = default;
+    virtual ~monitor() {}
 
     // IP packet.
     virtual void operator()(const std::string& liid,
