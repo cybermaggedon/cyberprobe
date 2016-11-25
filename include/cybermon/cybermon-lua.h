@@ -47,7 +47,7 @@ namespace cybermon {
 	}
 	
 	// Destructor.
-	~lua_state() {
+	virtual ~lua_state() {
 	    lua_close(lua);
 	}
 

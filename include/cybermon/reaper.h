@@ -12,6 +12,7 @@ class reapable;
 
 class watcher {
 public:
+virtual ~watcher() = default;
     virtual unsigned long get_time() = 0;
     virtual void set_ttl(reapable& r, unsigned long ttl) = 0;
     virtual void unset_ttl(reapable& r) = 0;

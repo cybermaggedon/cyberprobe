@@ -41,6 +41,8 @@ namespace tcpip {
     // IP address base class.
     class address {
       public:
+	  virtual ~address() = default;
+
 	enum {ipv4, ipv6 } universe;
 	std::vector<unsigned char> addr;
 	virtual void to_string(std::string&) const = 0;

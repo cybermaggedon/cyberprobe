@@ -4,6 +4,7 @@
 
 class packet_consumer {
   public:
+    virtual ~packet_consumer() = default;
 
     // Allows caller to provide an IP packet for delivery.
     virtual void receive_packet(const std::vector<unsigned char>& packet, 
