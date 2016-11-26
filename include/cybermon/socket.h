@@ -595,7 +595,6 @@ namespace tcpip {
 						  SSL_FILETYPE_PEM);
 	    if (ret < 0)
 		throw std::runtime_error("Couldn't load private key file.");
-	    std::cerr << "Key loaded" << std::endl;
 	}
 
 	/** Provide CA chain. */
