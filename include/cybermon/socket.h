@@ -558,16 +558,26 @@ namespace tcpip {
 	/** Socket port number. */
 	int port;
 
-	/** Certificates and keys */
-	const std::string certificate;
-	const std::string key;
-	const std::string ca_certificate;
-
 	SSL* ssl;
 	SSL_CTX* context;
 
 	static bool ssl_init;
 
+	/** Actual socket creation */
+	void create() {
+	    close();
+	    ssl = SSL_new(context);
+	    if (ssl == 0)
+		throw std::runtime_error("Couldn't initialise SSL.");
+	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
+	    SSL_set_fd(ssl, sock);
+	}
+
+      public:
+
+	/** Provide certificate. */
 	void use_certificate_file(const std::string& f) {
 	    if (context == 0)
 		throw std::runtime_error("No SSL context.");
@@ -577,6 +587,7 @@ namespace tcpip {
 		throw std::runtime_error("Couldn't load certificate file.");
 	}
 
+	/** Provide private key. */
 	void use_key_file(const std::string& f) {
 	    if (context == 0)
 		throw std::runtime_error("No SSL context.");
@@ -584,26 +595,17 @@ namespace tcpip {
 						  SSL_FILETYPE_PEM);
 	    if (ret < 0)
 		throw std::runtime_error("Couldn't load private key file.");
+	    std::cerr << "Key loaded" << std::endl;
 	}
 
+	/** Provide CA chain. */
 	void use_certificate_chain_file(const std::string& f) {
 	    if (context == 0)
 		throw std::runtime_error("No SSL context.");
-	    int ret = SSL_CTX_use_certificate_chain_file(context, f.c_str());
+	    int ret = SSL_CTX_load_verify_locations(context, f.c_str(), 0);
 	    if (ret < 0)
 		throw std::runtime_error("Couldn't load certificate file.");
 	}
-
-	/** Actual socket creation */
-	void create() {
-	    close();
-	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	    if (sock < 0)
-		throw std::runtime_error("Socket creation failed.");
-	    SSL_set_fd(ssl, sock);
-	}
-
-      public:
 
 	/** Bind to port */
 	void bind(int port = 0);
@@ -629,9 +631,6 @@ namespace tcpip {
 	    context = SSL_CTX_new(SSLv23_method());
 	    if (context == 0)
 		throw std::runtime_error("Couldn't initialise SSL context.");
-	    ssl = SSL_new(context);
-	    if (ssl == 0)
-		throw std::runtime_error("Couldn't initialise SSL.");
 	};
 
 	bool is_open() {

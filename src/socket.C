@@ -262,40 +262,17 @@ int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 
 int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 {
-    int needed = len;
-    int got = 0;
+
+    unsigned char tmp[len];
+    int ret = SSL_read(ssl, tmp, len);
     
-    while (needed > 0) {
+    if (ret <= 0)
+	return 0;
 
-	if (bufsize == 0) {
-	    bufstart = 0;
-	    bufsize = SSL_read(ssl, buf, buflen);
-	    if (bufsize == 0)
-		return got;
-	    if (bufsize < 0)
-		throw std::runtime_error("Socket error");
-	}
+    buffer.insert(buffer.end(), tmp, tmp + len);
 
-	if (bufsize > 0) {
-	    if (needed >= bufsize) {
-		buffer.insert(buffer.end(), buf + bufstart,
-			      buf + bufstart + bufsize);
-		got += bufsize;
-		needed -= bufsize;
-		bufsize = 0;
-	    } else {
-		buffer.insert(buffer.end(), buf + bufstart,
-			      buf + bufstart + needed);
-		bufsize -= needed;
-		bufstart += needed;
-		got += needed;
-		needed = 0;
-	    }
-	}
+    return ret;
 
-    }
-	    
-    return got;
 }
 
 int tcpip::udp_socket::read(std::vector<unsigned char>& buffer, int len)
@@ -363,38 +340,12 @@ int tcpip::tcp_socket::read(char* buffer, int len)
 
 int tcpip::ssl_socket::read(char* buffer, int len)
 {
-    int needed = len;
-    int got = 0;
-	    
-    while (needed > 0) {
 
-	if (bufsize == 0) {
-	    bufstart = 0;
-	    bufsize = SSL_read(ssl, buf, buflen);
-	    if (bufsize == 0)
-		return got;
-	    if (bufsize < 0)
-		throw std::runtime_error("Socket error");
-	}
+    int ret = SSL_read(ssl, buffer, len);
 
-	if (bufsize > 0) {
-	    if (needed >= bufsize) {
-		memcpy(buffer + got, buf + bufstart, bufsize);
-		got += bufsize;
-		needed -= bufsize;
-		bufsize = 0;
-	    } else {
-		memcpy(buffer + got, buf + bufstart, needed);
-		bufsize -= needed;
-		bufstart += needed;
-		got += needed;
-		needed = 0;
-	    }
-	}
+    if (ret <= 0)
+	return 0;
 
-    }
-	    
-    return got;
 }
 
 void tcpip::tcp_socket::readline(std::string& line)
