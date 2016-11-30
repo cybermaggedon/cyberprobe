@@ -29,8 +29,12 @@ public:
     // Constructors.
     endpoint_spec() {}
     endpoint_spec(const std::string& hostname, unsigned short port,
-		  const std::string& type) {
+		  const std::string& type, const std::string& transport,
+		  const std::string& cert, const std::string& key,
+		  const std::string& trusted_ca) {
 	this->hostname = hostname; this->port = port; this->type = type;
+	this->transport = transport; this->certificate_file = cert;
+	this->key_file = key; this->trusted_ca_file = trusted_ca;
     }
 
     // Hash is form <space> + host:port.

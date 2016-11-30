@@ -161,18 +161,39 @@ void config_manager::read(const std::string& file,
 		// attributes.
 		if (it->name == "endpoint") {
 		    
-		    // All three attributes are mandatory.
+		    // All these attributes are mandatory.
 		    if (it->attributes.find("hostname") == it->attributes.end())
 			continue;
 		    if (it->attributes.find("port") == it->attributes.end())
 			continue;
 		    if (it->attributes.find("type") == it->attributes.end())
 			continue;
-		    
+		    if (it->attributes.find("transport") ==
+			it->attributes.end())
+			continue;
+
 		    // Get the attributes.
 		    std::string hostname = it->attributes["hostname"];
 		    std::string type = it->attributes["type"];
-		    
+		    std::string transport = it->attributes["transport"];
+
+		    if (transport == "tls") {
+			if (it->attributes.find("certificate") ==
+			    it->attributes.end())
+			    continue;
+			if (it->attributes.find("key") ==
+			    it->attributes.end())
+			    continue;
+			if (it->attributes.find("trusted-ca") ==
+			    it->attributes.end())
+			    continue;
+		    }
+
+		    // Optional attributes
+		    std::string cert = it->attributes["certificate"];
+		    std::string key = it->attributes["key"];
+		    std::string trusted_ca = it->attributes["trusted-ca"];
+
 		    // Scan port string into an integer.
 		    std::istringstream buf(it->attributes["port"]);
 		    int port;
@@ -180,7 +201,8 @@ void config_manager::read(const std::string& file,
 		
 		    // Create an endpoint specification.
 		    cybermon::specification* sp = 
-			new endpoint_spec(hostname, port, type);
+		      new endpoint_spec(hostname, port, type, transport,
+					cert, key, trusted_ca);
 		    lst.push_back(sp);
 		    continue;
 
