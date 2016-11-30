@@ -14,30 +14,40 @@
 
 // Defines an endpoint.
 class ep {
+
+    std::string key;
+
   public:
-    std::string hostname;
-    unsigned int port;
-    std::string type;
+    std::string hostname;	// Hostname
+    unsigned int port;		// Port number.
+    std::string type;		// Type, one of: etsi, nhis.
+    std::string transport;	// Transport, one of: tcp, tls.
+    std::map<std::string, std::string> params;
+
+    ep(const std::string& host, unsigned int port,
+       const std::string& type, const std::string& transport,
+       const std::map<std::string, std::string>& params) {
+	this->hostname = host;
+	this->port = port;
+	this->type = type;
+	this->transport = transport;
+	this->params = params;
+	make_key();
+    }
+	
+    void make_key() {
+	std::ostringstream buf;
+	buf << hostname << ":" << port << ":" << type << ":" << transport;
+	for(std::map<std::string, std::string>::iterator it = params.begin();
+	    it != params.end();
+	    it++)
+	    buf << ":" << it->first << "=" << it->second;
+	key = buf.str();
+    }
 
     bool operator<(const ep& e) const {
 
-	if (hostname < e.hostname)
-	    return true;
-	else
-	    if (hostname > e.hostname)
-		return false;
-
-	// hostname == e.hostname
-	if (port < e.port)
-	    return true;
-	else
-	    if (port > e.port)
-		return false;
-
-	if (type < e.type) 
-	    return true;
-	else
-	    return false;
+	return (key < e.key);
 
     }
 
@@ -181,12 +191,18 @@ class delivery : public parameters, public management, public packet_consumer {
 			     std::map<tcpip::ip6_address, std::string> >& t6);
 
     // Adds an endpoint
-    virtual void add_endpoint(const std::string& host, unsigned int port,
-			      const std::string& type);
+    virtual void add_endpoint(const std::string& host,
+			      unsigned int port,
+			      const std::string& type,
+			      const std::string& transp,
+			      const std::map<std::string, std::string>& params);
 
     // Removes an endpoint
-    virtual void remove_endpoint(const std::string& host, unsigned int port,
-				 const std::string& type);
+    virtual void remove_endpoint(const std::string& host,
+				 unsigned int port,
+				 const std::string& type,
+				 const std::string& transp,
+				 const std::map<std::string, std::string>& p);
 
     // Fetch current target list.
     virtual void get_endpoints(std::list<sender_info>& info);

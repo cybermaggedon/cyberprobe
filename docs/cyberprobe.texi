@@ -2316,7 +2316,7 @@ The following commands are supported by @command{cyberprobe-cli}:
 
 @table @samp
 
-@item add endpoint HOST PORT TYPE
+@item add endpoint HOST PORT TYPE TRANSPORT
 Adds a delivery endpoint.
 @table @samp
 @item HOST
@@ -2325,6 +2325,8 @@ Specifies the delivery host.
 Specifies TCP port to deliver to.
 @item TYPE
 Can be one of @samp{nhis} or @samp{etsi} for delivery protocol.
+@item TRANSPORT
+Can be one of @samp{tcp} or @samp{tls} for TCP or TLS transports.
 @end table
 
 @item add interface INTERFACE DELAY [FILTER]
@@ -2365,9 +2367,10 @@ Displays help (not implemented).
 @item quit
 Causes the client to close the connection and terminate.
 
-@item remove endpoint HOST PORT TYPE
+@item remove endpoint HOST PORT TYPE TRANSPORT
 Removes an endpoint added through the @samp{add endpoint} command.
-The HOST, PORT and TYPE values are the same as for @samp{add endpoint}.
+The HOST, PORT TYPE and TRANSPORT values are the same as for
+@samp{add endpoint}.
 
 @item remove interface INTERFACE DELAY [FILTER]
 Removes an interface added through the @samp{add interface} command.
@@ -2525,13 +2528,15 @@ Removes a previously enabled packet capture.
 @item interfaces
 Lists all interfaces, output is format @code{iface:delay:filter}.
 
-@item add_endpoint <host> <port> <type>
+@item add_endpoint <host> <port> <type> <transport>
 Adds an endpoint to delivery data to.
-where type is one of: @code{etsi} @code{nhis1.1}.
+where type is one of: @code{etsi} @code{nhis1.1} and
+transport is one of: @code{tcp} @code{tls}.
 
-@item remove_endpoint <host> <port> <type>
+@item remove_endpoint <host> <port> <type> <transport>
 Removes a previously enabled endpoint.
-where type is one of: @code{etsi} @code{nhis1.1}.
+where type is one of: @code{etsi} @code{nhis1.1} and
+transport is one of: @code{tcp} @code{tls}.
 
 @item endpoints
 Lists endpoints, format is @code{host:port:type:description}.

@@ -455,15 +455,15 @@ void delivery::get_targets(std::map<int,
 
 // Adds an endpoint
 void delivery::add_endpoint(const std::string& host, unsigned int port,
-			    const std::string& type) 
+			    const std::string& type,
+			    const std::string& transport,
+			    const std::map<std::string, std::string>& params)
 {
 
     senders_lock.lock();
     
-    ep e;
-    e.hostname = host;
-    e.port = port;
-    e.type = type;
+    ep e(host, port, type, transport, params);
+
     sender* s;
 
     if (senders.find(e) != senders.end()) {
@@ -472,9 +472,9 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
     }
 
     if (type == "nhis1.1") {
-	s = new nhis11_sender(host, port, *this);
+	s = new nhis11_sender(host, port, params, *this);
     } else if (type == "etsi") {
-	s = new etsi_li_sender(host, port, *this);
+	s = new etsi_li_sender(host, port, params, *this);
     } else {
 	senders_lock.unlock();
 	throw std::runtime_error("Endpoint type not known.");
@@ -488,15 +488,14 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
 
 // Removes an endpoint
 void delivery::remove_endpoint(const std::string& host, unsigned int port,
-			       const std::string& type)
-
+			       const std::string& type,
+			       const std::string& transport,
+			       const std::map<std::string, std::string>& params)
 {
+
     senders_lock.lock();
 
-    ep e;
-    e.hostname = host;
-    e.port = port;
-    e.type = type;
+    ep e(host, port, type, transport, params);
 
     if (senders.find(e) != senders.end()) {
 	senders[e]->stop();

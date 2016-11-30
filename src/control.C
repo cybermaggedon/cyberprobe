@@ -419,19 +419,23 @@ void connection::cmd_remove_target(const std::vector<std::string>& lst)
 void connection::cmd_add_endpoint(const std::vector<std::string>& lst)
 {
 
-    if (lst.size() != 4) {
-	error(301, "Usage: add_endpoint <host> <port> <type>");
+    if (lst.size() != 5) {
+	error(301, "Usage: add_endpoint <host> <port> <type> <transport>");
 	return;
     }
     
-    std::string host = lst[1];
+    const std::string& host = lst[1];
     int port;
     std::istringstream buf(lst[2]);
     buf >> port;
-    std::string type = lst[3];
+    const std::string& type = lst[3];
+    const std::string& transport = lst[4];
     
     try {
-	d.add_endpoint(host, port, type);
+
+	// FIXME: Allow parameters to be added.
+	std::map<std::string, std::string> params;
+	d.add_endpoint(host, port, type, transport, params);
 	ok(200, "Added endpoint.");
     } catch (...) {
 	error(500, "Failed to add endpoint.");
@@ -443,19 +447,22 @@ void connection::cmd_add_endpoint(const std::vector<std::string>& lst)
 void connection::cmd_remove_endpoint(const std::vector<std::string>& lst)
 {
 
-    if (lst.size() != 4) {
-	error(301, "Usage: remove_endpoint <host> <port> <type>");
+    if (lst.size() != 5) {
+	error(301, "Usage: remove_endpoint <host> <port> <type> <transport>");
 	return;
     }
     
-    std::string host = lst[1];
+    const std::string host = lst[1];
     int port;
     std::istringstream buf(lst[2]);
     buf >> port;
-    std::string type = lst[3];
+    const std::string type = lst[3];
+    const std::string transport = lst[4];
     
     try {
-	d.remove_endpoint(host, port, type);
+	// FIXME: Allow parameters to be added.
+	std::map<std::string, std::string> params;
+	d.remove_endpoint(host, port, type, transport, params);
 	ok(200, "Removed endpoint.");
     } catch (...) {
 	error(500, "Failed to remove endpoint.");
