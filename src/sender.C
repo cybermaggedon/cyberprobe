@@ -282,13 +282,13 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		std::string username;
 		
 		// Get metadata parameters
-		oper = pars.get_parameter("operator", "unknown");
-		country = pars.get_parameter("country", "XX");
-		net_elt = pars.get_parameter("network_element",
+		oper = global_pars.get_parameter("operator", "unknown");
+		country = global_pars.get_parameter("country", "XX");
+		net_elt = global_pars.get_parameter("network_element",
 					     "unknown");
-		int_pt = pars.get_parameter("interception_point",
+		int_pt = global_pars.get_parameter("interception_point",
 					    "unknown");
-		username = pars.get_parameter("username." + liid,
+		username = global_pars.get_parameter("username." + liid,
 					      "unknown");
 
 		// Send connect IRI stuff.
@@ -319,11 +319,11 @@ void etsi_li_sender::handle(qpdu_ptr next)
 
 		// Fetch metadata parameters
 		std::string oper, country, net_elt, int_pt;
-		oper = pars.get_parameter("operator", "OPRunknown");
-		country = pars.get_parameter("country", "XX");
-		net_elt = pars.get_parameter("network_element",
+		oper = global_pars.get_parameter("operator", "OPRunknown");
+		country = global_pars.get_parameter("country", "XX");
+		net_elt = global_pars.get_parameter("network_element",
 					     "unknown");
-		int_pt = pars.get_parameter("interception_point",
+		int_pt = global_pars.get_parameter("interception_point",
 					    "unknown");
 
 		// Deliver packet.
@@ -352,11 +352,11 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		std::string oper, country, net_elt, int_pt;
 
 		// Get metadata parameters
-		oper = pars.get_parameter("operator", "unknown");
-		country = pars.get_parameter("country", "XX");
-		net_elt = pars.get_parameter("network_element",
+		oper = global_pars.get_parameter("operator", "unknown");
+		country = global_pars.get_parameter("country", "XX");
+		net_elt = global_pars.get_parameter("network_element",
 					     "unknown");
-		int_pt = pars.get_parameter("interception_point",
+		int_pt = global_pars.get_parameter("interception_point",
 					    "unknown");
 
 		// Send disconnect IRI stuff.

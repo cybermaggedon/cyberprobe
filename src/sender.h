@@ -40,12 +40,12 @@ class sender : public threads::thread {
     // State: true if we're running, false if we've been asked to stop.
     bool running;
 
-    parameters& pars;
+    parameters& global_pars;
 
   public:
 
     // Constructor.
-    sender(parameters& p) : pars(p) {
+    sender(parameters& p) : global_pars(p) {
 	running = true;
     }
 
@@ -95,12 +95,16 @@ class nhis11_sender : public sender {
     std::string h;
     unsigned short p;
 
+    // Params
+    std::map<std::string, std::string> params;
+
   public:
 
     // Constructor.
     nhis11_sender(const std::string& h, unsigned short p,
-		  const std::map<std::string, std::string>& parms,
-		  parameters& par) : sender(par), h(h), p(p)  {}
+		  const std::map<std::string, std::string>& params,
+		  parameters& globals) :
+    sender(globals), h(h), p(p), params(params) {}
 
     // Destructor.
     virtual ~nhis11_sender() {}
@@ -144,6 +148,9 @@ class etsi_li_sender : public sender {
     // to introduce this LIID.
     std::map<std::string, bool> setup;
 
+    // Params
+    std::map<std::string, std::string> params;
+
     // Initialise some configuration
     void initialise() { }
 
@@ -151,9 +158,9 @@ class etsi_li_sender : public sender {
 
     // Constructor.
     etsi_li_sender(const std::string& h, unsigned int short p, 
-		   const std::map<std::string, std::string>& parms,
-		   parameters& par) : 
-    sender(par), mux(transport), h(h), p(p)
+		   const std::map<std::string, std::string>& params,
+		   parameters& globals) : 
+    sender(globals), mux(transport), h(h), p(p), params(params)
     { 
 	initialise(); 
     }
