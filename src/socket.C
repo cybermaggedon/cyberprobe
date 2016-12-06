@@ -64,8 +64,6 @@ unsigned short tcpip::ssl_socket::bound_port()
 void tcpip::tcp_socket::connect(const std::string& hostname, int port)
 {
 
-    create();
-
     struct hostent* hent = ::gethostbyname(hostname.c_str());
     if (hent == 0)
 	throw std::runtime_error("Couldn't map hostname to address.");
@@ -85,8 +83,6 @@ void tcpip::tcp_socket::connect(const std::string& hostname, int port)
 
 void tcpip::ssl_socket::connect(const std::string& hostname, int port)
 {
-
-    create();
 
     struct hostent* hent = ::gethostbyname(hostname.c_str());
     if (hent == 0)
@@ -110,8 +106,6 @@ void tcpip::ssl_socket::connect(const std::string& hostname, int port)
 
 void tcpip::udp_socket::connect(const std::string& hostname, int port)
 {
-
-    create();
 
     struct hostent* hent = ::gethostbyname(hostname.c_str());
     if (hent == 0)
@@ -348,56 +342,6 @@ int tcpip::ssl_socket::read(char* buffer, int len)
 
 }
 
-void tcpip::tcp_socket::readline(std::string& line)
-{
-    unsigned char c;
-    line = "";
-    while(1) {
-	if (bufsize > 0) {
-	    c = buf[bufstart];
-	    bufstart++;
-	    bufsize--;
-	} else {
-	    int ret = ::recv(sock, buf, buflen, 0);
-	    bufsize = ret;
-	    bufstart = 0;
-	    if (ret <= 0 && line.size() > 1)
-		return;
-	    if (ret <= 0)
-		throw std::runtime_error("EOF on socket.");
-	    continue;
-	}
-	if (c == '\r') continue;
-	if (c == '\n') return;
-	line += c;
-    }
-}
-
-void tcpip::ssl_socket::readline(std::string& line)
-{
-    unsigned char c;
-    line = "";
-    while(1) {
-	if (bufsize > 0) {
-	    c = buf[bufstart];
-	    bufstart++;
-	    bufsize--;
-	} else {
-	    int ret = SSL_read(ssl, buf, buflen);
-	    bufsize = ret;
-	    bufstart = 0;
-	    if (ret <= 0 && line.size() > 1)
-		return;
-	    if (ret <= 0)
-		throw std::runtime_error("EOF on socket.");
-	    continue;
-	}
-	if (c == '\r') continue;
-	if (c == '\n') return;
-	line += c;
-    }
-}
-
 void tcpip::tcp_socket::bind(int port)
 {
 
@@ -405,8 +349,6 @@ void tcpip::tcp_socket::bind(int port)
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(port);
-
-    create();
 	    
     /* Re-use the socket address in case it's in TIME_WAIT state. */
     int opt = 1;
@@ -435,8 +377,6 @@ void tcpip::ssl_socket::bind(int port)
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(port);
-
-    create();
 	    
     /* Re-use the socket address in case it's in TIME_WAIT state. */
     int opt = 1;
@@ -466,8 +406,6 @@ void tcpip::udp_socket::bind(int port)
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(port);
 
-    create();
-
     int ret = ::bind(sock, (struct sockaddr*) &addr, sizeof(addr));
     if (ret < 0) {
 	::close(sock);
@@ -483,7 +421,7 @@ void tcpip::udp_socket::bind(int port)
 
 }
 
-void tcpip::socket::readline(std::string& line)
+void tcpip::stream_socket::readline(std::string& line)
 {
     unsigned char c;
     line = "";
@@ -508,8 +446,6 @@ std::ostream& operator<<(std::ostream& o, const tcpip::address& addr) {
 
 void tcpip::unix_socket::connect(const std::string& path)
 {
-
-    create();
 
     struct sockaddr_un address;
 
@@ -587,8 +523,6 @@ void tcpip::unix_socket::bind(const std::string& path)
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, path.c_str());
 
-    create();
-
     unlink(path.c_str());
 
     int ret = ::bind(sock, (struct sockaddr*) &addr, sizeof(addr));
@@ -601,8 +535,6 @@ void tcpip::unix_socket::bind(const std::string& path)
 
 void tcpip::raw_socket::connect(const std::string& hostname)
 {
-
-    create();
 
     struct hostent* hent = ::gethostbyname(hostname.c_str());
     if (hent == 0)

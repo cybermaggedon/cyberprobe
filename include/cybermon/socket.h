@@ -201,76 +201,6 @@ namespace tcpip {
 	/** Write some data from a socket */
 	virtual int write(const char* buffer, int len) = 0;
 
-	/** Write to the socket. */
-	virtual int write(const std::string& str) {
-	    return write(str.c_str(), str.length());
-	}
-
-	/** Read a line of text, LF. CR is discarded. */
-	virtual void readline(std::string& line);
-
-    };
-
-    /** A TCP socket. */
-    class tcp_socket : public socket {
-      private:
-	static const int buflen = 8192;
-	int bufstart;
-	int bufsize;
-	char buf[buflen];
-      public:
-	int sock;
-      private:
-
-	/** Socket port number. */
-	int port;
-
-	/** Actual socket creation */
-	void create() {
-	    close();
-	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	    if (sock < 0)
-		throw std::runtime_error("Socket creation failed.");
-	}
-
-      public:
-
-	/** Bind to port */
-	void bind(int port = 0);
-
-	/** Create a TCP socket. */
-	tcp_socket() { 
-	    sock = -1;
-	    bufstart = bufsize = 0;
-	};
-
-	bool is_open() {
-	    
-	    return sock != -1;
-	}
-
-	/** Read from the socket. With buffering. */
-	virtual int read(char* buffer, int len);
-
-	/** Read from the socket. With buffering. */
-	virtual int read(std::string& buf, int len) {
-	    char tmp[len];
-	    int ret = read(tmp, len);
-	    buf.assign(tmp, len);
-	    return ret;
-	}
-
-	/** Read from the socket. With buffering. */
-	virtual int read(std::vector<unsigned char>& buffer, int len);
-
-	/** Read a line of text, LF. CR is discarded. */
-	virtual void readline(std::string& line);
-
-	/** Write to the socket. */
-	virtual int write(const char* buffer, int len) {
-	    return ::write(sock, buffer, len);
-	}
-	
 	// Short-hand
 	typedef std::vector<unsigned char>::const_iterator const_iterator;
 
@@ -293,6 +223,69 @@ namespace tcpip {
 	virtual int write(const std::string& str) {
 	    return write(str.c_str(), str.length());
 	}
+
+    };
+
+    class stream_socket : public socket {
+      public:
+	virtual ~stream_socket() {}
+
+	/** Read a line of text, LF. CR is discarded. */
+	virtual void readline(std::string& line);
+
+    };
+
+    /** A TCP socket. */
+    class tcp_socket : public stream_socket {
+      private:
+	static const int buflen = 8192;
+	int bufstart;
+	int bufsize;
+	char buf[buflen];
+      public:
+	int sock;
+      private:
+
+	/** Socket port number. */
+	int port;
+
+      public:
+
+	/** Bind to port */
+	void bind(int port = 0);
+
+	/** Create a TCP socket. */
+	tcp_socket() { 
+	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
+	    bufstart = bufsize = 0;
+	};
+
+	bool is_open() {
+	    return sock != -1;
+	}
+
+	/** Read from the socket. With buffering. */
+	virtual int read(char* buffer, int len);
+
+	/** Read from the socket. With buffering. */
+	virtual int read(std::string& buf, int len) {
+	    char tmp[len];
+	    int ret = read(tmp, len);
+	    buf.assign(tmp, len);
+	    return ret;
+	}
+
+	/** Read from the socket. With buffering. */
+	virtual int read(std::vector<unsigned char>& buffer, int len);
+
+	/** Write to the socket. */
+	virtual int write(const char* buffer, int len) {
+	    return ::write(sock, buffer, len);
+	}
+
+	using socket::write;
 
 	unsigned short bound_port();
 
@@ -323,9 +316,10 @@ namespace tcpip {
             }
 	}
 
-	/** Destructor.  You must call close() before destroying socket,
-	    otherwise a file descriptor gets leaked. */
-	virtual ~tcp_socket() { }
+	/** Destructor. */
+	virtual ~tcp_socket() {
+	    close();
+	}
 	
 	/** Poll, waits for timeout (in seconds) and returns true if there's
 	    activity on the socket. */
@@ -342,14 +336,6 @@ namespace tcpip {
 	/** Socket port number. */
 	int port;
 
-	/** Actual socket creation */
-	void create() {
-	    close();
-	    sock = ::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	    if (sock < 0)
-		throw std::runtime_error("Socket creation failed.");
-	}
-
       public:
 
 	/** Bind to port */
@@ -357,7 +343,9 @@ namespace tcpip {
 
 	/** Create a UDP socket. */
 	udp_socket() { 
-	    sock = -1;
+	    sock = ::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
 	};
 
 	/** Read a datagram from the socket. With buffering. */
@@ -371,17 +359,7 @@ namespace tcpip {
 	    return ::write(sock, buffer, len);
 	}
 
-	/** Write to the socket. */
-	virtual int write(const std::vector<unsigned char>& buffer) {
-	    unsigned char tmp[buffer.size()];
-	    copy(buffer.begin(), buffer.end(), tmp);
-	    return write((char*) tmp, buffer.size());
-	}
-	
-	/** Write to the socket. */
-	virtual int write(const std::string& str) {
-	    return write(str.c_str(), str.length());
-	}
+	using socket::write;
 
 	/** Connection to a remote service */
 	virtual void connect(const std::string& hostname, int port);
@@ -395,9 +373,10 @@ namespace tcpip {
             }
 	}
 
-	/** Destructor.  You must call close() before destroying socket,
-	    otherwise a file descriptor gets leaked. */
-	virtual ~udp_socket() { }
+	/** Destructor. */
+	virtual ~udp_socket() {
+	    close();
+	}
 	
 	/** Poll, waits for timeout (in seconds) and returns true if there's
 	    activity on the socket. */
@@ -414,14 +393,6 @@ namespace tcpip {
 	/** Socket port number. */
 	int port;
 
-	/** Actual socket creation */
-	void create() {
-	    close();
-	    sock = ::socket(PF_UNIX, SOCK_DGRAM, 0);
-	    if (sock < 0)
-		throw std::runtime_error("Socket creation failed.");
-	}
-
       public:
 
 	/** Bind to port */
@@ -429,7 +400,9 @@ namespace tcpip {
 
 	/** Create a UNIX socket. */
 	unix_socket() { 
-	    sock = -1;
+	    sock = ::socket(PF_UNIX, SOCK_DGRAM, 0);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
 	};
 
 	/** Read a datagram from the socket. With buffering. */
@@ -443,17 +416,7 @@ namespace tcpip {
 	    return ::write(sock, buffer, len);
 	}
 
-	/** Write to the socket. */
-	virtual int write(const std::vector<unsigned char>& buffer) {
-	    unsigned char tmp[buffer.size()];
-	    copy(buffer.begin(), buffer.end(), tmp);
-	    return write((char*) tmp, buffer.size());
-	}
-	
-	/** Write to the socket. */
-	virtual int write(const std::string& str) {
-	    return write(str.c_str(), str.length());
-	}
+	using socket::write;
 
 	/** Connection to a remote service */
 	virtual void connect(const std::string& path);
@@ -469,7 +432,9 @@ namespace tcpip {
 
 	/** Destructor.  You must call close() before destroying socket,
 	    otherwise a file descriptor gets leaked. */
-	virtual ~unix_socket() { }
+	virtual ~unix_socket() {
+	    close();
+	}
 	
 	/** Poll, waits for timeout (in seconds) and returns true if there's
 	    activity on the socket. */
@@ -486,23 +451,18 @@ namespace tcpip {
 	/** Socket port number. */
 	int port;
 
-	/** Actual socket creation */
-	void create() {
-	    sock = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
-	    if (sock < 0)
-		throw std::runtime_error("Socket creation failed.");
-
-	    int y = 1;
-	    int ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &y, sizeof(y));
-	    if (ret < 0)
-		throw std::runtime_error("Couldn't set IP_HDRINCL sock opt");
-	}
-
       public:
 
 	/** Create a UNIX socket. */
 	raw_socket() { 
-	    sock = -1;
+	    sock = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
+	    int y = 1;
+	    int ret = setsockopt(sock, 0, IP_HDRINCL, (char *) &y, sizeof(y));
+	    if (ret < 0)
+		throw std::runtime_error("Couldn't set IP_HDRINCL sock opt");
+
 	};
 
 	/** Write to the socket. */
@@ -510,20 +470,10 @@ namespace tcpip {
 	    return ::write(sock, buffer, len);
 	}
 
-	/** Write to the socket. */
-	virtual int write(const std::vector<unsigned char>& buffer) {
-	    unsigned char tmp[buffer.size()];
-	    copy(buffer.begin(), buffer.end(), tmp);
-	    return write((char*) tmp, buffer.size());
-	}
+	using socket::write;
 
 	virtual int read(char* buffer, int len) {
 	    return ::read(sock, buffer, len);
-	}
-
-	/** Write to the socket. */
-	virtual int write(const std::string& str) {
-	    return write(str.c_str(), str.length());
 	}
 
 	/** Connection to a remote service */
@@ -538,9 +488,10 @@ namespace tcpip {
             }
 	}
 
-	/** Destructor.  You must call close() before destroying socket,
-	    otherwise a file descriptor gets leaked. */
-	virtual ~raw_socket() { }
+	/** Destructor. */
+	virtual ~raw_socket() {
+	    close();
+	}
 
     };
 
@@ -562,18 +513,6 @@ namespace tcpip {
 	SSL_CTX* context;
 
 	static bool ssl_init;
-
-	/** Actual socket creation */
-	void create() {
-	    close();
-	    ssl = SSL_new(context);
-	    if (ssl == 0)
-		throw std::runtime_error("Couldn't initialise SSL.");
-	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	    if (sock < 0)
-		throw std::runtime_error("Socket creation failed.");
-	    SSL_set_fd(ssl, sock);
-	}
 
       public:
 
@@ -609,27 +548,29 @@ namespace tcpip {
 	/** Bind to port */
 	void bind(int port = 0);
 
-	/** Create a socket. */
+	/** Constructor. */
 	ssl_socket() { 
-	    sock = -1;
 	    bufstart = bufsize = 0;
-	    ssl = 0;
-	    context = 0;
+
 	    if (!ssl_init) {
 		SSL_library_init();
 		ssl_init = true;
 	    }
-	    if (ssl) {
-		SSL_free(ssl);
-		ssl = 0;
-	    }
-	    if (context) {
-		SSL_CTX_free(context);
-		context = 0;
-	    }
+
 	    context = SSL_CTX_new(SSLv23_method());
 	    if (context == 0)
 		throw std::runtime_error("Couldn't initialise SSL context.");
+
+	    ssl = SSL_new(context);
+	    if (ssl == 0)
+		throw std::runtime_error("Couldn't initialise SSL.");
+
+	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	    if (sock < 0)
+		throw std::runtime_error("Socket creation failed.");
+
+	    SSL_set_fd(ssl, sock);
+	    
 	};
 
 	bool is_open() {
@@ -650,36 +591,15 @@ namespace tcpip {
 	/** Read from the socket. With buffering. */
 	virtual int read(std::vector<unsigned char>& buffer, int len);
 
-	/** Read a line of text, LF. CR is discarded. */
-	virtual void readline(std::string& line);
-
 	/** Write to the socket. */
 	virtual int write(const char* buffer, int len) {
 	    return SSL_write(ssl, buffer, len);
 	}
+
+	using socket::write;
 	
 	// Short-hand
 	typedef std::vector<unsigned char>::const_iterator const_iterator;
-
-	/** Write to the socket. */
-	virtual int write(const_iterator& start,
-			  const_iterator& end) {
-	    unsigned char tmp[end - start];
-	    copy(start, end, tmp);
-	    return write((char*) tmp, end - start);
-	}
-
-	/** Write to the socket. */
-	virtual int write(const std::vector<unsigned char>& buffer) {
-	    unsigned char tmp[buffer.size()];
-	    copy(buffer.begin(), buffer.end(), tmp);
-	    return write((char*) tmp, buffer.size());
-	}
-	
-	/** Write to the socket. */
-	virtual int write(const std::string& str) {
-	    return write(str.c_str(), str.length());
-	}
 
 	unsigned short bound_port();
 
