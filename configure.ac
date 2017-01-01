@@ -46,6 +46,7 @@ AM_PATH_PYTHON
 # Check for Boost.
 BOOST_REQUIRE
 BOOST_REGEX([mt])
+BOOST_PROGRAM_OPTIONS
 
 # Lua
 AX_PROG_LUA([5.1], [], [], [AC_MSG_ERROR([Lua interpreter missing.])])
