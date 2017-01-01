@@ -266,13 +266,15 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	// Loop forever until we're connected.
 	while (running && !transport.connected()) {
 	    try {
+		if (tls) std::cerr << "Will do TLS connection" << std::endl;
 		if (tls) 
-		    transport.connect(h, p);
-		else
 		    transport.connect_tls(h, p,
 					  params["key"],
 					  params["certificate"],
 					  params["chain"]);
+		else
+		    transport.connect(h, p);
+		
 		std::cerr << "ETSI LI connection to " 
 			  << h << ":" << p 
 			  << " established." << std::endl;
