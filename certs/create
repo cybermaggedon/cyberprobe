@@ -1,0 +1,134 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]
+then
+    echo 'Usage:' 1>&2
+    echo '  create "Full Name" full.name@domain' 1>&2
+    exit 1
+fi
+
+ca=${CA:-.}
+ca_cert=${CA_CERT:-.}
+
+# RSA key size.
+KEY_SIZE=4096
+
+# Random generation parameters.
+RAND_COUNT=128
+RAND_BLOCK=32
+RANDOM_DEVICE=/dev/urandom
+DD="dd iflag=fullblock"
+
+# Certificates valid for 2 years.
+CERT_VALIDITY=710
+
+# Temporary files.
+RAND_FILE=${ca}/rand.user$$
+KEY_FILE=${ca}/key.user$$
+REQ_FILE=${ca}/req.user$$
+CONFIG_FILE=${ca}/config.user$$
+
+# Output files.
+CERT_FILE=${ca}/cert.user$$
+
+# Create config file
+
+name=$1
+email=$2
+
+cat <<EOT >> ${CONFIG_FILE}
+[req]
+distinguished_name=dn
+prompt=no
+req_extensions=v3_req
+
+[dn]
+commonName=${name}
+organizationalUnitName=Example operations
+organizationName=Example
+emailAddress=${email}
+
+[v3_req]
+basicConstraints=CA:false
+subjectKeyIdentifier=hash
+keyUsage=digitalSignature
+extendedKeyUsage=clientAuth
+
+EOT
+
+# Create random data.
+echo '**** Create random data...'
+${DD} bs=${RAND_BLOCK} count=${RAND_COUNT} if=${RANDOM_DEVICE} of=${RAND_FILE}
+if [ $? -ne 0 ]
+then
+    echo Random creation failed. 1>&2
+    exit 1
+fi
+
+# Create private key.
+echo '**** Generate private key...'
+openssl genrsa -out ${KEY_FILE} -rand ${RAND_FILE} ${KEY_SIZE}
+if [ $? -ne 0 ]
+then
+    echo Private key generation failed. 1>&2
+    exit 1
+fi
+
+# Discard random.
+rm -f ${RAND_FILE}
+
+# Create certificate request.
+echo '**** Generate certificate request...'
+openssl req -key ${KEY_FILE} -out ${REQ_FILE} -new \
+	-config ${CONFIG_FILE}
+if [ $? -ne 0 ]
+then
+    echo Certificate request creation failed. 1>&2
+    exit 1
+fi
+
+
+echo '**** Signing request...'
+# Sign certificate request to create certificate.
+openssl x509 -req -in ${REQ_FILE} -CAkey ${ca_cert}/key.ca \
+	-CA ${ca_cert}/cert.ca -CAcreateserial -CAserial ${ca}/serial \
+	-out ${CERT_FILE} -days ${CERT_VALIDITY} \
+	-extfile ${CONFIG_FILE} -extensions v3_req
+if [ $? -ne 0 ]
+then
+    echo Certificate signing failed. 1>&2
+    exit 1
+fi
+
+rm -f ${CONFIG_FILE}
+
+# Delete request.
+rm -f ${REQ_FILE}
+
+# Verify.
+echo '**** Verify certificate...'
+openssl verify -CAfile ${ca_cert}/cert.ca ${CERT_FILE}
+if [ $? -ne 0 ]
+then
+    echo Certificate verification failed. 1>&2
+    exit 1
+fi
+
+(
+    openssl x509 -in ${CERT_FILE}  -noout -serial -email -subject -dates
+    echo '----'
+) >> ${ca}/register
+
+# Get certificate serial.
+serial=$(openssl x509 -in ${CERT_FILE} -noout -serial | sed 's/serial=//')
+
+mv ${CERT_FILE} ${ca}/cert.${serial}
+CERT_FILE=${ca}/cert.${serial}
+
+mv ${KEY_FILE} ${ca}/key.${serial}
+KEY_FILE=${ca}/key.${serial}
+
+echo '**** All complete.'
+
+echo "Certificate at: ${CERT_FILE}"
+echo "Key at: ${KEY_FILE}"
