@@ -209,12 +209,12 @@ void nhis11_sender::handle(qpdu_ptr next)
 	       (transport.find(liid) == transport.end())) {
 	    try {
 		if (tls) 
-		    transport[liid].connect(h, p, liid);
-		else
 		    transport[liid].connect_tls(h, p, liid,
 						params["key"],
 						params["certificate"],
 						params["chain"]);
+		else
+		    transport[liid].connect(h, p, liid);
 		std::cerr << "NHIS 1.1 connection to " 
 			  << h << ":" << p << " for LIID "
 			  << liid << " established." << std::endl;
