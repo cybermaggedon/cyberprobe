@@ -27,8 +27,6 @@ Usage:
 #include <cybermon/context.h>
 #include <cybermon/cybermon-lua.h>
 
-// My observation engine.  Uses the cybermon engine, takes the data
-// events and keep tabs on how much data has flowed out to attackers.
 class obs : public cybermon::engine {
 private:
     cybermon::cybermon_lua cml;
@@ -36,12 +34,6 @@ private:
 public:
 
     obs(const std::string& path) : cml(path) {}
-
-    // Map of network address to the amount of data acquired.
-    std::map<cybermon::address, uint64_t> amounts;
-
-    // Stores the next 'reporting' event for data acquisition by an attacker.
-    std::map<cybermon::address, uint64_t> next;
 
     // Connection-orientated.
     virtual void connection_up(const cybermon::context_ptr cp) {
