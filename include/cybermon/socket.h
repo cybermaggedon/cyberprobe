@@ -233,6 +233,8 @@ namespace tcpip {
 	/** Read a line of text, LF. CR is discarded. */
 	virtual void readline(std::string& line);
 
+	virtual void close() = 0;
+
     };
 
     /** A TCP socket. */

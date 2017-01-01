@@ -472,9 +472,9 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
     }
 
     if (type == "nhis1.1") {
-	s = new nhis11_sender(host, port, params, *this);
+	s = new nhis11_sender(host, port, transport, params, *this);
     } else if (type == "etsi") {
-	s = new etsi_li_sender(host, port, params, *this);
+	s = new etsi_li_sender(host, port, transport, params, *this);
     } else {
 	senders_lock.unlock();
 	throw std::runtime_error("Endpoint type not known.");

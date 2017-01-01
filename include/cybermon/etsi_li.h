@@ -73,11 +73,24 @@ class sender {
     // Returns boolean indicating whether the stream is connected.
     bool connected() { return cnx; }
 
-    // Connect to host/port.  Also specifies the LIID for this transport.
+    // Connect to host/port.
     void connect(const std::string& host, int port) {
 	
 	// Connect.
 	sock.connect(host, port);
+
+	cnx = true;
+
+    }
+
+    // Connect to host/port over TLS.
+    // Also specifies the LIID for this transport.
+    void connect_tls(const std::string& host, int port,
+		     const std::string& keyfile, const std::string& certfile,
+		     const std::string& cafile) {
+	
+	// Connect.
+	sock.connect_tls(host, port, keyfile, certfile, cafile);
 
 	cnx = true;
 

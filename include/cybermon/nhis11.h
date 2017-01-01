@@ -67,6 +67,18 @@ class sender {
 	send_start(liid);
 	cnx = true;
     }
+    
+    // Connect to host/port using TLS.  Also specifies the LIID for this
+    // transport.
+    void connect_tls(const std::string& host, int port, const std::string& liid,
+		     const std::string& key, const std::string& cert,
+		     const std::string& chain) {
+	seq = 0;
+	cid = next_cid++;
+	s.connect_tls(host, port, key, cert, chain);
+	send_start(liid);
+	cnx = true;
+    }
 
     // Deliver an IP packet.  dir describes the 'direction' as defined in
     // the NHIS 1.1 spec.

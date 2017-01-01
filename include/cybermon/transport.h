@@ -25,7 +25,7 @@ class transport {
   private:
 
     // TCP socket.
-    tcpip::tcp_socket sock;
+    tcpip::stream_socket* sock;
 
     // True = the transport is connected.
     bool cnx;
@@ -44,10 +44,15 @@ class transport {
   public:
 
     // Constructor.
-    transport() { cnx = false; }
+    transport() { cnx = false; sock = 0; }
 
     // Destructor.
-    virtual ~transport() { sock.close(); }
+    virtual ~transport() {
+	if (sock) {
+	    sock->close();
+	    delete sock;
+	}
+    }
 
     // Returns boolean indicating whether the stream is connected.
     bool connected() { return cnx; }
@@ -57,21 +62,72 @@ class transport {
 
 	// All exceptions left thrown.
 
-	sock.connect(host, port);
+	if (sock) {
+	    sock->close();
+	    delete sock;
+	    sock = 0;
+	}
+
+	tcpip::tcp_socket* sock = new tcpip::tcp_socket();
+
+	this->sock = dynamic_cast<tcpip::stream_socket*>(sock);
+
+	sock->connect(host, port);
 	cnx = true;
 
 	for(std::deque<pdu_ptr>::iterator it = buffer.begin();
 	    it != buffer.end();
 	    it++) {
 	    
-	    sock.write(**it);
+	    sock->write(**it);
+
+	}
+
+    }
+
+    // Connect to host/port.  Also specifies the LIID for this transport.
+    void connect_tls(const std::string& host, int port, const std::string& key,
+		     const std::string& cert, const std::string& ca) {
+
+	// All exceptions left thrown.
+
+	if (sock) {
+	    sock->close();
+	    delete sock;
+	    sock = 0;
+	}
+
+	tcpip::ssl_socket* sock = new tcpip::ssl_socket();
+
+	this->sock = dynamic_cast<tcpip::stream_socket*>(sock);
+
+	sock->use_key_file(key);
+	sock->use_certificate_file(cert);
+	sock->use_certificate_chain_file(ca);
+
+	sock->connect(host, port);
+	
+	cnx = true;
+
+	for(std::deque<pdu_ptr>::iterator it = buffer.begin();
+	    it != buffer.end();
+	    it++) {
+	    
+	    sock->write(**it);
 
 	}
 
     }
 
     // Close the transport.
-    void close() { sock.close(); cnx = false; }
+    void close() {
+	if (sock) {
+	    sock->close();
+	    delete sock;
+	    sock = 0;
+	}
+	cnx = false;
+    }
 
     // Send a PDU.
     int write(pdu_ptr pdu) {
@@ -95,7 +151,7 @@ class transport {
 	}
 
 	// May except.
-	int ret = sock.write(*pdu);
+	int ret = sock->write(*pdu);
 
 	if (ret < 0)
 	    throw std::runtime_error("Didn't transmit PDU");

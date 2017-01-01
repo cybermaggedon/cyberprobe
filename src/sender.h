@@ -91,9 +91,10 @@ class nhis11_sender : public sender {
     // NHIS 1.1 transport.
     std::map<std::string,cybermon::nhis11::sender> transport;
 
-    // Connection details, host, port and LIID.
+    // Connection details, host, port, transport.
     std::string h;
     unsigned short p;
+    bool tls;
 
     // Params
     std::map<std::string, std::string> params;
@@ -102,9 +103,17 @@ class nhis11_sender : public sender {
 
     // Constructor.
     nhis11_sender(const std::string& h, unsigned short p,
+		  const std::string& transp,
 		  const std::map<std::string, std::string>& params,
 		  parameters& globals) :
-    sender(globals), h(h), p(p), params(params) {}
+    sender(globals), h(h), p(p), params(params) {
+	if (transp == "tls")
+	    tls = true;
+	else if (transp == "tcp")
+	    tls = false;
+	else
+	    throw std::runtime_error("Transport " + transp + " not known.");
+    }
 
     // Destructor.
     virtual ~nhis11_sender() {}
@@ -140,9 +149,10 @@ class etsi_li_sender : public sender {
     cybermon::etsi_li::sender transport;
     cybermon::etsi_li::mux mux;
 
-    // Connection details, host, port and LIID.
+    // Connection details, host, port, TLS.
     std::string h;
     unsigned short p;
+    bool tls;			/* True if TLS enabled. */
 
     // Map, records if appropriate IRI BEGIN messages have been sent
     // to introduce this LIID.
@@ -158,10 +168,17 @@ class etsi_li_sender : public sender {
 
     // Constructor.
     etsi_li_sender(const std::string& h, unsigned int short p, 
+                   const std::string& transp,
 		   const std::map<std::string, std::string>& params,
 		   parameters& globals) : 
     sender(globals), mux(transport), h(h), p(p), params(params)
-    { 
+    {
+	if (transp == "tls")
+	    tls = true;
+	else if (transp == "tcp")
+	    tls = false;
+	else
+	    throw std::runtime_error("Transport " + transp + " not known.");
 	initialise(); 
     }
 
@@ -173,9 +190,9 @@ class etsi_li_sender : public sender {
 
     // Doesn't actually connect, just defines the connection parameters.
     // Should be called before the 'deliver' method is called.
-    void connect(const std::string& h, unsigned short p) {
-	this->h = h; this->p = p;
-    }
+//    void connect(const std::string& h, unsigned short p) {
+//	this->h = h; this->p = p;
+//    }
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
