@@ -498,7 +498,7 @@ namespace tcpip {
     };
 
     /** An SSL/TLS socket. */
-    class ssl_socket : public socket {
+    class ssl_socket : public stream_socket {
       private:
 	static const int buflen = 8192;
 	int bufstart;
@@ -559,6 +559,8 @@ namespace tcpip {
 		ssl_init = true;
 	    }
 
+	    // FIXME: Should probably use TLS_method
+	    // context = SSL_CTX_new(TLSv1_2_method());
 	    context = SSL_CTX_new(SSLv23_method());
 	    if (context == 0)
 		throw std::runtime_error("Couldn't initialise SSL context.");

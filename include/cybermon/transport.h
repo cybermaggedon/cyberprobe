@@ -25,7 +25,7 @@ class transport {
   private:
 
     // TCP socket.
-    tcpip::stream_socket* sock;
+    tcpip::stream_socket* conn;
 
     // True = the transport is connected.
     bool cnx;
@@ -44,13 +44,13 @@ class transport {
   public:
 
     // Constructor.
-    transport() { cnx = false; sock = 0; }
+    transport() { cnx = false; conn = 0; }
 
     // Destructor.
     virtual ~transport() {
-	if (sock) {
-	    sock->close();
-	    delete sock;
+	if (conn) {
+	    conn->close();
+	    delete conn;
 	}
     }
 
@@ -62,15 +62,16 @@ class transport {
 
 	// All exceptions left thrown.
 
-	if (sock) {
-	    sock->close();
-	    delete sock;
-	    sock = 0;
+	if (conn) {
+	    conn->close();
+	    delete conn;
+	    conn = 0;
 	}
 
-	tcpip::tcp_socket* sock = new tcpip::tcp_socket();
+	cnx = false;
 
-	this->sock = dynamic_cast<tcpip::stream_socket*>(sock);
+	tcpip::tcp_socket* sock = new tcpip::tcp_socket();
+	conn = sock;
 
 	sock->connect(host, port);
 	cnx = true;
@@ -79,7 +80,7 @@ class transport {
 	    it != buffer.end();
 	    it++) {
 	    
-	    sock->write(**it);
+	    conn->write(**it);
 
 	}
 
@@ -91,16 +92,17 @@ class transport {
 
 	// All exceptions left thrown.
 
-	if (sock) {
-	    sock->close();
-	    delete sock;
-	    sock = 0;
+	if (conn) {
+	    conn->close();
+	    delete conn;
+	    conn = 0;
 	}
 
+	cnx = false;
+
 	tcpip::ssl_socket* sock = new tcpip::ssl_socket();
-
-	this->sock = dynamic_cast<tcpip::stream_socket*>(sock);
-
+	conn = sock;
+	
 	sock->use_key_file(key);
 	sock->use_certificate_file(cert);
 	sock->use_certificate_chain_file(ca);
@@ -113,7 +115,7 @@ class transport {
 	    it != buffer.end();
 	    it++) {
 	    
-	    sock->write(**it);
+	    conn->write(**it);
 
 	}
 
@@ -121,10 +123,10 @@ class transport {
 
     // Close the transport.
     void close() {
-	if (sock) {
-	    sock->close();
-	    delete sock;
-	    sock = 0;
+	if (conn) {
+	    conn->close();
+	    delete conn;
+	    conn = 0;
 	}
 	cnx = false;
     }
@@ -151,7 +153,7 @@ class transport {
 	}
 
 	// May except.
-	int ret = sock->write(*pdu);
+	int ret = conn->write(*pdu);
 
 	if (ret < 0)
 	    throw std::runtime_error("Didn't transmit PDU");
