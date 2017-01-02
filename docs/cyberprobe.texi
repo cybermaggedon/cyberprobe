@@ -2640,42 +2640,49 @@ actions. For each event, a call is made to a Lua script which the caller
 provides.  Synposes:
 
 @example
-cybermon @var{port-number} @var{configuration-file}
-cybermon file:@var{pcap-file} @var{configuration-file}
-cybermon -
+cybermon [--help] [--transport TRANSPORT] [--port PORT] [--key KEY]
+        [--certificate CERT] [--trusted-ca CHAIN] [--pcap PCAP_FILE]
+        [--config CONFIG]
 @end example
 
 @itemize @bullet
 
 @item
-@var{port-number}
+@var{TRANSPORT}
+is either @samp{tcp} or @samp{tls}.  If @samp{tls} is specified, @samp{cybermon}
+expects to read data over TLS.  In TLS mode, it is necessary to specify the
+key, certificate, and trusted CA files.
+
+@item
+@var{PORT}
 is a TCP port number.  This form of the command runs as a TCP server
 listening for ETSI LI streams.  See @ref{ETSI LI}.
 
 @item
-@var{pcap-file}
+@var{KEY}
+specifies a filename for the private key in PEM format.  Only used in TLS mode.
+
+@item
+@var{CERT}
+specifies a filename for the public certificate in PEM format.
+Only used in TLS mode.
+
+@item
+@var{CHAIN}
+specifies a filename for trusted CA keys in PEM format.  Only used in TLS mode.
+
+@item
+@var{PCAP_FILE}
 is a PCAP file to read.  This form of the command reads the PCAP file, and
-then exits.
+then exits.  If the file is @samp{-}, standard input is read.
 
 @item
-The third form of the command specifies that @command{cybermon} should read
-standard input for PCAP data.  This form of the command will exit when 
-EOF is received on standard input.
-
-@item
-@var{configuration-file}
+@var{CONFIG}
 is a Lua configuration file, which specifies the action @command{cybermon}
 should take when certain events are observed.  See
 @ref{@command{cybermon} configuration}.
 
 @end itemize
-
-The first form of the command will execute indefinitely - to end the program, a
-signal should be sent. e.g.
-
-@example
-killall cyberprobe
-@end example
 
 @comment ----------------------------------------------------------------------
 
