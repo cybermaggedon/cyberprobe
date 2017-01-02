@@ -3,8 +3,14 @@
 cybermon \- Configurable network packet stream analyser
 .SH SYNOPSIS
 .B cybermon
-[\fIPORT-NUM\fR]
-[\fICONFIGURATION-FILE\fR]
+[\fB-help\fR]
+[\fB--transport\fR \fITRANSPORT\fR]
+[\fB--port\fR \fIPORT\fR]
+[\fB--key\fR \fIKEY-FILE\fR]
+[\fB--certificate\fR \fICERT-FILE\fR]
+[\fB--trusted-ca\fR \fICHAIN-FILE\fR]
+[\fB--pcap\fR \fIPCAP-FILE\fR]
+[\fB--config\fR \fICONFIG-FILE\fR]
 .SH DESCRIPTION
 .B cybermon
 is a configurable network packet stream analyser.  It is designed to
@@ -14,6 +20,36 @@ analyse them and generate
 session/transport level events which result in user-configurable
 actions. For each event, a call is made to a Lua script which the caller
 provides.
+.TP
+.B -h, --help
+displays command line help.
+.TP
+.B -t, --transport\fR=\fITRANSPORT\fR
+specifies transport:
+.B tcp
+for simple TCP transport, or
+.B tls
+to require clients to connect using TLS.  Default is
+\fBtcp\fR.
+.TP
+.B -p, --port\fR=\fIPORT\fR
+specifies TCP port number to listen on.
+.TP
+.B -K, --key\fR=\fIKEY-FILE\fR
+specifies private key file for TLS mode.
+.TP
+.B -C, --certificate\fR=\fICERTIFICATE-FILE\fR
+specifies public certificate file for TLS mode.
+.TP
+.B -T, --trusted-ca\fR=\fICHAIN-FILE\fR
+specifies certificate file of trusted CAs.  Client connections are verified
+for a known trusted CA.
+.TP
+.B -p, --pcap-file\fR=\fIFILE\fR
+specifies PCAP file to use for input.
+.TP
+.B -c, --config\fR=\fICONFIG\fR
+specifies LUA configuration file describing how to consume events.
 .SS "Exit status:"
 .TP
 0
@@ -22,7 +58,7 @@ if OK,
 non-zero
 on error
 .SH "EXAMPLE USAGE"
-cybermon 10000 @LUADIR@/cybermon.lua
+cybermon --port 10000 --config @LUADIR@/cybermon.lua
 .SH "CONFIGURATION"
 Here is an example configuration file:
 
