@@ -33,6 +33,8 @@ need to be called on the etsi_li object are connect and close.
 #include <map>
 #include <queue>
 
+#include <boost/shared_ptr.hpp>
+
 namespace cybermon {
 
 namespace etsi_li {
@@ -206,13 +208,13 @@ class receiver;
 class connection : public threads::thread {
 
   private:
-    tcpip::tcp_socket s;
+    boost::shared_ptr<tcpip::stream_socket> s;
     monitor& p;
     receiver &r;
     bool running;
 
   public:
-    connection(tcpip::tcp_socket s, monitor& p,
+    connection(boost::shared_ptr<tcpip::stream_socket> s, monitor& p,
 	       receiver& r) : s(s), p(p), r(r) {
 	running = true;
     }
@@ -224,18 +226,26 @@ class connection : public threads::thread {
 class receiver : public threads::thread {
 
   private:
-    tcpip::tcp_socket svr;
-    int port;
     bool running;
     monitor& p;
+
+    boost::shared_ptr<tcpip::stream_socket> svr;
 
     threads::mutex close_me_lock;
     std::queue<connection*> close_mes;
 
   public:
-    receiver(int port, monitor& p) : port(port), p(p) {
+    receiver(int port, monitor& p) : p(p) {
 	running = true;
+	boost::shared_ptr<tcpip::stream_socket> sock(new tcpip::tcp_socket);
+	svr = sock;
+	svr->bind(port);
     }
+    receiver(boost::shared_ptr<tcpip::stream_socket> s, monitor& p) : p(p) {
+	running = true;
+	svr = s;
+    }
+    
     virtual ~receiver() {}
     virtual void run();
     virtual void close_me(connection* c);

@@ -106,8 +106,7 @@ void receiver::run()
 	    
 	    if (activ) {
 		
-		tcpip::tcp_socket cn;
-		svr.accept(cn);
+		boost::shared_ptr<tcpip::stream_socket> cn = svr.accept();
 		
 		connection* c = new connection(cn, p, *this);
 		c->start();
@@ -140,7 +139,7 @@ void connection::run()
 	std::vector<unsigned char> pdu;
 
 	// Read NHIS 1.1 START.
-	s.read(pdu, 32);
+	s->read(pdu, 32);
 	
 	if (pdu[0] != 'c' || pdu[1] != '}')
 	    throw std::runtime_error("START PDU is not valid.");
@@ -154,7 +153,7 @@ void connection::run()
 	
 	    // NHIS 1.1 continue header.
 	    pdu.clear();
-	    unsigned int ret = s.read(pdu, 20);
+	    unsigned int ret = s->read(pdu, 20);
 	    if (ret <= 0) break;
 
 	    if ((pdu[0] & 0xfc) != 0x1c)
@@ -167,7 +166,7 @@ void connection::run()
 
 	    // Get the IP packet.
 	    pdu.clear();
-	    ret = s.read(pdu, length);
+	    ret = s->read(pdu, length);
 	    if (ret <= 0) break;
 
 	    if (ret != length) break;
@@ -180,7 +179,7 @@ void connection::run()
 	std::cerr << e.what() << std::endl;
     }
 
-    s.close();
+    s->close();
 
     r.close_me(this);
 

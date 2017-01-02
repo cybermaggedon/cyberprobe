@@ -38,8 +38,7 @@ void service::run()
 	if (activ) {
 
 	    // Accept the connection
-	    tcpip::tcp_socket cn;
-	    svr.accept(cn);
+	    boost::shared_ptr<tcpip::stream_socket> cn = svr.accept();
 
 	    // Spawn a connection thread.
 	    connection* c = new connection(cn, d, *this, sp);
@@ -119,7 +118,7 @@ void connection::ok(int status, const std::string& msg)
 {
     std::ostringstream buf;
     buf << status << " " << msg << "\n";
-    s.write(buf.str());
+    s->write(buf.str());
     std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
@@ -128,7 +127,7 @@ void connection::error(int status, const std::string& msg)
 {
     std::ostringstream buf;
     buf << status << " " << msg << "\n";
-    s.write(buf.str());
+    s->write(buf.str());
     std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
@@ -139,8 +138,8 @@ void connection::response(int status, const std::string& msg,
     std::ostringstream buf;
     buf << status << " " << msg << "\n" 
 	<< resp.size() << "\n";
-    s.write(buf.str());
-    s.write(resp);
+    s->write(buf.str());
+    s->write(resp);
     std::cerr << "Reply: " << status << " " << msg << std::endl;
 }
 
@@ -598,12 +597,12 @@ void connection::run()
 	    try {
 
 		// Keep checking the loop condition if we're idle.
-		bool activ = s.poll(1.0);
+		bool activ = s->poll(1.0);
 		if (!activ) continue;
 
 		// Get the next command.
 		try {
-		    s.readline(line);
+		    s->readline(line);
 		} catch (...) {
 		    // Socket close, probably.
 		    break;
@@ -715,7 +714,7 @@ void connection::run()
     }
 
     // Close the connection.
-    s.close();
+    s->close();
 
     // Add me to the tidy-up-list.
     svc.close_me(this);

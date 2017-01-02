@@ -97,13 +97,13 @@ class receiver;
 class connection : public threads::thread {
 
   private:
-    tcpip::tcp_socket s;
+    boost::shared_ptr<tcpip::stream_socket> s;
     monitor& p;
     receiver &r;
     bool running;
 
   public:
-    connection(tcpip::tcp_socket s, monitor& p,
+    connection(boost::shared_ptr<tcpip::stream_socket> s, monitor& p,
 	       receiver& r) : s(s), p(p), r(r) {
 	running = true;
     }

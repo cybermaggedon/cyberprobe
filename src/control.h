@@ -51,7 +51,7 @@ namespace control {
       private:
 
 	// Connected socket.
-	tcpip::tcp_socket s;
+	boost::shared_ptr<tcpip::stream_socket> s;
 
 	// The thing that actually implements the management commands.
 	management& d;
@@ -104,7 +104,7 @@ namespace control {
       public:
 
 	// Constructor.
-        connection(tcpip::tcp_socket s, management& d,
+        connection(boost::shared_ptr<tcpip::stream_socket> s, management& d,
 		   service& svc, spec& sp) : s(s), d(d), svc(svc), sp(sp) {
 	    running = true;
 	    auth = false;

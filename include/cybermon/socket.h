@@ -18,6 +18,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include <boost/shared_ptr.hpp>
+
 namespace tcpip {
 
     // Legacy?
@@ -197,8 +199,19 @@ namespace tcpip {
 
 	/** Read some data from a socket. */
 	virtual int read(char* buffer, int len) = 0;
-	
-	/** Write some data from a socket */
+
+	/** Read from the socket. */
+	virtual int read(std::string& buf, int len) {
+	    char tmp[len];
+	    int ret = read(tmp, len);
+	    buf.assign(tmp, len);
+	    return ret;
+	}
+
+	/** Read from the socket. With buffering. */
+	virtual int read(std::vector<unsigned char>& buffer, int len) = 0;
+
+	/** Write to the socket. */
 	virtual int write(const char* buffer, int len) = 0;
 
 	// Short-hand
@@ -233,6 +246,14 @@ namespace tcpip {
 	/** Read a line of text, LF. CR is discarded. */
 	virtual void readline(std::string& line);
 
+	virtual boost::shared_ptr<stream_socket> accept() = 0;
+
+	virtual void bind(int port = 0) = 0;
+
+	virtual bool poll(float timeout) = 0;
+
+	virtual void listen(int backlog=10) = 0;
+	
 	virtual void close() = 0;
 
     };
@@ -254,7 +275,7 @@ namespace tcpip {
       public:
 
 	/** Bind to port */
-	void bind(int port = 0);
+	virtual void bind(int port = 0);
 
 	/** Create a TCP socket. */
 	tcp_socket() { 
@@ -268,18 +289,10 @@ namespace tcpip {
 	    return sock != -1;
 	}
 
-	/** Read from the socket. With buffering. */
+	/** Read from the socket. */
 	virtual int read(char* buffer, int len);
 
-	/** Read from the socket. With buffering. */
-	virtual int read(std::string& buf, int len) {
-	    char tmp[len];
-	    int ret = read(tmp, len);
-	    buf.assign(tmp, len);
-	    return ret;
-	}
-
-	/** Read from the socket. With buffering. */
+	/** Read from the socket. */
 	virtual int read(std::vector<unsigned char>& buffer, int len);
 
 	/** Write to the socket. */
@@ -289,6 +302,8 @@ namespace tcpip {
 
 	using socket::write;
 
+	using socket::read;
+
 	unsigned short bound_port();
 
 	/** Put socket in listen mode. */
@@ -297,13 +312,17 @@ namespace tcpip {
 	}
 
 	/** Accept a connection. */
-	virtual void accept(tcp_socket& conn) {
+	virtual boost::shared_ptr<stream_socket> accept() {
 	    int ns = ::accept(sock, 0, 0);
 	    if (-1 == ns) {
 		throw std::runtime_error("Socket accept failed");
 	    }
-	    conn.sock = ns;
-	    conn.port = port;
+
+	    tcp_socket* conn = new tcp_socket;
+	    conn->sock = ns;
+	    conn->port = port;
+	    return boost::shared_ptr<stream_socket>(conn);
+
 	}
 
 	/** Connection to a remote service */
@@ -341,7 +360,7 @@ namespace tcpip {
       public:
 
 	/** Bind to port */
-	void bind(int port = 0);
+	virtual void bind(int port = 0);
 
 	/** Create a UDP socket. */
 	udp_socket() { 
@@ -398,7 +417,7 @@ namespace tcpip {
       public:
 
 	/** Bind to port */
-	void bind(const std::string& name);
+	virtual void bind(const std::string& name);
 
 	/** Create a UNIX socket. */
 	unix_socket() { 
@@ -478,6 +497,13 @@ namespace tcpip {
 	    return ::read(sock, buffer, len);
 	}
 
+	virtual int read(std::vector<unsigned char>& buffer, int len) {
+	    unsigned char tmp[len];
+	    int ret = ::read(sock, tmp, len);
+	    buffer.resize(ret);
+	    copy(tmp, tmp + len, buffer.begin());
+	}
+
 	/** Connection to a remote service */
 	virtual void connect(const std::string& addr);
 
@@ -548,7 +574,7 @@ namespace tcpip {
 	}
 
 	/** Bind to port */
-	void bind(int port = 0);
+	virtual void bind(int port = 0);
 
 	/** Constructor. */
 	ssl_socket() { 
@@ -613,16 +639,22 @@ namespace tcpip {
 	}
 
 	/** Accept a connection. */
-	virtual void accept(ssl_socket& conn) {
+	virtual boost::shared_ptr<stream_socket> accept() {
+
 	    int ns = ::accept(sock, 0, 0);
 	    if (-1 == ns) {
 		throw std::runtime_error("Socket accept failed");
 	    }
-	    conn.sock = ns;
-	    conn.port = port;
+
 	    int ret = SSL_accept(ssl);
 	    if (ret < 0)
 		throw std::runtime_error("SSL accept failed");
+
+	    ssl_socket* conn = new ssl_socket;
+	    conn->sock = ns;
+	    conn->port = port;
+	    return boost::shared_ptr<stream_socket>(conn);
+
 	}
 
 	/** Connection to a remote service */

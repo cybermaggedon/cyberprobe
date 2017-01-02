@@ -442,7 +442,7 @@ namespace ber {
 	}
 
 	/** Waits for a complete BER PDU from a socket and returns it. */
-	bool read_pdu(tcpip::tcp_socket& sock);
+	bool read_pdu(tcpip::stream_socket& sock);
 
     };
 
