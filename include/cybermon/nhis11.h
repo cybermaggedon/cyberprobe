@@ -115,17 +115,23 @@ class connection : public threads::thread {
 class receiver : public threads::thread {
 
   private:
-    int port;
     bool running;
-    tcpip::tcp_socket svr;
+    boost::shared_ptr<tcpip::stream_socket> svr;
     monitor& p;
 
     threads::mutex close_me_lock;
     std::queue<connection*> close_mes;
 
   public:
-    receiver(int port, monitor& p) : port(port), p(p) {
+    receiver(int port, monitor& p) : p(p) {
+	svr = boost::shared_ptr<tcpip::stream_socket>(new tcpip::tcp_socket);
+	svr->bind(port);
 	running = true;
+    }
+    receiver(boost::shared_ptr<tcpip::stream_socket> sock, monitor& p) : p(p) {
+	svr = sock;
+	running = true;
+	
     }
     virtual ~receiver() {}
     virtual void run();

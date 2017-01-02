@@ -607,18 +607,10 @@ namespace tcpip {
 	    return sock != -1;
 	}
 
-	/** Read from the socket. With buffering. */
+	/** Read from the socket. */
 	virtual int read(char* buffer, int len);
 
-	/** Read from the socket. With buffering. */
-	virtual int read(std::string& buf, int len) {
-	    char tmp[len];
-	    int ret = read(tmp, len);
-	    buf.assign(tmp, len);
-	    return ret;
-	}
-
-	/** Read from the socket. With buffering. */
+	/** Read from the socket. */
 	virtual int read(std::vector<unsigned char>& buffer, int len);
 
 	/** Write to the socket. */
@@ -646,12 +638,18 @@ namespace tcpip {
 		throw std::runtime_error("Socket accept failed");
 	    }
 
-	    int ret = SSL_accept(ssl);
-	    if (ret < 0)
+	    SSL* ssl2 = SSL_new(context);
+	    SSL_set_fd(ssl2, ns);
+
+	    int ret = SSL_accept(ssl2);
+	    if (ret != 1) {
+		SSL_free(ssl2);
 		throw std::runtime_error("SSL accept failed");
+	    }
 
 	    ssl_socket* conn = new ssl_socket;
 	    conn->sock = ns;
+	    conn->ssl = ssl2;
 	    conn->port = port;
 	    return boost::shared_ptr<stream_socket>(conn);
 

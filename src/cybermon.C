@@ -385,6 +385,25 @@ int main(int argc, char** argv)
 	    pcap_input pin(arg1.substr(5), an);
 	    pin.run();
 
+	} else if (transport == "tls") {
+
+	    boost::shared_ptr<tcpip::ssl_socket> sock(new tcpip::ssl_socket);
+	    sock->bind(port);
+	    sock->use_key_file(key);
+	    sock->use_certificate_file(cert);
+	    sock->use_certificate_chain_file(chain);
+
+	    // Create the monitor instance, receives ETSI events, and processes
+	    // data.
+	    etsi_monitor m(an);
+
+	    // Start an ETSI receiver.
+	    cybermon::etsi_li::receiver r(sock, m);
+	    r.start();
+
+	    // Wait forever.
+	    r.join();	    
+
 	} else {
 	
 	    // Create the monitor instance, receives ETSI events, and processes

@@ -97,16 +97,15 @@ void receiver::run()
 
     try {
 
-	svr.bind(port);
-	svr.listen();
+	svr->listen();
 
 	while (running) {
 	    
-	    bool activ = svr.poll(1.0);
+	    bool activ = svr->poll(1.0);
 	    
 	    if (activ) {
 		
-		boost::shared_ptr<tcpip::stream_socket> cn = svr.accept();
+		boost::shared_ptr<tcpip::stream_socket> cn = svr->accept();
 		
 		connection* c = new connection(cn, p, *this);
 		c->start();
