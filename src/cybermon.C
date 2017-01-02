@@ -378,11 +378,9 @@ int main(int argc, char** argv)
 	// Start the observer.
 	an.start();
 
-	std::string arg1(argv[1]);
-
 	if (pcap_file != "") {
 
-	    pcap_input pin(arg1.substr(5), an);
+	    pcap_input pin(pcap_file, an);
 	    pin.run();
 
 	} else if (transport == "tls") {
