@@ -306,7 +306,7 @@ int main(int argc, char** argv)
     namespace po = boost::program_options;
 
     std::string key, cert, chain;
-    unsigned int port;
+    unsigned int port = 0;
     std::string pcap_file, config_file;
     std::string transport;
 
