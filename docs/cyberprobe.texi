@@ -241,7 +241,18 @@ Cyberprobe releases:
 
 @table @code
 
-@item 0.72
+@item 0.80
+Added optional TLS support for packet streams to cyberprobe and cybermon.
+This change refactors the cybermon command line interface.  See documentation
+for new command line options.
+
+@item 0.79
+Socket closure fix.
+
+@item 0.76
+Make UUIDs unique.
+
+@item 0.74
 Cassanda subscriber support.
 
 @item 0.71
