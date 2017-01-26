@@ -267,12 +267,6 @@ namespace tcpip {
 	char buf[buflen];
       public:
 	int sock;
-      private:
-
-	/** Socket port number. */
-	int port;
-
-      public:
 
 	/** Bind to port */
 	virtual void bind(int port = 0);
@@ -284,6 +278,11 @@ namespace tcpip {
 		throw std::runtime_error("Socket creation failed.");
 	    bufstart = bufsize = 0;
 	};
+
+	tcp_socket(int s) {
+	    sock = s;
+	    bufstart = bufsize = 0;
+	}
 
 	bool is_open() {
 	    return sock != -1;
@@ -318,9 +317,7 @@ namespace tcpip {
 		throw std::runtime_error("Socket accept failed");
 	    }
 
-	    tcp_socket* conn = new tcp_socket;
-	    conn->sock = ns;
-	    conn->port = port;
+	    tcp_socket* conn = new tcp_socket(ns);
 	    return boost::shared_ptr<stream_socket>(conn);
 
 	}
@@ -502,6 +499,7 @@ namespace tcpip {
 	    int ret = ::read(sock, tmp, len);
 	    buffer.resize(ret);
 	    copy(tmp, tmp + len, buffer.begin());
+	    return ret;
 	}
 
 	/** Connection to a remote service */
@@ -577,31 +575,8 @@ namespace tcpip {
 	virtual void bind(int port = 0);
 
 	/** Constructor. */
-	ssl_socket() { 
-	    bufstart = bufsize = 0;
-
-	    if (!ssl_init) {
-		SSL_library_init();
-		ssl_init = true;
-	    }
-
-	    // FIXME: Should probably use TLS_method
-	    // context = SSL_CTX_new(TLSv1_2_method());
-	    context = SSL_CTX_new(SSLv23_method());
-	    if (context == 0)
-		throw std::runtime_error("Couldn't initialise SSL context.");
-
-	    ssl = SSL_new(context);
-	    if (ssl == 0)
-		throw std::runtime_error("Couldn't initialise SSL.");
-
-	    sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	    if (sock < 0)
-		throw std::runtime_error("Socket creation failed.");
-
-	    SSL_set_fd(ssl, sock);
-	    
-	};
+	ssl_socket();
+	ssl_socket(int s);
 
 	bool is_open() {
 	    return sock != -1;
@@ -631,43 +606,13 @@ namespace tcpip {
 	}
 
 	/** Accept a connection. */
-	virtual boost::shared_ptr<stream_socket> accept() {
-
-	    int ns = ::accept(sock, 0, 0);
-	    if (-1 == ns) {
-		throw std::runtime_error("Socket accept failed");
-	    }
-
-	    SSL* ssl2 = SSL_new(context);
-	    SSL_set_fd(ssl2, ns);
-
-	    int ret = SSL_accept(ssl2);
-	    if (ret != 1) {
-		SSL_free(ssl2);
-		throw std::runtime_error("SSL accept failed");
-	    }
-
-	    ssl_socket* conn = new ssl_socket;
-	    conn->sock = ns;
-	    conn->ssl = ssl2;
-	    conn->port = port;
-	    return boost::shared_ptr<stream_socket>(conn);
-
-	}
+	virtual boost::shared_ptr<stream_socket> accept();
 
 	/** Connection to a remote service */
 	virtual void connect(const std::string& hostname, int port);
 
 	/** Close the connection. */
-	virtual void close() {
-	    if (ssl)
-		SSL_shutdown(ssl);
-            if (sock >= 0) {
-		::shutdown(sock, SHUT_RDWR);
-                ::close(sock);
-		sock = -1;
-            }
-	}
+	virtual void close();
 
 	/** Destructor.  You must call close() before destroying socket,
 	    otherwise a file descriptor gets leaked. */
