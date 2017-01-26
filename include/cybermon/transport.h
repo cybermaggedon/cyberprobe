@@ -106,6 +106,7 @@ class transport {
 	sock->use_key_file(key);
 	sock->use_certificate_file(cert);
 	sock->use_certificate_chain_file(ca);
+	sock->check_private_key();
 
 	sock->connect(host, port);
 	

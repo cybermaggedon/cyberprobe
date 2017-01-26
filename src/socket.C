@@ -10,6 +10,14 @@
 
 bool tcpip::ssl_socket::ssl_init = false;
 
+// Certificate verification callback, always accept certificates which are
+// pre-verified.
+static int verify_callback(int preverify_ok, X509_STORE_CTX *ctx)
+{
+    if (preverify_ok != 1) return 0;
+    return 1;
+}
+
 tcpip::ip_address tcpip::ip_address::my_address()
 {
 
@@ -84,6 +92,14 @@ void tcpip::tcp_socket::connect(const std::string& hostname, int port)
 void tcpip::ssl_socket::connect(const std::string& hostname, int port)
 {
 
+    if (ssl == 0) {
+	ssl = SSL_new(context);
+	if (ssl == 0)
+	    throw std::runtime_error("Couldn't initialise SSL.");
+    }
+
+    SSL_set_fd(ssl, sock);
+
     struct hostent* hent = ::gethostbyname(hostname.c_str());
     if (hent == 0)
 	throw std::runtime_error("Couldn't map hostname to address.");
@@ -98,6 +114,12 @@ void tcpip::ssl_socket::connect(const std::string& hostname, int port)
     int ret = ::connect(sock, (sockaddr*) &addr, sizeof(addr));
     if (ret < 0)
 	throw std::runtime_error("Couldn't connect to host.");
+
+    // Verify server certificate.
+    SSL_set_verify(ssl, 
+		   SSL_VERIFY_PEER,
+		   verify_callback);
+    SSL_set_verify_depth(ssl, 5);
 
     if (SSL_connect(ssl) < 0)
 	throw std::runtime_error("SSL connection failed.");
@@ -157,6 +179,7 @@ bool tcpip::tcp_socket::poll(float timeout)
 // FIXME: SSL socket re-uses loads of tcp_socket code!  Should be derived.
 bool tcpip::ssl_socket::poll(float timeout) 
 {
+
     struct pollfd fds;
     fds.fd = sock;
     fds.events = POLLIN|POLLPRI;
@@ -183,6 +206,7 @@ bool tcpip::ssl_socket::poll(float timeout)
 	return true;
     else
 	return false;
+
 }
 
 bool tcpip::udp_socket::poll(float timeout) 
@@ -567,6 +591,10 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 
     SSL* ssl2 = SSL_new(context);
     SSL_set_fd(ssl2, ns);
+    SSL_set_verify(ssl2,
+		   SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
+		   verify_callback);
+    SSL_set_verify_depth(ssl2, 5);
 
     int ret = SSL_accept(ssl2);
     if (ret != 1) {
@@ -586,8 +614,11 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 void tcpip::ssl_socket::close()
 {
 
-    if (ssl)
+    if (ssl) {
 	SSL_shutdown(ssl);
+	SSL_free(ssl);
+	ssl = 0;
+    }
     if (sock >= 0) {
 	::shutdown(sock, SHUT_RDWR);
 	::close(sock);
@@ -610,15 +641,11 @@ tcpip::ssl_socket::ssl_socket() {
     if (context == 0)
 	throw std::runtime_error("Couldn't initialise SSL context.");
 
-    ssl = SSL_new(context);
-    if (ssl == 0)
-	throw std::runtime_error("Couldn't initialise SSL.");
-
+    ssl = 0;
+    
     sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0)
 	throw std::runtime_error("Socket creation failed.");
-
-    SSL_set_fd(ssl, sock);
 	    
 }
 
@@ -643,8 +670,56 @@ tcpip::ssl_socket::ssl_socket(int s) {
 	throw std::runtime_error("Couldn't initialise SSL.");
 
     sock = s;
-
-    SSL_set_fd(ssl, sock);
 	    
 }
 
+
+/** Provide certificate. */
+void tcpip::ssl_socket::use_certificate_file(const std::string& f)
+{
+    if (context == 0)
+	throw std::runtime_error("No SSL context.");
+    int ret = SSL_CTX_use_certificate_file(context, f.c_str(),
+					   SSL_FILETYPE_PEM);
+    if (ret < 0)
+	throw std::runtime_error("Couldn't load certificate file.");
+}
+
+/** Provide private key. */
+void tcpip::ssl_socket::use_key_file(const std::string& f)
+{
+    if (context == 0)
+	throw std::runtime_error("No SSL context.");
+    int ret = SSL_CTX_use_PrivateKey_file(context, f.c_str(),
+					  SSL_FILETYPE_PEM);
+    if (ret < 0)
+	throw std::runtime_error("Couldn't load private key file.");
+}
+
+/** Provide CA chain. */
+void tcpip::ssl_socket::use_certificate_chain_file(const std::string& f)
+{
+    if (context == 0)
+	throw std::runtime_error("No SSL context.");
+    int ret = SSL_CTX_load_verify_locations(context, f.c_str(), 0);
+    if (ret < 0)
+	throw std::runtime_error("Couldn't load certificate file.");
+
+    STACK_OF(X509_NAME) *certs;
+
+    certs = SSL_load_client_CA_file(f.c_str());
+    if (certs != 0)
+	SSL_CTX_set_client_CA_list(context, certs);
+    else 
+	throw std::runtime_error("Couldn't load certificate file.");
+
+}
+
+void tcpip::ssl_socket::check_private_key()
+{
+
+    if (!SSL_CTX_check_private_key(context))
+	throw
+	    std::runtime_error("Couldn't verify private key with certificate.");
+
+}

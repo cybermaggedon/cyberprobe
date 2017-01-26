@@ -390,7 +390,8 @@ int main(int argc, char** argv)
 	    sock->use_key_file(key);
 	    sock->use_certificate_file(cert);
 	    sock->use_certificate_chain_file(chain);
-
+	    sock->check_private_key();
+	    
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
 	    etsi_monitor m(an);

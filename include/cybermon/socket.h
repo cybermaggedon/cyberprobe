@@ -543,33 +543,16 @@ namespace tcpip {
       public:
 
 	/** Provide certificate. */
-	void use_certificate_file(const std::string& f) {
-	    if (context == 0)
-		throw std::runtime_error("No SSL context.");
-	    int ret = SSL_CTX_use_certificate_file(context, f.c_str(),
-						   SSL_FILETYPE_PEM);
-	    if (ret < 0)
-		throw std::runtime_error("Couldn't load certificate file.");
-	}
+	void use_certificate_file(const std::string& f);
 
 	/** Provide private key. */
-	void use_key_file(const std::string& f) {
-	    if (context == 0)
-		throw std::runtime_error("No SSL context.");
-	    int ret = SSL_CTX_use_PrivateKey_file(context, f.c_str(),
-						  SSL_FILETYPE_PEM);
-	    if (ret < 0)
-		throw std::runtime_error("Couldn't load private key file.");
-	}
+	void use_key_file(const std::string& f);
 
 	/** Provide CA chain. */
-	void use_certificate_chain_file(const std::string& f) {
-	    if (context == 0)
-		throw std::runtime_error("No SSL context.");
-	    int ret = SSL_CTX_load_verify_locations(context, f.c_str(), 0);
-	    if (ret < 0)
-		throw std::runtime_error("Couldn't load certificate file.");
-	}
+	void use_certificate_chain_file(const std::string& f);
+
+	/** Check private key. */
+	void check_private_key();
 
 	/** Bind to port */
 	virtual void bind(int port = 0);
@@ -625,6 +608,10 @@ namespace tcpip {
 	    if (context) {
 		SSL_CTX_free(context);
 		context = 0;
+	    }
+	    if (sock >= 0) {
+		::close(sock);
+		sock = -1;
 	    }
 	}
 	
