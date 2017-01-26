@@ -565,25 +565,19 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 	throw std::runtime_error("Socket accept failed");
     }
 
-    std::cerr << "ACCEPTED socket " << ns << std::endl;
-
     SSL* ssl2 = SSL_new(context);
     SSL_set_fd(ssl2, ns);
 
     int ret = SSL_accept(ssl2);
-    std::cerr << "SSL_accept returns " << ret << std::endl;
     if (ret != 1) {
 	::close(ns);
 	SSL_free(ssl2);
 	throw std::runtime_error("SSL accept failed");
     }
 
-    std::cerr << "ACCEPTED SSL" << std::endl;
-
     ssl_socket* conn = new ssl_socket(ns);
     conn->ssl = ssl2;
 
-    std::cerr << "retu" << std::endl;
     return boost::shared_ptr<stream_socket>(conn);
 
 }
@@ -591,11 +585,10 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 /** Close the connection. */
 void tcpip::ssl_socket::close()
 {
-    std::cerr << "CLOSING!!!!" << std::endl;
+
     if (ssl)
 	SSL_shutdown(ssl);
     if (sock >= 0) {
-	std::cerr << "will do it!!!! " << sock << std::endl;
 	::shutdown(sock, SHUT_RDWR);
 	::close(sock);
 	sock = -1;
