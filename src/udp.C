@@ -34,13 +34,13 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    // We're just going to 'identify' DNS on port 53.
-    // FIXME: Is there a stronger identifier?
-    if ((src.get_uint16() == 53) || dest.get_uint16() == 53) {
-	dns::process(mgr, fc, s + 8, e);
+    auto start_of_dns_header = s + 8;
+    if (dns::ident(src.get_uint16(), dest.get_uint16(), start_of_dns_header, e))
+    {
+	dns::process(mgr, fc, start_of_dns_header, e);
     } else  {
 
-	unrecognised::process_unrecognised_datagram(mgr, fc, s + 8, e);
+	unrecognised::process_unrecognised_datagram(mgr, fc, start_of_dns_header, e);
 
     }
 
