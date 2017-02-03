@@ -839,7 +839,7 @@ packets to a local service on port 10000:
 
 @example
 <endpoints>
-  <endpoint hostname="localhost" port="10000" type="etsi"/>
+  <endpoint hostname="localhost" port="10000" transport="tcp" type="etsi"/>
 </endpoints>
 @end example
 
@@ -2173,11 +2173,11 @@ Sample configuration:
 
     <!-- Send collected packets to monitor1:10001 in NHIS 1.1
          stream. -->
-    <endpoint hostname="monitor1" port="10001" type="nhis1.1"/>
+    <endpoint hostname="monitor1" port="10001" transport="tcp" type="nhis1.1"/>
 
     <!-- Send collected packets to monitor2:10002 in ETSI LI
          stream. -->
-    <endpoint hostname="monitor2" port="10002" type="etsi"/>
+    <endpoint hostname="monitor2" port="10002" transport="tcp" type="etsi"/>
 
   </endpoints>
 
@@ -2253,10 +2253,22 @@ attribute is included, and set to @code{ipv6}.
 LIIDs can occur in multiple places in the target block, but an IP address
 should only occur once in the target block.
 
+@cindex @code{certificate}, cyberprobe configuration option
+@cindex @code{key}, cyberprobe configuration option
+@cindex @code{trusted-ca}, cyberprobe configuration option
+@cindex TLS
+@cindex SSL
+@cindex cyberprobe secure delivery
 The @code{endpoints} block defines a set of addresses for delivery. The
 @code{hostname} and @code{port} attributes should be used to describe the
 endpoint address. Type @code{type} attribute should be @code{nhis1.1} or
-@code{etsi} to specify which output stream format to use.
+@code{etsi} to specify which output stream format to use.  The @code{transport}
+describe the transport type, which should be @code{tcp} for standard TCP stream,
+or @code{tls} for an SSL/TLS stream.  If TLS is invoked, the attributes
+@code{certificate}, @code{key} and @code{trusted-ca} should be specified,
+with filenames for client certificate, private key, and a trust CA chain.
+These should all be in PEM format.
+
 
 The optional @code{parameters} block defines a set of parameters which are
 only used in ETSI delivery. Each parameter element should have a @code{key}
@@ -2339,6 +2351,9 @@ Can be one of @samp{nhis} or @samp{etsi} for delivery protocol.
 @item TRANSPORT
 Can be one of @samp{tcp} or @samp{tls} for TCP or TLS transports.
 @end table
+
+Note: It is not possible to specify the appropriate transport paramters for
+TLS delivery using the management interface currently.  (FIXME).
 
 @item add interface INTERFACE DELAY [FILTER]
 Adds an interface for packet sniffing.
@@ -2543,6 +2558,8 @@ Lists all interfaces, output is format @code{iface:delay:filter}.
 Adds an endpoint to delivery data to.
 where type is one of: @code{etsi} @code{nhis1.1} and
 transport is one of: @code{tcp} @code{tls}.
+Note that it is not currently possible to specify the configuration required to
+get a TLS connection to work. (FIXME).
 
 @item remove_endpoint <host> <port> <type> <transport>
 Removes a previously enabled endpoint.
