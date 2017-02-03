@@ -63,7 +63,7 @@ namespace cybermon {
 	static std::size_t header_length();
 
 	// DNS ident function.
-	static bool ident(std::uint16_t source_port, std::uint16_t destination_port, pdu_iter s, pdu_iter e);
+	static bool ident(uint16_t source_port, uint16_t destination_port, pdu_iter s, pdu_iter e);
 
 	// DNS processing function.
 	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);

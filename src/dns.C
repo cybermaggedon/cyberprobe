@@ -9,11 +9,10 @@ using namespace cybermon;
 
 namespace
 {
-    bool is_a_valid_dns_port(std::uint16_t port)
+    bool is_a_valid_dns_port(uint16_t port)
     {
-	static std::uint16_t dns_port{ 53 };
-
-	return port == dns_port;
+	// DNS is port 53.
+	return port == 53;
     }
 }
 

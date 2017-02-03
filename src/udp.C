@@ -34,7 +34,7 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    auto start_of_dns_header = s + 8;
+    pdu_iter start_of_dns_header = s + 8;
     if (dns::ident(src.get_uint16(), dest.get_uint16(), start_of_dns_header, e))
     {
 	dns::process(mgr, fc, start_of_dns_header, e);
