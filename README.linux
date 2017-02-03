@@ -27,14 +27,14 @@ Debian, Ubuntu
 Fedora
 ======
 
-sudo yum install git autoconf automake
-sudo yum install libpcap-devel boost-devel gcc-c++
-sudo yum install expat-devel lua-devel 
-sudo yum install ncurses-devel readline-devel 
-sudo yum install lua-filesystem lua-json lua-md5 lua-socket
-sudo yum install texinfo texlive texinfo-tex
-sudo yum install luarocks python tcpdump tar
-sudo yum install libtool make rpm-build openssl-devel
+sudo dnf install -y git autoconf automake
+sudo dnf install -y libpcap-devel boost-devel gcc-c++
+sudo dnf install -y expat-devel lua-devel 
+sudo dnf install -y ncurses-devel readline-devel 
+sudo dnf install -y lua-filesystem lua-json lua-md5 lua-socket
+sudo dnf install -y texinfo texlive texinfo-tex
+sudo dnf install -y luarocks python tcpdump tar
+sudo dnf install -y libtool make rpm-build openssl-devel
 sudo luarocks install md5
 sudo dnf install -y cppzmq-devel
 sudo luarocks install lzmq
@@ -50,23 +50,36 @@ luarocks install md5.
 Centos 7, RHEL7
 ===============
 
-As for Fedora, but...
+sudo yum install -y git autoconf automake
+sudo yum install -y libpcap-devel boost-devel gcc-c++
+sudo yum install -y expat-devel lua-devel 
+sudo yum install -y ncurses-devel readline-devel 
+sudo yum install -y lua-filesystem lua-json lua-md5 lua-socket
+sudo yum install -y texinfo texlive texinfo-tex
+sudo yum install -y luarocks python tcpdump tar
+sudo yum install -y libtool make rpm-build openssl-devel
+sudo luarocks install md5
+sudo dnf install -y cppzmq-devel
+sudo luarocks install lzmq
+git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+autoreconf -fi
+./configure --prefix=/usr/local
+make
+make install
 
 Doesn't include LUA json or filesystem, and doesn't have luarocks in order to
 be able to install them.
 
 Have to download luarocks:
-   wget http://luarocks.org/releases/luarocks-2.x.x.tar.gz
+   wget http://luarocks.org/releases/luarocks-2.4.2.tar.gz
 ./configure --with-lua-include=/usr/include
 make
 make install
 
-yum install openssl-devel
-
-/usr/local/bin/luarocks --tree=/usr install luajson
-/usr/local/bin/luarocks --tree=/usr install luafilesystem
-/usr/local/bin/luarocks --tree=/usr install lmd5
-/usr/local/bin/luarocks --tree=/usr install luasocket
+sudo /usr/local/bin/luarocks --tree=/usr install luajson
+sudo /usr/local/bin/luarocks --tree=/usr install luafilesystem
+sudo /usr/local/bin/luarocks --tree=/usr install lmd5
+sudo /usr/local/bin/luarocks --tree=/usr install luasocket
 
 Some amount of hacking around of directories is needed e.g. things are put
 in /usr/lib/lua.5.1 when Lua expects /usr/lib64/lua/5.1
