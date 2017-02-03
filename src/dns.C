@@ -22,8 +22,8 @@ std::size_t dns::header_length()
 }
 
 bool dns::ident(
-	std::uint16_t source_port,
-	std::uint16_t destination_port,
+	uint16_t source_port,
+	uint16_t destination_port,
 	pdu_iter start,
 	pdu_iter end)
 {
