@@ -1,6 +1,6 @@
 
 dist_doc_DATA = architecture.png cyberprobe.css \
-	cyberprobe-overview.png index.html licence.html kibana.png \
+	cyberprobe-overview.png licence.html kibana.png \
 	../stix/example1.txt ../stix/example2.txt \
 	cyberprobe.html kibana-small.png kibana-scaled.png \
 	cyberprobe.pdf
