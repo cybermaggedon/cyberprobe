@@ -11,7 +11,7 @@ local observer = {}
 -- Other modules -----------------------------------------------------------
 
 local mime = require("mime")
-local jsenc = require("json.encode")
+local json = require("json")
 local lzmq = require("lzmq")
 local os = require("os")
 
@@ -69,7 +69,7 @@ end
 local context
 local skt
 
--- Initialise.  This gets a token from Google OAUTH2.
+-- Initialise.
 local init = function()
 
   context = lzmq.context()
@@ -164,7 +164,7 @@ local initialise_observation = function(context, indicators)
 end
 
 local submit_observation = function(obs)
-  ret = skt:send(jsenc(obs))
+  ret = skt:send(json.encode(obs))
 end
 
 -- This function is called when a trigger events starts collection of an
@@ -255,12 +255,14 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   end
 
   local q = {}
+  json.util.InitArray(q)
   for key, value in pairs(queries) do
     q[#q + 1] = value.name
   end
   obs["queries"] = q
 
   q = {}
+  json.util.InitArray(q)
   for key, value in pairs(answers) do
     local a = {}
     a["name"] = value.name
