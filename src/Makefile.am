@@ -26,7 +26,7 @@ lib_LTLIBRARIES = libcybermon.la
 libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	ip.C tcp.C udp.C http.C address.C icmp.C cybermon-lua.C reaper.C \
 	unrecognised.C dns.C dns_protocol.C forgery.C smtp.C ftp.C \
-	resource_manager.C \
+	resource_manager.C ntp.C ntp_protocol.C \
 	../include/cybermon/engine.h ../include/cybermon/etsi_li.h \
 	../include/cybermon/socket.h ../include/cybermon/ber.h \
 	../include/cybermon/base_context.h ../include/cybermon/ip.h \
@@ -37,6 +37,7 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	../include/cybermon/cybermon-lua.h ../include/cybermon/reaper.h \
 	../include/cybermon/unrecognised.h ../include/cybermon/dns.h \
 	../include/cybermon/dns_protocol.h ../include/cybermon/forgery.h \
+	../include/cybermon/ntp_protocol.h \
 	../include/cybermon/smtp.h ../include/cybermon/ftp.h \
 	../include/cybermon/thread.h ../include/cybermon/context.h \
 	../include/cybermon/pdu.h ../include/cybermon/exception.h \

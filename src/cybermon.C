@@ -202,6 +202,33 @@ public:
 	}
     }
 
+    // NTP
+    virtual void ntp_timestamp_message(const cybermon::context_ptr cp,
+			     const cybermon::ntp_timestamp& ts){
+	try {
+	    cml.ntp_timestamp_message(*this, cp, ts);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
+    }
+    
+    virtual void ntp_control_message(const cybermon::context_ptr cp,
+			     const cybermon::ntp_control& ctrl){
+	try {
+	    cml.ntp_control_message(*this, cp, ctrl);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
+    }
+    
+    virtual void ntp_private_message(const cybermon::context_ptr cp,
+			     const cybermon::ntp_private& priv){
+	try {
+	    cml.ntp_private_message(*this, cp, priv);
+	} catch (std::exception& e) {
+	    std::cerr << "Error: " << e.what() << std::endl;
+	}
+    }
 };
 
 // Monitor class, implements the monitor interface to receive data.

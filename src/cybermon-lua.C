@@ -589,6 +589,154 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
 
 }
 
+void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
+			           const ntp_timestamp& ts)
+{
+    // Get config.ntp_timestamp_message
+    get_global("config");
+    get_field(-1, "ntp_timestamp_message");
+    
+    // Put context on the stack
+    push(f);
+    push(ts);
+   
+    // config.ntp_timestamp_message(context, tm)
+    try {
+	call(3, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
+			                           const ntp_control& ctrl)
+{
+    // Get config.ntp_control_message
+    get_global("config");
+    get_field(-1, "ntp_control_message");
+    
+    // Put context on the stack
+    push(f);
+    push(ctrl);
+   
+    // config.ntp_control_message(context, cm)
+    try {
+	call(3, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
+			                           const ntp_private& priv)
+{
+    // Get config.ntp_private_message
+    get_global("config");
+    get_field(-1, "ntp_private_message");
+    
+    // Put context on the stack
+    push(f);
+    push(priv);
+   
+    // config.ntp_private_message(context, pm)
+    try {
+	call(3, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::push(const ntp_timestamp& ts)
+{
+    push_ntp_base(ts);
+    
+    create_table(0, 11);
+    
+    push("stratum");
+    push(ts.stratum);
+    set_table(-3);
+    
+    push("poll");
+    push(ts.poll);
+    set_table(-3);
+    
+    push("precision");
+    push(ts.precision);
+    set_table(-3);
+    
+    push("root_delay");
+    push(ts.root_delay);
+    set_table(-3);
+    
+    push("root_dispersion");
+    push(ts.root_dispersion);
+    set_table(-3);
+     
+    push("reference_id");
+    push(ts.reference_id);
+    set_table(-3);
+    
+    push("reference_timestamp");
+    push(ts.reference_timestamp);
+    set_table(-3);
+    
+    push("originate_timestamp");
+    push(ts.originate_timestamp);
+    set_table(-3);
+    
+    push("receive_timestamp");
+    push(ts.receive_timestamp);
+    set_table(-3);
+    
+    push("transmit_timestamp");
+    push(ts.transmit_timestamp);
+    set_table(-3);
+    
+    push("extension");
+    push(ts.has_extension);
+    set_table(-3);
+    
+}
+
+void cybermon_lua::push(const ntp_control& ctrl)
+{
+    push_ntp_base(ctrl);
+}
+
+void cybermon_lua::push(const ntp_private& priv)
+{
+    push_ntp_base(priv);
+}
+
+void cybermon_lua::push_ntp_base(const ntp_base& base)
+{
+    create_table(0, 3);
+
+    push("leap_indicator");
+    push(base.leap_indicator);
+    set_table(-3);
+    
+    push("version");
+    push(base.version);
+    set_table(-3);
+    
+    push("mode");
+    push(base.mode);
+    set_table(-3);
+}
+
 
 void cybermon_lua::push(const dns_header& hdr)
 {

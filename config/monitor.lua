@@ -158,6 +158,42 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
 end
 
+-- This function is called when a NTP Timestamp message is observed.
+observer.ntp_timestamp_message = function(context, base, info)
+  local a = string.format("NTP Timestamp")
+  observer.describe(context, a);
+  io.write(string.format("  Leap Indicator      -> %u\n", base.leap_indicator));
+  io.write(string.format("  Version             -> %u\n", base.version));
+  io.write(string.format("  Mode                -> %u\n", base.mode));
+  io.write(string.format("  Stratum             -> %u\n", info.stratum));
+  io.write(string.format("  Poll                -> %u\n", info.poll));
+  io.write(string.format("  Precision           -> %.6f\n", info.precision));
+  io.write(string.format("  Root Delay          -> %.6f\n", info.root_delay));
+  io.write(string.format("  Root Dispersion     -> %.6f\n", info.root_dispersion));
+  io.write(string.format("  Reference Id        -> %u\n", info.reference_id));
+  io.write(string.format("  Reference Timestamp -> %.9f\n", info.reference_timestamp));
+  io.write(string.format("  Originate Timestamp -> %.9f\n", info.originate_timestamp));
+  io.write(string.format("  Receive Timestamp   -> %.9f\n", info.receive_timestamp));
+  io.write(string.format("  Transmit Timestamp  -> %.9f\n", info.transmit_timestamp));
+  if info.has_extension then
+       io.write("  Extension           -> True\n");
+  else
+       io.write("  Extension           -> False\n");
+  end
+end
+
+-- This function is called when a NTP Control message is observed.
+observer.ntp_control_message = function(context, base, info)
+  local a = string.format("NTP Control")
+  observer.describe(context, a);
+end
+
+-- This function is called when a NTP Private message is observed.
+observer.ntp_private_message = function(context, base, info)
+  local a = string.format("NTP Private")
+  observer.describe(context, a);
+end
+
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
   local a = string.format("FTP command %s", command)

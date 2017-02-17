@@ -5,6 +5,7 @@
 #include <cybermon/manager.h>
 #include <cybermon/unrecognised.h>
 #include <cybermon/dns.h>
+#include <cybermon/ntp.h>
 
 using namespace cybermon;
 
@@ -38,8 +39,10 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // FIXME: Is there a stronger identifier?
     if ((src.get_uint16() == 53) || dest.get_uint16() == 53) {
 	dns::process(mgr, fc, s + 8, e);
+    } 
+    else if(src.get_uint16() == 123 || dest.get_uint16() == 123) {
+        ntp::process(mgr, fc, s+8, e);
     } else  {
-
 	unrecognised::process_unrecognised_datagram(mgr, fc, s + 8, e);
 
     }

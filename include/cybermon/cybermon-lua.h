@@ -404,6 +404,12 @@ namespace cybermon {
 
 	void to_dns_rr(int pos, dns_rr&);
 	void to_dns_rrs(int pos, std::list<dns_rr>&);
+	
+	// Push NTP stuff
+	void push_ntp_base(const ntp_base&);
+	void push(const ntp_timestamp&);
+	void push(const ntp_control&);
+	void push(const ntp_private&);
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
 	void trigger_up(const std::string& liid, const tcpip::address& a);
@@ -473,6 +479,14 @@ namespace cybermon {
 			 const std::list<dns_rr> authorities,
 			 const std::list<dns_rr> additional);
 
+    void ntp_timestamp_message(engine& an, const context_ptr cf,
+			                   const ntp_timestamp& ts);
+			                  
+	void ntp_control_message(engine& an, const context_ptr cf,
+			                 const ntp_control& ctrl);
+			                 
+	void ntp_private_message(engine& an, const context_ptr cf,
+			                 const ntp_private& priv);		                 		                  
     };
 
 };

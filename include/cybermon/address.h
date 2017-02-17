@@ -31,6 +31,7 @@ namespace cybermon {
 	DNS,
 	SMTP,
 	FTP,
+	NTP,
 
 	// Unknown stuff
 	UNRECOGNISED
