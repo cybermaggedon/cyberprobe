@@ -64,13 +64,6 @@ ntp_decoder::packet_type ntp_decoder::parse_timestamp()
     timestamp_info.root_delay = ntp_short();
     timestamp_info.root_dispersion = ntp_short();
     
-    /*timestamp_info.root_delay = ( ((ptr[0] << 8) | ptr[1]) +
-                                  (((ptr[2] << 8) | ptr[3]) / 65536.0) );
-    ptr += 4;
-    timestamp_info.root_dispersion = ( ((ptr[0] << 8) | ptr[1]) +
-                                       (((ptr[2] << 8) | ptr[3]) / 65536.0) );
-    ptr += 4;*/
-    
     timestamp_info.reference_id = get_uint32();
     timestamp_info.reference_timestamp = ntp_ts();
     timestamp_info.originate_timestamp = ntp_ts();
@@ -108,9 +101,9 @@ ntp_decoder::packet_type ntp_decoder::parse_private()
 
 void ntp_decoder::parse_base(ntp_base& base)
 {
-    timestamp_info.leap_indicator = (ptr[0] & NTP_LI_MASK) >> 6;
-    timestamp_info.version = (ptr[0] & NTP_VN_MASK) >> 3;
-    timestamp_info.mode= ptr[0] & NTP_MODE_MASK;
+    base.leap_indicator = (ptr[0] & NTP_LI_MASK) >> 6;
+    base.version = (ptr[0] & NTP_VN_MASK) >> 3;
+    base.mode= ptr[0] & NTP_MODE_MASK;
     ptr++;
 }
 

@@ -408,8 +408,6 @@ namespace cybermon {
 	// Push NTP stuff
 	void push_ntp_base(const ntp_base&);
 	void push(const ntp_timestamp&);
-	void push(const ntp_control&);
-	void push(const ntp_private&);
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
 	void trigger_up(const std::string& liid, const tcpip::address& a);

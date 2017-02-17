@@ -598,9 +598,10 @@ void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
     
     // Put context on the stack
     push(f);
+    push_ntp_base(ts);
     push(ts);
    
-    // config.ntp_timestamp_message(context, tm)
+    // config.ntp_timestamp_message(context, base info)
     try {
 	call(3, 0);
     } catch (std::exception& e) {
@@ -621,11 +622,11 @@ void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
     
     // Put context on the stack
     push(f);
-    push(ctrl);
+    push_ntp_base(ctrl);
    
-    // config.ntp_control_message(context, cm)
+    // config.ntp_control_message(context, base)
     try {
-	call(3, 0);
+	call(2, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -644,11 +645,11 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
     
     // Put context on the stack
     push(f);
-    push(priv);
+    push_ntp_base(priv);
    
-    // config.ntp_private_message(context, pm)
+    // config.ntp_private_message(context, base)
     try {
-	call(3, 0);
+	call(2, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -658,10 +659,25 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
     pop();
 }
 
-void cybermon_lua::push(const ntp_timestamp& ts)
+void cybermon_lua::push_ntp_base(const ntp_base& base)
 {
-    push_ntp_base(ts);
+    create_table(0, 3);
+
+    push("leap_indicator");
+    push(base.leap_indicator);
+    set_table(-3);
     
+    push("version");
+    push(base.version);
+    set_table(-3);
+    
+    push("mode");
+    push(base.mode);
+    set_table(-3);
+}
+
+void cybermon_lua::push(const ntp_timestamp& ts)
+{    
     create_table(0, 11);
     
     push("stratum");
@@ -709,34 +725,6 @@ void cybermon_lua::push(const ntp_timestamp& ts)
     set_table(-3);
     
 }
-
-void cybermon_lua::push(const ntp_control& ctrl)
-{
-    push_ntp_base(ctrl);
-}
-
-void cybermon_lua::push(const ntp_private& priv)
-{
-    push_ntp_base(priv);
-}
-
-void cybermon_lua::push_ntp_base(const ntp_base& base)
-{
-    create_table(0, 3);
-
-    push("leap_indicator");
-    push(base.leap_indicator);
-    set_table(-3);
-    
-    push("version");
-    push(base.version);
-    set_table(-3);
-    
-    push("mode");
-    push(base.mode);
-    set_table(-3);
-}
-
 
 void cybermon_lua::push(const dns_header& hdr)
 {

@@ -46,7 +46,7 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     } 
     else
     {   
-	    unrecognised::process_unrecognised_datagram(mgr, fc, start_of_dns_header, e);
+	    unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_header, e);
     }
 }
 

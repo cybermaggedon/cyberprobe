@@ -183,15 +183,21 @@ observer.ntp_timestamp_message = function(context, base, info)
 end
 
 -- This function is called when a NTP Control message is observed.
-observer.ntp_control_message = function(context, base, info)
+observer.ntp_control_message = function(context, base)
   local a = string.format("NTP Control")
   observer.describe(context, a);
+  io.write(string.format("  Leap Indicator      -> %u\n", base.leap_indicator));
+  io.write(string.format("  Version             -> %u\n", base.version));
+  io.write(string.format("  Mode                -> %u\n", base.mode));
 end
 
 -- This function is called when a NTP Private message is observed.
-observer.ntp_private_message = function(context, base, info)
+observer.ntp_private_message = function(context, base)
   local a = string.format("NTP Private")
   observer.describe(context, a);
+  io.write(string.format("  Leap Indicator      -> %u\n", base.leap_indicator));
+  io.write(string.format("  Version             -> %u\n", base.version));
+  io.write(string.format("  Mode                -> %u\n", base.mode));
 end
 
 -- This function is called when an FTP command is observed.
