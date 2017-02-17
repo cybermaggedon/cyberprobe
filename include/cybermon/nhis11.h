@@ -67,6 +67,18 @@ class sender {
 	send_start(liid);
 	cnx = true;
     }
+    
+    // Connect to host/port using TLS.  Also specifies the LIID for this
+    // transport.
+    void connect_tls(const std::string& host, int port, const std::string& liid,
+		     const std::string& key, const std::string& cert,
+		     const std::string& chain) {
+	seq = 0;
+	cid = next_cid++;
+	s.connect_tls(host, port, key, cert, chain);
+	send_start(liid);
+	cnx = true;
+    }
 
     // Deliver an IP packet.  dir describes the 'direction' as defined in
     // the NHIS 1.1 spec.
@@ -85,13 +97,13 @@ class receiver;
 class connection : public threads::thread {
 
   private:
-    tcpip::tcp_socket s;
+    boost::shared_ptr<tcpip::stream_socket> s;
     monitor& p;
     receiver &r;
     bool running;
 
   public:
-    connection(tcpip::tcp_socket s, monitor& p,
+    connection(boost::shared_ptr<tcpip::stream_socket> s, monitor& p,
 	       receiver& r) : s(s), p(p), r(r) {
 	running = true;
     }
@@ -103,17 +115,23 @@ class connection : public threads::thread {
 class receiver : public threads::thread {
 
   private:
-    int port;
     bool running;
-    tcpip::tcp_socket svr;
+    boost::shared_ptr<tcpip::stream_socket> svr;
     monitor& p;
 
     threads::mutex close_me_lock;
     std::queue<connection*> close_mes;
 
   public:
-    receiver(int port, monitor& p) : port(port), p(p) {
+    receiver(int port, monitor& p) : p(p) {
+	svr = boost::shared_ptr<tcpip::stream_socket>(new tcpip::tcp_socket);
+	svr->bind(port);
 	running = true;
+    }
+    receiver(boost::shared_ptr<tcpip::stream_socket> sock, monitor& p) : p(p) {
+	svr = sock;
+	running = true;
+	
     }
     virtual ~receiver() {}
     virtual void run();

@@ -1,0 +1,43 @@
+
+KEY_SIZE=4096
+RAND_COUNT=64
+RAND_BLOCK=16
+RANDOM_DEVICE=/dev/random
+DD=dd iflag=fullblock
+
+CA_VALIDITY=710
+CERT_VALIDITY=710
+
+all: cert.ca cert.server
+
+key.ca:
+	${DD} bs=${RAND_BLOCK} count=${RAND_COUNT} if=${RANDOM_DEVICE} of=rand
+	openssl genrsa -out $@ -rand rand ${KEY_SIZE}
+	rm -f rand
+
+cert.ca: key.ca config.ca
+	openssl req -key key.ca -out $@ -days ${CA_VALIDITY} \
+		-x509 -new -config config.ca
+	openssl verify -CAfile $@ $@
+
+key.server:
+	${DD} bs=${RAND_BLOCK} count=${RAND_COUNT} if=${RANDOM_DEVICE} of=rand
+	openssl genrsa -out $@ -rand rand ${KEY_SIZE}
+	rm -f rand
+
+req.server: key.server config.server
+	openssl req -key key.server -out $@ -new -config config.server
+
+cert.server: req.server config.server key.ca cert.ca
+	openssl x509 -req -in req.server -CAkey key.ca \
+		-CA cert.ca -CAcreateserial -CAserial serial \
+		-out $@ -days ${CERT_VALIDITY} -extfile config.server \
+		-extensions v3_req
+	openssl verify -CAfile cert.ca $@
+
+clean:
+	rm -f key.*
+	rm -f cert.*
+	rm -f req.*
+	rm -f rand
+	rm -f serial

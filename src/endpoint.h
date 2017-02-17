@@ -16,15 +16,25 @@ public:
     virtual std::string get_type() const { return "endpoint"; }
 
     // Endpoint parameters.
-    std::string hostname;
-    unsigned short port;
-    std::string type;
+    std::string hostname;       // Hostname or IP address.
+    unsigned short port;        // Port number.
+    std::string type;           // One of: etsi, nhis.
+    std::string transport;	// One of: tcp, tls.
+    
+    // Parameters for TLS.
+    std::string certificate_file;
+    std::string key_file;
+    std::string trusted_ca_file;
 
     // Constructors.
     endpoint_spec() {}
     endpoint_spec(const std::string& hostname, unsigned short port,
-		  const std::string& type) {
+		  const std::string& type, const std::string& transport,
+		  const std::string& cert, const std::string& key,
+		  const std::string& trusted_ca) {
 	this->hostname = hostname; this->port = port; this->type = type;
+	this->transport = transport; this->certificate_file = cert;
+	this->key_file = key; this->trusted_ca_file = trusted_ca;
     }
 
     // Hash is form <space> + host:port.
@@ -41,7 +51,9 @@ public:
 	// which means that 'target up' messages will be sent on targets
 	// configured in the config file.
 
-	buf << " " << hostname << ":" << port << ":" << type;
+	buf << " " << hostname << ":" << port << ":" << type
+	    << certificate_file << ":" << key_file << ":"
+	    << trusted_ca_file;
 	return buf.str();
     }
 
@@ -67,17 +79,35 @@ public:
     // Start method, change the delivery engine mapping.
     virtual void start() { 
 
-	deliv.add_endpoint(spec.hostname, spec.port, spec.type);
+	std::map<std::string, std::string> params;
+	if (spec.transport == "tls") {
+	    params["certificate"] = spec.certificate_file;
+	    params["key"] = spec.key_file;
+	    params["chain"] = spec.trusted_ca_file;
+	}
+
+	deliv.add_endpoint(spec.hostname, spec.port, spec.type,
+			   spec.transport, params);
 
 	std::cerr << "Added endpoint " << spec.hostname << ":" << spec.port 
-		  << " of type " << spec.type << std::endl;
+		  << " of type " << spec.type
+		  << " with transport " << spec.transport << std::endl;
 
     }
 
     // Stop method, remove the mapping.
-    virtual void stop() { 
+    virtual void stop() {
+	
+	std::map<std::string, std::string> params;
+	if (spec.transport == "tls") {
+	    params["certificate"] = spec.certificate_file;
+	    params["key"] = spec.key_file;
+	    params["chain"] = spec.trusted_ca_file;
+	}
 
-	deliv.remove_endpoint(spec.hostname, spec.port, spec.type);
+	deliv.remove_endpoint(spec.hostname, spec.port, spec.type,
+			      spec.transport, params);
+
 	std::cerr << "Removed endpoint " << spec.hostname << ":" 
 		  << spec.port << std::endl;
 

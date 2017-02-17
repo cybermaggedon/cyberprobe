@@ -7,19 +7,19 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	configuration.h control.h snort_alert.h target.h \
 	parameters.h packet_consumer.h interface.h \
 	endpoint.h parameter.h
-cyberprobe_LDADD = libcybermon.la
+cyberprobe_LDADD = libcybermon.la -lssl
 
 cybermon_SOURCES = cybermon.C management.h 
-cybermon_LDADD = libcybermon.la
+cybermon_LDADD = libcybermon.la -lssl
 
 cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h
-cyberprobe_cli_LDADD = libcybermon.la
+cyberprobe_cli_LDADD = libcybermon.la -lssl
 
 nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C
-nhis11_rcvr_LDADD = libcybermon.la
+nhis11_rcvr_LDADD = libcybermon.la -lssl
 
 etsi_rcvr_SOURCES = etsi_rcvr.C
-etsi_rcvr_LDADD = libcybermon.la
+etsi_rcvr_LDADD = libcybermon.la -lssl
 
 lib_LTLIBRARIES = libcybermon.la
 
@@ -54,10 +54,10 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_LDFLAGS = 
 
 LDFLAGS_BOOST = \
-    $(BOOST_REGEX_LDFLAGS)
+    $(BOOST_REGEX_LDFLAGS) $(BOOST_PROGRAM_OPTIONS_LDFLAGS)
 
 LIBS_BOOST = \
-    $(BOOST_REGEX_LIBS)
+    $(BOOST_REGEX_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS)
 
 AM_CPPFLAGS += $(BOOST_CPPFLAGS) $(LUA_INCLUDE)
 AM_LDFLAGS += $(LDFLAGS_BOOST) $(LUA_LDADD)

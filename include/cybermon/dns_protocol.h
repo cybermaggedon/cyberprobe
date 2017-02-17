@@ -108,13 +108,17 @@ namespace cybermon {
 	    this->s = s; this->e = e;
 	}
 	void parse();
-	void parse_header();
+	void parse_header(pdu_iter header);
 	void parse_name(pdu_iter ms, pdu_iter me, 
 			pdu_iter& pos, pdu_iter e, std::string&,
 			bool& first);
 	void parse_queries();
 	void parse_rrs(std::list<dns_rr>& rrs, int n);
 	void parse_rr(dns_rr& r);
+
+    private:
+
+	pdu_iter& validate_iter(pdu_iter& iter, pdu_iter end_iter);
     };
 
 };

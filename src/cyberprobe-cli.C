@@ -84,6 +84,14 @@ void cmd_do4(tcpip::tcp_socket& s, const std::string& c1,
     cmd_do(s, cmd);
 }
 
+void cmd_do5(tcpip::tcp_socket& s, const std::string& c1, 
+	     const std::string& c2, const std::string& c3, 
+	     const std::string& c4, const std::string& c5)
+{
+    std::string cmd = c1 + " " + c2 + " " + c3 + " " + c4 + " " + c5;
+    cmd_do(s, cmd);
+}
+
 void cmd_help()
 {
     std::cerr << "Not implemented. :) " << std::endl;
@@ -588,20 +596,22 @@ int client(int argc, char** argv)
 	}
 
 	static const boost::regex 
-	    add_endpoint(" *add +endpoint +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+	    add_endpoint(" *add +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
 			  boost::regex::extended);
 
 	if (regex_search(s, what, add_endpoint, boost::match_continuous)) {
-	    cmd_do4(sock, "add_endpoint", what[1], what[2], what[3]);
+	    cmd_do5(sock, "add_endpoint", what[1], what[2], what[3],
+		    what[4]);
 	    continue;
 	}
 
 	static const boost::regex 
-	    remove_endpoint(" *remove +endpoint +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+	    remove_endpoint(" *remove +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
 			  boost::regex::extended);
 	
 	if (regex_search(s, what, remove_endpoint, boost::match_continuous)) {
-	    cmd_do4(sock, "remove_endpoint", what[1], what[2], what[3]);
+	    cmd_do5(sock, "remove_endpoint", what[1], what[2], what[3],
+		    what[4]);
 	    continue;
 	}
 

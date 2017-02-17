@@ -241,7 +241,18 @@ Cyberprobe releases:
 
 @table @code
 
-@item 0.72
+@item 0.80
+Added optional TLS support for packet streams to cyberprobe and cybermon.
+This change refactors the cybermon command line interface.  See documentation
+for new command line options.
+
+@item 0.79
+Socket closure fix.
+
+@item 0.76
+Make UUIDs unique.
+
+@item 0.74
 Cassanda subscriber support.
 
 @item 0.71
@@ -828,7 +839,7 @@ packets to a local service on port 10000:
 
 @example
 <endpoints>
-  <endpoint hostname="localhost" port="10000" type="etsi"/>
+  <endpoint hostname="localhost" port="10000" transport="tcp" type="etsi"/>
 </endpoints>
 @end example
 
@@ -2162,11 +2173,11 @@ Sample configuration:
 
     <!-- Send collected packets to monitor1:10001 in NHIS 1.1
          stream. -->
-    <endpoint hostname="monitor1" port="10001" type="nhis1.1"/>
+    <endpoint hostname="monitor1" port="10001" transport="tcp" type="nhis1.1"/>
 
     <!-- Send collected packets to monitor2:10002 in ETSI LI
          stream. -->
-    <endpoint hostname="monitor2" port="10002" type="etsi"/>
+    <endpoint hostname="monitor2" port="10002" transport="tcp" type="etsi"/>
 
   </endpoints>
 
@@ -2242,10 +2253,22 @@ attribute is included, and set to @code{ipv6}.
 LIIDs can occur in multiple places in the target block, but an IP address
 should only occur once in the target block.
 
+@cindex @code{certificate}, cyberprobe configuration option
+@cindex @code{key}, cyberprobe configuration option
+@cindex @code{trusted-ca}, cyberprobe configuration option
+@cindex TLS
+@cindex SSL
+@cindex cyberprobe secure delivery
 The @code{endpoints} block defines a set of addresses for delivery. The
 @code{hostname} and @code{port} attributes should be used to describe the
 endpoint address. Type @code{type} attribute should be @code{nhis1.1} or
-@code{etsi} to specify which output stream format to use.
+@code{etsi} to specify which output stream format to use.  The @code{transport}
+describe the transport type, which should be @code{tcp} for standard TCP stream,
+or @code{tls} for an SSL/TLS stream.  If TLS is invoked, the attributes
+@code{certificate}, @code{key} and @code{trusted-ca} should be specified,
+with filenames for client certificate, private key, and a trust CA chain.
+These should all be in PEM format.
+
 
 The optional @code{parameters} block defines a set of parameters which are
 only used in ETSI delivery. Each parameter element should have a @code{key}
@@ -2316,7 +2339,7 @@ The following commands are supported by @command{cyberprobe-cli}:
 
 @table @samp
 
-@item add endpoint HOST PORT TYPE
+@item add endpoint HOST PORT TYPE TRANSPORT
 Adds a delivery endpoint.
 @table @samp
 @item HOST
@@ -2325,7 +2348,12 @@ Specifies the delivery host.
 Specifies TCP port to deliver to.
 @item TYPE
 Can be one of @samp{nhis} or @samp{etsi} for delivery protocol.
+@item TRANSPORT
+Can be one of @samp{tcp} or @samp{tls} for TCP or TLS transports.
 @end table
+
+Note: It is not possible to specify the appropriate transport paramters for
+TLS delivery using the management interface currently.  (FIXME).
 
 @item add interface INTERFACE DELAY [FILTER]
 Adds an interface for packet sniffing.
@@ -2365,9 +2393,10 @@ Displays help (not implemented).
 @item quit
 Causes the client to close the connection and terminate.
 
-@item remove endpoint HOST PORT TYPE
+@item remove endpoint HOST PORT TYPE TRANSPORT
 Removes an endpoint added through the @samp{add endpoint} command.
-The HOST, PORT and TYPE values are the same as for @samp{add endpoint}.
+The HOST, PORT TYPE and TRANSPORT values are the same as for
+@samp{add endpoint}.
 
 @item remove interface INTERFACE DELAY [FILTER]
 Removes an interface added through the @samp{add interface} command.
@@ -2525,13 +2554,17 @@ Removes a previously enabled packet capture.
 @item interfaces
 Lists all interfaces, output is format @code{iface:delay:filter}.
 
-@item add_endpoint <host> <port> <type>
+@item add_endpoint <host> <port> <type> <transport>
 Adds an endpoint to delivery data to.
-where type is one of: @code{etsi} @code{nhis1.1}.
+where type is one of: @code{etsi} @code{nhis1.1} and
+transport is one of: @code{tcp} @code{tls}.
+Note that it is not currently possible to specify the configuration required to
+get a TLS connection to work. (FIXME).
 
-@item remove_endpoint <host> <port> <type>
+@item remove_endpoint <host> <port> <type> <transport>
 Removes a previously enabled endpoint.
-where type is one of: @code{etsi} @code{nhis1.1}.
+where type is one of: @code{etsi} @code{nhis1.1} and
+transport is one of: @code{tcp} @code{tls}.
 
 @item endpoints
 Lists endpoints, format is @code{host:port:type:description}.
@@ -2635,42 +2668,49 @@ actions. For each event, a call is made to a Lua script which the caller
 provides.  Synposes:
 
 @example
-cybermon @var{port-number} @var{configuration-file}
-cybermon file:@var{pcap-file} @var{configuration-file}
-cybermon -
+cybermon [--help] [--transport TRANSPORT] [--port PORT] [--key KEY]
+        [--certificate CERT] [--trusted-ca CHAIN] [--pcap PCAP_FILE]
+        [--config CONFIG]
 @end example
 
 @itemize @bullet
 
 @item
-@var{port-number}
+@var{TRANSPORT}
+is either @samp{tcp} or @samp{tls}.  If @samp{tls} is specified, @samp{cybermon}
+expects to read data over TLS.  In TLS mode, it is necessary to specify the
+key, certificate, and trusted CA files.
+
+@item
+@var{PORT}
 is a TCP port number.  This form of the command runs as a TCP server
 listening for ETSI LI streams.  See @ref{ETSI LI}.
 
 @item
-@var{pcap-file}
+@var{KEY}
+specifies a filename for the private key in PEM format.  Only used in TLS mode.
+
+@item
+@var{CERT}
+specifies a filename for the public certificate in PEM format.
+Only used in TLS mode.
+
+@item
+@var{CHAIN}
+specifies a filename for trusted CA keys in PEM format.  Only used in TLS mode.
+
+@item
+@var{PCAP_FILE}
 is a PCAP file to read.  This form of the command reads the PCAP file, and
-then exits.
+then exits.  If the file is @samp{-}, standard input is read.
 
 @item
-The third form of the command specifies that @command{cybermon} should read
-standard input for PCAP data.  This form of the command will exit when 
-EOF is received on standard input.
-
-@item
-@var{configuration-file}
+@var{CONFIG}
 is a Lua configuration file, which specifies the action @command{cybermon}
 should take when certain events are observed.  See
 @ref{@command{cybermon} configuration}.
 
 @end itemize
-
-The first form of the command will execute indefinitely - to end the program, a
-signal should be sent. e.g.
-
-@example
-killall cyberprobe
-@end example
 
 @comment ----------------------------------------------------------------------
 

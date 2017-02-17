@@ -26,6 +26,7 @@ class sender_info {
 class management {
 
   public:
+    virtual ~management() {}
 
     // Modifies interface capture
     virtual void add_interface(const std::string& iface,
@@ -57,11 +58,16 @@ class management {
 
     // Adds an endpoint
     virtual void add_endpoint(const std::string& host, unsigned int port,
-			      const std::string& type) = 0;
+			      const std::string& type,
+			      const std::string& transp,
+			      const std::map<std::string, std::string>& p) = 0;
 
     // Removes an endpoint
     virtual void remove_endpoint(const std::string& host, unsigned int port,
-				 const std::string& type) = 0;
+				 const std::string& type,
+				 const std::string& transp,
+				 const std::map<std::string, std::string>& p)
+      = 0;
 
     // Fetch current target list.
     virtual void get_endpoints(std::list<sender_info>& info) = 0;

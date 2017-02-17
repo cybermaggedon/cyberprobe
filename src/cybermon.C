@@ -18,17 +18,15 @@ Usage:
 #include <iomanip>
 #include <map>
 
+#include <boost/program_options.hpp>
+
 #include <cybermon/engine.h>
 #include <cybermon/monitor.h>
 #include <cybermon/etsi_li.h>
-#include <cybermon/thread.h>
 #include <cybermon/packet_capture.h>
-#include <cybermon/flow.h>
 #include <cybermon/context.h>
 #include <cybermon/cybermon-lua.h>
 
-// My observation engine.  Uses the cybermon engine, takes the data
-// events and keep tabs on how much data has flowed out to attackers.
 class obs : public cybermon::engine {
 private:
     cybermon::cybermon_lua cml;
@@ -36,12 +34,6 @@ private:
 public:
 
     obs(const std::string& path) : cml(path) {}
-
-    // Map of network address to the amount of data acquired.
-    std::map<cybermon::address, uint64_t> amounts;
-
-    // Stores the next 'reporting' event for data acquisition by an attacker.
-    std::map<cybermon::address, uint64_t> next;
 
     // Connection-orientated.
     virtual void connection_up(const cybermon::context_ptr cp) {
@@ -337,44 +329,108 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 
 int main(int argc, char** argv)
 {
-   
-    if (argc != 3) {
-	std::cerr << "Usage:" << std::endl
-		  << "\tcybermon <port> <config>" << std::endl
-		  << "or" << std::endl
-		  << "\tcybermon - <config>" << std::endl;
-	return 0;
-    }
-    
+
+    namespace po = boost::program_options;
+
+    std::string key, cert, chain;
+    unsigned int port = 0;
+    std::string pcap_file, config_file;
+    std::string transport;
+
+    po::options_description desc("Supported options");
+    desc.add_options()
+	("help,h", "Show options guidance")
+	("transport,t",
+	 po::value<std::string>(&transport)->default_value("tcp"),
+	 "Transport service to provide, one of: tls, tcp")
+	("key,K", po::value<std::string>(&key), "server private key file")
+	("certificate,C", po::value<std::string>(&cert),
+	 "server public key file")
+	("trusted-ca,T", po::value<std::string>(&chain), "server trusted CAs")
+	("port,p", po::value<unsigned int>(&port), "port number to listen on")
+	("pcap,f", po::value<std::string>(&pcap_file), "PCAP file to read")
+	("config,c", po::value<std::string>(&config_file),
+	 "LUA configuration file");
+
+    po::variables_map vm;
     try {
 
-	// Get config file (Lua).
-	std::string config = argv[2];
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+
+	po::notify(vm);
+
+	if (config_file == "")
+	    throw std::runtime_error("Configuration file must be specified.");
+
+	if (pcap_file == "" && port == 0)
+	    throw std::runtime_error("Must specify a PCAP file or a port.");
+
+	if (pcap_file != "" && port != 0)
+	    throw std::runtime_error("Specify EITHER a PCAP file OR a port.");
+	    	    
+	if (pcap_file == "") {
+
+	    if (transport != "tls" && transport != "tcp")
+		throw std::runtime_error("Transport most be one of: tcp, tls");
+
+	    if (transport == "tls" && key == "")
+		throw std::runtime_error("For TLS, key file must be provided.");
+
+	    if (transport == "tls" && cert == "")
+		throw std::runtime_error("For TLS, certificate file must be "
+					 "provided.");
+
+	    if (transport == "tls" && chain == "")
+		throw std::runtime_error("For TLS, CA chain file must be "
+					 "provided.");
+
+	}
+
+    } catch (std::exception& e) {
+	std::cerr << "Exception: " << e.what() << std::endl;
+	std::cerr << desc << std::endl;
+	return 1;
+    }
+
+    if (vm.count("help")) {
+	std::cerr << desc << std::endl;
+	return 1;
+    }
+
+    try {
 	
 	// Create the observer instance.
-	obs an(config);
+	obs an(config_file);
 	
 	// Start the observer.
 	an.start();
 
-	std::string arg1(argv[1]);
+	if (pcap_file != "") {
 
-	if (arg1.substr(0, 5) == "file:") {
-
-	    pcap_input pin(arg1.substr(5), an);
+	    pcap_input pin(pcap_file, an);
 	    pin.run();
+
+	} else if (transport == "tls") {
+
+	    boost::shared_ptr<tcpip::ssl_socket> sock(new tcpip::ssl_socket);
+	    sock->bind(port);
+	    sock->use_key_file(key);
+	    sock->use_certificate_file(cert);
+	    sock->use_certificate_chain_file(chain);
+	    sock->check_private_key();
 	    
-	} else if (arg1 == "-") {
+	    // Create the monitor instance, receives ETSI events, and processes
+	    // data.
+	    etsi_monitor m(an);
 
-	    pcap_input pin("-", an);
-	    pin.run();
+	    // Start an ETSI receiver.
+	    cybermon::etsi_li::receiver r(sock, m);
+	    r.start();
+
+	    // Wait forever.
+	    r.join();	    
 
 	} else {
-	
-	    // Convert port argument to integer.
-	    std::istringstream buf(argv[1]);
-	    int port;
-	    buf >> port;
 	
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.

@@ -5,5 +5,4 @@ Places to change version numbers:
   configure.ac
   cyberprobe.spec
   pkg.mk
-  docs/index.html
   debian/changelog

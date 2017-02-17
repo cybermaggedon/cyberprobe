@@ -208,7 +208,13 @@ void nhis11_sender::handle(qpdu_ptr next)
 	while (running && 
 	       (transport.find(liid) == transport.end())) {
 	    try {
-		transport[liid].connect(h, p, liid);
+		if (tls) 
+		    transport[liid].connect_tls(h, p, liid,
+						params["key"],
+						params["certificate"],
+						params["chain"]);
+		else
+		    transport[liid].connect(h, p, liid);
 		std::cerr << "NHIS 1.1 connection to " 
 			  << h << ":" << p << " for LIID "
 			  << liid << " established." << std::endl;
@@ -260,7 +266,14 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	// Loop forever until we're connected.
 	while (running && !transport.connected()) {
 	    try {
-		transport.connect(h, p);
+		if (tls) 
+		    transport.connect_tls(h, p,
+					  params["key"],
+					  params["certificate"],
+					  params["chain"]);
+		else
+		    transport.connect(h, p);
+		
 		std::cerr << "ETSI LI connection to " 
 			  << h << ":" << p 
 			  << " established." << std::endl;
@@ -282,13 +295,13 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		std::string username;
 		
 		// Get metadata parameters
-		oper = pars.get_parameter("operator", "unknown");
-		country = pars.get_parameter("country", "XX");
-		net_elt = pars.get_parameter("network_element",
+		oper = global_pars.get_parameter("operator", "unknown");
+		country = global_pars.get_parameter("country", "XX");
+		net_elt = global_pars.get_parameter("network_element",
 					     "unknown");
-		int_pt = pars.get_parameter("interception_point",
+		int_pt = global_pars.get_parameter("interception_point",
 					    "unknown");
-		username = pars.get_parameter("username." + liid,
+		username = global_pars.get_parameter("username." + liid,
 					      "unknown");
 
 		// Send connect IRI stuff.
@@ -319,11 +332,11 @@ void etsi_li_sender::handle(qpdu_ptr next)
 
 		// Fetch metadata parameters
 		std::string oper, country, net_elt, int_pt;
-		oper = pars.get_parameter("operator", "OPRunknown");
-		country = pars.get_parameter("country", "XX");
-		net_elt = pars.get_parameter("network_element",
+		oper = global_pars.get_parameter("operator", "unknown");
+		country = global_pars.get_parameter("country", "XX");
+		net_elt = global_pars.get_parameter("network_element",
 					     "unknown");
-		int_pt = pars.get_parameter("interception_point",
+		int_pt = global_pars.get_parameter("interception_point",
 					    "unknown");
 
 		// Deliver packet.
@@ -352,11 +365,11 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		std::string oper, country, net_elt, int_pt;
 
 		// Get metadata parameters
-		oper = pars.get_parameter("operator", "unknown");
-		country = pars.get_parameter("country", "XX");
-		net_elt = pars.get_parameter("network_element",
+		oper = global_pars.get_parameter("operator", "unknown");
+		country = global_pars.get_parameter("country", "XX");
+		net_elt = global_pars.get_parameter("network_element",
 					     "unknown");
-		int_pt = pars.get_parameter("interception_point",
+		int_pt = global_pars.get_parameter("interception_point",
 					    "unknown");
 
 		// Send disconnect IRI stuff.

@@ -613,19 +613,24 @@ void receiver::run()
 
     try {
 
-	svr.bind(port);
-	svr.listen();
+	svr->listen();
 
 	while (running) {
 
-	    bool activ = svr.poll(1.0);
+	    bool activ = svr->poll(1.0);
 
 	    if (activ) {
 
-		tcpip::tcp_socket cn;
-		svr.accept(cn);
+		boost::shared_ptr<tcpip::stream_socket> cn;
+
+		try {
+		    cn = svr->accept();
+		} catch (...) {
+		    continue;
+		}
 
 		connection* c = new connection(cn, p, *this);
+
 		c->start();
 
 	    }
@@ -660,7 +665,7 @@ void connection::run()
 
 	    ber::berpdu pdu;
 
-	    bool got = pdu.read_pdu(s);
+	    bool got = pdu.read_pdu(*s);
 
 	    // Error or end of stream.
 	    if (!got) break;
@@ -809,7 +814,7 @@ void connection::run()
 	std::cerr << e.what() << std::endl;
     }
 
-    s.close();
+    s->close();
 
     r.close_me(this);
 

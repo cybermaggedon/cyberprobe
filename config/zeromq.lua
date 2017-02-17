@@ -11,13 +11,35 @@ local observer = {}
 -- Other modules -----------------------------------------------------------
 
 local mime = require("mime")
-local jsenc = require("json.encode")
+local json = require("json")
 local lzmq = require("lzmq")
 local os = require("os")
+
+-- Initialise UUID ---------------------------------------------------------
+
+-- Needed to help initialise UUID.
+local socket = require("socket")
 local uuid = require("uuid")
 
+uuid.seed()
+
 -- Config ------------------------------------------------------------------
-local binding = "tcp://*:5555"
+
+--
+-- To offer a local publication port: either just do nothing, and accept
+-- the default 5555 port, or set ZMQ_BINDING to something like tcp://*:12345
+-- to specify the port number.  To push to a remote port, 
+local binding
+local connection
+if os.getenv("ZMQ_BINDING") then
+  binding = os.getenv("ZMQ_BINDING")
+else
+  if os.getenv("ZMQ_CONNECT") then
+    connection = os.getenv("ZMQ_CONNECT")
+  else
+    binding = "tcp://*:5555"
+  end
+end
 
 -- GeoIP -------------------------------------------------------------------
 
@@ -47,17 +69,28 @@ end
 local context
 local skt
 
--- Initialise.  This gets a token from Google OAUTH2.
+-- Initialise.
 local init = function()
 
   context = lzmq.context()
-  skt = context:socket(lzmq.PUB)
-  ret = skt:bind(binding)
 
-  if ret == false then
-    print("ZeroMQ bind failed")
-    os.exit(1)
-  end
+  if binding then
+    skt = context:socket(lzmq.PUB)
+    ret = skt:bind(binding)
+
+    if ret == false then
+      print("ZeroMQ bind failed")
+      os.exit(1)
+    end
+  else
+     skt = context:socket(lzmq.PUSH)
+     ret = skt:connect(connection)
+
+     if ret == false then
+       print("ZeroMQ connect failed")
+       os.exit(1)
+    end
+ end
 
 end
 
@@ -131,7 +164,7 @@ local initialise_observation = function(context, indicators)
 end
 
 local submit_observation = function(obs)
-  ret = skt:send(jsenc(obs))
+  ret = skt:send(json.encode(obs))
 end
 
 -- This function is called when a trigger events starts collection of an
@@ -222,12 +255,14 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   end
 
   local q = {}
+  json.util.InitArray(q)
   for key, value in pairs(queries) do
     q[#q + 1] = value.name
   end
   obs["queries"] = q
 
   q = {}
+  json.util.InitArray(q)
   for key, value in pairs(answers) do
     local a = {}
     a["name"] = value.name

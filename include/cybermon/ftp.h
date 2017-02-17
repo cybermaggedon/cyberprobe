@@ -38,6 +38,7 @@ namespace cybermon {
 	    state = IN_COMMAND;
 	    exp_terminator = "\r\n.\r\n";
 	}
+	virtual ~ftp_client_parser() {}
 
 	// For the request.
 	std::string command;

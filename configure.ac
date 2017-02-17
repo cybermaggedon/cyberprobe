@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([cyberprobe], [0.74], [cyberprobe-general@lists.sourceforge.net])
+AC_INIT([cyberprobe], [0.83], [cyberprobe-general@lists.sourceforge.net])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
@@ -46,6 +46,7 @@ AM_PATH_PYTHON
 # Check for Boost.
 BOOST_REQUIRE
 BOOST_REGEX([mt])
+BOOST_PROGRAM_OPTIONS
 
 # Lua
 AX_PROG_LUA([5.1], [], [], [AC_MSG_ERROR([Lua interpreter missing.])])
@@ -71,6 +72,7 @@ AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
 AC_CHECK_LIB([pcap], [main], [], [AC_MSG_ERROR(Library pcap missing.)])
 AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
 AC_CHECK_LIB([readline], [main], [], [AC_MSG_ERROR(Library readline missing.)])
+AC_CHECK_LIB([ssl], [main], [], [AC_MSG_ERROR(Library ssl missing.)])
 
 # LUA specifics
 AC_SEARCH_LIBS([luaL_register], [lua lua5.1],
@@ -84,7 +86,7 @@ AC_SEARCH_LIBS([lua_rawlen], [lua lua5.2],
 		    [Set if lua_rawlen is supported (added in 5.2)])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdint.h stdlib.h sys/socket.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdint.h stdlib.h sys/socket.h sys/time.h unistd.h openssl/ssl.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL

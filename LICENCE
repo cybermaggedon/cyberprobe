@@ -1,6 +1,11 @@
 
-Cyberprobe - Software probe for capturing cyber attacks 
-Copyright (C) 2013-2014 Cyber MacGeddon
+Cyberprobe - distributed architecture for real-time monitoring of networks
+against attack.
+
+Software probe for capturing cyber attacks
+
+Copyright (C) 2010-2016 Cyber MacGeddon
+Copyright (C) 2016-2017 Trust Networks Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

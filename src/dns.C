@@ -7,6 +7,40 @@
 
 using namespace cybermon;
 
+namespace
+{
+    bool is_a_valid_dns_port(uint16_t port)
+    {
+	// DNS is port 53.
+	return port == 53;
+    }
+}
+
+std::size_t dns::header_length()
+{
+    return 12;
+}
+
+bool dns::ident(
+	uint16_t source_port,
+	uint16_t destination_port,
+	pdu_iter start,
+	pdu_iter end)
+{
+    if (is_a_valid_dns_port(source_port) or
+        is_a_valid_dns_port(destination_port))
+    {
+	if ((end - start) < dns::header_length())
+	{
+	    throw std::runtime_error("Invalid DNS header length");
+	}
+
+	return true;
+    }
+
+    return false;
+}
+
 void dns::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
 

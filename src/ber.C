@@ -6,7 +6,7 @@
 
 using namespace cybermon::ber;
 
-bool berpdu::read_pdu(tcpip::tcp_socket& sock)
+bool berpdu::read_pdu(tcpip::stream_socket& sock)
 {
 
     data->clear();
