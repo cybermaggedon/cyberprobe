@@ -695,6 +695,19 @@ observer.smtp_data = function(context, from, to, data)
   submit_edges(edges)
 end
 
+-- This function is called when an NTP timestamp message is observed.
+observer.ntp_timestamp_message = function(context, hdr, info)
+end
+
+-- This function is called when an NTP control message is observed.
+observer.ntp_control_message = function(context, hdr, info)
+end
+
+-- This function is called when an NTP private message is observed.
+observer.ntp_private_message = function(context, hdr, info)
+end
+
+
 -- Initialise
 init()
 

@@ -48,6 +48,10 @@ def handle(msg):
                 print "Answer name: %s" % v["name"]
             if v.has_key("address"):
                 print "Answer address: %s" % v["address"]
+    if msg.has_key("version"):
+        print "Version: %s" % msg["version"]
+    if msg.has_key("mode"):
+        print "Mode: %s" % msg["mode"]
 
 ctxt = zmq.Context()
 skt = ctxt.socket(zmq.SUB)

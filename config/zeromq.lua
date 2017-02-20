@@ -324,6 +324,30 @@ observer.smtp_data = function(context, from, to, data)
   submit_observation(obs)
 end
 
+-- This function is called when a NTP message is observed.
+observer.ntp_common = function(context, hdr)
+  local obs = initialise_observation(context)
+  obs["action"] = "ntp_message"
+  obs["version"] = hdr.version
+  obs["mode"] = hdr.mode
+  submit_observation(obs)
+end
+
+-- This function is called when a NTP timestamp message is observed.
+observer.ntp_timestamp_message = function(context, hdr, info)
+  observer.ntp_common(context, hdr)
+end
+
+-- This function is called when a NTP control message is observed.
+observer.ntp_control_message = function(context, hdr, info)
+  observer.ntp_common(context, hdr)
+end
+
+-- This function is called when an NTP private message is observed.
+observer.ntp_private_message = function(context, hdr, info)
+  observer.ntp_common(context, hdr)
+end
+
 -- Initialise
 init()
 
