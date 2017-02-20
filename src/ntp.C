@@ -8,6 +8,23 @@
 
 using namespace cybermon;
 
+namespace
+{
+    bool is_ntp_port(uint16_t port)
+    {
+        const uint16_t ntp_port = 123;
+        return port == ntp_port;
+    }
+}
+
+bool ntp::ident(uint16_t source_port,
+	            uint16_t destination_port)
+{
+    return is_ntp_port(source_port) || 
+           is_ntp_port(destination_port);
+}
+
+
 void ntp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
     
@@ -33,15 +50,15 @@ void ntp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
         switch(pt)
         {
             case ntp_decoder::timestamp_packet:
-                mgr.ntp_timestamp_message(fc, dec.timestamp_info);
+                mgr.ntp_timestamp_message(fc, dec.get_timestamp_info());
                 break;
                 
             case ntp_decoder::control_packet:
-                mgr.ntp_control_message(fc, dec.control_info);
+                mgr.ntp_control_message(fc, dec.get_control_info());
                 break;
                 
             case ntp_decoder::private_packet:
-                mgr.ntp_private_message(fc, dec.private_info);
+                mgr.ntp_private_message(fc, dec.get_private_info());
                 break;
                 
             default:

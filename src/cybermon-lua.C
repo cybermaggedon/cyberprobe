@@ -596,12 +596,12 @@ void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "ntp_timestamp_message");
     
-    // Put context on the stack
+    // Put context, hdr and timestamp info on the stack
     push(f);
-    push_ntp_base(ts);
+    push(ts.m_hdr);
     push(ts);
    
-    // config.ntp_timestamp_message(context, base info)
+    // config.ntp_timestamp_message(context, hdr, timestamp_info)
     try {
 	call(3, 0);
     } catch (std::exception& e) {
@@ -620,13 +620,14 @@ void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "ntp_control_message");
     
-    // Put context on the stack
+    // Put context, hdr and control info on the stack
     push(f);
-    push_ntp_base(ctrl);
+    push(ctrl.m_hdr);
+    push(ctrl);
    
-    // config.ntp_control_message(context, base)
+    // config.ntp_control_message(context, hdr, control_info)
     try {
-	call(2, 0);
+	call(3, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -643,13 +644,14 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "ntp_private_message");
     
-    // Put context on the stack
+    // Put context, hdr and control info on the stack
     push(f);
-    push_ntp_base(priv);
+    push(priv.m_hdr);
+    push(priv);
    
-    // config.ntp_private_message(context, base)
+    // config.ntp_private_message(context, hdr)
     try {
-	call(2, 0);
+	call(3, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -659,20 +661,20 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
     pop();
 }
 
-void cybermon_lua::push_ntp_base(const ntp_base& base)
+void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);
 
     push("leap_indicator");
-    push(base.leap_indicator);
+    push(hdr.m_leap_indicator);
     set_table(-3);
     
     push("version");
-    push(base.version);
+    push(hdr.m_version);
     set_table(-3);
     
     push("mode");
-    push(base.mode);
+    push(hdr.m_mode);
     set_table(-3);
 }
 
@@ -681,50 +683,122 @@ void cybermon_lua::push(const ntp_timestamp& ts)
     create_table(0, 11);
     
     push("stratum");
-    push(ts.stratum);
+    push(ts.m_stratum);
     set_table(-3);
     
     push("poll");
-    push(ts.poll);
+    push(ts.m_poll);
     set_table(-3);
     
     push("precision");
-    push(ts.precision);
+    push(ts.m_precision);
     set_table(-3);
     
     push("root_delay");
-    push(ts.root_delay);
+    push(ts.m_root_delay);
     set_table(-3);
     
     push("root_dispersion");
-    push(ts.root_dispersion);
+    push(ts.m_root_dispersion);
     set_table(-3);
      
     push("reference_id");
-    push(ts.reference_id);
+    push(ts.m_reference_id);
     set_table(-3);
     
     push("reference_timestamp");
-    push(ts.reference_timestamp);
+    push(ts.m_reference_timestamp);
     set_table(-3);
     
     push("originate_timestamp");
-    push(ts.originate_timestamp);
+    push(ts.m_originate_timestamp);
     set_table(-3);
     
     push("receive_timestamp");
-    push(ts.receive_timestamp);
+    push(ts.m_receive_timestamp);
     set_table(-3);
     
     push("transmit_timestamp");
-    push(ts.transmit_timestamp);
+    push(ts.m_transmit_timestamp);
     set_table(-3);
     
     push("extension");
-    push(ts.has_extension);
+    push_bool(ts.m_has_extension);
+    set_table(-3);
+}
+
+void cybermon_lua::push(const ntp_control& ctrl)
+{
+    create_table(0, 10);
+    
+    push("type");
+    if(ctrl.m_is_response)
+    {
+        push("response");
+    }
+    else
+    {
+        push("request");
+    }
     set_table(-3);
     
+    push("error");
+    push_bool(ctrl.m_is_error);
+    set_table(-3);
+    
+    push("fragment");
+    push_bool(ctrl.m_is_fragment);
+    set_table(-3);
+    
+    push("opcode");
+    push(ctrl.m_opcode);
+    set_table(-3);
+    
+    push("sequence");
+    push(ctrl.m_sequence);
+    set_table(-3);
+    
+    push("status");
+    push(ctrl.m_status);
+    set_table(-3);
+    
+    push("association_id");
+    push(ctrl.m_association_id);
+    set_table(-3);
+    
+    push("offset");
+    push(ctrl.m_offset);
+    set_table(-3);
+    
+    push("data_length");
+    push(ctrl.m_data_count);
+    set_table(-3);
+    
+    push("authentication");
+    push_bool(ctrl.m_has_authentication);
+    set_table(-3);
 }
+
+void cybermon_lua::push(const ntp_private& priv)
+{
+    create_table(0, 4);
+
+    push("auth");
+    push_bool(priv.m_auth_flag);
+    set_table(-3);
+    
+    push("sequence");
+    push(priv.m_sequence);
+    set_table(-3);
+    
+    push("implementation");
+    push(priv.m_implementation);
+    set_table(-3);
+    
+    push("request_code");
+    push(priv.m_request_code);
+    set_table(-3);
+} 
 
 void cybermon_lua::push(const dns_header& hdr)
 {

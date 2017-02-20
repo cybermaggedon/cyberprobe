@@ -158,48 +158,6 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 
 end
 
--- This function is called when a NTP Timestamp message is observed.
-observer.ntp_timestamp_message = function(context, base, info)
-  local a = string.format("NTP Timestamp")
-  observer.describe(context, a);
-  io.write(string.format("  Leap Indicator      -> %u\n", base.leap_indicator));
-  io.write(string.format("  Version             -> %u\n", base.version));
-  io.write(string.format("  Mode                -> %u\n", base.mode));
-  io.write(string.format("  Stratum             -> %u\n", info.stratum));
-  io.write(string.format("  Poll                -> %u\n", info.poll));
-  io.write(string.format("  Precision           -> %.6f\n", info.precision));
-  io.write(string.format("  Root Delay          -> %.6f\n", info.root_delay));
-  io.write(string.format("  Root Dispersion     -> %.6f\n", info.root_dispersion));
-  io.write(string.format("  Reference Id        -> %u\n", info.reference_id));
-  io.write(string.format("  Reference Timestamp -> %.9f\n", info.reference_timestamp));
-  io.write(string.format("  Originate Timestamp -> %.9f\n", info.originate_timestamp));
-  io.write(string.format("  Receive Timestamp   -> %.9f\n", info.receive_timestamp));
-  io.write(string.format("  Transmit Timestamp  -> %.9f\n", info.transmit_timestamp));
-  if info.has_extension then
-       io.write("  Extension           -> True\n");
-  else
-       io.write("  Extension           -> False\n");
-  end
-end
-
--- This function is called when a NTP Control message is observed.
-observer.ntp_control_message = function(context, base)
-  local a = string.format("NTP Control")
-  observer.describe(context, a);
-  io.write(string.format("  Leap Indicator      -> %u\n", base.leap_indicator));
-  io.write(string.format("  Version             -> %u\n", base.version));
-  io.write(string.format("  Mode                -> %u\n", base.mode));
-end
-
--- This function is called when a NTP Private message is observed.
-observer.ntp_private_message = function(context, base)
-  local a = string.format("NTP Private")
-  observer.describe(context, a);
-  io.write(string.format("  Leap Indicator      -> %u\n", base.leap_indicator));
-  io.write(string.format("  Version             -> %u\n", base.version));
-  io.write(string.format("  Mode                -> %u\n", base.mode));
-end
-
 -- This function is called when an FTP command is observed.
 observer.ftp_command = function(context, command)
   local a = string.format("FTP command %s", command)
@@ -214,6 +172,62 @@ observer.ftp_response = function(context, status, text)
   for k, v in pairs(text) do
     io.write(string.format("    %s\n", v))
   end
+  io.write("\n")
+end
+
+-- Common ntp function
+observer.ntp_common = function(hdr)
+  io.write(string.format("  Leap Indicator      -> %u\n", hdr.leap_indicator));
+  io.write(string.format("  Version             -> %u\n", hdr.version));
+  io.write(string.format("  Mode                -> %u\n", hdr.mode));
+end
+
+-- This function is called when a NTP Timestamp message is observed.
+observer.ntp_timestamp_message = function(context, hdr, info)
+  local a = string.format("NTP Timestamp")
+  observer.describe(context, a);
+  observer.ntp_common(hdr);  
+  io.write(string.format("  Stratum             -> %u\n", info.stratum));
+  io.write(string.format("  Poll                -> %u\n", info.poll));
+  io.write(string.format("  Precision           -> %.6f\n", info.precision));
+  io.write(string.format("  Root Delay          -> %.6f\n", info.root_delay));
+  io.write(string.format("  Root Dispersion     -> %.6f\n", info.root_dispersion));
+  io.write(string.format("  Reference Id        -> %u\n", info.reference_id));
+  io.write(string.format("  Reference Timestamp -> %.9f\n", info.reference_timestamp));
+  io.write(string.format("  Originate Timestamp -> %.9f\n", info.originate_timestamp));
+  io.write(string.format("  Receive Timestamp   -> %.9f\n", info.receive_timestamp));
+  io.write(string.format("  Transmit Timestamp  -> %.9f\n", info.transmit_timestamp));
+  io.write(string.format("  Extension           -> %s\n", info.extension));
+  io.write("\n")
+end
+
+-- This function is called when a NTP Control message is observed.
+observer.ntp_control_message = function(context, hdr, info)
+  local a = string.format("NTP Control")
+  observer.describe(context, a);
+  observer.ntp_common(hdr);
+  io.write(string.format("  Type                -> %s\n", info.type));
+  io.write(string.format("  Error               -> %s\n", info.error));
+  io.write(string.format("  Fragment            -> %s\n", info.fragment));
+  io.write(string.format("  Operation           -> %u\n", info.opcode));
+  io.write(string.format("  Sequence            -> %u\n", info.sequence));
+  io.write(string.format("  Status              -> %u\n", info.status));
+  io.write(string.format("  Association         -> %u\n", info.association_id));
+  io.write(string.format("  Offset              -> %u\n", info.offset));
+  io.write(string.format("  Data Length         -> %u\n", info.data_length));
+  io.write(string.format("  Authentication      -> %s\n", info.authentication));
+  io.write("\n")
+end
+
+-- This function is called when a NTP Private message is observed.
+observer.ntp_private_message = function(context, hdr, info)
+  local a = string.format("NTP Private")
+  observer.describe(context, a);
+  observer.ntp_common(hdr);
+  io.write(string.format("  Auth                -> %s\n", info.auth));
+  io.write(string.format("  Sequence            -> %u\n", info.sequence));
+  io.write(string.format("  Implementation      -> %u\n", info.implementation));
+  io.write(string.format("  Request Code        -> %u\n", info.request_code));
   io.write("\n")
 end
 

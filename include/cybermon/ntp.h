@@ -58,6 +58,9 @@ namespace cybermon {
     class ntp {
 
       public:
+      
+    // NTP ident function.
+	static bool ident(uint16_t source_port, uint16_t destination_port);
 
 	// NTP processing function.
 	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
