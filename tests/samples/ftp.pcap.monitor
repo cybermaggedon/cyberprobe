@@ -12,18 +12,18 @@ PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS response
     Query: ftp.swfwmd.state.fl.us
 
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 220
+    -------------------------------------------------------------------------
+     Unauthorized access and/or misuse of this FTP server is strictly 
+     prohibited. All connections and activity to this server are logged, 
+     monitored, and subject to public inspection.
     
      Reverse IP-address lookups are in effect. You will not be able to 
-    -------------------------------------------------------------------------
-     prohibited. All connections and activity to this server are logged, 
      access this FTP server if your internet domain name server is not 
      properly configured to do reverse IP-address mapping. Contact your 
-     monitored, and subject to public inspection.
      Internet Service Provider or network administrator for more infomation 
-     Unauthorized access and/or misuse of this FTP server is strictly 
-    
-    -------------------------------------------------------------------------
      on this topic. 
+    -------------------------------------------------------------------------
+    
 
 PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command USER ftp
 
@@ -75,21 +75,133 @@ PCAP: 204.76.241.31:65231 -> 192.168.122.11:34699. Stream data (size is 1902)
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 226
     Directory send OK.
 
-PCAP: 192.168.122.11:123 -> 85.10.246.226:123. Datagram (size is 48)
+PCAP: 192.168.122.11:123 -> 85.10.246.226:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 3
+  Stratum             -> 4
+  Poll                -> 64
+  Precision           -> 0.000002
+  Root Delay          -> 0.037033
+  Root Dispersion     -> 0.055511
+  Reference Id        -> 1311766803
+  Reference Timestamp -> 1412974355.685845852
+  Originate Timestamp -> 1412974355.240200758
+  Receive Timestamp   -> 1412974355.254930019
+  Transmit Timestamp  -> 1412974419.473171234
+  Extension           -> false
 
-PCAP: 85.10.246.226:123 -> 192.168.122.11:123. Datagram (size is 48)
+PCAP: 85.10.246.226:123 -> 192.168.122.11:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 4
+  Stratum             -> 3
+  Poll                -> 64
+  Precision           -> 0.000000
+  Root Delay          -> 0.019653
+  Root Dispersion     -> 0.071533
+  Reference Id        -> 2705235373
+  Reference Timestamp -> 1412973880.077832460
+  Originate Timestamp -> 1412974419.473171234
+  Receive Timestamp   -> 1412974419.487850428
+  Transmit Timestamp  -> 1412974419.487882614
+  Extension           -> false
 
-PCAP: 192.168.122.11:123 -> 176.9.92.196:123. Datagram (size is 48)
+PCAP: 192.168.122.11:123 -> 176.9.92.196:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 3
+  Stratum             -> 4
+  Poll                -> 64
+  Precision           -> 0.000002
+  Root Delay          -> 0.037033
+  Root Dispersion     -> 0.055511
+  Reference Id        -> 1311766803
+  Reference Timestamp -> 1412974355.685845852
+  Originate Timestamp -> 1412974355.103006601
+  Receive Timestamp   -> 1412974355.116956949
+  Transmit Timestamp  -> 1412974419.824820757
+  Extension           -> false
 
-PCAP: 176.9.92.196:123 -> 192.168.122.11:123. Datagram (size is 48)
+PCAP: 176.9.92.196:123 -> 192.168.122.11:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 4
+  Stratum             -> 3
+  Poll                -> 64
+  Precision           -> 0.000000
+  Root Delay          -> 0.017822
+  Root Dispersion     -> 0.079437
+  Reference Id        -> 2705235373
+  Reference Timestamp -> 1412972495.307825089
+  Originate Timestamp -> 1412974419.824820757
+  Receive Timestamp   -> 1412974419.839093447
+  Transmit Timestamp  -> 1412974419.839122534
+  Extension           -> false
 
-PCAP: 192.168.122.11:123 -> 78.47.249.19:123. Datagram (size is 48)
+PCAP: 192.168.122.11:123 -> 78.47.249.19:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 3
+  Stratum             -> 4
+  Poll                -> 64
+  Precision           -> 0.000002
+  Root Delay          -> 0.037033
+  Root Dispersion     -> 0.055511
+  Reference Id        -> 1311766803
+  Reference Timestamp -> 1412974355.685845852
+  Originate Timestamp -> 1412974355.686871052
+  Receive Timestamp   -> 1412974355.699937820
+  Transmit Timestamp  -> 1412974420.066468477
+  Extension           -> false
 
-PCAP: 78.47.249.19:123 -> 192.168.122.11:123. Datagram (size is 48)
+PCAP: 78.47.249.19:123 -> 192.168.122.11:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 4
+  Stratum             -> 3
+  Poll                -> 64
+  Precision           -> 0.000004
+  Root Delay          -> 0.009033
+  Root Dispersion     -> 0.056046
+  Reference Id        -> 1311652906
+  Reference Timestamp -> 1412973571.925525188
+  Originate Timestamp -> 1412974420.066468477
+  Receive Timestamp   -> 1412974420.081195116
+  Transmit Timestamp  -> 1412974420.081311703
+  Extension           -> false
 
-PCAP: 192.168.122.11:123 -> 217.73.16.2:123. Datagram (size is 48)
+PCAP: 192.168.122.11:123 -> 217.73.16.2:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 3
+  Stratum             -> 4
+  Poll                -> 64
+  Precision           -> 0.000002
+  Root Delay          -> 0.036926
+  Root Dispersion     -> 0.056046
+  Reference Id        -> 1311766803
+  Reference Timestamp -> 1412974420.080471992
+  Originate Timestamp -> 1412974356.226538420
+  Receive Timestamp   -> 1412974356.251604080
+  Transmit Timestamp  -> 1412974420.770241261
+  Extension           -> false
 
-PCAP: 217.73.16.2:123 -> 192.168.122.11:123. Datagram (size is 48)
+PCAP: 217.73.16.2:123 -> 192.168.122.11:123. NTP Timestamp
+  Leap Indicator      -> 0
+  Version             -> 3
+  Mode                -> 4
+  Stratum             -> 4
+  Poll                -> 64
+  Precision           -> 0.000000
+  Root Delay          -> 0.001144
+  Root Dispersion     -> 0.078354
+  Reference Id        -> 1051214116
+  Reference Timestamp -> 1412973840.349496841
+  Originate Timestamp -> 1412974420.770241261
+  Receive Timestamp   -> 1412974420.796890736
+  Transmit Timestamp  -> 1412974420.796947718
+  Extension           -> false
 
 PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command CWD amr
 
