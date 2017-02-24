@@ -37,7 +37,6 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	../include/cybermon/cybermon-lua.h ../include/cybermon/reaper.h \
 	../include/cybermon/unrecognised.h ../include/cybermon/dns.h \
 	../include/cybermon/dns_protocol.h ../include/cybermon/forgery.h \
-	../include/cybermon/ntp_protocol.h \
 	../include/cybermon/smtp.h ../include/cybermon/ftp.h \
 	../include/cybermon/thread.h ../include/cybermon/context.h \
 	../include/cybermon/pdu.h ../include/cybermon/exception.h \
@@ -46,7 +45,8 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	../include/cybermon/transport.h \
 	../include/cybermon/serial.h ../include/cybermon/protocol.h \
 	../include/cybermon/xml.h \
-	../include/cybermon/specification.h ../include/cybermon/packet_capture.h
+	../include/cybermon/specification.h ../include/cybermon/packet_capture.h \
+	../include/cybermon/ntp.h ../include/cybermon/ntp_protocol.h
 
 ACLOCAL_AMFLAGS = -I m4
 

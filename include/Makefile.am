@@ -8,6 +8,7 @@ cybermoninc_HEADERS = cybermon/address.h cybermon/base_context.h \
 	cybermon/forgery.h cybermon/ftp.h cybermon/hexdump.h \
 	cybermon/http.h cybermon/icmp.h cybermon/ip.h \
 	cybermon/manager.h cybermon/monitor.h cybermon/nhis11.h \
+	cybermon/ntp.h cybermon/ntp_protocol.h \
 	cybermon/observer.h cybermon/packet_capture.h \
 	cybermon/packet.h cybermon/pdu.h cybermon/protocol.h \
 	cybermon/reaper.h cybermon/resource.h cybermon/smtp.h \
