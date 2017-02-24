@@ -171,7 +171,24 @@ else:
                 {
                     "name": "queries",
                     "mode": "REPEATED",
-                    "type": "STRING"
+                    "type": "RECORD",
+                    "fields": [
+                        {
+                            "name": "name",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "type",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "class",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        }
+                    ]
                 },
                 {
                     "name": "answers",
@@ -180,6 +197,16 @@ else:
                     "fields": [
                         {
                             "name": "name",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "type",
+                            "mode": "NULLABLE",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "class",
                             "mode": "NULLABLE",
                             "type": "STRING"
                         },

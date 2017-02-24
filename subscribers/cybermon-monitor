@@ -41,11 +41,20 @@ def handle(msg):
         print "Type: %s" % msg["type"]
     if msg.has_key("queries"):
         for v in msg["queries"]:
-            print "Query: %s" % v
+            if v.has_key("name"):
+                print "Query name: %s" % v["name"]
+            if v.has_key("type"):
+                print "Query type: %s" % v["type"]
+            if v.has_key("class"):
+                print "Query class: %s" % v["class"]
     if msg.has_key("answers"):
         for v in msg["answers"]:
             if v.has_key("name"):
                 print "Answer name: %s" % v["name"]
+            if v.has_key("type"):
+                print "Answer type: %s" % v["type"]
+            if v.has_key("class"):
+                print "Answer class: %s" % v["class"]
             if v.has_key("address"):
                 print "Answer address: %s" % v["address"]
 

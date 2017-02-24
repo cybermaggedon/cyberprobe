@@ -1,30 +1,30 @@
 PCAP: 192.168.122.11:40973 -> 192.168.122.1:53. DNS query
-    Query: example.org
+    Query: name=example.org, type=1, class=1
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:40973. DNS response
-    Query: example.org
-    Answer: example.org -> 93.184.216.119
+    Query: name=example.org, type=1, class=1
+    Answer: name=example.org, type=1, class=1 -> 93.184.216.119
 
 PCAP: 192.168.122.11:35041 -> 93.184.216.119:80. HTTP GET request
     URL http://example.org/
     Host: example.org
+    Accept-Language: en-US,en;q=0.5
     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-    Accept-Encoding: gzip, deflate
     Connection: keep-alive
     User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0
-    Accept-Language: en-US,en;q=0.5
+    Accept-Encoding: gzip, deflate
 
 PCAP: 93.184.216.119:80 -> 192.168.122.11:35041. HTTP response 200 OK
     URL http://example.org/
-    Content-Type: text/html
+    Expires: Fri, 17 Oct 2014 20:49:42 GMT
+    Cache-Control: max-age=604800
     Content-Length: 1270
     X-Cache: HIT
-    Accept-Ranges: bytes
-    Etag: "359670651"
-    x-ec-custom-error: 1
-    Server: ECS (ewr/1584)
-    Cache-Control: max-age=604800
-    Expires: Fri, 17 Oct 2014 20:49:42 GMT
-    Last-Modified: Fri, 09 Aug 2013 23:54:35 GMT
     Date: Fri, 10 Oct 2014 20:49:42 GMT
+    Etag: "359670651"
+    Accept-Ranges: bytes
+    Last-Modified: Fri, 09 Aug 2013 23:54:35 GMT
+    Server: ECS (ewr/1584)
+    x-ec-custom-error: 1
+    Content-Type: text/html
 

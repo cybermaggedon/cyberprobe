@@ -257,7 +257,11 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   local q = {}
   json.util.InitArray(q)
   for key, value in pairs(queries) do
-    q[#q + 1] = value.name
+    local a = {}
+    a["name"] = value.name
+    a["type"] = value.type
+    a["class"] = value.class
+    q[#q + 1] = a
   end
   obs["queries"] = q
 
@@ -266,6 +270,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   for key, value in pairs(answers) do
     local a = {}
     a["name"] = value.name
+    a["type"] = value.type
+    a["class"] = value.class
     if value.rdaddress then
        a["address"] = value.rdaddress
     end

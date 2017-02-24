@@ -1,29 +1,29 @@
 PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS query
-    Query: ftp.swfwmd.state.fl.us
+    Query: name=ftp.swfwmd.state.fl.us, type=1, class=1
 
 PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS query
-    Query: ftp.swfwmd.state.fl.us
+    Query: name=ftp.swfwmd.state.fl.us, type=28, class=1
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS response
-    Query: ftp.swfwmd.state.fl.us
-    Answer: ftp.swfwmd.state.fl.us -> 204.76.241.31
+    Query: name=ftp.swfwmd.state.fl.us, type=1, class=1
+    Answer: name=ftp.swfwmd.state.fl.us, type=1, class=1 -> 204.76.241.31
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS response
-    Query: ftp.swfwmd.state.fl.us
+    Query: name=ftp.swfwmd.state.fl.us, type=28, class=1
 
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 220
+    -------------------------------------------------------------------------
+     Unauthorized access and/or misuse of this FTP server is strictly 
+     prohibited. All connections and activity to this server are logged, 
+     monitored, and subject to public inspection.
     
      Reverse IP-address lookups are in effect. You will not be able to 
-    -------------------------------------------------------------------------
-     prohibited. All connections and activity to this server are logged, 
      access this FTP server if your internet domain name server is not 
      properly configured to do reverse IP-address mapping. Contact your 
-     monitored, and subject to public inspection.
      Internet Service Provider or network administrator for more infomation 
-     Unauthorized access and/or misuse of this FTP server is strictly 
-    
-    -------------------------------------------------------------------------
      on this topic. 
+    -------------------------------------------------------------------------
+    
 
 PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command USER ftp
 
