@@ -2739,7 +2739,7 @@ and over time, expect to see a richer interface develop.
 
 To start with, we create the structure of the configuration file. Call it
 something with a @code{.lua} extension e.g. @code{config.lua} so that your
-editor knows how to indent the code. The basic structure is a module which a
+editor knows how to indent the code. The basic structure is a module with a
 number of functions:
 
 @example
@@ -2885,9 +2885,21 @@ the DNS queries, @code{answers} contains the answers in a response message,
 @code{auth} contains DNS nameserver authority descriptions, and @code{add}
 provides additional information.
 
+@item ntp_timestamp_message(context, hdr, info)
+Called when a NTP timestamp message is observed. The decoded NTP message is described
+in the parameters: @code{hdr} is the ntp header, @code{info} contains the specific timestamp information.
+
+@item ntp_control_message(context, hdr, info)
+Called when a NTP control message is observed. The decoded NTP message is described
+in the parameters: @code{hdr} is the ntp header, @code{info} contains the specific control information.
+
+@item ntp_private_message(context, hdr, info)
+Called when a NTP control message is observed. The decoded NTP message is described
+in the parameters: @code{hdr} is the ntp header, @code{info} contains the specific private information.
+
 @item unrecognised_datagram(context, data)
 Called when a datagram is received using a protocol which isn't
-recognised. Currently, only DNS and ICMP are recognised. Any other UDP
+recognised. Currently, only DNS, ICMP and NTP are recognised. Any other UDP
 protocol results in a call to this function.
 
 @item unrecognised_stream(context, data)
@@ -3145,6 +3157,8 @@ Records an SMTP data transaction, including the full SMTP data payload
 Records an FTP command (client to server).
 @item ftp_response
 Records an FTP response (server to client).
+@item ntp_message
+Records the sending of a NTP message, including the NTP hdr (mode, version, leap second indicator)
 @end table
 
 @item queries
