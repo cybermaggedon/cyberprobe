@@ -319,6 +319,19 @@ observer.ftp_response = function(context, status, text)
 
 end
 
+-- This function is called when an NTP timestamp message is observed.
+observer.ntp_timestamp_message = function(context, hdr, info)
+end
+
+-- This function is called when an NTP control message is observed.
+observer.ntp_control_message = function(context, hdr, info)
+end
+
+-- This function is called when an NTP private message is observed.
+observer.ntp_private_message = function(context, hdr, info)
+end
+
+
 -- Return the table
 return observer
 

@@ -28,6 +28,7 @@ EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) \
 	samples/ftp.pcap samples/ftp.pcap.indicators samples/ftp.pcap.monitor \
 	samples/malware.pcap samples/malware.pcap.indicators \
 	samples/malware.pcap.monitor samples/smtp.pcap \
+	samples/ntp.pcap samples/ntp.pcap.monitor \
 	samples/smtp.pcap.indicators samples/smtp.pcap.monitor \
 	samples/tcp.pcap samples/tcp.pcap.indicators samples/tcp.pcap.monitor \
 	stix/stix-default-combined.json

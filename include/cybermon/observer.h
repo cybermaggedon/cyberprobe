@@ -4,6 +4,7 @@
 
 #include <cybermon/context.h>
 #include <cybermon/dns_protocol.h>
+#include <cybermon/ntp_protocol.h>
 
 namespace cybermon {
 
@@ -82,6 +83,16 @@ namespace cybermon {
 				 const std::list<dns_rr> authorities,
 				 const std::list<dns_rr> additional) = 0;
 
+	// NTP
+	virtual void ntp_timestamp_message(const context_ptr cp,
+			                           const ntp_timestamp& ts) = 0;
+			                   
+	virtual void ntp_control_message(const context_ptr cp,
+			                         const ntp_control& ctrl) = 0;
+			                         
+    virtual void ntp_private_message(const context_ptr cp,
+			                         const ntp_private& priv) = 0;
+ 
     };
 
 };

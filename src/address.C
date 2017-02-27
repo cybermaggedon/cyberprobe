@@ -76,6 +76,12 @@ void address::get(std::string& cls, std::string& address) const
 	cls = "ftp"; address = "";
 	return;
     }
+    
+    if (proto == NTP) {
+	cls = "ntp"; address = "";
+	return;
+    }
+
 
     if (proto == UNRECOGNISED) {
 	cls = "unrecognised"; address = "";
@@ -149,6 +155,11 @@ void address::describe(std::ostream& out) const
 
     if (proto == FTP) {
 	out << "FTP";
+	return;
+    }
+    
+    if (proto == NTP) {
+	out << "NTP";
 	return;
     }
 

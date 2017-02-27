@@ -199,6 +199,11 @@ namespace cybermon {
 	void push(double num) { 
 	    lua_pushnumber(lua, num);
 	}
+	
+	// Push a boolean onto the stack.
+	void push_bool(bool b) { 
+	    lua_pushboolean(lua, b);
+	}
 
 	// Push a string (defined by iterators).
 	void push(std::vector<unsigned char>::const_iterator s,
@@ -404,6 +409,12 @@ namespace cybermon {
 
 	void to_dns_rr(int pos, dns_rr&);
 	void to_dns_rrs(int pos, std::list<dns_rr>&);
+	
+	// Push NTP stuff
+	void push(const ntp_hdr&);
+	void push(const ntp_timestamp&);
+	void push(const ntp_control&);
+	void push(const ntp_private&);
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
 	void trigger_up(const std::string& liid, const tcpip::address& a);
@@ -473,6 +484,14 @@ namespace cybermon {
 			 const std::list<dns_rr> authorities,
 			 const std::list<dns_rr> additional);
 
+    void ntp_timestamp_message(engine& an, const context_ptr cf,
+			                   const ntp_timestamp& ts);
+			                  
+	void ntp_control_message(engine& an, const context_ptr cf,
+			                 const ntp_control& ctrl);
+			                 
+	void ntp_private_message(engine& an, const context_ptr cf,
+			                 const ntp_private& priv);		                 		                  
     };
 
 };

@@ -70,6 +70,14 @@ sort < $abs_srcdir/samples/tcp.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
+AT_SETUP([ntp.pcap])
+cat $abs_srcdir/samples/ntp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/ntp.pcap.monitor > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
 # ----------------------------------------------------------------------------
 
 AT_BANNER([PCAP samples decoded with cybermon, and STIX indicators.])

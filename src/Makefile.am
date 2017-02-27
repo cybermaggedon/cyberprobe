@@ -26,7 +26,7 @@ lib_LTLIBRARIES = libcybermon.la
 libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	ip.C tcp.C udp.C http.C address.C icmp.C cybermon-lua.C reaper.C \
 	unrecognised.C dns.C dns_protocol.C forgery.C smtp.C ftp.C \
-	resource_manager.C \
+	resource_manager.C ntp.C ntp_protocol.C \
 	../include/cybermon/engine.h ../include/cybermon/etsi_li.h \
 	../include/cybermon/socket.h ../include/cybermon/ber.h \
 	../include/cybermon/base_context.h ../include/cybermon/ip.h \
@@ -45,7 +45,8 @@ libcybermon_la_SOURCES = engine.C etsi_li.C socket.C ber.C base_context.C \
 	../include/cybermon/transport.h \
 	../include/cybermon/serial.h ../include/cybermon/protocol.h \
 	../include/cybermon/xml.h \
-	../include/cybermon/specification.h ../include/cybermon/packet_capture.h
+	../include/cybermon/specification.h ../include/cybermon/packet_capture.h \
+	../include/cybermon/ntp.h ../include/cybermon/ntp_protocol.h
 
 ACLOCAL_AMFLAGS = -I m4
 

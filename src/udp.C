@@ -5,6 +5,7 @@
 #include <cybermon/manager.h>
 #include <cybermon/unrecognised.h>
 #include <cybermon/dns.h>
+#include <cybermon/ntp.h>
 
 using namespace cybermon;
 
@@ -34,15 +35,20 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    pdu_iter start_of_dns_header = s + 8;
-    if (dns::ident(src.get_uint16(), dest.get_uint16(), start_of_dns_header, e))
+    pdu_iter start_of_next_protocol = s + 8;
+    uint16_t src_port = src.get_uint16();
+    uint16_t dst_port = dest.get_uint16();
+    if (dns::ident(src_port, dst_port, start_of_next_protocol, e))
     {
-	dns::process(mgr, fc, start_of_dns_header, e);
-    } else  {
-
-	unrecognised::process_unrecognised_datagram(mgr, fc, start_of_dns_header, e);
-
+	    dns::process(mgr, fc, start_of_next_protocol, e);
+    } 
+    else if(ntp::ident(src_port, dst_port))
+    {
+        ntp::process(mgr, fc, start_of_next_protocol, e);
+    } 
+    else
+    {   
+	    unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_protocol, e);
     }
-
 }
 
