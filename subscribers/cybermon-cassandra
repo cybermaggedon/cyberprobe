@@ -116,15 +116,31 @@ def init():
     add_uri(obs, prop_uri("type"), rdftype, rdf + "Property")
     add_string(obs, prop_uri("type"), rdfslabel, "Type")
 
-    # DNS Query on Observation
-    add_uri(obs, prop_uri("query"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("query"), rdfslabel, "DNS Query")
+    # DNS Query (name) on Observation
+    add_uri(obs, prop_uri("query_name"), rdftype, rdf + "Property")
+    add_string(obs, prop_uri("query_name"), rdfslabel, "Query Name")
+    
+    # DNS Query (type) on Observation
+    add_uri(obs, prop_uri("query_type"), rdftype, rdf + "Property")
+    add_string(obs, prop_uri("query_type"), rdfslabel, "Query Type")
+    
+    # DNS Query (class) on Observation
+    add_uri(obs, prop_uri("query_class"), rdftype, rdf + "Property")
+    add_string(obs, prop_uri("query_class"), rdfslabel, "Query Class")
 
     # DNS Answer (name) on Observation
     add_uri(obs, prop_uri("answer_name"), rdftype, rdf + "Property")
     add_string(obs, prop_uri("answer_name"), rdfslabel, "Answer (name)")
+    
+    # DNS Answer (type) on Observation
+    add_uri(obs, prop_uri("answer_type"), rdftype, rdf + "Property")
+    add_string(obs, prop_uri("answer_type"), rdfslabel, "Answer (type)")
+    
+    # DNS Answer (class) on Observation
+    add_uri(obs, prop_uri("answer_class"), rdftype, rdf + "Property")
+    add_string(obs, prop_uri("answer_class"), rdfslabel, "Answer (class)")
 
-    # DNS Query on Observation
+    # DNS Answer (address) on Observation
     add_uri(obs, prop_uri("answer_address"), rdftype, rdf + "Property")
     add_string(obs, prop_uri("answer_address"), rdfslabel, "Answer (address)")
 
@@ -267,11 +283,20 @@ def handle(msg):
         add_string(obs, uri, prop_uri("type"), msg["type"])
     if msg.has_key("queries"):
         for v in msg["queries"]:
-            add_string(obs, uri, prop_uri("query"), v)
+            if v.has_key("name"):
+                add_string(obs, uri, prop_uri("query_name"), v["name")
+            if v.has_key("type"):
+                add_string(obs, uri, prop_uri("query_type"), v["type")
+            if v.has_key("class"):
+                add_string(obs, uri, prop_uri("query_class"), v["class")    
     if msg.has_key("answers"):
         for v in msg["answers"]:
             if v.has_key("name"):
                 add_string(obs, uri, prop_uri("answer_name"), v["name"])
+            if v.has_key("type"):
+                add_string(obs, uri, prop_uri("answer_type"), v["type"])
+            if v.has_key("class"):
+                add_string(obs, uri, prop_uri("answer_class"), v["class"])   
             if v.has_key("address"):
                 add_string(obs, uri, prop_uri("answer_address"), v["address"])
 

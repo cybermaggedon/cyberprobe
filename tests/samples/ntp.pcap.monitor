@@ -1,23 +1,23 @@
 PCAP: 192.168.50.50:1026 -> 192.168.0.1:53. DNS query
-    Query: us.pool.ntp.org
+    Query: name=us.pool.ntp.org, type=1, class=1
 
 PCAP: 192.168.0.1:53 -> 192.168.50.50:1026. DNS response
-    Query: us.pool.ntp.org
-    Answer: us.pool.ntp.org -> 67.129.68.9
-    Answer: us.pool.ntp.org -> 69.44.57.60
-    Answer: us.pool.ntp.org -> 207.234.209.181
-    Answer: us.pool.ntp.org -> 209.132.176.4
-    Answer: us.pool.ntp.org -> 216.27.185.42
-    Answer: us.pool.ntp.org -> 24.34.79.42
-    Answer: us.pool.ntp.org -> 24.123.202.230
-    Answer: us.pool.ntp.org -> 63.164.62.249
-    Answer: us.pool.ntp.org -> 64.112.189.11
-    Answer: us.pool.ntp.org -> 65.125.233.206
-    Answer: us.pool.ntp.org -> 66.33.206.5
-    Answer: us.pool.ntp.org -> 66.33.216.11
-    Answer: us.pool.ntp.org -> 66.92.68.246
-    Answer: us.pool.ntp.org -> 66.111.46.200
-    Answer: us.pool.ntp.org -> 66.115.136.4
+    Query: name=us.pool.ntp.org, type=1, class=1
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 67.129.68.9
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 69.44.57.60
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 207.234.209.181
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 209.132.176.4
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 216.27.185.42
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 24.34.79.42
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 24.123.202.230
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 63.164.62.249
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 64.112.189.11
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 65.125.233.206
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 66.33.206.5
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 66.33.216.11
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 66.92.68.246
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 66.111.46.200
+    Answer: name=us.pool.ntp.org, type=1, class=1 -> 66.115.136.4
 
 PCAP: 192.168.50.50:123 -> 67.129.68.9:123. NTP Timestamp
   Leap Indicator      -> 3
