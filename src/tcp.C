@@ -120,36 +120,36 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	}
 	    
 
-	}
-	else if(fc->seq_expected < (seq + payload_length))
+    }
+    else if(fc->seq_expected < (seq + payload_length))
 	{
-		// a retransmit of a segment with a bigger payload
-		// or a rogue tcp packet.
-		// Have observed a segment having a 0 length payload and seq greater than expected
+	    // a retransmit of a segment with a bigger payload
+	    // or a rogue tcp packet.
+	    // Have observed a segment having a 0 length payload and seq greater than expected
 
-		const std::uint32_t retransmission_extra_payload{ seq + payload_length - fc->seq_expected.value() };
-		if (retransmission_extra_payload)
+	    const std::uint32_t retransmission_extra_payload{ seq + payload_length - fc->seq_expected.value() };
+	    if (retransmission_extra_payload)
 		{
-			fc->lock.unlock();
-			if (0 == payload_length ||
-				s > e - retransmission_extra_payload)
+		    fc->lock.unlock();
+		    if (0 == payload_length ||
+			s > e - retransmission_extra_payload)
 			{
-				throw exception("Rogue TCP segment detected");
+			    throw exception("Rogue TCP segment detected");
 			}
-			post_process(mgr, fc, e - retransmission_extra_payload, e);
-			fc->lock.lock();
+		    post_process(mgr, fc, e - retransmission_extra_payload, e);
+		    fc->lock.lock();
 		}
-		fc->seq_expected = seq + payload_length;
-		fc->lock.unlock();
-		return;
+	    fc->seq_expected = seq + payload_length;
+	    fc->lock.unlock();
+	    return;
 	}
-	else if (fc->m_seq == seq) {
-		// If here then a simple retransmitted packet
-		fc->lock.unlock();
-		return;
+    else if (fc->m_seq == seq) {
+	// If here then a simple retransmitted packet
+	fc->lock.unlock();
+	return;
 
-	}
-	else {
+    }
+    else {
 
 	// Can't use it now.  Put it on the queue.
 
@@ -325,7 +325,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 		fc->svc_idented = true;
 
 	    } else if (regex_search(fc->ident_buffer, what, http_response,
-					 boost::match_continuous)) {
+				    boost::match_continuous)) {
 
 		fc->processor = &http::process_response;
 		fc->svc_idented = true;
