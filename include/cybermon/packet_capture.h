@@ -133,6 +133,7 @@ class interface_capture : public capture {
 	p = pcap_open_live(iface.c_str(), snaplen, 1, 1, errmsg);
 	if (p == 0)
 	    throw std::runtime_error(errmsg);
+	pcap_set_snaplen(p, 65535);
     }
     
 
@@ -150,7 +151,8 @@ class pcap_reader : public capture {
 	p = pcap_open_offline(path.c_str(), errmsg);
 	if (p == 0)
 	    throw std::runtime_error(errmsg);
-    }
+	pcap_set_snaplen(p, 65535);
+  }
     
 
 };
@@ -162,7 +164,7 @@ class pcap_writer {
     pcap_dumper_t* dumper;
   public:
     pcap_writer(const std::string& file = "-") {
-	p = pcap_open_dead(DLT_RAW, 2000);
+	p = pcap_open_dead(DLT_RAW, 65535);
 	if (p == 0)
 	    throw std::runtime_error("pcap_open_dead failed.");
 	dumper = pcap_dump_open(p, file.c_str());	

@@ -303,7 +303,7 @@ public:
 void pcap_input::handle(unsigned long len, unsigned long captured, 
 			const unsigned char* f)
 {
-
+    
     int datalink = pcap_datalink(p);
 
     if (datalink == DLT_EN10MB) {
@@ -313,7 +313,22 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 	if (f[13] != 0) return;
 
 	std::vector<unsigned char> v;
-	v.assign(f + 14, f + len);
+	v.assign(f + 14, f + captured);
+
+	// FIXME: Hard-coded?!
+	std::string liid = "PCAP";
+
+	try {
+	    e.process(liid, v.begin(), v.end());
+	} catch (std::exception& e) {
+	    std::cerr << "Packet not processed: " << e.what() << std::endl;
+	}
+    }
+
+    if (datalink == DLT_RAW) {
+
+	std::vector<unsigned char> v;
+	v.assign(f, f + captured);
 
 	// FIXME: Hard-coded?!
 	std::string liid = "PCAP";
