@@ -48,6 +48,7 @@ namespace cybermon {
 	process_fn processor;
 
 	// Sequence number.
+	serial<int32_t, uint32_t> m_seq;
 	serial<int32_t, uint32_t> seq_expected;
 	serial<int32_t, uint32_t> ack_received;
 
