@@ -1,29 +1,29 @@
 PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS query
-    Query: fedora64
+    Query: name=fedora64, type=1, class=1
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS response
-    Query: fedora64
-    Answer: fedora64 -> 192.168.122.11
+    Query: name=fedora64, type=1, class=1
+    Answer: name=fedora64, type=1, class=1 -> 192.168.122.11
 
 PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS query
-    Query: fedora64
+    Query: name=fedora64, type=28, class=1
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS response
-    Query: fedora64
+    Query: name=fedora64, type=28, class=1
 
 PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS query
-    Query: test.smtp.org
+    Query: name=test.smtp.org, type=1, class=1
 
 PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS query
-    Query: test.smtp.org
+    Query: name=test.smtp.org, type=28, class=1
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS response
-    Query: test.smtp.org
-    Answer: test.smtp.org -> 149.20.54.225
+    Query: name=test.smtp.org, type=1, class=1
+    Answer: name=test.smtp.org, type=1, class=1 -> 149.20.54.225
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS response
-    Query: test.smtp.org
-    Answer: test.smtp.org -> 2001:4f8:3:36::225
+    Query: name=test.smtp.org, type=28, class=1
+    Answer: name=test.smtp.org, type=28, class=1 -> 2001:4f8:3:36::225
 
 PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command HELO malware.com
 

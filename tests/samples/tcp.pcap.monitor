@@ -1,31 +1,31 @@
 PCAP: 192.168.122.11:40036 -> 192.168.122.1:53. DNS query
-    Query: fedora64
+    Query: name=fedora64, type=1, class=1
 
 PCAP: 192.168.122.11:40036 -> 192.168.122.1:53. DNS query
-    Query: fedora64
+    Query: name=fedora64, type=28, class=1
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:40036. DNS response
-    Query: fedora64
-    Answer: fedora64 -> 192.168.122.11
+    Query: name=fedora64, type=1, class=1
+    Answer: name=fedora64, type=1, class=1 -> 192.168.122.11
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:40036. DNS response
-    Query: fedora64
+    Query: name=fedora64, type=28, class=1
 
 PCAP: 192.168.122.11:50485 -> 192.168.122.1:53. DNS query
-    Query: www.google.com
+    Query: name=www.google.com, type=1, class=1
 
 PCAP: 192.168.122.11:50485 -> 192.168.122.1:53. DNS query
-    Query: www.google.com
+    Query: name=www.google.com, type=28, class=1
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:50485. DNS response
-    Query: www.google.com
-    Answer: www.google.com -> 74.125.230.244
-    Answer: www.google.com -> 74.125.230.241
-    Answer: www.google.com -> 74.125.230.242
-    Answer: www.google.com -> 74.125.230.243
-    Answer: www.google.com -> 74.125.230.240
+    Query: name=www.google.com, type=1, class=1
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.230.244
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.230.241
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.230.242
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.230.243
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.230.240
 
 PCAP: 192.168.122.1:53 -> 192.168.122.11:50485. DNS response
-    Query: www.google.com
-    Answer: www.google.com -> 2a00:1450:4009:80c::1013
+    Query: name=www.google.com, type=28, class=1
+    Answer: name=www.google.com, type=28, class=1 -> 2a00:1450:4009:80c::1013
 

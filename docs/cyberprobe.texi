@@ -3162,13 +3162,14 @@ Records the sending of a NTP message, including the NTP hdr (mode, version, leap
 @end table
 
 @item queries
-A list of strings describing the set of DNS queries in
-@samp{dns_message} actions.
+Describes DNS query records in @samp{dns_message} actions. Is a list
+of objects with @samp{name}, @samp{type} and @samp{class} fields containing strings
+for name, type and class
 
 @item answers
 Describes DNS answer records in @samp{dns_message} actions.  Is a list
-of objects with @samp{name} and @samp{address} fields containing strings
-for name and IP address.
+of objects with @samp{name}, @samp{type} and @samp{class} and @samp{address} fields containing strings
+for name, type and class and IP address.
 
 @item type
 DNS message type, one of @samp{query} or @samp{response}.
@@ -3739,9 +3740,11 @@ Here is an example of a JSON payload which is emitted for a DNS request:
       "dns": [""],
       "ipv4": ["192.168.1.1"]
     @},
-    "queries": [
-      "news.bbc.co.uk"
-    ],
+    "queries": @{
+      "name": ["news.bbc.co.uk"],
+      "type": ["1"],
+      "class": ["1"]
+    @},
     "src": @{
       "udp": ["57291"],
       "dns": [""],
@@ -3928,8 +3931,12 @@ Will be @samp{query} or @samp{response}.
 @item observation.queries
 Contains a list of DNS queries.  Example:
 @example
-"queries":[
-  "news.bbc.co.uk"
+"queries": [
+ @{
+    "class: "1",
+    "name": "news.bbc.co.uk",
+    "type": "1"
+ @}
 ]
 @end example
 
@@ -3938,15 +3945,22 @@ Contains a list of DNS responses.  Example:
 @example
 "answers": [
   @{
-    "name": "newswww.bbc.net.uk"
+    "class: "1",
+    "name": "newswww.bbc.net.uk",
+    "type": "1"
+
   @},
   @{
+    "class: "1",
     "address": "212.58.246.85",
-    "name": "newswww.bbc.net.uk"
+    "name": "newswww.bbc.net.uk",
+    "type": "1"
   @},
   @{
+    "class: "1",
     "address": "212.58.246.84",
-    "name": "newswww.bbc.net.uk"
+    "name": "newswww.bbc.net.uk",
+    "type": "1"
   @}
 ]
 @end example

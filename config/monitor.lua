@@ -140,11 +140,11 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   end
 
   for key, value in pairs(queries) do
-    io.write(string.format("    Query: %s\n", value.name))
+    io.write(string.format("    Query: name=%s, type=%s, class=%s\n", value.name, value.type, value.class))
   end
   
   for key, value in pairs(answers) do
-    io.write(string.format("    Answer: %s", value.name))
+    io.write(string.format("    Answer: name=%s, type=%s, class=%s", value.name, value.type, value.class))
     if value.rdaddress then
        io.write(string.format(" -> %s", value.rdaddress))
     end
