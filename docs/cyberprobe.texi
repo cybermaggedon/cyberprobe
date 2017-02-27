@@ -34,7 +34,7 @@ Texts.  A copy of the license is included in the section entitled
 @titlepage
 @title Cyberprobe
 @subtitle for version @value{VERSION}, @value{UPDATED}
-@author Cyber MacGeddon (@email{cyberprobe-general@@lists.sourceforge.net})
+@author Cyber MacGeddon (@email{cyberprobe@@trustnetworks.com})
 @page
 @vskip 0pt plus 1filll
 @insertcopying
@@ -412,7 +412,7 @@ Ubuntu, 64-bit.  FIXME: What version?
 @end itemize
 
 Downloads are available on the project page at
-@url{http://cyberprobe.sourceforge.net}.
+@url{http://github.com/cybermaggedon/cyberprobe/releases}.
 
 Fedora packages are installed using @code{yum}:
 
@@ -446,7 +446,8 @@ package will exist in your distribution, at other times you need to install a
 utility called @code{luarocks} to install the package.
 
 Source downloads are available on the project page at
-@url{http://cyberprobe.sourceforge.net}, look for the @file{.tar.gz} file.
+@url{http://github.com/cybermaggedon/cyberprobe/releases},
+look for the @file{.tar.gz} file.
 
 These files can be unwrapped, then configured:
 
@@ -480,8 +481,8 @@ make
 sudo make install
 @end example
 
-Powered by SourceForge, project page is at
-@url{http://www.sourceforge.net/p/cyberprobe}.
+Powered by Github, project page is at
+@url{http://cyberprobe.trustnetworks.com}.
 
 @cindex Docker
 @cindex Containers
@@ -576,7 +577,7 @@ some of the advantages of running it in a container.
 For installation, see @ref{Obtaining the software}.
 There's a fair amount of development taking place in the git repository, so
 you probably want to get the a package, or use the latest release on the
-downloads page (@url{http://sourceforge.net/projects/cyberprobe/files/}).
+downloads page (@url{http://github.com/cybermaggedon/cyberprobe/releases}).
 
 @cindex Executables
 @cindex Build targets
@@ -622,8 +623,8 @@ Pub/sub subscriber, delivers events to Gaffer.
 @cindex Discussion forums
 
 If it installs / builds without errors, then it's time to start something up. 
-If you have problems you can't resolve head to the discussion forums
-(@url{https://sourceforge.net/p/cyberprobe/discussion/}).
+If you have problems you can't resolve raise an issue at
+(@url{https://github.com/cybermaggedon/cyberprobe/issues}).
 
 @cindex Network parameters
 @heading Establish network parameters
