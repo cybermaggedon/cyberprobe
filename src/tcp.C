@@ -1,3 +1,6 @@
+
+#include <boost/regex.hpp>
+
 #include <cybermon/tcp.h>
 
 #include <cybermon/manager.h>
@@ -8,9 +11,6 @@
 #include <cybermon/forgery.h>
 #include <cybermon/smtp.h>
 #include <cybermon/ftp.h>
-
-#include <boost/regex.hpp>
-
 #include <cstdint>
 #include <set>
 
@@ -108,17 +108,17 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // First deal with this PDU.  Either process it, or put it on the queue.
 
-	if (fc->seq_expected == seq) {
+    if (fc->seq_expected == seq) {
 
-		// Advance the expected sequence.
+	// Advance the expected sequence.
 	fc->seq_expected += payload_length;
 
-		if (payload_length > 0) {
-			fc->lock.unlock();
-			post_process(mgr, fc, s + header_length, e);
-			fc->lock.lock();
-		}
-
+	if (payload_length > 0) {
+	    fc->lock.unlock();
+	    post_process(mgr, fc, s + header_length, e);
+	    fc->lock.lock();
+	}
+	    
 
 	}
 	else if(fc->seq_expected < (seq + payload_length))
@@ -151,214 +151,214 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	}
 	else {
 
-		// Can't use it now.  Put it on the queue.
+	// Can't use it now.  Put it on the queue.
 
-		// Put this segment at the back of the list.
-		// FIXME: Too much copying.
-		tcp_segment ts;
-		ts.first = seq;
+	// Put this segment at the back of the list.
+	// FIXME: Too much copying.
+	tcp_segment ts;
+	ts.first = seq;
 	ts.last = seq + payload_length;
-		ts.segment.assign(s + header_length, e);
-		fc->segments.insert(ts);
+	ts.segment.assign(s + header_length, e);
+	fc->segments.insert(ts);
 
-		// Check for queue filling up.
-		if (fc->segments.size() > fc->max_segments) {
+	// Check for queue filling up.
+	if (fc->segments.size() > fc->max_segments) {
 
-			// Rectify the situation by leaping over the hole.
-			fc->seq_expected = fc->segments.begin()->first;
+	    // Rectify the situation by leaping over the hole.
+	    fc->seq_expected = fc->segments.begin()->first;
 
-			// FIXME: Should report this occurance as an event.
-
-		}
+	    // FIXME: Should report this occurance as an event.
 
 	}
 
-	// All done?  Leave.
-	if (fc->segments.empty()) {
-		fc->lock.unlock();
-		return;
-	}
+    }
 
-	// Now time to look at the queue, in case this new PDU has allowed queued
-	// items to be used.
-
-	while (1) {
-
-		// If empty queue, bail out.
-		if (fc->segments.empty())
-			break;
-
-		// Study first item on queue.
-
-		// Is it any use?
-		if (fc->seq_expected >= fc->segments.begin()->first) {
-
-			// Is it too late for this one?
-			if (fc->seq_expected >=  fc->segments.begin()->last) {
-
-				// It's no use now.
-
-				// What's it doing on the queue?  Probably a dup of a packet
-				// that we couldn't use straight away.
-
-				// Get rid of it.  
-				fc->segments.erase(fc->segments.begin());
-
-				continue;
-
-			}
-
-			// At this point we know at least some of the first segment is
-			// useful.  Will want all of it in most cases.
-
-			// Work out how much to chuck away.
-			int unwanted = 
-				fc->seq_expected.distance(fc->segments.begin()->first);
-
-			// We already compared (>=) those two values above, this must be
-			// positive or zero.
-
-			fc->lock.unlock();
-
-			post_process(mgr, fc, 
-					fc->segments.begin()->segment.begin() + unwanted,
-					fc->segments.begin()->segment.end());
-
-			fc->lock.lock();
-
-			fc->seq_expected = fc->segments.begin()->last;
-
-			// Remove the used segment.
-			fc->segments.erase(fc->segments.begin());
-
-			continue;
-
-		}
-
-		// PDU at start of queue was no use.  Bail.
-
-		break;
-
-	}
-
+    // All done?  Leave.
+    if (fc->segments.empty()) {
 	fc->lock.unlock();
+	return;
+    }
 
+    // Now time to look at the queue, in case this new PDU has allowed queued
+    // items to be used.
+        
+    while (1) {
+
+	// If empty queue, bail out.
+	if (fc->segments.empty())
+	    break;
+	
+	// Study first item on queue.
+
+	// Is it any use?
+	if (fc->seq_expected >= fc->segments.begin()->first) {
+
+	    // Is it too late for this one?
+	    if (fc->seq_expected >=  fc->segments.begin()->last) {
+
+		// It's no use now.
+
+		// What's it doing on the queue?  Probably a dup of a packet
+		// that we couldn't use straight away.
+
+		// Get rid of it.  
+		fc->segments.erase(fc->segments.begin());
+
+		continue;
+
+	    }
+
+	    // At this point we know at least some of the first segment is
+	    // useful.  Will want all of it in most cases.
+	    
+	    // Work out how much to chuck away.
+	    int unwanted = 
+		fc->seq_expected.distance(fc->segments.begin()->first);
+
+	    // We already compared (>=) those two values above, this must be
+	    // positive or zero.
+
+	    fc->lock.unlock();
+
+	    post_process(mgr, fc, 
+			 fc->segments.begin()->segment.begin() + unwanted,
+			 fc->segments.begin()->segment.end());
+
+	    fc->lock.lock();
+
+	    fc->seq_expected = fc->segments.begin()->last;
+
+	    // Remove the used segment.
+	    fc->segments.erase(fc->segments.begin());
+
+	    continue;
+
+	}
+
+	// PDU at start of queue was no use.  Bail.
+	
+	break;
+
+    }
+
+    fc->lock.unlock();
+    
 }
 
 void tcp::post_process(manager& mgr, tcp_context::ptr fc, 
-		pdu_iter s, pdu_iter e)
+		       pdu_iter s, pdu_iter e)
 {
 
-	static const boost::regex 
-		http_request("(OPTIONS|GET|HEAD|POST|PUT|DELETE|CONNECT|TRACE)"
-				" [^ ]* HTTP/1.",
-				boost::regex::extended);
+    static const boost::regex 
+	http_request("(OPTIONS|GET|HEAD|POST|PUT|DELETE|CONNECT|TRACE)"
+		     " [^ ]* HTTP/1.",
+		     boost::regex::extended);
 
-	static const boost::regex http_response("HTTP/1\\.");
+    static const boost::regex http_response("HTTP/1\\.");
 
-	fc->lock.lock();
+    fc->lock.lock();
 
-	if (!fc->svc_idented) {
+    if (!fc->svc_idented) {
+	
+	// Deal with the cases that don't ident by scanning data.
+	if (fc->addr.dest.get_uint16() == 25) {
 
-		// Deal with the cases that don't ident by scanning data.
-		if (fc->addr.dest.get_uint16() == 25) {
+	    fc->processor = &smtp::process_client;
+	    fc->svc_idented = true;
 
-			fc->processor = &smtp::process_client;
-			fc->svc_idented = true;
+	    fc->lock.unlock();
 
-			fc->lock.unlock();
+	    (*fc->processor)(mgr, fc, s, e);
+	    return;
 
-			(*fc->processor)(mgr, fc, s, e);
-			return;
+	} else if (fc->addr.src.get_uint16() == 25) {
+	    
+	    fc->processor = &smtp::process_server;
+	    fc->svc_idented = true;
 
-		} else if (fc->addr.src.get_uint16() == 25) {
+	    fc->lock.unlock();
 
-			fc->processor = &smtp::process_server;
-			fc->svc_idented = true;
+	    (*fc->processor)(mgr, fc, s, e);
+	    return;
 
-			fc->lock.unlock();
+	} else if (fc->addr.src.get_uint16() == 21) {
+	    
+	    fc->processor = &ftp::process_server;
+	    fc->svc_idented = true;
 
-			(*fc->processor)(mgr, fc, s, e);
-			return;
+	    fc->lock.unlock();
 
-		} else if (fc->addr.src.get_uint16() == 21) {
+	    (*fc->processor)(mgr, fc, s, e);
+	    return;
 
-			fc->processor = &ftp::process_server;
-			fc->svc_idented = true;
+	} else if (fc->addr.dest.get_uint16() == 21) {
+	    
+	    fc->processor = &ftp::process_client;
+	    fc->svc_idented = true;
 
-			fc->lock.unlock();
+	    fc->lock.unlock();
 
-			(*fc->processor)(mgr, fc, s, e);
-			return;
+	    (*fc->processor)(mgr, fc, s, e);
+	    return;
 
-		} else if (fc->addr.dest.get_uint16() == 21) {
+	} else {
 
-			fc->processor = &ftp::process_client;
-			fc->svc_idented = true;
+	    // Ident by studing the data.
 
-			fc->lock.unlock();
-
-			(*fc->processor)(mgr, fc, s, e);
-			return;
-
-		} else {
-
-			// Ident by studing the data.
-
-			// Copy into the ident buffer.
-			fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
-
-			// If not enough to run an ident, bail out.
-			if (fc->ident_buffer.size() < fc->ident_buffer_max) {
-				fc->lock.unlock();
-				return;
-			}
-
-			// Not idented, and we have enough data for an ident attempt.
-
-			boost::match_results<std::string::const_iterator> what;
-
-			if (regex_search(fc->ident_buffer, what, http_request, 
-						boost::match_continuous)) {
-
-				fc->processor = &http::process_request;
-				fc->svc_idented = true;
-
-			} else if (regex_search(fc->ident_buffer, what, http_response,
-						boost::match_continuous)) {
-
-				fc->processor = &http::process_response;
-				fc->svc_idented = true;
-
-			} else {	
-
-				// Default.
-				fc->processor = &unrecognised::process_unrecognised_stream;
-				fc->svc_idented = true;
-
-			}
-
-		}
-
-		// Good, we're idented now.
-
+	    // Copy into the ident buffer.
+	    fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
+	    
+	    // If not enough to run an ident, bail out.
+	    if (fc->ident_buffer.size() < fc->ident_buffer_max) {
 		fc->lock.unlock();
-
-		// Just need to process what's in the buffer.
-
-		pdu p;
-		p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
-
-		(*fc->processor)(mgr, fc, p.begin(), p.end());
 		return;
+	    }
 
+	    // Not idented, and we have enough data for an ident attempt.
+
+	    boost::match_results<std::string::const_iterator> what;
+	    
+	    if (regex_search(fc->ident_buffer, what, http_request, 
+			     boost::match_continuous)) {
+	    
+		fc->processor = &http::process_request;
+		fc->svc_idented = true;
+
+	    } else if (regex_search(fc->ident_buffer, what, http_response,
+					 boost::match_continuous)) {
+
+		fc->processor = &http::process_response;
+		fc->svc_idented = true;
+
+	    } else {	
+
+		// Default.
+		fc->processor = &unrecognised::process_unrecognised_stream;
+		fc->svc_idented = true;
+
+	    }
+	    
 	}
+	
+	// Good, we're idented now.
 
 	fc->lock.unlock();
 
-	// Process the data using the defined processing function.
-	(*fc->processor)(mgr, fc, s, e);
+	// Just need to process what's in the buffer.
+
+	pdu p;
+	p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
+
+	(*fc->processor)(mgr, fc, p.begin(), p.end());
 	return;
+
+    }
+    
+    fc->lock.unlock();
+
+    // Process the data using the defined processing function.
+    (*fc->processor)(mgr, fc, s, e);
+    return;
 
 
 }
@@ -366,54 +366,54 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 void tcp::checksum(pdu_iter s, pdu_iter e, uint16_t& sum)
 {
 
-	pdu_iter ptr = s;
+    pdu_iter ptr = s;
 
-	uint32_t tmp = sum;
+    uint32_t tmp = sum;
 
-	// Handle 2-bytes at a time.
-	while ((e - ptr) > 1) {
-		tmp += (ptr[0] << 8) + ptr[1];
-		if (tmp & 0x80000000)
-			tmp = (tmp & 0xffff) + (tmp >> 16);
-		ptr += 2;
-	}
+    // Handle 2-bytes at a time.
+    while ((e - ptr) > 1) {
+	tmp += (ptr[0] << 8) + ptr[1];
+	if (tmp & 0x80000000)
+	    tmp = (tmp & 0xffff) + (tmp >> 16);
+	ptr += 2;
+    }
 
-	// If a remaining byte, handle that.
-	if ((e - ptr) != 0)
-		tmp += ptr[0] << 8;
+    // If a remaining byte, handle that.
+    if ((e - ptr) != 0)
+	tmp += ptr[0] << 8;
 
-	while (tmp >> 16) {
-		tmp = (tmp & 0xffff) + (tmp >> 16);
-	}
+    while (tmp >> 16) {
+	tmp = (tmp & 0xffff) + (tmp >> 16);
+    }
 
-	sum = tmp;
+    sum = tmp;
 
 }
 
 uint16_t tcp::calculate_ip4_cksum(pdu_iter src,  // IPv4 address
-		pdu_iter dest, // IPv4 address
-		uint16_t protocol,
-		uint16_t length,
-		pdu_iter s,    // TCP hdr + body
-		pdu_iter e)
+				  pdu_iter dest, // IPv4 address
+				  uint16_t protocol,
+				  uint16_t length,
+				  pdu_iter s,    // TCP hdr + body
+				  pdu_iter e)
 {
 
-	uint16_t sum = 0;
+    uint16_t sum = 0;
 
-	checksum(s, e, sum);
+    checksum(s, e, sum);
 
-	checksum(src, src + 4, sum);
+    checksum(src, src + 4, sum);
 
-	checksum(dest, dest + 4, sum);
+    checksum(dest, dest + 4, sum);
 
-	pdu tmp;
-	tmp.push_back(0);
-	tmp.push_back(protocol);
-	tmp.push_back((length & 0xff00) >> 8);
-	tmp.push_back(length & 0xff);
+    pdu tmp;
+    tmp.push_back(0);
+    tmp.push_back(protocol);
+    tmp.push_back((length & 0xff00) >> 8);
+    tmp.push_back(length & 0xff);
 
-	checksum(tmp.begin(), tmp.begin() + 4, sum);
+    checksum(tmp.begin(), tmp.begin() + 4, sum);
 
-	return ~sum;
+    return ~sum;
 
 }
