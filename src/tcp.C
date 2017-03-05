@@ -2,6 +2,7 @@
 #include <boost/regex.hpp>
 
 #include <cybermon/tcp.h>
+
 #include <cybermon/manager.h>
 #include <cybermon/pdu.h>
 #include <cybermon/context.h>
@@ -10,6 +11,8 @@
 #include <cybermon/forgery.h>
 #include <cybermon/smtp.h>
 #include <cybermon/ftp.h>
+#include <cstdint>
+#include <set>
 
 using namespace cybermon;
 
@@ -56,6 +59,9 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     if (flags & SYN) {
 	fc->syn_observed = true;
 	fc->seq_expected = seq + 1;
+	fc->m_first_seq = seq;
+	fc->lock.unlock();
+	return;
     }
 
     // This works for either the step2 SYN/ACK or the step3 ACK.
@@ -82,25 +88,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     }
 
     // In a connected state.
-
-    // Firstly, do we need it?  If it preceeds the sequence number we're
-    // looking out for, it isn't needed now: Resend of something we already
-    // have.
-    if (fc->seq_expected > (seq + payload_length)) {
-
-	// Going to ignore the packet because it's a resend or something like
-	// that.
-
-	// FIXME: But the packet may be interesting?
-	// See http://en.wikipedia.org/wiki/TCP_sequence_prediction_attack
-
-	fc->lock.unlock();
-
-	return;
-
-    }
-
-
     // First deal with this PDU.  Either process it, or put it on the queue.
 
     if (fc->seq_expected == seq) {
@@ -113,9 +100,67 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    post_process(mgr, fc, s + header_length, e);
 	    fc->lock.lock();
 	}
-	    
 
-    } else {
+	fc->m_seq = seq;
+    }
+    else if(payload_length && (fc->m_seq == seq))
+    {
+	// a retransmission
+	const uint32_t expected_next_seq = seq + payload_length;
+	if (fc->seq_expected == expected_next_seq)
+	{
+	    // simple common retransmission case
+	}
+	else if (fc->seq_expected < expected_next_seq)
+	{
+	    // a retransmission having a bigger payload.
+	    // So process the extra bytes
+
+	    // note: this calc is guarenteed to be positive
+	    const uint32_t payload_subset_len{ expected_next_seq - fc->seq_expected.value() };
+	    fc->lock.unlock();
+	    if (s > (e - payload_subset_len))
+	    {
+		throw exception("TCP calculation logic error");
+	    }
+	    post_process(mgr, fc, e - payload_subset_len, e);
+	    fc->lock.lock();
+	    fc->seq_expected = expected_next_seq;
+	}
+	else if (fc->seq_expected > expected_next_seq)
+	{
+	    // FIXME: this packet may be interesting?
+	    // See http://en.wikipedia.org/wiki/TCP_sequence_prediction_attack
+	}
+	else
+	{
+	    fc->lock.unlock();
+	    throw exception("TCP retransmission logic error");
+	}
+
+	fc->lock.unlock();
+	return;
+    }
+    else if (fc->seq_expected > (seq + payload_length))
+    {
+	fc->lock.unlock();
+
+	if (payload_length)
+	{
+	    if (fc->m_seq >= seq)
+	    {
+		// An old seq delivered - unusual but not unexpected
+	    }
+	    else
+	    {
+		// Very odd to see this
+		throw exception("Unexpected seq logic error");
+	    }
+	}
+	return;
+
+    }
+    else {
 
 	// Can't use it now.  Put it on the queue.
 
@@ -137,12 +182,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 	}
 
-    }
-
-    // All done?  Leave.
-    if (fc->segments.empty()) {
-	fc->lock.unlock();
-	return;
     }
 
     // Now time to look at the queue, in case this new PDU has allowed queued
@@ -291,7 +330,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 		fc->svc_idented = true;
 
 	    } else if (regex_search(fc->ident_buffer, what, http_response,
-					 boost::match_continuous)) {
+				    boost::match_continuous)) {
 
 		fc->processor = &http::process_response;
 		fc->svc_idented = true;
