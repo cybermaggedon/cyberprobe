@@ -60,6 +60,9 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     if (flags & SYN) {
 	fc->syn_observed = true;
 	fc->seq_expected = seq + 1;
+	fc->m_first_seq = seq;
+	fc->lock.unlock();
+	return;
     }
 
     // This works for either the step2 SYN/ACK or the step3 ACK.
@@ -87,25 +90,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     }
 
     // In a connected state.
-
-    // Firstly, do we need it?  If it preceeds the sequence number we're
-    // looking out for, it isn't needed now: Resend of something we already
-    // have.
-    if (fc->seq_expected > (seq + payload_length)) {
-
-	// Going to ignore the packet because it's a resend or something like
-	// that.
-
-	// FIXME: But the packet may be interesting?
-	// See http://en.wikipedia.org/wiki/TCP_sequence_prediction_attack
-
-	fc->lock.unlock();
-
-	return;
-
-    }
-
-
     // First deal with this PDU.  Either process it, or put it on the queue.
 
     if (fc->seq_expected == seq) {
@@ -118,34 +102,63 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    post_process(mgr, fc, s + header_length, e);
 	    fc->lock.lock();
 	}
-	    
 
+	fc->m_seq = seq;
     }
-    else if(fc->seq_expected < (seq + payload_length))
+    else if(payload_length && (fc->m_seq == seq))
+    {
+	// a retransmission
+	const uint32_t expected_next_seq = seq + payload_length;
+	if (fc->seq_expected == expected_next_seq)
 	{
-	    // a retransmit of a segment with a bigger payload
-	    // or a rogue tcp packet.
-	    // Have observed a segment having a 0 length payload and seq greater than expected
-
-	    const std::uint32_t retransmission_extra_payload{ seq + payload_length - fc->seq_expected.value() };
-	    if (retransmission_extra_payload)
-		{
-		    fc->lock.unlock();
-		    if (0 == payload_length ||
-			s > e - retransmission_extra_payload)
-			{
-			    throw exception("Rogue TCP segment detected");
-			}
-		    post_process(mgr, fc, e - retransmission_extra_payload, e);
-		    fc->lock.lock();
-		}
-	    fc->seq_expected = seq + payload_length;
-	    fc->lock.unlock();
-	    return;
+	    // simple common retransmission case
 	}
-    else if (fc->m_seq == seq) {
-	// If here then a simple retransmitted packet
+	else if (fc->seq_expected < expected_next_seq)
+	{
+	    // a retransmission having a bigger payload.
+	    // So process the extra bytes
+
+	    // note: this calc is guarenteed to be positive
+	    const uint32_t payload_subset_len{ expected_next_seq - fc->seq_expected.value() };
+	    fc->lock.unlock();
+	    if (s > (e - payload_subset_len))
+	    {
+		throw exception("TCP calculation logic error");
+	    }
+	    post_process(mgr, fc, e - payload_subset_len, e);
+	    fc->lock.lock();
+	    fc->seq_expected = expected_next_seq;
+	}
+	else if (fc->seq_expected > expected_next_seq)
+	{
+	    // FIXME: this packet may be interesting?
+	    // See http://en.wikipedia.org/wiki/TCP_sequence_prediction_attack
+	}
+	else
+	{
+	    fc->lock.unlock();
+	    throw exception("TCP retransmission logic error");
+	}
+
 	fc->lock.unlock();
+	return;
+    }
+    else if (fc->seq_expected > (seq + payload_length))
+    {
+	fc->lock.unlock();
+
+	if (payload_length)
+	{
+	    if (fc->m_seq >= seq)
+	    {
+		// An old seq delivered - unusual but not unexpected
+	    }
+	    else
+	    {
+		// Very odd to see this
+		throw exception("Unexpected seq logic error");
+	    }
+	}
 	return;
 
     }
@@ -171,12 +184,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 	}
 
-    }
-
-    // All done?  Leave.
-    if (fc->segments.empty()) {
-	fc->lock.unlock();
-	return;
     }
 
     // Now time to look at the queue, in case this new PDU has allowed queued
