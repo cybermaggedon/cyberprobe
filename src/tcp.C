@@ -47,7 +47,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // Set / update TTL on the context.
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
-    fc->m_seq = seq;
 
     fc->lock.lock();
 
@@ -77,7 +76,6 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	fc->set_ttl(2);
 	fc->lock.unlock();
 	mgr.connection_down(fc);
-	fc->seq_expected = seq + 1;
 	return;
     }
 
