@@ -11,7 +11,6 @@
 #include <cybermon/forgery.h>
 #include <cybermon/smtp.h>
 #include <cybermon/ftp.h>
-#include <cstdint>
 #include <set>
 
 using namespace cybermon;
@@ -117,7 +116,8 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    // So process the extra bytes
 
 	    // note: this calc is guarenteed to be positive
-	    const uint32_t payload_subset_len{ expected_next_seq - fc->seq_expected.value() };
+	    const uint32_t payload_subset_len =
+		expected_next_seq - fc->seq_expected.value();
 	    fc->lock.unlock();
 	    if (s > (e - payload_subset_len))
 	    {

@@ -37,8 +37,9 @@ void ntp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     }
     
     address src, dest;
-    src.set({}, APPLICATION, NTP);
-    dest.set({}, APPLICATION, NTP);
+    std::vector<unsigned char> empty;
+    src.set(empty, APPLICATION, NTP);
+    dest.set(empty, APPLICATION, NTP);
 
     flow_address f(src, dest);
     ntp_context::ptr fc = ntp_context::get_or_create(c, f);
