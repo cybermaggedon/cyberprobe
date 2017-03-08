@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.68])
 AC_INIT([cyberprobe], [0.82], [cyberprobe@trustnetworks.com])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
@@ -89,7 +89,6 @@ AC_SEARCH_LIBS([lua_rawlen], [lua lua5.2],
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdint.h stdlib.h sys/socket.h sys/time.h unistd.h openssl/ssl.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
 AC_TYPE_SIZE_T
