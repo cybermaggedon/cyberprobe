@@ -1,0 +1,55 @@
+sudo: required
+
+language: cpp
+
+cache:
+  apt: true
+
+addons:
+  apt:
+    packages:
+    - libpcap-dev
+    - libboost-dev
+    - libboost-regex-dev
+    - libboost-program-options-dev
+    - libexpat-dev
+    - libncurses5-dev
+    - libreadline-dev
+    - texinfo texlive
+    - python
+    - libtool
+    - build-essential
+    - devscripts
+    - apt-utils
+    - lua5.2
+    - lua5.2-dev
+    - liblua5.2-dev
+    - dh-make
+    - libssl-dev
+    - gcc
+    - g++
+    - libboost-all-dev
+
+before_script:
+  - wget http://luarocks.org/releases/luarocks-2.4.2.tar.gz
+  - tar xfz luarocks-2.4.2.tar.gz
+  - (cd luarocks-2.4.2; ./configure --with-lua-include=/usr/include)
+  - (cd luarocks-2.4.2; make build; sudo make install)
+  - sudo /usr/local/bin/luarocks --tree=/usr install luajson
+  - sudo /usr/local/bin/luarocks --tree=/usr install luafilesystem
+  - sudo /usr/local/bin/luarocks --tree=/usr install lmd5
+  - sudo /usr/local/bin/luarocks --tree=/usr install luasocket
+
+compiler:
+  - g++
+
+install:
+
+script:
+  - autoreconf -fi
+  - ./configure
+  - make
+  - make check
+
+
+
