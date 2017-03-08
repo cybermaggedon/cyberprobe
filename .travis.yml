@@ -48,8 +48,10 @@ install:
 script:
   - autoreconf -fi
   - ./configure
-  - make
-  - make check
+# Source code builds in Travis, but documentation doesn't.  Hence this limits
+# the amount of wandering around the directories.
+  - cd src; make
+  - cd tests; make check
 
 
 

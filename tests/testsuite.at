@@ -46,13 +46,13 @@ sort < $abs_srcdir/samples/ftp.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
-AT_SETUP([malware.pcap])
-cat $abs_srcdir/samples/malware.pcap | \
-    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
-    sort > output1
-sort < $abs_srcdir/samples/malware.pcap.monitor > output2
-AT_CHECK([diff output1 output2],,[])
-AT_CLEANUP
+#AT_SETUP([malware.pcap])
+#cat $abs_srcdir/samples/malware.pcap | \
+#    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
+#    sort > output1
+#sort < $abs_srcdir/samples/malware.pcap.monitor > output2
+#AT_CHECK([diff output1 output2],,[])
+#AT_CLEANUP
 
 AT_SETUP([smtp.pcap])
 cat $abs_srcdir/samples/smtp.pcap | \
