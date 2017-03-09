@@ -241,6 +241,12 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.90
+NTP handling, DNS output format changed, robustness fixes in TCP handling.
+
+@item 0.83
+Point release, minor fixes.
+
 @item 0.80
 Added optional TLS support for packet streams to cyberprobe and cybermon.
 This change refactors the cybermon command line interface.  See documentation
