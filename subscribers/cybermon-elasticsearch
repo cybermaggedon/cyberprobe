@@ -25,7 +25,92 @@ ttl = "1h"
 ############################################################################
 
 def init():
-    pass
+
+    mapping = {
+        es_object: {
+            "properties": {
+                "id": { "type": "keyword" },
+                "time": { "type": "date" },
+                "url": { "type": "keyword" },
+                "queries": { "type": "keyword" },
+                "action": { "type": "keyword" },
+                "device": { "type": "keyword" },
+                "type": {"type": "keyword" },
+                "method": {"type": "keyword" },
+                "src": {
+                    "properties": {
+                        "ipv4": { "type": "ip" },
+                        "tcp": { "type": "integer"},
+                        "udp": { "type": "integer"}
+                    }
+                },
+                "dest": {
+                    "properties": {
+                        "ipv4": { "type": "ip" },
+                        "tcp": { "type": "integer"},
+                        "udp": { "type": "integer"}
+                    }
+                },
+                "queries": {
+                    "properties": {
+                        "name": {
+                            "type": "keyword"
+                        }
+                    }
+                },
+                "answers": {
+                    "properties": {
+                        "name": {
+                            "type": "keyword"
+                        },
+                        "address": {
+                            "type": "keyword"
+                        }
+                    }
+                },
+                "header": {
+                    "properties": {
+                        "User-Agent": { "type": "keyword" },
+                        "Host": { "type": "keyword" },
+                        "Content-Type": { "type": "keyword" },
+                        "Server": { "type": "keyword" },
+                        "Connection": { "type": "keyword" }
+                    }
+                }
+            }
+        }
+    }
+
+    u = "%s/%s" % (es_url, es_index)
+
+    while True:
+        try: 
+            r = requests.put(u)
+            if r.status_code != 201 and r.status_code != 200 and r.status_code !
+= 400:
+                sys.stderr.write("elasticsearch: Error sending.\n")
+                sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_cod
+e) + "\n")
+            sys.stderr.write("elasticsearch: Index create: %d\n" % r.status_code)
+            break
+        except Exception, e:
+            sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
+            time.sleep(1)
+
+    u = "%s/%s/_mapping/%s" % (es_url, es_index, es_object)
+
+    while True:
+        try: 
+            r = requests.put(u, data=json.dumps(mapping),
+                             headers={"Content-Type": "application/json"})
+            if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
+                sys.stderr.write("elasticsearch: Error sending to ElasticSearch\n")
+                sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_code) + "\n")
+            sys.stderr.write("elasticsearch: Mapping put: %d\n" % r.status_code)
+            break
+        except Exception, e:
+            sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
+            time.sleep(1)
 
 def output(obs, id):
     obs = {

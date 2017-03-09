@@ -228,7 +228,7 @@ def handle(msg):
         else:
             lbl = "DNS answer"
         for v in msg["queries"]:
-            lbl = lbl + " " + v
+            lbl = lbl + " " + v["name"]
         add_string(obs, uri, rdfslabel, lbl)
     elif msg["action"] == "ftp_command":
         add_string(obs, uri, rdfslabel, "FTP " + msg["command"])
@@ -284,11 +284,11 @@ def handle(msg):
     if msg.has_key("queries"):
         for v in msg["queries"]:
             if v.has_key("name"):
-                add_string(obs, uri, prop_uri("query_name"), v["name")
+                add_string(obs, uri, prop_uri("query_name"), v["name"])
             if v.has_key("type"):
-                add_string(obs, uri, prop_uri("query_type"), v["type")
+                add_string(obs, uri, prop_uri("query_type"), v["type"])
             if v.has_key("class"):
-                add_string(obs, uri, prop_uri("query_class"), v["class")    
+                add_string(obs, uri, prop_uri("query_class"), v["class"])    
     if msg.has_key("answers"):
         for v in msg["answers"]:
             if v.has_key("name"):

@@ -177,9 +177,9 @@ end
 
 -- Common ntp function
 observer.ntp_common = function(hdr)
-  io.write(string.format("  Leap Indicator      -> %u\n", hdr.leap_indicator));
-  io.write(string.format("  Version             -> %u\n", hdr.version));
-  io.write(string.format("  Mode                -> %u\n", hdr.mode));
+  io.write(string.format("    Leap Indicator      -> %u\n", hdr.leap_indicator));
+  io.write(string.format("    Version             -> %u\n", hdr.version));
+  io.write(string.format("    Mode                -> %u\n", hdr.mode));
 end
 
 -- This function is called when a NTP Timestamp message is observed.
@@ -187,17 +187,17 @@ observer.ntp_timestamp_message = function(context, hdr, info)
   local a = string.format("NTP Timestamp")
   observer.describe(context, a);
   observer.ntp_common(hdr);  
-  io.write(string.format("  Stratum             -> %u\n", info.stratum));
-  io.write(string.format("  Poll                -> %u\n", info.poll));
-  io.write(string.format("  Precision           -> %.6f\n", info.precision));
-  io.write(string.format("  Root Delay          -> %.6f\n", info.root_delay));
-  io.write(string.format("  Root Dispersion     -> %.6f\n", info.root_dispersion));
-  io.write(string.format("  Reference Id        -> %u\n", info.reference_id));
-  io.write(string.format("  Reference Timestamp -> %.9f\n", info.reference_timestamp));
-  io.write(string.format("  Originate Timestamp -> %.9f\n", info.originate_timestamp));
-  io.write(string.format("  Receive Timestamp   -> %.9f\n", info.receive_timestamp));
-  io.write(string.format("  Transmit Timestamp  -> %.9f\n", info.transmit_timestamp));
-  io.write(string.format("  Extension           -> %s\n", info.extension));
+  io.write(string.format("    Stratum             -> %u\n", info.stratum));
+  io.write(string.format("    Poll                -> %u\n", info.poll));
+  io.write(string.format("    Precision           -> %.6f\n", info.precision));
+  io.write(string.format("    Root Delay          -> %.6f\n", info.root_delay));
+  io.write(string.format("    Root Dispersion     -> %.6f\n", info.root_dispersion));
+  io.write(string.format("    Reference Id        -> %u\n", info.reference_id));
+  io.write(string.format("    Reference Timestamp -> %.9f\n", info.reference_timestamp));
+  io.write(string.format("    Originate Timestamp -> %.9f\n", info.originate_timestamp));
+  io.write(string.format("    Receive Timestamp   -> %.9f\n", info.receive_timestamp));
+  io.write(string.format("    Transmit Timestamp  -> %.9f\n", info.transmit_timestamp));
+  io.write(string.format("    Extension           -> %s\n", info.extension));
   io.write("\n")
 end
 
