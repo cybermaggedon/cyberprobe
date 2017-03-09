@@ -1980,14 +1980,10 @@ See @ref{@command{cybermon-elasticsearch} invocation}.
 @cindex Graph store
 
 Gaffer is an experimental graph database built on top of Accumulo, Zookeeper
-and Hadoop.  This subscriber writes data to Gaffer in a form intended to
-be used for querying with SPARQL.
-
-Documentation on Gaffer is sparse.  If you want to use this, you will need
-to get familiar with some of my tooling at
-@url{https://github.com/cybermaggedon/gaffer-tools}.  To get started,
-you may also want to use my stand-alone Docker container at
-@url{https://hub.docker.com/r/cybermaggedon/gaffer/}.
+and Hadoop.  This subscriber writes IP-to-IP communication nodes in the
+graph.  If you want to use this, get familiar with Gaffer.
+Gaffer is developed at @url{https://github.com/gchq/Gaffer}, and I have Gaffer
+containers here: @url{https://hub.docker.com/r/cybermaggedon/wildfly-gaffer/}.
 
 On the command-line you need to tell the subscriber the location
 of the Gaffer REST API. e.g.
