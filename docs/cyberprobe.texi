@@ -1993,6 +1993,9 @@ cybermon-gaffer tcp://localhost:5555 \
     http://gaffer-host1:8080/example-rest/v1
 @end example
 
+The Gaffer subscriber is intended to work with a Gaffer schema which is
+@file{@value{DOCDIR}/gaffer-schema.json}.
+
 See @ref{@command{cybermon-gaffer} invocation}.
 
 @comment ----------------------------------------------------------------------
@@ -3371,6 +3374,10 @@ Specifies the base URL for Gaffer.  If not specified, defaults
 to @samp{http://gaffer:8080/example-rest/v1}.
 
 @end table
+
+The Gaffer subscriber is intended to work with a Gaffer schema which is
+installed at
+@file{@value{DOCDIR}/gaffer-schema.json}.
 
 @comment ----------------------------------------------------------------------
 

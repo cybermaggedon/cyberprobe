@@ -1,0 +1,103 @@
+{
+  "entities": {
+    "ip": {
+      "vertex": "string",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "tcp": {
+      "vertex": "string",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "udp": {
+      "vertex": "string",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "device": {
+      "vertex": "string",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "url": {
+      "vertex": "string",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "dns": {
+      "vertex": "string",
+      "properties": {
+        "count": "int"
+      }
+    }
+  },
+  "edges": {
+    "ip_flow": {
+      "source": "string",
+      "destination": "string",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "tcp_flow": {
+      "source": "string",
+      "destination": "string",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "udp_flow": {
+      "source": "string",
+      "destination": "string",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "http_request": {
+      "source": "string",
+      "destination": "string",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    },
+    "dns_request": {
+      "source": "string",
+      "destination": "string",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    }
+  },
+  "types": {
+    "int": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    },
+    "string": {
+      "class": "java.lang.String"
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsTrue"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -56,68 +56,68 @@ PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 250
     2.0.0 s9ALBn7m032410 Message accepted for delivery
 
 PCAP: 192.168.122.11:123 -> 176.9.92.196:123. NTP Timestamp
-  Leap Indicator      -> 0
-  Version             -> 3
-  Mode                -> 3
-  Stratum             -> 4
-  Poll                -> 128
-  Precision           -> 0.000002
-  Root Delay          -> 0.036957
-  Root Dispersion     -> 0.039597
-  Reference Id        -> 1311766803
-  Reference Timestamp -> 1412975394.064582109
-  Originate Timestamp -> 1412975389.996138811
-  Receive Timestamp   -> 1412975390.010780096
-  Transmit Timestamp  -> 1412975520.056754827
-  Extension           -> false
+    Leap Indicator      -> 0
+    Version             -> 3
+    Mode                -> 3
+    Stratum             -> 4
+    Poll                -> 128
+    Precision           -> 0.000002
+    Root Delay          -> 0.036957
+    Root Dispersion     -> 0.039597
+    Reference Id        -> 1311766803
+    Reference Timestamp -> 1412975394.064582109
+    Originate Timestamp -> 1412975389.996138811
+    Receive Timestamp   -> 1412975390.010780096
+    Transmit Timestamp  -> 1412975520.056754827
+    Extension           -> false
 
 PCAP: 176.9.92.196:123 -> 192.168.122.11:123. NTP Timestamp
-  Leap Indicator      -> 0
-  Version             -> 3
-  Mode                -> 4
-  Stratum             -> 3
-  Poll                -> 128
-  Precision           -> 0.000000
-  Root Delay          -> 0.017929
-  Root Dispersion     -> 0.063828
-  Reference Id        -> 2705235373
-  Reference Timestamp -> 1412974610.307905436
-  Originate Timestamp -> 1412975520.056754827
-  Receive Timestamp   -> 1412975520.070941448
-  Transmit Timestamp  -> 1412975520.070966244
-  Extension           -> false
+    Leap Indicator      -> 0
+    Version             -> 3
+    Mode                -> 4
+    Stratum             -> 3
+    Poll                -> 128
+    Precision           -> 0.000000
+    Root Delay          -> 0.017929
+    Root Dispersion     -> 0.063828
+    Reference Id        -> 2705235373
+    Reference Timestamp -> 1412974610.307905436
+    Originate Timestamp -> 1412975520.056754827
+    Receive Timestamp   -> 1412975520.070941448
+    Transmit Timestamp  -> 1412975520.070966244
+    Extension           -> false
 
 PCAP: 192.168.122.11:123 -> 217.73.16.2:123. NTP Timestamp
-  Leap Indicator      -> 0
-  Version             -> 3
-  Mode                -> 3
-  Stratum             -> 4
-  Poll                -> 256
-  Precision           -> 0.000002
-  Root Delay          -> 0.036957
-  Root Dispersion     -> 0.039597
-  Reference Id        -> 1311766803
-  Reference Timestamp -> 1412975394.064582109
-  Originate Timestamp -> 1412975005.650161505
-  Receive Timestamp   -> 1412975005.675923824
-  Transmit Timestamp  -> 1412975521.397642851
-  Extension           -> false
+    Leap Indicator      -> 0
+    Version             -> 3
+    Mode                -> 3
+    Stratum             -> 4
+    Poll                -> 256
+    Precision           -> 0.000002
+    Root Delay          -> 0.036957
+    Root Dispersion     -> 0.039597
+    Reference Id        -> 1311766803
+    Reference Timestamp -> 1412975394.064582109
+    Originate Timestamp -> 1412975005.650161505
+    Receive Timestamp   -> 1412975005.675923824
+    Transmit Timestamp  -> 1412975521.397642851
+    Extension           -> false
 
 PCAP: 217.73.16.2:123 -> 192.168.122.11:123. NTP Timestamp
-  Leap Indicator      -> 0
-  Version             -> 3
-  Mode                -> 4
-  Stratum             -> 4
-  Poll                -> 256
-  Precision           -> 0.000000
-  Root Delay          -> 0.001114
-  Root Dispersion     -> 0.067291
-  Reference Id        -> 1051214116
-  Reference Timestamp -> 1412974889.396144152
-  Originate Timestamp -> 1412975521.397642851
-  Receive Timestamp   -> 1412975521.424582243
-  Transmit Timestamp  -> 1412975521.424616575
-  Extension           -> false
+    Leap Indicator      -> 0
+    Version             -> 3
+    Mode                -> 4
+    Stratum             -> 4
+    Poll                -> 256
+    Precision           -> 0.000000
+    Root Delay          -> 0.001114
+    Root Dispersion     -> 0.067291
+    Reference Id        -> 1051214116
+    Reference Timestamp -> 1412974889.396144152
+    Originate Timestamp -> 1412975521.397642851
+    Receive Timestamp   -> 1412975521.424582243
+    Transmit Timestamp  -> 1412975521.424616575
+    Extension           -> false
 
 PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command QUIT
 
