@@ -541,7 +541,8 @@ of the Cassandra servers.
 @example
 sudo docker -it --rm -v \
   docker.io/cybermaggedon/cybermon \
-  cybermon-cassandra tcp://147.146.0.1:5555 10.142.146.6,10.142.146.8
+  cybermon-cassandra tcp://147.146.0.1:5555 \
+  10.142.146.6,10.142.146.8
 @end example
 
 @end itemize
@@ -846,7 +847,8 @@ packets to a local service on port 10000:
 
 @example
 <endpoints>
-  <endpoint hostname="localhost" port="10000" transport="tcp" type="etsi"/>
+  <endpoint hostname="localhost" port="10000"
+      transport="tcp" type="etsi"/>
 </endpoints>
 @end example
 
@@ -1565,8 +1567,9 @@ After some network data has been observed, you should be able to see results
 loaded into ElasticSearch using the following command:
 
 @example
+es=localhost:9200
 curl -s -XPOST \
-  "http://localhost:9200/cyberprobe/observation/_search?pretty=true" -d '
+  "http://$es/cyberprobe/observation/_search?pretty=true" -d '
 @{
   "query" : @{
     "match_all": @{@}
@@ -1853,7 +1856,10 @@ appropriate @command{cybermon}.
 @cindex Pub/sub delivery
 If you are going to run @command{cybermon}, provide the
 appropriate configuration in file
-@file{@value{SYSCONFDIR}/cyberprobe/cybermon.lua}.  The standard installation
+@example
+@file{@value{SYSCONFDIR}/cyberprobe/cybermon.lua}.
+@end example
+The standard installation
 does not create a file at this location, and you should create one.  You can
 copy an example from the @file{@value{SYSCONFDIR}/cyberprobe} directory.
 Use @file{@value{SYSCONFDIR}/cyberprobe/zeromq.lua} if you want to use
@@ -1908,8 +1914,9 @@ simple non-persistent, broker-less mechanism.
 
 In order to use this mechanism, you need to ensure you have configured
 @command{cybermon} appropriately.  This is normally done by copying the
-configuration file at @file{@value{SYSCONFDIR}/cyberprobe/zeromq.lua}
-to @file{@value{SYSCONFDIR}/cyberprobe/cybermon.lua} prior to executing
+@file{zeromq.lua} to @file{cybermon.lua} in directory
+@file{@value{SYSCONFDIR}/cyberprobe/}.
+prior to executing
 @command{cybermon}.  Once running, @command{cybermon} will publish all events
 to it's publisher port on TCP port 5555.
 
@@ -1986,7 +1993,8 @@ On the command-line you need to tell the subscriber the location
 of the Gaffer REST API. e.g.
 
 @example
-cybermon-elasticsearch tcp://localhost:5555 http://gaffer-host1:8080/example-rest/v1
+cybermon-gaffer tcp://localhost:5555 \
+    http://gaffer-host1:8080/example-rest/v1
 @end example
 
 See @ref{@command{cybermon-gaffer} invocation}.
@@ -2180,11 +2188,13 @@ Sample configuration:
 
     <!-- Send collected packets to monitor1:10001 in NHIS 1.1
          stream. -->
-    <endpoint hostname="monitor1" port="10001" transport="tcp" type="nhis1.1"/>
+    <endpoint hostname="monitor1" port="10001"
+              transport="tcp" type="nhis1.1"/>
 
     <!-- Send collected packets to monitor2:10002 in ETSI LI
          stream. -->
-    <endpoint hostname="monitor2" port="10002" transport="tcp" type="etsi"/>
+    <endpoint hostname="monitor2" port="10002"
+              transport="tcp" type="etsi"/>
 
   </endpoints>
 
@@ -3350,7 +3360,8 @@ cybermon-gaffer [BINDING [GAFFER-URL] ]
 Example:
 @example
 cybermon-gaffer
-cybermon-gaffer tcp://localhost:5555 http://gaffer-store:8080/example-rest/v1
+cybermon-gaffer tcp://localhost:5555 \
+    http://gaffer-store:8080/example-rest/v1
 @end example
 
 @table @samp
@@ -3511,7 +3522,7 @@ a logical AND.
 Specifies the subscription ID for a subscription operation.
 
 @item --inbox @var{INBOX}
-Specifies the inbox destination for subscriptions.  Defaults to
+Specifies the inbox destination for subscriptions.  The default value is
 @code{http://localhost:8888/}.
 
 @end table
