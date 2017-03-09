@@ -1,7 +1,7 @@
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Name: cyberprobe
 Maintainer: Cyber MacGeddon <cybermaggedon@gmail.com>
-Source: http://sourceforge.net/projects/cyberprobe/files/
+Source: https://github.com/cybermaggedon/cyberprobe
 
 Copyright: 2003-2010 Cyber MacGeddon@ <cybermaggedon@gmail.com>
 License: GPL-3+

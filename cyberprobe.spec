@@ -4,7 +4,7 @@ Release:	1%{?dist}
 Summary:	Distrbuted real-time monitoring of networks against attack.
 Group:		Applications/Internet
 License:	GPLv3
-URL:		http://cyberprobe.sourceforge.net
+URL:		http://cyberprobe.trustnetworks.com/
 Source:		%{name}-%{version}.tar.gz
 BuildRequires: systemd
 %{?systemd_requires}
