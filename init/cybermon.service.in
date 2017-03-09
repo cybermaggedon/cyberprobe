@@ -1,7 +1,7 @@
 
 [Unit]
 Description=cybermon service
-Documentation=http://cyberprobe.sourceforge.net/cyberprobe.html
+Documentation=http://cyberprobe.trustnetworks.com/cyberprobe.html
 
 [Service]
 PIDFile=/var/run/cybermon.pid
