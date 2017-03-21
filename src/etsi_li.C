@@ -610,208 +610,206 @@ void mux::target_ip(const std::string& liid,               // LIID
 // ETSI LI master receiver body, handles connections.
 void receiver::run()
 {
+    try
+    {
+	    svr->listen();
 
-    try {
+        while (running)
+        {
+            bool activ = svr->poll(1.0);
 
-	svr->listen();
+            if (activ)
+            {
 
-	while (running) {
+                boost::shared_ptr<tcpip::stream_socket> cn;
 
-	    bool activ = svr->poll(1.0);
+                try
+                {
+                    cn = svr->accept();
+                }
+                catch (...)
+                {
+                    continue;
+                }
 
-	    if (activ) {
+                connection* c = new connection(cn, p, *this);
 
-		boost::shared_ptr<tcpip::stream_socket> cn;
+                c->start();
+            }
 
-		try {
-		    cn = svr->accept();
-		} catch (...) {
-		    continue;
-		}
+            close_me_lock.lock();
 
-		connection* c = new connection(cn, p, *this);
+            while (!close_mes.empty())
+            {
+                close_mes.front()->join();
+                delete close_mes.front();
+                close_mes.pop();
+            }
 
-		c->start();
-
-	    }
-
-	    close_me_lock.lock();
-
-	    while (!close_mes.empty()) {
-		close_mes.front()->join();
-		delete close_mes.front();
-		close_mes.pop();
-	    }
-	    close_me_lock.unlock();
-
-	}
-
-    } catch (std::exception& e) {
-
-	std::cerr << "Exception: " << e.what() << std::endl;
-	return;
-
+            close_me_lock.unlock();
+        }
     }
-
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return;
+    }
 }
+
 
 // ETSI LI connection body, handles a single connection.
 void connection::run()
 {
+    try
+    {
+        while (1)
+        {
+	        ber::berpdu pdu;
 
-    try {
+	        bool got = pdu.read_pdu(*s);
 
-	while (1) {
+	        // Error or end of stream.
+	        if (!got)
+            {
+                break;
+            }
 
-	    ber::berpdu pdu;
+	        // Decode header and payloads.
+	        ber::berpdu& hdr_p = pdu.get_element(1);
+	        ber::berpdu& liid_p = hdr_p.get_element(1);
+	        ber::berpdu& pay_p = pdu.get_element(2);
 
-	    bool got = pdu.read_pdu(*s);
+	        std::list<ber::berpdu> payload_pdus;
+	        pay_p.decode_construct(payload_pdus);
 
-	    // Error or end of stream.
-	    if (!got) break;
+	        // Do LIID
+	        std::string liid;
+	        liid_p.decode_string(liid);
 
-	    // Decode header and payloads.
-	    ber::berpdu& hdr_p = pdu.get_element(1);
-	    ber::berpdu& liid_p = hdr_p.get_element(1);
-	    ber::berpdu& pay_p = pdu.get_element(2);
-
-	    std::list<ber::berpdu> payload_pdus;
-	    pay_p.decode_construct(payload_pdus);
-
-	    // Do LIID
-	    std::string liid;
-	    liid_p.decode_string(liid);
-
-	    // Study payload
-	    for(std::list<ber::berpdu>::iterator it = payload_pdus.begin();
-		it != payload_pdus.end();
-		it++) {
-
-		if (it->get_tag() == 1) {
+	        // Study payload
+	        for(std::list<ber::berpdu>::iterator it = payload_pdus.begin();
+                it != payload_pdus.end(); it++)
+            {
+		        if (it->get_tag() == 1)
+                {
 		  
-		    // CC case
+                    // CC case
+                    std::list<ber::berpdu> seq_pdus;
+                    it->decode_construct(seq_pdus);
 
-		    std::list<ber::berpdu> seq_pdus;
-		    it->decode_construct(seq_pdus);
+                    for(std::list<ber::berpdu>::iterator it2 = seq_pdus.begin();
+                        it2 != seq_pdus.end(); it2++)
+                    {
+                        ber::berpdu& ccc_p = it2->get_element(2);
+                        ber::berpdu& ipcc_p = ccc_p.get_element(2);
+                        ber::berpdu& ipccontents_p = ipcc_p.get_element(1);
+                        ber::berpdu& packet_p = ipccontents_p.get_element(0);
 
-		    for(std::list<ber::berpdu>::iterator it2 = seq_pdus.begin();
-			it2 != seq_pdus.end();
-			it2++) {
-
-			ber::berpdu& ccc_p = it2->get_element(2);
-			ber::berpdu& ipcc_p = ccc_p.get_element(2);
-			ber::berpdu& ipccontents_p = ipcc_p.get_element(1);
-			ber::berpdu& packet_p = ipccontents_p.get_element(0);
-
-			std::vector<unsigned char> pkt;
+                        std::vector<unsigned char> pkt;
 			
-			packet_p.decode_vector(pkt);
+                        packet_p.decode_vector(pkt);
 
-			p(liid, pkt.begin(), pkt.end());
+                        // Process the packet - calling operator()
+                        p(liid, pkt.begin(), pkt.end());
+                    }
+		        }
+                else if (it->get_tag() == 0)
+                {
+                    try
+                    {
+                        std::vector<unsigned char> ip_addr;
+                        long iritype;
+                        int accesseventtype = -1;
 
-		    }
+                        // IRI case
+                        std::list<ber::berpdu> seq_pdus;
+                        it->decode_construct(seq_pdus);
 
-		} else if (it->get_tag() == 0) {
+                        for(std::list<ber::berpdu>::iterator it2 = 
+                            seq_pdus.begin(); it2 != seq_pdus.end(); it2++)
+                        {
+                            ber::berpdu& iritype_p = it2->get_element(0);
+                            iritype = iritype_p.decode_int();
 
-		    try {
+                            ber::berpdu& iricontents_p = it2->get_element(2);
+                            ber::berpdu& ipiri_p = iricontents_p.get_element(2);
 
-			std::vector<unsigned char> ip_addr;
-			long iritype;
-			int accesseventtype = -1;
+                            ber::berpdu& ipiricontents_p = ipiri_p.get_element(1);
 
-			// IRI case
-			std::list<ber::berpdu> seq_pdus;
-			it->decode_construct(seq_pdus);
+                            ber::berpdu& accesseventtype_p = ipiricontents_p.get_element(0);
 
-			for(std::list<ber::berpdu>::iterator it2 = 
-				seq_pdus.begin();
-			    it2 != seq_pdus.end();
-			    it2++) {
+                            accesseventtype = accesseventtype_p.decode_int();
 
-			    ber::berpdu& iritype_p = it2->get_element(0);
-			    iritype = iritype_p.decode_int();
+                            // Get ready to decode IP address.
+                            try
+                            {
+                                ber::berpdu& targetipaddress_p = 
+                                    ipiricontents_p.get_element(4);
 
-			    ber::berpdu& iricontents_p = it2->get_element(2);
-			    ber::berpdu& ipiri_p = iricontents_p.get_element(2);
+                                ber::berpdu& ipvalue_p = 
+                                    targetipaddress_p.get_element(2);
 
-			    ber::berpdu& ipiricontents_p = 
-				ipiri_p.get_element(1);
+                                ber::berpdu& ipbinary_p = 
+                                    ipvalue_p.get_element(1);
 
-			    ber::berpdu& accesseventtype_p = 
-				ipiricontents_p.get_element(0);
+                                ipbinary_p.decode_vector(ip_addr);
+                            }
+                            catch (...)
+                            {
+                                // Oh well, no IP address.
+                            }
 
-			    accesseventtype = accesseventtype_p.decode_int();
-
-			    // Get ready to decode IP address.
-			    try {
-
-				ber::berpdu& targetipaddress_p = 
-				    ipiricontents_p.get_element(4);
-				
-				ber::berpdu& ipvalue_p = 
-				    targetipaddress_p.get_element(2);
-				
-				ber::berpdu& ipbinary_p = 
-				    ipvalue_p.get_element(1);
-				
-				ipbinary_p.decode_vector(ip_addr);
-
-			    } catch (...) {
-				// Oh well, no IP address.
-			    }
-
-			    // Process IRI here.
+            		        // Process IRI here.
 
 /*
-			    std::cerr << "IRI type = " << iritype << std::endl;
-			    std::cerr << "AET = " << accesseventtype 
-				      << std::endl;
-			    std::cerr << "Liid = " << liid << std::endl;;
-			    std::cerr << "Addr vec size = " 
-				      << ip_addr.size() 
-				      << std::endl;
-			    std::cerr << std::endl;
+        			        std::cerr << "IRI type = " << iritype << std::endl;
+		        	        std::cerr << "AET = " << accesseventtype 
+        				        << std::endl;
+        			        std::cerr << "Liid = " << liid << std::endl;;
+	        		        std::cerr << "Addr vec size = " 
+        				        << ip_addr.size() 
+        				        << std::endl;
+        			        std::cerr << std::endl;
 */
 
-			    if (iritype == 1 && accesseventtype == 1 &&
-				ip_addr.size() != 0) {
-
-				// Target up and we have an address.
-				if (ip_addr.size() == 4) {
-				    tcpip::ip4_address a;
-				    a.addr.assign(ip_addr.begin(),
-						  ip_addr.end());
-				    p.target_up(liid, a);
-				}
+                            if (iritype == 1 && accesseventtype == 1 && ip_addr.size() != 0)
+                            {
+                                // Target up and we have an address.
+                                if (ip_addr.size() == 4)
+                                {
+                                    tcpip::ip4_address a;
+                                    a.addr.assign(ip_addr.begin(),
+                                    ip_addr.end());
+                                    p.target_up(liid, a);
+                                }
 			
-				if (ip_addr.size() == 16) {
-				    tcpip::ip6_address a;
-				    a.addr.assign(ip_addr.begin(),
-						  ip_addr.end());
-				    p.target_up(liid, a);
-				}
-
-			    }
+                                if (ip_addr.size() == 16)
+                                {
+                                    tcpip::ip6_address a;
+                                    a.addr.assign(ip_addr.begin(),
+                                    ip_addr.end());
+                                    p.target_up(liid, a);
+                                }
+                            }
 			    
-			    if (iritype == 2) {
-				p.target_down(liid);
-			    }
-
-			}
-
-		    } catch (std::exception& e) {
-			// Didn't like the IRI data, so what, just ignore.
-//			std::cerr << e.what() << std::endl;
-		    }
-
-		}
-
+                            if (iritype == 2)
+                            {
+                                p.target_down(liid);
+                            }
+                        }
+		            }
+                    catch (std::exception& e)
+                    {
+			            // Didn't like the IRI data, so what, just ignore.
+                        // std::cerr << e.what() << std::endl;
+                    }
+		        }
+	        }
 	    }
-
-	}
-	
-    } catch (std::exception& e) {
-	std::cerr << e.what() << std::endl;
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
     }
 
     s->close();
@@ -820,6 +818,7 @@ void connection::run()
 
 }
 
+
 void receiver::close_me(connection* c)
 {
     close_me_lock.lock();
@@ -827,54 +826,4 @@ void receiver::close_me(connection* c)
     close_me_lock.unlock();
 }
 
-
-
-/****************************************************************************
-
-
-   oMoMoMoMMo
-   " "MMM"""
-      oMM                o
-      oMM               oM"      oo       oo
-      oMM               MM"     "MM"    "MMMo     oMMMMMMMMMMMo    oo o o o
-      oMM               oMM     oMMo    MMM"Mo      " " "MM "    "MMMMMMMMM
-    oooMMoooooo         oMo      MM     MM "MMo         MMo      "MM
-    "M"M"M"M"M""       oMMMooMoMMMM"   oMMo oMMoo       oM"      "MMo  o
-                       oMMM""""""MMo   MMMMMMMMMoo      oMM      "MMMMMMMo
-                       oMo      "MM   oMM       MMM     oMM      "MM
-    ooM                "Mo      "Mo   oMM"       MMo    oMM      "MM
-   MMM"MMo             MM"      "MM   oMM        MMo    oMM     "MMo
-  oMM  "MM   oo        """      """   oMM                       oMMoMMoMMoMo
-  oMMMoMMMM "Mo  oM                             o                """""""""
-  "MM"""""  "MMoMM"   MoMoo           o         M   MMM
-  MMMoo     "MMM"   oMMM"MMo   ooMo  "M" ooM  MMMM  MMo     o
-   ""M""    "MMM   oMMMMMM"  MMM" "  MMM MMM"  MM   MMoo   "M
-             MMM   oMM  "    MMM      "MMMMM"  MM  "MMMMMM  ooo   oooo   ooM o
-             "      "MMMoo   MMM         "MMo  MM   MMMoMMo "Mo "MM"MMM oMM MMo
-                       ""    "M           MMo  MM  "MM" MMo "MM oMM oMM "Mo MMM
-                                   oMooMMMM"   "    """  M  "MMo Mo "MM "MMMMMo
-      ooo oo    Mo                """"""""                    "          " ""Mo
-   oMMMM"MMMo o"MM                                                          MM"
-          MM   "MM                                        oMMMMMMMMoMoo    oMMM
-         MMMo  "MMMMMMMMo    ooo                "Mo         " " " """"MMMMMM""
-     MMMMMMMo   "Mo"o"oMMo oMM"MMoo  MMo        MMo
-   MMM"  "MM    MMMMMMM""  MM"  MMM "MM   oMo oMMMMoMMoM
-   ""MMMMMMM               MMooo"MM "MM  MMM   "MM""""""
-     " " "                  "M"M"M  "MMMMMM     MM"
-                                       "       "MM o o
-                                                MMMMMM"
-                                                  "
-
-                oooooooo       ooooooooooo oooooo   oooooo       oooooo
-                oMMMMMMM      MMMMMMMMMMM" MMMMMMo  oMMMMM       MMMMM"
-                oMMMMMM      MMMM " " "MM  "MMMMMM   MMMM         "MMM
-               oMMMMMMMo     MMMoo o o     MMMMMMMM  MMM          MMMM
-              MMMM  MMMM     MMMMMMMMMMo   MMM"MMMM MMMM          MMM"
-            oMMMMMoMMMMMM     """""""MMM   MMM  MMMMMMM"          MMM
-           MMMMMMMMMMMMMMo   o      MMMM  MMMM  MMMMMMM          MMMM
-         oMMMMM      oMMMMooMMMMooMoMMM  oMMMM   MMMMMMo   oMoo oMMMM
-        "MMMMM"     oMMMMMMMMMMMMMMMMM" "MMMMM   "MMMMM"   MMM oMMMMM
-
-
-****************************************************************************/
 

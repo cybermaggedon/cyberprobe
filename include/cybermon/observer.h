@@ -25,7 +25,10 @@ namespace cybermon {
 					   pdu_iter s, pdu_iter e) = 0;
 
 	virtual void icmp(const context_ptr cp,
-			  pdu_iter s, pdu_iter e) = 0;
+                        unsigned int type,
+                        unsigned int code,
+                        pdu_iter s,
+                        pdu_iter e) = 0;
 
 	typedef
 	    std::map<std::string, std::pair<std::string,std::string> > 

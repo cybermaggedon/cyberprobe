@@ -210,9 +210,11 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
   local obs = initialise_observation(context)
   obs["action"] = "icmp"
+  obs["observation"]["type"] = icmp_type
+  obs["observation"]["code"] = icmp_code
   obs["payload"] = b64(data)
   submit_observation(obs)
 end
