@@ -14,9 +14,10 @@ namespace cybermon {
         icmp_context(manager& m) : context(m) {}
         icmp_context(manager& m, const flow_address& a, context_ptr p) : 
 	context(m) {
-	    addr = a; parent = p; 
+        addr = a;
+        parent = p; 
 	}
-	virtual std::string get_type() { return "udp"; }
+	virtual std::string get_type() { return "icmp"; }
  
 	typedef boost::shared_ptr<icmp_context> ptr;
 

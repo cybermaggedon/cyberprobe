@@ -61,7 +61,7 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
 
   indicators = {}
   stix.check_addresses(context, indicators)

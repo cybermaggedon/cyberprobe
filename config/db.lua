@@ -66,9 +66,11 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
   local obs = elastic.initialise_observation(context)
   obs["observation"]["action"] = "icmp"
+  obs["observation"]["type"] = icmp_type
+  obs["observation"]["code"] = icmp_code
   obs["observation"]["data"] = b64(data)
   elastic.submit_observation(obs)
 end
