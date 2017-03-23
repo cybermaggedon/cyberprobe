@@ -258,26 +258,26 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // Complete payload, just process it.
 
     if (protocol == 6)
-    {
-        // TCP
-        tcp::process(mgr, fc, s + header_length, s + length);
-    }
+
+	// TCP
+	tcp::process(mgr, fc, s + header_length, s + length);
+
     else if (protocol == 17)
-    {
-        // UDP
-        udp::process(mgr, fc, s + header_length, s + length);
-    }
+	
+	// UDP
+	udp::process(mgr, fc, s + header_length, s + length);
+
     else if (protocol == 1)
-    {
-        // ICMP
-        icmp::process(mgr, fc, s + header_length, s + length);
+	
+	// ICMP
+	icmp::process(mgr, fc, s + header_length, s + length);
+
+    else {
+	std::ostringstream buf;
+	buf << "IP protocol " << (int) protocol << " not handled.";
+	throw exception(buf.str());
     }
-    else
-    {
-        std::ostringstream buf;
-        buf << "IP protocol " << (int) protocol << " not handled.";
-        throw exception(buf.str());
-    }
+
 }
 
 void ip::process_ip6(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
