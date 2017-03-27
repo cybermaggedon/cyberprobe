@@ -57,15 +57,46 @@ void address::get(std::string& cls, std::string& address) const
 	return;
     }
 
+    if (proto == IMAP) {
+    cls = "imap"; address = "";
+    return;
+    }
+
+    if (proto == IMAP_SSL) {
+    cls = "imap_ssl"; address = "";
+    return;
+    }
+
+    if (proto == POP3) {
+    cls = "pop3"; address = "";
+    return;
+    }
+
+    if (proto == POP3_SSL) {
+    cls = "pop3_ssl"; address = "";
+    return;
+    }
+
+    if (proto == SMTP_AUTH) {
+    cls = "smtp_auth"; address = "";
+    return;
+    }
+
     if (proto == HTTP) {
 	cls = "http"; address = "";
 	return;
     }
 
-    if (proto == DNS) {
-	cls = "dns"; address = "";
+    if (proto == DNS_OVER_TCP) {
+	cls = "dns_over_tcp"; address = "";
 	return;
     }
+
+    if (proto == DNS_OVER_UDP) {
+    cls = "dns_over_udp"; address = "";
+    return;
+    }
+
 
     if (proto == SMTP) {
 	cls = "smtp"; address = "";
@@ -143,9 +174,14 @@ void address::describe(std::ostream& out) const
 	return;
     }
 
-    if (proto == DNS) {
-	out << "DNS";
+    if (proto == DNS_OVER_TCP) {
+	out << "DNS over TCP";
 	return;
+    }
+
+    if (proto == DNS_OVER_UDP) {
+    out << "DNS over UDP";
+    return;
     }
 
     if (proto == SMTP) {

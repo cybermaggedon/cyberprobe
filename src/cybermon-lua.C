@@ -210,6 +210,157 @@ void cybermon_lua::icmp(engine& an,
 
 }
 
+
+void cybermon_lua::imap(engine& an,
+                            const context_ptr f,
+                            pdu_iter s,
+                            pdu_iter e)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "imap");
+
+    // Put context on the stack
+    push(f);
+
+    // Put data on stack.
+    push(s, e);
+
+    try
+    {
+        call(2, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::imap_ssl(engine& an,
+                            const context_ptr f,
+                            pdu_iter s,
+                            pdu_iter e)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "imap_ssl");
+
+    // Put context on the stack
+    push(f);
+
+    // Put data on stack.
+    push(s, e);
+
+    try
+    {
+        call(2, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::pop3(engine& an,
+                            const context_ptr f,
+                            pdu_iter s,
+                            pdu_iter e)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "pop3");
+
+    // Put context on the stack
+    push(f);
+
+    // Put data on stack.
+    push(s, e);
+
+    try
+    {
+        call(2, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::pop3_ssl(engine& an,
+                            const context_ptr f,
+                            pdu_iter s,
+                            pdu_iter e)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "pop3_ssl");
+
+    // Put context on the stack
+    push(f);
+
+    // Put data on stack.
+    push(s, e);
+
+    try
+    {
+        call(2, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::smtp_auth(engine& an,
+                             const context_ptr f,
+                             pdu_iter s,
+                             pdu_iter e)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "smtp_auth");
+
+    // Put context on the stack
+    push(f);
+
+    // Put data on stack.
+    push(s, e);
+
+    try
+    {
+        call(2, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
 void cybermon_lua::http_request(engine& an, const context_ptr f,
 				const std::string& method,
 				const std::string& url,
@@ -554,17 +705,51 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
 
 }
 
-void cybermon_lua::dns_message(engine& an, const context_ptr f,
-			       const dns_header& hdr, 
-			       const std::list<dns_query> queries,
-			       const std::list<dns_rr> answers,
-			       const std::list<dns_rr> authorities,
-			       const std::list<dns_rr> additional)
+void cybermon_lua::dns_over_tcp_message(engine& an, const context_ptr f,
+                                           const dns_header& hdr,
+                                           const std::list<dns_query> queries,
+                                           const std::list<dns_rr> answers,
+                                           const std::list<dns_rr> authorities,
+                                           const std::list<dns_rr> additional)
+{
+    // Get config.dns_over_tcp_message
+    get_global("config");
+    get_field(-1, "dns_over_tcp_message");
+
+    // Put context on the stack
+    push(f);
+
+    push(hdr);
+    push(queries);
+    push(answers);
+    push(authorities);
+    push(additional);
+
+    try
+    {
+        call(6, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::dns_over_udp_message(engine& an, const context_ptr f,
+                                            const dns_header& hdr, 
+                                            const std::list<dns_query> queries,
+                                            const std::list<dns_rr> answers,
+                                            const std::list<dns_rr> authorities,
+                                            const std::list<dns_rr> additional)
 {
 
-    // Get config.dns_message
+    // Get config.dns_over_udp_message
     get_global("config");
-    get_field(-1, "dns_message");
+    get_field(-1, "dns_over_udp_message");
     
     // Put context on the stack
     push(f);
@@ -575,18 +760,18 @@ void cybermon_lua::dns_message(engine& an, const context_ptr f,
     push(authorities);
     push(additional);
 
-    // config.dns_message(context, hdr, queries, answers, authorities,
-    // additional)
-    try {
-	call(6, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
+    try
+    {
+	    call(6, 0);
+    }
+    catch (std::exception& e)
+    {
+	    pop();
+	    throw;
     }
     
     // Still got 'config' left on stack, it can go.
     pop();
-
 }
 
 void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,

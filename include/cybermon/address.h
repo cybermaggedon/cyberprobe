@@ -27,11 +27,17 @@ namespace cybermon {
 	TCP,			// TCP.
 	UDP,			// UDP.  'Address' is DNS id.
 	ICMP,			// ICMP.
-	HTTP,                   // HTTP.
-	DNS,
+	HTTP,           // HTTP.
+	DNS_OVER_TCP,
+    DNS_OVER_UDP,
 	SMTP,
 	FTP,
 	NTP,
+    IMAP,
+    IMAP_SSL,
+    POP3,
+    POP3_SSL,
+    SMTP_AUTH,
 
 	// Unknown stuff
 	UNRECOGNISED

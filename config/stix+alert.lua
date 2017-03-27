@@ -73,6 +73,58 @@ observer.icmp = function(context, data)
 
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("IMAP with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("IMAP SSL with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("POP3 with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("POP3 SSL with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
 
@@ -155,14 +207,14 @@ observer.smtp_data = function(context, from, to, data)
 
 end
 
--- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS over TCP message is observed.
+observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
 
   if header.qr == 0 and #queries == 1 then
     indicators = {}
     stix.check_dns(queries[1].name, indicators)
     for k, v in pairs(indicators) do
-      print(string.format("DNS query for %s, hits %s (%s)", queries[1].name,
+      print(string.format("DNS (over TCP) query for %s, hits %s (%s)", queries[1].name,
           v.id, v.description))
     end
   end
@@ -171,7 +223,30 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     indicators = {}
     stix.check_dns(queries[1].name, indicators)
     for k, v in pairs(indicators) do
-      print(string.format("DNS response for %s, hits %s (%s)", queries[1].name,
+      print(string.format("DNS (over TCP) response for %s, hits %s (%s)", queries[1].name,
+          v.id, v.description))
+    end
+  end
+
+end
+
+-- This function is called when a DNS over UDP message is observed.
+observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+
+  if header.qr == 0 and #queries == 1 then
+    indicators = {}
+    stix.check_dns(queries[1].name, indicators)
+    for k, v in pairs(indicators) do
+      print(string.format("DNS (over UDP) query for %s, hits %s (%s)", queries[1].name,
+          v.id, v.description))
+    end
+  end
+
+  if header.qr == 1 and #queries == 1 then
+    indicators = {}
+    stix.check_dns(queries[1].name, indicators)
+    for k, v in pairs(indicators) do
+      print(string.format("DNS (over UDP) response for %s, hits %s (%s)", queries[1].name,
           v.id, v.description))
     end
   end

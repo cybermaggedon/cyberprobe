@@ -10,20 +10,32 @@
 
 #include <cybermon/context.h>
 #include <cybermon/manager.h>
+#include <cybermon/udp_ports.h>
+
 
 namespace cybermon {
     
     // A UDP context.
     class udp_context : public context {
       public:
-	
-	// Construcotr.
-        udp_context(manager& m) : context(m) {}
+
+    // Once identified, the processing function.
+    bool svc_idented;
+    process_fn processor;
 
 	// Constructor, when specifying flow address and parent context.
-        udp_context(manager& m, const flow_address& a, context_ptr p) : 
-	context(m) { 
-	    addr = a; parent = p; 
+    udp_context(manager& m, const flow_address& a, context_ptr p)
+        : context(m)
+    { 
+	    addr = a;
+        parent = p; 
+
+        // Only need to initialise handlers once
+        if (!is_udp_handlers_init())
+        {
+            std::cout << "TEMP: UDP handlers init" << std::endl;
+            init_udp_handlers();
+        }
 	}
 
 	// Type is "udp".
@@ -32,7 +44,8 @@ namespace cybermon {
 	typedef boost::shared_ptr<udp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
-				  context_ptr par) {
+				  context_ptr par)
+    {
 	    context_ptr cp = context_ptr(new udp_context(m, f, par));
 	    return cp;
 	}

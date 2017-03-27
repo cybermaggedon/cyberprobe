@@ -519,6 +519,42 @@ observer.icmp = function(context, data)
   submit_edges(edges)
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+  local edges = {}
+  local id = create_basic(edges, context, "imap")
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  add_edge_s(edges, id, rdfs .. "label", "IMAP")
+  submit_edges(edges)
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+  local edges = {}
+  local id = create_basic(edges, context, "imap_ssl")
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  add_edge_s(edges, id, rdfs .. "label", "IMAP_SSL")
+  submit_edges(edges)
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+  local edges = {}
+  local id = create_basic(edges, context, "pop3")
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  add_edge_s(edges, id, rdfs .. "label", "POP3")
+  submit_edges(edges)
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+  local edges = {}
+  local id = create_basic(edges, context, "pop3_ssl")
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  add_edge_s(edges, id, rdfs .. "label", "POP3_SSL")
+  submit_edges(edges)
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
   local edges = {}
@@ -584,19 +620,57 @@ observer.http_response = function(context, code, status, header, url, body)
 end
 
 
--- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS over TCP message is observed.
+observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
   local edges = {}
-  local id = create_basic(edges, context, "dns_message")
+  local id = create_basic(edges, context, "dns_over_tcp_message")
 
-  local label = "DNS"
+  local label = "DNS (over TCP)"
+
+  if header.qr == 0 then
+    add_edge_s(edges, id, cybprop .. "dns_type", "query")
+    label = "DNS (over TCP) query"
+  else
+    add_edge_s(edges, id, cybprop .. "dns_type", "answer")
+    label = "DNS (over TCP) answer"
+  end
+
+  for key, value in pairs(queries) do
+    add_edge_s(edges, id, cybprop .. "query", value.name)
+    label = label .. " " .. value.name
+  end
+
+  for key, value in pairs(answers) do
+    add_edge_s(edges, id, cybprop .. "answer_name", value.name)
+    if value.rdaddress then
+       add_edge_s(edges, id, cybprop .. "answer_address",
+                  value.rdaddress)
+    end
+    if value.rdname then
+       add_edge_s(edges, id, cybprop .. "answer_name",
+                            value.rdname)
+    end
+  end
+
+  add_edge_s(edges, id, rdfs .. "label", label)
+
+  submit_edges(edges)
+end
+
+
+-- This function is called when a DNS over UDP message is observed.
+observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+  local edges = {}
+  local id = create_basic(edges, context, "dns_over_udp_message")
+
+  local label = "DNS (over UDP)"
   
   if header.qr == 0 then
     add_edge_s(edges, id, cybprop .. "dns_type", "query")
-    label = "DNS query"
+    label = "DNS (over UDP) query"
   else
     add_edge_s(edges, id, cybprop .. "dns_type", "answer")
-    label = "DNS answer"
+    label = "DNS (over UDP) answer"
   end
 
   for key, value in pairs(queries) do

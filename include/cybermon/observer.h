@@ -27,6 +27,26 @@ namespace cybermon {
 	virtual void icmp(const context_ptr cp,
 			  pdu_iter s, pdu_iter e) = 0;
 
+    virtual void imap(const context_ptr cp,
+                        pdu_iter s,
+                        pdu_iter e) = 0;
+
+    virtual void imap_ssl(const context_ptr cp,
+                            pdu_iter s,
+                            pdu_iter e) = 0;
+
+    virtual void pop3(const context_ptr cp,
+                        pdu_iter s,
+                        pdu_iter e) = 0;
+
+    virtual void pop3_ssl(const context_ptr cp,
+                            pdu_iter s,
+                            pdu_iter e) = 0;
+
+    virtual void smtp_auth(const context_ptr cp,
+                             pdu_iter s,
+                             pdu_iter e) = 0;
+
 	typedef
 	    std::map<std::string, std::pair<std::string,std::string> > 
 	    http_hdr_t;
@@ -75,13 +95,21 @@ namespace cybermon {
 				  int status,
 				  const std::list<std::string>& text) = 0;
 
-	// DNS
-	virtual void dns_message(const context_ptr cp,
-				 const dns_header hdr,
-				 const std::list<dns_query> queries,
-				 const std::list<dns_rr> answers,
-				 const std::list<dns_rr> authorities,
-				 const std::list<dns_rr> additional) = 0;
+    // DNS (over TCP)
+    virtual void dns_over_tcp_message(const context_ptr cp,
+                                        const dns_header hdr,
+                                        const std::list<dns_query> queries,
+                                        const std::list<dns_rr> answers,
+                                        const std::list<dns_rr> authorities,
+                                        const std::list<dns_rr> additional) = 0;
+
+	// DNS (over UDP)
+	virtual void dns_over_udp_message(const context_ptr cp,
+                                        const dns_header hdr,
+                                        const std::list<dns_query> queries,
+                                        const std::list<dns_rr> answers,
+                                        const std::list<dns_rr> authorities,
+                                        const std::list<dns_rr> additional) = 0;
 
 	// NTP
 	virtual void ntp_timestamp_message(const context_ptr cp,

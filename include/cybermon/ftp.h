@@ -168,6 +168,10 @@ namespace cybermon {
 
     public:
 
+    // FTP request processing function.
+    static void process(manager&, context_ptr c,
+                   pdu_iter s, pdu_iter e);
+
 	// FTP client request processing function.
 	static void process_client(manager&, context_ptr c, 
 				   pdu_iter s, pdu_iter e);
