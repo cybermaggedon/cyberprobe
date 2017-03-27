@@ -33,7 +33,6 @@ namespace cybermon {
         // Only need to initialise handlers once
         if (!is_udp_handlers_init())
         {
-            std::cout << "TEMP: UDP handlers init" << std::endl;
             init_udp_handlers();
         }
 	}

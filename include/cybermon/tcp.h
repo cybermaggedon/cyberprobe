@@ -75,8 +75,6 @@ namespace cybermon {
         // Only need to initialise handlers once
         if (!is_tcp_handlers_init())
         {
-            std::cout << "TEMP: TCP handlers init" << std::endl;
-
             init_tcp_handlers();
         }
 	}
