@@ -8,16 +8,11 @@
 #ifndef CYBERMON_DNS_OVER_UDP_H
 #define CYBERMON_DNS_OVER_UDP_H
 
-#include <stdint.h>
-
-#include <set>
 
 #include "context.h"
+#include "pdu.h"
 #include "manager.h"
-#include "serial.h"
-#include "protocol.h"
-#include "dns.h"
-#include "dns_protocol.h"
+
 
 namespace cybermon
 {

@@ -3,8 +3,11 @@
 
 #include <cybermon/manager.h>
 #include <cybermon/address.h>
+#include <cybermon/dns_context.h>
+#include <cybermon/manager.h>
 #include <cybermon/udp.h>
 #include <cybermon/ip.h>
+
 
 using namespace cybermon;
 

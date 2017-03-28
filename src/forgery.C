@@ -1,8 +1,8 @@
 
 #include <cybermon/forgery.h>
 #include <cybermon/context.h>
+#include <cybermon/dns_context.h>
 #include <cybermon/dns_protocol.h>
-#include <cybermon/dns.h>
 #include <cybermon/udp.h>
 #include <cybermon/tcp.h>
 #include <cybermon/ip.h>

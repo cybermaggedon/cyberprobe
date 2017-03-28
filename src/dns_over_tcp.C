@@ -1,9 +1,9 @@
 
 #include <cybermon/dns_over_tcp.h>
 
-#include <cybermon/manager.h>
 #include <cybermon/address.h>
-#include <cybermon/dns.h>
+#include <cybermon/dns_context.h>
+#include <cybermon/manager.h>
 #include <cybermon/udp.h>
 #include <cybermon/ip.h>
 

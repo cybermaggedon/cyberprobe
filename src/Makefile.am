@@ -70,7 +70,9 @@ libcybermon_la_SOURCES = \
 	../include/cybermon/http.h \
 	../include/cybermon/icmp.h \
 	../include/cybermon/imap.h \
+	../include/cybermon/imap_context.h
 	../include/cybermon/imap_ssl.h \
+	../include/cybermon/imap_ssl_context.h
 	../include/cybermon/ip.h \
 	../include/cybermon/manager.h \
 	../include/cybermon/monitor.h \
@@ -81,13 +83,16 @@ libcybermon_la_SOURCES = \
 	../include/cybermon/packet_capture.h \
 	../include/cybermon/pdu.h \
 	../include/cybermon/pop3.h \
+	../include/cybermon/pop3_context.h
 	../include/cybermon/pop3_ssl.h \
+	../include/cybermon/pop3_ssl_context.h
 	../include/cybermon/protocol.h \
 	../include/cybermon/reaper.h \
 	../include/cybermon/resource.h \
 	../include/cybermon/serial.h \
 	../include/cybermon/smtp.h \
 	../include/cybermon/smtp_auth.h \
+	../include/cybermon/smtp_auth_context.h \
 	../include/cybermon/socket.h \
 	../include/cybermon/specification.h \
 	../include/cybermon/tcp.h \

@@ -3,10 +3,7 @@
 
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
-#include <cybermon/manager.h>
-#include <cybermon/unrecognised.h>
-#include <cybermon/dns.h>
-#include <cybermon/ntp.h>
+#include <cybermon/pop3_context.h>
 
 
 using namespace cybermon;
