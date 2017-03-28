@@ -63,8 +63,8 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
-  local a = string.format("ICMP (size is %d)", #data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
+  local a = string.format("ICMP (type %d, class %d)", icmp_type, icmp_code)
   observer.describe(context, a)
   io.write("\n")
 end

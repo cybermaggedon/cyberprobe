@@ -436,8 +436,11 @@ namespace cybermon {
 	void unrecognised_datagram(engine& an, const context_ptr f, 
 				   pdu_iter s, pdu_iter e);
 
-	void icmp(engine& an, const context_ptr f, 
-		  pdu_iter s, pdu_iter e);
+	void icmp(engine& an, const context_ptr f,
+                unsigned int type,
+                unsigned int code,
+                pdu_iter s,
+                pdu_iter e);
 
     void imap(engine& an,
                 const context_ptr f,

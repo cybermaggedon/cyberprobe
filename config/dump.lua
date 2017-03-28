@@ -5,6 +5,12 @@
 -- observered events.  This can serve as a template.
 --
 
+
+-- Other modules -----------------------------------------------------------
+
+local lfs = require("lfs")
+
+
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
@@ -56,20 +62,32 @@ end
 observer.get_fd = function(context, action)
 
   local id = context:get_context_id(context)
-  local fd
-  local path = "data/dump." .. id
+  local path = "data"
+  local file = "dump." .. id
+  local full_path = path .. "/" .. file
+  local fd 
+
+  -- It would be preferrable to find an alternative way to do this but
+  -- if we don't ensure the directory exists then any write that follows
+  -- will trigger a "attempt to call a nil value (method 'write')" error
+  local tempFd, strError = io.open(path,"r")
+  if tempFd ~= nil then
+		io.close(tempFd)
+  else
+      lfs.mkdir(path)
+  end
 
   if seen[id] then
-    fd = io.open(path, "a")
-    io.write("Appending to " .. path .. "\n")
+    fd = io.open(full_path, "a")
+    io.write("Appending to " .. full_path .. "\n")
   else
-    fd = io.open(path, "w")
+    fd = io.open(full_path, "w")
     local liid = context:get_liid()
     local s = observer.describe_address(context, true)
     local d = observer.describe_address(context, false)
     fd:write(string.format("%s: %s -> %s. %s\n", liid, s, d, action))
     seen[id] = true
-    io.write(string.format("Created file %s\n", path))
+    io.write(string.format("Created file %s\n", full_path))
   end
 
   return fd
@@ -108,8 +126,8 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
-  local a = string.format("ICMP (size is %d)", #data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
+  local a = string.format("ICMP (type %d, code %d)", icmp_type, icmp_code)
   local fd = observer.get_fd(context, a)
   fd:write(data)
   fd:close()
@@ -157,7 +175,6 @@ end
 
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
-
   local a = string.format("HTTP %s request", method)
   local fd = observer.get_fd(context, a)
 
@@ -175,7 +192,6 @@ end
 
 -- This function is called when an HTTP response is observed.
 observer.http_response = function(context, code, status, header, url, body)
-
   local a = string.format("HTTP response %s %s", code, status)
   local fd = observer.get_fd(context, a)
 
@@ -197,8 +213,8 @@ observer.smtp_command = function(context, command)
   local a = string.format("SMTP command %s", command)
   local fd = observer.get_fd(context, a)
 
-  fd:write(string.format("Command: %s\n", command))
-  fd:close()
+  io.write(string.format("Command: %s\n", command))
+  io.close()
 
 end
 
@@ -226,7 +242,8 @@ observer.smtp_data = function(context, from, to, data)
     fd:write(string.format("To: %s\n", value))
   end
   fd:write(data)
-  io.write("\n")
+  fd:write("\n")
+  fd:close()
 end
 
 -- This function is called when a DNS over TCP message is observed.
@@ -313,6 +330,7 @@ observer.ftp_response = function(context, status, text)
   for k, v in pairs(text) do
     fd:write(string.format("Response: %s\n", v))
   end
+  fd:close()
 end
 
 -- This function is called when an NTP timestamp message is observed.

@@ -511,9 +511,11 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
   local edges = {}
   local id = create_basic(edges, context, "icmp")
+  add_edge_s(edges, id, cybprop .. "type", icmp_type)
+  add_edge_s(edges, id, cybprop .. "code", icmp_code)
   add_edge_s(edges, id, cybprop .. "body", b64(data))
   add_edge_s(edges, id, rdfs .. "label", "ICMP")
   submit_edges(edges)

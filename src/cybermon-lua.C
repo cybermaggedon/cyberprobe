@@ -182,7 +182,9 @@ void cybermon_lua::unrecognised_datagram(engine& an,
 
 
 void cybermon_lua::icmp(engine& an, 
-			const context_ptr f, 
+			const context_ptr f,
+            unsigned int type,
+            unsigned int code,
 			pdu_iter s, 
 			pdu_iter e)
 {
@@ -194,12 +196,15 @@ void cybermon_lua::icmp(engine& an,
     // Put context on the stack
     push(f);
 
+    push(type);
+    push(code);
+
     // Put data on stack.
     push(s, e);
     
     // config.icmp(context, data)
     try {
-	call(2, 0);
+	call(4, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;

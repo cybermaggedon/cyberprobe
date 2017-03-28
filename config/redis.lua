@@ -1,8 +1,10 @@
 --
 -- Cybermon configuration file, used to tailor the behaviour of cybermon.
--- This one integrates cybermon with zeromq pub/sub, so that network events are
--- presented as pub/sub events.
+-- This one integrates cybermon with redis, so that network events are RPUSH'd
+-- on a list to use as a queue.
 --
+-- FIXME: Loads of boiler-plate code taken from zeromq.lua
+-- 
 
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
@@ -12,33 +14,36 @@ local observer = {}
 
 local mime = require("mime")
 local json = require("json")
-local lzmq = require("lzmq")
+local redis = require("redis")
 local os = require("os")
 
 -- Initialise UUID ---------------------------------------------------------
 
 -- Needed to help initialise UUID.
-local socket = require("socket")
 local uuid = require("uuid")
+local string = require("string")
 
 uuid.seed()
 
 -- Config ------------------------------------------------------------------
 
---
--- To offer a local publication port: either just do nothing, and accept
--- the default 5555 port, or set ZMQ_BINDING to something like tcp://*:12345
--- to specify the port number.  To push to a remote port, 
-local binding
-local connection
-if os.getenv("ZMQ_BINDING") then
-  binding = os.getenv("ZMQ_BINDING")
-else
-  if os.getenv("ZMQ_CONNECT") then
-    connection = os.getenv("ZMQ_CONNECT")
-  else
-    binding = "tcp://*:5555"
+local redist_host = "redis"
+local redis_port = 6379
+
+if os.getenv("REDIS_SERVER") then
+  local redis_server = os.getenv("REDIS_SERVER")
+  local a, b = string.find(redis_server, ":")
+  if a > 0 then
+    redis_host = string.sub(redis_server, 1, a-1)
+    redis_port = tonumber(string.sub(redis_server, b + 1, -1))
   end
+
+  if os.getenv("QUEUE") then
+    queue = os.getenv("QUEUE")
+  else
+    queue = 'input'
+  end
+  
 end
 
 -- GeoIP -------------------------------------------------------------------
@@ -72,25 +77,7 @@ local skt
 -- Initialise.
 local init = function()
 
-  context = lzmq.context()
-
-  if binding then
-    skt = context:socket(lzmq.PUB)
-    ret = skt:bind(binding)
-
-    if ret == false then
-      print("ZeroMQ bind failed")
-      os.exit(1)
-    end
-  else
-     skt = context:socket(lzmq.PUSH)
-     ret = skt:connect(connection)
-
-     if ret == false then
-       print("ZeroMQ connect failed")
-       os.exit(1)
-    end
- end
+  client = redis.connect(redis_host, redis_port)
 
 end
 
@@ -164,7 +151,7 @@ local initialise_observation = function(context, indicators)
 end
 
 local submit_observation = function(obs)
-  ret = skt:send(json.encode(obs))
+  ret = client:rpush(queue, json.encode(obs))
 end
 
 -- This function is called when a trigger events starts collection of an
@@ -219,38 +206,6 @@ observer.icmp = function(context, icmp_type, icmp_code, data)
   submit_observation(obs)
 end
 
--- This function is called when an IMAP message is observed.
-observer.imap = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "imap"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when an IMAP SSL message is observed.
-observer.imap_ssl = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "imap_ssl"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when a POP3 message is observed.
-observer.pop3 = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "pop3"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when a POP3 SSL message is observed.
-observer.pop3_ssl = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "pop3_ssl"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
   local obs = initialise_observation(context)
@@ -275,56 +230,12 @@ observer.http_response = function(context, code, status, header, url, body)
 end
 
 
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-  local obs = initialise_observation(context)
-
-  obs["action"] = "dns_over_tcp_message"
-
-  if header.qr == 0 then
-    obs["type"] = "query"
-  else
-    obs["type"] = "response"
-  end
-
-  local q = {}
-  json.util.InitArray(q)
-  for key, value in pairs(queries) do
-    local a = {}
-    a["name"] = value.name
-    a["type"] = value.type
-    a["class"] = value.class
-    q[#q + 1] = a
-  end
-  obs["queries"] = q
-
-  q = {}
-  json.util.InitArray(q)
-  for key, value in pairs(answers) do
-    local a = {}
-    a["name"] = value.name
-    a["type"] = value.type
-    a["class"] = value.class
-    if value.rdaddress then
-       a["address"] = value.rdaddress
-    end
-    if value.rdname then
-       a["name"] = value.rdname
-    end
-    q[#q + 1] = a
-  end
-  obs["answers"] = q
-
-  submit_observation(obs)
-
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   local obs = initialise_observation(context)
 
-  obs["action"] = "dns_over_udp_message"
+  obs["action"] = "dns_message"
 
   if header.qr == 0 then
     obs["type"] = "query"

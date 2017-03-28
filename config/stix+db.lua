@@ -105,7 +105,7 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
 
   indicators = {}
   stix.check_addresses(context, indicators)
@@ -117,6 +117,8 @@ observer.icmp = function(context, data)
 
   local obs = elastic.initialise_observation(context, indicators)
   obs["observation"]["action"] = "icmp"
+  obs["observation"]["type"] = icmp_type
+  obs["observation"]["code"] = icmp_code
   obs["observation"]["data"] = b64(data)
   elastic.submit_observation(obs)
 

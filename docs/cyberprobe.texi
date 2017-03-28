@@ -241,6 +241,9 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.91
+Redis integration using @code{redis.lua} configuration file.
+
 @item 0.90
 NTP handling, DNS output format changed, robustness fixes in TCP handling.
 
@@ -3046,6 +3049,17 @@ output.
 For each Lua event, a JSON record is formatted and published to a ZeroMQ
 queue on port 5555.  See @ref{Cybermon ZeroMQ message format}.
 
+@item redis.lua
+
+@cindex Redis
+@cindex Cybermon ZeroMQ message format
+@cindex queue delivery using Redis
+
+For each Lua event, a JSON record is formatted and RPUSH'd to a Redis server
+defiend by the @code{REDIS_SERVER} environment variable which should be in
+@code{HOST:PORT} form.
+Each message is JSON format, see @ref{Cybermon ZeroMQ message format}.
+
 @item quiet.lua
 
 Does nothing.  This is an empty code shell, and a good template to write
@@ -3121,8 +3135,8 @@ in @code{cybermon} events.
 @cindex publish/subscribe
 @cindex pub/sub
 
-Cybermon's @samp{zeromq.lua} configuration file transmits messages to a
-ZeroMQ message queue in JSON format.  Each message is a JSON object
+Cybermon's @samp{zeromq.lua} and @samp{redis.lua} configuration files
+transmit messages in JSON format.  Each message is a JSON object
 with the following fields:
 
 @table @samp

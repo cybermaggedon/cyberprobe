@@ -73,10 +73,14 @@ public:
     }
 
     virtual void icmp(const cybermon::context_ptr cp,
-		      cybermon::pdu_iter s, cybermon::pdu_iter e) {
+                        unsigned int type,
+                        unsigned int code,
+                        cybermon::pdu_iter s,
+                        cybermon::pdu_iter e) {
 	try {
-	    cml.icmp(*this, cp, s, e);
-	} catch (std::exception& e) {
+	    cml.icmp(*this, cp, type, code, s, e);
+	}
+    catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
 	}
     }
