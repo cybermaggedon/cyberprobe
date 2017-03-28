@@ -60,24 +60,24 @@ namespace cybermon {
 	std::set<tcp_segment> segments;
 	
 
-	// Constructor, describing flow address and parent pointer.
+    // Constructor, describing flow address and parent pointer.
     tcp_context(manager& m, const flow_address& a, context_ptr p)
         : context(m)
     { 
-	    addr = a;
+        addr = a;
         parent = p; 
-	    syn_observed = false;
-	    connected = false;
-	    svc_idented = false;
-	    processor = 0;
-	    fin_observed = false;
+        syn_observed = false;
+        connected = false;
+        svc_idented = false;
+        processor = 0;
+        fin_observed = false;
 
         // Only need to initialise handlers once
         if (!is_tcp_handlers_init())
         {
             init_tcp_handlers();
         }
-	}
+    }
 
 	// Type is "tcp".
 	virtual std::string get_type() { return "tcp"; }
@@ -90,7 +90,7 @@ namespace cybermon {
 	    tcp_context* tc = new tcp_context(m, f, par);
 
 	    return context_ptr(tc);
-	}
+    }
 
 	// Given a flow address, returns the child context.
 	static ptr get_or_create(context_ptr base, const flow_address& f)
@@ -100,7 +100,7 @@ namespace cybermon {
 
 	    ptr sp = boost::dynamic_pointer_cast<tcp_context>(cp);
 	    return sp;
-	}
+    }
 
     };
 

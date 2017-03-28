@@ -88,8 +88,8 @@ void address::get(std::string& cls, std::string& address) const
     }
 
     if (proto == DNS_OVER_TCP) {
-	cls = "dns_over_tcp"; address = "";
-	return;
+    cls = "dns_over_tcp"; address = "";
+    return;
     }
 
     if (proto == DNS_OVER_UDP) {

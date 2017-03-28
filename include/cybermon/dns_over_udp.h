@@ -9,9 +9,9 @@
 #define CYBERMON_DNS_OVER_UDP_H
 
 
-#include "context.h"
-#include "pdu.h"
-#include "manager.h"
+#include "cybermon/context.h"
+#include "cybermon/manager.h"
+#include "cybermon/pdu.h"
 
 
 namespace cybermon

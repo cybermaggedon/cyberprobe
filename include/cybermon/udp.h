@@ -23,11 +23,11 @@ namespace cybermon {
     bool svc_idented;
     process_fn processor;
 
-	// Constructor, when specifying flow address and parent context.
+    // Constructor, when specifying flow address and parent context.
     udp_context(manager& m, const flow_address& a, context_ptr p)
         : context(m)
     { 
-	    addr = a;
+        addr = a;
         parent = p; 
 
         // Only need to initialise handlers once
@@ -35,7 +35,7 @@ namespace cybermon {
         {
             init_udp_handlers();
         }
-	}
+    }
 
 	// Type is "udp".
 	virtual std::string get_type() { return "udp"; }

@@ -164,22 +164,20 @@ namespace cybermon {
 
     };
 
-    class ftp {
+    class ftp
+    {
+        public:
 
-    public:
+        // FTP request processing function.
+        static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
 
-    // FTP request processing function.
-    static void process(manager&, context_ptr c,
-                   pdu_iter s, pdu_iter e);
+        private:
 
-	// FTP client request processing function.
-	static void process_client(manager&, context_ptr c, 
-				   pdu_iter s, pdu_iter e);
+        // FTP client request processing function.
+        static void process_client(manager&, context_ptr c, pdu_iter s, pdu_iter e);
 
-	// FTP server response processing function.
-	static void process_server(manager&, context_ptr c, pdu_iter s, 
-				   pdu_iter e);
-
+        // FTP server response processing function.
+        static void process_server(manager&, context_ptr c, pdu_iter s, pdu_iter e);
     };
 
 };
