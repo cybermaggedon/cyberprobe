@@ -1,14 +1,14 @@
-PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS query
+PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS (over UDP) query
     Query: name=ftp.swfwmd.state.fl.us, type=1, class=1
 
-PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS query
+PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS (over UDP) query
     Query: name=ftp.swfwmd.state.fl.us, type=28, class=1
 
-PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS response
+PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS (over UDP) response
     Query: name=ftp.swfwmd.state.fl.us, type=1, class=1
     Answer: name=ftp.swfwmd.state.fl.us, type=1, class=1 -> 204.76.241.31
 
-PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS response
+PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS (over UDP) response
     Query: name=ftp.swfwmd.state.fl.us, type=28, class=1
 
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 220

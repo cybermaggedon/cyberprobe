@@ -1,7 +1,7 @@
-PCAP: 192.168.122.11:40973 -> 192.168.122.1:53. DNS query
+PCAP: 192.168.122.11:40973 -> 192.168.122.1:53. DNS (over UDP) query
     Query: name=example.org, type=1, class=1
 
-PCAP: 192.168.122.1:53 -> 192.168.122.11:40973. DNS response
+PCAP: 192.168.122.1:53 -> 192.168.122.11:40973. DNS (over UDP) response
     Query: name=example.org, type=1, class=1
     Answer: name=example.org, type=1, class=1 -> 93.184.216.119
 

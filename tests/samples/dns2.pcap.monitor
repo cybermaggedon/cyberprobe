@@ -1,20 +1,20 @@
-PCAP: 192.168.1.80:44692 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:44692 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=fbcdn-photos-b-a.akamaihd.net, type=1, class=1
 
-PCAP: 192.168.1.80:44692 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:44692 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=fbcdn-photos-b-a.akamaihd.net, type=28, class=1
 
-PCAP: 192.168.1.80:48252 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:48252 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=fbcdn-photos-b-a.akamaihd.net, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:44692. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:44692. DNS (over UDP) response
     Query: name=fbcdn-photos-b-a.akamaihd.net, type=1, class=1
     Answer: name=fbcdn-photos-b-a.akamaihd.net, type=5, class=1 -> fbcdn-photos-b-a.akamaihd.net.edgesuite.net
     Answer: name=fbcdn-photos-b-a.akamaihd.net.edgesuite.net, type=5, class=1 -> a1791.dspmm1.akamai.net
     Answer: name=a1791.dspmm1.akamai.net, type=1, class=1 -> 92.122.123.25
     Answer: name=a1791.dspmm1.akamai.net, type=1, class=1 -> 92.122.123.73
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:44692. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:44692. DNS (over UDP) response
     Query: name=fbcdn-photos-b-a.akamaihd.net, type=28, class=1
     Answer: name=fbcdn-photos-b-a.akamaihd.net, type=5, class=1 -> fbcdn-photos-b-a.akamaihd.net.edgesuite.net
     Answer: name=fbcdn-photos-b-a.akamaihd.net.edgesuite.net, type=5, class=1 -> a1791.dspmm1.akamai.net
@@ -22,133 +22,133 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:44692. DNS response
     Answer: name=a1791.dspmm1.akamai.net, type=28, class=1 -> 2a02:26f0:26::5c7a:d09a
     Answer: name=a1791.dspmm1.akamai.net, type=28, class=1 -> 2a02:26f0:26::5c7a:d0aa
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:48252. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:48252. DNS (over UDP) response
     Query: name=fbcdn-photos-b-a.akamaihd.net, type=1, class=1
     Answer: name=fbcdn-photos-b-a.akamaihd.net, type=5, class=1 -> fbcdn-photos-b-a.akamaihd.net.edgesuite.net
     Answer: name=fbcdn-photos-b-a.akamaihd.net.edgesuite.net, type=5, class=1 -> a1791.dspmm1.akamai.net
     Answer: name=a1791.dspmm1.akamai.net, type=1, class=1 -> 92.122.123.73
     Answer: name=a1791.dspmm1.akamai.net, type=1, class=1 -> 92.122.123.25
 
-PCAP: 192.168.1.80:51546 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51546 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=pixel.facebook.com, type=1, class=1
 
-PCAP: 192.168.1.80:51546 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51546 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=pixel.facebook.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51546. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51546. DNS (over UDP) response
     Query: name=pixel.facebook.com, type=1, class=1
     Answer: name=pixel.facebook.com, type=5, class=1 -> star.facebook.com
     Answer: name=star.facebook.com, type=5, class=1 -> star.c10r.facebook.com
     Answer: name=star.c10r.facebook.com, type=1, class=1 -> 31.13.72.65
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51546. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51546. DNS (over UDP) response
     Query: name=pixel.facebook.com, type=28, class=1
     Answer: name=pixel.facebook.com, type=5, class=1 -> star.facebook.com
     Answer: name=star.facebook.com, type=5, class=1 -> star.c10r.facebook.com
     Answer: name=star.c10r.facebook.com, type=28, class=1 -> 2a03:2880:f00a:401:face:b00c:0:1
 
-PCAP: 192.168.1.80:47342 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:47342 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=2-pct.channel.facebook.com, type=1, class=1
 
-PCAP: 192.168.1.80:47342 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:47342 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=2-pct.channel.facebook.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:47342. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47342. DNS (over UDP) response
     Query: name=2-pct.channel.facebook.com, type=1, class=1
     Answer: name=2-pct.channel.facebook.com, type=1, class=1 -> 69.171.235.16
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:47342. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47342. DNS (over UDP) response
     Query: name=2-pct.channel.facebook.com, type=28, class=1
 
-PCAP: 192.168.1.80:37720 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37720 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=news.bbc.co.uk, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37720. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37720. DNS (over UDP) response
     Query: name=news.bbc.co.uk, type=1, class=1
     Answer: name=news.bbc.co.uk, type=5, class=1 -> newswww.bbc.net.uk
     Answer: name=newswww.bbc.net.uk, type=1, class=1 -> 212.58.246.83
     Answer: name=newswww.bbc.net.uk, type=1, class=1 -> 212.58.246.82
 
-PCAP: 192.168.1.80:48048 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:48048 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=stats.bbc.co.uk, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:48048. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:48048. DNS (over UDP) response
     Query: name=stats.bbc.co.uk, type=1, class=1
     Answer: name=stats.bbc.co.uk, type=5, class=1 -> stats.bbc.net.uk
     Answer: name=stats.bbc.net.uk, type=1, class=1 -> 212.58.244.130
     Answer: name=stats.bbc.net.uk, type=1, class=1 -> 212.58.244.131
 
-PCAP: 192.168.1.80:50478 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:50478 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=open.live.bbc.co.uk, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:50478. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:50478. DNS (over UDP) response
     Query: name=open.live.bbc.co.uk, type=1, class=1
     Answer: name=open.live.bbc.co.uk, type=5, class=1 -> open-live.bbc.net.uk
     Answer: name=open-live.bbc.net.uk, type=1, class=1 -> 212.58.246.110
     Answer: name=open-live.bbc.net.uk, type=1, class=1 -> 212.58.246.109
 
-PCAP: 192.168.1.80:42816 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42816 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=giffgaff.com, type=1, class=1
 
-PCAP: 192.168.1.80:42816 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42816 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=giffgaff.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42816. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42816. DNS (over UDP) response
     Query: name=giffgaff.com, type=1, class=1
     Answer: name=giffgaff.com, type=1, class=1 -> 95.138.157.240
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42816. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42816. DNS (over UDP) response
     Query: name=giffgaff.com, type=28, class=1
 
-PCAP: 192.168.1.80:44459 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:44459 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=giffgaff.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:44459. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:44459. DNS (over UDP) response
     Query: name=giffgaff.com, type=1, class=1
     Answer: name=giffgaff.com, type=1, class=1 -> 95.138.157.240
 
-PCAP: 192.168.1.80:49503 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49503 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ssl.google-analytics.com, type=1, class=1
 
-PCAP: 192.168.1.80:49503 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49503 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ssl.google-analytics.com, type=28, class=1
 
-PCAP: 192.168.1.80:59695 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:59695 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=fls.doubleclick.net, type=1, class=1
 
-PCAP: 192.168.1.80:59695 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:59695 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=fls.doubleclick.net, type=28, class=1
 
-PCAP: 192.168.1.80:34976 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:34976 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=apis.google.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49503. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49503. DNS (over UDP) response
     Query: name=ssl.google-analytics.com, type=1, class=1
     Answer: name=ssl.google-analytics.com, type=5, class=1 -> ssl-google-analytics.l.google.com
     Answer: name=ssl-google-analytics.l.google.com, type=1, class=1 -> 173.194.34.158
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49503. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49503. DNS (over UDP) response
     Query: name=ssl.google-analytics.com, type=28, class=1
     Answer: name=ssl.google-analytics.com, type=5, class=1 -> ssl-google-analytics.l.google.com
     Answer: name=ssl-google-analytics.l.google.com, type=28, class=1 -> 2a00:1450:4009:808::101e
 
-PCAP: 192.168.1.80:60091 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60091 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ssl.gstatic.com, type=1, class=1
 
-PCAP: 192.168.1.80:50946 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:50946 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=accounts.google.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:59695. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59695. DNS (over UDP) response
     Query: name=fls.doubleclick.net, type=1, class=1
     Answer: name=fls.doubleclick.net, type=5, class=1 -> dart.l.doubleclick.net
     Answer: name=dart.l.doubleclick.net, type=1, class=1 -> 173.194.34.188
     Answer: name=dart.l.doubleclick.net, type=1, class=1 -> 173.194.34.187
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:59695. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59695. DNS (over UDP) response
     Query: name=fls.doubleclick.net, type=28, class=1
     Answer: name=fls.doubleclick.net, type=5, class=1 -> dart.l.doubleclick.net
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:34976. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:34976. DNS (over UDP) response
     Query: name=apis.google.com, type=1, class=1
     Answer: name=apis.google.com, type=5, class=1 -> plus.l.google.com
     Answer: name=plus.l.google.com, type=1, class=1 -> 173.194.34.161
@@ -163,74 +163,74 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:34976. DNS response
     Answer: name=plus.l.google.com, type=1, class=1 -> 173.194.34.169
     Answer: name=plus.l.google.com, type=1, class=1 -> 173.194.34.166
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:50946. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:50946. DNS (over UDP) response
     Query: name=accounts.google.com, type=1, class=1
     Answer: name=accounts.google.com, type=5, class=1 -> accounts.l.google.com
     Answer: name=accounts.l.google.com, type=1, class=1 -> 173.194.67.84
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60091. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60091. DNS (over UDP) response
     Query: name=ssl.gstatic.com, type=1, class=1
     Answer: name=ssl.gstatic.com, type=1, class=1 -> 173.194.34.175
 
-PCAP: 192.168.1.80:45190 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45190 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=2888261.fls.doubleclick.net, type=1, class=1
 
-PCAP: 192.168.1.80:45190 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45190 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=2888261.fls.doubleclick.net, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45190. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45190. DNS (over UDP) response
     Query: name=2888261.fls.doubleclick.net, type=1, class=1
     Answer: name=2888261.fls.doubleclick.net, type=5, class=1 -> dart.l.doubleclick.net
     Answer: name=dart.l.doubleclick.net, type=1, class=1 -> 173.194.34.187
     Answer: name=dart.l.doubleclick.net, type=1, class=1 -> 173.194.34.188
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45190. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45190. DNS (over UDP) response
     Query: name=2888261.fls.doubleclick.net, type=28, class=1
     Answer: name=2888261.fls.doubleclick.net, type=5, class=1 -> dart.l.doubleclick.net
 
-PCAP: 192.168.1.80:38980 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:38980 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=segment-pixel.invitemedia.com, type=1, class=1
 
-PCAP: 192.168.1.80:38980 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:38980 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=segment-pixel.invitemedia.com, type=28, class=1
 
-PCAP: 192.168.1.80:34250 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:34250 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=uk.view.adjug.com, type=1, class=1
 
-PCAP: 192.168.1.80:34250 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:34250 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=uk.view.adjug.com, type=28, class=1
 
-PCAP: 192.168.1.80:49798 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49798 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=secureads.audience2media.com, type=1, class=1
 
-PCAP: 192.168.1.80:49798 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49798 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=secureads.audience2media.com, type=28, class=1
 
-PCAP: 192.168.1.80:59308 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:59308 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=p.rfihub.com, type=1, class=1
 
-PCAP: 192.168.1.80:59308 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:59308 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=p.rfihub.com, type=28, class=1
 
-PCAP: 192.168.1.80:60879 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60879 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=at.amgdgt.com, type=1, class=1
 
-PCAP: 192.168.1.80:60879 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60879 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=at.amgdgt.com, type=28, class=1
 
-PCAP: 192.168.1.80:51710 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51710 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=us.ebayobjects.com, type=1, class=1
 
-PCAP: 192.168.1.80:51710 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51710 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=us.ebayobjects.com, type=28, class=1
 
-PCAP: 192.168.1.80:51582 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51582 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ak1s.abmr.net, type=1, class=1
 
-PCAP: 192.168.1.80:51582 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51582 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ak1s.abmr.net, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:38980. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:38980. DNS (over UDP) response
     Query: name=segment-pixel.invitemedia.com, type=1, class=1
     Answer: name=segment-pixel.invitemedia.com, type=5, class=1 -> pixel.prod2.invitemedia.com
     Answer: name=pixel.prod2.invitemedia.com, type=1, class=1 -> 108.170.206.91
@@ -247,73 +247,73 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:38980. DNS response
     Answer: name=pixel.prod2.invitemedia.com, type=1, class=1 -> 108.170.204.98
     Answer: name=pixel.prod2.invitemedia.com, type=1, class=1 -> 108.170.194.71
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:38980. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:38980. DNS (over UDP) response
     Query: name=segment-pixel.invitemedia.com, type=28, class=1
     Answer: name=segment-pixel.invitemedia.com, type=5, class=1 -> pixel.prod2.invitemedia.com
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:34250. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:34250. DNS (over UDP) response
     Query: name=uk.view.adjug.com, type=1, class=1
     Answer: name=uk.view.adjug.com, type=1, class=1 -> 85.90.254.45
 
-PCAP: 192.168.1.80:39719 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:39719 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.google.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:34250. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:34250. DNS (over UDP) response
     Query: name=uk.view.adjug.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49798. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49798. DNS (over UDP) response
     Query: name=secureads.audience2media.com, type=1, class=1
     Answer: name=secureads.audience2media.com, type=1, class=1 -> 64.237.103.146
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:59308. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59308. DNS (over UDP) response
     Query: name=p.rfihub.com, type=1, class=1
     Answer: name=p.rfihub.com, type=5, class=1 -> a.rfihub.com
     Answer: name=a.rfihub.com, type=5, class=1 -> tca-ad-lb3.rfihub.com
     Answer: name=tca-ad-lb3.rfihub.com, type=1, class=1 -> 193.0.160.244
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49798. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49798. DNS (over UDP) response
     Query: name=secureads.audience2media.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:59308. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:59308. DNS (over UDP) response
     Query: name=p.rfihub.com, type=28, class=1
     Answer: name=p.rfihub.com, type=5, class=1 -> a.rfihub.com
     Answer: name=a.rfihub.com, type=5, class=1 -> tca-ad-lb3.rfihub.com
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60879. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60879. DNS (over UDP) response
     Query: name=at.amgdgt.com, type=1, class=1
     Answer: name=at.amgdgt.com, type=1, class=1 -> 193.149.47.99
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60879. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60879. DNS (over UDP) response
     Query: name=at.amgdgt.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51710. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51710. DNS (over UDP) response
     Query: name=us.ebayobjects.com, type=1, class=1
     Answer: name=us.ebayobjects.com, type=1, class=1 -> 92.242.132.15
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51710. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51710. DNS (over UDP) response
     Query: name=us.ebayobjects.com, type=28, class=1
 
-PCAP: 192.168.1.80:33727 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:33727 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=secure.adnxs.com, type=1, class=1
 
-PCAP: 192.168.1.80:33727 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:33727 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=secure.adnxs.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51582. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51582. DNS (over UDP) response
     Query: name=ak1s.abmr.net, type=1, class=1
     Answer: name=ak1s.abmr.net, type=5, class=1 -> wildcard.abmr.net.edgekey.net
     Answer: name=wildcard.abmr.net.edgekey.net, type=5, class=1 -> e2181.b.akamaiedge.net
     Answer: name=e2181.b.akamaiedge.net, type=1, class=1 -> 2.19.233.8
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51582. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51582. DNS (over UDP) response
     Query: name=ak1s.abmr.net, type=28, class=1
     Answer: name=ak1s.abmr.net, type=5, class=1 -> wildcard.abmr.net.edgekey.net
     Answer: name=wildcard.abmr.net.edgekey.net, type=5, class=1 -> e2181.b.akamaiedge.net
 
-PCAP: 192.168.1.80:40258 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:40258 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=segment-pixel.invitemedia.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:39719. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:39719. DNS (over UDP) response
     Query: name=www.google.com, type=1, class=1
     Answer: name=www.google.com, type=1, class=1 -> 173.194.67.106
     Answer: name=www.google.com, type=1, class=1 -> 173.194.67.103
@@ -322,7 +322,7 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:39719. DNS response
     Answer: name=www.google.com, type=1, class=1 -> 173.194.67.104
     Answer: name=www.google.com, type=1, class=1 -> 173.194.67.99
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:33727. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33727. DNS (over UDP) response
     Query: name=secure.adnxs.com, type=1, class=1
     Answer: name=secure.adnxs.com, type=1, class=1 -> 68.67.179.129
     Answer: name=secure.adnxs.com, type=1, class=1 -> 68.67.179.239
@@ -333,13 +333,13 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:33727. DNS response
     Answer: name=secure.adnxs.com, type=1, class=1 -> 68.67.179.233
     Answer: name=secure.adnxs.com, type=1, class=1 -> 68.67.179.237
 
-PCAP: 192.168.1.80:33424 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:33424 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ads.adrdgt.com, type=1, class=1
 
-PCAP: 192.168.1.80:33424 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:33424 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ads.adrdgt.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:40258. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40258. DNS (over UDP) response
     Query: name=segment-pixel.invitemedia.com, type=1, class=1
     Answer: name=segment-pixel.invitemedia.com, type=5, class=1 -> pixel.prod2.invitemedia.com
     Answer: name=pixel.prod2.invitemedia.com, type=1, class=1 -> 108.170.206.153
@@ -356,10 +356,10 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:40258. DNS response
     Answer: name=pixel.prod2.invitemedia.com, type=1, class=1 -> 108.170.206.152
     Answer: name=pixel.prod2.invitemedia.com, type=1, class=1 -> 108.170.206.154
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:33727. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33727. DNS (over UDP) response
     Query: name=secure.adnxs.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:33424. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33424. DNS (over UDP) response
     Query: name=ads.adrdgt.com, type=1, class=1
     Answer: name=ads.adrdgt.com, type=5, class=1 -> ib.adnxs.com
     Answer: name=ib.adnxs.com, type=1, class=1 -> 68.67.185.174
@@ -371,21 +371,21 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:33424. DNS response
     Answer: name=ib.adnxs.com, type=1, class=1 -> 68.67.185.177
     Answer: name=ib.adnxs.com, type=1, class=1 -> 68.67.179.161
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:33424. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33424. DNS (over UDP) response
     Query: name=ads.adrdgt.com, type=28, class=1
     Answer: name=ads.adrdgt.com, type=5, class=1 -> ib.adnxs.com
 
-PCAP: 192.168.1.80:55547 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:55547 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=us.ebayobjects.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:55547. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:55547. DNS (over UDP) response
     Query: name=us.ebayobjects.com, type=1, class=1
     Answer: name=us.ebayobjects.com, type=1, class=1 -> 92.242.132.15
 
-PCAP: 192.168.1.80:60020 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60020 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ads.adrdgt.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60020. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60020. DNS (over UDP) response
     Query: name=ads.adrdgt.com, type=1, class=1
     Answer: name=ads.adrdgt.com, type=5, class=1 -> ib.adnxs.com
     Answer: name=ib.adnxs.com, type=1, class=1 -> 68.67.185.177
@@ -397,133 +397,133 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:60020. DNS response
     Answer: name=ib.adnxs.com, type=1, class=1 -> 68.67.185.173
     Answer: name=ib.adnxs.com, type=1, class=1 -> 68.67.185.147
 
-PCAP: 192.168.1.80:42583 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42583 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=pct.channel.facebook.com, type=1, class=1
 
-PCAP: 192.168.1.80:42583 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42583 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=pct.channel.facebook.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42583. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42583. DNS (over UDP) response
     Query: name=pct.channel.facebook.com, type=1, class=1
     Answer: name=pct.channel.facebook.com, type=1, class=1 -> 69.171.235.16
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42583. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42583. DNS (over UDP) response
     Query: name=pct.channel.facebook.com, type=28, class=1
 
-PCAP: 192.168.1.80:41759 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:41759 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=cm.g.doubleclick.net, type=1, class=1
 
-PCAP: 192.168.1.80:41759 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:41759 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=cm.g.doubleclick.net, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:41759. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41759. DNS (over UDP) response
     Query: name=cm.g.doubleclick.net, type=1, class=1
     Answer: name=cm.g.doubleclick.net, type=5, class=1 -> pagead.l.doubleclick.net
     Answer: name=pagead.l.doubleclick.net, type=1, class=1 -> 173.194.34.186
     Answer: name=pagead.l.doubleclick.net, type=1, class=1 -> 173.194.34.185
     Answer: name=pagead.l.doubleclick.net, type=1, class=1 -> 173.194.34.173
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:41759. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41759. DNS (over UDP) response
     Query: name=cm.g.doubleclick.net, type=28, class=1
     Answer: name=cm.g.doubleclick.net, type=5, class=1 -> pagead.l.doubleclick.net
 
-PCAP: 192.168.1.80:54943 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:54943 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=simage2.pubmatic.com, type=1, class=1
 
-PCAP: 192.168.1.80:54943 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:54943 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=simage2.pubmatic.com, type=28, class=1
 
-PCAP: 192.168.1.80:39395 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:39395 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=simage2.pubmatic.com, type=1, class=1
 
-PCAP: 192.168.1.80:42117 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42117 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=stags.bluekai.com, type=1, class=1
 
-PCAP: 192.168.1.80:42117 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42117 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=stags.bluekai.com, type=28, class=1
 
-PCAP: 192.168.1.80:33251 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:33251 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=load.exelator.com, type=1, class=1
 
-PCAP: 192.168.1.80:33251 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:33251 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=load.exelator.com, type=28, class=1
 
-PCAP: 192.168.1.80:60935 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60935 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=secure-us.imrworldwide.com, type=1, class=1
 
-PCAP: 192.168.1.80:60935 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60935 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=secure-us.imrworldwide.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:54943. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54943. DNS (over UDP) response
     Query: name=simage2.pubmatic.com, type=1, class=1
     Answer: name=simage2.pubmatic.com, type=1, class=1 -> 217.72.250.71
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:54943. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54943. DNS (over UDP) response
     Query: name=simage2.pubmatic.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:39395. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:39395. DNS (over UDP) response
     Query: name=simage2.pubmatic.com, type=1, class=1
     Answer: name=simage2.pubmatic.com, type=1, class=1 -> 217.72.250.71
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42117. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42117. DNS (over UDP) response
     Query: name=stags.bluekai.com, type=1, class=1
     Answer: name=stags.bluekai.com, type=1, class=1 -> 208.43.117.200
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42117. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42117. DNS (over UDP) response
     Query: name=stags.bluekai.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:33251. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33251. DNS (over UDP) response
     Query: name=load.exelator.com, type=1, class=1
     Answer: name=load.exelator.com, type=5, class=1 -> geo.tm.exelator.com
     Answer: name=geo.tm.exelator.com, type=5, class=1 -> west.eu.tm.exelator.com
     Answer: name=west.eu.tm.exelator.com, type=1, class=1 -> 72.251.243.38
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:33251. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:33251. DNS (over UDP) response
     Query: name=load.exelator.com, type=28, class=1
     Answer: name=load.exelator.com, type=5, class=1 -> geo.tm.exelator.com
     Answer: name=geo.tm.exelator.com, type=5, class=1 -> west.eu.tm.exelator.com
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60935. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60935. DNS (over UDP) response
     Query: name=secure-us.imrworldwide.com, type=1, class=1
     Answer: name=secure-us.imrworldwide.com, type=1, class=1 -> 138.108.7.20
 
-PCAP: 192.168.1.80:36863 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:36863 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=b.voicefive.com, type=1, class=1
 
-PCAP: 192.168.1.80:36863 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:36863 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=b.voicefive.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:36863. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36863. DNS (over UDP) response
     Query: name=b.voicefive.com, type=1, class=1
     Answer: name=b.voicefive.com, type=5, class=1 -> b.voicefive.com.edgesuite.net
     Answer: name=b.voicefive.com.edgesuite.net, type=5, class=1 -> a1294.w20.akamai.net
     Answer: name=a1294.w20.akamai.net, type=1, class=1 -> 217.32.26.11
     Answer: name=a1294.w20.akamai.net, type=1, class=1 -> 217.32.26.25
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60935. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60935. DNS (over UDP) response
     Query: name=secure-us.imrworldwide.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:36863. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36863. DNS (over UDP) response
     Query: name=b.voicefive.com, type=28, class=1
     Answer: name=b.voicefive.com, type=5, class=1 -> b.voicefive.com.edgesuite.net
     Answer: name=b.voicefive.com.edgesuite.net, type=5, class=1 -> a1294.w20.akamai.net
 
-PCAP: 192.168.1.80:40559 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:40559 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ocsp.entrust.net, type=1, class=1
 
-PCAP: 192.168.1.80:40559 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:40559 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ocsp.entrust.net, type=28, class=1
 
-PCAP: 192.168.1.80:52698 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:52698 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=load.exelator.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:40559. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40559. DNS (over UDP) response
     Query: name=ocsp.entrust.net, type=1, class=1
     Answer: name=ocsp.entrust.net, type=5, class=1 -> ocsp.entrust.net.edgekey.net
     Answer: name=ocsp.entrust.net.edgekey.net, type=5, class=1 -> e6913.dscx.akamaiedge.net
     Answer: name=e6913.dscx.akamaiedge.net, type=1, class=1 -> 23.36.5.231
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:40559. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40559. DNS (over UDP) response
     Query: name=ocsp.entrust.net, type=28, class=1
     Answer: name=ocsp.entrust.net, type=5, class=1 -> ocsp.entrust.net.edgekey.net
     Answer: name=ocsp.entrust.net.edgekey.net, type=5, class=1 -> e6913.dscx.akamaiedge.net
@@ -531,76 +531,76 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:40559. DNS response
     Answer: name=e6913.dscx.akamaiedge.net, type=28, class=1 -> 2a02:26f0:26:3:9400::1b01
     Answer: name=e6913.dscx.akamaiedge.net, type=28, class=1 -> 2a02:26f0:26:3:9600::1b01
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:52698. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:52698. DNS (over UDP) response
     Query: name=load.exelator.com, type=1, class=1
     Answer: name=load.exelator.com, type=5, class=1 -> geo.tm.exelator.com
     Answer: name=geo.tm.exelator.com, type=5, class=1 -> west.eu.tm.exelator.com
     Answer: name=west.eu.tm.exelator.com, type=1, class=1 -> 72.251.243.38
 
-PCAP: 192.168.1.80:58885 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:58885 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=stags.bluekai.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:58885. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:58885. DNS (over UDP) response
     Query: name=stags.bluekai.com, type=1, class=1
     Answer: name=stags.bluekai.com, type=1, class=1 -> 208.43.117.200
 
-PCAP: 192.168.1.80:45257 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45257 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=s0.2mdn.net, type=1, class=1
 
-PCAP: 192.168.1.80:45257 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45257 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=s0.2mdn.net, type=28, class=1
 
-PCAP: 192.168.1.80:51966 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51966 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=a.scorecardresearch.com, type=1, class=1
 
-PCAP: 192.168.1.80:51966 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51966 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=a.scorecardresearch.com, type=28, class=1
 
-PCAP: 192.168.1.80:47682 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:47682 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=pixel.adsafeprotected.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45257. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45257. DNS (over UDP) response
     Query: name=s0.2mdn.net, type=1, class=1
     Answer: name=s0.2mdn.net, type=5, class=1 -> s0-2mdn-net.l.google.com
     Answer: name=s0-2mdn-net.l.google.com, type=1, class=1 -> 173.194.34.187
     Answer: name=s0-2mdn-net.l.google.com, type=1, class=1 -> 173.194.34.188
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45257. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45257. DNS (over UDP) response
     Query: name=s0.2mdn.net, type=28, class=1
     Answer: name=s0.2mdn.net, type=5, class=1 -> s0-2mdn-net.l.google.com
 
-PCAP: 192.168.1.80:35841 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:35841 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=load.s3.amazonaws.com, type=1, class=1
 
-PCAP: 192.168.1.80:35841 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:35841 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=load.s3.amazonaws.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51966. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51966. DNS (over UDP) response
     Query: name=a.scorecardresearch.com, type=1, class=1
     Answer: name=a.scorecardresearch.com, type=5, class=1 -> adxpose.tmrg.akadns.net
     Answer: name=adxpose.tmrg.akadns.net, type=1, class=1 -> 66.119.33.173
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51966. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51966. DNS (over UDP) response
     Query: name=a.scorecardresearch.com, type=28, class=1
     Answer: name=a.scorecardresearch.com, type=5, class=1 -> adxpose.tmrg.akadns.net
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:47682. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47682. DNS (over UDP) response
     Query: name=pixel.adsafeprotected.com, type=1, class=1
     Answer: name=pixel.adsafeprotected.com, type=1, class=1 -> 69.172.216.55
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:35841. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35841. DNS (over UDP) response
     Query: name=load.s3.amazonaws.com, type=1, class=1
     Answer: name=load.s3.amazonaws.com, type=5, class=1 -> s3-1-w.amazonaws.com
     Answer: name=s3-1-w.amazonaws.com, type=1, class=1 -> 176.32.100.240
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:35841. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35841. DNS (over UDP) response
     Query: name=load.s3.amazonaws.com, type=28, class=1
     Answer: name=load.s3.amazonaws.com, type=5, class=1 -> s3-1-w.amazonaws.com
 
-PCAP: 192.168.1.80:37751 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37751 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=l.betrad.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37751. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37751. DNS (over UDP) response
     Query: name=l.betrad.com, type=1, class=1
     Answer: name=l.betrad.com, type=5, class=1 -> log-2048315323.us-east-1.elb.amazonaws.com
     Answer: name=log-2048315323.us-east-1.elb.amazonaws.com, type=1, class=1 -> 54.243.74.249
@@ -612,43 +612,43 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:37751. DNS response
     Answer: name=log-2048315323.us-east-1.elb.amazonaws.com, type=1, class=1 -> 184.73.167.136
     Answer: name=log-2048315323.us-east-1.elb.amazonaws.com, type=1, class=1 -> 50.17.224.16
 
-PCAP: 192.168.1.80:54994 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:54994 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=napa.i.lithium.com, type=1, class=1
 
-PCAP: 192.168.1.80:54994 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:54994 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=napa.i.lithium.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:54994. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54994. DNS (over UDP) response
     Query: name=napa.i.lithium.com, type=1, class=1
     Answer: name=napa.i.lithium.com, type=5, class=1 -> cs71.wac.edgecastcdn.net
     Answer: name=cs71.wac.edgecastcdn.net, type=1, class=1 -> 93.184.220.97
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:54994. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54994. DNS (over UDP) response
     Query: name=napa.i.lithium.com, type=28, class=1
     Answer: name=napa.i.lithium.com, type=5, class=1 -> cs71.wac.edgecastcdn.net
 
-PCAP: 192.168.1.80:37580 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37580 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ocsp.godaddy.com, type=1, class=1
 
-PCAP: 192.168.1.80:37580 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37580 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=ocsp.godaddy.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37580. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37580. DNS (over UDP) response
     Query: name=ocsp.godaddy.com, type=1, class=1
     Answer: name=ocsp.godaddy.com, type=5, class=1 -> ocsp.godaddy.com.akadns.net
     Answer: name=ocsp.godaddy.com.akadns.net, type=1, class=1 -> 188.121.36.239
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37580. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37580. DNS (over UDP) response
     Query: name=ocsp.godaddy.com, type=28, class=1
     Answer: name=ocsp.godaddy.com, type=5, class=1 -> ocsp.godaddy.com.akadns.net
 
-PCAP: 192.168.1.80:36047 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:36047 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=feeds.feedburner.com, type=1, class=1
 
-PCAP: 192.168.1.80:36047 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:36047 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=feeds.feedburner.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:36047. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36047. DNS (over UDP) response
     Query: name=feeds.feedburner.com, type=1, class=1
     Answer: name=feeds.feedburner.com, type=5, class=1 -> www4.l.google.com
     Answer: name=www4.l.google.com, type=1, class=1 -> 173.194.34.164
@@ -663,306 +663,306 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:36047. DNS response
     Answer: name=www4.l.google.com, type=1, class=1 -> 173.194.34.174
     Answer: name=www4.l.google.com, type=1, class=1 -> 173.194.34.163
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:36047. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:36047. DNS (over UDP) response
     Query: name=feeds.feedburner.com, type=28, class=1
     Answer: name=feeds.feedburner.com, type=5, class=1 -> www4.l.google.com
     Answer: name=www4.l.google.com, type=28, class=1 -> 2a00:1450:4009:805::1009
 
-PCAP: 192.168.1.80:49386 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49386 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:49386 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49386 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49386. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49386. DNS (over UDP) response
     Query: name=www.theregister.co.uk, type=1, class=1
     Answer: name=www.theregister.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49386. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49386. DNS (over UDP) response
     Query: name=www.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:37739 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37739 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:47420 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:47420 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.googletagservices.com, type=1, class=1
 
-PCAP: 192.168.1.80:47420 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:47420 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.googletagservices.com, type=28, class=1
 
-PCAP: 192.168.1.80:41998 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:41998 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=regmedia.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:41998 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:41998 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=regmedia.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37739. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37739. DNS (over UDP) response
     Query: name=www.theregister.co.uk, type=1, class=1
     Answer: name=www.theregister.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:47420. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47420. DNS (over UDP) response
     Query: name=www.googletagservices.com, type=1, class=1
     Answer: name=www.googletagservices.com, type=5, class=1 -> pagead46.l.doubleclick.net
     Answer: name=pagead46.l.doubleclick.net, type=1, class=1 -> 173.194.34.173
     Answer: name=pagead46.l.doubleclick.net, type=1, class=1 -> 173.194.34.185
     Answer: name=pagead46.l.doubleclick.net, type=1, class=1 -> 173.194.34.186
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:47420. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:47420. DNS (over UDP) response
     Query: name=www.googletagservices.com, type=28, class=1
     Answer: name=www.googletagservices.com, type=5, class=1 -> pagead46.l.doubleclick.net
     Answer: name=pagead46.l.doubleclick.net, type=28, class=1 -> 2a00:1450:4009:805::1019
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:41998. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41998. DNS (over UDP) response
     Query: name=regmedia.co.uk, type=1, class=1
     Answer: name=regmedia.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:41998. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:41998. DNS (over UDP) response
     Query: name=regmedia.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:45195 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45195 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=regmedia.co.uk, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45195. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45195. DNS (over UDP) response
     Query: name=regmedia.co.uk, type=1, class=1
     Answer: name=regmedia.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.80:42498 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42498 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=nir.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:42498 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42498 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=nir.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:51109 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51109 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=nir.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42498. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42498. DNS (over UDP) response
     Query: name=nir.theregister.co.uk, type=1, class=1
     Answer: name=nir.theregister.co.uk, type=5, class=1 -> www.theregister.co.uk
     Answer: name=www.theregister.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42498. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42498. DNS (over UDP) response
     Query: name=nir.theregister.co.uk, type=28, class=1
     Answer: name=nir.theregister.co.uk, type=5, class=1 -> www.theregister.co.uk
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51109. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51109. DNS (over UDP) response
     Query: name=nir.theregister.co.uk, type=1, class=1
     Answer: name=nir.theregister.co.uk, type=5, class=1 -> www.theregister.co.uk
     Answer: name=www.theregister.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.80:53834 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53834 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=partner.googleadservices.com, type=1, class=1
 
-PCAP: 192.168.1.80:53834 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53834 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=partner.googleadservices.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53834. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53834. DNS (over UDP) response
     Query: name=partner.googleadservices.com, type=1, class=1
     Answer: name=partner.googleadservices.com, type=5, class=1 -> partnerad.l.doubleclick.net
     Answer: name=partnerad.l.doubleclick.net, type=1, class=1 -> 173.194.34.185
     Answer: name=partnerad.l.doubleclick.net, type=1, class=1 -> 173.194.34.186
     Answer: name=partnerad.l.doubleclick.net, type=1, class=1 -> 173.194.34.173
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53834. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53834. DNS (over UDP) response
     Query: name=partner.googleadservices.com, type=28, class=1
     Answer: name=partner.googleadservices.com, type=5, class=1 -> partnerad.l.doubleclick.net
 
-PCAP: 192.168.1.80:60148 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60148 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=adfarm.mediaplex.com, type=1, class=1
 
-PCAP: 192.168.1.80:60148 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:60148 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=adfarm.mediaplex.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60148. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60148. DNS (over UDP) response
     Query: name=adfarm.mediaplex.com, type=1, class=1
     Answer: name=adfarm.mediaplex.com, type=5, class=1 -> ad.mediaplex.com
     Answer: name=ad.mediaplex.com, type=5, class=1 -> adfarm.mplx.akadns.net
     Answer: name=adfarm.mplx.akadns.net, type=1, class=1 -> 89.207.18.182
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:60148. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:60148. DNS (over UDP) response
     Query: name=adfarm.mediaplex.com, type=28, class=1
     Answer: name=adfarm.mediaplex.com, type=5, class=1 -> ad.mediaplex.com
     Answer: name=ad.mediaplex.com, type=5, class=1 -> adfarm.mplx.akadns.net
 
-PCAP: 192.168.1.80:45280 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45280 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=img.mediaplex.com, type=1, class=1
 
-PCAP: 192.168.1.80:45280 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45280 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=img.mediaplex.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45280. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45280. DNS (over UDP) response
     Query: name=img.mediaplex.com, type=1, class=1
     Answer: name=img.mediaplex.com, type=5, class=1 -> img.mplx.akadns.net
     Answer: name=img.mplx.akadns.net, type=5, class=1 -> img-global.mplx.akadns.net
     Answer: name=img-global.mplx.akadns.net, type=1, class=1 -> 89.207.18.181
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45280. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45280. DNS (over UDP) response
     Query: name=img.mediaplex.com, type=28, class=1
     Answer: name=img.mediaplex.com, type=5, class=1 -> img.mplx.akadns.net
     Answer: name=img.mplx.akadns.net, type=5, class=1 -> img-global.mplx.akadns.net
 
-PCAP: 192.168.1.80:54657 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:54657 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=google-sync.rutarget.ru, type=1, class=1
 
-PCAP: 192.168.1.80:54657 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:54657 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=google-sync.rutarget.ru, type=28, class=1
 
-PCAP: 192.168.1.80:37986 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37986 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=go.theregister.com, type=1, class=1
 
-PCAP: 192.168.1.80:37986 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37986 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=go.theregister.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:54657. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54657. DNS (over UDP) response
     Query: name=google-sync.rutarget.ru, type=1, class=1
     Answer: name=google-sync.rutarget.ru, type=5, class=1 -> app25.rutarget.ru
     Answer: name=app25.rutarget.ru, type=1, class=1 -> 5.9.122.209
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:54657. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54657. DNS (over UDP) response
     Query: name=google-sync.rutarget.ru, type=28, class=1
     Answer: name=google-sync.rutarget.ru, type=5, class=1 -> app25.rutarget.ru
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37986. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37986. DNS (over UDP) response
     Query: name=go.theregister.com, type=1, class=1
     Answer: name=go.theregister.com, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.80:53861 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53861 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=resources.reed.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:53861 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53861 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=resources.reed.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:54558 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:54558 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=resources.reed.co.uk, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37986. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37986. DNS (over UDP) response
     Query: name=go.theregister.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53861. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53861. DNS (over UDP) response
     Query: name=resources.reed.co.uk, type=1, class=1
     Answer: name=resources.reed.co.uk, type=1, class=1 -> 217.64.230.225
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53861. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53861. DNS (over UDP) response
     Query: name=resources.reed.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:54558. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:54558. DNS (over UDP) response
     Query: name=resources.reed.co.uk, type=1, class=1
     Answer: name=resources.reed.co.uk, type=1, class=1 -> 217.64.230.225
 
-PCAP: 192.168.1.80:49666 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49666 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=whitepapers.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:49666 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49666 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=whitepapers.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:49427 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49427 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.channelregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:49427 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:49427 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.channelregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:35949 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:35949 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=forums.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:35949 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:35949 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=forums.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49666. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49666. DNS (over UDP) response
     Query: name=whitepapers.theregister.co.uk, type=1, class=1
     Answer: name=whitepapers.theregister.co.uk, type=5, class=1 -> app1.theregister.co.uk
     Answer: name=app1.theregister.co.uk, type=1, class=1 -> 92.52.96.115
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49666. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49666. DNS (over UDP) response
     Query: name=whitepapers.theregister.co.uk, type=28, class=1
     Answer: name=whitepapers.theregister.co.uk, type=5, class=1 -> app1.theregister.co.uk
 
-PCAP: 192.168.1.80:53726 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53726 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=account.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:53726 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53726 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=account.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49427. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49427. DNS (over UDP) response
     Query: name=www.channelregister.co.uk, type=1, class=1
     Answer: name=www.channelregister.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:49427. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:49427. DNS (over UDP) response
     Query: name=www.channelregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:56659 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:56659 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.reed.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:56659 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:56659 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.reed.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:35949. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35949. DNS (over UDP) response
     Query: name=forums.theregister.co.uk, type=1, class=1
     Answer: name=forums.theregister.co.uk, type=5, class=1 -> www.theregister.co.uk
     Answer: name=www.theregister.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:35949. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:35949. DNS (over UDP) response
     Query: name=forums.theregister.co.uk, type=28, class=1
     Answer: name=forums.theregister.co.uk, type=5, class=1 -> www.theregister.co.uk
 
-PCAP: 192.168.1.80:32770 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:32770 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=forms.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:32770 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:32770 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=forms.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53726. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53726. DNS (over UDP) response
     Query: name=account.theregister.co.uk, type=1, class=1
     Answer: name=account.theregister.co.uk, type=5, class=1 -> app2.theregister.co.uk
     Answer: name=app2.theregister.co.uk, type=1, class=1 -> 92.52.96.116
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53726. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53726. DNS (over UDP) response
     Query: name=account.theregister.co.uk, type=28, class=1
     Answer: name=account.theregister.co.uk, type=5, class=1 -> app2.theregister.co.uk
 
-PCAP: 192.168.1.80:37334 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37334 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.facebook.com, type=1, class=1
 
-PCAP: 192.168.1.80:37334 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:37334 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.facebook.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:56659. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:56659. DNS (over UDP) response
     Query: name=www.reed.co.uk, type=1, class=1
     Answer: name=www.reed.co.uk, type=1, class=1 -> 217.64.230.225
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:56659. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:56659. DNS (over UDP) response
     Query: name=www.reed.co.uk, type=28, class=1
 
-PCAP: 192.168.1.80:53600 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53600 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.youtube.com, type=1, class=1
 
-PCAP: 192.168.1.80:53600 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:53600 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.youtube.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:32770. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:32770. DNS (over UDP) response
     Query: name=forms.theregister.co.uk, type=1, class=1
     Answer: name=forms.theregister.co.uk, type=5, class=1 -> app2.theregister.co.uk
     Answer: name=app2.theregister.co.uk, type=1, class=1 -> 92.52.96.116
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:32770. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:32770. DNS (over UDP) response
     Query: name=forms.theregister.co.uk, type=28, class=1
     Answer: name=forms.theregister.co.uk, type=5, class=1 -> app2.theregister.co.uk
 
-PCAP: 192.168.1.80:42197 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42197 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=media.theregister.co.uk, type=1, class=1
 
-PCAP: 192.168.1.80:42197 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42197 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=media.theregister.co.uk, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37334. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37334. DNS (over UDP) response
     Query: name=www.facebook.com, type=1, class=1
     Answer: name=www.facebook.com, type=5, class=1 -> star.c10r.facebook.com
     Answer: name=star.c10r.facebook.com, type=1, class=1 -> 31.13.72.65
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:37334. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:37334. DNS (over UDP) response
     Query: name=www.facebook.com, type=28, class=1
     Answer: name=www.facebook.com, type=5, class=1 -> star.c10r.facebook.com
     Answer: name=star.c10r.facebook.com, type=28, class=1 -> 2a03:2880:f00a:401:face:b00c:0:1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53600. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53600. DNS (over UDP) response
     Query: name=www.youtube.com, type=1, class=1
     Answer: name=www.youtube.com, type=5, class=1 -> youtube-ui.l.google.com
     Answer: name=youtube-ui.l.google.com, type=1, class=1 -> 173.194.34.166
@@ -977,81 +977,81 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:53600. DNS response
     Answer: name=youtube-ui.l.google.com, type=1, class=1 -> 173.194.34.167
     Answer: name=youtube-ui.l.google.com, type=1, class=1 -> 173.194.34.160
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:53600. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:53600. DNS (over UDP) response
     Query: name=www.youtube.com, type=28, class=1
     Answer: name=www.youtube.com, type=5, class=1 -> youtube-ui.l.google.com
     Answer: name=youtube-ui.l.google.com, type=28, class=1 -> 2a00:1450:400c:c03::be
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42197. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42197. DNS (over UDP) response
     Query: name=media.theregister.co.uk, type=1, class=1
     Answer: name=media.theregister.co.uk, type=5, class=1 -> www.theregister.co.uk
     Answer: name=www.theregister.co.uk, type=1, class=1 -> 92.52.96.89
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42197. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42197. DNS (over UDP) response
     Query: name=media.theregister.co.uk, type=28, class=1
     Answer: name=media.theregister.co.uk, type=5, class=1 -> www.theregister.co.uk
 
-PCAP: 192.168.1.80:42196 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:42196 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.bbc.co.uk, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:42196. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:42196. DNS (over UDP) response
     Query: name=www.bbc.co.uk, type=1, class=1
     Answer: name=www.bbc.co.uk, type=5, class=1 -> www.bbc.net.uk
     Answer: name=www.bbc.net.uk, type=1, class=1 -> 212.58.246.94
     Answer: name=www.bbc.net.uk, type=1, class=1 -> 212.58.246.95
 
-PCAP: 192.168.1.80:45465 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45465 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=twitter.com, type=1, class=1
 
-PCAP: 192.168.1.80:45465 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:45465 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=twitter.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45465. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45465. DNS (over UDP) response
     Query: name=twitter.com, type=1, class=1
     Answer: name=twitter.com, type=1, class=1 -> 199.16.156.198
     Answer: name=twitter.com, type=1, class=1 -> 199.59.149.198
     Answer: name=twitter.com, type=1, class=1 -> 199.16.156.38
 
-PCAP: 192.168.1.80:55916 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:55916 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=cdn.api.twitter.com, type=1, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:45465. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:45465. DNS (over UDP) response
     Query: name=twitter.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:55916. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:55916. DNS (over UDP) response
     Query: name=cdn.api.twitter.com, type=1, class=1
     Answer: name=cdn.api.twitter.com, type=5, class=1 -> san.twitter.com.edgekey.net
     Answer: name=san.twitter.com.edgekey.net, type=5, class=1 -> e5903.g.akamaiedge.net
     Answer: name=e5903.g.akamaiedge.net, type=1, class=1 -> 23.35.209.224
 
-PCAP: 192.168.1.80:51449 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51449 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.imore.com, type=1, class=1
 
-PCAP: 192.168.1.80:51449 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:51449 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=www.imore.com, type=28, class=1
 
-PCAP: 192.168.1.80:40791 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:40791 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=techcrunch.com, type=1, class=1
 
-PCAP: 192.168.1.80:40791 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:40791 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=techcrunch.com, type=28, class=1
 
-PCAP: 192.168.1.80:52248 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:52248 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=bookmarks.yahoo.com, type=1, class=1
 
-PCAP: 192.168.1.80:52248 -> 192.168.1.1:53. DNS query
+PCAP: 192.168.1.80:52248 -> 192.168.1.1:53. DNS (over UDP) query
     Query: name=bookmarks.yahoo.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51449. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51449. DNS (over UDP) response
     Query: name=www.imore.com, type=1, class=1
     Answer: name=www.imore.com, type=5, class=1 -> imore.com
     Answer: name=imore.com, type=1, class=1 -> 166.70.42.30
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:51449. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:51449. DNS (over UDP) response
     Query: name=www.imore.com, type=28, class=1
     Answer: name=www.imore.com, type=5, class=1 -> imore.com
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:40791. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40791. DNS (over UDP) response
     Query: name=techcrunch.com, type=1, class=1
     Answer: name=techcrunch.com, type=1, class=1 -> 76.74.255.117
     Answer: name=techcrunch.com, type=1, class=1 -> 72.233.104.123
@@ -1060,15 +1060,15 @@ PCAP: 192.168.1.1:53 -> 192.168.1.80:40791. DNS response
     Answer: name=techcrunch.com, type=1, class=1 -> 72.233.127.217
     Answer: name=techcrunch.com, type=1, class=1 -> 66.155.11.244
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:40791. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:40791. DNS (over UDP) response
     Query: name=techcrunch.com, type=28, class=1
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:52248. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:52248. DNS (over UDP) response
     Query: name=bookmarks.yahoo.com, type=1, class=1
     Answer: name=bookmarks.yahoo.com, type=5, class=1 -> bookmarks.a03.yahoodns.net
     Answer: name=bookmarks.a03.yahoodns.net, type=1, class=1 -> 98.139.102.55
 
-PCAP: 192.168.1.1:53 -> 192.168.1.80:52248. DNS response
+PCAP: 192.168.1.1:53 -> 192.168.1.80:52248. DNS (over UDP) response
     Query: name=bookmarks.yahoo.com, type=28, class=1
     Answer: name=bookmarks.yahoo.com, type=5, class=1 -> bookmarks.a03.yahoodns.net
 
