@@ -1,6 +1,7 @@
 *.o
 *.lo
 *.swp
+*.pyc
 *~
 Makefile
 Makefile.bak
@@ -23,7 +24,6 @@ config.h.in
 configure
 aclocal.m4
 cyberprobe-*.tar.gz
-*.pyc
 stix/taxii-client
 stix/taxii-server
 docs/cyberprobe.1
@@ -38,19 +38,20 @@ docs/cybermon-bigquery.1
 docs/cybermon-cassandra.1
 docs/cyberprobe.info
 docs/cyberprobe.html
+docs/cyberprobe.pdf
+docs/cyberprobe.t2p
 docs/mdate-sh
 docs/paths.texi
 docs/stamp-vti
+docs/texinfo.tex
+docs/version.texi
+init/*.service
 package.m4
 tests/test_socket
 tests/test_resource
-docs/version.texi
+tests/testsuite.dir
 tests/testsuite.log
 tests/testsuite
 tests/atconfig
 tests/atlocal
-docs/texinfo.tex
-docs/cyberprobe.pdf
-docs/cyberprobe.t2p
-init/*.service
 
