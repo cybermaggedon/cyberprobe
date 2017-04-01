@@ -13,7 +13,6 @@ using namespace cybermon;
 
 void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
-
     if ((e - s) < 8)
 	throw exception("Header too small for UDP header");
 
@@ -41,37 +40,34 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     uint16_t src_port = src.get_uint16();
     uint16_t dst_port = dest.get_uint16();
 
-    if (!fc->svc_idented)
+    // Attempt to identify from the port number and
+    // call the appropriate handler if there is one
+    if ((*udp_port_handlers[src_port] != NULL) || (*udp_port_handlers[dst_port] != NULL))
     {
-        // Attempt to identify from the port number and
-        // call the appropriate handler if there is one
-        if ((*udp_port_handlers[src_port] != NULL) || (*udp_port_handlers[dst_port] != NULL))
+        fc->lock.lock();
+
+        // Unfortunately now need to repeat the check
+        // to determine port number has the associated handler
+        if((*udp_port_handlers[src_port] != NULL))
         {
-            fc->lock.lock();
-
-            // Unfortunately now need to repeat the check
-            // to determine port number has the associated handler
-            if((*udp_port_handlers[src_port] != NULL))
-            {
-                fc->processor = *udp_port_handlers[src_port];
-            }
-            else
-            {
-                fc->processor = *udp_port_handlers[dst_port];
-            }
-
-            fc->svc_idented = true;
-
-            fc->lock.unlock();
-
-            (*fc->processor)(mgr, fc, start_of_next_protocol, e);
-            return;
+            fc->processor = *udp_port_handlers[src_port];
         }
         else
         {
-            unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_protocol, e);
+            fc->processor = *udp_port_handlers[dst_port];
         }
-    }            
+
+        fc->svc_idented = true;
+
+        fc->lock.unlock();
+
+        (*fc->processor)(mgr, fc, start_of_next_protocol, e);
+        return;
+    }
+    else
+    {
+        unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_protocol, e);
+    }
 }
 
 

@@ -1,9 +1,15 @@
 PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS (over UDP) query
     Query: name=ftp.swfwmd.state.fl.us, type=1, class=1
 
+PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS (over UDP) query
+    Query: name=ftp.swfwmd.state.fl.us, type=28, class=1
+
 PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS (over UDP) response
     Query: name=ftp.swfwmd.state.fl.us, type=1, class=1
     Answer: name=ftp.swfwmd.state.fl.us, type=1, class=1 -> 204.76.241.31
+
+PCAP: 192.168.122.1:53 -> 192.168.122.11:50766. DNS (over UDP) response
+    Query: name=ftp.swfwmd.state.fl.us, type=28, class=1
 
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 220
     -------------------------------------------------------------------------
@@ -68,6 +74,22 @@ PCAP: 204.76.241.31:65231 -> 192.168.122.11:34699. Stream data (size is 1902)
 
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 226
     Directory send OK.
+
+PCAP: 192.168.122.11:123 -> 85.10.246.226:123. NTP Timestamp
+    Leap Indicator      -> 0
+    Version             -> 3
+    Mode                -> 3
+    Stratum             -> 4
+    Poll                -> 64
+    Precision           -> 0.000002
+    Root Delay          -> 0.037033
+    Root Dispersion     -> 0.055511
+    Reference Id        -> 1311766803
+    Reference Timestamp -> 1412974355.685845852
+    Originate Timestamp -> 1412974355.240200758
+    Receive Timestamp   -> 1412974355.254930019
+    Transmit Timestamp  -> 1412974419.473171234
+    Extension           -> false
 
 PCAP: 85.10.246.226:123 -> 192.168.122.11:123. NTP Timestamp
     Leap Indicator      -> 0

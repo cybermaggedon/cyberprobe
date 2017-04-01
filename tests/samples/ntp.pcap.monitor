@@ -51,7 +51,71 @@ PCAP: 192.168.50.50:123 -> 69.44.57.60:123. NTP Timestamp
     Transmit Timestamp  -> 1096255084.922896385
     Extension           -> false
 
+PCAP: 192.168.50.50:123 -> 207.234.209.181:123. NTP Timestamp
+    Leap Indicator      -> 3
+    Version             -> 3
+    Mode                -> 1
+    Stratum             -> 0
+    Poll                -> 1024
+    Precision           -> 0.015625
+    Root Delay          -> 0.000000
+    Root Dispersion     -> 1.010010
+    Reference Id        -> 0
+    Reference Timestamp -> 0.000000000
+    Originate Timestamp -> 0.000000000
+    Receive Timestamp   -> 0.000000000
+    Transmit Timestamp  -> 1096255084.922896385
+    Extension           -> false
+
+PCAP: 192.168.50.50:123 -> 209.132.176.4:123. NTP Timestamp
+    Leap Indicator      -> 3
+    Version             -> 3
+    Mode                -> 1
+    Stratum             -> 0
+    Poll                -> 1024
+    Precision           -> 0.015625
+    Root Delay          -> 0.000000
+    Root Dispersion     -> 1.010010
+    Reference Id        -> 0
+    Reference Timestamp -> 0.000000000
+    Originate Timestamp -> 0.000000000
+    Receive Timestamp   -> 0.000000000
+    Transmit Timestamp  -> 1096255084.922896385
+    Extension           -> false
+
+PCAP: 192.168.50.50:123 -> 216.27.185.42:123. NTP Timestamp
+    Leap Indicator      -> 3
+    Version             -> 3
+    Mode                -> 1
+    Stratum             -> 0
+    Poll                -> 1024
+    Precision           -> 0.015625
+    Root Delay          -> 0.000000
+    Root Dispersion     -> 1.010010
+    Reference Id        -> 0
+    Reference Timestamp -> 0.000000000
+    Originate Timestamp -> 0.000000000
+    Receive Timestamp   -> 0.000000000
+    Transmit Timestamp  -> 1096255084.922896385
+    Extension           -> false
+
 PCAP: 192.168.50.50:123 -> 24.34.79.42:123. NTP Timestamp
+    Leap Indicator      -> 3
+    Version             -> 3
+    Mode                -> 1
+    Stratum             -> 0
+    Poll                -> 1024
+    Precision           -> 0.015625
+    Root Delay          -> 0.000000
+    Root Dispersion     -> 1.010010
+    Reference Id        -> 0
+    Reference Timestamp -> 0.000000000
+    Originate Timestamp -> 0.000000000
+    Receive Timestamp   -> 0.000000000
+    Transmit Timestamp  -> 1096255084.922896385
+    Extension           -> false
+
+PCAP: 192.168.50.50:123 -> 24.123.202.230:123. NTP Timestamp
     Leap Indicator      -> 3
     Version             -> 3
     Mode                -> 1
