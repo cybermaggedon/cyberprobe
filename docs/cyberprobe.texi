@@ -2068,7 +2068,7 @@ See @ref{@command{cybermon-monitor} invocation}.
 * @command{cybermon} invocation::
 * @command{cybermon} configuration::
 * @command{cybermon} example configurations::
-* Cybermon ZeroMQ message format::
+* Cybermon JSON message format::
 * @command{cybermon-monitor} invocation::
 * @command{cybermon-elasticsearch} invocation::
 * @command{cybermon-bigquery} invocation::
@@ -2793,7 +2793,7 @@ observer.unrecognised_stream = function(context, data)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, data)
+observer.icmp = function(context, icmp_type, icmp_code, data)
 end
 
 -- This function is called when an HTTP request is observed.
@@ -3042,23 +3042,23 @@ output.
 @item zeromq.lua
 
 @cindex ZeroMQ
-@cindex Cybermon ZeroMQ message format
+@cindex Cybermon JSON message format
 @cindex publish/subscribe
 @cindex pub/sub
 
 For each Lua event, a JSON record is formatted and published to a ZeroMQ
-queue on port 5555.  See @ref{Cybermon ZeroMQ message format}.
+queue on port 5555.  See @ref{Cybermon JSON message format}.
 
 @item redis.lua
 
 @cindex Redis
-@cindex Cybermon ZeroMQ message format
+@cindex Cybermon JSON message format
 @cindex queue delivery using Redis
 
 For each Lua event, a JSON record is formatted and RPUSH'd to a Redis server
 defiend by the @code{REDIS_SERVER} environment variable which should be in
 @code{HOST:PORT} form.
-Each message is JSON format, see @ref{Cybermon ZeroMQ message format}.
+Each message is JSON format, see @ref{Cybermon JSON message format}.
 
 @item quiet.lua
 
@@ -3127,11 +3127,12 @@ in @code{cybermon} events.
 
 @comment ----------------------------------------------------------------------
 
-@node Cybermon ZeroMQ message format
-@section Cybermon ZeroMQ message format
+@node Cybermon JSON message format
+@section Cybermon JSON message format
 
 @cindex ZeroMQ
-@cindex Cybermon ZeroMQ message format
+@cindex Redis
+@cindex Cybermon JSON message format
 @cindex publish/subscribe
 @cindex pub/sub
 
@@ -3193,16 +3194,19 @@ Records the sending of a NTP message, including the NTP hdr (mode, version, leap
 
 @item queries
 Describes DNS query records in @samp{dns_message} actions. Is a list
-of objects with @samp{name}, @samp{type} and @samp{class} fields containing strings
-for name, type and class
+of objects with @samp{name}, @samp{type} and @samp{class} fields containing
+strings for name, type and class.
 
 @item answers
 Describes DNS answer records in @samp{dns_message} actions.  Is a list
-of objects with @samp{name}, @samp{type} and @samp{class} and @samp{address} fields containing strings
-for name, type and class and IP address.
+of objects with @samp{name}, @samp{type} and @samp{class} and @samp{address}
+fields containing strings for name, type and class and IP address.
 
-@item type
+@item dns_type
 DNS message type, one of @samp{query} or @samp{response}.
+
+@item icmp_type
+ICMP message type, and integer.
 
 @item method
 HTTP method
