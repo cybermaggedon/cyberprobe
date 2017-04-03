@@ -28,8 +28,7 @@ namespace cybermon {
 	UDP,			// UDP.  'Address' is DNS id.
 	ICMP,			// ICMP.
 	HTTP,           // HTTP.
-	DNS_OVER_TCP,
-    DNS_OVER_UDP,
+    DNS,
 	SMTP,
 	FTP,
 	NTP,

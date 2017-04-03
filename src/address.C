@@ -97,16 +97,10 @@ void address::get(std::string& cls, std::string& address) const
 	return;
     }
 
-    if (proto == DNS_OVER_TCP) {
-    cls = "dns_over_tcp"; address = "";
+    if (proto == DNS) {
+    cls = "dns"; address = "";
     return;
     }
-
-    if (proto == DNS_OVER_UDP) {
-    cls = "dns_over_udp"; address = "";
-    return;
-    }
-
 
     if (proto == SMTP) {
 	cls = "smtp"; address = "";
@@ -184,13 +178,8 @@ void address::describe(std::ostream& out) const
 	return;
     }
 
-    if (proto == DNS_OVER_TCP) {
-	out << "DNS over TCP";
-	return;
-    }
-
-    if (proto == DNS_OVER_UDP) {
-    out << "DNS over UDP";
+    if (proto == DNS) {
+    out << "DNS";
     return;
     }
 

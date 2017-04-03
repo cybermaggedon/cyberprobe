@@ -26,8 +26,8 @@ void dns_over_tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     id[1] = dec.hdr.id & 0xff;
     
     address src, dest;
-    src.set(id, APPLICATION, DNS_OVER_TCP);
-    dest.set(id, APPLICATION, DNS_OVER_TCP);
+    src.set(id, APPLICATION, DNS);
+    dest.set(id, APPLICATION, DNS);
 
     flow_address f(src, dest);
 
