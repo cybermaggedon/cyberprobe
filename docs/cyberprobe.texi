@@ -241,6 +241,10 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.92
+Changed DNS and ICMP type field in JSON, DNS class and type are presented
+as strings.
+
 @item 0.91
 Redis integration using @code{redis.lua} configuration file.
 
