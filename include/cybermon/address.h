@@ -37,6 +37,10 @@ namespace cybermon {
     IMAP_SSL,
     POP3,
     POP3_SSL,
+    RTP,
+    RTP_SSL,
+    SIP,
+    SIP_SSL,
     SMTP_AUTH,
 
 	// Unknown stuff

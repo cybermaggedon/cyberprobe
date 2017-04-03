@@ -128,12 +128,8 @@ observer.smtp_data = function(context, from, to, data)
   track(context,#data)
 end
 
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 end
 
 -- This function is called when an FTP command is observed.

@@ -13,6 +13,10 @@
 #include <cybermon/manager.h>
 #include <cybermon/ntp.h>
 #include <cybermon/pdu.h>
+#include <cybermon/rtp.h>
+#include <cybermon/rtp_ssl.h>
+#include <cybermon/sip.h>
+#include <cybermon/sip_ssl.h>
 
 
 namespace cybermon
@@ -37,6 +41,10 @@ static void init_udp_handlers(void)
     // Now assign specific handlers
     udp_port_handlers[53]  = &dns_over_udp::process;
     udp_port_handlers[123] = &ntp::process;
+    udp_port_handlers[5004] = &rtp::process;
+    udp_port_handlers[5005] = &rtp_ssl::process;
+    udp_port_handlers[5060] = &sip::process;
+    udp_port_handlers[5061] = &sip_ssl::process;
 
     // Set flag to true to avoid the above
     // being repeatedly called in the future

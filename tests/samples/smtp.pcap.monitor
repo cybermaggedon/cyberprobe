@@ -1,27 +1,27 @@
-PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS (over UDP) query
+PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS query
     Query: name=fedora64, type=1, class=1
 
-PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS (over UDP) response
+PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS response
     Query: name=fedora64, type=1, class=1
     Answer: name=fedora64, type=1, class=1 -> 192.168.122.11
 
-PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS (over UDP) query
+PCAP: 192.168.122.11:48676 -> 192.168.122.1:53. DNS query
     Query: name=fedora64, type=28, class=1
 
-PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS (over UDP) response
+PCAP: 192.168.122.1:53 -> 192.168.122.11:48676. DNS response
     Query: name=fedora64, type=28, class=1
 
-PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS (over UDP) query
+PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS query
     Query: name=test.smtp.org, type=1, class=1
 
-PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS (over UDP) query
+PCAP: 192.168.122.11:46508 -> 192.168.122.1:53. DNS query
     Query: name=test.smtp.org, type=28, class=1
 
-PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS (over UDP) response
+PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS response
     Query: name=test.smtp.org, type=1, class=1
     Answer: name=test.smtp.org, type=1, class=1 -> 149.20.54.225
 
-PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS (over UDP) response
+PCAP: 192.168.122.1:53 -> 192.168.122.11:46508. DNS response
     Query: name=test.smtp.org, type=28, class=1
     Answer: name=test.smtp.org, type=28, class=1 -> 2001:4f8:3:36::225
 

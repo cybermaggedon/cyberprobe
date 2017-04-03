@@ -462,6 +462,26 @@ namespace cybermon {
                     pdu_iter s,
                     pdu_iter e);
 
+    void rtp(engine& an,
+               const context_ptr f,
+               pdu_iter s,
+               pdu_iter e);
+
+    void rtp_ssl(engine& an,
+                   const context_ptr f,
+                   pdu_iter s,
+                   pdu_iter e);
+
+    void sip(engine& an,
+               const context_ptr f,
+               pdu_iter s,
+               pdu_iter e);
+
+    void sip_ssl(engine& an,
+                   const context_ptr f,
+                   pdu_iter s,
+                   pdu_iter e);
+
     void smtp_auth(engine& an,
                      const context_ptr f,
                      pdu_iter s,
@@ -505,19 +525,13 @@ namespace cybermon {
 			  int status,
 			  const std::list<std::string>& responses);
 
-    void dns_over_tcp_message(engine& an, const context_ptr cf,
-                                const dns_header& hdr,
-                                const std::list<dns_query> queries,
-                                const std::list<dns_rr> answers,
-                                const std::list<dns_rr> authorities,
-                                const std::list<dns_rr> additional);
-
-	void dns_over_udp_message(engine& an, const context_ptr cf,
-                                const dns_header& hdr, 
-                                const std::list<dns_query> queries,
-                                const std::list<dns_rr> answers,
-                                const std::list<dns_rr> authorities,
-                                const std::list<dns_rr> additional);
+	void dns_message(engine& an,
+                     const context_ptr cf,
+                     const dns_header& hdr, 
+                     const std::list<dns_query> queries,
+                     const std::list<dns_rr> answers,
+                     const std::list<dns_rr> authorities,
+                     const std::list<dns_rr> additional);
 
     void ntp_timestamp_message(engine& an, const context_ptr cf,
 			                   const ntp_timestamp& ts);

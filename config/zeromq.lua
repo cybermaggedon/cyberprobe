@@ -274,57 +274,12 @@ observer.http_response = function(context, code, status, header, url, body)
   submit_observation(obs)
 end
 
-
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-  local obs = initialise_observation(context)
-
-  obs["action"] = "dns_over_tcp_message"
-
-  if header.qr == 0 then
-    obs["type"] = "query"
-  else
-    obs["type"] = "response"
-  end
-
-  local q = {}
-  json.util.InitArray(q)
-  for key, value in pairs(queries) do
-    local a = {}
-    a["name"] = value.name
-    a["type"] = value.type
-    a["class"] = value.class
-    q[#q + 1] = a
-  end
-  obs["queries"] = q
-
-  q = {}
-  json.util.InitArray(q)
-  for key, value in pairs(answers) do
-    local a = {}
-    a["name"] = value.name
-    a["type"] = value.type
-    a["class"] = value.class
-    if value.rdaddress then
-       a["address"] = value.rdaddress
-    end
-    if value.rdname then
-       a["name"] = value.rdname
-    end
-    q[#q + 1] = a
-  end
-  obs["answers"] = q
-
-  submit_observation(obs)
-
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   local obs = initialise_observation(context)
 
-  obs["action"] = "dns_over_udp_message"
+  obs["action"] = "dns_message"
 
   if header.qr == 0 then
     obs["type"] = "query"

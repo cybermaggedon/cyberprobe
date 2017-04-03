@@ -37,9 +37,8 @@ void dns_over_udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     try
     {
-        mgr.dns_over_udp_message(fc, dec.hdr, dec.queries, dec.answers,
-                                    dec.authorities, dec.additional);
-
+        mgr.dns_message(fc, dec.hdr, dec.queries, dec.answers,
+                             dec.authorities, dec.additional);
     }
     catch (std::exception& e)
     {

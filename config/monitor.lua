@@ -97,6 +97,34 @@ observer.pop3_ssl = function(context, data)
   io.write("\n")
 end
 
+-- This function is called when a RTP message is observed.
+observer.rtp = function(context, data)
+  local a = string.format("RTP (size is %d)", #data)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
+-- This function is called when a RTP SSL message is observed.
+observer.rtp_ssl = function(context, data)
+  local a = string.format("RTP SSL (size is %d)", #data)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
+-- This function is called when a SIP message is observed.
+observer.sip = function(context, data)
+  local a = string.format("SIP (size is %d)", #data)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+  local a = string.format("SIP SSL (size is %d)", #data)
+  observer.describe(context, a)
+  io.write("\n")
+end
+
 -- This function is called when an SMTP Authentication message is observed.
 observer.smtp_auth = function(context, data)
   local a = string.format("SMTP Authentication (size is %d)", #data)
@@ -165,41 +193,13 @@ observer.smtp_data = function(context, from, to, data)
   io.write("\n")
 end
 
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   if header.qr == 0 then
-    observer.describe(context, "DNS (over TCP) query")
+    observer.describe(context, "DNS query")
   else
-    observer.describe(context, "DNS (over TCP) response")
-  end
-
-  for key, value in pairs(queries) do
-    io.write(string.format("    Query: name=%s, type=%s, class=%s\n", value.name, value.type, value.class))
-  end
-
-  for key, value in pairs(answers) do
-    io.write(string.format("    Answer: name=%s, type=%s, class=%s", value.name, value.type, value.class))
-    if value.rdaddress then
-       io.write(string.format(" -> %s", value.rdaddress))
-    end
-    if value.rdname then
-       io.write(string.format(" -> %s", value.rdname))
-    end
-    io.write("\n")
-  end
-
-  io.write("\n")
-
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
-
-  if header.qr == 0 then
-    observer.describe(context, "DNS (over UDP) query")
-  else
-    observer.describe(context, "DNS (over UDP) response")
+    observer.describe(context, "DNS response")
   end
 
   for key, value in pairs(queries) do

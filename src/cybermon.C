@@ -139,6 +139,60 @@ public:
         }
     }
 
+    virtual void rtp(const cybermon::context_ptr cp,
+              cybermon::pdu_iter s, cybermon::pdu_iter e)
+    {
+        try
+        {
+            cml.rtp(*this, cp, s, e);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
+
+
+    virtual void rtp_ssl(const cybermon::context_ptr cp,
+              cybermon::pdu_iter s, cybermon::pdu_iter e)
+    {
+        try
+        {
+            cml.rtp_ssl(*this, cp, s, e);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
+
+    virtual void sip(const cybermon::context_ptr cp,
+              cybermon::pdu_iter s, cybermon::pdu_iter e)
+    {
+        try
+        {
+            cml.sip(*this, cp, s, e);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
+
+
+    virtual void sip_ssl(const cybermon::context_ptr cp,
+              cybermon::pdu_iter s, cybermon::pdu_iter e)
+    {
+        try
+        {
+            cml.sip_ssl(*this, cp, s, e);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
+
     virtual void smtp_auth(const cybermon::context_ptr cp,
                cybermon::pdu_iter s, cybermon::pdu_iter e)
     {
@@ -250,35 +304,17 @@ public:
 	}
     }
 
-    // DNS (over TCP)
-    virtual void dns_over_tcp_message(const cybermon::context_ptr cp,
-                                         const cybermon::dns_header hdr,
-                                         const std::list<cybermon::dns_query> queries,
-                                         const std::list<cybermon::dns_rr> answers,
-                                         const std::list<cybermon::dns_rr> authorities,
-                                         const std::list<cybermon::dns_rr> additional)
+    // DNS
+    virtual void dns_message(const cybermon::context_ptr cp,
+                             const cybermon::dns_header hdr,
+                             const std::list<cybermon::dns_query> queries,
+                             const std::list<cybermon::dns_rr> answers,
+                             const std::list<cybermon::dns_rr> authorities,
+                             const std::list<cybermon::dns_rr> additional)
     {
         try
         {
-            cml.dns_over_tcp_message(*this, cp, hdr, queries, answers, authorities, additional);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    // DNS (over UDP)
-    virtual void dns_over_udp_message(const cybermon::context_ptr cp,
-                                        const cybermon::dns_header hdr,
-                                        const std::list<cybermon::dns_query> queries,
-                                        const std::list<cybermon::dns_rr> answers,
-                                        const std::list<cybermon::dns_rr> authorities,
-                                        const std::list<cybermon::dns_rr> additional)
-    {
-        try
-        {
-	        cml.dns_over_udp_message(*this, cp, hdr, queries, answers, authorities, additional);
+	        cml.dns_message(*this, cp, hdr, queries, answers, authorities, additional);
 	    }
         catch (std::exception& e)
         {

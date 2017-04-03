@@ -46,9 +46,13 @@ libcybermon_la_SOURCES = \
 	pop3_ssl.C \
 	reaper.C \
 	resource_manager.C \
-	socket.C \
+	rtp.C \
+	rtp_ssl.C \
+	sip.C \
+	sip_ssl.C \
 	smtp.C \
 	smtp_auth.C \
+	socket.C \
 	tcp.C \
 	udp.C \
 	unrecognised.C \
@@ -89,7 +93,13 @@ libcybermon_la_SOURCES = \
 	../include/cybermon/protocol.h \
 	../include/cybermon/reaper.h \
 	../include/cybermon/resource.h \
+	../include/cybermon/rtp.h \
+	../include/cybermon/rtp_context.h \
+	../include/cybermon/rtp_ssl.h \
 	../include/cybermon/serial.h \
+	../include/cybermon/sip.h \
+	../include/cybermon/sip_context.h \
+	../include/cybermon/sip_ssl.h \
 	../include/cybermon/smtp.h \
 	../include/cybermon/smtp_auth.h \
 	../include/cybermon/smtp_auth_context.h \

@@ -40,7 +40,13 @@ cybermoninc_HEADERS = cybermon/address.h
 	cybermon/protocol.h \
 	cybermon/reaper.h \
 	cybermon/resource.h \
+	cybermon/rtp.h \
+	cybermon/rtp_context.h \
+	cybermon/rtp_ssl.h \
 	cybermon/serial.h \
+	cybermon/sip.h \
+	cybermon/sip_context.h \
+	cybermon/sip_ssl.h \
 	cybermon/smtp.h \
 	cybermon/smtp_auth.h \
 	cybermon/smtp_auth_context.h

@@ -1,7 +1,7 @@
-PCAP: 192.168.50.50:1026 -> 192.168.0.1:53. DNS (over UDP) query
+PCAP: 192.168.50.50:1026 -> 192.168.0.1:53. DNS query
     Query: name=us.pool.ntp.org, type=1, class=1
 
-PCAP: 192.168.0.1:53 -> 192.168.50.50:1026. DNS (over UDP) response
+PCAP: 192.168.0.1:53 -> 192.168.50.50:1026. DNS response
     Query: name=us.pool.ntp.org, type=1, class=1
     Answer: name=us.pool.ntp.org, type=1, class=1 -> 67.129.68.9
     Answer: name=us.pool.ntp.org, type=1, class=1 -> 69.44.57.60

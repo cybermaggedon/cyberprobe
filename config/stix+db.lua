@@ -308,55 +308,8 @@ observer.smtp_data = function(context, from, to, data)
 
 end
 
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-  local trans = "query"
-  if header.qr == 1 then
-    trans = "response"
-  end
-
-  if not(#queries == 1) then
-    return
-  end
-
-  indicators = {}
-
-  stix.check_dns(queries[1].name, indicators)
-
-  for k, v in pairs(indicators) do
-    print(string.format("DNS (over TCP) %s for %s, hits %s (%s)", trans, queries[1].name,
-        v.id, v.description))
-  end
-
-  local obs = elastic.initialise_observation(context, indicators)
-  obs["observation"]["action"] = "dns_message"
-  obs["observation"]["type"] = trans
-
-  local q = {}
-  for key, value in pairs(queries) do
-    q[#q + 1] = value.name
-  end
-  obs["observation"]["queries"] = q
-
-  q = {}
-  for key, value in pairs(answers) do
-    local a = {}
-    a["name"] = value.name
-    if value.rdaddress then
-       a["address"] = value.rdaddress
-    end
-    if value.rdname then
-       a["name"] = value.rdname
-    end
-    q[#q + 1] = a
-  end
-  obs["observation"]["answers"] = q
-  elastic.submit_observation(obs)
-
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   local trans = "query"
   if header.qr == 1 then
@@ -372,7 +325,7 @@ observer.dns_over_udp_message = function(context, header, queries, answers, auth
   stix.check_dns(queries[1].name, indicators)
 
   for k, v in pairs(indicators) do
-    print(string.format("DNS (over UDP) %s for %s, hits %s (%s)", trans, queries[1].name,
+    print(string.format("DNS %s for %s, hits %s (%s)", trans, queries[1].name,
         v.id, v.description))
   end
 

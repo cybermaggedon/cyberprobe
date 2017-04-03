@@ -80,12 +80,8 @@ end
 observer.smtp_data = function(context, from, to, data)
 end
 
--- This function is called when a DNS over_TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   if header.qr == 0 and #queries == 1 and queries[1].name == "example.org"
     and queries[1].type == 1 and queries[1].class == 1 then

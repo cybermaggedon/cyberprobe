@@ -207,14 +207,14 @@ observer.smtp_data = function(context, from, to, data)
 
 end
 
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   if header.qr == 0 and #queries == 1 then
     indicators = {}
     stix.check_dns(queries[1].name, indicators)
     for k, v in pairs(indicators) do
-      print(string.format("DNS (over TCP) query for %s, hits %s (%s)", queries[1].name,
+      print(string.format("DNS query for %s, hits %s (%s)", queries[1].name,
           v.id, v.description))
     end
   end
@@ -223,30 +223,7 @@ observer.dns_over_tcp_message = function(context, header, queries, answers, auth
     indicators = {}
     stix.check_dns(queries[1].name, indicators)
     for k, v in pairs(indicators) do
-      print(string.format("DNS (over TCP) response for %s, hits %s (%s)", queries[1].name,
-          v.id, v.description))
-    end
-  end
-
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
-
-  if header.qr == 0 and #queries == 1 then
-    indicators = {}
-    stix.check_dns(queries[1].name, indicators)
-    for k, v in pairs(indicators) do
-      print(string.format("DNS (over UDP) query for %s, hits %s (%s)", queries[1].name,
-          v.id, v.description))
-    end
-  end
-
-  if header.qr == 1 and #queries == 1 then
-    indicators = {}
-    stix.check_dns(queries[1].name, indicators)
-    for k, v in pairs(indicators) do
-      print(string.format("DNS (over UDP) response for %s, hits %s (%s)", queries[1].name,
+      print(string.format("DNS response for %s, hits %s (%s)", queries[1].name,
           v.id, v.description))
     end
   end

@@ -225,42 +225,13 @@ observer.smtp_data = function(context, from, to, data)
   io.write("\n")
 end
 
-
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-
-  if header.qr == 0 then
-    observer.describe(context, "DNS (over TCP) query")
-  else
-    observer.describe(context, "DNS (over TCP) response")
-  end
-
-  for key, value in pairs(queries) do
-    io.write(string.format("    Query: %s\n", value.name))
-  end
-
-  for key, value in pairs(answers) do
-    io.write(string.format("    Answer: %s", value.name))
-    if value.rdaddress then
-       io.write(string.format(" -> %s", value.rdaddress))
-    end
-    if value.rdname then
-       io.write(string.format(" -> %s", value.rdname))
-    end
-    io.write("\n")
-  end
-
-  io.write("\n")
-
-end
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_upp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   if header.qr == 0 then
-    observer.describe(context, "DNS (over UDP) query")
+    observer.describe(context, "DNS query")
   else
-    observer.describe(context, "DNS (over UDP) response")
+    observer.describe(context, "DNS response")
   end
 
   for key, value in pairs(queries) do

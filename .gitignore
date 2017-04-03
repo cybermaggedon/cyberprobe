@@ -26,6 +26,7 @@ aclocal.m4
 cyberprobe-*.tar.gz
 stix/taxii-client
 stix/taxii-server
+data/*
 docs/cyberprobe.1
 docs/cyberprobe-cli.1
 docs/cybermon.1

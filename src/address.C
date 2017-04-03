@@ -77,6 +77,16 @@ void address::get(std::string& cls, std::string& address) const
     return;
     }
 
+    if (proto == SIP) {
+    cls = "sip"; address = "";
+    return;
+    }
+
+    if (proto == SIP_SSL) {
+    cls = "sip_ssl"; address = "";
+    return;
+    }
+
     if (proto == SMTP_AUTH) {
     cls = "smtp_auth"; address = "";
     return;

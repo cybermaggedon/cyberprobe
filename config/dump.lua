@@ -165,6 +165,38 @@ observer.pop3_ssl = function(context, data)
   fd:close()
 end
 
+-- This function is called when a RTP message is observed.
+observer.rtp = function(context, data)
+  local a = string.format("RTP (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a RTP SSL message is observed.
+observer.rtp_ssl = function(context, data)
+  local a = string.format("RTP SSL (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a SIP message is observed.
+observer.sip = function(context, data)
+  local a = string.format("SIP (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+  local a = string.format("SIP SSL (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
 -- This function is called when an SMTP Authentication message is observed.
 observer.smtp_auth = function(context, data)
   local a = string.format("SMTP Authentication (size is %d)", #data)
@@ -246,47 +278,15 @@ observer.smtp_data = function(context, from, to, data)
   fd:close()
 end
 
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-
-  local action
-
-  if header.qr == 0 then
-    action = "DNS (over TCP) query"
-  else
-    action = "DNS (over TCP) response"
-  end
-
-  local fd = observer.get_fd(context, action)
-
-  for key, value in pairs(queries) do
-    fd:write(string.format("Query: %s\n", value.name))
-  end
-  
-  for key, value in pairs(answers) do
-    fd:write(string.format("Answer: %s", value.name))
-    if value.rdaddress then
-       fd:write(string.format(" -> %s", value.rdaddress))
-    end
-    if value.rdname then
-       fd:write(string.format(" -> %s", value.rdname))
-    end
-    fd:write("\n")
-  end
-
-  fd:close()
-
-end
-
--- This function is called when a DNS over UDP message is observed.
+-- This function is called when a DNS message is observed.
 observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
 
   local action
 
   if header.qr == 0 then
-    action = "DNS (over UDP) query"
+    action = "DNS query"
   else
-    action = "DNS (over UDP) response"
+    action = "DNS response"
   end
 
   local fd = observer.get_fd(context, action)

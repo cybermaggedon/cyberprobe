@@ -17,6 +17,10 @@
 #include <cybermon/pop3.h>
 #include <cybermon/pop3_ssl.h>
 #include <cybermon/pdu.h>
+#include <cybermon/rtp.h>
+#include <cybermon/rtp_ssl.h>
+#include <cybermon/sip.h>
+#include <cybermon/sip_ssl.h>
 #include <cybermon/smtp.h>
 #include <cybermon/smtp_auth.h>
 
@@ -49,6 +53,11 @@ static void init_tcp_handlers(void)
     tcp_port_handlers[465] = &smtp_auth::process;
     tcp_port_handlers[993] = &imap_ssl::process;
     tcp_port_handlers[995] = &pop3_ssl::process;
+    tcp_port_handlers[5004] = &rtp::process;
+    tcp_port_handlers[5005] = &rtp_ssl::process;
+    tcp_port_handlers[5060] = &sip::process;
+    tcp_port_handlers[5061] = &sip_ssl::process;
+
 
     // Set flag to true to avoid the above
     // being repeatedly called in the future

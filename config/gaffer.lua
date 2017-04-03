@@ -621,58 +621,19 @@ observer.http_response = function(context, code, status, header, url, body)
   submit_edges(edges)
 end
 
-
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS message is observed.
+observer.dns_message = function(context, header, queries, answers, auth, add)
   local edges = {}
-  local id = create_basic(edges, context, "dns_over_tcp_message")
+  local id = create_basic(edges, context, "dns_message")
 
-  local label = "DNS (over TCP)"
-
-  if header.qr == 0 then
-    add_edge_s(edges, id, cybprop .. "dns_type", "query")
-    label = "DNS (over TCP) query"
-  else
-    add_edge_s(edges, id, cybprop .. "dns_type", "answer")
-    label = "DNS (over TCP) answer"
-  end
-
-  for key, value in pairs(queries) do
-    add_edge_s(edges, id, cybprop .. "query", value.name)
-    label = label .. " " .. value.name
-  end
-
-  for key, value in pairs(answers) do
-    add_edge_s(edges, id, cybprop .. "answer_name", value.name)
-    if value.rdaddress then
-       add_edge_s(edges, id, cybprop .. "answer_address",
-                  value.rdaddress)
-    end
-    if value.rdname then
-       add_edge_s(edges, id, cybprop .. "answer_name",
-                            value.rdname)
-    end
-  end
-
-  add_edge_s(edges, id, rdfs .. "label", label)
-
-  submit_edges(edges)
-end
-
-
--- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
-  local edges = {}
-  local id = create_basic(edges, context, "dns_over_udp_message")
-
-  local label = "DNS (over UDP)"
+  local label = "DNS"
   
   if header.qr == 0 then
     add_edge_s(edges, id, cybprop .. "dns_type", "query")
-    label = "DNS (over UDP) query"
+    label = "DNS query"
   else
     add_edge_s(edges, id, cybprop .. "dns_type", "answer")
-    label = "DNS (over UDP) answer"
+    label = "DNS answer"
   end
 
   for key, value in pairs(queries) do
