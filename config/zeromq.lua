@@ -213,8 +213,8 @@ end
 observer.icmp = function(context, icmp_type, icmp_code, data)
   local obs = initialise_observation(context)
   obs["action"] = "icmp"
-  obs["observation"]["type"] = icmp_type
-  obs["observation"]["code"] = icmp_code
+  obs["icmp_type"] = icmp_type
+  obs["icmp_code"] = icmp_code
   obs["payload"] = b64(data)
   submit_observation(obs)
 end
@@ -274,6 +274,31 @@ observer.http_response = function(context, code, status, header, url, body)
   submit_observation(obs)
 end
 
+local dns_class_name = {}
+dns_class_name[1] = "IN"
+dns_class_name[2] = "CS"
+dns_class_name[3] = "CH"
+dns_class_name[4] = "HS"
+
+local dns_type_name = {}
+dns_type_name[1] = "A"
+dns_type_name[2] = "NS"
+dns_type_name[3] = "MD"
+dns_type_name[4] = "MF"
+dns_type_name[5] = "CNAME"
+dns_type_name[6] = "SOA"
+dns_type_name[7] = "EXP_MB"
+dns_type_name[8] = "EXP_MG"
+dns_type_name[9] = "EX_MR"
+dns_type_name[10] = "EXP_NULL"
+dns_type_name[11] = "WKS"
+dns_type_name[12] = "PTR"
+dns_type_name[13] = "HINFO"
+dns_type_name[14] = "MINFO"
+dns_type_name[15] = "MX"
+dns_type_name[16] = "TXT"
+dns_type_name[28] = "AAAA"
+
 -- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
 
@@ -282,9 +307,9 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   obs["action"] = "dns_message"
 
   if header.qr == 0 then
-    obs["type"] = "query"
+    obs["dns_type"] = "query"
   else
-    obs["type"] = "response"
+    obs["dns_type"] = "response"
   end
 
   local q = {}
@@ -292,8 +317,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   for key, value in pairs(queries) do
     local a = {}
     a["name"] = value.name
-    a["type"] = value.type
-    a["class"] = value.class
+    a["type"] = dns_type_name[value.type]
+    a["class"] = dns_class_name[value.class]
     q[#q + 1] = a
   end
   obs["queries"] = q
@@ -303,8 +328,8 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   for key, value in pairs(answers) do
     local a = {}
     a["name"] = value.name
-    a["type"] = value.type
-    a["class"] = value.class
+    a["type"] = dns_type_name[value.type]
+    a["class"] = dns_class_name[value.class]
     if value.rdaddress then
        a["address"] = value.rdaddress
     end
