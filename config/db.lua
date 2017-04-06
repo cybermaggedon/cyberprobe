@@ -138,45 +138,11 @@ observer.http_response = function(context, code, status, header, url, body)
   elastic.submit_observation(obs)
 end
 
--- This function is called when a DNS over TCP message is observed.
-observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
-  local obs = elastic.initialise_observation(context)
-
-  obs["observation"]["action"] = "dns_over_tcp_message"
-
-  if header.qr == 0 then
-    obs["observation"]["type"] = "query"
-  else
-    obs["observation"]["type"] = "response"
-  end
-
-  local q = {}
-  for key, value in pairs(queries) do
-    q[#q + 1] = value.name
-  end
-  obs["observation"]["queries"] = q
-
-  q = {}
-  for key, value in pairs(answers) do
-    local a = {}
-    a["name"] = value.name
-    if value.rdaddress then
-       a["address"] = value.rdaddress
-    end
-    if value.rdname then
-       a["name"] = value.rdname
-    end
-    q[#q + 1] = a
-  end
-  obs["observation"]["answers"] = q
-  elastic.submit_observation(obs)
-end
-
 -- This function is called when a DNS over UDP message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(context, header, queries, answers, auth, add)
   local obs = elastic.initialise_observation(context)
 
-  obs["observation"]["action"] = "dns_over_udp_message"
+  obs["observation"]["action"] = "dns_message"
 
   if header.qr == 0 then
     obs["observation"]["type"] = "query"
