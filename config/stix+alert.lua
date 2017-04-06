@@ -73,6 +73,58 @@ observer.icmp = function(context, icmp_type, icmp_code, data)
 
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("IMAP with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("IMAP SSL with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("POP3 with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+
+  indicators = {}
+  stix.check_addresses(context, indicators)
+
+  for k, v in pairs(indicators) do
+    print(string.format("POP3 SSL with address %s, hits %s (%s)", v.value,
+      v.id, v.description))
+  end
+
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
 

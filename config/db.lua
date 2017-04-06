@@ -75,6 +75,46 @@ observer.icmp = function(context, icmp_type, icmp_code, data)
   elastic.submit_observation(obs)
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "imap"
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "imap_ssl"
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "pop3"
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "pop3_ssl"
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when an SMTP Authentication message is observed.
+observer.smtp_auth = function(context, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "smtp_auth"
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
   local obs = elastic.initialise_observation(context)
@@ -98,11 +138,45 @@ observer.http_response = function(context, code, status, header, url, body)
   elastic.submit_observation(obs)
 end
 
--- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS over TCP message is observed.
+observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
   local obs = elastic.initialise_observation(context)
 
-  obs["observation"]["action"] = "dns_message"
+  obs["observation"]["action"] = "dns_over_tcp_message"
+
+  if header.qr == 0 then
+    obs["observation"]["type"] = "query"
+  else
+    obs["observation"]["type"] = "response"
+  end
+
+  local q = {}
+  for key, value in pairs(queries) do
+    q[#q + 1] = value.name
+  end
+  obs["observation"]["queries"] = q
+
+  q = {}
+  for key, value in pairs(answers) do
+    local a = {}
+    a["name"] = value.name
+    if value.rdaddress then
+       a["address"] = value.rdaddress
+    end
+    if value.rdname then
+       a["name"] = value.rdname
+    end
+    q[#q + 1] = a
+  end
+  obs["observation"]["answers"] = q
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when a DNS over UDP message is observed.
+observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+  local obs = elastic.initialise_observation(context)
+
+  obs["observation"]["action"] = "dns_over_udp_message"
 
   if header.qr == 0 then
     obs["observation"]["type"] = "query"

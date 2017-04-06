@@ -1,17 +1,18 @@
 
 #include <cybermon/udp.h>
+
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
 #include <cybermon/manager.h>
+#include <cybermon/udp_ports.h>
 #include <cybermon/unrecognised.h>
-#include <cybermon/dns.h>
-#include <cybermon/ntp.h>
+
 
 using namespace cybermon;
 
+
 void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
-
     if ((e - s) < 8)
 	throw exception("Header too small for UDP header");
 
@@ -38,17 +39,35 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     pdu_iter start_of_next_protocol = s + 8;
     uint16_t src_port = src.get_uint16();
     uint16_t dst_port = dest.get_uint16();
-    if (dns::ident(src_port, dst_port, start_of_next_protocol, e))
+
+    // Attempt to identify from the port number and
+    // call the appropriate handler if there is one
+    if ((*udp_port_handlers[src_port] != NULL) || (*udp_port_handlers[dst_port] != NULL))
     {
-	    dns::process(mgr, fc, start_of_next_protocol, e);
-    } 
-    else if(ntp::ident(src_port, dst_port))
-    {
-        ntp::process(mgr, fc, start_of_next_protocol, e);
-    } 
+        fc->lock.lock();
+
+        // Unfortunately now need to repeat the check
+        // to determine port number has the associated handler
+        if((*udp_port_handlers[src_port] != NULL))
+        {
+            fc->processor = *udp_port_handlers[src_port];
+        }
+        else
+        {
+            fc->processor = *udp_port_handlers[dst_port];
+        }
+
+        fc->svc_idented = true;
+
+        fc->lock.unlock();
+
+        (*fc->processor)(mgr, fc, start_of_next_protocol, e);
+        return;
+    }
     else
-    {   
-	    unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_protocol, e);
+    {
+        unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_protocol, e);
     }
 }
+
 

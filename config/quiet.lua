@@ -44,6 +44,22 @@ end
 observer.icmp = function(context, icmp_type, icmp_code, data)
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
 end

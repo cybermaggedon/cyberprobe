@@ -30,6 +30,42 @@ namespace cybermon {
                         pdu_iter s,
                         pdu_iter e) = 0;
 
+    virtual void imap(const context_ptr cp,
+                        pdu_iter s,
+                        pdu_iter e) = 0;
+
+    virtual void imap_ssl(const context_ptr cp,
+                            pdu_iter s,
+                            pdu_iter e) = 0;
+
+    virtual void pop3(const context_ptr cp,
+                        pdu_iter s,
+                        pdu_iter e) = 0;
+
+    virtual void pop3_ssl(const context_ptr cp,
+                            pdu_iter s,
+                            pdu_iter e) = 0;
+
+    virtual void rtp(const context_ptr cp,
+                       pdu_iter s,
+                       pdu_iter e) = 0;
+
+    virtual void rtp_ssl(const context_ptr cp,
+                           pdu_iter s,
+                           pdu_iter e) = 0;
+
+    virtual void sip(const context_ptr cp,
+                       pdu_iter s,
+                       pdu_iter e) = 0;
+
+    virtual void sip_ssl(const context_ptr cp,
+                           pdu_iter s,
+                           pdu_iter e) = 0;
+
+    virtual void smtp_auth(const context_ptr cp,
+                             pdu_iter s,
+                             pdu_iter e) = 0;
+
 	typedef
 	    std::map<std::string, std::pair<std::string,std::string> > 
 	    http_hdr_t;
@@ -80,11 +116,11 @@ namespace cybermon {
 
 	// DNS
 	virtual void dns_message(const context_ptr cp,
-				 const dns_header hdr,
-				 const std::list<dns_query> queries,
-				 const std::list<dns_rr> answers,
-				 const std::list<dns_rr> authorities,
-				 const std::list<dns_rr> additional) = 0;
+                             const dns_header hdr,
+                             const std::list<dns_query> queries,
+                             const std::list<dns_rr> answers,
+                             const std::list<dns_rr> authorities,
+                             const std::list<dns_rr> additional) = 0;
 
 	// NTP
 	virtual void ntp_timestamp_message(const context_ptr cp,

@@ -66,6 +66,22 @@ end
 observer.icmp = function(context, icmp_type, icmp_code, data)
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
 end
@@ -86,8 +102,12 @@ end
 observer.smtp_data = function(context, from, to, data)
 end
 
--- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+-- This function is called when a DNS over TCP message is observed.
+observer.dns_over_tcp_message = function(context, header, queries, answers, auth, add)
+end
+
+-- This function is called when a DNS over UDP message is observed.
+observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
 end
 
 -- This function is called when an FTP command is observed.

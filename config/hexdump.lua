@@ -119,6 +119,46 @@ observer.icmp = function(context, icmp_type, icmp_code, data)
   io.write("\n")
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+  local a = string.format("IMAP (size is %d)", #data)
+  observer.describe(context, a)
+  hexdump(data)
+  io.write("\n")
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+  local a = string.format("IMAP SSL (size is %d)", #data)
+  observer.describe(context, a)
+  hexdump(data)
+  io.write("\n")
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+  local a = string.format("POP3 (size is %d)", #data)
+  observer.describe(context, a)
+  hexdump(data)
+  io.write("\n")
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+  local a = string.format("POP3 SSL (size is %d)", #data)
+  observer.describe(context, a)
+  hexdump(data)
+  io.write("\n")
+end
+
+-- This function is called when an SMTP Authentication message is observed.
+observer.smtp_auth = function(context, data)
+  local a = string.format("SMTP Authentication (size is %d)", #data)
+  observer.describe(context, a)
+  hexdump(data)
+  io.write("\n")
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
   local a = string.format("HTTP %s request", method)

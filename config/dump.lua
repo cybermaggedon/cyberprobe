@@ -133,6 +133,78 @@ observer.icmp = function(context, icmp_type, icmp_code, data)
   fd:close()
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+  local a = string.format("IMAP (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+  local a = string.format("IMAP SSL (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+  local a = string.format("POP3 (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+  local a = string.format("POP3 SSL (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a RTP message is observed.
+observer.rtp = function(context, data)
+  local a = string.format("RTP (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a RTP SSL message is observed.
+observer.rtp_ssl = function(context, data)
+  local a = string.format("RTP SSL (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a SIP message is observed.
+observer.sip = function(context, data)
+  local a = string.format("SIP (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+  local a = string.format("SIP SSL (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when an SMTP Authentication message is observed.
+observer.smtp_auth = function(context, data)
+  local a = string.format("SMTP Authentication (size is %d)", #data)
+  local fd = observer.get_fd(context, a)
+  fd:write(data)
+  fd:close()
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
   local a = string.format("HTTP %s request", method)
@@ -207,7 +279,7 @@ observer.smtp_data = function(context, from, to, data)
 end
 
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
 
   local action
 

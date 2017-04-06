@@ -1,7 +1,9 @@
 
-#include <boost/regex.hpp>
-
 #include <cybermon/tcp.h>
+
+#include <boost/array.hpp>
+#include <boost/regex.hpp>
+#include <set>
 
 #include <cybermon/manager.h>
 #include <cybermon/pdu.h>
@@ -9,11 +11,17 @@
 #include <cybermon/http.h>
 #include <cybermon/unrecognised.h>
 #include <cybermon/forgery.h>
-#include <cybermon/smtp.h>
 #include <cybermon/ftp.h>
-#include <set>
+#include <cybermon/imap.h>
+#include <cybermon/imap_ssl.h>
+#include <cybermon/pop3.h>
+#include <cybermon/pop3_ssl.h>
+#include <cybermon/smtp.h>
+#include <cybermon/smtp_auth.h>
+
 
 using namespace cybermon;
+
 
 const unsigned int tcp_context::ident_buffer_max = 20;
 const unsigned int tcp_context::max_segments = 100;
@@ -251,112 +259,98 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 }
 
 void tcp::post_process(manager& mgr, tcp_context::ptr fc, 
-		       pdu_iter s, pdu_iter e)
+                       pdu_iter s, pdu_iter e)
 {
 
     static const boost::regex 
-	http_request("(OPTIONS|GET|HEAD|POST|PUT|DELETE|CONNECT|TRACE)"
-		     " [^ ]* HTTP/1.",
-		     boost::regex::extended);
+    http_request("(OPTIONS|GET|HEAD|POST|PUT|DELETE|CONNECT|TRACE)"
+             " [^ ]* HTTP/1.",
+             boost::regex::extended);
 
     static const boost::regex http_response("HTTP/1\\.");
 
     fc->lock.lock();
 
-    if (!fc->svc_idented) {
-	
-	// Deal with the cases that don't ident by scanning data.
-	if (fc->addr.dest.get_uint16() == 25) {
+    if (!fc->svc_idented)
+    {
+        uint16_t src = fc->addr.src.get_uint16();
+        uint16_t dest = fc->addr.dest.get_uint16();
 
-	    fc->processor = &smtp::process_client;
-	    fc->svc_idented = true;
+        // Attempt to identify from the port number and
+        // call the appropriate handler if there is one
+        if ((*tcp_port_handlers[src] != NULL) || (*tcp_port_handlers[dest] != NULL))
+        {
+            // Unfortunately now need to repeat the check
+            // to determine port number has the associated handler
+            if((*tcp_port_handlers[src] != NULL))
+            {
+                fc->processor = *tcp_port_handlers[src];
+            }
+            else
+            {
+                fc->processor = *tcp_port_handlers[dest];
+            }
 
-	    fc->lock.unlock();
+            fc->svc_idented = true;
 
-	    (*fc->processor)(mgr, fc, s, e);
-	    return;
+            fc->lock.unlock();
 
-	} else if (fc->addr.src.get_uint16() == 25) {
-	    
-	    fc->processor = &smtp::process_server;
-	    fc->svc_idented = true;
+            (*fc->processor)(mgr, fc, s, e);
+            return;
+        }
+        else
+        {
+            // Ident by studing the data.
 
-	    fc->lock.unlock();
+            // Copy into the ident buffer.
+            fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
+        
+            // If not enough to run an ident, bail out.
+            if (fc->ident_buffer.size() < fc->ident_buffer_max)
+            {
+                fc->lock.unlock();
+                return;
+            }
 
-	    (*fc->processor)(mgr, fc, s, e);
-	    return;
+            // Not idented, and we have enough data for an ident attempt.
 
-	} else if (fc->addr.src.get_uint16() == 21) {
-	    
-	    fc->processor = &ftp::process_server;
-	    fc->svc_idented = true;
+            boost::match_results<std::string::const_iterator> what;
+        
+            if (regex_search(fc->ident_buffer, what, http_request, 
+                     boost::match_continuous))
+            {
+        
+                fc->processor = &http::process_request;
+                fc->svc_idented = true;
 
-	    fc->lock.unlock();
+            }
+            else if (regex_search(fc->ident_buffer, what, http_response,
+                    boost::match_continuous))
+            {
+                fc->processor = &http::process_response;
+                fc->svc_idented = true;
+            }
+            else
+            {    
+                // Default.
+                fc->processor = &unrecognised::process_unrecognised_stream;
+                fc->svc_idented = true;
 
-	    (*fc->processor)(mgr, fc, s, e);
-	    return;
+            }
+        
+        }
+    
+        // Good, we're idented now.
 
-	} else if (fc->addr.dest.get_uint16() == 21) {
-	    
-	    fc->processor = &ftp::process_client;
-	    fc->svc_idented = true;
+        fc->lock.unlock();
 
-	    fc->lock.unlock();
+        // Just need to process what's in the buffer.
 
-	    (*fc->processor)(mgr, fc, s, e);
-	    return;
+        pdu p;
+        p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
 
-	} else {
-
-	    // Ident by studing the data.
-
-	    // Copy into the ident buffer.
-	    fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
-	    
-	    // If not enough to run an ident, bail out.
-	    if (fc->ident_buffer.size() < fc->ident_buffer_max) {
-		fc->lock.unlock();
-		return;
-	    }
-
-	    // Not idented, and we have enough data for an ident attempt.
-
-	    boost::match_results<std::string::const_iterator> what;
-	    
-	    if (regex_search(fc->ident_buffer, what, http_request, 
-			     boost::match_continuous)) {
-	    
-		fc->processor = &http::process_request;
-		fc->svc_idented = true;
-
-	    } else if (regex_search(fc->ident_buffer, what, http_response,
-				    boost::match_continuous)) {
-
-		fc->processor = &http::process_response;
-		fc->svc_idented = true;
-
-	    } else {	
-
-		// Default.
-		fc->processor = &unrecognised::process_unrecognised_stream;
-		fc->svc_idented = true;
-
-	    }
-	    
-	}
-	
-	// Good, we're idented now.
-
-	fc->lock.unlock();
-
-	// Just need to process what's in the buffer.
-
-	pdu p;
-	p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
-
-	(*fc->processor)(mgr, fc, p.begin(), p.end());
-	return;
-
+        (*fc->processor)(mgr, fc, p.begin(), p.end());
+        return;
     }
     
     fc->lock.unlock();
@@ -364,8 +358,6 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
     // Process the data using the defined processing function.
     (*fc->processor)(mgr, fc, s, e);
     return;
-
-
 }
 
 void tcp::checksum(pdu_iter s, pdu_iter e, uint16_t& sum)

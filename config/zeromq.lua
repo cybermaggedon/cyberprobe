@@ -219,6 +219,38 @@ observer.icmp = function(context, icmp_type, icmp_code, data)
   submit_observation(obs)
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "imap"
+  obs["payload"] = b64(data)
+  submit_observation(obs)
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "imap_ssl"
+  obs["payload"] = b64(data)
+  submit_observation(obs)
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "pop3"
+  obs["payload"] = b64(data)
+  submit_observation(obs)
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "pop3_ssl"
+  obs["payload"] = b64(data)
+  submit_observation(obs)
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
   local obs = initialise_observation(context)

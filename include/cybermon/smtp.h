@@ -164,18 +164,20 @@ namespace cybermon {
 
     };
 
-    class smtp {
+    class smtp
+    {
+        public:
 
-    public:
+        // SMTP request processing function.
+        static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
 
-	// SMTP client request processing function.
-	static void process_client(manager&, context_ptr c, 
-				   pdu_iter s, pdu_iter e);
+        private:
 
-	// SMTP server response processing function.
-	static void process_server(manager&, context_ptr c, pdu_iter s, 
-				   pdu_iter e);
+	    // SMTP client request processing function.
+	    static void process_client(manager&, context_ptr c, pdu_iter s, pdu_iter e);
 
+	    // SMTP server response processing function.
+	    static void process_server(manager&, context_ptr c, pdu_iter s, pdu_iter e);
     };
 
 };

@@ -16,6 +16,8 @@
 #include "manager.h"
 #include "serial.h"
 #include "protocol.h"
+#include "tcp_ports.h"
+
 
 namespace cybermon {
 
@@ -57,25 +59,25 @@ namespace cybermon {
 	static const unsigned int max_segments;
 	std::set<tcp_segment> segments;
 	
-	// Constructor.
-        tcp_context(manager& m) : context(m) {
-	    syn_observed = false;
-	    connected = false;
-	    svc_idented = false;
-	    processor = 0;
-	    fin_observed = false;
-	}
 
-	// Constructor, describing flow address and parent pointer.
-        tcp_context(manager& m, const flow_address& a, context_ptr p) : 
-	context(m) { 
-	    addr = a; parent = p; 
-	    syn_observed = false;
-	    connected = false;
-	    svc_idented = false;
-	    processor = 0;
-	    fin_observed = false;
-	}
+    // Constructor, describing flow address and parent pointer.
+    tcp_context(manager& m, const flow_address& a, context_ptr p)
+        : context(m)
+    { 
+        addr = a;
+        parent = p; 
+        syn_observed = false;
+        connected = false;
+        svc_idented = false;
+        processor = 0;
+        fin_observed = false;
+
+        // Only need to initialise handlers once
+        if (!is_tcp_handlers_init())
+        {
+            init_tcp_handlers();
+        }
+    }
 
 	// Type is "tcp".
 	virtual std::string get_type() { return "tcp"; }
@@ -83,18 +85,22 @@ namespace cybermon {
 	typedef boost::shared_ptr<tcp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
-				  context_ptr par) {
+				  context_ptr par)
+    {
 	    tcp_context* tc = new tcp_context(m, f, par);
+
 	    return context_ptr(tc);
-	}
+    }
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow_address& f) {
+	static ptr get_or_create(context_ptr base, const flow_address& f)
+    {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    tcp_context::create);
+
 	    ptr sp = boost::dynamic_pointer_cast<tcp_context>(cp);
 	    return sp;
-	}
+    }
 
     };
 

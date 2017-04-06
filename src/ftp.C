@@ -9,6 +9,26 @@
 
 using namespace cybermon;
 
+
+// FTP processing function.
+void ftp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+{
+    if (c->addr.dest.get_uint16() == 21)
+    {
+        ftp::process_client(mgr, c, s, e);
+        return;
+    }
+    else if (c->addr.src.get_uint16() == 21)
+    {
+        ftp::process_server(mgr, c, s, e);
+        return;
+    }
+    else
+    {
+        throw exception("Trying to handle FTP but neither port number is 21");
+    }
+}
+
 // FTP client processing function.
 void ftp::process_client(manager& mgr, context_ptr c, 
 			 pdu_iter s, pdu_iter e)
