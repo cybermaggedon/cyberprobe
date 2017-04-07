@@ -304,7 +304,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
             // Copy into the ident buffer.
             fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
-        
+
             // If not enough to run an ident, bail out.
             if (fc->ident_buffer.size() < fc->ident_buffer_max)
             {
@@ -317,15 +317,13 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
             boost::match_results<std::string::const_iterator> what;
         
             if (regex_search(fc->ident_buffer, what, http_request, 
-                     boost::match_continuous))
+                                 boost::match_continuous))
             {
-        
                 fc->processor = &http::process_request;
                 fc->svc_idented = true;
-
             }
             else if (regex_search(fc->ident_buffer, what, http_response,
-                    boost::match_continuous))
+                                    boost::match_continuous))
             {
                 fc->processor = &http::process_response;
                 fc->svc_idented = true;
@@ -335,9 +333,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
                 // Default.
                 fc->processor = &unrecognised::process_unrecognised_stream;
                 fc->svc_idented = true;
-
             }
-        
         }
     
         // Good, we're idented now.
@@ -354,7 +350,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
     }
     
     fc->lock.unlock();
-
+ 
     // Process the data using the defined processing function.
     (*fc->processor)(mgr, fc, s, e);
     return;

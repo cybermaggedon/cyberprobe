@@ -336,6 +336,18 @@ observer.ftp_response = function(context, status, text)
   submit_observation(obs)
 end
 
+-- This function is called when a SIP request message is observed.
+observer.sip_request = function(context, method, from, to, data)
+end
+
+-- This function is called when a SIP response message is observed.
+observer.sip_response = function(context, code, status, from, to, data)
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+end
+
 -- This function is called when an SMTP command is observed.
 observer.smtp_command = function(context, command)
   local obs = initialise_observation(context)

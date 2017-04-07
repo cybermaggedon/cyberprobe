@@ -151,6 +151,34 @@ observer.pop3_ssl = function(context, data)
   io.write("\n")
 end
 
+-- This function is called when a SIP request message is observed.
+observer.sip_request = function(context, method, from, to, data)
+  local a = string.format("SIP %s request", method)
+  observer.describe(context, a)
+  io.write(string.format("    From: %s\n", from))
+  io.write(string.format("    To: %s\n", to))
+  hexdump(body)
+  io.write("\n")
+end
+
+-- This function is called when a SIP response message is observed.
+observer.sip_response = function(context, code, status, from, to, data)
+  local a = string.format("SIP response %s %s", code, status)
+  observer.describe(context, a)
+  io.write(string.format("    From: %s\n", from))
+  io.write(string.format("    To: %s\n", to))
+  hexdump(body)
+  io.write("\n")
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+ local a = string.format("SIP SSL (size is %d)", #data)
+  observer.describe(context, a)
+  hexdump(data)
+  io.write("\n")
+end
+
 -- This function is called when an SMTP Authentication message is observed.
 observer.smtp_auth = function(context, data)
   local a = string.format("SMTP Authentication (size is %d)", #data)

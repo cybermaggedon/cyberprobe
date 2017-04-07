@@ -41,8 +41,6 @@ static void init_udp_handlers(void)
     // Now assign specific handlers
     udp_port_handlers[53]  = &dns_over_udp::process;
     udp_port_handlers[123] = &ntp::process;
-    udp_port_handlers[5004] = &rtp::process;
-    udp_port_handlers[5005] = &rtp_ssl::process;
     udp_port_handlers[5060] = &sip::process;
     udp_port_handlers[5061] = &sip_ssl::process;
 
@@ -57,6 +55,24 @@ static bool is_udp_handlers_init(void)
     return udp_handlers_initialised;
 }
 
+static void add_udp_port_handler(uint16_t port, fn function)
+{
+    std::cout << "Assign port: " << port << std::endl;
+
+    if (udp_port_handlers[port] == NULL)
+    {
+        udp_port_handlers[port] = function;
+    }
+    else
+    {
+//        throw exception("Handler already assigned to UDP port");
+    }
+}
+
+static void remove_udp_port_handler(uint16_t port)
+{
+    udp_port_handlers[port] = NULL;
+}
 
 }; // End namespace
 

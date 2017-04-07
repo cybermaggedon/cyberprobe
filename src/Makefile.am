@@ -49,6 +49,7 @@ libcybermon_la_SOURCES = \
 	rtp.C \
 	rtp_ssl.C \
 	sip.C \
+	sip_context.C \
 	sip_ssl.C \
 	smtp.C \
 	smtp_auth.C \

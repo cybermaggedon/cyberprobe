@@ -29,8 +29,6 @@ void rtp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    std::cout << "RTP" << std::endl;
-
     // Pass whole RTP message.
     mgr.rtp(fc, s, e);
 }

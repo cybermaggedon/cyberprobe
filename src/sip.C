@@ -7,7 +7,10 @@
 
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
+#include <cybermon/rtp.h>
 #include <cybermon/sip_context.h>
+#include <cybermon/tcp_ports.h>
+#include <cybermon/udp_ports.h>
 
 
 using namespace cybermon;
@@ -29,9 +32,13 @@ void sip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    static const boost::regex sip_request("(INVITE|BYE) (.*) SIP/2\\.. .*", boost::regex::extended);
+    // Regex strips the request from the header fields (which follow after the CRLF)
+    static const boost::regex sip_request("^(REGISTER|INVITE|ACK|CANCEL|OPTIONS|BYE|REFER|NOTIFY|MESSAGE|SUBSCRIBE|INFO) "
+                                            "(sips?:[^ ]*) SIP/[0-9]\\.[0-9]\r\n(.*$)", boost::regex::extended);
+    
+    // Regex strips the response from the header fields (which follow after the CRLF)
+    static const boost::regex sip_response("^SIP/[0-9]\\.[0-9] ([0-9]+) ([^\r\n]*)\r\n(.*$)", boost::regex::extended);
 
-    static const boost::regex sip_response("SIP/2\\.. .*");
 
     std::string ident_buffer;
 
@@ -42,16 +49,65 @@ void sip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     if (regex_search(ident_buffer, what, sip_request, boost::match_continuous))
     {
-        // For now just print the Invite or Bye line
-//        std::cout << what[0] << std::endl;
+        // Groups are: 
+        // 1. Method
+        // 2. Request-URI
+        // 3. Header fields
+
+        fc->method = what[1];
+
+        // Ignore what[2] and extract 'from' (and 'to') out of the Header fields
+
+        // Parse the Header fields
+        fc->parse(what[3]);
+
+        // Only the INVITE contains the RTP port numbers
+        if (fc->method.compare("INVITE")==0)
+        {
+            // This is only a first stab at the functionality needed
+            // to link SIP Channels and the associated RTP streams.
+            // Right now the port number is identified but the 
+            // assignment of the handler doesn't work and anyway
+            // as state model will be needed to reflect the state of 
+            // the call (so as to add/remove handlers as the call 
+            // begins/ends) and maybe differentiate between TCP and UDP.
+            
+            
+            // Assign an RTP handler if the audio port is specified
+            if (fc->audio_port != 0)
+            {
+                add_tcp_port_handler(fc->audio_port, &rtp::process);
+                add_udp_port_handler(fc->audio_port, &rtp::process);
+            }
+
+            // Assign an RTP handler if the video port is specified
+            if (fc->video_port != 0)
+            {
+                add_tcp_port_handler(fc->video_port, &rtp::process);
+                add_udp_port_handler(fc->video_port, &rtp::process);
+            }
+        }
+
+        // Send message with arguments: method, from & to
+        mgr.sip_request(fc, fc->method, fc->from, fc->to, s, e);
+        return;
     }
     else if (regex_search(ident_buffer, what, sip_response, boost::match_continuous))
     {
-        // For now just print the Response line
-//        std::cout << what[0] << std::endl;
-    }
+        // Groups are: 
+        // 1. Code
+        // 2. Status
+        // 3. Header fields
 
-    // Pass whole SIP message.
-    mgr.sip(fc, s, e);
+        fc->parse(what[3]);
+
+        // Send message with arguments: code, status, from & to
+        mgr.sip_response(fc, std::stoi(what[1]), what[2], fc->from, fc->to, s, e);
+        return;
+    }
+    else
+    {
+        throw exception("Unexpected SIP message");
+    }
 }
 

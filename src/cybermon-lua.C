@@ -394,24 +394,36 @@ void cybermon_lua::rtp_ssl(engine& an,
     pop();
 }
 
-void cybermon_lua::sip(engine& an,
-                           const context_ptr f,
-                           pdu_iter s,
-                           pdu_iter e)
+void cybermon_lua::sip_request(engine& an,
+                                const context_ptr f,
+                                const std::string& method,
+                                const std::string& from,
+                                const std::string& to,
+                                pdu_iter s,
+                                pdu_iter e)
 {
     // Get config
     get_global("config");
-    get_field(-1, "sip");
+    get_field(-1, "sip_request");
 
     // Put context on the stack
     push(f);
+
+    // Push 'method'
+    push(method);
+
+    // Push 'from'
+    push(from);
+
+    // Push 'to'
+    push(to);
 
     // Put data on stack.
     push(s, e);
 
     try
     {
-        call(2, 0);
+        call(5, 0);
     }
     catch (std::exception& e)
     {
@@ -423,6 +435,51 @@ void cybermon_lua::sip(engine& an,
     pop();
 }
 
+
+void cybermon_lua::sip_response(engine& an,
+                                const context_ptr f,
+                                unsigned int code,
+                                const std::string& status,
+                                const std::string& from,
+                                const std::string& to,
+                                pdu_iter s,
+                                pdu_iter e)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "sip_response");
+
+    // Put context on the stack
+    push(f);
+
+    // Push 'code'
+    push(code);
+
+    // Push 'status'
+    push(status);
+
+    // Push 'from'
+    push(from);
+
+    // Push 'to'
+    push(to);
+
+    // Put data on stack.
+    push(s, e);
+
+    try
+    {
+        call(6, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
 
 void cybermon_lua::sip_ssl(engine& an,
                            const context_ptr f,

@@ -57,8 +57,6 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
             fc->processor = *udp_port_handlers[dst_port];
         }
 
-        fc->svc_idented = true;
-
         fc->lock.unlock();
 
         (*fc->processor)(mgr, fc, start_of_next_protocol, e);

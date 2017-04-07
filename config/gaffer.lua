@@ -685,6 +685,40 @@ observer.ftp_response = function(context, status, text)
   submit_edges(edges)
 end
 
+-- This function is called when a SIP request message is observed.
+observer.sip_request = function(context, method, from, to, data)
+  local edges = {}
+  local id = create_basic(edges, context, "sip_request")
+  add_edge_s(edges, id, cybprop .. "method", method)
+  add_edge_s(edges, id, cybprop .. "from", from)
+  add_edge_s(edges, id, cybprop .. "to", to)
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  add_edge_s(edges, id, rdfs .. "label", "SIP request")
+  submit_edges(edges)
+end
+
+-- This function is called when a SIP response message is observed.
+observer.sip_response = function(context, code, status, from, to, data)
+  local edges = {}
+  local id = create_basic(edges, context, "sip_response")
+  add_edge_s(edges, id, cybprop .. "code", code)
+  add_edge_s(edges, id, cybprop .. "status", status)
+  add_edge_s(edges, id, cybprop .. "from", from)
+  add_edge_s(edges, id, cybprop .. "to", to)
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  add_edge_s(edges, id, rdfs .. "label", "SIP response")
+  submit_edges(edges)
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+  local edges = {}
+  local id = create_basic(edges, context, "sip_ssl")
+  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  add_edge_s(edges, id, rdfs .. "label", "SIP SSL")
+  submit_edges(edges)
+end
+
 -- This function is called when an SMTP command is observed.
 observer.smtp_command = function(context, command)
   local edges = {}

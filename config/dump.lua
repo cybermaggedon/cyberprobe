@@ -181,10 +181,27 @@ observer.rtp_ssl = function(context, data)
   fd:close()
 end
 
--- This function is called when a SIP message is observed.
-observer.sip = function(context, data)
-  local a = string.format("SIP (size is %d)", #data)
+
+-- This function is called when a SIP request message is observed.
+observer.sip_request = function(context, method, from, to, data)
+  local a = string.format("SIP %s request", method)
   local fd = observer.get_fd(context, a)
+
+  fd:write(string.format("From: %s\n", from))
+  fd:write(string.format("To: %s\n", to))
+
+  fd:write(data)
+  fd:close()
+end
+
+-- This function is called when a SIP response message is observed.
+observer.sip_response = function(context, code, status, from, to, data)
+  local a = string.format("SIP response %s %s", code, status)
+  local fd = observer.get_fd(context, a)
+
+  fd:write(string.format("From: %s\n", from))
+  fd:write(string.format("To: %s\n", to))
+
   fd:write(data)
   fd:close()
 end

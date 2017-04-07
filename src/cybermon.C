@@ -166,12 +166,16 @@ public:
         }
     }
 
-    virtual void sip(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
+    virtual void sip_request(const cybermon::context_ptr cp,
+                                const std::string& method,
+                                const std::string& from,
+                                const std::string& to,
+                                cybermon::pdu_iter s,
+                                cybermon::pdu_iter e)
     {
         try
         {
-            cml.sip(*this, cp, s, e);
+            cml.sip_request(*this, cp, method, from, to, s, e);
         }
         catch (std::exception& e)
         {
@@ -179,6 +183,23 @@ public:
         }
     }
 
+    virtual void sip_response(const cybermon::context_ptr cp,
+                                unsigned int code,
+                                const std::string& status,
+                                const std::string& from,
+                                const std::string& to,
+                                cybermon::pdu_iter s,
+                                cybermon::pdu_iter e)
+    {
+        try
+        {
+            cml.sip_response(*this, cp, code, status, from, to, s, e);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
 
     virtual void sip_ssl(const cybermon::context_ptr cp,
               cybermon::pdu_iter s, cybermon::pdu_iter e)

@@ -53,8 +53,6 @@ static void init_tcp_handlers(void)
     tcp_port_handlers[465] = &smtp_auth::process;
     tcp_port_handlers[993] = &imap_ssl::process;
     tcp_port_handlers[995] = &pop3_ssl::process;
-    tcp_port_handlers[5004] = &rtp::process;
-    tcp_port_handlers[5005] = &rtp_ssl::process;
     tcp_port_handlers[5060] = &sip::process;
     tcp_port_handlers[5061] = &sip_ssl::process;
 
@@ -68,6 +66,24 @@ static void init_tcp_handlers(void)
 static bool is_tcp_handlers_init(void)
 {
     return tcp_handlers_initialised;
+}
+
+
+static void add_tcp_port_handler(uint16_t port, fn function)
+{
+    if (tcp_port_handlers[port] == NULL)
+    {
+        tcp_port_handlers[port] = function;
+    }
+    else
+    {
+//        throw exception("Handler already assigned to TCP port");
+    }
+}
+
+static void remove_tcp_port_handler(uint16_t port)
+{
+    tcp_port_handlers[port] = NULL;
 }
 
 

@@ -107,6 +107,37 @@ observer.pop3_ssl = function(context, data)
   elastic.submit_observation(obs)
 end
 
+-- This function is called when a SIP request is observed.
+observer.sip_request = function(context, method,from, to, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "sip_request"
+  obs["observation"]["method"] = method
+  obs["observation"]["from"] = from
+  obs["observation"]["to"] = to
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when a SIP response is observed.
+observer.sip_response = function(context, code, status, from, to, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "sip_response"
+  obs["observation"]["code"] = code
+  obs["observation"]["status"] = status
+  obs["observation"]["from"] = from
+  obs["observation"]["to"] = to
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "pop3_ssl"
+  obs["observation"]["data"] = b64(data)
+  elastic.submit_observation(obs)
+end
+
 -- This function is called when an SMTP Authentication message is observed.
 observer.smtp_auth = function(context, data)
   local obs = elastic.initialise_observation(context)

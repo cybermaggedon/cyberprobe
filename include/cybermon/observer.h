@@ -54,9 +54,20 @@ namespace cybermon {
                            pdu_iter s,
                            pdu_iter e) = 0;
 
-    virtual void sip(const context_ptr cp,
-                       pdu_iter s,
-                       pdu_iter e) = 0;
+    virtual void sip_request(const context_ptr cp,
+                                const std::string& method,
+                                const std::string& from,
+                                const std::string& to,
+                                pdu_iter s,
+                                pdu_iter e) = 0;
+
+    virtual void sip_response(const context_ptr cp,
+                                unsigned int code,
+                                const std::string& status,
+                                const std::string& from,
+                                const std::string& to,
+                                pdu_iter s,
+                                pdu_iter e) = 0;
 
     virtual void sip_ssl(const context_ptr cp,
                            pdu_iter s,

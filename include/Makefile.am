@@ -1,7 +1,7 @@
 
 cybermonincdir = ${includedir}/cybermon
 
-cybermoninc_HEADERS = cybermon/address.h
+cybermoninc_HEADERS = cybermon/address.h \
 	cybermon/base_context.h \
 	cybermon/ber.h \
 	cybermon/context.h \

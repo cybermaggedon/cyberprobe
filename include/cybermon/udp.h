@@ -20,7 +20,6 @@ namespace cybermon {
       public:
 
     // Once identified, the processing function.
-    bool svc_idented;
     process_fn processor;
 
     // Constructor, when specifying flow address and parent context.
