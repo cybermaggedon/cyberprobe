@@ -1,0 +1,80 @@
+PCAP: 10.0.2.15:39970 -> 192.168.0.1:53. DNS query
+    Query: name=drive.google.com, type=1, class=1
+
+PCAP: 10.0.2.15:39970 -> 192.168.0.1:53. DNS query
+    Query: name=drive.google.com, type=28, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:39970. DNS response
+    Query: name=drive.google.com, type=1, class=1
+    Answer: name=drive.google.com, type=1, class=1 -> 216.58.204.14
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:39970. DNS response
+    Query: name=drive.google.com, type=28, class=1
+    Answer: name=drive.google.com, type=28, class=1 -> 2a00:1450:4009:80c::200e
+
+PCAP: 10.0.2.15:41039 -> 192.168.0.1:53. DNS query
+    Query: name=www.google.com, type=1, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:41039. DNS response
+    Query: name=www.google.com, type=1, class=1
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.206.103
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.206.106
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.206.105
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.206.147
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.206.104
+    Answer: name=www.google.com, type=1, class=1 -> 74.125.206.99
+
+PCAP: 10.0.2.15:43343 -> 192.168.0.1:53. DNS query
+    Query: name=www.google.com, type=28, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:43343. DNS response
+    Query: name=www.google.com, type=28, class=1
+    Answer: name=www.google.com, type=28, class=1 -> 2a00:1450:4009:80c::2004
+
+PCAP: 10.0.2.15:34041 -> 192.168.0.1:53. DNS query
+    Query: name=www.google.com, type=15, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:34041. DNS response
+    Query: name=www.google.com, type=15, class=1
+
+PCAP: 10.0.2.15:54135 -> 192.168.0.1:53. DNS query
+    Query: name=www.malware.org, type=1, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:54135. DNS response
+    Query: name=www.malware.org, type=1, class=1
+    Answer: name=www.malware.org, type=5, class=1 -> malware.org
+    Answer: name=malware.org, type=1, class=1 -> 216.227.220.84
+
+PCAP: 10.0.2.15:34449 -> 192.168.0.1:53. DNS query
+    Query: name=malware.org, type=28, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:34449. DNS response
+    Query: name=malware.org, type=28, class=1
+
+PCAP: 10.0.2.15:43063 -> 192.168.0.1:53. DNS query
+    Query: name=malware.org, type=15, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:43063. DNS response
+    Query: name=malware.org, type=15, class=1
+    Answer: name=malware.org, type=15, class=1
+
+PCAP: 10.0.2.15:34629 -> 192.168.0.1:53. DNS query
+    Query: name=www.hackerz.org, type=1, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:34629. DNS response
+    Query: name=www.hackerz.org, type=1, class=1
+    Answer: name=www.hackerz.org, type=5, class=1 -> cms1.devhouse.net
+    Answer: name=cms1.devhouse.net, type=1, class=1 -> 207.234.133.153
+
+PCAP: 10.0.2.15:49025 -> 192.168.0.1:53. DNS query
+    Query: name=cms1.devhouse.net, type=28, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:49025. DNS response
+    Query: name=cms1.devhouse.net, type=28, class=1
+
+PCAP: 10.0.2.15:36055 -> 192.168.0.1:53. DNS query
+    Query: name=cms1.devhouse.net, type=15, class=1
+
+PCAP: 192.168.0.1:53 -> 10.0.2.15:36055. DNS response
+    Query: name=cms1.devhouse.net, type=15, class=1
+
