@@ -31,6 +31,8 @@ EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) \
 	samples/ntp.pcap samples/ntp.pcap.monitor \
 	samples/smtp.pcap.indicators samples/smtp.pcap.monitor \
 	samples/tcp.pcap samples/tcp.pcap.indicators samples/tcp.pcap.monitor \
+	samples/icmp.pcap samples/icmp.pcap.indicators \
+	samples/icmp.pcap.monitor \
 	stix/stix-default-combined.json
 
 TESTSUITE = $(srcdir)/testsuite

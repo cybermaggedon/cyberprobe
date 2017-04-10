@@ -296,7 +296,7 @@ observer.smtp_data = function(context, from, to, data)
 end
 
 -- This function is called when a DNS message is observed.
-observer.dns_over_udp_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(context, header, queries, answers, auth, add)
 
   local action
 

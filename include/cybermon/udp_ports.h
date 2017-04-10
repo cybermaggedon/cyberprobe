@@ -57,8 +57,6 @@ static bool is_udp_handlers_init(void)
 
 static void add_udp_port_handler(uint16_t port, fn function)
 {
-    std::cout << "Assign port: " << port << std::endl;
-
     if (udp_port_handlers[port] == NULL)
     {
         udp_port_handlers[port] = function;
