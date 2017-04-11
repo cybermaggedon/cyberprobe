@@ -101,8 +101,13 @@ void sip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
         fc->parse(what[3]);
 
+        // Convert the code into a int - nasty!
+        int codeval;
+        std::istringstream buf(what[1]);
+        buf >> codeval;
+
         // Send message with arguments: code, status, from & to
-        mgr.sip_response(fc, std::stoi(what[1]), what[2], fc->from, fc->to, s, e);
+        mgr.sip_response(fc, codeval, what[2], fc->from, fc->to, s, e);
         return;
     }
     else

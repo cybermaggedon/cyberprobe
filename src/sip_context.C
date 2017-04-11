@@ -57,13 +57,17 @@ void sip_context::parse(std::string body) {
     static const boost::regex sip_content_audio("m=audio ([0-9]+) RTP");
     if (regex_search(body, what, sip_content_audio, boost::match_any))
     {
-        audio_port = std::stoi(what[1]);
+        // Convert the port number into an int - nasty!
+        std::istringstream buf(what[1]);
+        buf >> audio_port;
     }
 
     static const boost::regex sip_content_video("m=video ([0-9]+) RTP");
     if (regex_search(body, what, sip_content_video, boost::match_any))
     {
-        video_port = std::stoi(what[1]);
+        // Convert the port number into an int - nasty!
+        std::istringstream buf(what[1]);
+        buf >> video_port;
     }
 }
 
