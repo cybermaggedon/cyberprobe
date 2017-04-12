@@ -9,68 +9,39 @@
 
 
 #include <cybermon/context.h>
-#include <cybermon/dns_over_udp.h>
 #include <cybermon/manager.h>
-#include <cybermon/ntp.h>
 #include <cybermon/pdu.h>
-#include <cybermon/rtp.h>
-#include <cybermon/rtp_ssl.h>
-#include <cybermon/sip.h>
-#include <cybermon/sip_ssl.h>
 
 
 namespace cybermon
 {
 
-typedef void (*fn)(manager& mgr, context_ptr fc, pdu_iter s, pdu_iter e);
-
-static fn udp_port_handlers[65535] = {};
-
-
-static bool udp_handlers_initialised = false;
-
-
-static void init_udp_handlers(void)
+class udp_ports
 {
-    // Initialize all elements to null first
-    for(uint16_t x = 0; x < 65535; x++)
-    {
-        udp_port_handlers[x] = NULL;
-    }
 
-    // Now assign specific handlers
-    udp_port_handlers[53]  = &dns_over_udp::process;
-    udp_port_handlers[123] = &ntp::process;
-    udp_port_handlers[5060] = &sip::process;
-    udp_port_handlers[5061] = &sip_ssl::process;
+private:
 
-    // Set flag to true to avoid the above
-    // being repeatedly called in the future
-    udp_handlers_initialised = true;
-}
+    typedef void (*fn)(manager& mgr, context_ptr fc, pdu_iter s, pdu_iter e);
 
+    static fn port_handler[65535];
 
-static bool is_udp_handlers_init(void)
-{
-    return udp_handlers_initialised;
-}
+    static bool handlers_initialised;
 
-static void add_udp_port_handler(uint16_t port, fn function)
-{
-    if (udp_port_handlers[port] == NULL)
-    {
-        udp_port_handlers[port] = function;
-    }
-    else
-    {
-//        throw exception("Handler already assigned to UDP port");
-    }
-}
+public:
 
-static void remove_udp_port_handler(uint16_t port)
-{
-    udp_port_handlers[port] = NULL;
-}
+    static void init_handlers(void);
+
+    static bool is_handlers_init(void);
+
+    static void add_port_handler(uint16_t port, fn function);
+
+    static void remove_port_handler(uint16_t port);
+
+    static bool has_port_handler(uint16_t port);
+
+    static fn get_port_handler(uint16_t port);
+
+}; // End class
 
 }; // End namespace
 

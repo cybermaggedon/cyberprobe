@@ -41,8 +41,8 @@ class sip_context : public context
     std::string method;
     std::string from;
     std::string to;
-    int audio_port;
-    int video_port;
+    uint16_t audio_port;
+    uint16_t video_port;
 };
 
 }; // End namespace

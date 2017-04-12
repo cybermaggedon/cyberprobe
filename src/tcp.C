@@ -278,17 +278,17 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
         // Attempt to identify from the port number and
         // call the appropriate handler if there is one
-        if ((*tcp_port_handlers[src] != NULL) || (*tcp_port_handlers[dest] != NULL))
+        if (tcp_ports::has_port_handler(src) || tcp_ports::has_port_handler(dest))
         {
             // Unfortunately now need to repeat the check
             // to determine port number has the associated handler
-            if((*tcp_port_handlers[src] != NULL))
+            if (tcp_ports::has_port_handler(src))
             {
-                fc->processor = *tcp_port_handlers[src];
+                fc->processor = tcp_ports::get_port_handler(src);
             }
             else
             {
-                fc->processor = *tcp_port_handlers[dest];
+                fc->processor = tcp_ports::get_port_handler(dest);
             }
 
             fc->svc_idented = true;

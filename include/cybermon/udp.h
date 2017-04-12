@@ -10,6 +10,7 @@
 
 #include <cybermon/context.h>
 #include <cybermon/manager.h>
+#include <cybermon/protocol.h>
 #include <cybermon/udp_ports.h>
 
 
@@ -30,9 +31,9 @@ namespace cybermon {
         parent = p; 
 
         // Only need to initialise handlers once
-        if (!is_udp_handlers_init())
+        if (!udp_ports::is_handlers_init())
         {
-            init_udp_handlers();
+            udp_ports::init_handlers();
         }
     }
 

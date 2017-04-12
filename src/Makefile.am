@@ -29,7 +29,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C		\
 	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
 	sip_ssl.C	\
-	smtp.C smtp_auth.C socket.C tcp.C udp.C unrecognised.C		\
+	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
 	../include/cybermon/base_context.h				\
 	../include/cybermon/context.h					\

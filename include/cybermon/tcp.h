@@ -73,9 +73,9 @@ namespace cybermon {
         fin_observed = false;
 
         // Only need to initialise handlers once
-        if (!is_tcp_handlers_init())
+        if (!tcp_ports::is_handlers_init())
         {
-            init_tcp_handlers();
+            tcp_ports::init_handlers();
         }
     }
 

@@ -13,8 +13,9 @@ using namespace cybermon;
 
 void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
-    if ((e - s) < 8)
-	throw exception("Header too small for UDP header");
+    if ((e - s) < 8) {
+	    throw exception("Header too small for UDP header");
+    }
 
     // UDP ports
     address src, dest;
@@ -23,8 +24,9 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     uint32_t length = (s[4] << 8) + s[5];
 
-    if ((e - s) != length)
-	throw exception("UDP header length doesn't agree with payload length");
+    if ((e - s) != length) {
+	    throw exception("UDP header length doesn't agree with payload length");
+    }
 
     // FIXME: Check checksum?
 
@@ -42,19 +44,19 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     // Attempt to identify from the port number and
     // call the appropriate handler if there is one
-    if ((*udp_port_handlers[src_port] != NULL) || (*udp_port_handlers[dst_port] != NULL))
+    if (udp_ports::has_port_handler(src_port) || udp_ports::has_port_handler(dst_port))
     {
         fc->lock.lock();
 
         // Unfortunately now need to repeat the check
         // to determine port number has the associated handler
-        if((*udp_port_handlers[src_port] != NULL))
+        if (udp_ports::has_port_handler(src_port))
         {
-            fc->processor = *udp_port_handlers[src_port];
+            fc->processor = udp_ports::get_port_handler(src_port);
         }
         else
         {
-            fc->processor = *udp_port_handlers[dst_port];
+            fc->processor = udp_ports::get_port_handler(dst_port);
         }
 
         fc->lock.unlock();
@@ -64,6 +66,7 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     }
     else
     {
+
         unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_protocol, e);
     }
 }

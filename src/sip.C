@@ -64,27 +64,25 @@ void sip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
         // Only the INVITE contains the RTP port numbers
         if (fc->method.compare("INVITE")==0)
         {
-            // This is only a first stab at the functionality needed
-            // to link SIP Channels and the associated RTP streams.
-            // Right now the port number is identified but the 
-            // assignment of the handler doesn't work and anyway
-            // as state model will be needed to reflect the state of 
-            // the call (so as to add/remove handlers as the call 
-            // begins/ends) and maybe differentiate between TCP and UDP.
+            // This is only a first stab at the functionality needed to link the SIP 
+            // channels and their associated RTP streams. Right now the port number is 
+            // identified and a handler assigned but a state model is needed to reflect
+            // the state of the call so handler(s) are added/removed as the call 
+            // begins/ends. Probably need to differentiate between TCP from UDP too.
             
             
             // Assign an RTP handler if the audio port is specified
             if (fc->audio_port != 0)
             {
-                add_tcp_port_handler(fc->audio_port, &rtp::process);
-                add_udp_port_handler(fc->audio_port, &rtp::process);
+                tcp_ports::add_port_handler(fc->audio_port, &rtp::process);
+                udp_ports::add_port_handler(fc->audio_port, &rtp::process);
             }
 
             // Assign an RTP handler if the video port is specified
             if (fc->video_port != 0)
             {
-                add_tcp_port_handler(fc->video_port, &rtp::process);
-                add_udp_port_handler(fc->video_port, &rtp::process);
+                tcp_ports::add_port_handler(fc->video_port, &rtp::process);
+                udp_ports::add_port_handler(fc->video_port, &rtp::process);
             }
         }
 
