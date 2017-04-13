@@ -241,6 +241,9 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.93
+DNS over TCP, and simple port-based detection for IMAP, SMTP auth, SIP.
+
 @item 0.92
 Changed DNS and ICMP type field in JSON, DNS class and type are presented
 as strings.
