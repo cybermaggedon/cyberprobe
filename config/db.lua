@@ -169,7 +169,7 @@ observer.http_response = function(context, code, status, header, url, body)
   elastic.submit_observation(obs)
 end
 
--- This function is called when a DNS over UDP message is observed.
+-- This function is called when a DNS message is observed.
 observer.dns_message = function(context, header, queries, answers, auth, add)
   local obs = elastic.initialise_observation(context)
 
