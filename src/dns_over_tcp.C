@@ -11,9 +11,45 @@ using namespace cybermon;
 
 void dns_over_tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 {
-    if ((e - s) < 12)
+    // RFC-1035: section 4.2.2 - TCP usage
+    // The message is prefixed with a two byte length field which
+    // gives the message length, excluding the two byte length field.
+    if ((e - s) < 2)
+    {
+        return;
+    }
+
+    uint16_t message_length = (s[0] << 8) + s[1];
+
+    if (message_length < 12)
     {
         throw exception("Invalid DNS header length");
+    }
+
+    // According to the RFC there should be a 2 byte message prefix which needs
+    // to be stepped over before processing the DNS message. But in situations
+    // where there are reassembled segments the start pointer has been advanced
+    // one byte too far. Until that is fixed this horrible hack will attempt to
+    // determine if both prefix bytes are present (by comparing the value to
+    // the known size of the message minus the two prefix bytes themselves) and
+    // either stepping over two or one bytes as necessary.
+
+    if (message_length == ((e - s) - 2))
+    {
+        // Step over the 2 byte prefix
+        s+=2;
+    }
+    else 
+    {
+        // redefine the message length as the value from just the first byte.
+        // This may not work in all situations but it is a hack after all!
+        message_length = s[0];
+
+        if (message_length == ((e - s) - 1))
+        {
+            // Step over 1 byte of prefix
+            s+=1;
+        }
     }
 
     // Parse DNS.

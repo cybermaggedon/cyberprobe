@@ -22,6 +22,14 @@ sort < $abs_srcdir/samples/dns2.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
+AT_SETUP([dnstcp.pcap])
+cat $abs_srcdir/samples/dnstcp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/dnstcp.pcap.monitor > output2
+AT_CHECK([diff -B output1 output2],,[])
+AT_CLEANUP
+
 AT_SETUP([ether.pcap])
 cat $abs_srcdir/samples/ether.pcap | \
     $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
@@ -110,6 +118,17 @@ sort < $abs_srcdir/samples/dns2.pcap.indicators > output2
 # This test fails on MacOS, because it writes IPv6 addresses differently.
 AT_XFAIL_IF([test `uname` = Darwin])
 AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([dnstcp.pcap])
+STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
+export STIX_INDICATORS
+cat $abs_srcdir/samples/dnstcp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/stix+alert.lua | sort -o output1
+cat $abs_srcdir/samples/dnstcp.pcap.indicators | sort -o output2
+# This test fails on MacOS, because it writes IPv6 addresses differently.
+AT_XFAIL_IF([test `uname` = Darwin])
+AT_CHECK([diff -B output1 output2],,[])
 AT_CLEANUP
 
 AT_SETUP([ether.pcap])
