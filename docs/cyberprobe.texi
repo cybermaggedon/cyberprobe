@@ -3297,8 +3297,46 @@ Records an FTP command (client to server).
 Records an FTP response (server to client).
 @item ntp_message
 Records the sending of a NTP message, including the NTP hdr (mode, version, leap second indicator)
+@item imap
+Records the presence of IMAP data.
+@item imap_ssl
+Records the presence of IMAP SSL data.
+@item pop3
+Records the presence of POP.3 data.
+@item pop3_ssl
+Records the presence of POP3 SSL data.
+@item sip_request
+Records the sending of a SIP request.
+@item sip_response
+Records the sending of a SIP response.
+@item sip_ssl
+Records the presence of SIP SSL data.
 @end table
 
+@item url
+The URL identified in any protocol which supports URL request/response e.g.
+HTTP.
+
+@item src
+A list of source protocol addresses travelling up the stack.
+Strings are of the form
+@code{protocol:address} or @code{protocol}.  Example protocol types are:
+@code{tcp}, @code{udp} and @code{ipv4}.
+
+@item dest
+A list of source protocol addresses travelling up the stack.
+Strings are of the form
+@code{protocol:address} or @code{protocol}.  Example protocol types are:
+@code{tcp}, @code{udp} and @code{ipv4}.
+
+@item time
+Time of the event in the form @code{2017-04-24T12:34:24.341Z}.
+
+@item dns_message
+Emitted when a DNS message is observed.  @code{dns_message} is itself a
+JSON object containing the following fields:
+
+@table @samp
 @item queries
 Describes DNS query records in @samp{dns_message} actions. Is a list
 of objects with @samp{name}, @samp{type} and @samp{class} fields containing
@@ -3309,32 +3347,337 @@ Describes DNS answer records in @samp{dns_message} actions.  Is a list
 of objects with @samp{name}, @samp{type} and @samp{class} and @samp{address}
 fields containing strings for name, type and class and IP address.
 
-@item dns_type
+@item type
 DNS message type, one of @samp{query} or @samp{response}.
 
-@item icmp_type
-ICMP message type, and integer.
+@end table
+
+@item unrecognised_datagram
+Emitted when an datagram is observed for which there is no decode.
+The value is a JSON object ontaining the following fields:
+
+@table @samp
+
+@item datagram
+The datagram body, Base64 encoded.
+
+@end table
+
+@item unrecognised_stream
+Emitted when stream data is observed on a stream for which there is no decode.
+The value is a JSON object ontaining the following fields:
+
+@table @samp
+
+@item payload
+The datagram body, Base64 encoded.
+
+@end table
+
+
+@item icmp
+Emitted when an ICMP message is observed.  The value is a JSON object
+ontaining the following fields:
+
+@table @samp
+
+@item type
+ICMP type field.
+
+@item code
+ICMP code field.
+
+@item data
+Raw ICMP payload, Base64 encoded.
+
+@end table
+
+
+@item http_request
+Emitted when an HTTP request is observed.  The value is a JSON object
+ontaining the following fields:
+
+@table @samp
 
 @item method
-HTTP method
-
-@item url
-HTTP URL.
+HTTP method.
 
 @item header
 An object containing key/value pairs for HTTP header.
 
+@item body
+HTTP body, Base64 encoded.
+
+@end table
+
+
+@item http_response
+Emitted when an HTTP response is observed.  The value is a JSON object
+ontaining the following fields:
+
+@table @samp
+
 @item code
-A response code in HTTP response, SMTP response or FTP response.
+HTTP code field e.g. 200.
 
 @item status
-A human-readable status string in HTTP response, SMTP response or FTP response.
+HTTP status field e.g. OK.
+
+@item header
+An object containing key/value pairs for HTTP header.
+
+@item body
+HTTP body, Base64 encoded.
+
+@end table
+
+
+@item ftp_command
+Emitted when an FTP command is observed.  The value is a JSON object
+containing the following fields:
+
+@table @samp
 
 @item command
-Command string in FTP or SMTP protocols.
+The FTP command e.g. PASV.
+
+@end table
+
+
+@item sip_request
+Emitted when @code{action} is @code{sip_request}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item method
+SIP method e.g. INVITE.
+
+@item from
+The SIP caller address.
+
+@item to
+The SIP callee address.
+
+@item data
+SIP message body, base64-encoded.
+
+@end table
+
+@item sip_response
+Emitted when @code{action} is @code{sip_response}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item code
+SIP response code.
+
+@item status
+SIP response status.
+
+@item from
+The SIP caller address.
+
+@item to
+The SIP callee address.
+
+@item data
+SIP message body, base64-encoded.
+
+@end table
+
+
+@item sip_ssl
+Emitted when @code{action} is @code{sip_ssl}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+
+@item imap
+Emitted when @code{action} is @code{imap}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+@item imap_ssl
+Emitted when @code{action} is @code{imap_ssl}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+
+
+@item pop3
+Emitted when @code{action} is @code{pop3}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+
+
+@item pop3_ssl
+Emitted when @code{action} is @code{pop3_ssl}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+
+@item ntp_timestamp
+Emitted when @code{action} is @code{ntp_timestamp}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item version
+NTP header version field.
+
+@item mode
+NTP header mode field.
+
+@end table
+
+
+
+@item ntp_control
+Emitted when @code{action} is @code{ntp_control}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item version
+NTP header version field.
+
+@item mode
+NTP header mode field.
+
+@end table
+
+
+
+@item ntp_private
+Emitted when @code{action} is @code{ntp_private}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item version
+NTP header version field.
+
+@item mode
+NTP header mode field.
+
+@end table
+
+
+
+
+@item ftp_command
+Emitted when @code{action} is @code{ftp_command}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item command
+The FTP command e.g. PASV.
+
+@end table
+
+
+
+@item ftp_response
+Emitted when @code{action} is @code{ftp_response}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item status
+The FTP response status e.g. 200.
 
 @item text
-Reply text in FTP or SMTP protocols.
+The FTP response human-readable text.
+
+@end table
+
+
+
+@item smtp_command
+Emitted when @code{action} is @code{smtp_response}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item command
+The SMTP command.
+
+@end table
+
+
+
+
+@item smtp_response
+Emitted when @code{action} is @code{smtp_response}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item status
+The SMTP response status.
+
+@item text
+The SMTP response human-readable text.
+
+@end table
+
+
+
+@item smtp_data
+Emitted when @code{action} is @code{smtp_data}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item from
+The value of the SMTP MAIL FROM field, a string.
+
+@item to
+A list of strings containing all SMTP RCPT TO field values.
+
+@item body
+The SMTP email body.
+
+@end table
 
 @end table
 
