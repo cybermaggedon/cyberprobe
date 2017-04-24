@@ -96,6 +96,90 @@ AT_CLEANUP
 
 # ----------------------------------------------------------------------------
 
+AT_BANNER([JSON objects created by cybermon.])
+
+AT_SETUP([cpsfnet.pcap])
+cat $abs_srcdir/samples/cpsfnet.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/cpsfnet.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([dns2.pcap])
+cat $abs_srcdir/samples/dns2.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/dns2.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([dnstcp.pcap])
+cat $abs_srcdir/samples/dnstcp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/dnstcp.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([ether.pcap])
+cat $abs_srcdir/samples/ether.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/ether.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([exampleorg.pcap])
+cat $abs_srcdir/samples/exampleorg.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/exampleorg.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([ftp.pcap])
+cat $abs_srcdir/samples/ftp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/ftp.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([smtp.pcap])
+cat $abs_srcdir/samples/smtp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/smtp.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([tcp.pcap])
+cat $abs_srcdir/samples/tcp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/tcp.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([ntp.pcap])
+cat $abs_srcdir/samples/ntp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/ntp.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([icmp.pcap])
+cat $abs_srcdir/samples/icmp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/icmp.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+# ----------------------------------------------------------------------------
+
 AT_BANNER([PCAP samples decoded with cybermon, and STIX indicators.])
 
 AT_SETUP([cpsfnet.pcap])

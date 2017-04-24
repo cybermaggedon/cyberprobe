@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+#
+# Reads JSON, one JSON object per line, and outputs a summary of the data on
+# standard output, of the form:
+# of the form:
+#
+#
+
+import json
+import sys
+import types
+
+summary = {}
+
+def OLDparse(s, r, d):
+    for key in d:
+        print r + "." + key
+        if type(d[key]) == types.DictType:
+            parse(s, r + "." + key, d[key])
+
+        if type(d[key]) == types.ListType:
+            for i in range(0, 10):
+                print i
+#                parse(s, r + "." + key, i)
+
+def parse(s, key, d):
+
+#    print type(d)
+    if type(d) == types.DictType:
+        for k2 in d:
+            parse(s, key + "." + k2, d[k2])
+
+    if type(d) == types.ListType:
+        for i in range(0, len(d)):
+            parse(s, key + "." + str(i), d[i])
+
+    if type(d) == types.StringType or type(d) == types.UnicodeType:
+        sk = key + " " + d
+        if summary.has_key(sk):
+            summary[sk] += 1
+        else:
+            summary[sk] = 1
+
+for line in sys.stdin.readlines():
+    obj = json.loads(line)
+
+    parse(summary, "", obj)
+
+sorted_summary = []
+for v in summary:
+    sorted_summary.append(v + " " + str(summary[v]))
+sorted_summary.sort()
+
+for v in sorted_summary:
+    print v
+

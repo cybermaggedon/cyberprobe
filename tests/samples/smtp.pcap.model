@@ -1,0 +1,70 @@
+.action connected_down 2
+.action connected_up 2
+.action dns_message 8
+.action ntp_timestamp 4
+.action smtp_command 5
+.action smtp_data 1
+.action smtp_response 7
+.dest.0 ipv4:149.20.54.225 8
+.dest.0 ipv4:176.9.92.196 1
+.dest.0 ipv4:192.168.122.1 4
+.dest.0 ipv4:192.168.122.11 15
+.dest.0 ipv4:217.73.16.2 1
+.dest.1 tcp:25 8
+.dest.1 tcp:54320 9
+.dest.1 udp:123 4
+.dest.1 udp:46508 2
+.dest.1 udp:48676 2
+.dest.1 udp:53 4
+.dest.2 dns 8
+.dest.2 ntp 4
+.dest.2 smtp 13
+.device PCAP 29
+.dns_message.answers.0.address 149.20.54.225 1
+.dns_message.answers.0.address 192.168.122.11 1
+.dns_message.answers.0.address 2001:4f8:3:36::225 1
+.dns_message.answers.0.class IN 3
+.dns_message.answers.0.name fedora64 1
+.dns_message.answers.0.name test.smtp.org 2
+.dns_message.answers.0.type A 2
+.dns_message.answers.0.type AAAA 1
+.dns_message.queries.0.class IN 8
+.dns_message.queries.0.name fedora64 4
+.dns_message.queries.0.name test.smtp.org 4
+.dns_message.queries.0.type A 4
+.dns_message.queries.0.type AAAA 4
+.dns_message.type query 4
+.dns_message.type response 4
+.smtp_command.command DATA 1
+.smtp_command.command HELO malware.com 1
+.smtp_command.command MAIL FROM: <malware@malware.com> 1
+.smtp_command.command QUIT 1
+.smtp_command.command RCPT TO: <bit-bucket@test.smtp.org> 1
+.smtp_data.body FFFFFrom: <bunchy@bunchy.org>
+To: <fred@cats-nest.org>
+Subject: Hello there!!!
+
+Hello.  That is all. 1
+.smtp_data.from malware@malware.com 1
+.smtp_data.to.0 bit-bucket@test.smtp.org 1
+.smtp_response.text.0 2.0.0 s9ALBn7m032410 Message accepted for delivery 1
+.smtp_response.text.0 2.0.0 test.smtp.org closing connection 1
+.smtp_response.text.0 2.1.0 <malware@malware.com>... Sender ok 1
+.smtp_response.text.0 2.1.5 <bit-bucket@test.smtp.org>... Recipient ok 1
+.smtp_response.text.0 Enter mail, end with "." on a line by itself 1
+.smtp_response.text.0 test.smtp.org ESMTP Sendmail 8.14.9 ready at Fri, 10 Oct 2014 14:11:49 -0700 (PDT); see http://test.smtp.org/ 1
+.smtp_response.text.0 test.smtp.org Hello host86-157-105-113.range86-157.btcentralplus.com [86.157.105.113], pleased to meet you 1
+.src.0 ipv4:149.20.54.225 9
+.src.0 ipv4:176.9.92.196 1
+.src.0 ipv4:192.168.122.1 4
+.src.0 ipv4:192.168.122.11 14
+.src.0 ipv4:217.73.16.2 1
+.src.1 tcp:25 9
+.src.1 tcp:54320 8
+.src.1 udp:123 4
+.src.1 udp:46508 2
+.src.1 udp:48676 2
+.src.1 udp:53 4
+.src.2 dns 8
+.src.2 ntp 4
+.src.2 smtp 13

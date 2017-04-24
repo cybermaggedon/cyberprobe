@@ -34,7 +34,12 @@ EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) \
 	samples/icmp.pcap samples/icmp.pcap.indicators \
 	samples/icmp.pcap.monitor samples/dnstcp.pcap \
 	samples/dnstcp.pcap.monitor samples/dnstcp.pcap.indicators \
-	stix/stix-default-combined.json
+	stix/stix-default-combined.json samples/cpsfnet.pcap.model \
+	samples/dns2.pcap.model samples/dnstcp.pcap.model \
+	samples/ether.pcap.model samples/exampleorg.pcap.model \
+	samples/ftp.pcap.model samples/icmp.pcap.model \
+	samples/ntp.pcap.model samples/smtp.pcap.model \
+	samples/tcp.pcap.model summarise_json
 
 TESTSUITE = $(srcdir)/testsuite
 DISTCLEANFILES = $(TESTSUITE) atconfig
