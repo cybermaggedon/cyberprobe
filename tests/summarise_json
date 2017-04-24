@@ -15,6 +15,12 @@ summary = {}
 
 def parse(s, key, d):
 
+    # Ignore time field - it varies.
+    if key == ".time": return
+
+    # Ignore ID field, it's random.
+    if key == ".id": return
+        
     if type(d) == types.DictType:
         for k2 in d:
             parse(s, key + "." + k2, d[k2])
@@ -42,8 +48,9 @@ for line in sys.stdin.readlines():
 sorted_summary = []
 for v in summary:
     sorted_summary.append(v + " " + str(summary[v]))
+
 sorted_summary.sort()
 
-#for v in sorted_summary:
-#    print v
+for v in sorted_summary:
+    print v
 

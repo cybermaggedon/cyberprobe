@@ -107,14 +107,14 @@ local initialise_observation = function(context, indicators)
     end
   end
 
---  local tm = context:get_event_time()
---  local tmstr = os.date("!%Y-%m-%dT%H:%M:%S", math.floor(tm))
---  local millis = 1000 * (tm - math.floor(tm))
+  local tm = context:get_event_time()
+  local tmstr = os.date("!%Y-%m-%dT%H:%M:%S", math.floor(tm))
+  local millis = 1000 * (tm - math.floor(tm))
 
---  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
+  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
 
---  obs["time"] = tmstr
---  obs["id"] = uuid()
+  obs["time"] = tmstr
+  obs["id"] = uuid()
 
   return obs
 
@@ -365,6 +365,38 @@ module.sip_ssl = function(context, data)
   local obs = initialise_observation(context)
   obs["action"] = "sip_ssl"
   obs["sip_ssl"] = { payload=b64(data) }
+  submit(obs)
+end
+
+-- This function is called when an IMAP message is observed.
+module.imap = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "imap"
+  obs["imap"] = { payload=b64(data) }
+  submit(obs)
+end
+
+-- This function is called when an IMAP SSL message is observed.
+module.imap_ssl = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "imap_ssl"
+  obs["imap_ssl"] = { payload=b64(data) }
+  submit(obs)
+end
+
+-- This function is called when a POP3 message is observed.
+module.pop3 = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "pop3"
+  obs["pop3"] = { payload=b64(data) }
+  submit(obs)
+end
+
+-- This function is called when a POP3 SSL message is observed.
+module.pop3_ssl = function(context, data)
+  local obs = initialise_observation(context)
+  obs["action"] = "pop3_ssl"
+  obs["pop3_ssl"] = { payload=b64(data) }
   submit(obs)
 end
 
