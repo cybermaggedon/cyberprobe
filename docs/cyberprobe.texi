@@ -1653,6 +1653,7 @@ tutorial and start playing with the data.
 @cindex STIX indicators
 @cindex Threat indicators
 @cindex Cyber threat indicators
+@cindex JSON
 
 We've been experimenting with an open model for describing cyber
 threats. STIX is a community-driven effort to standardise a model for cyber
@@ -1748,6 +1749,8 @@ And you should see some stuff that looks like cyber threat information
 dumped on the screen.
 
 @heading Deploying theat information to @command{cybermon}
+
+@cindex JSON
 
 Now, we use @command{taxii-sync-json} to fetch the STIX information in a
 JSON form I can easily ingest into the LUA code:
@@ -3144,6 +3147,7 @@ output.
 @cindex Cybermon JSON message format
 @cindex publish/subscribe
 @cindex pub/sub
+@cindex JSON
 
 For each Lua event, a JSON record is formatted and published to a ZeroMQ
 queue on port 5555.  See @ref{Cybermon JSON message format}.
@@ -3153,6 +3157,7 @@ queue on port 5555.  See @ref{Cybermon JSON message format}.
 @cindex Redis
 @cindex Cybermon JSON message format
 @cindex queue delivery using Redis
+@cindex JSON
 
 For each Lua event, a JSON record is formatted and RPUSH'd to a Redis server
 defiend by the @code{REDIS_SERVER} environment variable which should be in
@@ -3162,6 +3167,7 @@ Each message is JSON format, see @ref{Cybermon JSON message format}.
 @item json.lua
 
 @cindex Cybermon JSON message format
+@cindex JSON
 
 For each Lua event, a JSON record is formatted and delivered to standard
 outut.
@@ -3242,6 +3248,7 @@ in @code{cybermon} events.
 @cindex Cybermon JSON message format
 @cindex publish/subscribe
 @cindex pub/sub
+@cindex JSON
 
 Cybermon's @samp{zeromq.lua} and @samp{redis.lua} configuration files
 transmit messages in JSON format.  Each message is a JSON object
@@ -3332,8 +3339,10 @@ Strings are of the form
 @item time
 Time of the event in the form @code{2017-04-24T12:34:24.341Z}.
 
+
 @item dns_message
-Emitted when a DNS message is observed.  @code{dns_message} is itself a
+Emitted when @code{action} is @code{dns_message}.
+@code{dns_message} is itself a
 JSON object containing the following fields:
 
 @table @samp
@@ -3352,8 +3361,9 @@ DNS message type, one of @samp{query} or @samp{response}.
 
 @end table
 
+
 @item unrecognised_datagram
-Emitted when an datagram is observed for which there is no decode.
+Emitted when @code{action} is @code{unrecognised_datagram}.
 The value is a JSON object ontaining the following fields:
 
 @table @samp
@@ -3363,8 +3373,9 @@ The datagram body, Base64 encoded.
 
 @end table
 
+
 @item unrecognised_stream
-Emitted when stream data is observed on a stream for which there is no decode.
+Emitted when @code{action} is @code{unrecognised_stream}. 
 The value is a JSON object ontaining the following fields:
 
 @table @samp
@@ -3376,7 +3387,8 @@ The datagram body, Base64 encoded.
 
 
 @item icmp
-Emitted when an ICMP message is observed.  The value is a JSON object
+Emitted when @code{action} is @code{icmp}.
+The value is a JSON object
 ontaining the following fields:
 
 @table @samp
@@ -3394,7 +3406,8 @@ Raw ICMP payload, Base64 encoded.
 
 
 @item http_request
-Emitted when an HTTP request is observed.  The value is a JSON object
+Emitted when @code{action} is @code{http_request}.
+The value is a JSON object
 ontaining the following fields:
 
 @table @samp
@@ -3412,7 +3425,8 @@ HTTP body, Base64 encoded.
 
 
 @item http_response
-Emitted when an HTTP response is observed.  The value is a JSON object
+Emitted when @code{action} is @code{http_response}.
+The value is a JSON object
 ontaining the following fields:
 
 @table @samp
@@ -3428,18 +3442,6 @@ An object containing key/value pairs for HTTP header.
 
 @item body
 HTTP body, Base64 encoded.
-
-@end table
-
-
-@item ftp_command
-Emitted when an FTP command is observed.  The value is a JSON object
-containing the following fields:
-
-@table @samp
-
-@item command
-The FTP command e.g. PASV.
 
 @end table
 
@@ -3463,6 +3465,7 @@ The SIP callee address.
 SIP message body, base64-encoded.
 
 @end table
+
 
 @item sip_response
 Emitted when @code{action} is @code{sip_response}. The value is a JSON object
@@ -3500,7 +3503,6 @@ The message payload, base64-encoded.
 @end table
 
 
-
 @item imap
 Emitted when @code{action} is @code{imap}.The value is a JSON object
 containing the following fields:
@@ -3525,8 +3527,6 @@ The message payload, base64-encoded.
 @end table
 
 
-
-
 @item pop3
 Emitted when @code{action} is @code{pop3}.The value is a JSON object
 containing the following fields:
@@ -3539,8 +3539,6 @@ The message payload, base64-encoded.
 @end table
 
 
-
-
 @item pop3_ssl
 Emitted when @code{action} is @code{pop3_ssl}.The value is a JSON object
 containing the following fields:
@@ -3551,7 +3549,6 @@ containing the following fields:
 The message payload, base64-encoded.
 
 @end table
-
 
 
 @item ntp_timestamp
@@ -3569,7 +3566,6 @@ NTP header mode field.
 @end table
 
 
-
 @item ntp_control
 Emitted when @code{action} is @code{ntp_control}. The value is a JSON object
 containing the following fields:
@@ -3583,7 +3579,6 @@ NTP header version field.
 NTP header mode field.
 
 @end table
-
 
 
 @item ntp_private
@@ -3601,8 +3596,6 @@ NTP header mode field.
 @end table
 
 
-
-
 @item ftp_command
 Emitted when @code{action} is @code{ftp_command}.The value is a JSON object
 containing the following fields:
@@ -3613,7 +3606,6 @@ containing the following fields:
 The FTP command e.g. PASV.
 
 @end table
-
 
 
 @item ftp_response
@@ -3631,7 +3623,6 @@ The FTP response human-readable text.
 @end table
 
 
-
 @item smtp_command
 Emitted when @code{action} is @code{smtp_response}.The value is a JSON object
 containing the following fields:
@@ -3642,8 +3633,6 @@ containing the following fields:
 The SMTP command.
 
 @end table
-
-
 
 
 @item smtp_response
@@ -3659,7 +3648,6 @@ The SMTP response status.
 The SMTP response human-readable text.
 
 @end table
-
 
 
 @item smtp_data
