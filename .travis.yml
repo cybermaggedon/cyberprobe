@@ -32,6 +32,7 @@ addons:
     - gcc
     - g++
     - libboost-all-dev
+    - python-simplejson
 
 before_script:
   - wget http://luarocks.org/releases/luarocks-2.4.2.tar.gz
