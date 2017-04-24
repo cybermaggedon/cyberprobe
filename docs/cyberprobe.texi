@@ -2794,8 +2794,8 @@ end
 observer.unrecognised_datagram = function(context, data)
 end
 
--- This function is called when stream data  is observed, but the
--- protocol is not recognised.
+-- This function is called when stream data  is observed, but the protocol
+-- is not recognised.
 observer.unrecognised_stream = function(context, data)
 end
 
@@ -2803,22 +2803,82 @@ end
 observer.icmp = function(context, icmp_type, icmp_code, data)
 end
 
+-- This function is called when an IMAP message is observed.
+observer.imap = function(context, data)
+end
+
+-- This function is called when an IMAP SSL message is observed.
+observer.imap_ssl = function(context, data)
+end
+
+-- This function is called when a POP3 message is observed.
+observer.pop3 = function(context, data)
+end
+
+-- This function is called when a POP3 SSL message is observed.
+observer.pop3_ssl = function(context, data)
+end
+
 -- This function is called when an HTTP request is observed.
 observer.http_request = function(context, method, url, header, body)
 end
 
 -- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url,
-                         body)
+observer.http_response = function(context, code, status, header, url, body)
+end
+
+-- This function is called when a SIP request message is observed.
+observer.sip_request = function(context, method, from, to, data)
+end
+
+-- This function is called when a SIP response message is observed.
+observer.sip_response = function(context, code, status, from, to, data)
+end
+
+-- This function is called when a SIP SSL message is observed.
+observer.sip_ssl = function(context, data)
+end
+
+-- This function is called when an SMTP command is observed.
+observer.smtp_command = function(context, command)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_response = function(context, status, text)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_data = function(context, from, to, data)
 end
 
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth,
-                                add)
+observer.dns_message = function(context, header, queries, answers, auth, add)
 end
+
+-- This function is called when an FTP command is observed.
+observer.ftp_command = function(context, command)
+end
+
+-- This function is called when an FTP response is observed.
+observer.ftp_response = function(context, status, text)
+end
+
+-- This function is called when an NTP timestamp message is observed.
+observer.ntp_timestamp_message = function(context, hdr, info)
+end
+
+-- This function is called when an NTP control message is observed.
+observer.ntp_control_message = function(context, hdr, info)
+end
+
+-- This function is called when an NTP private message is observed.
+observer.ntp_private_message = function(context, hdr, info)
+end
+
 
 -- Return the table
 return observer
+
 @end example
 
 @cindex LUA events
@@ -2849,9 +2909,10 @@ from @command{cybermon}.
 @item connection_down(context)
 Similar to @code{connection_up}, called when a connection closes.
 
-@item icmp(context, data)
-Called when an ICMP message is detected. The @code{data} parameter contains
-the ICMP message body.
+@item icmp(context, type, code, data)
+Called when an ICMP message is detected. The @code{type} and @code{code}
+parameters refer to ICMP code and type values, while @code{data}
+parameter contains the ICMP message body.
 
 @item http_request(context, method, url, header, body)
 Called when an HTTP request is observed. The HTTP method and URL are
@@ -2933,6 +2994,37 @@ Called when connection-orientated data is received using a protocol which
 isn't recognised. Currently, only HTTP, SMTP and FTP are recognised. Any
 other TCP protocol results in calls to this function whenever data is
 observed.
+
+@item imap(data)
+Called when an IMAP message is detected. The @code{data}
+parameter contains raw message body.
+
+@item imap_ssl(data)
+Called when an IMAP SSL message is detected. The @code{data}
+parameter contains raw message body.
+
+@item pop3(data)
+Called when a POP3 message is detected. The @code{data}
+parameter contains raw message body.
+
+@item pop3_ssl(data)
+Called when a POP3 SSL message is detected. The @code{data}
+parameter contains raw message body.
+
+@item sip_request(context, method, from, to, data)
+Called when a SIP request is observed.  The @code{from} and @code{to}
+parameters contain caller/callee information.  The @code{method} parameter
+contains SIP method, and @code{data} contains the message payload.
+
+@item sip_response(context, code, status, from, to, data)
+Called when a SIP request is observed.  Response information is
+described in the @code{code} and @code{status} parameters.  The @code{from}
+and @code{to} parameters contain caller/callee information.  The @code{data}
+parameter contains the message payload.
+
+@item sip_ssl(data)
+Called when a SIP SSL message is detected. The @code{data}
+parameter contains raw message body.
 
 @end table
 
@@ -3065,6 +3157,14 @@ queue on port 5555.  See @ref{Cybermon JSON message format}.
 For each Lua event, a JSON record is formatted and RPUSH'd to a Redis server
 defiend by the @code{REDIS_SERVER} environment variable which should be in
 @code{HOST:PORT} form.
+Each message is JSON format, see @ref{Cybermon JSON message format}.
+
+@item json.lua
+
+@cindex Cybermon JSON message format
+
+For each Lua event, a JSON record is formatted and delivered to standard
+outut.
 Each message is JSON format, see @ref{Cybermon JSON message format}.
 
 @item quiet.lua
