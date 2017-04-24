@@ -3,8 +3,6 @@
 -- This one integrates cybermon with redis, so that network events are RPUSH'd
 -- on a list to use as a queue.
 --
--- FIXME: Loads of boiler-plate code taken from zeromq.lua
--- 
 
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
@@ -44,7 +42,6 @@ local init = function()
 end
 
 -- Redis object submission function - just pushes the object onto the queue.
-
 local submit = function(obs)
   ret = client:rpush(queue, json.encode(obs))
 end

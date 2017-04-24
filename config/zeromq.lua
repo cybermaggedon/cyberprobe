@@ -9,19 +9,10 @@
 local observer = {}
 
 -- Other modules -----------------------------------------------------------
-
-local mime = require("mime")
 local json = require("json")
 local lzmq = require("lzmq")
 local os = require("os")
-
--- Initialise UUID ---------------------------------------------------------
-
--- Needed to help initialise UUID.
-local socket = require("socket")
-local uuid = require("uuid")
-
-uuid.seed()
+local model = require("util.json")
 
 -- Config ------------------------------------------------------------------
 
@@ -41,31 +32,7 @@ else
   end
 end
 
--- GeoIP -------------------------------------------------------------------
-
--- Open geoip module if it exists.
-local geoip
-status, rtn, geoip = pcall(function() return require("geoip.country") end)
-if status then
-  geoip = rtn
-end 
-
--- Open geoip database if it exists.
-local geodb
-if geoip then
-  geodb = geoip.open()
-  print("Using GeoIP: " .. tostring(geodb))
-end
-
--- Base64 encoding
-local b64 = function(x)
-  local a, b = mime.b64(x)
-  if (a == nil) then
-    return ""
-  end
-  return a
-end
-
+-- Local socket state
 local context
 local skt
 
@@ -94,394 +61,40 @@ local init = function()
 
 end
 
--- Gets the stack of addresses on the src/dest side of a context.
-local function get_stack(context, addrs, is_src)
-
-  local par = context:get_parent()
-
-  if par then
-    get_stack(par, addrs, is_src)
-  end
-
-  local cls, addr
-  if is_src then
-    cls, addr = context:get_src_addr()
-  else
-    cls, addr = context:get_dest_addr()
-  end
-
-  if cls == "root" then
-    return
-  end
-
-  if addr == "" then
-    table.insert(addrs, cls)
-  else
-    table.insert(addrs, cls .. ":" .. addr)
-  end
-  
-end
-
--- Initialise a basic observation
-local initialise_observation = function(context, indicators)
-
-  local obs = {}
-  obs["device"] = context:get_liid()
-
-  local addrs = {}
-  get_stack(context, addrs, true)
-  obs["src"] = addrs
-
-  addrs = {}
-  get_stack(context, addrs, false)
-  obs["dest"] = addrs
-
-  if indicators and not(#indicators == 0) then
-    obs["indicators"] = {}
-    obs["indicators"]["on"] = {}
-    obs["indicators"]["description"] = {}
-    obs["indicators"]["value"] = {}
-    obs["indicators"]["id"] = {}
-    for key, value in pairs(indicators) do
-      table.insert(obs["indicators"]["on"], value["on"])
-      table.insert(obs["indicators"]["description"], value["description"])
-      table.insert(obs["indicators"]["value"], value["value"])
-      table.insert(obs["indicators"]["id"], value["id"])
-    end
-  end
-
-  local tm = context:get_event_time()
-  local tmstr = os.date("!%Y-%m-%dT%H:%M:%S", math.floor(tm))
-  local millis = 1000 * (tm - math.floor(tm))
-
-  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
-
-  obs["time"] = tmstr
-  obs["id"] = uuid()
-
-  return obs
-
-end
-
-local submit_observation = function(obs)
+-- ZeroMQ object submission function - just pushes the object onto the queue.
+local submit = function(obs)
   ret = skt:send(json.encode(obs))
 end
 
--- This function is called when a trigger events starts collection of an
--- attacker. liid=the trigger ID, addr=trigger address
-observer.trigger_up = function(liid, addr)
-end
+-- Call the JSON functions for all observer functions.
+observer.trigger_up = model.trigger_up
+observer.trigger_down = model.trigger_down
+observer.connection_up = model.connection_up
+observer.connection_down = model.connection_down
+observer.unrecognised_datagram = model.unrecognised_datagram
+observer.unrecognised_stream = model.unrecognised_stream
+observer.icmp = model.icmp
+observer.imap = model.imap
+observer.imap_ssl = model.imap_ssl
+observer.pop3 = model.pop3
+observer.pop3_ssl = model.pop3_ssl
+observer.http_request = model.http_request
+observer.http_response = model.http_response
+observer.sip_request = model.sip_request
+observer.sip_response = model.sip_response
+observer.sip_ssl = model.sip_ssl
+observer.smtp_command = model.smtp_command
+observer.smtp_response = model.smtp_response
+observer.smtp_data = model.smtp_data
+observer.dns_message = model.dns_message
+observer.ftp_command = model.ftp_command
+observer.ftp_response = model.ftp_response
+observer.ntp_timestamp_message = model.ntp_timestamp_message
+observer.ntp_control_message = model.ntp_control_message
+observer.ntp_private_message = model.ntp_private_message
 
--- This function is called when an attacker goes off the air
-observer.trigger_down = function(liid)
-end
-
--- This function is called when a stream-orientated connection is made
--- (e.g. TCP)
-observer.connection_up = function(context)
-  local obs = initialise_observation(context)
-  obs["action"] = "connected_up"
-  submit_observation(obs)
-end
-
--- This function is called when a stream-orientated connection is closed
-observer.connection_down = function(context)
-  local obs = initialise_observation(context)
-  obs["action"] = "connected_down"
-  submit_observation(obs)
-end
-
--- This function is called when a datagram is observed, but the protocol
--- is not recognised.
-observer.unrecognised_datagram = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "unrecognised_datagram"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when stream data  is observed, but the protocol
--- is not recognised.
-observer.unrecognised_stream = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "unrecognised_stream"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when an ICMP message is observed.
-observer.icmp = function(context, icmp_type, icmp_code, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "icmp"
-  obs["icmp_type"] = icmp_type
-  obs["icmp_code"] = icmp_code
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when an IMAP message is observed.
-observer.imap = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "imap"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when an IMAP SSL message is observed.
-observer.imap_ssl = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "imap_ssl"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when a POP3 message is observed.
-observer.pop3 = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "pop3"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when a POP3 SSL message is observed.
-observer.pop3_ssl = function(context, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "pop3_ssl"
-  obs["payload"] = b64(data)
-  submit_observation(obs)
-end
-
--- This function is called when an HTTP request is observed.
-observer.http_request = function(context, method, url, header, body)
-  local obs = initialise_observation(context)
-  obs["action"] = "http_request"
-  obs["method"] = method
-  obs["url"] = url
-  obs["header"] = header
-  obs["body"] = b64(body)
-  submit_observation(obs)
-end
-
--- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url, body)
-  local obs = initialise_observation(context)
-  obs["action"] = "http_response"
-  obs["code"] = code
-  obs["status"] = status
-  obs["header"] = header
-  obs["url"] = url
-  obs["body"] = b64(body)
-  submit_observation(obs)
-end
-
-local dns_class_name = {}
-dns_class_name[1] = "IN"
-dns_class_name[2] = "CS"
-dns_class_name[3] = "CH"
-dns_class_name[4] = "HS"
-
-local dns_type_name = {}
-dns_type_name[1] = "A"
-dns_type_name[2] = "NS"
-dns_type_name[2] = "NS"
-dns_type_name[3] = "MD"
-dns_type_name[4] = "MF"
-dns_type_name[5] = "CNAME"
-dns_type_name[6] = "SOA"
-dns_type_name[7] = "MB"
-dns_type_name[8] = "MG"
-dns_type_name[9] = "MR"
-dns_type_name[10] = "NULL"
-dns_type_name[11] = "WKS"
-dns_type_name[12] = "PTR"
-dns_type_name[13] = "HINFO"
-dns_type_name[14] = "MINFO"
-dns_type_name[15] = "MX"
-dns_type_name[16] = "TXT"
-dns_type_name[17] = "RP"
-dns_type_name[18] = "AFSDB"
-dns_type_name[19] = "X25"
-dns_type_name[20] = "ISDN"
-dns_type_name[21] = "RT"
-dns_type_name[22] = "NSAP"
-dns_type_name[23] = "NSAP-PTR"
-dns_type_name[24] = "SIG"
-dns_type_name[25] = "KEY"
-dns_type_name[26] = "PX"
-dns_type_name[27] = "GPOS"
-dns_type_name[28] = "AAAA"
-dns_type_name[29] = "LOC"
-dns_type_name[31] = "EID"
-dns_type_name[32] = "NIMLOC"
-dns_type_name[33] = "SRV"
-dns_type_name[34] = "ATMA"
-dns_type_name[35] = "NAPTR"
-dns_type_name[36] = "KX"
-dns_type_name[37] = "CERT"
-dns_type_name[39] = "DNAME"
-dns_type_name[40] = "SINK"
-dns_type_name[41] = "OPT"
-dns_type_name[42] = "APL"
-dns_type_name[43] = "DS"
-dns_type_name[44] = "SSHFP"
-dns_type_name[45] = "IPSECKEY"
-dns_type_name[46] = "RRSIG"
-dns_type_name[47] = "NSEC"
-dns_type_name[48] = "DNSKEY"
-dns_type_name[49] = "DHCID"
-dns_type_name[50] = "NSEC3"
-dns_type_name[51] = "NSEC3PARAM"
-dns_type_name[52] = "TLSA"
-dns_type_name[55] = "HIP"
-dns_type_name[59] = "CDS"
-dns_type_name[60] = "CDNSKEY"
-dns_type_name[99] = "SPF"
-dns_type_name[100] = "UINFO"
-dns_type_name[101] = "UID"
-dns_type_name[102] = "GID"
-dns_type_name[103] = "UNSPEC"
-dns_type_name[249] = "TKEY"
-dns_type_name[250] = "TSIG"
-dns_type_name[251] = "IXFR"
-dns_type_name[252] = "AXFR"
-dns_type_name[254] = "MAILA"
-dns_type_name[256] = "URI"
-dns_type_name[257] = "CAA"
-dns_type_name[32768] = "TA"
-dns_type_name[32769] = "DLV"
-
--- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
-
-  local obs = initialise_observation(context)
-
-  obs["action"] = "dns_message"
-
-  if header.qr == 0 then
-    obs["dns_type"] = "query"
-  else
-    obs["dns_type"] = "response"
-  end
-
-  local q = {}
-  json.util.InitArray(q)
-  for key, value in pairs(queries) do
-    local a = {}
-    a["name"] = value.name
-    if dns_type_name[value.type] == nil then
-      a["type"] = tostring(value.type)
-    else
-      a["type"] = dns_type_name[value.type]
-    end
-    a["class"] = dns_class_name[value.class]
-    q[#q + 1] = a
-  end
-  obs["queries"] = q
-
-  q = {}
-  json.util.InitArray(q)
-  for key, value in pairs(answers) do
-    local a = {}
-    a["name"] = value.name
-    if dns_type_name[value.type] == nil then
-      a["type"] = tostring(value.type)
-    else
-      a["type"] = dns_type_name[value.type]
-    end
-    a["class"] = dns_class_name[value.class]
-    if value.rdaddress then
-       a["address"] = value.rdaddress
-    end
-    if value.rdname then
-       a["name"] = value.rdname
-    end
-    q[#q + 1] = a
-  end
-  obs["answers"] = q
-  
-  submit_observation(obs)
-
-end
-
--- This function is called when an FTP command is observed.
-observer.ftp_command = function(context, command)
-  local obs = initialise_observation(context)
-  obs["action"] = "ftp_command"
-  obs["command"] = command
-  submit_observation(obs)
-end
-
--- This function is called when an FTP response is observed.
-observer.ftp_response = function(context, status, text)
-  local obs = initialise_observation(context)
-  obs["action"] = "ftp_response"
-  obs["status"] = status
-  obs["text"] = text
-  submit_observation(obs)
-end
-
--- This function is called when a SIP request message is observed.
-observer.sip_request = function(context, method, from, to, data)
-end
-
--- This function is called when a SIP response message is observed.
-observer.sip_response = function(context, code, status, from, to, data)
-end
-
--- This function is called when a SIP SSL message is observed.
-observer.sip_ssl = function(context, data)
-end
-
--- This function is called when an SMTP command is observed.
-observer.smtp_command = function(context, command)
-  local obs = initialise_observation(context)
-  obs["action"] = "smtp_command"
-  obs["command"] = command
-  submit_observation(obs)
-end
-
--- This function is called when an SMTP response is observed.
-observer.smtp_response = function(context, status, text)
-  local obs = initialise_observation(context)
-  obs["action"] = "smtp_response"
-  obs["status"] = status
-  obs["text"] = text
-  submit_observation(obs)
-end
-
--- This function is called when an SMTP response is observed.
-observer.smtp_data = function(context, from, to, data)
-  local obs = initialise_observation(context)
-  obs["action"] = "smtp_data"
-  obs["from"] = from
-  obs["to"] = to
-  obs["body"] = data
-  submit_observation(obs)
-end
-
--- This function is called when a NTP message is observed.
-observer.ntp_common = function(context, hdr)
-  local obs = initialise_observation(context)
-  obs["action"] = "ntp_message"
-  obs["version"] = hdr.version
-  obs["mode"] = hdr.mode
-  submit_observation(obs)
-end
-
--- This function is called when a NTP timestamp message is observed.
-observer.ntp_timestamp_message = function(context, hdr, info)
-  observer.ntp_common(context, hdr)
-end
-
--- This function is called when a NTP control message is observed.
-observer.ntp_control_message = function(context, hdr, info)
-  observer.ntp_common(context, hdr)
-end
-
--- This function is called when an NTP private message is observed.
-observer.ntp_private_message = function(context, hdr, info)
-  observer.ntp_common(context, hdr)
-end
+-- Register Redis submission.
+model.init(submit)
 
 -- Initialise
 init()
