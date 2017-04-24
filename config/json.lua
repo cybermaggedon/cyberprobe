@@ -1,53 +1,16 @@
 --
 -- Cybermon configuration file, used to tailor the behaviour of cybermon.
--- This one integrates cybermon with redis, so that network events are RPUSH'd
--- on a list to use as a queue.
 --
--- FIXME: Loads of boiler-plate code taken from zeromq.lua
--- 
+-- This configuration file outputs events as JSON, one JSON event per lie.
+--
 
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
 
--- Other modules -----------------------------------------------------------
-local json = require("json")
-local redis = require("redis")
-local os = require("os")
-local string = require("string")
 local model = require("util.json")
 
--- Config ------------------------------------------------------------------
-
-local redist_host = "redis"
-local redis_port = 6379
-
-if os.getenv("REDIS_SERVER") then
-  local redis_server = os.getenv("REDIS_SERVER")
-  local a, b = string.find(redis_server, ":")
-  if a > 0 then
-    redis_host = string.sub(redis_server, 1, a-1)
-    redis_port = tonumber(string.sub(redis_server, b + 1, -1))
-  end
-
-  if os.getenv("QUEUE") then
-    queue = os.getenv("QUEUE")
-  else
-    queue = 'input'
-  end
-  
-end
-
--- Initialise.
-local init = function()
-  client = redis.connect(redis_host, redis_port)
-end
-
--- Redis object submission function - just pushes the object onto the queue.
-
-local submit = function(obs)
-  ret = client:rpush(queue, json.encode(obs))
-end
+-- The table should contain functions.
 
 -- Call the JSON functions for all observer functions.
 observer.trigger_up = model.trigger_up
@@ -76,11 +39,12 @@ observer.ntp_timestamp_message = model.ntp_timestamp_message
 observer.ntp_control_message = model.ntp_control_message
 observer.ntp_private_message = model.ntp_private_message
 
--- Register Redis submission.
-model.init(submit)
+local submit = function(obj)
+  data = json.encode(obj)
+  print(data)
+end
 
--- Initialise
-init()
+model.init(submit)
 
 -- Return the table
 return observer
