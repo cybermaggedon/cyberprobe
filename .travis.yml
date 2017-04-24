@@ -43,6 +43,7 @@ before_script:
   - sudo /usr/local/bin/luarocks --tree=/usr install luafilesystem
   - sudo /usr/local/bin/luarocks --tree=/usr install lmd5
   - sudo /usr/local/bin/luarocks --tree=/usr install luasocket
+  - sudo /usr/local/bin/luarocks --tree=/usr install uuid
 
 compiler:
   - g++
