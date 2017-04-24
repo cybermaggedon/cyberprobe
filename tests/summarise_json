@@ -13,30 +13,22 @@ import types
 
 summary = {}
 
-def OLDparse(s, r, d):
-    for key in d:
-        print r + "." + key
-        if type(d[key]) == types.DictType:
-            parse(s, r + "." + key, d[key])
-
-        if type(d[key]) == types.ListType:
-            for i in range(0, 10):
-                print i
-#                parse(s, r + "." + key, i)
-
 def parse(s, key, d):
 
-#    print type(d)
     if type(d) == types.DictType:
         for k2 in d:
             parse(s, key + "." + k2, d[k2])
-
-    if type(d) == types.ListType:
+    elif type(d) == types.ListType:
         for i in range(0, len(d)):
             parse(s, key + "." + str(i), d[i])
-
-    if type(d) == types.StringType or type(d) == types.UnicodeType:
+    elif type(d) == types.StringType or type(d) == types.UnicodeType:
         sk = key + " " + d
+        if summary.has_key(sk):
+            summary[sk] += 1
+        else:
+            summary[sk] = 1
+    else:
+        sk = key + " " + str(d)
         if summary.has_key(sk):
             summary[sk] += 1
         else:
@@ -52,6 +44,6 @@ for v in summary:
     sorted_summary.append(v + " " + str(summary[v]))
 sorted_summary.sort()
 
-for v in sorted_summary:
-    print v
+#for v in sorted_summary:
+#    print v
 
