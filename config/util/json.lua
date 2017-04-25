@@ -300,7 +300,7 @@ module.dns_message = function(context, header, queries, answers, auth, add)
     a["class"] = dns_class_name[value.class]
     q[#q + 1] = a
   end
-  obs["dns_message"]["queries"] = q
+  obs["dns_message"]["query"] = q
 
   q = {}
   json.util.InitArray(q)
@@ -321,7 +321,7 @@ module.dns_message = function(context, header, queries, answers, auth, add)
     end
     q[#q + 1] = a
   end
-  obs["dns_message"]["answers"] = q
+  obs["dns_message"]["answer"] = q
   
   submit(obs)
 

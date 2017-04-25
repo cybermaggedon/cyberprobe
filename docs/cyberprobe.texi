@@ -2970,8 +2970,8 @@ single item in the list.
 
 @item dns_message(context, header, queries, answers, auth, add)
 Called when a DNS message is observed. The decoded DNS message is described
-in the parameters: @code{header} is the DNS header, @code{queries} contains
-the DNS queries, @code{answers} contains the answers in a response message,
+in the parameters: @code{header} is the DNS header, @code{query} contains
+the DNS queries, @code{answer} contains the answers in a response message,
 @code{auth} contains DNS nameserver authority descriptions, and @code{add}
 provides additional information.
 
@@ -3346,12 +3346,12 @@ Emitted when @code{action} is @code{dns_message}.
 JSON object containing the following fields:
 
 @table @samp
-@item queries
+@item query
 Describes DNS query records in @samp{dns_message} actions. Is a list
 of objects with @samp{name}, @samp{type} and @samp{class} fields containing
 strings for name, type and class.
 
-@item answers
+@item answer
 Describes DNS answer records in @samp{dns_message} actions.  Is a list
 of objects with @samp{name}, @samp{type} and @samp{class} and @samp{address}
 fields containing strings for name, type and class and IP address.
