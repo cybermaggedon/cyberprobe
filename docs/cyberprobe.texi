@@ -241,6 +241,10 @@ Cyberprobe releases:
 
 @table @code
 
+@item 0.94
+Reworked the JSON model, to make different protocol attributes more clearly
+defined.
+
 @item 0.93
 DNS over TCP, and simple port-based detection for IMAP, SMTP auth, SIP.
 
