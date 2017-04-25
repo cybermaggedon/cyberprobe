@@ -42,14 +42,14 @@
 .dest.2 ntp 8
 .dest.2 unrecognised 5
 .device PCAP 92
-.dns_message.answers.0.address 204.76.241.31 1
-.dns_message.answers.0.class IN 1
-.dns_message.answers.0.name ftp.swfwmd.state.fl.us 1
-.dns_message.answers.0.type A 1
-.dns_message.queries.0.class IN 4
-.dns_message.queries.0.name ftp.swfwmd.state.fl.us 4
-.dns_message.queries.0.type A 2
-.dns_message.queries.0.type AAAA 2
+.dns_message.answer.0.address 204.76.241.31 1
+.dns_message.answer.0.class IN 1
+.dns_message.answer.0.name ftp.swfwmd.state.fl.us 1
+.dns_message.answer.0.type A 1
+.dns_message.query.0.class IN 4
+.dns_message.query.0.name ftp.swfwmd.state.fl.us 4
+.dns_message.query.0.type A 2
+.dns_message.query.0.type AAAA 2
 .dns_message.type query 2
 .dns_message.type response 2
 .ftp_command.command CWD amr 1
