@@ -11,56 +11,93 @@ else:
     
 def handle(msg):
     print
+
     print "Action: %s" % msg["action"]
     print "Device: %s" % msg["device"]
+
     print "Time: %s" % msg["time"]
-    if msg.has_key("method"):
-        print "Method: %s" % msg["method"]
+
     if msg.has_key("url"):
         print "URL: %s" % msg["url"]
-    if msg.has_key("command"):
-        print "Command: %s" % msg["command"]
-    if msg.has_key("status"):
-        print "Status: %s" % msg["status"]
-    if msg.has_key("text"):
-        for v in msg["text"]:
+
+    if msg.has_key("icmp"):
+        print "ICMP type: %d" % msg["icmp"]["type"]
+        print "ICMP code: %d" % msg["icmp"]["code"]
+
+    if msg.has_key("dns_message"):
+        detail=msg["dns_message"]
+        if detail.has_key("type"):
+            print "Type: %s" % detail["type"]
+            if detail["type"] == "query" and detail.has_key("query"):
+                for v in detail["query"]:
+
+                    if v.has_key("name"):
+                        print "Query name: %s" % v["name"]
+                    if v.has_key("type"):
+                        print "Query type: %s" % v["type"]
+                    if v.has_key("class"):
+                        print "Query class: %s" % v["class"]
+            if detail.has_key("answer"):
+                for v in detail["answer"]:
+                    if v.has_key("name"):
+                        print "Answer name: %s" % v["name"]
+                    if v.has_key("type"):
+                        print "Answer type: %s" % v["type"]
+                    if v.has_key("class"):
+                        print "Answer class: %s" % v["class"]
+                    if v.has_key("address"):
+                        print "Answer address: %s" % v["address"]
+
+    if msg.has_key("http_request"):
+        detail=msg["http_request"]
+        print "Method: %s" % detail["method"]
+        if detail.has_key("header"):
+            for k in detail["header"]:
+                 print "%s: %s" % (k, detail["header"][k])
+
+    if msg.has_key("http_response"):
+        detail=msg["http_response"]
+        print "Code: %d" % detail["code"]
+        print "Status: %s" % detail["status"]
+        if detail.has_key("header"):
+            for k in detail["header"]:
+                 print "%s: %s" % (k, detail["header"][k])
+
+    if msg.has_key("ftp_command"):
+        detail=msg["ftp_command"]
+        print "Command: %s" % detail["command"]
+
+    if msg.has_key("ftp_response"):
+        detail=msg["ftp_response"]
+        print "Status: %d" % detail["status"]
+        for v in detail["text"]:
             print "Text: %s" % v
-    if msg.has_key("payload"):
-        print "Payload: <present>"
-    if msg.has_key("body"):
-        print "Body: <present>"
-    if msg.has_key("from"):
-        print "From: %s" % msg["from"]
-    if msg.has_key("to"):
-        for v in msg["to"]:
-            print "To: %s" % v
-    if msg.has_key("header"):
-        for k in msg["header"]:
-            print "%s: %s" % (k, msg["header"][k])
-    if msg.has_key("type"):
-        print "Type: %s" % msg["type"]
-    if msg.has_key("queries"):
-        for v in msg["queries"]:
-            if v.has_key("name"):
-                print "Query name: %s" % v["name"]
-            if v.has_key("type"):
-                print "Query type: %s" % v["type"]
-            if v.has_key("class"):
-                print "Query class: %s" % v["class"]
-    if msg.has_key("answers"):
-        for v in msg["answers"]:
-            if v.has_key("name"):
-                print "Answer name: %s" % v["name"]
-            if v.has_key("type"):
-                print "Answer type: %s" % v["type"]
-            if v.has_key("class"):
-                print "Answer class: %s" % v["class"]
-            if v.has_key("address"):
-                print "Answer address: %s" % v["address"]
-    if msg.has_key("version"):
-        print "Version: %s" % msg["version"]
-    if msg.has_key("mode"):
-        print "Mode: %s" % msg["mode"]
+
+    if msg.has_key("sip_request"):
+        detail=msg["sip_request"]
+        print "Method: %s" % detail["method"]
+        print "From: %s" % detail["from"]
+        print "To: %s" % detail["from"]
+        if detail.has_key("header"):
+            for k in detail["header"]:
+                 print "%s: %s" % (k, detail["header"][k])
+
+    if msg.has_key("sip_response"):
+        detail=msg["sip_response"]
+        print "Code: %d" % detail["code"]
+        print "Status: %s" % detail["status"]
+        print "From: %s" % detail["from"]
+        print "To: %s" % detail["from"]
+
+    if msg.has_key("smtp_command"):
+        detail=msg["smtp_command"]
+        print "Command: %s" % detail["command"]
+
+    if msg.has_key("smtp_response"):
+        detail=msg["smtp_response"]
+        print "Status: %d" % detail["status"]
+        for v in detail["text"]:
+            print "Text: %s" % v
 
 ctxt = zmq.Context()
 skt = ctxt.socket(zmq.SUB)
