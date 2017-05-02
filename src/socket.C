@@ -288,7 +288,7 @@ int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 
 	int ret = SSL_read(ssl, tmp, len - got);
 	if (ret < 0)
-	    return -1;
+	    throw std::runtime_error("Read error");
 	if (ret == 0)
 	    return 0;
 
@@ -374,7 +374,7 @@ int tcpip::ssl_socket::read(char* buffer, int len)
 
 	int ret = SSL_read(ssl, buffer + got, len - got);
 	if (ret < 0)
-	    return -1;
+	    throw std::runtime_error("Read error");
 	if (ret == 0)
 	    return 0;
 
