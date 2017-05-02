@@ -161,6 +161,9 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    }
 	    else
 	    {
+
+	        // FIXME: We do see this?
+
 		// Very odd to see this
 		throw exception("Unexpected seq logic error");
 	    }

@@ -282,14 +282,23 @@ int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 {
 
     unsigned char tmp[len];
-    int ret = SSL_read(ssl, tmp, len);
-    
-    if (ret <= 0)
-	return 0;
+    int got = 0;
 
-    buffer.insert(buffer.end(), tmp, tmp + len);
+    while (got != len) {
 
-    return ret;
+	int ret = SSL_read(ssl, tmp, len - got);
+	if (ret < 0)
+	    return -1;
+	if (ret == 0)
+	    return 0;
+
+	buffer.insert(buffer.end(), tmp, tmp + ret);
+
+	got += ret;
+
+    }
+
+    return got;
 
 }
 
@@ -359,12 +368,21 @@ int tcpip::tcp_socket::read(char* buffer, int len)
 int tcpip::ssl_socket::read(char* buffer, int len)
 {
 
-    int ret = SSL_read(ssl, buffer, len);
+    int got = 0;
 
-    if (ret <= 0)
-	return 0;
+    while (got != len) {
 
-    return ret;
+	int ret = SSL_read(ssl, buffer + got, len - got);
+	if (ret < 0)
+	    return -1;
+	if (ret == 0)
+	    return 0;
+
+	got += ret;
+
+    }
+
+    return got;
 
 }
 
