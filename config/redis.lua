@@ -14,10 +14,11 @@ local redis = require("redis")
 local os = require("os")
 local string = require("string")
 local model = require("util.json")
+local socket = require("socket")
 
 -- Config ------------------------------------------------------------------
 
-local redist_host = "redis"
+local redist_host = "localhost"
 local redis_port = 6379
 
 if os.getenv("REDIS_SERVER") then
@@ -38,12 +39,27 @@ end
 
 -- Initialise.
 local init = function()
-  client = redis.connect(redis_host, redis_port)
+  while true do
+    if pcall(function() client = redis.connect(redis_host, redis_port) end ) then
+      break
+    else
+      print("Redis connection failed, will retry...")
+      socket.select(nil, nil, 5)
+    end
+  end
+  print("Connected to redis.")
 end
 
 -- Redis object submission function - just pushes the object onto the queue.
 local submit = function(obs)
-  ret = client:rpush(queue, json.encode(obs))
+  while true do
+    if pcall(function() client:rpush(queue, json.encode(obs)) end) then
+      break
+    end
+    print("Redis delivery failed, will reconnect.")
+    -- Failed, so reconnect and retry...
+    init()
+  end
 end
 
 -- Call the JSON functions for all observer functions.
