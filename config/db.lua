@@ -138,6 +138,33 @@ observer.sip_ssl = function(context, data)
   elastic.submit_observation(obs)
 end
 
+-- This function is called when an SMTP command is observed.
+observer.smtp_command = function(context, command)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "smtp_command"
+  obs["observation"]["command"] = command
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_response = function(context, status, text)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "smtp_response"
+  obs["observation"]["status"] = status
+  obs["observation"]["text"] = text
+  elastic.submit_observation(obs)
+end
+
+-- This function is called when an SMTP response is observed.
+observer.smtp_data = function(context, from, to, data)
+  local obs = elastic.initialise_observation(context)
+  obs["observation"]["action"] = "smtp_data"
+  obs["observation"]["from"] = from
+  obs["observation"]["to"] = to
+  obs["observation"]["body"] = data
+  elastic.submit_observation(obs)
+end
+
 -- This function is called when an SMTP Authentication message is observed.
 observer.smtp_auth = function(context, data)
   local obs = elastic.initialise_observation(context)
