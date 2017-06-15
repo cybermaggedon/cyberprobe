@@ -19,67 +19,12 @@ local object = "observation"
 -- Points to an ElasticSearch instance.
 module.base = "http://localhost:9200/"
 
--- Initialise a basic observation
-module.initialise_observation = function(context, indicators)
-
-  local obs = {}
-  obs[object] = {}
-  obs[object]["liid"] = context:get_liid()
-  obs[object]["src"] = addr.get_stack(context, true)
-  obs[object]["dest"] = addr.get_stack(context, false)
-
-  if indicators and not(#indicators == 0) then
-    obs[object]["indicators"] = {}
-    obs[object]["indicators"]["on"] = {}
-    obs[object]["indicators"]["description"] = {}
-    obs[object]["indicators"]["value"] = {}
-    obs[object]["indicators"]["id"] = {}
-    for key, value in pairs(indicators) do
-      table.insert(obs[object]["indicators"]["on"], value["on"])
-      table.insert(obs[object]["indicators"]["description"], value["description"])
-      table.insert(obs[object]["indicators"]["value"], value["value"])
-      table.insert(obs[object]["indicators"]["id"], value["id"])
-    end
-  end
-
-  local tm = context:get_event_time()
-  local tmstr = os.date("!%Y%m%dT%H%M%S", math.floor(tm))
-  local millis = 1000 * (tm - math.floor(tm))
-
-  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
-
-  obs[object]["time"] = tmstr
-
-  return obs
-
-end
-
-
--- Create an observation object in ElasticSearch
-module.submit_observation = function(request)
-
-  local u = string.format("%s%s/%s/%d?ttl=%s", module.base, index, object, id,
-  	default_ttl)
-print(u)
-  request[object]["oid"] = id
-
-  print(string.format("Observation %d", id))
-  id = id + 1
-
-  local c = http.http_req(u, "PUT", jsenc.encode(request), "application/json")
-
-  if not (c == 201 or c == 200) then
-    io.write(string.format("Elasticsearch index failed: %s\n", c))
-  end
-
-end
-
 -- Initialise elasticsearch
 module.init = function()
 
   -- Look for mapping.
   local c = http.http_req(module.base .. index .. "/" .. object .. "/_mapping",
-  	    	          "GET", "", "application/json")
+                         "GET", "", "application/json")
   
   -- If mapping already exists, move on.
   if c == 200 then
@@ -98,60 +43,60 @@ module.init = function()
   local request = {}
   request[object] = {}
   request[object]["properties"] = {}
-  request[object]["properties"]["body"] = {}
-  request[object]["properties"]["body"]["type"] = "binary"
-  request[object]["properties"]["data"] = {}
-  request[object]["properties"]["data"]["type"] = "binary"
+  request[object]["properties"]["id"] = {}
+  request[object]["properties"]["id"]["type"] = "keyword"
   request[object]["properties"]["time"] = {}
   request[object]["properties"]["time"]["type"] = "date"
-  request[object]["properties"]["time"]["format"] = "basic_date_time"
   request[object]["properties"]["url"] = {}
-  request[object]["properties"]["url"]["type"] = "string"
-  request[object]["properties"]["url"]["analyzer"] = "keyword"
+  request[object]["properties"]["url"]["type"] = "keyword"
   request[object]["properties"]["queries"] = {}
-  request[object]["properties"]["queries"]["type"] = "string"
-  request[object]["properties"]["queries"]["analyzer"] = "keyword"
-  request[object]["properties"]["header"] = {}
-  request[object]["properties"]["header"]["type"] = "object"
-  request[object]["properties"]["header"]["properties"] = {}
-  request[object]["properties"]["header"]["properties"]["Content-Type"] = {}
-  request[object]["properties"]["header"]["properties"]["Content-Type"]["type"] = "string"
-  request[object]["properties"]["header"]["properties"]["Content-Type"]["index"] = "analyzed"
-  request[object]["properties"]["header"]["properties"]["Content-Type"]["analyzer"] = "keyword"
-  request[object]["properties"]["header"]["properties"]["User-Agent"] = {}
-  request[object]["properties"]["header"]["properties"]["User-Agent"]["type"] = "string"
-  request[object]["properties"]["header"]["properties"]["User-Agent"]["index"] = "analyzed"
-  request[object]["properties"]["header"]["properties"]["User-Agent"]["analyzer"] = "keyword"
-  request[object]["properties"]["header"]["properties"]["Host"] = {}
-  request[object]["properties"]["header"]["properties"]["Host"]["type"] = "string"
-  request[object]["properties"]["header"]["properties"]["Host"]["index"] = "analyzed"
-  request[object]["properties"]["header"]["properties"]["Host"]["analyzer"] = "keyword"
+  request[object]["properties"]["queries"]["type"] = "keyword"
+  request[object]["properties"]["action"] = {}
+  request[object]["properties"]["action"]["type"] = "keyword"
+  request[object]["properties"]["device"] = {}
+  request[object]["properties"]["device"]["type"] = "keyword"
+  request[object]["properties"]["type"] = {}
+  request[object]["properties"]["type"]["type"] = "keyword"
+  request[object]["properties"]["method"] = {}
+  request[object]["properties"]["method"]["type"] = "keyword"
   request[object]["properties"]["src"] = {}
-  request[object]["properties"]["src"]["type"] = "object"
   request[object]["properties"]["src"]["properties"] = {}
   request[object]["properties"]["src"]["properties"]["ipv4"] = {}
-  request[object]["properties"]["src"]["properties"]["ipv4"]["type"] = "string"
-  request[object]["properties"]["src"]["properties"]["ipv4"]["analyzer"] = "keyword"
-  request[object]["properties"]["dest"] = {}
-  request[object]["properties"]["dest"]["type"] = "object"
-  request[object]["properties"]["dest"]["properties"] = {}
-  request[object]["properties"]["dest"]["properties"]["ipv4"] = {}
-  request[object]["properties"]["dest"]["properties"]["ipv4"]["type"] = "string"
-  request[object]["properties"]["dest"]["properties"]["ipv4"]["analyzer"] = "keyword"
-  request[object]["properties"]["indicators"] = {}
-  request[object]["properties"]["indicators"]["properties"] = {}
-  request[object]["properties"]["indicators"]["properties"]["id"] = {}
-  request[object]["properties"]["indicators"]["properties"]["id"]["type"] = "string"
-  request[object]["properties"]["indicators"]["properties"]["id"]["analyzer"] = "keyword"
-  request[object]["properties"]["indicators"]["properties"]["description"] = {}
-  request[object]["properties"]["indicators"]["properties"]["description"]["type"] = "string"
-  request[object]["properties"]["indicators"]["properties"]["description"]["analyzer"] = "keyword"
-  request[object]["properties"]["indicators"]["properties"]["value"] = {}
-  request[object]["properties"]["indicators"]["properties"]["value"]["type"] = "string"
-  request[object]["properties"]["indicators"]["properties"]["value"]["analyzer"] = "keyword"
-  request[object]["properties"]["indicators"]["properties"]["on"] = {}
-  request[object]["properties"]["indicators"]["properties"]["on"]["type"] = "string"
-  request[object]["properties"]["indicators"]["properties"]["on"]["analyzer"] = "keyword"
+  request[object]["properties"]["src"]["properties"]["ipv4"]["type"] = "ip"
+  request[object]["properties"]["src"]["properties"]["tcp"] = {}
+  request[object]["properties"]["src"]["properties"]["tcp"]["type"] = "integer"
+  request[object]["properties"]["src"]["properties"]["udp"] = {}
+  request[object]["properties"]["src"]["properties"]["udp"]["type"] = "integer"
+  request[object]["properties"]["dst"] = {}
+  request[object]["properties"]["dst"]["properties"] = {}
+  request[object]["properties"]["dst"]["properties"]["ipv4"] = {}
+  request[object]["properties"]["dst"]["properties"]["ipv4"]["type"] = "ip"
+  request[object]["properties"]["dst"]["properties"]["tcp"] = {}
+  request[object]["properties"]["dst"]["properties"]["tcp"]["type"] = "integer"
+  request[object]["properties"]["dst"]["properties"]["udp"] = {}
+  request[object]["properties"]["dst"]["properties"]["udp"]["type"] = "integer"
+  request[object]["properties"]["queries"] = {}
+  request[object]["properties"]["queries"]["properties"] = {}
+  request[object]["properties"]["queries"]["properties"]["name"] = {}
+  request[object]["properties"]["queries"]["properties"]["name"]["type"] = "keyword"
+  request[object]["properties"]["answers"] = {}
+  request[object]["properties"]["answers"]["properties"] = {}
+  request[object]["properties"]["answers"]["properties"]["name"] = {}
+  request[object]["properties"]["answers"]["properties"]["name"]["type"] = "keyword"
+  request[object]["properties"]["answers"]["properties"]["address"] = {}
+  request[object]["properties"]["answers"]["properties"]["address"]["type"] = "keyword"
+  request[object]["properties"]["header"] = {}
+  request[object]["properties"]["header"]["properties"] = {}
+  request[object]["properties"]["header"]["properties"]["User-Agent"] = {}
+  request[object]["properties"]["header"]["properties"]["User-Agent"]["type"] = "keyword"
+  request[object]["properties"]["header"]["properties"]["Host"] = {}
+  request[object]["properties"]["header"]["properties"]["Host"]["type"] = "keyword"
+  request[object]["properties"]["header"]["properties"]["Content-Type"] = {}
+  request[object]["properties"]["header"]["properties"]["Content-Type"]["type"] = "keyword"
+  request[object]["properties"]["header"]["properties"]["Server"] = {}
+  request[object]["properties"]["header"]["properties"]["Server"]["type"] = "keyword"
+  request[object]["properties"]["header"]["properties"]["Connection"] = {}
+  request[object]["properties"]["header"]["properties"]["Connection"]["type"] = "keyword"
 
   req = {}
   req[object] = {}
@@ -169,6 +114,24 @@ module.init = function()
   end
 
 end
+
+
+-- Create an observation object in ElasticSearch
+module.submit_observation = function(request)
+
+  local u = string.format("%s%s/%s/%d?ttl=%s", module.base, index, object, id,
+  	default_ttl)
+print(u)
+  id = id + 1
+
+  local c = http.http_req(u, "PUT", jsenc.encode(request), "application/json")
+
+  if not (c == 201 or c == 200) then
+    io.write(string.format("Elasticsearch index failed: %s\n", c))
+  end
+
+end
+
 
 return module
 
