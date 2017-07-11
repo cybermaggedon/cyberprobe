@@ -215,6 +215,14 @@ namespace cybermon {
 	    delete[] buf;
 	}
 
+/*	void push(int size, unsigned char* buf ) {
+	    // FIXME: Lot of copying?
+	    //unsigned char* buf = new unsigned char[e - s];
+	    //std::copy(s, e, buf);
+	    lua_pushlstring(lua, (char*) buf, size);
+	    delete[] buf;
+	}*/
+
 	// Call a function.  args = number of arguments on the stack
 	// res = number of return values.
 	void call(int args, int res) {
@@ -417,7 +425,8 @@ namespace cybermon {
 	void push(const ntp_private&);
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
-	void trigger_up(const std::string& liid, const tcpip::address& a);
+	//void trigger_up(const std::string& liid, const tcpip::address& a);
+	void trigger_up(const std::string& liid, const std::string& a);
 
 	// Call the config.trigger_down function as trigger_down(liid)
 	void trigger_down(const std::string& liid);

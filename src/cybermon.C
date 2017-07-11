@@ -26,6 +26,10 @@ Usage:
 #include <cybermon/packet_capture.h>
 #include <cybermon/context.h>
 #include <cybermon/cybermon-lua.h>
+#include <cybermon_qwriter.h>
+#include <cybermon_qreader.h>
+
+/*
 
 class obs : public cybermon::engine {
 private:
@@ -56,6 +60,7 @@ public:
 				     cybermon::pdu_iter s, 
 				     cybermon::pdu_iter e) {
 	try {
+		std::cout<<"calling unrecognised_stream:: \n";
 	    cml.unrecognised_stream(*this, cp, s, e);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -66,6 +71,7 @@ public:
     virtual void unrecognised_datagram(const cybermon::context_ptr cp,
 			  cybermon::pdu_iter s, cybermon::pdu_iter e) {
 	try {
+		std::cout<<"calling unrecognised_datagram:: \n";
 	    cml.unrecognised_datagram(*this, cp, s, e);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -78,6 +84,16 @@ public:
                         cybermon::pdu_iter s,
                         cybermon::pdu_iter e) {
 	try {
+		std::cerr<<"calling icmp:: \n";
+
+
+		std::cerr << "cybermon ::icmp::";
+
+		for (cybermon::pdu_iter i = s; i != e ; ++i)
+								std::cerr << *i ;
+
+		std::cerr<<std::endl;
+
 	    cml.icmp(*this, cp, type, code, s, e);
 	}
     catch (std::exception& e) {
@@ -90,6 +106,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling imap:: \n";
             cml.imap(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -103,6 +120,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling imap_ssl:: \n";
             cml.imap_ssl(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -117,6 +135,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling pop3:: \n";
             cml.pop3(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -131,6 +150,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling pop3_ssl:: \n";
             cml.pop3_ssl(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -144,6 +164,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling rtp:: \n";
             cml.rtp(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -158,6 +179,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling rtp_ssl:: \n";
             cml.rtp_ssl(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -175,6 +197,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling sip_request:: \n";
             cml.sip_request(*this, cp, method, from, to, s, e);
         }
         catch (std::exception& e)
@@ -193,6 +216,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling sip_response:: \n";
             cml.sip_response(*this, cp, code, status, from, to, s, e);
         }
         catch (std::exception& e)
@@ -206,6 +230,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling sip_ssl:: \n";
             cml.sip_ssl(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -219,6 +244,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling smtp_auth:: \n";
             cml.smtp_auth(*this, cp, s, e);
         }
         catch (std::exception& e)
@@ -235,6 +261,7 @@ public:
 			      cybermon::pdu_iter body_start,
 			      cybermon::pdu_iter body_end) {
 	try {
+		std::cout<<"calling http_request:: \n";
 	    cml.http_request(*this, cp, method, url, hdr, body_start, body_end);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -249,6 +276,7 @@ public:
 			       cybermon::pdu_iter body_start,
 			       cybermon::pdu_iter body_end) {
 	try {
+		std::cout<<"calling http_response:: \n";
 	    cml.http_response(*this, cp, code, status, hdr, url, 
 			      body_start, body_end);
 	} catch (std::exception& e) {
@@ -260,6 +288,7 @@ public:
     virtual void smtp_command(const cybermon::context_ptr cp,
 			      const std::string& command) {
 	try {
+		std::cout<<"calling smtp_command:: \n";
 	    cml.smtp_command(*this, cp, command);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -270,6 +299,7 @@ public:
 			       int status,
 			       const std::list<std::string>& text) {
 	try {
+		std::cout<<"calling smtp_response:: \n";
 	    cml.smtp_response(*this, cp, status, text);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -282,6 +312,7 @@ public:
 			   std::vector<unsigned char>::const_iterator s,
 			   std::vector<unsigned char>::const_iterator e) {
 	try {
+		std::cout<<"calling smtp_data:: \n";
 	    cml.smtp_data(*this, cp, from, to, s, e);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -292,6 +323,7 @@ public:
     virtual void ftp_command(const cybermon::context_ptr cp,
 			     const std::string& command) {
 	try {
+		std::cout<<"calling ftp_command:: \n";
 	    cml.ftp_command(*this, cp, command);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -302,6 +334,7 @@ public:
 			      int status,
 			      const std::list<std::string>& responses) {
 	try {
+		std::cout<<"calling ftp_response:: \n";
 	    cml.ftp_response(*this, cp, status, responses);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -335,6 +368,7 @@ public:
     {
         try
         {
+        	std::cout<<"calling dns_message:: \n";
 	        cml.dns_message(*this, cp, hdr, queries, answers, authorities, additional);
 	    }
         catch (std::exception& e)
@@ -347,6 +381,7 @@ public:
     virtual void ntp_timestamp_message(const cybermon::context_ptr cp,
 			     const cybermon::ntp_timestamp& ts){
 	try {
+		std::cout<<"calling ntp_timestamp_message:: \n";
 	    cml.ntp_timestamp_message(*this, cp, ts);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -356,6 +391,7 @@ public:
     virtual void ntp_control_message(const cybermon::context_ptr cp,
 			     const cybermon::ntp_control& ctrl){
 	try {
+		std::cout<<"calling ntp_control_message:: \n";
 	    cml.ntp_control_message(*this, cp, ctrl);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
@@ -365,12 +401,14 @@ public:
     virtual void ntp_private_message(const cybermon::context_ptr cp,
 			     const cybermon::ntp_private& priv){
 	try {
+		std::cout<<"calling ntp_private_message:: \n";
 	    cml.ntp_private_message(*this, cp, priv);
 	} catch (std::exception& e) {
 	    std::cerr << "Error: " << e.what() << std::endl;
 	}
     }
 };
+*/
 
 // Monitor class, implements the monitor interface to receive data.
 class etsi_monitor : public monitor {
@@ -421,6 +459,9 @@ void etsi_monitor::operator()(const std::string& liid,
     try {
 
 	// Process the PDU
+    	std::string str( s, e);
+    //std::cout<<"here in etsi_monitor::operator: "<<str;
+
 	an.process(liid, s, e);
 
     } catch (std::exception& e) {
@@ -468,6 +509,7 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 	std::string liid = "PCAP";
 
 	try {
+		//std::cout<<"here: "<<v.data()<<"\n";
 	    e.process(liid, v.begin(), v.end());
 	} catch (std::exception& e) {
 	    std::cerr << "Packet not processed: " << e.what() << std::endl;
@@ -483,6 +525,11 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 	std::string liid = "PCAP";
 
 	try {
+
+		//std::cout<<"here cybermon.c pcap_input::handle: "<<v.data()<<"\n";
+	    std::string str( v.begin(), v.end() );
+		//std::cout<<"here cybermon.c pcap_input::handle::"<<str;
+
 	    e.process(liid, v.begin(), v.end());
 	} catch (std::exception& e) {
 	    std::cerr << "Packet not processed: " << e.what() << std::endl;
@@ -564,14 +611,24 @@ int main(int argc, char** argv)
     try {
 	
 	// Create the observer instance.
-	obs an(config_file);
-	
-	// Start the observer.
-	an.start();
+	/*obs an(config_file);
+    // Start the observer.
+  	an.start();
+*/
+    std::queue<q_entry*>	cqueue;
+
+    // Input queue: Lock,
+    threads::mutex cqwrlock;
+
+    cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
+    cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
+    cqr.start();
+    cqw.start();
 
 	if (pcap_file != "") {
 
-	    pcap_input pin(pcap_file, an);
+	   //pcap_input pin(pcap_file, an);
+		pcap_input pin(pcap_file, cqw);
 	    pin.run();
 
 	} else if (transport == "tls") {
@@ -585,7 +642,8 @@ int main(int argc, char** argv)
 	    
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-	    etsi_monitor m(an);
+	    //etsi_monitor m(an);
+	    etsi_monitor m(cqw);
 
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(sock, m);
@@ -598,8 +656,8 @@ int main(int argc, char** argv)
 	
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-	    etsi_monitor m(an);
-
+	    //etsi_monitor m(an);
+		etsi_monitor m(cqw);
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(port, m);
 	    r.start();
@@ -608,7 +666,15 @@ int main(int argc, char** argv)
 	    r.join();
 
 	}
-	    
+
+	// here
+	//writer close to flag reader to stop
+	//join reader
+	cqw.close();
+	cqr.join();
+	//std::cout<< "exiting cybermon C";
+	//std::cout << std::endl;
+
     } catch (std::exception& e) {
 	
 	std::cerr << "Exception: " << e.what() << std::endl;
