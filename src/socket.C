@@ -653,17 +653,17 @@ tcpip::ssl_socket::ssl_socket() {
 	ssl_init = true;
     }
 
-    // FIXME: Should probably use TLS_method
-    // context = SSL_CTX_new(TLSv1_2_method());
-    context = SSL_CTX_new(SSLv23_method());
+    context = SSL_CTX_new(TLSv1_2_method());
     if (context == 0)
-	throw std::runtime_error("Couldn't initialise SSL context.");
+       throw std::runtime_error("Couldn't initialise SSL context.");
+
+    SSL_CTX_set_ecdh_auto(context, 1);
 
     ssl = 0;
     
     sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0)
-	throw std::runtime_error("Socket creation failed.");
+       throw std::runtime_error("Socket creation failed.");
 	    
 }
 
@@ -677,15 +677,15 @@ tcpip::ssl_socket::ssl_socket(int s) {
 	ssl_init = true;
     }
 
-    // FIXME: Should probably use TLS_method
-    // context = SSL_CTX_new(TLSv1_2_method());
-    context = SSL_CTX_new(SSLv23_method());
+    context = SSL_CTX_new(TLSv1_2_method());
     if (context == 0)
-	throw std::runtime_error("Couldn't initialise SSL context.");
+       throw std::runtime_error("Couldn't initialise SSL context.");
+
+    SSL_CTX_set_ecdh_auto(context, 1);
 
     ssl = SSL_new(context);
     if (ssl == 0)
-	throw std::runtime_error("Couldn't initialise SSL.");
+       throw std::runtime_error("Couldn't initialise SSL.");
 
     sock = s;
 	    
