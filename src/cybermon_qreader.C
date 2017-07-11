@@ -99,7 +99,7 @@ void cybermon_qreader::run()
 				}
 
 				case call_type::trigger_up:{
-					std::cout<<"calling trigger_up:: \n";
+					//std::cout<<"calling trigger_up:: \n";
 
 					trigger_up_args* trupargs =  static_cast<trigger_up_args*> (qentry->queueargs);
 
@@ -107,7 +107,7 @@ void cybermon_qreader::run()
 
 					delete(qentry);
 					delete(trupargs);
-					std::cout<<"done trigger_up:: \n";
+					//std::cout<<"done trigger_up:: \n";
 					break;
 				}
 				case call_type::trigger_down:{

@@ -68,7 +68,7 @@ void cybermon_qwriter::connection_down(const cybermon::context_ptr cp) {
 // Trigger
 void cybermon_qwriter::trigger_up(const std::string& liid, const tcpip::address& a) {
 	try {
-		std::cout<<"called cybermon_qwriter trigger_up:"<< a;
+		//std::cout<<"called cybermon_qwriter trigger_up:"<< a;
 		//cml.trigger_up(liid, a);
 
 		std::string addr;
