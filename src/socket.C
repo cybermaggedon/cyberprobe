@@ -657,7 +657,11 @@ tcpip::ssl_socket::ssl_socket() {
     if (context == 0)
        throw std::runtime_error("Couldn't initialise SSL context.");
 
+#ifdef SSL_CTX_set_ecdh_auto
+    // Required when ECDH was not automatically used
+    // (OpenSSL between 1.0.2 and 1.1.0)
     SSL_CTX_set_ecdh_auto(context, 1);
+#endif    
 
     ssl = 0;
     
@@ -681,7 +685,11 @@ tcpip::ssl_socket::ssl_socket(int s) {
     if (context == 0)
        throw std::runtime_error("Couldn't initialise SSL context.");
 
+#ifdef SSL_CTX_set_ecdh_auto
+    // Required when ECDH was not automatically used
+    // (OpenSSL between 1.0.2 and 1.1.0)
     SSL_CTX_set_ecdh_auto(context, 1);
+#endif    
 
     ssl = SSL_new(context);
     if (ssl == 0)
