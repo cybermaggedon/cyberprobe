@@ -1,4 +1,4 @@
-dist: xenial
+dist: trusty
 sudo: required
 
 language: cpp
@@ -52,7 +52,6 @@ compiler:
 install:
 
 script:
-  - openssl version
   - autoreconf -fi
   - ./configure
 # Source code builds in Travis, but documentation doesn't.  Hence this limits
