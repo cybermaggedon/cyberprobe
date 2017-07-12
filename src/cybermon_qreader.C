@@ -41,9 +41,13 @@ void cybermon_qreader::run()
     while (running) {
 
     	//std::cout<<" called cybermon_qreader::run 1 and cqueue.size():" <<cqueue.size()<<" \n";
+    	if(cqueue.size()==0) {
+    		sleep(1);
+    		continue;
+    	}
 
 	// Loop until the input queue is empty.
-	while (cqueue.size() > 0) {
+	//while (cqueue.size() > 0) {
 
 		 // Get the lock.
 		 lock.lock();
@@ -549,7 +553,7 @@ void cybermon_qreader::run()
 
 
 
-	}
+	//}
 
     }
 
