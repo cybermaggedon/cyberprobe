@@ -1,5 +1,5 @@
 Name:		cyberprobe
-Version:	ch.331.1
+Version:	ch.331.2
 Release:	1%{?dist}
 Summary:	Distrbuted real-time monitoring of networks against attack.
 Group:		Applications/Internet

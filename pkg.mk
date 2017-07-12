@@ -1,5 +1,5 @@
 
-VERSION=ch.331.1
+VERSION=ch.331.2
 
 deb:
 	rm -rf cyberprobe-${VERSION}
