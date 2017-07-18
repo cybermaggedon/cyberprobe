@@ -30,6 +30,39 @@ public:
 	}
 	;
 
+	//enum to use in cybermon_qreader to find out which cybermon lua function to call
+	enum call_type {
+		connection_up,
+		connection_down,
+		trigger_up,
+		trigger_down,
+		unrecognised_stream,
+		unrecognised_datagram,
+		icmp,
+		imap,
+		imap_ssl,
+		pop3,
+		pop3_ssl,
+		rtp,
+		rtp_ssl,
+
+		sip_request,
+		sip_response,
+		sip_ssl,
+		smtp_auth,
+		smtp_command,
+		smtp_response,
+		smtp_data,
+		http_request,
+		http_response,
+		ftp_command,
+		ftp_response,
+		dns_message,
+		ntp_timestamp_message,
+		ntp_control_message,
+		ntp_private_message
+
+	};
 };
 
 class connection_args: public qargs {
@@ -373,39 +406,7 @@ public:
 
 };
 
-//enum to use in cybermon_qreader to find out which cybermon lua function to call
-enum call_type {
-	connection_up,
-	connection_down,
-	trigger_up,
-	trigger_down,
-	unrecognised_stream,
-	unrecognised_datagram,
-	icmp,
-	imap,
-	imap_ssl,
-	pop3,
-	pop3_ssl,
-	rtp,
-	rtp_ssl,
 
-	sip_request,
-	sip_response,
-	sip_ssl,
-	smtp_auth,
-	smtp_command,
-	smtp_response,
-	smtp_data,
-	http_request,
-	http_response,
-	ftp_command,
-	ftp_response,
-	dns_message,
-	ntp_timestamp_message,
-	ntp_control_message,
-	ntp_private_message
-
-};
 
 /*q_entry class acting as a medium to store args and add in to queue by cybermon_qwriter
  * and cybermon_qreader pick up it from queue to process by calling
@@ -415,7 +416,7 @@ class q_entry {
 
 public:
 	//Constructor
-	q_entry(call_type call, qargs* args) :
+	q_entry(qargs::call_type call, qargs* args) :
 			calltype(call), queueargs(args) {
 	}
 
@@ -441,7 +442,7 @@ public:
 	;
 
 	qargs* queueargs;
-	call_type calltype;
+	qargs::call_type calltype;
 
 };
 #endif /* CYBERMON_QARGS_H_ */

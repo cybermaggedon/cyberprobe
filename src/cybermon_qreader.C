@@ -62,7 +62,7 @@ void cybermon_qreader::run() {
 
 			switch (qentry->calltype) {
 
-			case call_type::connection_up: {
+			case qargs::connection_up: {
 				connection_args* connectonargs =
 						static_cast<connection_args*>(qentry->queueargs);
 				cml.connection_up(qwriter, connectonargs->cptr);
@@ -70,7 +70,7 @@ void cybermon_qreader::run() {
 				delete (connectonargs);
 				break;
 			}
-			case call_type::connection_down: {
+			case qargs::connection_down: {
 				connection_args* connectonargs =
 						static_cast<connection_args*>(qentry->queueargs);
 				cml.connection_down(qwriter, connectonargs->cptr);
@@ -79,7 +79,7 @@ void cybermon_qreader::run() {
 				break;
 			}
 
-			case call_type::trigger_up: {
+			case qargs::trigger_up: {
 				trigger_up_args* trupargs =
 						static_cast<trigger_up_args*>(qentry->queueargs);
 
@@ -89,7 +89,7 @@ void cybermon_qreader::run() {
 				delete (trupargs);
 				break;
 			}
-			case call_type::trigger_down: {
+			case qargs::trigger_down: {
 				trigger_up_args* trdownargs =
 						static_cast<trigger_up_args*>(qentry->queueargs);
 				cml.trigger_down(trdownargs->trupliid);
@@ -97,7 +97,7 @@ void cybermon_qreader::run() {
 				delete (trdownargs);
 				break;
 			}
-			case call_type::unrecognised_stream: {
+			case qargs::unrecognised_stream: {
 				unrecognised_stream_args* ursargs =
 						static_cast<unrecognised_stream_args*>(qentry->queueargs);
 				cybermon::pdu_iter pdus = ursargs->pdu.begin();
@@ -107,7 +107,7 @@ void cybermon_qreader::run() {
 				delete (ursargs);
 				break;
 			}
-			case call_type::unrecognised_datagram: {
+			case qargs::unrecognised_datagram: {
 				unrecognised_datagram_args* urdargs =
 						static_cast<unrecognised_datagram_args*>(qentry->queueargs);
 
@@ -118,7 +118,7 @@ void cybermon_qreader::run() {
 				delete (urdargs);
 				break;
 			}
-			case call_type::icmp: {
+			case qargs::icmp: {
 
 				icmp_args* icmpargs = static_cast<icmp_args*>(qentry->queueargs);
 
@@ -131,7 +131,7 @@ void cybermon_qreader::run() {
 				delete (icmpargs);
 				break;
 			}
-			case call_type::imap: {
+			case qargs::imap: {
 				imap_args* imapargs = static_cast<imap_args*>(qentry->queueargs);
 
 				cybermon::pdu_iter pdus = imapargs->pdu.begin();
@@ -142,7 +142,7 @@ void cybermon_qreader::run() {
 				delete (imapargs);
 				break;
 			}
-			case call_type::imap_ssl: {
+			case qargs::imap_ssl: {
 				imap_ssl_args* imapsslargs =
 						static_cast<imap_ssl_args*>(qentry->queueargs);
 
@@ -154,7 +154,7 @@ void cybermon_qreader::run() {
 				delete (imapsslargs);
 				break;
 			}
-			case call_type::pop3: {
+			case qargs::pop3: {
 				pop3_args* pop3args = static_cast<pop3_args*>(qentry->queueargs);
 
 				cybermon::pdu_iter pdus = pop3args->pdu.begin();
@@ -165,7 +165,7 @@ void cybermon_qreader::run() {
 				delete (qentry);
 				break;
 			}
-			case call_type::pop3_ssl: {
+			case qargs::pop3_ssl: {
 				pop3_ssl_args* pop3sslargs =
 						static_cast<pop3_ssl_args*>(qentry->queueargs);
 
@@ -177,7 +177,7 @@ void cybermon_qreader::run() {
 				delete (pop3sslargs);
 				break;
 			}
-			case call_type::rtp: {
+			case qargs::rtp: {
 				rtp_args* rtpargs = static_cast<rtp_args*>(qentry->queueargs);
 
 				cybermon::pdu_iter pdus = rtpargs->pdu.begin();
@@ -189,7 +189,7 @@ void cybermon_qreader::run() {
 				break;
 			}
 
-			case call_type::rtp_ssl: {
+			case qargs::rtp_ssl: {
 				rtp_ssl_args* rtpsslargs =
 						static_cast<rtp_ssl_args*>(qentry->queueargs);
 
@@ -201,7 +201,7 @@ void cybermon_qreader::run() {
 				delete (rtpsslargs);
 				break;
 			}
-			case call_type::smtp_auth: {
+			case qargs::smtp_auth: {
 				smtp_auth_args* smtpauthargs =
 						static_cast<smtp_auth_args*>(qentry->queueargs);
 
@@ -213,7 +213,7 @@ void cybermon_qreader::run() {
 				delete (smtpauthargs);
 				break;
 			}
-			case call_type::sip_ssl: {
+			case qargs::sip_ssl: {
 				sip_ssl_args* sipsslargs =
 						static_cast<sip_ssl_args*>(qentry->queueargs);
 
@@ -225,7 +225,7 @@ void cybermon_qreader::run() {
 				delete (sipsslargs);
 				break;
 			}
-			case call_type::sip_request: {
+			case qargs::sip_request: {
 				sip_request_args* siprequestargs =
 						static_cast<sip_request_args*>(qentry->queueargs);
 
@@ -240,7 +240,7 @@ void cybermon_qreader::run() {
 				delete (siprequestargs);
 				break;
 			}
-			case call_type::sip_response: {
+			case qargs::sip_response: {
 				sip_response_args* sipresponseargs =
 						static_cast<sip_response_args*>(qentry->queueargs);
 
@@ -255,7 +255,7 @@ void cybermon_qreader::run() {
 				delete (sipresponseargs);
 				break;
 			}
-			case call_type::http_request: {
+			case qargs::http_request: {
 				http_request_args* httprequestargs =
 						static_cast<http_request_args*>(qentry->queueargs);
 
@@ -269,7 +269,7 @@ void cybermon_qreader::run() {
 				delete (httprequestargs);
 				break;
 			}
-			case call_type::http_response: {
+			case qargs::http_response: {
 				http_response_args* httpresponseargs =
 						static_cast<http_response_args*>(qentry->queueargs);
 
@@ -284,7 +284,7 @@ void cybermon_qreader::run() {
 				delete (httpresponseargs);
 				break;
 			}
-			case call_type::smtp_command: {
+			case qargs::smtp_command: {
 				smtp_command_args* smtpcommandargs =
 						static_cast<smtp_command_args*>(qentry->queueargs);
 				cml.smtp_command(qwriter, smtpcommandargs->cptr,
@@ -293,7 +293,7 @@ void cybermon_qreader::run() {
 				delete (smtpcommandargs);
 				break;
 			}
-			case call_type::smtp_response: {
+			case qargs::smtp_response: {
 				smtp_response_args* smtpresponseargs =
 						static_cast<smtp_response_args*>(qentry->queueargs);
 
@@ -304,7 +304,7 @@ void cybermon_qreader::run() {
 				delete (smtpresponseargs);
 				break;
 			}
-			case call_type::smtp_data: {
+			case qargs::smtp_data: {
 				smtp_data_args* smtpdataargs =
 						static_cast<smtp_data_args*>(qentry->queueargs);
 
@@ -315,7 +315,7 @@ void cybermon_qreader::run() {
 				delete (smtpdataargs);
 				break;
 			}
-			case call_type::ftp_command: {
+			case qargs::ftp_command: {
 				ftp_command_args* ftpcommandargs =
 						static_cast<ftp_command_args*>(qentry->queueargs);
 				cml.ftp_command(qwriter, ftpcommandargs->cptr,
@@ -324,7 +324,7 @@ void cybermon_qreader::run() {
 				delete (ftpcommandargs);
 				break;
 			}
-			case call_type::ftp_response: {
+			case qargs::ftp_response: {
 				ftp_response_args* ftpresponseargs =
 						static_cast<ftp_response_args*>(qentry->queueargs);
 				cml.ftp_response(qwriter, ftpresponseargs->cptr,
@@ -335,7 +335,7 @@ void cybermon_qreader::run() {
 				break;
 			}
 
-			case call_type::dns_message: {
+			case qargs::dns_message: {
 
 				dns_message_args* dnsargs =
 						static_cast<dns_message_args*>(qentry->queueargs);
@@ -349,7 +349,7 @@ void cybermon_qreader::run() {
 				delete (dnsargs);
 				break;
 			}
-			case call_type::ntp_timestamp_message: {
+			case qargs::ntp_timestamp_message: {
 
 				ntp_timestamp_message_args* ntptimestampmessageargs =
 						static_cast<ntp_timestamp_message_args*>(qentry->queueargs);
@@ -361,7 +361,7 @@ void cybermon_qreader::run() {
 				delete (ntptimestampmessageargs);
 				break;
 			}
-			case call_type::ntp_control_message: {
+			case qargs::ntp_control_message: {
 				ntp_control_message_args* ntpcontrolmessageargs =
 						static_cast<ntp_control_message_args*>(qentry->queueargs);
 				cml.ntp_control_message(qwriter, ntpcontrolmessageargs->cptr,
@@ -370,7 +370,7 @@ void cybermon_qreader::run() {
 				delete (ntpcontrolmessageargs);
 				break;
 			}
-			case call_type::ntp_private_message: {
+			case qargs::ntp_private_message: {
 				ntp_private_message_args* ntpprivatemessageargs =
 						static_cast<ntp_private_message_args*>(qentry->queueargs);
 				cml.ntp_private_message(qwriter, ntpprivatemessageargs->cptr,

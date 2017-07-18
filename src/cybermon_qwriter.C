@@ -35,7 +35,7 @@ cybermon_qwriter::cybermon_qwriter(const std::string& path,
 void cybermon_qwriter::connection_up(const cybermon::context_ptr cp) {
 	try {
 		qargs* args = new connection_args(cp);
-		q_entry* qentry = new q_entry(call_type::connection_up, args);
+		q_entry* qentry = new q_entry(qargs::connection_up, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -48,7 +48,7 @@ void cybermon_qwriter::connection_up(const cybermon::context_ptr cp) {
 void cybermon_qwriter::connection_down(const cybermon::context_ptr cp) {
 	try {
 		qargs* args = new connection_args(cp);
-		q_entry* qentry = new q_entry(call_type::connection_down, args);
+		q_entry* qentry = new q_entry(qargs::connection_down, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -65,7 +65,7 @@ void cybermon_qwriter::trigger_up(const std::string& liid,
 		std::string addr;
 		a.to_string(addr);
 		qargs* args = new trigger_up_args(liid, addr);
-		q_entry* qentry = new q_entry(call_type::trigger_up, args);
+		q_entry* qentry = new q_entry(qargs::trigger_up, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -78,7 +78,7 @@ void cybermon_qwriter::trigger_up(const std::string& liid,
 void cybermon_qwriter::trigger_down(const std::string& liid) {
 	try {
 		qargs* args = new trigger_down_args(liid);
-		q_entry* qentry = new q_entry(call_type::trigger_down, args);
+		q_entry* qentry = new q_entry(qargs::trigger_down, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -95,7 +95,7 @@ void cybermon_qwriter::unrecognised_stream(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new unrecognised_stream_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::unrecognised_stream, args);
+		q_entry* qentry = new q_entry(qargs::unrecognised_stream, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -114,7 +114,7 @@ void cybermon_qwriter::unrecognised_datagram(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new unrecognised_datagram_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::unrecognised_datagram, args);
+		q_entry* qentry = new q_entry(qargs::unrecognised_datagram, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -130,7 +130,7 @@ void cybermon_qwriter::icmp(const cybermon::context_ptr cp, unsigned int type,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new icmp_args(cp, type, code, data);
-		q_entry* qentry = new q_entry(call_type::icmp, args);
+		q_entry* qentry = new q_entry(qargs::icmp, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -146,7 +146,7 @@ void cybermon_qwriter::imap(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new imap_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::imap, args);
+		q_entry* qentry = new q_entry(qargs::imap, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -162,7 +162,7 @@ void cybermon_qwriter::imap_ssl(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new imap_ssl_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::imap_ssl, args);
+		q_entry* qentry = new q_entry(qargs::imap_ssl, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -178,7 +178,7 @@ void cybermon_qwriter::pop3(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new pop3_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::pop3, args);
+		q_entry* qentry = new q_entry(qargs::pop3, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -194,7 +194,7 @@ void cybermon_qwriter::pop3_ssl(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new pop3_ssl_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::pop3_ssl, args);
+		q_entry* qentry = new q_entry(qargs::pop3_ssl, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -210,7 +210,7 @@ void cybermon_qwriter::rtp(const cybermon::context_ptr cp, cybermon::pdu_iter s,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new rtp_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::rtp, args);
+		q_entry* qentry = new q_entry(qargs::rtp, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -226,7 +226,7 @@ void cybermon_qwriter::rtp_ssl(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new rtp_ssl_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::rtp_ssl, args);
+		q_entry* qentry = new q_entry(qargs::rtp_ssl, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -242,7 +242,7 @@ void cybermon_qwriter::smtp_auth(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new smtp_auth_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::smtp_auth, args);
+		q_entry* qentry = new q_entry(qargs::smtp_auth, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -258,7 +258,7 @@ void cybermon_qwriter::sip_ssl(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new sip_ssl_args(cp, data);
-		q_entry* qentry = new q_entry(call_type::sip_ssl, args);
+		q_entry* qentry = new q_entry(qargs::sip_ssl, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -274,7 +274,7 @@ void cybermon_qwriter::sip_request(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new sip_request_args(cp, method, from, to, data);
-		q_entry* qentry = new q_entry(call_type::sip_request, args);
+		q_entry* qentry = new q_entry(qargs::sip_request, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -291,7 +291,7 @@ void cybermon_qwriter::sip_response(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new sip_response_args(cp, code, status, from, to, data);
-		q_entry* qentry = new q_entry(call_type::sip_response, args);
+		q_entry* qentry = new q_entry(qargs::sip_response, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -310,7 +310,7 @@ void cybermon_qwriter::http_request(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new http_request_args(cp, method, url, hdr, data);
-		q_entry* qentry = new q_entry(call_type::http_request, args);
+		q_entry* qentry = new q_entry(qargs::http_request, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -328,7 +328,7 @@ void cybermon_qwriter::http_response(const cybermon::context_ptr cp,
 		memcpy(&data[0], &(*s), e - s);
 
 		qargs* args = new http_response_args(cp, code, status, hdr, url, data);
-		q_entry* qentry = new q_entry(call_type::http_response, args);
+		q_entry* qentry = new q_entry(qargs::http_response, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -343,7 +343,7 @@ void cybermon_qwriter::smtp_command(const cybermon::context_ptr cp,
 		const std::string& command) {
 	try {
 		qargs* args = new smtp_command_args(cp, command);
-		q_entry* qentry = new q_entry(call_type::smtp_command, args);
+		q_entry* qentry = new q_entry(qargs::smtp_command, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -357,7 +357,7 @@ void cybermon_qwriter::smtp_response(const cybermon::context_ptr cp, int status,
 		const std::list<std::string>& text) {
 	try {
 		qargs* args = new smtp_response_args(cp, status, text);
-		q_entry* qentry = new q_entry(call_type::smtp_response, args);
+		q_entry* qentry = new q_entry(qargs::smtp_response, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -373,7 +373,7 @@ void cybermon_qwriter::smtp_data(const cybermon::context_ptr cp,
 		std::vector<unsigned char>::const_iterator e) {
 	try {
 		qargs* args = new smtp_data_args(cp, from, to, s, e);
-		q_entry* qentry = new q_entry(call_type::smtp_data, args);
+		q_entry* qentry = new q_entry(qargs::smtp_data, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -388,7 +388,7 @@ void cybermon_qwriter::ftp_command(const cybermon::context_ptr cp,
 		const std::string& command) {
 	try {
 		qargs* args = new ftp_command_args(cp, command);
-		q_entry* qentry = new q_entry(call_type::ftp_command, args);
+		q_entry* qentry = new q_entry(qargs::ftp_command, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -402,7 +402,7 @@ void cybermon_qwriter::ftp_response(const cybermon::context_ptr cp, int status,
 		const std::list<std::string>& responses) {
 	try {
 		qargs* args = new ftp_response_args(cp, status, responses);
-		q_entry* qentry = new q_entry(call_type::ftp_response, args);
+		q_entry* qentry = new q_entry(qargs::ftp_response, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -423,7 +423,7 @@ void cybermon_qwriter::dns_message(const cybermon::context_ptr cp,
 
 		qargs* args = new dns_message_args(cp, hdr, queries, answers,
 				authorities, additional);
-		q_entry* qentry = new q_entry(call_type::dns_message, args);
+		q_entry* qentry = new q_entry(qargs::dns_message, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -437,7 +437,7 @@ void cybermon_qwriter::ntp_timestamp_message(const cybermon::context_ptr cp,
 		const cybermon::ntp_timestamp& ts) {
 	try {
 		qargs* args = new ntp_timestamp_message_args(cp, ts);
-		q_entry* qentry = new q_entry(call_type::ntp_timestamp_message, args);
+		q_entry* qentry = new q_entry(qargs::ntp_timestamp_message, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -451,7 +451,7 @@ void cybermon_qwriter::ntp_control_message(const cybermon::context_ptr cp,
 		const cybermon::ntp_control& ctrl) {
 	try {
 		qargs* args = new ntp_control_message_args(cp, ctrl);
-		q_entry* qentry = new q_entry(call_type::ntp_control_message, args);
+		q_entry* qentry = new q_entry(qargs::ntp_control_message, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
@@ -465,7 +465,7 @@ void cybermon_qwriter::ntp_private_message(const cybermon::context_ptr cp,
 		const cybermon::ntp_private& priv) {
 	try {
 		qargs* args = new ntp_private_message_args(cp, priv);
-		q_entry* qentry = new q_entry(call_type::ntp_private_message, args);
+		q_entry* qentry = new q_entry(qargs::ntp_private_message, args);
 		lock.lock();
 		cqueue.push(qentry);
 		lock.unlock();
