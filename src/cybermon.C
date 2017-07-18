@@ -26,351 +26,8 @@ Usage:
 #include <cybermon/packet_capture.h>
 #include <cybermon/context.h>
 #include <cybermon/cybermon-lua.h>
-
-class obs : public cybermon::engine {
-private:
-    cybermon::cybermon_lua cml;
-
-public:
-
-    obs(const std::string& path) : cml(path) {}
-
-    // Connection-orientated.
-    virtual void connection_up(const cybermon::context_ptr cp) {
-	try {
-	    cml.connection_up(*this, cp);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    virtual void connection_down(const cybermon::context_ptr cp) {
-	try{
-	    cml.connection_down(*this, cp);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    virtual void unrecognised_stream(const cybermon::context_ptr cp,
-				     cybermon::pdu_iter s, 
-				     cybermon::pdu_iter e) {
-	try {
-	    cml.unrecognised_stream(*this, cp, s, e);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    // Connection-less
-    virtual void unrecognised_datagram(const cybermon::context_ptr cp,
-			  cybermon::pdu_iter s, cybermon::pdu_iter e) {
-	try {
-	    cml.unrecognised_datagram(*this, cp, s, e);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    virtual void icmp(const cybermon::context_ptr cp,
-                        unsigned int type,
-                        unsigned int code,
-                        cybermon::pdu_iter s,
-                        cybermon::pdu_iter e) {
-	try {
-	    cml.icmp(*this, cp, type, code, s, e);
-	}
-    catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    virtual void imap(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.imap(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    virtual void imap_ssl(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.imap_ssl(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-
-    virtual void pop3(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.pop3(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-
-    virtual void pop3_ssl(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.pop3_ssl(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    virtual void rtp(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.rtp(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-
-    virtual void rtp_ssl(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.rtp_ssl(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    virtual void sip_request(const cybermon::context_ptr cp,
-                                const std::string& method,
-                                const std::string& from,
-                                const std::string& to,
-                                cybermon::pdu_iter s,
-                                cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.sip_request(*this, cp, method, from, to, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    virtual void sip_response(const cybermon::context_ptr cp,
-                                unsigned int code,
-                                const std::string& status,
-                                const std::string& from,
-                                const std::string& to,
-                                cybermon::pdu_iter s,
-                                cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.sip_response(*this, cp, code, status, from, to, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    virtual void sip_ssl(const cybermon::context_ptr cp,
-              cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.sip_ssl(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    virtual void smtp_auth(const cybermon::context_ptr cp,
-               cybermon::pdu_iter s, cybermon::pdu_iter e)
-    {
-        try
-        {
-            cml.smtp_auth(*this, cp, s, e);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    // HTTP
-    virtual void http_request(const cybermon::context_ptr cp,
-			      const std::string& method,
-			      const std::string& url,
-			      const cybermon::observer::http_hdr_t& hdr,
-			      cybermon::pdu_iter body_start,
-			      cybermon::pdu_iter body_end) {
-	try {
-	    cml.http_request(*this, cp, method, url, hdr, body_start, body_end);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    virtual void http_response(const cybermon::context_ptr cp,
-			       unsigned int code,
-			       const std::string& status,
-			       const cybermon::observer::http_hdr_t& hdr,
-			       const std::string& url,
-			       cybermon::pdu_iter body_start,
-			       cybermon::pdu_iter body_end) {
-	try {
-	    cml.http_response(*this, cp, code, status, hdr, url, 
-			      body_start, body_end);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    // SMTP
-    virtual void smtp_command(const cybermon::context_ptr cp,
-			      const std::string& command) {
-	try {
-	    cml.smtp_command(*this, cp, command);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    virtual void smtp_response(const cybermon::context_ptr cp,
-			       int status,
-			       const std::list<std::string>& text) {
-	try {
-	    cml.smtp_response(*this, cp, status, text);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    virtual void smtp_data(const cybermon::context_ptr cp,
-			   const std::string& from,
-			   const std::list<std::string>& to,
-			   std::vector<unsigned char>::const_iterator s,
-			   std::vector<unsigned char>::const_iterator e) {
-	try {
-	    cml.smtp_data(*this, cp, from, to, s, e);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    // FTP
-    virtual void ftp_command(const cybermon::context_ptr cp,
-			     const std::string& command) {
-	try {
-	    cml.ftp_command(*this, cp, command);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-    
-    virtual void ftp_response(const cybermon::context_ptr cp,
-			      int status,
-			      const std::list<std::string>& responses) {
-	try {
-	    cml.ftp_response(*this, cp, status, responses);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    // Trigger
-    void trigger_up(const std::string& liid, const tcpip::address& a) {
-	try {
-	    cml.trigger_up(liid, a);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    void trigger_down(const std::string& liid) {
-	try {
-	    cml.trigger_down(liid);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-
-    // DNS
-    virtual void dns_message(const cybermon::context_ptr cp,
-                             const cybermon::dns_header hdr,
-                             const std::list<cybermon::dns_query> queries,
-                             const std::list<cybermon::dns_rr> answers,
-                             const std::list<cybermon::dns_rr> authorities,
-                             const std::list<cybermon::dns_rr> additional)
-    {
-        try
-        {
-	        cml.dns_message(*this, cp, hdr, queries, answers, authorities, additional);
-	    }
-        catch (std::exception& e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-
-    // NTP
-    virtual void ntp_timestamp_message(const cybermon::context_ptr cp,
-			     const cybermon::ntp_timestamp& ts){
-	try {
-	    cml.ntp_timestamp_message(*this, cp, ts);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-    
-    virtual void ntp_control_message(const cybermon::context_ptr cp,
-			     const cybermon::ntp_control& ctrl){
-	try {
-	    cml.ntp_control_message(*this, cp, ctrl);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-    
-    virtual void ntp_private_message(const cybermon::context_ptr cp,
-			     const cybermon::ntp_private& priv){
-	try {
-	    cml.ntp_private_message(*this, cp, priv);
-	} catch (std::exception& e) {
-	    std::cerr << "Error: " << e.what() << std::endl;
-	}
-    }
-};
+#include <cybermon_qwriter.h>
+#include <cybermon_qreader.h>
 
 // Monitor class, implements the monitor interface to receive data.
 class etsi_monitor : public monitor {
@@ -421,6 +78,9 @@ void etsi_monitor::operator()(const std::string& liid,
     try {
 
 	// Process the PDU
+    	std::string str( s, e);
+    //std::cout<<"here in etsi_monitor::operator: "<<str;
+
 	an.process(liid, s, e);
 
     } catch (std::exception& e) {
@@ -468,6 +128,7 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 	std::string liid = "PCAP";
 
 	try {
+		//std::cout<<"here: "<<v.data()<<"\n";
 	    e.process(liid, v.begin(), v.end());
 	} catch (std::exception& e) {
 	    std::cerr << "Packet not processed: " << e.what() << std::endl;
@@ -483,6 +144,11 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 	std::string liid = "PCAP";
 
 	try {
+
+		//std::cout<<"here cybermon.c pcap_input::handle: "<<v.data()<<"\n";
+	    std::string str( v.begin(), v.end() );
+		//std::cout<<"here cybermon.c pcap_input::handle::"<<str;
+
 	    e.process(liid, v.begin(), v.end());
 	} catch (std::exception& e) {
 	    std::cerr << "Packet not processed: " << e.what() << std::endl;
@@ -563,15 +229,23 @@ int main(int argc, char** argv)
 
     try {
 	
-	// Create the observer instance.
-	obs an(config_file);
-	
-	// Start the observer.
-	an.start();
+	//queue to store the incoming packets to be processed
+    std::queue<q_entry*>	cqueue;
+
+    // Input queue: Lock,
+    threads::mutex cqwrlock;
+
+    //creating cybermon_qwriter and cybermon_qreader
+    cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
+    cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
+
+    //starting qreader and then qwriter
+    cqr.start();
+    cqw.start();
 
 	if (pcap_file != "") {
 
-	    pcap_input pin(pcap_file, an);
+		pcap_input pin(pcap_file, cqw);
 	    pin.run();
 
 	} else if (transport == "tls") {
@@ -585,7 +259,7 @@ int main(int argc, char** argv)
 	    
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-	    etsi_monitor m(an);
+	    etsi_monitor m(cqw);
 
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(sock, m);
@@ -598,8 +272,7 @@ int main(int argc, char** argv)
 	
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-	    etsi_monitor m(an);
-
+		etsi_monitor m(cqw);
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(port, m);
 	    r.start();
@@ -608,7 +281,13 @@ int main(int argc, char** argv)
 	    r.join();
 
 	}
-	    
+
+	// here
+	//writer close to flag reader to stop
+	//join reader
+	cqw.close();
+	cqr.join();
+
     } catch (std::exception& e) {
 	
 	std::cerr << "Exception: " << e.what() << std::endl;

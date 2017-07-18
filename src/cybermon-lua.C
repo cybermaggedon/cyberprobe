@@ -7,20 +7,21 @@
 using namespace cybermon;
 
 // Call the config.trigger_up function as trigger_up(liid, addr)
-void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
+//void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
+void cybermon_lua::trigger_up(const std::string& liid, const std::string& a)
 {
  
     // Get information stored about the attacker.
-    std::string ta;
-    a.to_string(ta);
-
+    /*std::string ta;
+    a.to_string(ta);*/
     // Get config.trigger_up
     get_global("config");
     get_field(-1, "trigger_up");
     
     // Put liid on stack
     push(liid);
-    push(ta);
+    //push(ta);
+    push(a);
 	
     // config.trigger_up(liid, addr)
     try {
@@ -185,8 +186,8 @@ void cybermon_lua::icmp(engine& an,
 			const context_ptr f,
             unsigned int type,
             unsigned int code,
-			pdu_iter s, 
-			pdu_iter e)
+            pdu_iter s,
+            pdu_iter e)
 {
 
     // Get config.icmp
