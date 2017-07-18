@@ -241,6 +241,12 @@ Cyberprobe releases:
 
 @table @code
 
+@item 1.0
+Lua invocation mechanism has been replaced by a thread-safe queue function.
+
+@item 0.99
+Elliptic curve support in TLS, if supported in OpenSSL.
+
 @item 0.95
 Fixed cyberprobe to cybermon transport dropout.
 
