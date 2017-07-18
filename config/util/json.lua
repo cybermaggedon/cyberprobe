@@ -11,6 +11,7 @@ local module = {}
 local mime = require("mime")
 local json = require("json")
 local os = require("os")
+local dns = require("util.dns")
 
 -- Initialise UUID ---------------------------------------------------------
 
@@ -120,6 +121,8 @@ local initialise_observation = function(context, indicators)
 
 end
 
+module.initialise_observation = initialise_observation
+
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
 module.trigger_up = function(liid, addr)
@@ -197,82 +200,6 @@ module.http_response = function(context, code, status, header, url, body)
   submit(obs)
 end
 
-local dns_class_name = {}
-dns_class_name[1] = "IN"
-dns_class_name[2] = "CS"
-dns_class_name[3] = "CH"
-dns_class_name[4] = "HS"
-
-local dns_type_name = {}
-dns_type_name[1] = "A"
-dns_type_name[2] = "NS"
-dns_type_name[2] = "NS"
-dns_type_name[3] = "MD"
-dns_type_name[4] = "MF"
-dns_type_name[5] = "CNAME"
-dns_type_name[6] = "SOA"
-dns_type_name[7] = "MB"
-dns_type_name[8] = "MG"
-dns_type_name[9] = "MR"
-dns_type_name[10] = "NULL"
-dns_type_name[11] = "WKS"
-dns_type_name[12] = "PTR"
-dns_type_name[13] = "HINFO"
-dns_type_name[14] = "MINFO"
-dns_type_name[15] = "MX"
-dns_type_name[16] = "TXT"
-dns_type_name[17] = "RP"
-dns_type_name[18] = "AFSDB"
-dns_type_name[19] = "X25"
-dns_type_name[20] = "ISDN"
-dns_type_name[21] = "RT"
-dns_type_name[22] = "NSAP"
-dns_type_name[23] = "NSAP-PTR"
-dns_type_name[24] = "SIG"
-dns_type_name[25] = "KEY"
-dns_type_name[26] = "PX"
-dns_type_name[27] = "GPOS"
-dns_type_name[28] = "AAAA"
-dns_type_name[29] = "LOC"
-dns_type_name[31] = "EID"
-dns_type_name[32] = "NIMLOC"
-dns_type_name[33] = "SRV"
-dns_type_name[34] = "ATMA"
-dns_type_name[35] = "NAPTR"
-dns_type_name[36] = "KX"
-dns_type_name[37] = "CERT"
-dns_type_name[39] = "DNAME"
-dns_type_name[40] = "SINK"
-dns_type_name[41] = "OPT"
-dns_type_name[42] = "APL"
-dns_type_name[43] = "DS"
-dns_type_name[44] = "SSHFP"
-dns_type_name[45] = "IPSECKEY"
-dns_type_name[46] = "RRSIG"
-dns_type_name[47] = "NSEC"
-dns_type_name[48] = "DNSKEY"
-dns_type_name[49] = "DHCID"
-dns_type_name[50] = "NSEC3"
-dns_type_name[51] = "NSEC3PARAM"
-dns_type_name[52] = "TLSA"
-dns_type_name[55] = "HIP"
-dns_type_name[59] = "CDS"
-dns_type_name[60] = "CDNSKEY"
-dns_type_name[99] = "SPF"
-dns_type_name[100] = "UINFO"
-dns_type_name[101] = "UID"
-dns_type_name[102] = "GID"
-dns_type_name[103] = "UNSPEC"
-dns_type_name[249] = "TKEY"
-dns_type_name[250] = "TSIG"
-dns_type_name[251] = "IXFR"
-dns_type_name[252] = "AXFR"
-dns_type_name[254] = "MAILA"
-dns_type_name[256] = "URI"
-dns_type_name[257] = "CAA"
-dns_type_name[32768] = "TA"
-dns_type_name[32769] = "DLV"
-
 -- This function is called when a DNS message is observed.
 module.dns_message = function(context, header, queries, answers, auth, add)
 
@@ -292,12 +219,12 @@ module.dns_message = function(context, header, queries, answers, auth, add)
   for key, value in pairs(queries) do
     local a = {}
     a["name"] = value.name
-    if dns_type_name[value.type] == nil then
+    if dns.type_name[value.type] == nil then
       a["type"] = tostring(value.type)
     else
-      a["type"] = dns_type_name[value.type]
+      a["type"] = dns.type_name[value.type]
     end
-    a["class"] = dns_class_name[value.class]
+    a["class"] = dns.class_name[value.class]
     q[#q + 1] = a
   end
   obs["dns_message"]["query"] = q
@@ -307,12 +234,12 @@ module.dns_message = function(context, header, queries, answers, auth, add)
   for key, value in pairs(answers) do
     local a = {}
     a["name"] = value.name
-    if dns_type_name[value.type] == nil then
+    if dns.type_name[value.type] == nil then
       a["type"] = tostring(value.type)
     else
-      a["type"] = dns_type_name[value.type]
+      a["type"] = dns.type_name[value.type]
     end
-    a["class"] = dns_class_name[value.class]
+    a["class"] = dns.class_name[value.class]
     if value.rdaddress then
        a["address"] = value.rdaddress
     end

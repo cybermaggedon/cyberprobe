@@ -19,67 +19,12 @@ local object = "observation"
 -- Points to an ElasticSearch instance.
 module.base = "http://localhost:9200/"
 
--- Initialise a basic observation
-module.initialise_observation = function(context, indicators)
-
-  local obs = {}
-  obs[object] = {}
-  obs[object]["liid"] = context:get_liid()
-  obs[object]["src"] = addr.get_stack(context, true)
-  obs[object]["dest"] = addr.get_stack(context, false)
-
-  if indicators and not(#indicators == 0) then
-    obs[object]["indicators"] = {}
-    obs[object]["indicators"]["on"] = {}
-    obs[object]["indicators"]["description"] = {}
-    obs[object]["indicators"]["value"] = {}
-    obs[object]["indicators"]["id"] = {}
-    for key, value in pairs(indicators) do
-      table.insert(obs[object]["indicators"]["on"], value["on"])
-      table.insert(obs[object]["indicators"]["description"], value["description"])
-      table.insert(obs[object]["indicators"]["value"], value["value"])
-      table.insert(obs[object]["indicators"]["id"], value["id"])
-    end
-  end
-
-  local tm = context:get_event_time()
-  local tmstr = os.date("!%Y%m%dT%H%M%S", math.floor(tm))
-  local millis = 1000 * (tm - math.floor(tm))
-
-  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
-
-  obs[object]["time"] = tmstr
-
-  return obs
-
-end
-
-
--- Create an observation object in ElasticSearch
-module.submit_observation = function(request)
-
-  local u = string.format("%s%s/%s/%d?ttl=%s", module.base, index, object, id,
-  	default_ttl)
-print(u)
-  request[object]["oid"] = id
-
-  print(string.format("Observation %d", id))
-  id = id + 1
-
-  local c = http.http_req(u, "PUT", jsenc.encode(request), "application/json")
-
-  if not (c == 201 or c == 200) then
-    io.write(string.format("Elasticsearch index failed: %s\n", c))
-  end
-
-end
-
 -- Initialise elasticsearch
 module.init = function()
 
   -- Look for mapping.
   local c = http.http_req(module.base .. index .. "/" .. object .. "/_mapping",
-  	    	          "GET", "", "application/json")
+                         "GET", "", "application/json")
   
   -- If mapping already exists, move on.
   if c == 200 then
@@ -169,6 +114,24 @@ module.init = function()
   end
 
 end
+
+
+-- Create an observation object in ElasticSearch
+module.submit_observation = function(request)
+
+  local u = string.format("%s%s/%s/%d?ttl=%s", module.base, index, object, id,
+  	default_ttl)
+print(u)
+  id = id + 1
+
+  local c = http.http_req(u, "PUT", jsenc.encode(request), "application/json")
+
+  if not (c == 201 or c == 200) then
+    io.write(string.format("Elasticsearch index failed: %s\n", c))
+  end
+
+end
+
 
 return module
 

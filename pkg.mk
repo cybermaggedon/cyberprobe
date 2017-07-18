@@ -1,6 +1,4 @@
-
-VERSION=ch.331.2
-
+VERSION=1.0
 deb:
 	rm -rf cyberprobe-${VERSION}
 	autoreconf -fi
