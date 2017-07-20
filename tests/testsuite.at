@@ -94,6 +94,14 @@ sort < $abs_srcdir/samples/icmp.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
+AT_SETUP([vlan.pcap])
+cat $abs_srcdir/samples/vlan.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/vlan.pcap.monitor > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
 # ----------------------------------------------------------------------------
 
 AT_BANNER([JSON objects created by cybermon.])
@@ -175,6 +183,14 @@ cat $abs_srcdir/samples/icmp.pcap | \
     $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
     $abs_top_srcdir/tests/summarise_json > output1
 cat $abs_srcdir/samples/icmp.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([vlan.pcap])
+cat $abs_srcdir/samples/vlan.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/vlan.pcap.model > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
@@ -280,6 +296,16 @@ cat $abs_srcdir/samples/icmp.pcap | \
     $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/stix+alert.lua | \
     sort > output1
 sort < $abs_srcdir/samples/icmp.pcap.indicators > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([vlan.pcap])
+STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
+export STIX_INDICATORS
+cat $abs_srcdir/samples/vlan.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/stix+alert.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/vlan.pcap.indicators > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
