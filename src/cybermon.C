@@ -115,44 +115,88 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
     
     int datalink = pcap_datalink(p);
 
-    if (datalink == DLT_EN10MB) {
+    try {
 
-	// IPv4 ethernet only
-	if (f[12] != 8) return;
-	if (f[13] != 0) return;
+	if (datalink == DLT_EN10MB) {
 
-	std::vector<unsigned char> v;
-	v.assign(f + 14, f + captured);
+	    // If not long enough, return.
+	    if (len < 14) return;
 
-	// FIXME: Hard-coded?!
-	std::string liid = "PCAP";
+	    // IPv4 ethernet
+	    if (f[12] == 0x08 && f[13] == 0) {
+		
+		std::vector<unsigned char> v;
+		v.assign(f + 14, f + captured);
 
-	try {
-		//std::cout<<"here: "<<v.data()<<"\n";
-	    e.process(liid, v.begin(), v.end());
-	} catch (std::exception& e) {
-	    std::cerr << "Packet not processed: " << e.what() << std::endl;
+		// FIXME: Hard-coded?!
+		std::string liid = "PCAP";
+
+		e.process(liid, v.begin(), v.end());
+
+	    }
+
+	    // IPv6 ethernet only
+	    if (f[12] == 0x86 && f[13] == 0xdd) {
+		
+		std::vector<unsigned char> v;
+		v.assign(f + 14, f + captured);
+
+		// FIXME: Hard-coded?!
+		std::string liid = "PCAP";
+
+		e.process(liid, v.begin(), v.end());
+
+	    }
+
+	    // 802.1q (VLAN)
+	    if (f[12] == 0x81 && f[13] == 0x00) {
+
+		// IPv4 ethernet
+		if (f[16] == 0x08 && f[17] == 0) {
+		
+		    std::vector<unsigned char> v;
+		    v.assign(f + 18, f + captured);
+		    
+		    // FIXME: Hard-coded?!
+		    std::string liid = "PCAP";
+
+		    e.process(liid, v.begin(), v.end());
+
+		}
+
+		// IPv6 ethernet only
+		if (f[16] == 0x86 && f[17] == 0xdd) {
+		
+		    std::vector<unsigned char> v;
+		    v.assign(f + 18, f + captured);
+
+		    // FIXME: Hard-coded?!
+		    std::string liid = "PCAP";
+
+		    e.process(liid, v.begin(), v.end());
+
+		}
+
+	    }
+
 	}
-    }
 
-    if (datalink == DLT_RAW) {
+	if (datalink == DLT_RAW) {
 
-	std::vector<unsigned char> v;
-	v.assign(f, f + captured);
+	    std::vector<unsigned char> v;
+	    v.assign(f, f + captured);
 
-	// FIXME: Hard-coded?!
-	std::string liid = "PCAP";
+	    // FIXME: Hard-coded?!
+	    std::string liid = "PCAP";
 
-	try {
-
-		//std::cout<<"here cybermon.c pcap_input::handle: "<<v.data()<<"\n";
 	    std::string str( v.begin(), v.end() );
-		//std::cout<<"here cybermon.c pcap_input::handle::"<<str;
 
 	    e.process(liid, v.begin(), v.end());
-	} catch (std::exception& e) {
-	    std::cerr << "Packet not processed: " << e.what() << std::endl;
+
 	}
+
+    } catch (std::exception& e) {
+	std::cerr << "Packet not processed: " << e.what() << std::endl;
     }
 
 }

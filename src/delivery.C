@@ -22,15 +22,37 @@ void delivery::identify_link(const_iterator& start,
 	    throw std::runtime_error("Too small for Ethernet");
 
 	// Get IP version from Ethertype
-	if (start[12] == 0x08 && start[13] == 0) ipv = 4;
-	else if (start[12] == 0x86 && start[13] == 0xdd) ipv = 6;
-	else
-	    throw std::runtime_error("Not IP protocol");
+	if (start[12] == 0x08 && start[13] == 0) {
+	    ipv = 4;		// IPv4
+	    start += 14;	// Skip the Ethernet frame.
+	    return;
+	} else if (start[12] == 0x86 && start[13] == 0xdd) {
+	    ipv = 6;		// IPv6
+	    start += 14;	// Skip the Ethernet frame.
+	    return;
+	}
 
-	// Skip the Ethernet frame.
-	start += 14;
+	// 802.1q (VLAN)
+	if (start[12] == 0x81 && start[13] == 0x00) {
 
-	return;
+	    if ((end - start) < 18)
+		throw std::runtime_error("Too small for 802.1q");
+
+	    if (start[16] == 0x08 && start[17] == 0) {
+		ipv = 4;		// IPv4
+		start += 18;		// Skip the Ethernet frame.
+		return;
+	    }
+
+	    if (start[16] == 0x86 && start[17] == 0xdd) {
+		ipv = 6;		// IPv6
+		start += 18;		// Skip the Ethernet frame.
+		return;
+	    }
+
+	}
+
+	throw std::runtime_error("Not IP protocol");
 
     } else if (datalink == DLT_LINUX_SLL) {
 
