@@ -312,6 +312,8 @@ void delivery::add_interface(const std::string& iface,
 	if (iface.substr(0, 3) == "dag") {
 
 	    dag_dev* p = new dag_dev(iface, delay, *this);
+	    if (filter != "")
+		p->add_filter(filter);
 	    p->start();
 	    interfaces[i] = p;
 
@@ -328,9 +330,7 @@ void delivery::add_interface(const std::string& iface,
 	interfaces[i] = p;
 
 #ifdef WITH_DAG
-
 	}
-
 #endif
 
     } catch (std::exception& e) {

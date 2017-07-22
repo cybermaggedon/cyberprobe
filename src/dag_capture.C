@@ -50,6 +50,33 @@ void dag_dev::run()
     
     uint64_t window = 16 * 1024 * 1024;
 
+    struct bpf_program fltr;
+
+    // Only used for filtering.
+    pcap_t *p = pcap_open_dead(datalink, 65535);
+    if (p == 0) {
+	std::cerr << "pcap_open_dead failed" << std::endl;
+	return;
+    }
+    
+    bool apply_filter = false;
+
+    if (filter != "") {
+
+	// Compile the expression.
+	int ret = pcap_compile(p, &fltr, (char*) filter.c_str(), 1, 0);
+	if (ret < 0) {
+
+	    std::cerr << "Filter expression compilation failed" << std::endl;
+	    std::cerr << pcap_geterr(p) << std::endl;
+	    pcap_close(p);
+	    return;
+
+	}
+
+	apply_filter = true;
+
+    }
     int fd = dag_open((char*) iface.c_str());
     if (fd < 0) {
 	std::cerr << "dag_open failed: " << errno << std::endl;
@@ -103,7 +130,7 @@ void dag_dev::run()
 	}
 
 	uint64_t processed = 0;
-      
+
 	while (running && ((top - bottom) > dag_record_size) &&
 	       ((processed + dag_record_size) < window)) {
 	
@@ -138,8 +165,19 @@ void dag_dev::run()
 	    
 	    // FIXME: Hard-coded, skip ethernet header.
 	    pos += 18;
-      
-	    handle(len - pos, len - pos, bottom + pos);
+
+	    struct pcap_pkthdr hdr;
+	    hdr.caplen = len - pos;
+	    hdr.len = len - pos;
+
+	    // Maybe apply filter
+	    if (apply_filter == false ||
+		pcap_offline_filter(&fltr, &hdr, bottom + pos) != 0) {
+
+		// No filter in place, or filter hits.
+		handle(len - pos, len - pos, bottom + pos);
+
+	    }
 
 	    processed += len;
 	    bottom += len;
@@ -148,6 +186,8 @@ void dag_dev::run()
 
 	// Maybe clear some delay line.
 	// FIXME: Copied from capture.C
+
+	// Get time
 	struct timeval now;
 	gettimeofday(&now, 0);
 	
@@ -165,6 +205,10 @@ void dag_dev::run()
 		
 	}
 	
+    }
+
+    if (filter != "") {
+	pcap_freecode(&fltr);
     }
     
     dag_stop_stream(fd, 0);

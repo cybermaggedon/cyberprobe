@@ -3,6 +3,8 @@
 #define DAG_CAPTURE_H
 
 #include "capture.h"
+#include <pcap.h>
+#include <pcap-bpf.h>
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
@@ -34,6 +36,9 @@ private:
     // Set to false to stop.
     bool running;
 
+    // Packet filter.
+    std::string filter;
+
 public:
 
     // Thread body.
@@ -57,6 +62,10 @@ public:
 
     virtual void stop() {
 	running = false;
+    }
+
+    void add_filter(const std::string& spec) {
+	filter = spec;
     }
 
 };
