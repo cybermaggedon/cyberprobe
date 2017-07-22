@@ -6,8 +6,8 @@
 // FIXME: Thread this for performance.
 
 // Packet handler.
-void capture_dev::handle(unsigned long len, unsigned long captured, 
-		 const unsigned char* payload)
+void pcap_dev::handle(unsigned long len, unsigned long captured, 
+		      const unsigned char* payload)
 {
 
     // Bypass the delay line stuff if there's no delay.
@@ -40,7 +40,7 @@ void capture_dev::handle(unsigned long len, unsigned long captured,
 }
 
 // Capture device, main thread body.
-void capture_dev::run()
+void pcap_dev::run()
 {
 
     struct pollfd pfd;

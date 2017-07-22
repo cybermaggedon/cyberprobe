@@ -9,6 +9,11 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	endpoint.h parameter.h
 cyberprobe_LDADD = libcybermon.la -lssl
 
+if WITH_DAG
+cyberprobe_SOURCES += dag_capture.C dag_capture.h
+cyberprobe_LDADD += -ldag
+endif
+
 cybermon_SOURCES = cybermon.C management.h 
 cybermon_LDADD = libcybermon.la -lssl
 

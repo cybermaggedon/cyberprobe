@@ -2,7 +2,12 @@
 #include <algorithm>
 #include <pcap.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "delivery.h"
+#include "dag_capture.h"
 
 // This method studies the packet data, and PCAP datalink attribute, and:
 // - Returns the IP version (4 or 6).
@@ -294,7 +299,6 @@ void delivery::add_interface(const std::string& iface,
     i.interface = iface;
     i.filter = filter;
     i.delay = delay;
-    capture_dev* c;
 
     if (interfaces.find(i) != interfaces.end()) {
 	interfaces[i]->stop();
@@ -303,13 +307,31 @@ void delivery::add_interface(const std::string& iface,
 
     try {
 
-	c = new capture_dev(iface, delay, *this);
-	if (filter != "")
-	    c->add_filter(filter);
+#ifdef WITH_DAG
 
-	c->start();
+	if (iface.substr(0, 3) == "dag") {
+
+	    dag_dev* p = new dag_dev(iface, delay, *this);
+	    p->start();
+	    interfaces[i] = p;
+
+	} else {
+
+#endif
+
+	pcap_dev* p = new pcap_dev(iface, delay, *this);
+	if (filter != "")
+	    p->add_filter(filter);
 	
-	interfaces[i] = c;
+	p->start();
+	
+	interfaces[i] = p;
+
+#ifdef WITH_DAG
+
+	}
+
+#endif
 
     } catch (std::exception& e) {
 	interfaces_lock.unlock();
