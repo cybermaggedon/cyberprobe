@@ -210,6 +210,8 @@ void dag_dev::run()
     if (filter != "") {
 	pcap_freecode(&fltr);
     }
+
+    if (p) pcap_close(p);
     
     dag_stop_stream(fd, 0);
     dag_detach_stream(fd, 0);
