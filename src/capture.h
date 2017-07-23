@@ -20,13 +20,11 @@ class capture_dev : public threads::thread {
   public:
     virtual ~capture_dev() {}
     virtual void stop() = 0;
-    virtual void handle(unsigned long len, unsigned long captured, 
-			const unsigned char* bytes) = 0;
 };
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class pcap_dev : public interface_capture, public capture_dev {
+class pcap_dev : public pcap_interface , public capture_dev {
 private:
 
     struct delayed_packet {
@@ -59,7 +57,7 @@ public:
 
     // Constructor.  i=interface name, d=packet consumer.
     pcap_dev(const std::string& i, float delay, packet_consumer& d) : 
-	interface_capture(i), deliv(d) { 
+	pcap_interface(i), deliv(d) { 
 	datalink = pcap_datalink(p); 
 	this->delay = delay;
     }
@@ -72,7 +70,7 @@ public:
 			const unsigned char* bytes);
 
     virtual void stop() {
-	interface_capture::stop();
+	pcap_interface::stop();
     }
 
 };

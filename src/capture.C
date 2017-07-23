@@ -60,7 +60,7 @@ void pcap_dev::run()
 	    throw std::runtime_error("poll failed");
 
 	if (pfd.revents)
-	    pcap_dispatch(p, 1, handler, (unsigned char *) this);
+	  pcap_dispatch(p, 1, handler, (unsigned char *) this);
 
 	struct timeval now;
 	gettimeofday(&now, 0);

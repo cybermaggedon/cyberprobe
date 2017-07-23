@@ -21,7 +21,7 @@ extern "C" {
 // Base class for capture functionality.  Use the 'interface_capture'
 // class for interface sniffing.  This could be sub-classed to a PCAP
 // file reader too, if needed.
-class capture {
+class pcap_capture {
 
  protected:
     // PCAP handle.
@@ -37,7 +37,7 @@ class capture {
     // Internal PCAP call-back.
     static void handler(unsigned char* usr, const struct pcap_pkthdr *h,
 			const unsigned char* bytes) {
-	class capture* c = (capture*) usr;
+	pcap_capture* c = reinterpret_cast<pcap_capture*>(usr);
 	c->handle(h->len, h->caplen, bytes);
     }
 
@@ -46,10 +46,10 @@ class capture {
   public:
     
     // Constructor.
-    capture() { p = 0; running = true; }
+    pcap_capture() { p = 0; running = true; }
 
     // Destructor.
-    virtual ~capture() { if (p) pcap_close(p); p = 0; }
+    virtual ~pcap_capture() { if (p) pcap_close(p); p = 0; }
 
     // Adds a filter to the capture class.  spec specifies a PCAP-style
     // filter statement.  See 'pcap' man-page.  Throws a runtime_error 
@@ -122,25 +122,26 @@ class capture {
 };
 
 // Packet capture interface for a network interface.
-class interface_capture : public capture {
+class pcap_interface : public pcap_capture {
 
   public:
 
     // Constructor.  'iface' is the interface name e.g. eth0
     // snaplen = maximum packet size to capture.
-    interface_capture(const std::string& iface, int snaplen = 65535) {
+    pcap_interface(const std::string& iface, int snaplen = 65535) {
 	char errmsg[8192];
 	p = pcap_open_live(iface.c_str(), snaplen, 1, 1, errmsg);
 	if (p == 0)
 	    throw std::runtime_error(errmsg);
 	pcap_set_snaplen(p, 65535);
     }
-    
+
+    virtual ~pcap_interface() {}
 
 };
 
 // File reader
-class pcap_reader : public capture {
+class pcap_reader : public pcap_capture {
 
   public:
 
@@ -152,7 +153,9 @@ class pcap_reader : public capture {
 	if (p == 0)
 	    throw std::runtime_error(errmsg);
 	pcap_set_snaplen(p, 65535);
-  }
+    }
+
+    virtual ~pcap_reader() {}
     
 
 };
@@ -171,6 +174,7 @@ class pcap_writer {
 	if (dumper == 0)
 	    throw std::runtime_error("pcap_dump_open_dead failed.");
     }
+
     void write(const std::vector<unsigned char>::iterator& begin,
 	       const std::vector<unsigned char>::iterator& end) {
 
