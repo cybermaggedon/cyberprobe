@@ -26,7 +26,7 @@ class capture_dev : public threads::thread {
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class pcap_dev : public capture_dev, public interface_capture {
+class pcap_dev : public interface_capture, public capture_dev {
 private:
 
     struct delayed_packet {
