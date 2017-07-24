@@ -7,7 +7,11 @@
 #endif
 
 #include "delivery.h"
+
+#ifdef WITH_DAG
+// DAG support if available.
 #include "dag_capture.h"
+#endif
 
 // This method studies the packet data, and PCAP datalink attribute, and:
 // - Returns the IP version (4 or 6).
