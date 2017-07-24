@@ -302,6 +302,7 @@ void delivery::add_interface(const std::string& iface,
 
     if (interfaces.find(i) != interfaces.end()) {
 	interfaces[i]->stop();
+	interfaces[i]->join();
 	interfaces.erase(i);
     }
 
@@ -357,6 +358,7 @@ void delivery::remove_interface(const std::string& iface,
 
     if (interfaces.find(i) != interfaces.end()) {
 	interfaces[i]->stop();
+	interfaces[i]->join();
 	interfaces.erase(i);
     }
 
@@ -512,6 +514,7 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
 
     if (senders.find(e) != senders.end()) {
 	senders[e]->stop();
+	senders[e]->join();
 	senders.erase(e);
     }
 
@@ -543,6 +546,7 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 
     if (senders.find(e) != senders.end()) {
 	senders[e]->stop();
+	senders[e]->join();
 	senders.erase(e);
     }
 
