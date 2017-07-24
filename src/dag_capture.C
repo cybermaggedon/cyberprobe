@@ -101,12 +101,12 @@ void dag_dev::run()
       exit(0);
     }
 
-    // 2ms max wait
+    // 50ms max wait
     struct timeval maxwait;
     timerclear(&maxwait);
-    maxwait.tv_sec = 2000;
+    maxwait.tv_sec = 50000;
 
-    // 1ms poll.
+    // 1ms timeout when data present - keeps latency low
     struct timeval poll;
     timerclear(&poll);
     poll.tv_usec = 1000;
