@@ -151,13 +151,9 @@ void dag_dev::run()
 	    // Skip timestamp
 	    pos += 8;
 	    
-	    // Skip over extension headers.
-	    while (bottom[pos] & 0x80) {
-		std::cerr << "skip" << std::endl;
+	    // Skip over 8-bytes and all extension headers.
+	    while (bottom[pos] & 0x80)
 		pos += 8;
-	    }
-      
-	    // Final extesion header.
 	    pos += 8;
 	    
 	    // Type-specific.
@@ -165,10 +161,8 @@ void dag_dev::run()
 	    if (type == 2) pos += 2;
 	    if (type == 3) pos += 4;
 	    if (type == 16) pos += 2;
-	    
-	    // FIXME: Hard-coded, skip ethernet header.
-	    pos += 18;
 
+	    // Construct PCAP header for filter
 	    struct pcap_pkthdr hdr;
 	    hdr.caplen = len - pos;
 	    hdr.len = len - pos;
