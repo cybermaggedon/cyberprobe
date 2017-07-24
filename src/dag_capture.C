@@ -77,7 +77,10 @@ void dag_dev::run()
 	apply_filter = true;
 
     }
-    int fd = dag_open((char*) iface.c_str());
+
+    std::string dev_file = "/dev/" + iface;
+    
+    int fd = dag_open((char*) dev_file.c_str());
     if (fd < 0) {
 	std::cerr << "dag_open failed: " << errno << std::endl;
 	perror("dag_open");
