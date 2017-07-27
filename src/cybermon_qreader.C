@@ -38,7 +38,7 @@ void cybermon_qreader::run() {
 
 		//observed with out this sleep the containers consuming cpu
 		if (cqueue.size() == 0) {
-			usleep(1);
+			usleep(1000);
 			continue;
 		}
 

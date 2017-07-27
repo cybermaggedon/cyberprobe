@@ -2,7 +2,16 @@
 #include <algorithm>
 #include <pcap.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "delivery.h"
+
+#ifdef WITH_DAG
+// DAG support if available.
+#include "dag_capture.h"
+#endif
 
 // This method studies the packet data, and PCAP datalink attribute, and:
 // - Returns the IP version (4 or 6).
@@ -294,22 +303,40 @@ void delivery::add_interface(const std::string& iface,
     i.interface = iface;
     i.filter = filter;
     i.delay = delay;
-    capture_dev* c;
 
     if (interfaces.find(i) != interfaces.end()) {
 	interfaces[i]->stop();
+	interfaces[i]->join();
 	interfaces.erase(i);
     }
 
     try {
 
-	c = new capture_dev(iface, delay, *this);
-	if (filter != "")
-	    c->add_filter(filter);
+#ifdef WITH_DAG
 
-	c->start();
+	if (iface.substr(0, 3) == "dag") {
+
+	    dag_dev* p = new dag_dev(iface, delay, *this);
+	    if (filter != "")
+		p->add_filter(filter);
+	    p->start();
+	    interfaces[i] = p;
+
+	} else {
+
+#endif
+
+	pcap_dev* p = new pcap_dev(iface, delay, *this);
+	if (filter != "")
+	    p->add_filter(filter);
 	
-	interfaces[i] = c;
+	p->start();
+	
+	interfaces[i] = p;
+
+#ifdef WITH_DAG
+	}
+#endif
 
     } catch (std::exception& e) {
 	interfaces_lock.unlock();
@@ -335,6 +362,7 @@ void delivery::remove_interface(const std::string& iface,
 
     if (interfaces.find(i) != interfaces.end()) {
 	interfaces[i]->stop();
+	interfaces[i]->join();
 	interfaces.erase(i);
     }
 
@@ -490,6 +518,7 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
 
     if (senders.find(e) != senders.end()) {
 	senders[e]->stop();
+	senders[e]->join();
 	senders.erase(e);
     }
 
@@ -521,6 +550,7 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 
     if (senders.find(e) != senders.end()) {
 	senders[e]->stop();
+	senders[e]->join();
 	senders.erase(e);
     }
 

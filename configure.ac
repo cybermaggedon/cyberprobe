@@ -74,6 +74,11 @@ AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
 AC_CHECK_LIB([readline], [main], [], [AC_MSG_ERROR(Library readline missing.)])
 AC_CHECK_LIB([ssl], [main], [], [AC_MSG_ERROR(Library ssl missing.)])
 
+AC_CHECK_LIB([dag], [main],
+		    [AM_CONDITIONAL([WITH_DAG], [true])]
+		    [AC_DEFINE([WITH_DAG], [1], [Set if compiling DAG support])],
+		    [AM_CONDITIONAL([WITH_DAG], [false])])
+
 # LUA specifics
 AC_SEARCH_LIBS([luaL_register], [lua lua5.1],
 		    [AC_DEFINE([HAVE_LUAL_REGISTER], 1, 
