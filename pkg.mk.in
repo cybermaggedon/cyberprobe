@@ -5,8 +5,6 @@ do_substitution = date=$$(date);sed -e "s,[@]DATE[@],$${date},g" \
 	-e "s,[@]VERSION[@],@VERSION@,g"
 
 rpm:
-	autoreconf -fi
-	./configure
 	make dist
 	mkdir -p RPM/SOURCES
 	cp cyberprobe-${VERSION}.tar.gz RPM/SOURCES/
@@ -17,8 +15,6 @@ debian/changelog: $(srcdir)/debian/changelog.in Makefile
 
 deb: debian/changelog
 	rm -rf cyberprobe-${VERSION}
-	autoreconf -fi
-	./configure
 	make dist
 	cp cyberprobe-${VERSION}.tar.gz cyberprobe_${VERSION}.orig.tar.gz
 	tar xfz cyberprobe-${VERSION}.tar.gz
@@ -28,8 +24,6 @@ deb: debian/changelog
 # Hack, Ubuntu libreadline version is different.
 ubuntu: debian/changelog
 	rm -rf cyberprobe-${VERSION}
-	autoreconf -fi
-	./configure
 	make dist
 	cp cyberprobe-${VERSION}.tar.gz cyberprobe_${VERSION}.orig.tar.gz
 	tar xfz cyberprobe-${VERSION}.tar.gz
