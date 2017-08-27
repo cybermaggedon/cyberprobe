@@ -1,0 +1,57 @@
+
+
+There are a couple of things which are complicated about running cyberprobe
+in containers: Firstly, it's not been documented properly, my bad.
+Secondly, the cyberprobe bit of cyberprobe fits awkwardly in a container,
+because it needs special privileges to do network tapping, which may make it
+complicated to deploy in your environment.  But here's how I can get it
+to work:
+
+- Groundwork, you need to know your host's IP address from a docker container,
+  the command 'ifconfig docker0' tells me my host's address is 172.17.0.1.
+
+- More groundwork, you need to know the name your network interface will appear
+  in a docker container with network admin, which is the same as the host
+  network.  The command 'ifconfig' tells me my primary network interface is
+  enp0s3.
+
+- Create a configuration file for cyberprobe, incorporating network address
+  and interface name.  Put that in a file, say, /config/c.cfg on the host:
+
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<configuration>
+  <interfaces>
+    <interface name="enp0s3"/>
+  </interfaces>
+  <targets>
+    <target address="0.0.0.0/0" liid="my-network"/>
+  </targets>
+  <endpoints>
+    <endpoint hostname="172.17.0.1" port="9000" type="etsi" transport="tcp"/> 
+  </endpoints>
+</configuration>
+
+- Run a cyberprobe container using this file, with NET_ADMIN privileges so that
+  it can tap the host network.  Note that the -v option is used to pass the
+  configuration file through to the container, and the z option works around
+  any SElinux complications:
+
+  docker run -i -t --network=host \
+    --cap-add=NET_ADMIN -v /config:/config:z \
+    cybermaggedon/cyberprobe cyberprobe /config/c.cfg
+
+- Deploy cybermon container dumping received events on stdout:
+
+  docker run -i -t -p 9000:9000 \
+    cybermaggedon/cybermon cybermon -p 9000 -c /etc/cyberprobe/json.lua
+
+- If you want to start databasing stuff, stop the cybermon container and run:
+
+  docker run -p 9200:9200 elasticsearch
+
+  docker run -i -t --network=host -p 9000:9000 \
+    cybermaggedon/cybermon cybermon -p 9000 -c /etc/cyberprobe/db.lua
+
+- Do some network stuff, then query ElasticSearch:
+
+  wget -q -O- 'http://localhost:9200/cyberprobe/_search?q=*'
