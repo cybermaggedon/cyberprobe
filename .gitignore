@@ -57,3 +57,4 @@ tests/atconfig
 tests/atlocal
 debian/changelog
 pkg.mk
+cyberprobe.spec
