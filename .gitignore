@@ -55,4 +55,5 @@ tests/testsuite.log
 tests/testsuite
 tests/atconfig
 tests/atlocal
-
+debian/changelog
+pkg.mk

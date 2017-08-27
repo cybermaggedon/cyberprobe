@@ -1,5 +1,21 @@
-VERSION=1.2
-deb:
+
+VERSION=@VERSION@
+
+do_substitution = date=$$(date);sed -e "s,[@]DATE[@],$${date},g" \
+	-e "s,[@]VERSION[@],@VERSION@,g"
+
+rpm:
+	autoreconf -fi
+	./configure
+	make dist
+	mkdir -p RPM/SOURCES
+	cp cyberprobe-${VERSION}.tar.gz RPM/SOURCES/
+	rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
+
+debian/changelog: $(srcdir)/debian/changelog.in Makefile
+	$(do_substitution) < $(srcdir)/debian/changelog.in > debian/changelog
+
+deb: debian/changelog
 	rm -rf cyberprobe-${VERSION}
 	autoreconf -fi
 	./configure
@@ -10,7 +26,7 @@ deb:
 	cd cyberprobe-${VERSION}/; dpkg-buildpackage -us -uc
 
 # Hack, Ubuntu libreadline version is different.
-ubuntu:
+ubuntu: debian/changelog
 	rm -rf cyberprobe-${VERSION}
 	autoreconf -fi
 	./configure
@@ -21,11 +37,6 @@ ubuntu:
 	sed -i 's/libreadline6/libreadline7/g' cyberprobe-${VERSION}/debian/control
 	cd cyberprobe-${VERSION}/; dpkg-buildpackage -us -uc
 
-rpm:
-	autoreconf -fi
-	./configure
-	make dist
-	mkdir -p RPM/SOURCES
-	cp cyberprobe-${VERSION}.tar.gz RPM/SOURCES/
-	rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
+tag:
+	git tag -a v${VERSION} -m ''
 

@@ -1,8 +1,2 @@
-Note to maintainer.
-
-Places to change version numbers:
-
-  configure.ac
-  cyberprobe.spec
-  pkg.mk
-  debian/changelog
+Previously, it was necessary to update version numbers in a number of places
+prior to release.  Now it only needs to be set in configure.ac
