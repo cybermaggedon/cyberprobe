@@ -33,4 +33,10 @@ ubuntu: debian/changelog
 
 tag:
 	git tag -a v${VERSION} -m ''
+	git push --tags
+
+create-release:
+	body='{"tag_name": "v'${VERSION}'", "name": "v'${VERSION}'", "body": "Release '${VERSION}'", "draft": false, "prerelease": false}'; \
+	token=$$(cat TOKEN); \
+	curl --data "$$body"" "https://api.github.com/repos/cybermaggedon/cyberprobe/releases?access_token=$$token"
 
