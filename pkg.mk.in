@@ -10,8 +10,8 @@ rpm:
 	cp cyberprobe-${VERSION}.tar.gz RPM/SOURCES/
 	rpmbuild --define "_topdir `pwd`/RPM" -ba cyberprobe.spec
 
-debian/changelog: $(srcdir)/debian/changelog.in Makefile
-	$(do_substitution) < $(srcdir)/debian/changelog.in > debian/changelog
+debian/changelog: debian/changelog.in Makefile
+	$(do_substitution) < debian/changelog.in > debian/changelog
 
 deb: debian/changelog
 	rm -rf cyberprobe-${VERSION}
@@ -31,12 +31,7 @@ ubuntu: debian/changelog
 	sed -i 's/libreadline6/libreadline7/g' cyberprobe-${VERSION}/debian/control
 	cd cyberprobe-${VERSION}/; dpkg-buildpackage -us -uc
 
-tag:
-	git tag -a v${VERSION} -m ''
-	git push --tags
+version:
+	@echo ${VERSION}
 
-create-release:
-	body='{"tag_name": "v'${VERSION}'", "name": "v'${VERSION}'", "body": "Release '${VERSION}'", "draft": false, "prerelease": false}'; \
-	token=$$(cat TOKEN); \
-	curl --data "$$body"" "https://api.github.com/repos/cybermaggedon/cyberprobe/releases?access_token=$$token"
 
