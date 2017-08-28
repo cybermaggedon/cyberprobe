@@ -34,4 +34,7 @@ ubuntu: debian/changelog
 version:
 	@echo ${VERSION}
 
+tag:
+	git tag -a v${VERSION} -m ''
+	git push --tags
 
