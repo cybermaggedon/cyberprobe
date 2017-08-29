@@ -1,8 +1,8 @@
 
 VERSION=@VERSION@
 
-do_substitution = date=$$(date -R);sed -e "s,[@]DATE[@],$${date},g" \
-	-e "s,[@]VERSION[@],@VERSION@,g"
+do_substitution = date=$$(date -R);sed -e "s/[@]DATE[@]/$${date}/g" \
+	-e "s/[@]VERSION[@]/@VERSION@/g"
 
 rpm:
 	make dist
