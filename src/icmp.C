@@ -4,9 +4,13 @@
 
 using namespace cybermon;
 
-void icmp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
     unsigned int header_length = 8;
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     if ((e - s) < header_length)
     {
@@ -44,6 +48,6 @@ void icmp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // Reposition pdu start pointer to the payload
     pdu_iter start_of_payload = s + header_length;
  
-    mgr.icmp(fc, type, code, start_of_payload, e);
+    mgr.icmp(fc, type, code, start_of_payload, e, sl.time);
 }
 

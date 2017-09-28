@@ -15,14 +15,17 @@ class monitor {
     // IP packet.
     virtual void operator()(const std::string& liid,
 			    const std::vector<unsigned char>::iterator&,
-			    const std::vector<unsigned char>::iterator&) = 0;
+			    const std::vector<unsigned char>::iterator&,
+			    const struct timeval& tv) = 0;
 
     // Gets called if initiator's connection is seen.
     virtual void target_up(const std::string& liid,
-			   const tcpip::address& addr) = 0;
+			   const tcpip::address& addr,
+			   const struct timeval& tv) = 0;
 
     // Gets called if initiator's disconnection is seen.
-    virtual void target_down(const std::string& liid) = 0;
+    virtual void target_down(const std::string& liid,
+			     const struct timeval& tv) = 0;
 
 };
 

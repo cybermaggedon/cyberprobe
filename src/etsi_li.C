@@ -682,6 +682,7 @@ void connection::run()
 	    ber::berpdu& liid_p = hdr_p.get_element(1);
 	    ber::berpdu& pay_p = pdu.get_element(2);
 
+	    // Packet timestamp
 	    struct timeval tv;
 
 	    // Time value defaults to 'now' if there's no timestamp in the
@@ -714,7 +715,7 @@ void connection::run()
 		    // This jumps to the catch below...
 		    throw std::runtime_error("Couldn't parse time");
 
-		// Describe ignored cases.
+		// FIXME: Describe ignored cases.
 
 		std::cerr << ret << std::endl;
 		std::cerr << Y << " " << M << " " << D << " "
@@ -766,7 +767,7 @@ void connection::run()
 			
 			packet_p.decode_vector(pkt);
 
-			p(liid, pkt.begin(), pkt.end());
+			p(liid, pkt.begin(), pkt.end(), tv);
 
 		    }
 
@@ -840,20 +841,20 @@ void connection::run()
 				    tcpip::ip4_address a;
 				    a.addr.assign(ip_addr.begin(),
 						  ip_addr.end());
-				    p.target_up(liid, a);
+				    p.target_up(liid, a, tv);
 				}
 			
 				if (ip_addr.size() == 16) {
 				    tcpip::ip6_address a;
 				    a.addr.assign(ip_addr.begin(),
 						  ip_addr.end());
-				    p.target_up(liid, a);
+				    p.target_up(liid, a, tv);
 				}
 
 			    }
 			    
 			    if (iritype == 2) {
-				p.target_down(liid);
+				p.target_down(liid, tv);
 			    }
 
 			}
@@ -885,55 +886,4 @@ void receiver::close_me(connection* c)
     close_mes.push(c);
     close_me_lock.unlock();
 }
-
-
-
-/****************************************************************************
-
-
-   oMoMoMoMMo
-   " "MMM"""
-      oMM                o
-      oMM               oM"      oo       oo
-      oMM               MM"     "MM"    "MMMo     oMMMMMMMMMMMo    oo o o o
-      oMM               oMM     oMMo    MMM"Mo      " " "MM "    "MMMMMMMMM
-    oooMMoooooo         oMo      MM     MM "MMo         MMo      "MM
-    "M"M"M"M"M""       oMMMooMoMMMM"   oMMo oMMoo       oM"      "MMo  o
-                       oMMM""""""MMo   MMMMMMMMMoo      oMM      "MMMMMMMo
-                       oMo      "MM   oMM       MMM     oMM      "MM
-    ooM                "Mo      "Mo   oMM"       MMo    oMM      "MM
-   MMM"MMo             MM"      "MM   oMM        MMo    oMM     "MMo
-  oMM  "MM   oo        """      """   oMM                       oMMoMMoMMoMo
-  oMMMoMMMM "Mo  oM                             o                """""""""
-  "MM"""""  "MMoMM"   MoMoo           o         M   MMM
-  MMMoo     "MMM"   oMMM"MMo   ooMo  "M" ooM  MMMM  MMo     o
-   ""M""    "MMM   oMMMMMM"  MMM" "  MMM MMM"  MM   MMoo   "M
-             MMM   oMM  "    MMM      "MMMMM"  MM  "MMMMMM  ooo   oooo   ooM o
-             "      "MMMoo   MMM         "MMo  MM   MMMoMMo "Mo "MM"MMM oMM MMo
-                       ""    "M           MMo  MM  "MM" MMo "MM oMM oMM "Mo MMM
-                                   oMooMMMM"   "    """  M  "MMo Mo "MM "MMMMMo
-      ooo oo    Mo                """"""""                    "          " ""Mo
-   oMMMM"MMMo o"MM                                                          MM"
-          MM   "MM                                        oMMMMMMMMoMoo    oMMM
-         MMMo  "MMMMMMMMo    ooo                "Mo         " " " """"MMMMMM""
-     MMMMMMMo   "Mo"o"oMMo oMM"MMoo  MMo        MMo
-   MMM"  "MM    MMMMMMM""  MM"  MMM "MM   oMo oMMMMoMMoM
-   ""MMMMMMM               MMooo"MM "MM  MMM   "MM""""""
-     " " "                  "M"M"M  "MMMMMM     MM"
-                                       "       "MM o o
-                                                MMMMMM"
-                                                  "
-
-                oooooooo       ooooooooooo oooooo   oooooo       oooooo
-                oMMMMMMM      MMMMMMMMMMM" MMMMMMo  oMMMMM       MMMMM"
-                oMMMMMM      MMMM " " "MM  "MMMMMM   MMMM         "MMM
-               oMMMMMMMo     MMMoo o o     MMMMMMMM  MMM          MMMM
-              MMMM  MMMM     MMMMMMMMMMo   MMM"MMMM MMMM          MMM"
-            oMMMMMoMMMMMM     """""""MMM   MMM  MMMMMMM"          MMM
-           MMMMMMMMMMMMMMo   o      MMMM  MMMM  MMMMMMM          MMMM
-         oMMMMM      oMMMMooMMMMooMoMMM  oMMMM   MMMMMMo   oMoo oMMMM
-        "MMMMM"     oMMMMMMMMMMMMMMMMM" "MMMMM   "MMMMM"   MMM oMMMMM
-
-
-****************************************************************************/
 

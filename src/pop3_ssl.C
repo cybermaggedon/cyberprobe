@@ -9,7 +9,7 @@
 using namespace cybermon;
 
 
-void pop3_ssl::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void pop3_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
     std::vector<unsigned char> empty;
     address src;
@@ -26,6 +26,6 @@ void pop3_ssl::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole POP3 SSL message.
-    mgr.pop3_ssl(fc, s, e);
+    mgr.pop3_ssl(fc, sl.start, sl.end, sl.time);
 }
 

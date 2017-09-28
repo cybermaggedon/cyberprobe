@@ -10,8 +10,10 @@
 using namespace cybermon;
 
 // HTTP response processing function.
-void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
+void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 {
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     while (s != e) {
 
@@ -149,9 +151,9 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		     buf >> codeval;
 
 		     if (variant == REQUEST)
-			 complete_request(c, mgr);
+		         complete_request(c, sl.time, mgr);
 		     else
-			 complete_response(c, mgr);
+			 complete_response(c, sl.time, mgr);
 
 		     if (variant == REQUEST)
 			 state = http_parser::IN_REQUEST_METHOD;
@@ -205,9 +207,9 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		buf >> codeval;
 
 		if (variant == REQUEST)
-		    complete_request(c, mgr);
+		    complete_request(c, sl.time, mgr);
 		else
-		    complete_response(c, mgr);
+		    complete_response(c, sl.time, mgr);
 
 		reset_transaction();
 		
@@ -231,9 +233,9 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		buf >> codeval;
 
 		if (variant == REQUEST)
-		    complete_request(c, mgr);
+		    complete_request(c, sl.time, mgr);
 		else
-		    complete_response(c, mgr);
+		    complete_response(c, sl.time, mgr);
 
 		reset_transaction();
 		
@@ -281,9 +283,9 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		buf >> codeval;
 		
 		if (variant == REQUEST)
-		    complete_request(c, mgr);
+		    complete_request(c, sl.time, mgr);
 		else
-		    complete_response(c, mgr);
+		    complete_response(c, sl.time, mgr);
 
 		reset_transaction();
 
@@ -316,9 +318,9 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 		buf >> codeval;
 
 		if (variant == REQUEST)
-		    complete_request(c, mgr);
+		    complete_request(c, sl.time, mgr);
 		else
-		    complete_response(c, mgr);
+		    complete_response(c, sl.time, mgr);
 		
 		reset_transaction();
 
@@ -345,7 +347,7 @@ void http_parser::parse(context_ptr c, pdu_iter s, pdu_iter e, manager& mgr)
 
 // HTTP request processing function.
 void http::process_request(manager& mgr, context_ptr c, 
-			   pdu_iter s, pdu_iter e)
+			   const pdu_slice& sl)
 {
 
     std::vector<unsigned char> empty;
@@ -360,7 +362,7 @@ void http::process_request(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	fc->parse(fc, s, e, mgr);
+	fc->parse(fc, sl, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;
@@ -372,7 +374,7 @@ void http::process_request(manager& mgr, context_ptr c,
 
 // HTTP response processing function.
 void http::process_response(manager& mgr, context_ptr c, 
-			   pdu_iter s, pdu_iter e)
+			    const pdu_slice& sl)
 {
 
     std::vector<unsigned char> empty;
@@ -387,7 +389,7 @@ void http::process_response(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	fc->parse(fc, s, e, mgr);
+	fc->parse(fc, sl, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;
@@ -397,7 +399,8 @@ void http::process_response(manager& mgr, context_ptr c,
 
 }
 
-void http_parser::complete_request(context_ptr c, manager& mgr)
+void http_parser::complete_request(context_ptr c, const pdu_time& time,
+				   manager& mgr)
 {
 	    
     std::string norm;
@@ -412,11 +415,12 @@ void http_parser::complete_request(context_ptr c, manager& mgr)
 
     // Raise an HTTP request event.
     mgr.http_request(c, method, norm, header, 
-		     body.begin(), body.end());
+		     body.begin(), body.end(), time);
     
 }
 
-void http_parser::complete_response(context_ptr c, manager& mgr)
+void http_parser::complete_response(context_ptr c, const pdu_time& time,
+				    manager& mgr)
 {
 
     // Get the 'reverse' HTTP flow.  This will be the HTTP request side.
@@ -443,5 +447,6 @@ void http_parser::complete_response(context_ptr c, manager& mgr)
     }
 
     mgr.http_response(c, codeval, status, header, url, 
-		      body.begin(), body.end());
+		      body.begin(), body.end(), time);
+
 }

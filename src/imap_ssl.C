@@ -9,8 +9,11 @@
 using namespace cybermon;
 
 
-void imap_ssl::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void imap_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+
     std::vector<unsigned char> empty;
     address src;
     address dest;
@@ -26,6 +29,7 @@ void imap_ssl::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole IMAP SSL message.
-    mgr.imap_ssl(fc, s, e);
+    mgr.imap_ssl(fc, s, e, sl.time);
+
 }
 

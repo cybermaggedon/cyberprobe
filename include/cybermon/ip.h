@@ -116,15 +116,13 @@ namespace cybermon {
 
 	// Process an IP packet.  Works out the version, and calls appropriate
 	// function.
-	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
+	static void process(manager&, context_ptr c, const pdu_slice& s);
 
 	// IPv4 processing.
-	static void process_ip4(manager&, context_ptr c, pdu_iter s, 
-				pdu_iter e);
+	static void process_ip4(manager&, context_ptr c, const pdu_slice& s);
 
 	// IPv6 processing.
-	static void process_ip6(manager&, context_ptr c, pdu_iter s, 
-				pdu_iter e);
+	static void process_ip6(manager&, context_ptr c, const pdu_slice& s);
 
     };
 

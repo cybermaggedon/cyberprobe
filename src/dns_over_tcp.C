@@ -9,8 +9,12 @@
 using namespace cybermon;
 
 
-void dns_over_tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void dns_over_tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+
     // RFC-1035: section 4.2.2 - TCP usage
     // The message is prefixed with a two byte length field which
     // gives the message length, excluding the two byte length field.
@@ -74,7 +78,7 @@ void dns_over_tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     try
     {
         mgr.dns_message(fc, dec.hdr, dec.queries, dec.answers,
-                             dec.authorities, dec.additional);
+			dec.authorities, dec.additional, sl.time);
     }
     catch (std::exception& e)
     {

@@ -426,87 +426,101 @@ namespace cybermon {
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
 	//void trigger_up(const std::string& liid, const tcpip::address& a);
-	void trigger_up(const std::string& liid, const std::string& a);
+	void trigger_up(const std::string& liid, const std::string& a,
+			const timeval& time);
 
 	// Call the config.trigger_down function as trigger_down(liid)
-	void trigger_down(const std::string& liid);
+	void trigger_down(const std::string& liid, const timeval& time);
 
-	void connection_up(engine& an, context_ptr f);
+	void connection_up(engine& an, context_ptr f, const timeval& time);
 
-	void connection_down(engine& an, const context_ptr f);
+	void connection_down(engine& an, const context_ptr f,
+			     const timeval& time);
 
 	// Calls the config.data function as data(context, data).
 	// The 'context' variable passed to LUA is a light userdata pointer,
 	// allowing calling back into the C++ code.  The value is only valid
 	// in LUA space for the duration of this call.
 	void unrecognised_stream(engine& an, const context_ptr f, 
-				 pdu_iter s, pdu_iter e);
+				 pdu_iter s, pdu_iter e,
+				 const timeval& time);
 
 	void unrecognised_datagram(engine& an, const context_ptr f, 
-				   pdu_iter s, pdu_iter e);
+				   pdu_iter s, pdu_iter e, const timeval& time);
 
 	void icmp(engine& an, const context_ptr f,
-                unsigned int type,
-                unsigned int code,
-                pdu_iter s,
-                pdu_iter e);
+		  unsigned int type,
+		  unsigned int code,
+		  pdu_iter s,
+		  pdu_iter e,
+		  const timeval& time);
 
-    void imap(engine& an,
-                const context_ptr f,
-                pdu_iter s,
-                pdu_iter e);
+	void imap(engine& an,
+		  const context_ptr f,
+		  pdu_iter s,
+		  pdu_iter e,
+		  const timeval& time);
 
-    void imap_ssl(engine& an,
-                    const context_ptr f,
-                    pdu_iter s,
-                    pdu_iter e);
-
-    void pop3(engine& an,
-                const context_ptr f,
-                pdu_iter s,
-                pdu_iter e);
-
-    void pop3_ssl(engine& an,
-                    const context_ptr f,
-                    pdu_iter s,
-                    pdu_iter e);
-
-    void rtp(engine& an,
-               const context_ptr f,
-               pdu_iter s,
-               pdu_iter e);
-
-    void rtp_ssl(engine& an,
-                   const context_ptr f,
-                   pdu_iter s,
-                   pdu_iter e);
-
-    void sip_request(engine& an,
-                        const context_ptr f,
-                        const std::string& method,
-                        const std::string& from,
-                        const std::string& to,
-                        pdu_iter s,
-                        pdu_iter e);
-
-    void sip_response(engine& an,
-                        const context_ptr f,
-                        unsigned int code,
-                        const std::string& status,
-                        const std::string& from,
-                        const std::string& to,
-                        pdu_iter s,
-                        pdu_iter e);
-
-    void sip_ssl(engine& an,
-                   const context_ptr f,
-                   pdu_iter s,
-                   pdu_iter e);
-
-    void smtp_auth(engine& an,
-                     const context_ptr f,
-                     pdu_iter s,
-                     pdu_iter e);
+	void imap_ssl(engine& an,
+		      const context_ptr f,
+		      pdu_iter s,
+		      pdu_iter e,
+		      const timeval& time);
+	
+	void pop3(engine& an,
+		  const context_ptr f,
+		  pdu_iter s,
+		  pdu_iter e,
+		  const timeval& time);
+	
+	void pop3_ssl(engine& an,
+		      const context_ptr f,
+		      pdu_iter s,
+		      pdu_iter e,
+		      const timeval& time);
+	
+	void rtp(engine& an,
+		 const context_ptr f,
+		 pdu_iter s,
+		 pdu_iter e,
+		 const timeval& time);
+	
+	void rtp_ssl(engine& an,
+		     const context_ptr f,
+		     pdu_iter s,
+		     pdu_iter e,
+		     const timeval& time);
+	
+	void sip_request(engine& an,
+			 const context_ptr f,
+			 const std::string& method,
+			 const std::string& from,
+			 const std::string& to,
+			 pdu_iter s,
+			 pdu_iter e,
+			 const timeval& time);
+	
+	void sip_response(engine& an,
+			  const context_ptr f,
+			  unsigned int code,
+			  const std::string& status,
+			  const std::string& from,
+			  const std::string& to,
+			  pdu_iter s,
+			  pdu_iter e,
+			  const timeval& time);
+	
+	void sip_ssl(engine& an,
+		     const context_ptr f,
+		     pdu_iter s,
+		     pdu_iter e,
+		     const timeval& time);
+	
+	void smtp_auth(engine& an,
+		       const context_ptr f,
+		       pdu_iter s,
+		       pdu_iter e,
+		       const timeval& time);
 
 	typedef std::map<std::string,std::pair<std::string,std::string> > 
 	    http_header;
@@ -516,52 +530,62 @@ namespace cybermon {
 			  const std::string& url,
 			  const http_header& hdr,
 			  pdu_iter body_start,
-			  pdu_iter body_end);
-
+			  pdu_iter body_end,
+			  const timeval& time);
+    
 	void http_response(engine& an, const context_ptr cf,
 			   unsigned int code,
 			   const std::string& status,
 			   const http_header& hdr,
 			   const std::string& url,
 			   pdu_iter body_start,
-			   pdu_iter body_end);
+			   pdu_iter body_end,
+			   const timeval& time);
 
 	void smtp_command(engine& an, const context_ptr cf,
-			  const std::string& command);
+			  const std::string& command,
+			  const timeval& time);
 
 	void smtp_response(engine& an, const context_ptr cf,
 			   int status,
-			   const std::list<std::string>& text);
+			   const std::list<std::string>& text,
+			   const timeval& time);
 
 	void smtp_data(engine& an, const context_ptr cf,
 		       const std::string& from,
 		       const std::list<std::string>& to,
 		       pdu_iter s,
-		       pdu_iter e);
+		       pdu_iter e,
+		       const timeval& time);
 
 	void ftp_command(engine& an, const context_ptr cf,
-			 const std::string& command);
+			 const std::string& command,
+			 const timeval& time);
 
 	void ftp_response(engine& an, const context_ptr cf,
 			  int status,
-			  const std::list<std::string>& responses);
+			  const std::list<std::string>& responses,
+			  const timeval& time);
 
 	void dns_message(engine& an,
-                     const context_ptr cf,
-                     const dns_header& hdr, 
-                     const std::list<dns_query> queries,
-                     const std::list<dns_rr> answers,
-                     const std::list<dns_rr> authorities,
-                     const std::list<dns_rr> additional);
+			 const context_ptr cf,
+			 const dns_header& hdr, 
+			 const std::list<dns_query> queries,
+			 const std::list<dns_rr> answers,
+			 const std::list<dns_rr> authorities,
+			 const std::list<dns_rr> additional,
+			 const timeval& time);
 
-    void ntp_timestamp_message(engine& an, const context_ptr cf,
-			                   const ntp_timestamp& ts);
+	void ntp_timestamp_message(engine& an, const context_ptr cf,
+				   const ntp_timestamp& ts,
+				   const timeval& time);
 			                  
 	void ntp_control_message(engine& an, const context_ptr cf,
-			                 const ntp_control& ctrl);
+				 const ntp_control& ctrl, const timeval& time);
 			                 
 	void ntp_private_message(engine& an, const context_ptr cf,
-			                 const ntp_private& priv);		                 		                  
+				 const ntp_private& priv, const timeval& time);
+	
     };
 
 };

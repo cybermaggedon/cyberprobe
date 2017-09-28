@@ -20,19 +20,22 @@ public:
     output(pcap_writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::vector<unsigned char>::iterator& s,
-			    const std::vector<unsigned char>::iterator& e) {
+			    const std::vector<unsigned char>::iterator& e,
+			    const timeval& tv) {
 	lock.lock();
 	p.write(s, e);
 	lock.unlock();
     }
 
     void target_up(const std::string& liid,
-		    const tcpip::address& addr) {
+		   const tcpip::address& addr,
+		   const timeval& tv) {
 	std::cerr << "Target " << liid << " discovered on IP " << addr
 		  << std::endl;
     }
 
-    void target_down(const std::string& liid) {
+    void target_down(const std::string& liid,
+		     const timeval& tv) {
 	std::cerr << "Target " << liid << " offline. " << std::endl;
     }
 

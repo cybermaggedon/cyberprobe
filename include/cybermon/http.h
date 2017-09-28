@@ -102,9 +102,9 @@ namespace cybermon {
 	    
 	}
 
-	void complete_request(context_ptr c, manager& mgr);
+	void complete_request(context_ptr c, const pdu_time& t, manager& mgr);
 
-	void complete_response(context_ptr c, manager& mgr);
+	void complete_response(context_ptr c, const pdu_time& t, manager& mgr);
 
 	// Common to request and response.
 	std::string protocol;
@@ -135,7 +135,7 @@ namespace cybermon {
 	pdu body;
 
 	// Parse.
-	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);
+	void parse(context_ptr cp, const pdu_slice& sl, manager& mgr);
 
     };
     
@@ -221,11 +221,11 @@ namespace cybermon {
 
 	// HTTP request processing function.
 	static void process_request(manager&, context_ptr c, 
-				    pdu_iter s, pdu_iter e);
+				    const pdu_slice& s);
 
 	// HTTP response processing function.
-	static void process_response(manager&, context_ptr c, pdu_iter s, 
-				     pdu_iter e);
+	static void process_response(manager&, context_ptr c,
+				     const pdu_slice& s);
 
     };
 

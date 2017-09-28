@@ -16,8 +16,12 @@
 using namespace cybermon;
 
 
-void sip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void sip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+
     std::vector<unsigned char> empty;
     address src;
     address dest;
@@ -87,7 +91,7 @@ void sip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
         }
 
         // Send message with arguments: method, from & to
-        mgr.sip_request(fc, fc->method, fc->from, fc->to, s, e);
+        mgr.sip_request(fc, fc->method, fc->from, fc->to, s, e, sl.time);
         return;
     }
     else if (regex_search(ident_buffer, what, sip_response, boost::match_continuous))
@@ -105,7 +109,7 @@ void sip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
         buf >> codeval;
 
         // Send message with arguments: code, status, from & to
-        mgr.sip_response(fc, codeval, what[2], fc->from, fc->to, s, e);
+        mgr.sip_response(fc, codeval, what[2], fc->from, fc->to, s, e, sl.time);
         return;
     }
     else

@@ -6,9 +6,9 @@
 
 using namespace cybermon;
 
-// Call the config.trigger_up function as trigger_up(liid, addr)
-//void cybermon_lua::trigger_up(const std::string& liid, const tcpip::address& a)
-void cybermon_lua::trigger_up(const std::string& liid, const std::string& a)
+// Call the config.trigger_up function as trigger_up(time, liid, addr)
+void cybermon_lua::trigger_up(const std::string& liid, const std::string& a,
+			      const timeval& time)
 {
  
     // Get information stored about the attacker.
@@ -17,13 +17,13 @@ void cybermon_lua::trigger_up(const std::string& liid, const std::string& a)
     // Get config.trigger_up
     get_global("config");
     get_field(-1, "trigger_up");
-    
-    // Put liid on stack
+
+    // Put time, liid, address on stack
+    //    push(time);
     push(liid);
-    //push(ta);
     push(a);
 	
-    // config.trigger_up(liid, addr)
+    // config.trigger_up(time, liid, addr)
     try {
 	call(2, 0);
     } catch (std::exception& e) {
@@ -37,7 +37,8 @@ void cybermon_lua::trigger_up(const std::string& liid, const std::string& a)
 }
 
 // Call the config.trigger_down function as trigger_down(liid, addr)
-void cybermon_lua::trigger_down(const std::string& liid)
+void cybermon_lua::trigger_down(const std::string& liid,
+				const timeval& time)
 {
 
     // Get config.trigger_down
@@ -63,8 +64,7 @@ void cybermon_lua::trigger_down(const std::string& liid)
 // Calls the config.data function as data(context, data).
 // The 'context' variable passed to LUA is a userdata pointer,
 // allowing calling back into the C++ code.
-void cybermon_lua::connection_up(engine& an, 
-				 context_ptr f)
+void cybermon_lua::connection_up(engine& an, context_ptr f, const timeval& time)
 {
 
     // Get config.connection_up
@@ -91,8 +91,8 @@ void cybermon_lua::connection_up(engine& an,
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::connection_down(engine& an, 
-				   const context_ptr f)
+void cybermon_lua::connection_down(engine& an, const context_ptr f,
+				   const timeval& time)
 {
     
     // Get config.connection_down
@@ -119,10 +119,9 @@ void cybermon_lua::connection_down(engine& an,
 // The 'context' variable passed to LUA is a light userdata pointer,
 // allowing calling back into the C++ code.  The value is only valid
 // in LUA space for the duration of this call.
-void cybermon_lua::unrecognised_stream(engine& an, 
-				       const context_ptr f, 
-				       pdu_iter s, 
-				       pdu_iter e)
+void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f, 
+				       pdu_iter s, pdu_iter e,
+				       const timeval& time)
 {
     
     // Get config.unrecognised_stream
@@ -155,7 +154,8 @@ void cybermon_lua::unrecognised_stream(engine& an,
 void cybermon_lua::unrecognised_datagram(engine& an, 
 					 const context_ptr f, 
 					 pdu_iter s, 
-					 pdu_iter e)
+					 pdu_iter e,
+					 const timeval& time)
 {
     
     // Get config.unrecognised_datagram
@@ -182,12 +182,9 @@ void cybermon_lua::unrecognised_datagram(engine& an,
 }
 
 
-void cybermon_lua::icmp(engine& an, 
-			const context_ptr f,
-            unsigned int type,
-            unsigned int code,
-            pdu_iter s,
-            pdu_iter e)
+void cybermon_lua::icmp(engine& an, const context_ptr f, unsigned int type,
+			unsigned int code, pdu_iter s, pdu_iter e,
+			const timeval& time)
 {
 
     // Get config.icmp
@@ -217,10 +214,8 @@ void cybermon_lua::icmp(engine& an,
 }
 
 
-void cybermon_lua::imap(engine& an,
-                            const context_ptr f,
-                            pdu_iter s,
-                            pdu_iter e)
+void cybermon_lua::imap(engine& an, const context_ptr f,
+			pdu_iter s, pdu_iter e, const timeval& time)
 {
     // Get config
     get_global("config");
@@ -247,10 +242,8 @@ void cybermon_lua::imap(engine& an,
 }
 
 
-void cybermon_lua::imap_ssl(engine& an,
-                            const context_ptr f,
-                            pdu_iter s,
-                            pdu_iter e)
+void cybermon_lua::imap_ssl(engine& an, const context_ptr f,
+                            pdu_iter s, pdu_iter e, const timeval& time)
 {
     // Get config
     get_global("config");
@@ -277,10 +270,8 @@ void cybermon_lua::imap_ssl(engine& an,
 }
 
 
-void cybermon_lua::pop3(engine& an,
-                            const context_ptr f,
-                            pdu_iter s,
-                            pdu_iter e)
+void cybermon_lua::pop3(engine& an, const context_ptr f,
+			pdu_iter s, pdu_iter e, const timeval& time)
 {
     // Get config
     get_global("config");
@@ -307,10 +298,9 @@ void cybermon_lua::pop3(engine& an,
 }
 
 
-void cybermon_lua::pop3_ssl(engine& an,
-                            const context_ptr f,
-                            pdu_iter s,
-                            pdu_iter e)
+void cybermon_lua::pop3_ssl(engine& an, const context_ptr f,
+                            pdu_iter s, pdu_iter e,
+			    const timeval& time)
 {
     // Get config
     get_global("config");
@@ -337,10 +327,9 @@ void cybermon_lua::pop3_ssl(engine& an,
 }
 
 
-void cybermon_lua::rtp(engine& an,
-                           const context_ptr f,
-                           pdu_iter s,
-                           pdu_iter e)
+void cybermon_lua::rtp(engine& an, const context_ptr f,
+		       pdu_iter s, pdu_iter e,
+		       const timeval& time)
 {
     // Get config
     get_global("config");
@@ -366,10 +355,9 @@ void cybermon_lua::rtp(engine& an,
     pop();
 }
 
-void cybermon_lua::rtp_ssl(engine& an,
-                               const context_ptr f,
-                               pdu_iter s,
-                               pdu_iter e)
+void cybermon_lua::rtp_ssl(engine& an, const context_ptr f,
+			   pdu_iter s, pdu_iter e,
+			   const timeval& time)
 {
     // Get config
     get_global("config");
@@ -396,12 +384,13 @@ void cybermon_lua::rtp_ssl(engine& an,
 }
 
 void cybermon_lua::sip_request(engine& an,
-                                const context_ptr f,
-                                const std::string& method,
-                                const std::string& from,
-                                const std::string& to,
-                                pdu_iter s,
-                                pdu_iter e)
+			       const context_ptr f,
+			       const std::string& method,
+			       const std::string& from,
+			       const std::string& to,
+			       pdu_iter s,
+			       pdu_iter e,
+			       const timeval& time)
 {
     // Get config
     get_global("config");
@@ -444,7 +433,8 @@ void cybermon_lua::sip_response(engine& an,
                                 const std::string& from,
                                 const std::string& to,
                                 pdu_iter s,
-                                pdu_iter e)
+                                pdu_iter e,
+				const timeval& time)
 {
     // Get config
     get_global("config");
@@ -485,7 +475,8 @@ void cybermon_lua::sip_response(engine& an,
 void cybermon_lua::sip_ssl(engine& an,
                            const context_ptr f,
                            pdu_iter s,
-                           pdu_iter e)
+                           pdu_iter e,
+			   const timeval& time)
 {
     // Get config
     get_global("config");
@@ -514,7 +505,8 @@ void cybermon_lua::sip_ssl(engine& an,
 void cybermon_lua::smtp_auth(engine& an,
                              const context_ptr f,
                              pdu_iter s,
-                             pdu_iter e)
+                             pdu_iter e,
+			     const timeval& time)
 {
     // Get config
     get_global("config");
@@ -546,7 +538,8 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 				const std::string& url,
 				const http_header& hdr,
 				pdu_iter s,
-				pdu_iter e)
+				pdu_iter e,
+				const timeval& time)
 {
 
     // Get config.http_request
@@ -599,7 +592,8 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 				 const http_header& hdr,
 				 const std::string& url,
 				 pdu_iter s,
-				 pdu_iter e)
+				 pdu_iter e,
+				 const timeval& time)
 {
 
     // Get config.http_response
@@ -650,7 +644,8 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 }
 
 void cybermon_lua::smtp_command(engine& an, const context_ptr f,
-				const std::string& command)
+				const std::string& command,
+				const timeval& time)
 {
 
     // Get config.smtp_command
@@ -678,7 +673,8 @@ void cybermon_lua::smtp_command(engine& an, const context_ptr f,
 
 void cybermon_lua::smtp_response(engine& an, const context_ptr f,
 				 int status,
-				 const std::list<std::string>& text)
+				 const std::list<std::string>& text,
+				 const timeval& time)
 {
 
     // Get config.smtp_response
@@ -723,7 +719,8 @@ void cybermon_lua::smtp_response(engine& an, const context_ptr f,
 void cybermon_lua::smtp_data(engine& an, const context_ptr f,
 			     const std::string& from,
 			     const std::list<std::string>& to,
-			     pdu_iter s, pdu_iter e)
+			     pdu_iter s, pdu_iter e,
+			     const timeval& time)
 {
 
     // Get config.http_request
@@ -769,7 +766,8 @@ void cybermon_lua::smtp_data(engine& an, const context_ptr f,
 }
 
 void cybermon_lua::ftp_command(engine& an, const context_ptr f,
-			       const std::string& command)
+			       const std::string& command,
+			       const timeval& time)
 {
 
     // Get config.http_request
@@ -797,7 +795,8 @@ void cybermon_lua::ftp_command(engine& an, const context_ptr f,
 
 void cybermon_lua::ftp_response(engine& an, const context_ptr f,
 				int status,
-				const std::list<std::string>& text)
+				const std::list<std::string>& text,
+				const timeval& time)
 {
 
     // Get config.ftp_request
@@ -886,12 +885,13 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
 }
 
 void cybermon_lua::dns_message(engine& an,
-                                 const context_ptr f,
-                                 const dns_header& hdr, 
-                                 const std::list<dns_query> queries,
-                                 const std::list<dns_rr> answers,
-                                 const std::list<dns_rr> authorities,
-                                 const std::list<dns_rr> additional)
+			       const context_ptr f,
+			       const dns_header& hdr, 
+			       const std::list<dns_query> queries,
+			       const std::list<dns_rr> answers,
+			       const std::list<dns_rr> authorities,
+			       const std::list<dns_rr> additional,
+			       const timeval& time)
 {
 
     // Get config.dns_over_udp_message
@@ -922,7 +922,8 @@ void cybermon_lua::dns_message(engine& an,
 }
 
 void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
-			           const ntp_timestamp& ts)
+					 const ntp_timestamp& ts,
+					 const timeval& time)
 {
     // Get config.ntp_timestamp_message
     get_global("config");
@@ -946,7 +947,8 @@ void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
 }
 
 void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
-			                           const ntp_control& ctrl)
+				       const ntp_control& ctrl,
+				       const timeval& time)
 {
     // Get config.ntp_control_message
     get_global("config");
@@ -970,7 +972,8 @@ void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
 }
 
 void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
-			                           const ntp_private& priv)
+				       const ntp_private& priv,
+				       const timeval& time)
 {
     // Get config.ntp_private_message
     get_global("config");

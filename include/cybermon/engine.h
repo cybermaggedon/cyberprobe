@@ -39,7 +39,7 @@ namespace cybermon {
 	// Process a packet within a context.  'c' describes the context,
 	// 's' and 'e' are iterators pointing at the start and end of packet
 	// data to process.
-	void process(context_ptr c, pdu_iter s, pdu_iter e);
+	void process(context_ptr c, const pdu_slice& s);
 
     public:
 
@@ -58,14 +58,15 @@ namespace cybermon {
 	// Process a packet belong to a LIID.  'liid' describes the context,
 	// 's' and 'e' are iterators pointing at the start and end of packet
 	// data to process.
-	void process(const std::string& liid, pdu_iter s, pdu_iter e) {
+	void process(const std::string& liid, const pdu_slice& s) {
 	    context_ptr c = get_root_context(liid);
-	    process(c, s, e);
+	    process(c, s);
 	}
 
 	// Called when attacker is detected.
 	void target_up(const std::string& liid,
-		       const tcpip::address& addr) {
+		       const tcpip::address& addr,
+		       const struct timeval& tv) {
 
 	    // Get the root context for this LIID.
 	    context_ptr c = get_root_context(liid);
@@ -76,17 +77,17 @@ namespace cybermon {
 	    rc.set_trigger_address(addr);
 
 	    // This is a reportable event.
-	    trigger_up(liid, addr);
+	    trigger_up(liid, addr, tv);
 
 	}
 
 	// Called when attacker goes off the air.
-	void target_down(const std::string& liid) {
+	void target_down(const std::string& liid, const struct timeval& tv) {
 
 	    close_root_context(liid);
 
 	    // This is a reportable event.
-	    trigger_down(liid);
+	    trigger_down(liid, tv);
 
 	}
 

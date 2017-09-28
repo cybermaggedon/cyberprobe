@@ -9,8 +9,12 @@
 using namespace cybermon;
 
 
-void dns_over_udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void dns_over_udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+
     if ((e - s) < 12)
     {
         throw exception("Invalid DNS header length");
@@ -35,13 +39,10 @@ void dns_over_udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
     fc->lock.lock();
 
-    try
-    {
+    try {
         mgr.dns_message(fc, dec.hdr, dec.queries, dec.answers,
-                             dec.authorities, dec.additional);
-    }
-    catch (std::exception& e)
-    {
+			dec.authorities, dec.additional, sl.time);
+    } catch (std::exception& e) {
         fc->lock.unlock();
         throw;
     }

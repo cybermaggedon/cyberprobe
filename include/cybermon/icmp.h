@@ -42,8 +42,7 @@ namespace cybermon {
     public:
 	
 	// ICMP processing function.
-	static void process(manager& mgr, context_ptr c, pdu_iter s, 
-			    pdu_iter e);
+	static void process(manager& mgr, context_ptr c, const pdu_slice& s);
 
     };
 

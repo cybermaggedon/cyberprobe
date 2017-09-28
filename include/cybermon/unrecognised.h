@@ -105,11 +105,11 @@ namespace cybermon {
 
 	// HTTP request processing function.
 	static void process_unrecognised_stream(manager&, context_ptr c, 
-						pdu_iter s, pdu_iter e);
+						const pdu_slice& sl);
 
 	// HTTP request processing function.
 	static void process_unrecognised_datagram(manager&, context_ptr c, 
-						  pdu_iter s, pdu_iter e);
+						  const pdu_slice& sl);
 
     };
 

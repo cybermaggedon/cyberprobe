@@ -13,16 +13,19 @@
 #include <cybermon_qargs.h>
 #include <cybermon_qwriter.h>
 
-class cybermon_qreader: public threads::thread {
-private:
-	cybermon::cybermon_lua cml;
-protected:
+namespace cybermon {
+
+    class cybermon_qreader: public threads::thread {
+      private:
+	cybermon_lua cml;
+      protected:
 	// State: true if we're running, false if we've been asked to stop.
 	bool running;
-public:
-	//Constructor
-	cybermon_qreader(const std::string& path, std::queue<q_entry*>& cybermonq,
-			threads::mutex& cqwrlock, cybermon_qwriter cqwriter);
+      public:
+	// Constructor
+	cybermon_qreader(const std::string& path,
+			 std::queue<q_entry*>& cybermonq,
+			 threads::mutex& cqwrlock, cybermon_qwriter cqwriter);
 
 	cybermon_qwriter qwriter;
 
@@ -30,12 +33,14 @@ public:
 
 	threads::mutex& lock;
 
-	//Thread body.
+	// Thread body.
 	virtual void run();
 
-	//Destructor.
+	// Destructor.
 	virtual ~cybermon_qreader() {
 	}
+
+    };
 
 };
 

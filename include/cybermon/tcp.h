@@ -60,24 +60,23 @@ namespace cybermon {
 	std::set<tcp_segment> segments;
 	
 
-    // Constructor, describing flow address and parent pointer.
-    tcp_context(manager& m, const flow_address& a, context_ptr p)
-        : context(m)
-    { 
-        addr = a;
-        parent = p; 
-        syn_observed = false;
-        connected = false;
-        svc_idented = false;
-        processor = 0;
-        fin_observed = false;
+	// Constructor, describing flow address and parent pointer.
+      tcp_context(manager& m, const flow_address& a, context_ptr p)
+	  : context(m) { 
+	    addr = a;
+	    parent = p; 
+	    syn_observed = false;
+	    connected = false;
+	    svc_idented = false;
+	    processor = 0;
+	    fin_observed = false;
 
-        // Only need to initialise handlers once
-        if (!tcp_ports::is_handlers_init())
-        {
-            tcp_ports::init_handlers();
-        }
-    }
+	    // Only need to initialise handlers once
+	    if (!tcp_ports::is_handlers_init())
+		{
+		    tcp_ports::init_handlers();
+		}
+	}
 
 	// Type is "tcp".
 	virtual std::string get_type() { return "tcp"; }
@@ -85,19 +84,15 @@ namespace cybermon {
 	typedef boost::shared_ptr<tcp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
-				  context_ptr par)
-    {
+				  context_ptr par) {
 	    tcp_context* tc = new tcp_context(m, f, par);
-
 	    return context_ptr(tc);
-    }
+	}
 
 	// Given a flow address, returns the child context.
-	static ptr get_or_create(context_ptr base, const flow_address& f)
-    {
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    tcp_context::create);
-
 	    ptr sp = boost::dynamic_pointer_cast<tcp_context>(cp);
 	    return sp;
     }
@@ -131,11 +126,11 @@ namespace cybermon {
 	static const int NS = 256;
 
 	// TCP processing function.
-	static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
+	static void process(manager&, context_ptr c, const pdu_slice& sl);
 
 	// Process on re-synchronised streams.
-	static void post_process(manager&, tcp_context::ptr c, pdu_iter s, 
-				 pdu_iter e);
+	static void post_process(manager&, tcp_context::ptr c,
+				 const pdu_slice& sl);
 
     };
 

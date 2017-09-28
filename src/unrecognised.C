@@ -5,7 +5,7 @@
 using namespace cybermon;
 
 void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c, 
-					       pdu_iter s, pdu_iter e)
+					       const pdu_slice& sl)
 {
 
     std::vector<unsigned char> empty;
@@ -21,7 +21,7 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	mgr.unrecognised_stream(fc, s, e);
+        mgr.unrecognised_stream(fc, sl.start, sl.end, sl.time);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;
@@ -33,7 +33,7 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
 
 
 void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c, 
-						 pdu_iter s, pdu_iter e)
+						 const pdu_slice& sl)
 {
 
     std::vector<unsigned char> empty;
@@ -49,7 +49,7 @@ void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	mgr.unrecognised_datagram(fc, s, e);
+        mgr.unrecognised_datagram(fc, sl.start, sl.end, sl.time);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;

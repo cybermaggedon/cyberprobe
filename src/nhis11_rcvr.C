@@ -22,7 +22,8 @@ public:
     output(pcap_writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::vector<unsigned char>::iterator& s,
-			    const std::vector<unsigned char>::iterator& e) {
+			    const std::vector<unsigned char>::iterator& e,
+			    const timeval& tv) {
 	lock.lock();
 	p.write(s, e);
 	lock.unlock();
@@ -30,8 +31,8 @@ public:
 
     // These events aren't trigger by NHIS 1.1.
     void target_up(const std::string& liid,
-		   const tcpip::address& addr) {}
-    void target_down(const std::string& liid) {}
+		   const tcpip::address& addr, const timeval& tv) {}
+    void target_down(const std::string& liid, const timeval& tv) {}
 
 };
 

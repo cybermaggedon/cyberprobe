@@ -10,7 +10,7 @@
 using namespace cybermon;
 
 
-void smtp_auth::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void smtp_auth::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
     std::vector<unsigned char> empty;
     address src;
@@ -27,6 +27,6 @@ void smtp_auth::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole SMTP_AUTH message.
-    mgr.smtp_auth(fc, s, e);
+    mgr.smtp_auth(fc, sl.start, sl.end, sl.time);
 }
 

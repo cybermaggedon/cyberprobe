@@ -21,7 +21,7 @@ class udp_ports
 
 private:
 
-    typedef void (*fn)(manager& mgr, context_ptr fc, pdu_iter s, pdu_iter e);
+    typedef void (*fn)(manager& mgr, context_ptr fc, const pdu_slice& sl);
 
     static fn port_handler[65535];
 

@@ -11,8 +11,11 @@ using namespace cybermon;
 
 const unsigned int ip4_context::max_frag_list_len = 50;
 
-void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     if ((e - s) < 20) throw exception("Packet too small for IPv4");
 
@@ -210,7 +213,8 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    fc->hdrs_list.erase(id);
 
 	    // We now have a complete IP packet!  Process it.
-	    ip::process_ip4(mgr, c, pdu.begin(), pdu.end());
+	    ip::process_ip4(mgr, c,
+			    pdu_slice(pdu.begin(), pdu.end(), sl.time));
 
 	    fc->lock.unlock();
 
@@ -260,17 +264,20 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     if (protocol == 6)
 
 	// TCP
-	tcp::process(mgr, fc, s + header_length, s + length);
+	tcp::process(mgr, fc,
+		     pdu_slice(s + header_length, s + length, sl.time));
 
     else if (protocol == 17)
 	
 	// UDP
-	udp::process(mgr, fc, s + header_length, s + length);
+	udp::process(mgr, fc,
+		     pdu_slice(s + header_length, s + length, sl.time));
 
     else if (protocol == 1)
 	
 	// ICMP
-	icmp::process(mgr, fc, s + header_length, s + length);
+	icmp::process(mgr, fc,
+		      pdu_slice(s + header_length, s + length, sl.time));
 
     else {
 	std::ostringstream buf;
@@ -280,7 +287,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 }
 
-void ip::process_ip6(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void ip::process_ip6(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
     throw exception("IPv6 processing not implemented.");
 }
@@ -312,18 +319,21 @@ uint16_t ip::calculate_cksum(pdu_iter s, pdu_iter e)
 
 }
 
-void ip::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void ip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
 
-  // Packet too small for the IP check, then do nothing.
-  if ((e - s) < 1)
-    throw exception("Empty packet");
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
-  if ((*s & 0xf0) == 0x40)
-      process_ip4(mgr, c, s, e);
-  else if ((*s & 0xf0) == 0x60)
-      process_ip6(mgr, c, s, e);
-  else
-      throw exception("Expecting IP, but isn't IPv4 or IPv6");
+    // Packet too small for the IP check, then do nothing.
+    if ((e - s) < 1)
+	throw exception("Empty packet");
+
+    if ((*s & 0xf0) == 0x40)
+	process_ip4(mgr, c, sl);
+    else if ((*s & 0xf0) == 0x60)
+	process_ip6(mgr, c, sl);
+    else
+	throw exception("Expecting IP, but isn't IPv4 or IPv6");
 
 }

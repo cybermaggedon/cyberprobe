@@ -23,6 +23,8 @@
 #include <cybermon/context.h>
 #include <cybermon/cybermon-lua.h>
 
+using namespace cybermon;
+
 cybermon_qreader::cybermon_qreader(const std::string& path,
 		std::queue<q_entry*>& cybermonq, threads::mutex& cqwrlock,
 		cybermon_qwriter cqwriter) :
@@ -63,19 +65,20 @@ void cybermon_qreader::run() {
 			switch (qentry->calltype) {
 
 			case qargs::connection_up: {
-				connection_args* connectonargs =
+				connection_args* connectionargs =
 						static_cast<connection_args*>(qentry->queueargs);
-				cml.connection_up(qwriter, connectonargs->cptr);
+				cml.connection_up(qwriter, connectionargs->cptr,
+						  connectionargs->time);
 				delete (qentry);
-				delete (connectonargs);
+				delete (connectionargs);
 				break;
 			}
 			case qargs::connection_down: {
-				connection_args* connectonargs =
+				connection_args* connectionargs =
 						static_cast<connection_args*>(qentry->queueargs);
-				cml.connection_down(qwriter, connectonargs->cptr);
+				cml.connection_down(qwriter, connectionargs->cptr, connectionargs->time);
 				delete (qentry);
-				delete (connectonargs);
+				delete (connectionargs);
 				break;
 			}
 
@@ -83,7 +86,7 @@ void cybermon_qreader::run() {
 				trigger_up_args* trupargs =
 						static_cast<trigger_up_args*>(qentry->queueargs);
 
-				cml.trigger_up(trupargs->trupliid, trupargs->trupaddr);
+				cml.trigger_up(trupargs->trupliid, trupargs->trupaddr, trupargs->time);
 
 				delete (qentry);
 				delete (trupargs);
@@ -92,7 +95,8 @@ void cybermon_qreader::run() {
 			case qargs::trigger_down: {
 				trigger_up_args* trdownargs =
 						static_cast<trigger_up_args*>(qentry->queueargs);
-				cml.trigger_down(trdownargs->trupliid);
+				cml.trigger_down(trdownargs->trupliid,
+						 trdownargs->time);
 				delete (qentry);
 				delete (trdownargs);
 				break;
@@ -100,9 +104,11 @@ void cybermon_qreader::run() {
 			case qargs::unrecognised_stream: {
 				unrecognised_stream_args* ursargs =
 						static_cast<unrecognised_stream_args*>(qentry->queueargs);
-				cybermon::pdu_iter pdus = ursargs->pdu.begin();
-				cybermon::pdu_iter pdue = ursargs->pdu.end();
-				cml.unrecognised_stream(qwriter, ursargs->cptr, pdus, pdue);
+				pdu_iter pdus = ursargs->pdu.begin();
+				pdu_iter pdue = ursargs->pdu.end();
+				cml.unrecognised_stream(qwriter, ursargs->cptr,
+							pdus, pdue,
+							ursargs->time);
 				delete (qentry);
 				delete (ursargs);
 				break;
@@ -111,9 +117,12 @@ void cybermon_qreader::run() {
 				unrecognised_datagram_args* urdargs =
 						static_cast<unrecognised_datagram_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = urdargs->pdu.begin();
-				cybermon::pdu_iter pdue = urdargs->pdu.end();
-				cml.unrecognised_datagram(qwriter, urdargs->cptr, pdus, pdue);
+				pdu_iter pdus = urdargs->pdu.begin();
+				pdu_iter pdue = urdargs->pdu.end();
+				cml.unrecognised_datagram(qwriter,
+							  urdargs->cptr,
+							  pdus, pdue,
+							  urdargs->time);
 				delete (qentry);
 				delete (urdargs);
 				break;
@@ -122,11 +131,13 @@ void cybermon_qreader::run() {
 
 				icmp_args* icmpargs = static_cast<icmp_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = icmpargs->icmpdata.begin();
-				cybermon::pdu_iter pdue = icmpargs->icmpdata.end();
+				pdu_iter pdus = icmpargs->icmpdata.begin();
+				pdu_iter pdue = icmpargs->icmpdata.end();
 
-				cml.icmp(qwriter, icmpargs->cptr, icmpargs->icmptype,
-						icmpargs->icmpcode, pdus, pdue);
+				cml.icmp(qwriter, icmpargs->cptr,
+					 icmpargs->icmptype,
+					 icmpargs->icmpcode, pdus, pdue,
+					 icmpargs->time);
 				delete (qentry);
 				delete (icmpargs);
 				break;
@@ -134,10 +145,11 @@ void cybermon_qreader::run() {
 			case qargs::imap: {
 				imap_args* imapargs = static_cast<imap_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = imapargs->pdu.begin();
-				cybermon::pdu_iter pdue = imapargs->pdu.end();
+				pdu_iter pdus = imapargs->pdu.begin();
+				pdu_iter pdue = imapargs->pdu.end();
 
-				cml.imap(qwriter, imapargs->cptr, pdus, pdue);
+				cml.imap(qwriter, imapargs->cptr, pdus, pdue,
+					 imapargs->time);
 				delete (qentry);
 				delete (imapargs);
 				break;
@@ -146,10 +158,10 @@ void cybermon_qreader::run() {
 				imap_ssl_args* imapsslargs =
 						static_cast<imap_ssl_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = imapsslargs->pdu.begin();
-				cybermon::pdu_iter pdue = imapsslargs->pdu.end();
+				pdu_iter pdus = imapsslargs->pdu.begin();
+				pdu_iter pdue = imapsslargs->pdu.end();
 
-				cml.imap_ssl(qwriter, imapsslargs->cptr, pdus, pdue);
+				cml.imap_ssl(qwriter, imapsslargs->cptr, pdus, pdue, imapsslargs->time);
 				delete (qentry);
 				delete (imapsslargs);
 				break;
@@ -157,10 +169,10 @@ void cybermon_qreader::run() {
 			case qargs::pop3: {
 				pop3_args* pop3args = static_cast<pop3_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = pop3args->pdu.begin();
-				cybermon::pdu_iter pdue = pop3args->pdu.end();
+				pdu_iter pdus = pop3args->pdu.begin();
+				pdu_iter pdue = pop3args->pdu.end();
 
-				cml.pop3(qwriter, pop3args->cptr, pdus, pdue);
+				cml.pop3(qwriter, pop3args->cptr, pdus, pdue, pop3args->time);
 				delete (pop3args);
 				delete (qentry);
 				break;
@@ -169,10 +181,10 @@ void cybermon_qreader::run() {
 				pop3_ssl_args* pop3sslargs =
 						static_cast<pop3_ssl_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = pop3sslargs->pdu.begin();
-				cybermon::pdu_iter pdue = pop3sslargs->pdu.end();
+				pdu_iter pdus = pop3sslargs->pdu.begin();
+				pdu_iter pdue = pop3sslargs->pdu.end();
 
-				cml.pop3_ssl(qwriter, pop3sslargs->cptr, pdus, pdue);
+				cml.pop3_ssl(qwriter, pop3sslargs->cptr, pdus, pdue, pop3sslargs->time);
 				delete (qentry);
 				delete (pop3sslargs);
 				break;
@@ -180,10 +192,11 @@ void cybermon_qreader::run() {
 			case qargs::rtp: {
 				rtp_args* rtpargs = static_cast<rtp_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = rtpargs->pdu.begin();
-				cybermon::pdu_iter pdue = rtpargs->pdu.end();
+				pdu_iter pdus = rtpargs->pdu.begin();
+				pdu_iter pdue = rtpargs->pdu.end();
 
-				cml.rtp(qwriter, rtpargs->cptr, pdus, pdue);
+				cml.rtp(qwriter, rtpargs->cptr, pdus, pdue,
+					rtpargs->time);
 				delete (qentry);
 				delete (rtpargs);
 				break;
@@ -193,10 +206,10 @@ void cybermon_qreader::run() {
 				rtp_ssl_args* rtpsslargs =
 						static_cast<rtp_ssl_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = rtpsslargs->pdu.begin();
-				cybermon::pdu_iter pdue = rtpsslargs->pdu.end();
+				pdu_iter pdus = rtpsslargs->pdu.begin();
+				pdu_iter pdue = rtpsslargs->pdu.end();
 
-				cml.rtp_ssl(qwriter, rtpsslargs->cptr, pdus, pdue);
+				cml.rtp_ssl(qwriter, rtpsslargs->cptr, pdus, pdue, rtpsslargs->time);
 				delete (qentry);
 				delete (rtpsslargs);
 				break;
@@ -205,10 +218,10 @@ void cybermon_qreader::run() {
 				smtp_auth_args* smtpauthargs =
 						static_cast<smtp_auth_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = smtpauthargs->pdu.begin();
-				cybermon::pdu_iter pdue = smtpauthargs->pdu.end();
+				pdu_iter pdus = smtpauthargs->pdu.begin();
+				pdu_iter pdue = smtpauthargs->pdu.end();
 
-				cml.smtp_auth(qwriter, smtpauthargs->cptr, pdus, pdue);
+				cml.smtp_auth(qwriter, smtpauthargs->cptr, pdus, pdue, smtpauthargs->time);
 				delete (qentry);
 				delete (smtpauthargs);
 				break;
@@ -217,10 +230,10 @@ void cybermon_qreader::run() {
 				sip_ssl_args* sipsslargs =
 						static_cast<sip_ssl_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = sipsslargs->pdu.begin();
-				cybermon::pdu_iter pdue = sipsslargs->pdu.end();
+				pdu_iter pdus = sipsslargs->pdu.begin();
+				pdu_iter pdue = sipsslargs->pdu.end();
 
-				cml.sip_ssl(qwriter, sipsslargs->cptr, pdus, pdue);
+				cml.sip_ssl(qwriter, sipsslargs->cptr, pdus, pdue, sipsslargs->time);
 				delete (qentry);
 				delete (sipsslargs);
 				break;
@@ -229,12 +242,12 @@ void cybermon_qreader::run() {
 				sip_request_args* siprequestargs =
 						static_cast<sip_request_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = siprequestargs->pdu.begin();
-				cybermon::pdu_iter pdue = siprequestargs->pdu.end();
+				pdu_iter pdus = siprequestargs->pdu.begin();
+				pdu_iter pdue = siprequestargs->pdu.end();
 
 				cml.sip_request(qwriter, siprequestargs->cptr,
 						siprequestargs->sipmethod, siprequestargs->sipfrom,
-						siprequestargs->sipto, pdus, pdue);
+						siprequestargs->sipto, pdus, pdue, siprequestargs->time);
 
 				delete (qentry);
 				delete (siprequestargs);
@@ -244,13 +257,13 @@ void cybermon_qreader::run() {
 				sip_response_args* sipresponseargs =
 						static_cast<sip_response_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = sipresponseargs->pdu.begin();
-				cybermon::pdu_iter pdue = sipresponseargs->pdu.end();
+				pdu_iter pdus = sipresponseargs->pdu.begin();
+				pdu_iter pdue = sipresponseargs->pdu.end();
 
 				cml.sip_response(qwriter, sipresponseargs->cptr,
 						sipresponseargs->sipcode, sipresponseargs->sipstatus,
 						sipresponseargs->sipfrom, sipresponseargs->sipto, pdus,
-						pdue);
+						 pdue, sipresponseargs->time);
 				delete (qentry);
 				delete (sipresponseargs);
 				break;
@@ -259,12 +272,12 @@ void cybermon_qreader::run() {
 				http_request_args* httprequestargs =
 						static_cast<http_request_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = httprequestargs->pdu.begin();
-				cybermon::pdu_iter pdue = httprequestargs->pdu.end();
+				pdu_iter pdus = httprequestargs->pdu.begin();
+				pdu_iter pdue = httprequestargs->pdu.end();
 
 				cml.http_request(qwriter, httprequestargs->cptr,
 						httprequestargs->httpmethod, httprequestargs->httpurl,
-						httprequestargs->httphdr, pdus, pdue);
+						 httprequestargs->httphdr, pdus, pdue, httprequestargs->time);
 				delete (qentry);
 				delete (httprequestargs);
 				break;
@@ -273,13 +286,13 @@ void cybermon_qreader::run() {
 				http_response_args* httpresponseargs =
 						static_cast<http_response_args*>(qentry->queueargs);
 
-				cybermon::pdu_iter pdus = httpresponseargs->pdu.begin();
-				cybermon::pdu_iter pdue = httpresponseargs->pdu.end();
+				pdu_iter pdus = httpresponseargs->pdu.begin();
+				pdu_iter pdue = httpresponseargs->pdu.end();
 
 				cml.http_response(qwriter, httpresponseargs->cptr,
 						httpresponseargs->httpcode,
 						httpresponseargs->httpstatus, httpresponseargs->httphdr,
-						httpresponseargs->httpurl, pdus, pdue);
+						  httpresponseargs->httpurl, pdus, pdue, httpresponseargs->time);
 				delete (qentry);
 				delete (httpresponseargs);
 				break;
@@ -288,7 +301,7 @@ void cybermon_qreader::run() {
 				smtp_command_args* smtpcommandargs =
 						static_cast<smtp_command_args*>(qentry->queueargs);
 				cml.smtp_command(qwriter, smtpcommandargs->cptr,
-						smtpcommandargs->smtpcommand);
+						 smtpcommandargs->smtpcommand, smtpcommandargs->time);
 				delete (qentry);
 				delete (smtpcommandargs);
 				break;
@@ -299,7 +312,7 @@ void cybermon_qreader::run() {
 
 				cml.smtp_response(qwriter, smtpresponseargs->cptr,
 						smtpresponseargs->smtpstatus,
-						smtpresponseargs->smtptext);
+						  smtpresponseargs->smtptext, smtpresponseargs->time);
 				delete (qentry);
 				delete (smtpresponseargs);
 				break;
@@ -310,7 +323,7 @@ void cybermon_qreader::run() {
 
 				cml.smtp_data(qwriter, smtpdataargs->cptr,
 						smtpdataargs->smtpfrom, smtpdataargs->smtpto,
-						smtpdataargs->smtps, smtpdataargs->smtpe);
+					      smtpdataargs->smtps, smtpdataargs->smtpe, smtpdataargs->time);
 				delete (qentry);
 				delete (smtpdataargs);
 				break;
@@ -319,7 +332,7 @@ void cybermon_qreader::run() {
 				ftp_command_args* ftpcommandargs =
 						static_cast<ftp_command_args*>(qentry->queueargs);
 				cml.ftp_command(qwriter, ftpcommandargs->cptr,
-						ftpcommandargs->ftpcommand);
+						ftpcommandargs->ftpcommand, ftpcommandargs->time);
 				delete (qentry);
 				delete (ftpcommandargs);
 				break;
@@ -329,7 +342,7 @@ void cybermon_qreader::run() {
 						static_cast<ftp_response_args*>(qentry->queueargs);
 				cml.ftp_response(qwriter, ftpresponseargs->cptr,
 						ftpresponseargs->ftpstatus,
-						ftpresponseargs->ftpresponses);
+						 ftpresponseargs->ftpresponses, ftpresponseargs->time);
 				delete (qentry);
 				delete (ftpresponseargs);
 				break;
@@ -341,9 +354,9 @@ void cybermon_qreader::run() {
 						static_cast<dns_message_args*>(qentry->queueargs);
 				cml.dns_message(qwriter, dnsargs->cptr, dnsargs->dnshdr,
 						dnsargs->dnsqueries, dnsargs->dnsanswers,
-						dnsargs->dnsauthorities, dnsargs->dnsadditional);
+						dnsargs->dnsauthorities, dnsargs->dnsadditional, dnsargs->time);
 
-				cybermon::dns_query dq = dnsargs->dnsqueries.front();
+				dns_query dq = dnsargs->dnsqueries.front();
 
 				delete (qentry);
 				delete (dnsargs);
@@ -356,7 +369,8 @@ void cybermon_qreader::run() {
 
 				cml.ntp_timestamp_message(qwriter,
 						ntptimestampmessageargs->cptr,
-						ntptimestampmessageargs->ntpts);
+							  ntptimestampmessageargs->ntpts,
+							  ntptimestampmessageargs->time);
 				delete (qentry);
 				delete (ntptimestampmessageargs);
 				break;
@@ -365,7 +379,7 @@ void cybermon_qreader::run() {
 				ntp_control_message_args* ntpcontrolmessageargs =
 						static_cast<ntp_control_message_args*>(qentry->queueargs);
 				cml.ntp_control_message(qwriter, ntpcontrolmessageargs->cptr,
-						ntpcontrolmessageargs->ntpctrl);
+							ntpcontrolmessageargs->ntpctrl, ntpcontrolmessageargs->time);
 				delete (qentry);
 				delete (ntpcontrolmessageargs);
 				break;
@@ -374,7 +388,7 @@ void cybermon_qreader::run() {
 				ntp_private_message_args* ntpprivatemessageargs =
 						static_cast<ntp_private_message_args*>(qentry->queueargs);
 				cml.ntp_private_message(qwriter, ntpprivatemessageargs->cptr,
-						ntpprivatemessageargs->ntppriv);
+							ntpprivatemessageargs->ntppriv, ntpprivatemessageargs->time);
 				delete (qentry);
 				delete (ntpprivatemessageargs);
 				break;

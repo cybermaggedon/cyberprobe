@@ -11,16 +11,16 @@ using namespace cybermon;
 
 
 // SMTP processing function.
-void smtp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void smtp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
     if (c->addr.dest.get_uint16() == 25)
     {
-        smtp::process_client(mgr, c, s, e);
+        smtp::process_client(mgr, c, sl);
         return;
     }
     else if (c->addr.src.get_uint16() == 25)
     {
-        smtp::process_server(mgr, c, s, e);
+        smtp::process_server(mgr, c, sl);
         return;
     }
     else
@@ -30,8 +30,7 @@ void smtp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 }
 
 // SMTP client processing function.
-void smtp::process_client(manager& mgr, context_ptr c, 
-			  pdu_iter s, pdu_iter e)
+void smtp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
 
     std::vector<unsigned char> empty;
@@ -46,7 +45,7 @@ void smtp::process_client(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	fc->parse(fc, s, e, mgr);
+	fc->parse(fc, sl, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;
@@ -57,8 +56,7 @@ void smtp::process_client(manager& mgr, context_ptr c,
 }
 
 // SMTP server processing function.
-void smtp::process_server(manager& mgr, context_ptr c, 
-			  pdu_iter s, pdu_iter e)
+void smtp::process_server(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
 
     std::vector<unsigned char> empty;
@@ -73,7 +71,7 @@ void smtp::process_server(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	fc->parse(fc, s, e, mgr);
+	fc->parse(fc, sl, mgr);
     } catch (std::exception& e) {
 	std::cerr << e.what() << std::endl;
 	fc->lock.unlock();
@@ -84,9 +82,12 @@ void smtp::process_server(manager& mgr, context_ptr c,
 
 }
 
-void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
+void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 			       manager& mgr)
 { 
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
     
     while (s != e) {
 
@@ -106,7 +107,7 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 	    if (*s == '\n') {
 
-		mgr.smtp_command(cp, command);
+		mgr.smtp_command(cp, command, sl.time);
 
 		static const boost::regex 
 		    mail_from(" *MAIL +[Ff][Rr][Oo][Mm] *: *<([^ ]+)>",
@@ -176,7 +177,7 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 		// FIXME: Need to turn the data into something more useful
 		// i.e. RFC822 decode.
-		mgr.smtp_data(cp, from, to, data.begin(), data.end());
+		mgr.smtp_data(cp, from, to, data.begin(), data.end(), sl.time);
 
 		from = "";
 		to.clear();
@@ -197,9 +198,12 @@ void smtp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 }
 
 
-void smtp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
+void smtp_server_parser::parse(context_ptr cp, const pdu_slice& sl,
 			       manager& mgr)
 { 
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
     
     while (s != e) {
 
@@ -258,7 +262,7 @@ void smtp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 
 		    // Do something with the data.
 
-		    mgr.smtp_response(cp, status, texts);
+		    mgr.smtp_response(cp, status, texts, sl.time);
 
 		    first = true;
 		    texts.clear();

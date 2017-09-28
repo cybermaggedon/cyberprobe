@@ -170,7 +170,9 @@ void connection::run()
 
 	    if (ret != length) break;
 
-	    p(liid, pdu.begin(), pdu.end());
+	    struct timeval tv;
+	    gettimeofday(&tv, 0);
+	    p(liid, pdu.begin(), pdu.end(), tv);
 
 	}
 	

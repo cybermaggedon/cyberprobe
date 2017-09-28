@@ -21,7 +21,7 @@ class imap
   public:
 
     // IMAP processing.
-    static void process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e);
+    static void process(manager& mgr, context_ptr c, const pdu_slice& s);
 };
 
 }; // End namespace

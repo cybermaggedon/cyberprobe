@@ -33,9 +33,9 @@ void engine::close_root_context(const std::string& liid)
     lock.unlock();
 }
 
-void engine::process(context_ptr c, pdu_iter s, pdu_iter e)
+void engine::process(context_ptr c, const pdu_slice& sl)
 {
-    ip::process(*this, c, s, e);
+    ip::process(*this, c, sl);
 }
 
 void engine::describe_src(context_ptr p, std::ostream& out)

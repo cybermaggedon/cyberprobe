@@ -9,7 +9,7 @@
 using namespace cybermon;
 
 
-void rtp_ssl::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void rtp_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
     std::vector<unsigned char> empty;
     address src;
@@ -26,6 +26,6 @@ void rtp_ssl::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole RTP SSL message.
-    mgr.rtp_ssl(fc, s, e);
+    mgr.rtp_ssl(fc, sl.start, sl.end, sl.time);
 }
 

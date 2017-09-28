@@ -28,6 +28,7 @@ Usage:
 #include <cybermon/cybermon-lua.h>
 #include <cybermon_qwriter.h>
 #include <cybermon_qreader.h>
+#include <cybermon/pdu.h>
 
 // Monitor class, implements the monitor interface to receive data.
 class etsi_monitor : public monitor {
@@ -45,43 +46,44 @@ public:
     etsi_monitor(cybermon::engine& an) : an(an) {}
 
     // Called when a PDU is received.
-    virtual void operator()(const std::string& liid, const iter& s, 
-			    const iter& e);
+    virtual void operator()(const std::string& liid,
+			    const iter& s, const iter& e,
+			    const struct timeval& tv);
 
     // Called when attacker is discovered.
-    void target_up(const std::string& liid, const tcpip::address& addr);
-
+    void target_up(const std::string& liid, const tcpip::address& addr,
+		   const struct timeval& tv);
+    
     // Called when attacker is disconnected.
-    void target_down(const std::string& liid);
+    void target_down(const std::string& liid, const struct timeval& tv);
     
 };
 
 // Called when attacker is discovered.
 void etsi_monitor::target_up(const std::string& liid,
-			 const tcpip::address& addr)
+			     const tcpip::address& addr,
+			     const struct timeval& tv)
 {
-    an.target_up(liid, addr);
+    an.target_up(liid, addr, tv);
 }
 
 // Called when attacker is discovered.
-void etsi_monitor::target_down(const std::string& liid)
+void etsi_monitor::target_down(const std::string& liid,
+			       const struct timeval& tv)
 {
-    an.target_down(liid);
+    an.target_down(liid, tv);
 }
 
 // Called when a PDU is received.
 void etsi_monitor::operator()(const std::string& liid, 
-			  const iter& s, 
-			  const iter& e)
+			      const iter& s, const iter& e,
+			      const struct timeval& tv)
 {
 
     try {
 
 	// Process the PDU
-    	std::string str( s, e);
-    //std::cout<<"here in etsi_monitor::operator: "<<str;
-
-	an.process(liid, s, e);
+	an.process(liid, cybermon::pdu_slice(s, e, tv));
 
     } catch (std::exception& e) {
 
@@ -131,7 +133,10 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		// FIXME: Hard-coded?!
 		std::string liid = "PCAP";
 
-		e.process(liid, v.begin(), v.end());
+		timeval tv;
+		gettimeofday(&tv, 0);
+
+		e.process(liid, cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	    }
 
@@ -144,7 +149,10 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		// FIXME: Hard-coded?!
 		std::string liid = "PCAP";
 
-		e.process(liid, v.begin(), v.end());
+		timeval tv;
+		gettimeofday(&tv, 0);
+
+		e.process(liid, cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	    }
 
@@ -160,7 +168,11 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		    // FIXME: Hard-coded?!
 		    std::string liid = "PCAP";
 
-		    e.process(liid, v.begin(), v.end());
+		    timeval tv;
+		    gettimeofday(&tv, 0);
+
+		    e.process(liid,
+			      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 		}
 
@@ -173,7 +185,11 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		    // FIXME: Hard-coded?!
 		    std::string liid = "PCAP";
 
-		    e.process(liid, v.begin(), v.end());
+		    timeval tv;
+		    gettimeofday(&tv, 0);
+
+		    e.process(liid,
+			      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 		}
 
@@ -191,7 +207,11 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 
 	    std::string str( v.begin(), v.end() );
 
-	    e.process(liid, v.begin(), v.end());
+	    timeval tv;
+	    gettimeofday(&tv, 0);
+
+	    e.process(liid,
+		      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	}
 
@@ -280,8 +300,8 @@ int main(int argc, char** argv)
     threads::mutex cqwrlock;
 
     //creating cybermon_qwriter and cybermon_qreader
-    cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
-    cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
+    cybermon::cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
+    cybermon::cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
 
     //starting qreader and then qwriter
     cqr.start();

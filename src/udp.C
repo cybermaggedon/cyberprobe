@@ -11,8 +11,11 @@
 using namespace cybermon;
 
 
-void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+
     if ((e - s) < 8) {
 	    throw exception("Header too small for UDP header");
     }
@@ -61,13 +64,14 @@ void udp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
         fc->lock.unlock();
 
-        (*fc->processor)(mgr, fc, start_of_next_protocol, e);
+	pdu_slice sl2(start_of_next_protocol, e, sl.time);
+        (*fc->processor)(mgr, fc, sl2);
         return;
     }
     else
     {
-
-        unrecognised::process_unrecognised_datagram(mgr, fc, start_of_next_protocol, e);
+      pdu_slice sl2(start_of_next_protocol, e, sl.time);
+      unrecognised::process_unrecognised_datagram(mgr, fc, sl2);
     }
 }
 

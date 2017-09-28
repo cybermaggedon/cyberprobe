@@ -11,28 +11,28 @@ using namespace cybermon;
 
 
 // FTP processing function.
-void ftp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void ftp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
-    if (c->addr.dest.get_uint16() == 21)
-    {
-        ftp::process_client(mgr, c, s, e);
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+    
+    if (c->addr.dest.get_uint16() == 21) {
+        ftp::process_client(mgr, c, sl);
         return;
-    }
-    else if (c->addr.src.get_uint16() == 21)
-    {
-        ftp::process_server(mgr, c, s, e);
+    } else if (c->addr.src.get_uint16() == 21) {
+        ftp::process_server(mgr, c, sl);
         return;
-    }
-    else
-    {
+    } else {
         throw exception("Trying to handle FTP but neither port number is 21");
     }
 }
 
 // FTP client processing function.
-void ftp::process_client(manager& mgr, context_ptr c, 
-			 pdu_iter s, pdu_iter e)
+void ftp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     std::vector<unsigned char> empty;
     address src, dest;
@@ -46,7 +46,7 @@ void ftp::process_client(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	fc->parse(fc, s, e, mgr);
+	fc->parse(fc, sl, mgr);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;
@@ -57,9 +57,11 @@ void ftp::process_client(manager& mgr, context_ptr c,
 }
 
 // FTP server processing function.
-void ftp::process_server(manager& mgr, context_ptr c, 
-			 pdu_iter s, pdu_iter e)
+void ftp::process_server(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     std::vector<unsigned char> empty;
     address src, dest;
@@ -73,7 +75,7 @@ void ftp::process_server(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-	fc->parse(fc, s, e, mgr);
+	fc->parse(fc, sl, mgr);
     } catch (std::exception& e) {
 	std::cerr << e.what() << std::endl;
 	fc->lock.unlock();
@@ -84,9 +86,12 @@ void ftp::process_server(manager& mgr, context_ptr c,
 
 }
 
-void ftp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
-			       manager& mgr)
+void ftp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
+			      manager& mgr)
 { 
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     while (s != e) {
 
@@ -132,7 +137,7 @@ void ftp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 //		    context_ptr = as;
 		}
 
-		mgr.ftp_command(cp, command);
+		mgr.ftp_command(cp, command, sl.time);
 
 /*
 		mgr.ftp_command(cp, command);
@@ -226,9 +231,11 @@ void ftp_client_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 }
 
 
-void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
-			       manager& mgr)
+void ftp_server_parser::parse(context_ptr cp, const pdu_slice& sl,
+			      manager& mgr)
 { 
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     while (s != e) {
 
@@ -359,7 +366,7 @@ void ftp_server_parser::parse(context_ptr cp, pdu_iter s, pdu_iter e,
 	    }
 
 	    if (!cont) {
-		mgr.ftp_response(cp, status, responses);
+		mgr.ftp_response(cp, status, responses, sl.time);
 		first = true;
 		responses.clear();
 	    }

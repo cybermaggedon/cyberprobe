@@ -9,8 +9,11 @@
 using namespace cybermon;
 
 
-void ntp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void ntp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
     
     // Parse NTP.
     ntp_decoder dec(s, e);
@@ -34,20 +37,23 @@ void ntp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     {
         switch(pt)
         {
+
             case ntp_decoder::timestamp_packet:
-                mgr.ntp_timestamp_message(fc, dec.get_timestamp_info());
+                mgr.ntp_timestamp_message(fc, dec.get_timestamp_info(),
+					  sl.time);
                 break;
                 
             case ntp_decoder::control_packet:
-                mgr.ntp_control_message(fc, dec.get_control_info());
+                mgr.ntp_control_message(fc, dec.get_control_info(), sl.time);
                 break;
                 
             case ntp_decoder::private_packet:
-                mgr.ntp_private_message(fc, dec.get_private_info());
+                mgr.ntp_private_message(fc, dec.get_private_info(), sl.time);
                 break;
                 
             default:
                 break;
+
         } 
 
     } 

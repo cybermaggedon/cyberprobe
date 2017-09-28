@@ -13,13 +13,17 @@
 #include <queue>
 #include <cybermon_qargs.h>
 
-class cybermon_qwriter: public cybermon::engine {
+namespace cybermon {
+
+class cybermon_qwriter: public engine {
 
 public:
-	//Constructor
-	cybermon_qwriter(const std::string& path, std::queue<q_entry*>& cybermonq,
-			threads::mutex& cqwrlock);
-	//Destructor.
+
+	// Constructor
+	cybermon_qwriter(const std::string& path,
+			 std::queue<q_entry*>& cybermonq,
+			 threads::mutex& cqwrlock);
+	// Destructor.
 	virtual ~cybermon_qwriter() {
 	}
 
@@ -27,78 +31,122 @@ public:
 
 	threads::mutex& lock;
 
-	virtual void connection_up(const cybermon::context_ptr cp);
-	virtual void connection_down(const cybermon::context_ptr cp);
+	virtual void connection_up(const context_ptr cp,
+				   const pdu_time& tv);
 
-	virtual void sip_ssl(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
+	virtual void connection_down(const context_ptr cp,
+				     const pdu_time& tv);
 
-	virtual void smtp_auth(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
+	virtual void sip_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
+			     const pdu_time& tv);
 
-	virtual void rtp_ssl(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
-	virtual void rtp(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
-	virtual void pop3_ssl(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
-	virtual void pop3(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
-	virtual void imap_ssl(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
+	virtual void smtp_auth(const context_ptr cp, pdu_iter s, pdu_iter e,
+			       const pdu_time& tv);
 
-	virtual void imap(const cybermon::context_ptr cp, cybermon::pdu_iter s,
-			cybermon::pdu_iter e);
-	virtual void icmp(const cybermon::context_ptr cp, unsigned int type,
-			unsigned int code, cybermon::pdu_iter s, cybermon::pdu_iter e);
-	virtual void sip_request(const cybermon::context_ptr cp,
-			const std::string& method, const std::string& from,
-			const std::string& to, cybermon::pdu_iter s, cybermon::pdu_iter e);
-	virtual void sip_response(const cybermon::context_ptr cp, unsigned int code,
-			const std::string& status, const std::string& from,
-			const std::string& to, cybermon::pdu_iter s, cybermon::pdu_iter e);
-	virtual void http_request(const cybermon::context_ptr cp,
-			const std::string& method, const std::string& url,
-			const cybermon::observer::http_hdr_t& hdr,
-			cybermon::pdu_iter body_start, cybermon::pdu_iter body_end);
-	virtual void http_response(const cybermon::context_ptr cp,
-			unsigned int code, const std::string& status,
-			const cybermon::observer::http_hdr_t& hdr, const std::string& url,
-			cybermon::pdu_iter body_start, cybermon::pdu_iter body_end);
-	virtual void smtp_command(const cybermon::context_ptr cp,
-			const std::string& command);
+	virtual void rtp_ssl(const context_ptr cp,
+			     const pdu_iter s, pdu_iter e,
+			     const pdu_time& tv);
 
-	virtual void smtp_response(const cybermon::context_ptr cp, int status,
-			const std::list<std::string>& text);
+	virtual void rtp(const context_ptr cp, pdu_iter s, pdu_iter e,
+			 const pdu_time& tv);
 
-	virtual void smtp_data(const cybermon::context_ptr cp,
-			const std::string& from, const std::list<std::string>& to,
-			std::vector<unsigned char>::const_iterator s,
-			std::vector<unsigned char>::const_iterator e);
+	virtual void pop3_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
+			      const pdu_time& tv);
 
-	virtual void ftp_command(const cybermon::context_ptr cp,
-			const std::string& command);
-	virtual void ftp_response(const cybermon::context_ptr cp, int status,
-			const std::list<std::string>& responses);
-	void trigger_up(const std::string& liid, const tcpip::address& a);
-	void trigger_down(const std::string& liid);
-	virtual void dns_message(const cybermon::context_ptr cp,
-			const cybermon::dns_header hdr,
-			const std::list<cybermon::dns_query> queries,
-			const std::list<cybermon::dns_rr> answers,
-			const std::list<cybermon::dns_rr> authorities,
-			const std::list<cybermon::dns_rr> additional);
-	virtual void ntp_timestamp_message(const cybermon::context_ptr cp,
-			const cybermon::ntp_timestamp& ts);
-	virtual void ntp_control_message(const cybermon::context_ptr cp,
-			const cybermon::ntp_control& ctrl);
-	virtual void ntp_private_message(const cybermon::context_ptr cp,
-			const cybermon::ntp_private& priv);
-	virtual void unrecognised_stream(const cybermon::context_ptr cp,
-			cybermon::pdu_iter s, cybermon::pdu_iter e);
-	virtual void unrecognised_datagram(const cybermon::context_ptr cp,
-			cybermon::pdu_iter s, cybermon::pdu_iter e);
+	virtual void pop3(const context_ptr cp, pdu_iter s, pdu_iter e,
+			  const pdu_time& tv);
+
+	virtual void imap_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
+			      const pdu_time& tv);
+
+	virtual void imap(const context_ptr cp, pdu_iter s, pdu_iter e,
+			  const pdu_time& tv);
+
+	virtual void icmp(const context_ptr cp, unsigned int type,
+			  unsigned int code, pdu_iter s, pdu_iter e,
+			  const pdu_time& tv);
+
+	virtual void sip_request(const context_ptr cp,
+				 const std::string& method,
+				 const std::string& from,
+				 const std::string& to,
+				 pdu_iter s, pdu_iter e,
+				 const pdu_time& tv);
+
+	virtual void sip_response(const context_ptr cp, unsigned int code,
+				  const std::string& status,
+				  const std::string& from,
+				  const std::string& to,
+				  pdu_iter s, pdu_iter e,
+				  const pdu_time& tv);
+
+	virtual void http_request(const context_ptr cp,
+				  const std::string& method,
+				  const std::string& url,
+				  const observer::http_hdr_t& hdr,
+				  pdu_iter body_start, pdu_iter body_end,
+				  const pdu_time& tv);
+	
+	virtual void http_response(const context_ptr cp,
+				   unsigned int code,
+				   const std::string& status,
+				   const observer::http_hdr_t& hdr,
+				   const std::string& url,
+				   pdu_iter body_start, pdu_iter body_end,
+				   const pdu_time& tv);
+
+	virtual void smtp_command(const context_ptr cp,
+				  const std::string& command,
+				  const pdu_time& tv);
+	virtual void smtp_response(const context_ptr cp, int status,
+				   const std::list<std::string>& text,
+				   const pdu_time& tv);
+	virtual void smtp_data(const context_ptr cp,
+			       const std::string& from,
+			       const std::list<std::string>& to,
+			       std::vector<unsigned char>::const_iterator s,
+			       std::vector<unsigned char>::const_iterator e,
+			       const pdu_time& tv);
+
+	virtual void ftp_command(const context_ptr cp,
+				 const std::string& command,
+				 const pdu_time& tv);
+	virtual void ftp_response(const context_ptr cp, int status,
+				  const std::list<std::string>& responses,
+				  const pdu_time& tv);
+
+	void trigger_up(const std::string& liid, const tcpip::address& a,
+			const pdu_time& tv);
+
+	void trigger_down(const std::string& liid, const pdu_time& tv);
+
+	virtual void dns_message(const context_ptr cp,
+				 const dns_header hdr,
+				 const std::list<dns_query> queries,
+				 const std::list<dns_rr> answers,
+				 const std::list<dns_rr> authorities,
+				 const std::list<dns_rr> additional,
+				 const pdu_time& tv);
+
+	virtual void ntp_timestamp_message(const context_ptr cp,
+					   const ntp_timestamp& ts,
+					   const pdu_time& tv);
+	virtual void ntp_control_message(const context_ptr cp,
+					 const ntp_control& ctrl,
+					 const pdu_time& tv);
+	virtual void ntp_private_message(const context_ptr cp,
+					 const ntp_private& priv,
+					 const pdu_time& tv);
+
+	virtual void unrecognised_stream(const context_ptr cp,
+					 pdu_iter s, pdu_iter e,
+					 const pdu_time& tv);
+	virtual void unrecognised_datagram(const context_ptr cp,
+					   pdu_iter s, pdu_iter e,
+					   const pdu_time& tv);
 	virtual void close();
+};
+
 };
 
 #endif /* CYBERMON_QWRITER_H_ */

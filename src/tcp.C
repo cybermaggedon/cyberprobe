@@ -26,8 +26,11 @@ using namespace cybermon;
 const unsigned int tcp_context::ident_buffer_max = 20;
 const unsigned int tcp_context::max_segments = 100;
 
-void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     if ((e - s) < 20)
 	throw exception("Header too small for TCP header");
@@ -74,7 +77,7 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     // This works for either the step2 SYN/ACK or the step3 ACK.
     if ((flags & ACK) && !fc->connected) {
 	fc->connected = true;
-	mgr.connection_up(fc);
+	mgr.connection_up(fc, sl.time);
     }
 
     // This works for the either of the close-down packets containing a FIN.
@@ -82,7 +85,7 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	fc->fin_observed = true;
 	fc->set_ttl(2);
 	fc->lock.unlock();
-	mgr.connection_down(fc);
+	mgr.connection_down(fc, sl.time);
 	return;
     }
 
@@ -104,7 +107,8 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 	if (payload_length > 0) {
 	    fc->lock.unlock();
-	    post_process(mgr, fc, s + header_length, e);
+	    post_process(mgr, fc,
+			 pdu_slice(s + header_length, e, sl.time));
 	    fc->lock.lock();
 	}
 
@@ -131,7 +135,8 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 	    {
 		throw exception("TCP calculation logic error");
 	    }
-	    post_process(mgr, fc, e - payload_subset_len, e);
+	    post_process(mgr, fc,
+			 pdu_slice(e - payload_subset_len, e, sl.time));
 	    fc->lock.lock();
 	    fc->seq_expected = expected_next_seq;
 	}
@@ -236,9 +241,10 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 
 	    fc->lock.unlock();
 
-	    post_process(mgr, fc, 
-			 fc->segments.begin()->segment.begin() + unwanted,
-			 fc->segments.begin()->segment.end());
+	    pdu_slice sl2(fc->segments.begin()->segment.begin() + unwanted,
+			 fc->segments.begin()->segment.end(),
+			 sl.time);
+	    post_process(mgr, fc, sl2);
 
 	    fc->lock.lock();
 
@@ -262,8 +268,11 @@ void tcp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
 }
 
 void tcp::post_process(manager& mgr, tcp_context::ptr fc, 
-                       pdu_iter s, pdu_iter e)
+                       const pdu_slice& sl)
 {
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
 
     static const boost::regex 
     http_request("(OPTIONS|GET|HEAD|POST|PUT|DELETE|CONNECT|TRACE)"
@@ -298,7 +307,7 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
             fc->lock.unlock();
 
-            (*fc->processor)(mgr, fc, s, e);
+            (*fc->processor)(mgr, fc, sl);
             return;
         }
         else
@@ -348,14 +357,14 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
         pdu p;
         p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
 
-        (*fc->processor)(mgr, fc, p.begin(), p.end());
+        (*fc->processor)(mgr, fc, pdu_slice(p.begin(), p.end(), sl.time));
         return;
     }
     
     fc->lock.unlock();
  
     // Process the data using the defined processing function.
-    (*fc->processor)(mgr, fc, s, e);
+    (*fc->processor)(mgr, fc, sl);
     return;
 }
 

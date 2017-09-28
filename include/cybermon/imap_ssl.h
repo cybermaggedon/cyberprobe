@@ -21,7 +21,7 @@ class imap_ssl
     public:
 
     // IMAP_SSL processing.
-    static void process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e);
+    static void process(manager& mgr, context_ptr c, const pdu_slice& s);
 };
 
 }; // End namespace

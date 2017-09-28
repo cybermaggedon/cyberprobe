@@ -13,7 +13,7 @@
 using namespace cybermon;
 
 
-void rtp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
+void rtp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
     std::vector<unsigned char> empty;
     address src;
@@ -30,6 +30,6 @@ void rtp::process(manager& mgr, context_ptr c, pdu_iter s, pdu_iter e)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole RTP message.
-    mgr.rtp(fc, s, e);
+    mgr.rtp(fc, sl.start, sl.end, sl.time);
 }
 

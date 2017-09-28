@@ -51,7 +51,7 @@ namespace cybermon {
 	std::list<std::string> to;
 
 	// Parse.
-	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);
+	void parse(context_ptr cp, const pdu_slice& s, manager& mgr);
 
     };
 
@@ -86,7 +86,7 @@ namespace cybermon {
 	std::string response;
 
 	// Parse.
-	void parse(context_ptr cp, pdu_iter s, pdu_iter e, manager& mgr);
+	void parse(context_ptr cp, const pdu_slice& s, manager& mgr);
 
     };
 
@@ -166,18 +166,22 @@ namespace cybermon {
 
     class ftp
     {
+
         public:
 
         // FTP request processing function.
-        static void process(manager&, context_ptr c, pdu_iter s, pdu_iter e);
+	static void process(manager&, context_ptr c, const pdu_slice& s);
 
         private:
 
         // FTP client request processing function.
-        static void process_client(manager&, context_ptr c, pdu_iter s, pdu_iter e);
+        static void process_client(manager&, context_ptr c,
+				   const pdu_slice& s);
 
         // FTP server response processing function.
-        static void process_server(manager&, context_ptr c, pdu_iter s, pdu_iter e);
+        static void process_server(manager&, context_ptr c,
+				   const pdu_slice& s);
+
     };
 
 };
