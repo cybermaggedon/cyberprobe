@@ -24,10 +24,17 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
     // Create a time string, GeneralizedTime.
     char tms[128];
     {
-	time_t now = time(0);
+	struct timeval now;
+	gettimeofday(&now, 0);
 	struct tm res;
-	struct tm* ts = gmtime_r(&now, &res);
-	strftime(tms, 128, "%Y%m%d%H%M%SZ", ts);
+	struct tm* ts = gmtime_r(&now.tv_sec, &res);
+
+	// Convert time in seconds into into year, month... seconds. 
+	strftime(tms, 128, "%Y%m%d%H%M%S", ts);
+
+	// Append milliseconds and Z for GMT.
+	sprintf(tms + strlen(tms), ".%03dZ", now.tv_usec / 1000);
+
     }
 
     std::list<ber::berpdu*> pdus;
@@ -674,6 +681,58 @@ void connection::run()
 	    ber::berpdu& hdr_p = pdu.get_element(1);
 	    ber::berpdu& liid_p = hdr_p.get_element(1);
 	    ber::berpdu& pay_p = pdu.get_element(2);
+
+	    struct timeval tv;
+
+	    // Time value defaults to 'now' if there's no timestamp in the
+	    // data.
+	    gettimeofday(&tv, 0);
+
+	    try {
+
+		// Get time as string.
+		// Possible formats are:
+		//
+		//   YYYYMMDDHH[MM[SS[.fff]]]
+		//   YYYYMMDDHH[MM[SS[.fff]]]Z
+		//   YYYYMMDDHH[MM[SS[.fff]]]+-HHMM
+
+		ber::berpdu& time_p = hdr_p.get_element(5);
+		std::string tm;
+		time_p.decode_string(tm);
+
+		std::cerr << tm << std::endl;
+		    
+		int Y, M, D, h, m, s, ms=0;
+		unsigned char gmt = 0;
+
+		// Parse time string.
+		int ret = sscanf(tm.c_str(), "%04d%02d%02d%02d%02d%02d.%03d%c",
+				 &Y, &M, &D, &h, &m, &s, &ms, &gmt);
+
+		if (ret < 6)
+		    // This jumps to the catch below...
+		    throw std::runtime_error("Couldn't parse time");
+
+		// Describe ignored cases.
+
+		std::cerr << ret << std::endl;
+		std::cerr << Y << " " << M << " " << D << " "
+			  << h << " " << m << " " << s << "." << ms
+			  << " " << (int) gmt << std::endl;
+
+		struct tm t;
+		t.tm_year = Y - 1900; // Year since 1900
+		t.tm_mon = M - 1;     // 0-11
+		t.tm_mday = D;        // 1-31
+		t.tm_hour = h;        // 0-23
+		t.tm_min = m;         // 0-59
+		t.tm_sec = (int)s;    // 0-61 (0-60 in C++11)
+
+		tv.tv_sec = timegm(&t);
+		tv.tv_usec = ms * 1000;  // Turn milliseconds into seconds.
+		
+	    } catch (...) {}
 
 	    std::list<ber::berpdu> payload_pdus;
 	    pay_p.decode_construct(payload_pdus);
