@@ -401,7 +401,11 @@ namespace cybermon {
 	    push_light_userdata(&c);
 	}
 
+	// Push a context pointer
 	void push(context_ptr c);
+
+	// Push a timestamp value (convert to time).
+	void push(const timeval& time);
 
 	// Push DNS stuff.
 	void push(const dns_header&);

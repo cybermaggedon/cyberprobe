@@ -19,13 +19,13 @@ void cybermon_lua::trigger_up(const std::string& liid, const std::string& a,
     get_field(-1, "trigger_up");
 
     // Put time, liid, address on stack
-    //    push(time);
+    push(time);
     push(liid);
     push(a);
 	
     // config.trigger_up(time, liid, addr)
     try {
-	call(2, 0);
+	call(3, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -45,12 +45,13 @@ void cybermon_lua::trigger_down(const std::string& liid,
     get_global("config");
     get_field(-1, "trigger_down");
     
-    // Put liid on stack
+    // Put time, liid on stack
+    push(time);
     push(liid);
 	
-    // config.trigger_down(liid)
+    // config.trigger_down(time, liid)
     try {
-	call(1, 0);
+	call(2, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -71,12 +72,13 @@ void cybermon_lua::connection_up(engine& an, context_ptr f, const timeval& time)
     get_global("config");
     get_field(-1, "connection_up");
     
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
     
-    // config.connection_up(context)
+    // config.connection_up(time, context)
     try {
-	call(1, 0);
+	call(2, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -99,12 +101,13 @@ void cybermon_lua::connection_down(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "connection_down");
     
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
     
-    // config.connection_down(context)
+    // config.connection_down(time, context)
     try {
-	call(1, 0);
+	call(2, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -128,7 +131,8 @@ void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "unrecognised_stream");
     
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -136,7 +140,7 @@ void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f,
     
     // config.unrecognised_stream(context, data)
     try {
-	call(2, 0);
+	call(3, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -162,7 +166,8 @@ void cybermon_lua::unrecognised_datagram(engine& an,
     get_global("config");
     get_field(-1, "unrecognised_datagram");
     
-    // Put context on stack.
+    // Put time, context on stack.
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -170,7 +175,7 @@ void cybermon_lua::unrecognised_datagram(engine& an,
     
     // config.unrecognised_datagram(context, data)
     try {
-	call(2, 0);
+	call(3, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -191,7 +196,8 @@ void cybermon_lua::icmp(engine& an, const context_ptr f, unsigned int type,
     get_global("config");
     get_field(-1, "icmp");
     
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     push(type);
@@ -200,9 +206,9 @@ void cybermon_lua::icmp(engine& an, const context_ptr f, unsigned int type,
     // Put data on stack.
     push(s, e);
     
-    // config.icmp(context, data)
+    // config.icmp(time, context, type, code, data)
     try {
-	call(4, 0);
+	call(5, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -222,6 +228,7 @@ void cybermon_lua::imap(engine& an, const context_ptr f,
     get_field(-1, "imap");
 
     // Put context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -229,7 +236,7 @@ void cybermon_lua::imap(engine& an, const context_ptr f,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -249,7 +256,8 @@ void cybermon_lua::imap_ssl(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "imap_ssl");
 
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -257,7 +265,7 @@ void cybermon_lua::imap_ssl(engine& an, const context_ptr f,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -278,6 +286,7 @@ void cybermon_lua::pop3(engine& an, const context_ptr f,
     get_field(-1, "pop3");
 
     // Put context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -285,7 +294,7 @@ void cybermon_lua::pop3(engine& an, const context_ptr f,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -307,6 +316,7 @@ void cybermon_lua::pop3_ssl(engine& an, const context_ptr f,
     get_field(-1, "pop3_ssl");
 
     // Put context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -314,7 +324,7 @@ void cybermon_lua::pop3_ssl(engine& an, const context_ptr f,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -335,7 +345,8 @@ void cybermon_lua::rtp(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "rtp");
 
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -343,7 +354,7 @@ void cybermon_lua::rtp(engine& an, const context_ptr f,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -363,7 +374,8 @@ void cybermon_lua::rtp_ssl(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "rtp_ssl");
 
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -371,7 +383,7 @@ void cybermon_lua::rtp_ssl(engine& an, const context_ptr f,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -396,7 +408,8 @@ void cybermon_lua::sip_request(engine& an,
     get_global("config");
     get_field(-1, "sip_request");
 
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     // Push 'method'
@@ -413,7 +426,7 @@ void cybermon_lua::sip_request(engine& an,
 
     try
     {
-        call(5, 0);
+        call(6, 0);
     }
     catch (std::exception& e)
     {
@@ -440,7 +453,8 @@ void cybermon_lua::sip_response(engine& an,
     get_global("config");
     get_field(-1, "sip_response");
 
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     // Push 'code'
@@ -460,7 +474,7 @@ void cybermon_lua::sip_response(engine& an,
 
     try
     {
-        call(6, 0);
+        call(7, 0);
     }
     catch (std::exception& e)
     {
@@ -482,7 +496,8 @@ void cybermon_lua::sip_ssl(engine& an,
     get_global("config");
     get_field(-1, "sip_ssl");
 
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -490,7 +505,7 @@ void cybermon_lua::sip_ssl(engine& an,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -513,6 +528,7 @@ void cybermon_lua::smtp_auth(engine& an,
     get_field(-1, "smtp_auth");
 
     // Put context on the stack
+    push(time);
     push(f);
 
     // Put data on stack.
@@ -520,7 +536,7 @@ void cybermon_lua::smtp_auth(engine& an,
 
     try
     {
-        call(2, 0);
+        call(3, 0);
     }
     catch (std::exception& e)
     {
@@ -547,6 +563,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     get_field(-1, "http_request");
     
     // Put context on the stack
+    push(time);
     push(f);
 
     // Push method
@@ -575,7 +592,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
 
     // config.http_request(context, method, url, header, body)
     try {
-	call(5, 0);
+	call(6, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -601,6 +618,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     get_field(-1, "http_response");
     
     // Put context on the stack
+    push(time);
     push(f);
 
     // Push code
@@ -632,7 +650,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
 
     // config.http_response(context, code, status, header, url, body)
     try {
-	call(6, 0);
+	call(7, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -653,6 +671,7 @@ void cybermon_lua::smtp_command(engine& an, const context_ptr f,
     get_field(-1, "smtp_command");
     
     // Put context on the stack
+    push(time);
     push(f);
 
     // Push method
@@ -660,7 +679,7 @@ void cybermon_lua::smtp_command(engine& an, const context_ptr f,
 
     // config.smtp_command(context, command)
     try {
-	call(2, 0);
+	call(3, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -682,6 +701,7 @@ void cybermon_lua::smtp_response(engine& an, const context_ptr f,
     get_field(-1, "smtp_response");
     
     // Put context on the stack
+    push(time);
     push(f);
 
     // Push method
@@ -705,7 +725,7 @@ void cybermon_lua::smtp_response(engine& an, const context_ptr f,
 
     // config.smtp_response(context, status, texts)
     try {
-	call(3, 0);
+	call(4, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -728,6 +748,7 @@ void cybermon_lua::smtp_data(engine& an, const context_ptr f,
     get_field(-1, "smtp_data");
     
     // Put context on the stack
+    push(time);
     push(f);
 
     // Push from.
@@ -754,7 +775,7 @@ void cybermon_lua::smtp_data(engine& an, const context_ptr f,
 
     // config.smtp_data(context, from, to, data)
     try {
-	call(4, 0);
+	call(5, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -775,6 +796,7 @@ void cybermon_lua::ftp_command(engine& an, const context_ptr f,
     get_field(-1, "ftp_command");
     
     // Put context on the stack
+    push(time);
     push(f);
 
     // Push method
@@ -782,7 +804,7 @@ void cybermon_lua::ftp_command(engine& an, const context_ptr f,
 
     // config.ftp_command(context, command)
     try {
-	call(2, 0);
+	call(3, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -804,6 +826,7 @@ void cybermon_lua::ftp_response(engine& an, const context_ptr f,
     get_field(-1, "ftp_response");
     
     // Put context on the stack
+    push(time);
     push(f);
 
     // Push method
@@ -827,7 +850,7 @@ void cybermon_lua::ftp_response(engine& an, const context_ptr f,
 
     // config.ftp_response(context, status, texts)
     try {
-	call(3, 0);
+	call(4, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -898,7 +921,8 @@ void cybermon_lua::dns_message(engine& an,
     get_global("config");
     get_field(-1, "dns_message");
     
-    // Put context on the stack
+    // Put time, context on the stack
+    push(time);
     push(f);
 
     push(hdr);
@@ -909,7 +933,7 @@ void cybermon_lua::dns_message(engine& an,
 
     try
     {
-	    call(6, 0);
+	    call(7, 0);
     }
     catch (std::exception& e)
     {
@@ -929,14 +953,15 @@ void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "ntp_timestamp_message");
     
-    // Put context, hdr and timestamp info on the stack
+    // Put time, context, hdr and timestamp info on the stack
+    push(time);
     push(f);
     push(ts.m_hdr);
     push(ts);
    
     // config.ntp_timestamp_message(context, hdr, timestamp_info)
     try {
-	call(3, 0);
+	call(4, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -954,14 +979,15 @@ void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "ntp_control_message");
     
-    // Put context, hdr and control info on the stack
+    // Put time, context, hdr and control info on the stack
+    push(time);
     push(f);
     push(ctrl.m_hdr);
     push(ctrl);
    
     // config.ntp_control_message(context, hdr, control_info)
     try {
-	call(3, 0);
+	call(4, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -980,13 +1006,14 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
     get_field(-1, "ntp_private_message");
     
     // Put context, hdr and control info on the stack
+    push(time);
     push(f);
     push(priv.m_hdr);
     push(priv);
    
     // config.ntp_private_message(context, hdr)
     try {
-	call(3, 0);
+	call(4, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -1476,6 +1503,32 @@ void cybermon_lua::push(context_ptr cp)
 
     get_meta_table("cybermon.context");
     set_meta_table(-2);
+
+}
+
+void cybermon_lua::push(const timeval& time)
+{
+
+    char t[256];
+
+    // Convert time (seconds) to struct tm
+    struct tm* tmv = gmtime(&time.tv_sec);
+    if (tmv == 0) {
+	push("not-a-time");
+	return;
+    }
+
+    // Format time in seconds
+    if (strftime(t, 256, "%Y-%m-%dT%H:%M:%S", tmv) == 0) {
+	push("not-a-time");
+	return;
+    }
+
+    // Add milliseconds.
+    sprintf(t + strlen(t), ".%03dZ", time.tv_usec / 1000);
+
+    // Push time string to stack.
+    push(t);
 
 }
 

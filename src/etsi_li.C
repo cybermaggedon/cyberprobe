@@ -701,8 +701,6 @@ void connection::run()
 		ber::berpdu& time_p = hdr_p.get_element(5);
 		std::string tm;
 		time_p.decode_string(tm);
-
-		std::cerr << tm << std::endl;
 		    
 		int Y, M, D, h, m, s, ms=0;
 		unsigned char gmt = 0;
@@ -716,11 +714,6 @@ void connection::run()
 		    throw std::runtime_error("Couldn't parse time");
 
 		// FIXME: Describe ignored cases.
-
-		std::cerr << ret << std::endl;
-		std::cerr << Y << " " << M << " " << D << " "
-			  << h << " " << m << " " << s << "." << ms
-			  << " " << (int) gmt << std::endl;
 
 		struct tm t;
 		t.tm_year = Y - 1900; // Year since 1900
