@@ -685,10 +685,6 @@ void connection::run()
 	    // Packet timestamp
 	    struct timeval tv;
 
-	    // Time value defaults to 'now' if there's no timestamp in the
-	    // data.
-	    gettimeofday(&tv, 0);
-
 	    try {
 
 		// Get time as string.
@@ -709,11 +705,16 @@ void connection::run()
 		int ret = sscanf(tm.c_str(), "%04d%02d%02d%02d%02d%02d.%03d%c",
 				 &Y, &M, &D, &h, &m, &s, &ms, &gmt);
 
+		// Need at least 6 values to make a timestring.  If
+		// we don't get them, bail.
+		// This jumps to the catch below...
 		if (ret < 6)
-		    // This jumps to the catch below...
 		    throw std::runtime_error("Couldn't parse time");
 
-		// FIXME: Describe ignored cases.
+		// Got enough information to construct a timestring.
+
+		// Note that we assume GMT / UCT / Zulu time.  There is a
+		// local-time case in GeneralizedTime.
 
 		struct tm t;
 		t.tm_year = Y - 1900; // Year since 1900
@@ -726,7 +727,11 @@ void connection::run()
 		tv.tv_sec = timegm(&t);
 		tv.tv_usec = ms * 1000;  // Turn milliseconds into seconds.
 		
-	    } catch (...) {}
+	    } catch (...) {
+		// Time value defaults to 'now' if there's no timestamp in the
+		// data.
+		gettimeofday(&tv, 0);
+	    }
 
 	    std::list<ber::berpdu> payload_pdus;
 	    pay_p.decode_construct(payload_pdus);
