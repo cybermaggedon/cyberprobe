@@ -43,7 +43,6 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     afns["forge_tcp_reset"] = &context_forge_tcp_reset;
     afns["forge_tcp_data"] = &context_forge_tcp_data;
     afns["get_creation_time"] = &context_get_creation_time;
-    afns["get_event_time"] = &context_get_event_time;
 
     register_table(afns);
 
@@ -148,7 +147,7 @@ void cybermon_lua::connection_up(engine& an, context_ptr f, const timeval& time)
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -186,7 +185,7 @@ void cybermon_lua::connection_down(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -226,7 +225,7 @@ void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -273,7 +272,7 @@ void cybermon_lua::unrecognised_datagram(engine& an,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -314,7 +313,7 @@ void cybermon_lua::icmp(engine& an, const context_ptr f, unsigned int type,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -361,7 +360,7 @@ void cybermon_lua::imap(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -402,7 +401,7 @@ void cybermon_lua::imap_ssl(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -442,7 +441,7 @@ void cybermon_lua::pop3(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -484,7 +483,7 @@ void cybermon_lua::pop3_ssl(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -525,7 +524,7 @@ void cybermon_lua::rtp(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -565,7 +564,7 @@ void cybermon_lua::rtp_ssl(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -610,7 +609,7 @@ void cybermon_lua::sip_request(engine& an,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -672,7 +671,7 @@ void cybermon_lua::sip_response(engine& an,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -735,7 +734,7 @@ void cybermon_lua::sip_ssl(engine& an,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -777,7 +776,7 @@ void cybermon_lua::smtp_auth(engine& an,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -823,7 +822,7 @@ void cybermon_lua::http_request(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -895,7 +894,7 @@ void cybermon_lua::http_response(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -968,7 +967,7 @@ void cybermon_lua::smtp_command(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1009,7 +1008,7 @@ void cybermon_lua::smtp_response(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1069,7 +1068,7 @@ void cybermon_lua::smtp_data(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1132,7 +1131,7 @@ void cybermon_lua::ftp_command(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1173,7 +1172,7 @@ void cybermon_lua::ftp_response(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1236,7 +1235,7 @@ void cybermon_lua::dns_message(engine& an,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1292,7 +1291,7 @@ void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1334,7 +1333,7 @@ void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -1375,7 +1374,7 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
     push(time);
     set_table(-3);
 
-    // Set table device.
+    // Set table context.
     push("context");
     push(f);
     set_table(-3);
@@ -2076,25 +2075,6 @@ int cybermon_lua::context_get_creation_time(lua_State* lua)
     struct timeval* creation = &(cd->ctxt->creation);
 
     double d = creation->tv_sec + (creation->tv_usec / 1000000.0);
-
-    cd->cml->pop(1);
-    cd->cml->push(d);
-
-    return 1;
-
-}
-
-int cybermon_lua::context_get_event_time(lua_State* lua)
-{
-
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
-    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
-    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
-
-    struct timeval event;
-    gettimeofday(&event, 0);
-
-    double d = event.tv_sec + (event.tv_usec / 1000000.0);
 
     cd->cml->pop(1);
     cd->cml->push(d);

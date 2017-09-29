@@ -387,7 +387,6 @@ namespace cybermon {
 	static int context_get_dest_addr(lua_State*);
 
 	static int context_get_creation_time(lua_State*);
-	static int context_get_event_time(lua_State*);
 
 	static int context_gc(lua_State*);
 
