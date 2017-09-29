@@ -16,7 +16,7 @@ local observer = {}
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
 observer.trigger_up = function(e)
-  io.write(string.format("%s: Target %s detected at address %s\n\n", e.time, e.liid, e.addr))
+  io.write(string.format("%s: Target %s detected at address %s\n\n", e.time, e.device, e.address))
   io.flush()
 end
 
