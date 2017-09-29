@@ -2887,7 +2887,7 @@ end
 -- e.from = SIP originator address
 -- e.to = SIP destination address
 -- e.data = SIP payload
-observer.sip_request = function(context, method, from, to, data)
+observer.sip_request = function(e)
 end
 
 -- This function is called when a SIP response message is observed.
@@ -2897,7 +2897,7 @@ end
 -- e.from = SIP originator address
 -- e.to = SIP destination address
 -- e.data = SIP payload
-observer.sip_response = function(context, code, status, from, to, data)
+observer.sip_response = function(e)
 end
 
 -- This function is called when a SIP SSL message is observed.
@@ -2923,7 +2923,7 @@ end
 -- e.context = protocol context
 -- e.from = SMTP originator addresses, a string
 -- e.to = SMTP recipients, an array of strings
-observer.smtp_data = function(context, from, to, data)
+observer.smtp_data = function(e)
 end
 
 -- This function is called when a DNS message is observed.
@@ -2946,7 +2946,7 @@ end
 -- e.context = protocol context
 -- e.status = FTP response status
 -- e.text = response text, an array of lines
-observer.ftp_response = function(context, status, text)
+observer.ftp_response = function(e)
 end
 
 -- This function is called when an NTP timestamp message is observed.
@@ -2969,7 +2969,6 @@ end
 -- e.private = NTP private info
 observer.ntp_private_message = function(e)
 end
-
 
 -- Return the table
 return observer
@@ -3379,7 +3378,7 @@ the payload.
 
 @end table
 
-@item imap(data)
+@item imap(e)
 Called when an IMAP message is detected - this is currently a port number
 detection.
 A single parameter is passed, a table containing the following values:
@@ -3399,7 +3398,7 @@ the payload.
 
 @end table
 
-@item imap_ssl(data)
+@item imap_ssl(e)
 Called when an IMAP SSL message is detected. This is currently a port number
 detection.
 A single parameter is passed, a table containing the following values:
@@ -3419,7 +3418,7 @@ the payload.
 
 @end table
 
-@item pop3(data)
+@item pop3(e)
 Called when a POP3 message is detected.  This is currently
 a port number detection.
 A single parameter is passed, a table containing the following values:
@@ -3439,7 +3438,7 @@ the payload.
 
 @end table
 
-@item pop3_ssl(data)
+@item pop3_ssl(e)
 Called when a POP3 SSL message is detected. This is currently a port number
 detection.
 A single parameter is passed, a table containing the following values:
