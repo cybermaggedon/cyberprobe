@@ -33,7 +33,7 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 	strftime(tms, 128, "%Y%m%d%H%M%S", ts);
 
 	// Append milliseconds and Z for GMT.
-	sprintf(tms + strlen(tms), ".%03dZ", now.tv_usec / 1000);
+	sprintf(tms + strlen(tms), ".%03dZ", int(now.tv_usec / 1000));
 
     }
 

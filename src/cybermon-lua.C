@@ -1901,7 +1901,7 @@ void cybermon_lua::push(const timeval& time)
     }
 
     // Add milliseconds.
-    sprintf(t + strlen(t), ".%03dZ", (int)(time.tv_usec / 1000));
+    sprintf(t + strlen(t), ".%03dZ", int(time.tv_usec / 1000));
 
     // Push time string to stack.
     push(t);
