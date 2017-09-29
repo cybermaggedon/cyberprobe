@@ -22,13 +22,13 @@ local seen = {}
 
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
-observer.trigger_up = function(liid, addr)
-  io.write(string.format("Target %s detected at address %s\n\n", liid, addr))
+observer.trigger_up = function(e)
+  io.write(string.format("Target %s detected at address %s\n\n", e.liid, e.addr))
 end
 
 -- This function is called when an attacker goes off the air
-observer.trigger_down = function(liid)
-  io.write(string.format("Target %s gone off air\n\n", liid))
+observer.trigger_down = function(e)
+  io.write(string.format("Target %s gone off air\n\n", e.liid))
 end
 
 -- Used to recurse up the protocol stack and get protocol addresses as a
@@ -96,136 +96,136 @@ end
 
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
-observer.connection_up = function(context)
-  --observer.describe(context, "Connected")
+observer.connection_up = function(e)
+  --observer.describe(e.context, "Connected")
   --io.write("\n")
 end
 
 -- This function is called when a stream-orientated connection is closed
-observer.connection_down = function(context)
-  --observer.describe(context, "Disconnected")
+observer.connection_down = function(e)
+  --observer.describe(e.context, "Disconnected")
   --io.write("\n")
 end
 
 -- This function is called when a datagram is observed, but the protocol
 -- is not recognised.
-observer.unrecognised_datagram = function(context, data)
-  local a = string.format("Datagram (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
+observer.unrecognised_datagram = function(e)
+  local a = string.format("Datagram (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
   fd:write(data)
   fd:close()
 end
 
 -- This function is called when stream data  is observed, but the protocol
 -- is not recognised.
-observer.unrecognised_stream = function(context, data)
-  local a = string.format("Stream data (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.unrecognised_stream = function(e)
+  local a = string.format("Stream data (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, icmp_type, icmp_code, data)
-  local a = string.format("ICMP (type %d, code %d)", icmp_type, icmp_code)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.icmp = function(e)
+  local a = string.format("ICMP (type %d, code %d)", e.type, e.code)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when an IMAP message is observed.
-observer.imap = function(context, data)
-  local a = string.format("IMAP (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.imap = function(e)
+  local a = string.format("IMAP (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when an IMAP SSL message is observed.
-observer.imap_ssl = function(context, data)
-  local a = string.format("IMAP SSL (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.imap_ssl = function(e)
+  local a = string.format("IMAP SSL (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when a POP3 message is observed.
-observer.pop3 = function(context, data)
-  local a = string.format("POP3 (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.pop3 = function(e)
+  local a = string.format("POP3 (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when a POP3 SSL message is observed.
-observer.pop3_ssl = function(context, data)
-  local a = string.format("POP3 SSL (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.pop3_ssl = function(e)
+  local a = string.format("POP3 SSL (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when a RTP message is observed.
-observer.rtp = function(context, data)
-  local a = string.format("RTP (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.rtp = function(e)
+  local a = string.format("RTP (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when a RTP SSL message is observed.
-observer.rtp_ssl = function(context, data)
-  local a = string.format("RTP SSL (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.rtp_ssl = function(e)
+  local a = string.format("RTP SSL (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 
 -- This function is called when a SIP request message is observed.
-observer.sip_request = function(context, method, from, to, data)
+observer.sip_request = function(e)
   local a = string.format("SIP %s request", method)
-  local fd = observer.get_fd(context, a)
+  local fd = observer.get_fd(e.context, a)
 
   fd:write(string.format("From: %s\n", from))
   fd:write(string.format("To: %s\n", to))
 
-  fd:write(data)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when a SIP response message is observed.
-observer.sip_response = function(context, code, status, from, to, data)
+observer.sip_response = function(e)
   local a = string.format("SIP response %s %s", code, status)
-  local fd = observer.get_fd(context, a)
+  local fd = observer.get_fd(e.context, a)
 
   fd:write(string.format("From: %s\n", from))
   fd:write(string.format("To: %s\n", to))
 
-  fd:write(data)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when a SIP SSL message is observed.
-observer.sip_ssl = function(context, data)
-  local a = string.format("SIP SSL (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.sip_ssl = function(e)
+  local a = string.format("SIP SSL (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when an SMTP Authentication message is observed.
-observer.smtp_auth = function(context, data)
-  local a = string.format("SMTP Authentication (size is %d)", #data)
-  local fd = observer.get_fd(context, a)
-  fd:write(data)
+observer.smtp_auth = function(e)
+  local a = string.format("SMTP Authentication (size is %d)", #e.data)
+  local fd = observer.get_fd(e.context, a)
+  fd:write(e.data)
   fd:close()
 end
 
 -- This function is called when an HTTP request is observed.
-observer.http_request = function(context, method, url, header, body)
+observer.http_request = function(e)
   local a = string.format("HTTP %s request", method)
-  local fd = observer.get_fd(context, a)
+  local fd = observer.get_fd(e.context, a)
 
   fd:write(string.format("URL %s\n", url))
 
@@ -240,9 +240,9 @@ observer.http_request = function(context, method, url, header, body)
 end
 
 -- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url, body)
+observer.http_response = function(e)
   local a = string.format("HTTP response %s %s", code, status)
-  local fd = observer.get_fd(context, a)
+  local fd = observer.get_fd(e.context, a)
 
   fd:write(string.format("URL %s\n", url))
 
@@ -257,10 +257,10 @@ observer.http_response = function(context, code, status, header, url, body)
 end
 
 -- This function is called when an SMTP command is observed.
-observer.smtp_command = function(context, command)
+observer.smtp_command = function(e)
 
   local a = string.format("SMTP command %s", command)
-  local fd = observer.get_fd(context, a)
+  local fd = observer.get_fd(e.context, a)
 
   io.write(string.format("Command: %s\n", command))
   io.close()
@@ -268,10 +268,10 @@ observer.smtp_command = function(context, command)
 end
 
 -- This function is called when an SMTP response is observed.
-observer.smtp_response = function(context, status, text)
+observer.smtp_response = function(e)
 
   local a = string.format("SMTP response %d", status)
-  local fd = observer.get_fd(context, a)
+  local fd = observer.get_fd(e.context, a)
 
   for k, v in pairs(text) do
     fd:write(string.format("Response: %s\n", v))
@@ -281,22 +281,22 @@ observer.smtp_response = function(context, status, text)
 end
 
 -- This function is called when an SMTP DATA body is observed.
-observer.smtp_data = function(context, from, to, data)
+observer.smtp_data = function(e)
 
   local a = string.format("SMTP data")
-  local fd = observer.get_fd(context, a)
+  local fd = observer.get_fd(e.context, a)
 
   fd:write(string.format("From: %s\n", from))
   for key, value in pairs(to) do
     fd:write(string.format("To: %s\n", value))
   end
-  fd:write(data)
+  fd:write(e.dataa)
   fd:write("\n")
   fd:close()
 end
 
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(e)
 
   local action
 
@@ -306,7 +306,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
     action = "DNS response"
   end
 
-  local fd = observer.get_fd(context, action)
+  local fd = observer.get_fd(e.context, action)
 
   for key, value in pairs(queries) do
     fd:write(string.format("Query: %s\n", value.name))
@@ -328,10 +328,10 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
 end
 
 -- This function is called when an FTP command is observed.
-observer.ftp_command = function(context, command)
+observer.ftp_command = function(e)
 
   local a = string.format("FTP command %s", command)
-  local fd = observer.get_fd(context, action)
+  local fd = observer.get_fd(e.context, action)
 
   fd:write(string.format("Command: %s", command))
   fd:close()
@@ -339,10 +339,10 @@ observer.ftp_command = function(context, command)
 end
 
 -- This function is called when an FTP response is observed.
-observer.ftp_response = function(context, status, text)
+observer.ftp_response = function(e)
 
   local a = string.format("FTP response %d", status)
-  local fd = observer.get_fd(context, action)
+  local fd = observer.get_fd(e.context, action)
 
   for k, v in pairs(text) do
     fd:write(string.format("Response: %s\n", v))
@@ -351,15 +351,15 @@ observer.ftp_response = function(context, status, text)
 end
 
 -- This function is called when an NTP timestamp message is observed.
-observer.ntp_timestamp_message = function(context, hdr, info)
+observer.ntp_timestamp_message = function(e)
 end
 
 -- This function is called when an NTP control message is observed.
-observer.ntp_control_message = function(context, hdr, info)
+observer.ntp_control_message = function(e)
 end
 
 -- This function is called when an NTP private message is observed.
-observer.ntp_private_message = function(context, hdr, info)
+observer.ntp_private_message = function(e)
 end
 
 -- Return the table

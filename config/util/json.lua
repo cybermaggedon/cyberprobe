@@ -81,17 +81,17 @@ local function get_stack(context, addrs, is_src)
 end
 
 -- Initialise a basic observation
-local initialise_observation = function(context, indicators)
+local initialise_observation = function(e, indicators)
 
   local obs = {}
-  obs["device"] = context:get_liid()
+  obs["device"] = e.context:get_liid()
 
   local addrs = {}
-  get_stack(context, addrs, true)
+  get_stack(e.context, addrs, true)
   obs["src"] = addrs
 
   addrs = {}
-  get_stack(context, addrs, false)
+  get_stack(e.context, addrs, false)
   obs["dest"] = addrs
 
   if indicators and not(#indicators == 0) then
@@ -108,13 +108,7 @@ local initialise_observation = function(context, indicators)
     end
   end
 
-  local tm = context:get_event_time()
-  local tmstr = os.date("!%Y-%m-%dT%H:%M:%S", math.floor(tm))
-  local millis = 1000 * (tm - math.floor(tm))
-
-  tmstr = tmstr .. "." .. string.format("%03dZ", math.floor(millis))
-
-  obs["time"] = tmstr
+  obs["time"] = e.time
   obs["id"] = uuid()
 
   return obs
@@ -125,90 +119,90 @@ module.initialise_observation = initialise_observation
 
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
-module.trigger_up = function(liid, addr)
+module.trigger_up = function(e)
 end
 
 -- This function is called when an attacker goes off the air
-module.trigger_down = function(liid)
+module.trigger_down = function(e)
 end
 
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
-module.connection_up = function(context)
-  local obs = initialise_observation(context)
+module.connection_up = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "connected_up"
   submit(obs)
 end
 
 -- This function is called when a stream-orientated connection is closed
-module.connection_down = function(context)
-  local obs = initialise_observation(context)
+module.connection_down = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "connected_down"
   submit(obs)
 end
 
 -- This function is called when a datagram is observed, but the protocol
 -- is not recognised.
-module.unrecognised_datagram = function(context, data)
-  local obs = initialise_observation(context)
+module.unrecognised_datagram = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "unrecognised_datagram"
   obs["unrecognised_datagram"] = {}
-  obs["unrecognised_datagram"]["payload"] = b64(data)
+  obs["unrecognised_datagram"]["payload"] = b64(e.data)
   submit(obs)
 end
 
 -- This function is called when stream data  is observed, but the protocol
 -- is not recognised.
-module.unrecognised_stream = function(context, data)
-  local obs = initialise_observation(context)
+module.unrecognised_stream = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "unrecognised_stream"
   obs["unrecognised_stream"] = {}
-  obs["unrecognised_stream"]["payload"] = b64(data)
+  obs["unrecognised_stream"]["payload"] = b64(e.data)
   submit(obs)
 end
 
 -- This function is called when an ICMP message is observed.
-module.icmp = function(context, icmp_type, icmp_code, data)
-  local obs = initialise_observation(context)
+module.icmp = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "icmp"
-  obs["icmp"] = { type=icmp_type, code=icmp_code, payload=b64(data) }
+  obs["icmp"] = { type=e.type, code=e.code, payload=b64(e.data) }
   submit(obs)
 end
 
 -- This function is called when an HTTP request is observed.
-module.http_request = function(context, method, url, header, body)
-  local obs = initialise_observation(context)
+module.http_request = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "http_request"
-  obs["url"] = url
-  obs["http_request"] = { method=method, header=header }
-  if not(body == "") then
-    obs["http_request"]["body"] = b64(body)
+  obs["url"] = e.url
+  obs["http_request"] = { method=e.method, header=e.header }
+  if not(e.body == "") then
+    obs["http_request"]["body"] = b64(e.body)
   end
   submit(obs)
 end
 
 -- This function is called when an HTTP response is observed.
-module.http_response = function(context, code, status, header, url, body)
-  local obs = initialise_observation(context)
+module.http_response = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "http_response"
-  obs["url"] = url
+  obs["url"] = e.url
   obs["http_response"] = {}
-  obs["http_response"]["code"] = code
-  obs["http_response"]["status"] = status
-  obs["http_response"]["header"] = header
-  obs["http_response"]["body"] = b64(body)
+  obs["http_response"]["code"] = e.code
+  obs["http_response"]["status"] = e.status
+  obs["http_response"]["header"] = e.header
+  obs["http_response"]["body"] = b64(e.body)
   submit(obs)
 end
 
 -- This function is called when a DNS message is observed.
-module.dns_message = function(context, header, queries, answers, auth, add)
+module.dns_message = function(e)
 
-  local obs = initialise_observation(context)
+  local obs = initialise_observation(e)
 
   obs["action"] = "dns_message"
   obs["dns_message"] = {}
 
-  if header.qr == 0 then
+  if e.header.qr == 0 then
     obs["dns_message"]["type"] = "query"
   else
     obs["dns_message"]["type"] = "response"
@@ -216,7 +210,7 @@ module.dns_message = function(context, header, queries, answers, auth, add)
 
   local q = {}
   json.util.InitArray(q)
-  for key, value in pairs(queries) do
+  for key, value in pairs(e.queries) do
     local a = {}
     a["name"] = value.name
     if dns.type_name[value.type] == nil then
@@ -231,7 +225,7 @@ module.dns_message = function(context, header, queries, answers, auth, add)
 
   q = {}
   json.util.InitArray(q)
-  for key, value in pairs(answers) do
+  for key, value in pairs(e.answers) do
     local a = {}
     a["name"] = value.name
     if dns.type_name[value.type] == nil then
@@ -255,123 +249,123 @@ module.dns_message = function(context, header, queries, answers, auth, add)
 end
 
 -- This function is called when an FTP command is observed.
-module.ftp_command = function(context, command)
-  local obs = initialise_observation(context)
+module.ftp_command = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "ftp_command"
-  obs["ftp_command"] = { command=command }
+  obs["ftp_command"] = { command=e.command }
   submit(obs)
 end
 
 -- This function is called when an FTP response is observed.
-module.ftp_response = function(context, status, text)
-  local obs = initialise_observation(context)
+module.ftp_response = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "ftp_response"
-  obs["ftp_response"] = { status=status, text=text }
+  obs["ftp_response"] = { status=e.status, text=e.text }
   submit(obs)
 end
 
 -- This function is called when a SIP request message is observed.
-module.sip_request = function(context, method, from, to, data)
-  local obs = initialise_observation(context)
+module.sip_request = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "sip_request"
-  obs["sip_request"] = { method=method, from=from, to=to, body=data,
-  	payload=b64(data) }
+  obs["sip_request"] = { method=e.method, from=e.from, to=e.to, body=e.data,
+  	payload=b64(e.data) }
 end
 
 -- This function is called when a SIP response message is observed.
-module.sip_response = function(context, code, status, from, to, data)
-  local obs = initialise_observation(context)
+module.sip_response = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "sip_response"
-  obs["sip_response"] = { code=code, status=status, from=from, to=to,
-  	payload=b64(data) }
+  obs["sip_response"] = { code=e.code, status=e.status, from=e.from, to=e.to,
+  	payload=b64(e.data) }
   submit(obs)
 end
 
 -- This function is called when a SIP SSL message is observed.
-module.sip_ssl = function(context, data)
-  local obs = initialise_observation(context)
+module.sip_ssl = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "sip_ssl"
-  obs["sip_ssl"] = { payload=b64(data) }
+  obs["sip_ssl"] = { payload=b64(e.data) }
   submit(obs)
 end
 
 -- This function is called when an IMAP message is observed.
-module.imap = function(context, data)
-  local obs = initialise_observation(context)
+module.imap = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "imap"
-  obs["imap"] = { payload=b64(data) }
+  obs["imap"] = { payload=b64(e.data) }
   submit(obs)
 end
 
 -- This function is called when an IMAP SSL message is observed.
-module.imap_ssl = function(context, data)
-  local obs = initialise_observation(context)
+module.imap_ssl = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "imap_ssl"
-  obs["imap_ssl"] = { payload=b64(data) }
+  obs["imap_ssl"] = { payload=b64(e.data) }
   submit(obs)
 end
 
 -- This function is called when a POP3 message is observed.
-module.pop3 = function(context, data)
-  local obs = initialise_observation(context)
+module.pop3 = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "pop3"
-  obs["pop3"] = { payload=b64(data) }
+  obs["pop3"] = { payload=b64(e.data) }
   submit(obs)
 end
 
 -- This function is called when a POP3 SSL message is observed.
-module.pop3_ssl = function(context, data)
-  local obs = initialise_observation(context)
+module.pop3_ssl = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "pop3_ssl"
-  obs["pop3_ssl"] = { payload=b64(data) }
+  obs["pop3_ssl"] = { payload=b64(e.data) }
   submit(obs)
 end
 
 -- This function is called when an SMTP command is observed.
-module.smtp_command = function(context, command)
-  local obs = initialise_observation(context)
+module.smtp_command = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "smtp_command"
-  obs["smtp_command"] = { command=command }
+  obs["smtp_command"] = { command=e.command }
   submit(obs)
 end
 
 -- This function is called when an SMTP response is observed.
-module.smtp_response = function(context, status, text)
-  local obs = initialise_observation(context)
+module.smtp_response = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "smtp_response"
-  obs["smtp_response"] = { status=status, text=text }
+  obs["smtp_response"] = { status=e.status, text=e.text }
   submit(obs)
 end
 
 -- This function is called when an SMTP response is observed.
-module.smtp_data = function(context, from, to, data)
-  local obs = initialise_observation(context)
+module.smtp_data = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "smtp_data"
-  obs["smtp_data"] = { from=from, to=to, body=data }
+  obs["smtp_data"] = { from=e.from, to=e.to, body=e.data }
   submit(obs)
 end
 
 -- This function is called when a NTP timestamp message is observed.
-module.ntp_timestamp_message = function(context, hdr, info)
-  local obs = initialise_observation(context)
+module.ntp_timestamp_message = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "ntp_timestamp"
-  obs["ntp_timestamp"] = { version=hdr.version, mode=hdr.mode }
+  obs["ntp_timestamp"] = { version=e.header.version, mode=e.header.mode }
   submit(obs)
 end
 
 -- This function is called when a NTP control message is observed.
-module.ntp_control_message = function(context, hdr, info)
-  local obs = initialise_observation(context)
+module.ntp_control_message = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "ntp_control"
-  obs["ntp_control"] = { version=hdr.version, mode=hdr.mode }
+  obs["ntp_control"] = { version=e.header.version, mode=e.header.mode }
   submit(obs)
 end
 
 -- This function is called when an NTP private message is observed.
-module.ntp_private_message = function(context, hdr, info)
-  local obs = initialise_observation(context)
+module.ntp_private_message = function(e)
+  local obs = initialise_observation(e)
   obs["action"] = "ntp_private"
-  obs["ntp_private"] = { version=hdr.version, mode=hdr.mode }
+  obs["ntp_private"] = { version=e.header.version, mode=e.header.mode }
   submit(obs)
 end
 

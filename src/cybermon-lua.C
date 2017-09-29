@@ -6,861 +6,6 @@
 
 using namespace cybermon;
 
-// Call the config.trigger_up function as trigger_up(time, liid, addr)
-void cybermon_lua::trigger_up(const std::string& liid, const std::string& a,
-			      const timeval& time)
-{
- 
-    // Get information stored about the attacker.
-    /*std::string ta;
-    a.to_string(ta);*/
-    // Get config.trigger_up
-    get_global("config");
-    get_field(-1, "trigger_up");
-
-    // Put time, liid, address on stack
-    push(time);
-    push(liid);
-    push(a);
-	
-    // config.trigger_up(time, liid, addr)
-    try {
-	call(3, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-// Call the config.trigger_down function as trigger_down(liid, addr)
-void cybermon_lua::trigger_down(const std::string& liid,
-				const timeval& time)
-{
-
-    // Get config.trigger_down
-    get_global("config");
-    get_field(-1, "trigger_down");
-    
-    // Put time, liid on stack
-    push(time);
-    push(liid);
-	
-    // config.trigger_down(time, liid)
-    try {
-	call(2, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-// Calls the config.data function as data(context, data).
-// The 'context' variable passed to LUA is a userdata pointer,
-// allowing calling back into the C++ code.
-void cybermon_lua::connection_up(engine& an, context_ptr f, const timeval& time)
-{
-
-    // Get config.connection_up
-    get_global("config");
-    get_field(-1, "connection_up");
-    
-    // Put time, context on the stack
-    push(time);
-    push(f);
-    
-    // config.connection_up(time, context)
-    try {
-	call(2, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-// Calls the config.data function as data(context, data).
-// The 'context' variable passed to LUA is a light userdata pointer,
-// allowing calling back into the C++ code.  The value is only valid
-// in LUA space for the duration of this call.
-void cybermon_lua::connection_down(engine& an, const context_ptr f,
-				   const timeval& time)
-{
-    
-    // Get config.connection_down
-    get_global("config");
-    get_field(-1, "connection_down");
-    
-    // Put time, context on the stack
-    push(time);
-    push(f);
-    
-    // config.connection_down(time, context)
-    try {
-	call(2, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-// Calls the config.data function as data(context, data).
-// The 'context' variable passed to LUA is a light userdata pointer,
-// allowing calling back into the C++ code.  The value is only valid
-// in LUA space for the duration of this call.
-void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f, 
-				       pdu_iter s, pdu_iter e,
-				       const timeval& time)
-{
-    
-    // Get config.unrecognised_stream
-    get_global("config");
-    get_field(-1, "unrecognised_stream");
-    
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-    
-    // config.unrecognised_stream(context, data)
-    try {
-	call(3, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-// Calls the config.data function as data(context, data).
-// The 'context' variable passed to LUA is a light userdata pointer,
-// allowing calling back into the C++ code.  The value is only valid
-// in LUA space for the duration of this call.
-void cybermon_lua::unrecognised_datagram(engine& an, 
-					 const context_ptr f, 
-					 pdu_iter s, 
-					 pdu_iter e,
-					 const timeval& time)
-{
-    
-    // Get config.unrecognised_datagram
-    get_global("config");
-    get_field(-1, "unrecognised_datagram");
-    
-    // Put time, context on stack.
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-    
-    // config.unrecognised_datagram(context, data)
-    try {
-	call(3, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-
-void cybermon_lua::icmp(engine& an, const context_ptr f, unsigned int type,
-			unsigned int code, pdu_iter s, pdu_iter e,
-			const timeval& time)
-{
-
-    // Get config.icmp
-    get_global("config");
-    get_field(-1, "icmp");
-    
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    push(type);
-    push(code);
-
-    // Put data on stack.
-    push(s, e);
-    
-    // config.icmp(time, context, type, code, data)
-    try {
-	call(5, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-
-void cybermon_lua::imap(engine& an, const context_ptr f,
-			pdu_iter s, pdu_iter e, const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "imap");
-
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-
-void cybermon_lua::imap_ssl(engine& an, const context_ptr f,
-                            pdu_iter s, pdu_iter e, const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "imap_ssl");
-
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-
-void cybermon_lua::pop3(engine& an, const context_ptr f,
-			pdu_iter s, pdu_iter e, const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "pop3");
-
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-
-void cybermon_lua::pop3_ssl(engine& an, const context_ptr f,
-                            pdu_iter s, pdu_iter e,
-			    const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "pop3_ssl");
-
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-
-void cybermon_lua::rtp(engine& an, const context_ptr f,
-		       pdu_iter s, pdu_iter e,
-		       const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "rtp");
-
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-void cybermon_lua::rtp_ssl(engine& an, const context_ptr f,
-			   pdu_iter s, pdu_iter e,
-			   const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "rtp_ssl");
-
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-void cybermon_lua::sip_request(engine& an,
-			       const context_ptr f,
-			       const std::string& method,
-			       const std::string& from,
-			       const std::string& to,
-			       pdu_iter s,
-			       pdu_iter e,
-			       const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "sip_request");
-
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    // Push 'method'
-    push(method);
-
-    // Push 'from'
-    push(from);
-
-    // Push 'to'
-    push(to);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(6, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-
-void cybermon_lua::sip_response(engine& an,
-                                const context_ptr f,
-                                unsigned int code,
-                                const std::string& status,
-                                const std::string& from,
-                                const std::string& to,
-                                pdu_iter s,
-                                pdu_iter e,
-				const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "sip_response");
-
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    // Push 'code'
-    push(code);
-
-    // Push 'status'
-    push(status);
-
-    // Push 'from'
-    push(from);
-
-    // Push 'to'
-    push(to);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(7, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-void cybermon_lua::sip_ssl(engine& an,
-                           const context_ptr f,
-                           pdu_iter s,
-                           pdu_iter e,
-			   const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "sip_ssl");
-
-    // Put time, context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-void cybermon_lua::smtp_auth(engine& an,
-                             const context_ptr f,
-                             pdu_iter s,
-                             pdu_iter e,
-			     const timeval& time)
-{
-    // Get config
-    get_global("config");
-    get_field(-1, "smtp_auth");
-
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Put data on stack.
-    push(s, e);
-
-    try
-    {
-        call(3, 0);
-    }
-    catch (std::exception& e)
-    {
-        pop();
-        throw;
-    }
-
-    // Still got 'config' left on stack, it can go.
-    pop();
-}
-
-
-void cybermon_lua::http_request(engine& an, const context_ptr f,
-				const std::string& method,
-				const std::string& url,
-				const http_header& hdr,
-				pdu_iter s,
-				pdu_iter e,
-				const timeval& time)
-{
-
-    // Get config.http_request
-    get_global("config");
-    get_field(-1, "http_request");
-    
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Push method
-    push(method);
-
-    // Push URL
-    push(url);
-
-    // Build header table on stack.
-    create_table(0, hdr.size());
-
-    // Loop through header
-    for(http_header::const_iterator it = hdr.begin();
-	it != hdr.end();
-	it++) {
-
-	// Set table row.
-	push(it->second.first);
-	push(it->second.second);
-	set_table(-3);
-
-    }
-
-    // Put data on stack.
-    push(s, e);
-
-    // config.http_request(context, method, url, header, body)
-    try {
-	call(6, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-void cybermon_lua::http_response(engine& an, const context_ptr f,
-				 unsigned int code,
-				 const std::string& status,
-				 const http_header& hdr,
-				 const std::string& url,
-				 pdu_iter s,
-				 pdu_iter e,
-				 const timeval& time)
-{
-
-    // Get config.http_response
-    get_global("config");
-    get_field(-1, "http_response");
-    
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Push code
-    push(code);
-
-    // Push status
-    push(status);
-
-    // Build header table on stack.
-    create_table(0, hdr.size());
-
-    // Loop through header
-    for(http_header::const_iterator it = hdr.begin();
-	it != hdr.end();
-	it++) {
-
-	// Set table row.
-	push(it->second.first);
-	push(it->second.second);
-	set_table(-3);
-
-    }
-
-    // Push fully normalised URL if known.
-    push(url);
-
-    // Put data on stack.
-    push(s, e);
-
-    // config.http_response(context, code, status, header, url, body)
-    try {
-	call(7, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-void cybermon_lua::smtp_command(engine& an, const context_ptr f,
-				const std::string& command,
-				const timeval& time)
-{
-
-    // Get config.smtp_command
-    get_global("config");
-    get_field(-1, "smtp_command");
-    
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Push method
-    push(command);
-
-    // config.smtp_command(context, command)
-    try {
-	call(3, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-void cybermon_lua::smtp_response(engine& an, const context_ptr f,
-				 int status,
-				 const std::list<std::string>& text,
-				 const timeval& time)
-{
-
-    // Get config.smtp_response
-    get_global("config");
-    get_field(-1, "smtp_response");
-    
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Push method
-    push(status);
-
-    // Build texts table on stack.
-    create_table(0, text.size());
-
-    // Loop through header
-    int row = 1;
-    for(std::list<std::string>::const_iterator it = text.begin();
-	it != text.end();
-	it++) {
-
-	// Set table row.
-	push(row++);
-	push(*it);
-	set_table(-3);
-
-    }
-
-    // config.smtp_response(context, status, texts)
-    try {
-	call(4, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-void cybermon_lua::smtp_data(engine& an, const context_ptr f,
-			     const std::string& from,
-			     const std::list<std::string>& to,
-			     pdu_iter s, pdu_iter e,
-			     const timeval& time)
-{
-
-    // Get config.http_request
-    get_global("config");
-    get_field(-1, "smtp_data");
-    
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Push from.
-    push(from);
-
-    // Build to table on stack.
-    create_table(0, to.size());
-
-    // Loop through 'to'
-    int row = 1;
-    for(std::list<std::string>::const_iterator it = to.begin();
-	it != to.end();
-	it++) {
-
-	// Set table row.
-	push(row++);
-	push(*it);
-	set_table(-3);
-
-    }
-
-    // Push data.
-    push(s, e);
-
-    // config.smtp_data(context, from, to, data)
-    try {
-	call(5, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-void cybermon_lua::ftp_command(engine& an, const context_ptr f,
-			       const std::string& command,
-			       const timeval& time)
-{
-
-    // Get config.http_request
-    get_global("config");
-    get_field(-1, "ftp_command");
-    
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Push method
-    push(command);
-
-    // config.ftp_command(context, command)
-    try {
-	call(3, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
-void cybermon_lua::ftp_response(engine& an, const context_ptr f,
-				int status,
-				const std::list<std::string>& text,
-				const timeval& time)
-{
-
-    // Get config.ftp_request
-    get_global("config");
-    get_field(-1, "ftp_response");
-    
-    // Put context on the stack
-    push(time);
-    push(f);
-
-    // Push method
-    push(status);
-
-    // Build texts table on stack.
-    create_table(0, text.size());
-
-    // Loop through header
-    int row = 1;
-    for(std::list<std::string>::const_iterator it = text.begin();
-	it != text.end();
-	it++) {
-
-	// Set table row.
-	push(row++);
-	push(*it);
-	set_table(-3);
-
-    }
-
-    // config.ftp_response(context, status, texts)
-    try {
-	call(4, 0);
-    } catch (std::exception& e) {
-	pop();
-	throw;
-    }
-    
-    // Still got 'config' left on stack, it can go.
-    pop();
-
-}
-
 cybermon_lua::cybermon_lua(const std::string& cfg)
 {
 
@@ -907,6 +52,1168 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
 
 }
 
+// Call the config.trigger_up function as trigger_up(event)
+void cybermon_lua::trigger_up(const std::string& liid, const std::string& a,
+			      const timeval& time)
+{
+ 
+    // Get information stored about the attacker.
+    /*std::string ta;
+    a.to_string(ta);*/
+    // Get config.trigger_up
+    get_global("config");
+    get_field(-1, "trigger_up");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("device");
+    push(liid);
+    set_table(-3);
+
+    // Set table address
+    push("address");
+    push(a);
+    set_table(-3);
+	
+    // config.trigger_up(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+// Call the config.trigger_down function as trigger_down(event)
+void cybermon_lua::trigger_down(const std::string& liid,
+				const timeval& time)
+{
+
+    // Get config.trigger_down
+    get_global("config");
+    get_field(-1, "trigger_down");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("device");
+    push(liid);
+    set_table(-3);
+	
+    // config.trigger_down(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+// Calls the config.connection_up function as connection_up(event)
+// The 'context' variable passed to LUA is a userdata pointer,
+// allowing calling back into the C++ code.
+void cybermon_lua::connection_up(engine& an, context_ptr f, const timeval& time)
+{
+
+    // Get config.connection_up
+    get_global("config");
+    get_field(-1, "connection_up");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // config.connection_up(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+// Calls the config.connection_down function as connection_down(context, data).
+// The 'context' variable passed to LUA is a light userdata pointer,
+// allowing calling back into the C++ code.  The value is only valid
+// in LUA space for the duration of this call.
+void cybermon_lua::connection_down(engine& an, const context_ptr f,
+				   const timeval& time)
+{
+    
+    // Get config.connection_down
+    get_global("config");
+    get_field(-1, "connection_down");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // config.connection_down(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+// Calls the config.unreognised_stream function as
+// unrecognised_stream(context, data).
+// The 'context' variable passed to LUA is a light userdata pointer,
+// allowing calling back into the C++ code.  The value is only valid
+// in LUA space for the duration of this call.
+void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f, 
+				       pdu_iter s, pdu_iter e,
+				       const timeval& time)
+{
+    
+    // Get config.unrecognised_stream
+    get_global("config");
+    get_field(-1, "unrecognised_stream");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+    
+    // config.unrecognised_stream(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+// Calls the config.unrecognised_datagram function as
+// unrecognised_datagram(context, data).
+// The 'context' variable passed to LUA is a light userdata pointer,
+// allowing calling back into the C++ code.  The value is only valid
+// in LUA space for the duration of this call.
+void cybermon_lua::unrecognised_datagram(engine& an, 
+					 const context_ptr f, 
+					 pdu_iter s, 
+					 pdu_iter e,
+					 const timeval& time)
+{
+    
+    // Get config.unrecognised_datagram
+    get_global("config");
+    get_field(-1, "unrecognised_datagram");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+    
+    // config.unrecognised_datagram(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+
+void cybermon_lua::icmp(engine& an, const context_ptr f, unsigned int type,
+			unsigned int code, pdu_iter s, pdu_iter e,
+			const timeval& time)
+{
+
+    // Get config.icmp
+    get_global("config");
+    get_field(-1, "icmp");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Set table type and code
+    push("type");
+    push(type);
+    set_table(-3);
+    push("code");
+    push(code);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+    
+    // config.icmp(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+
+void cybermon_lua::imap(engine& an, const context_ptr f,
+			pdu_iter s, pdu_iter e, const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "imap");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::imap_ssl(engine& an, const context_ptr f,
+                            pdu_iter s, pdu_iter e, const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "imap_ssl");
+
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::pop3(engine& an, const context_ptr f,
+			pdu_iter s, pdu_iter e, const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "pop3");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::pop3_ssl(engine& an, const context_ptr f,
+                            pdu_iter s, pdu_iter e,
+			    const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "pop3_ssl");
+
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+	call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::rtp(engine& an, const context_ptr f,
+		       pdu_iter s, pdu_iter e,
+		       const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "rtp");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::rtp_ssl(engine& an, const context_ptr f,
+			   pdu_iter s, pdu_iter e,
+			   const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "rtp_ssl");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::sip_request(engine& an,
+			       const context_ptr f,
+			       const std::string& method,
+			       const std::string& from,
+			       const std::string& to,
+			       pdu_iter s,
+			       pdu_iter e,
+			       const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "sip_request");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Push 'method'
+    push("method");
+    push(method);
+    set_table(-3);
+
+    // Push 'from'
+    push("from");
+    push(from);
+    set_table(-3);
+
+    // Push 'to'
+    push("to");
+    push(to);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::sip_response(engine& an,
+                                const context_ptr f,
+                                unsigned int code,
+                                const std::string& status,
+                                const std::string& from,
+                                const std::string& to,
+                                pdu_iter s,
+                                pdu_iter e,
+				const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "sip_response");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Push 'code'
+    push("code");
+    push(code);
+    set_table(-3);
+   
+
+    // Push 'status'
+    push("status");
+    push(status);
+    set_table(-3);
+
+    // Push 'from'
+    push("from");
+    push(from);
+    set_table(-3);
+
+    // Push 'to'
+    push("to");
+    push(to);
+    set_table(-3);
+
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::sip_ssl(engine& an,
+                           const context_ptr f,
+                           pdu_iter s,
+                           pdu_iter e,
+			   const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "sip_ssl");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::smtp_auth(engine& an,
+                             const context_ptr f,
+                             pdu_iter s,
+                             pdu_iter e,
+			     const timeval& time)
+{
+    // Get config
+    get_global("config");
+    get_field(-1, "smtp_auth");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Put data on stack.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    try
+    {
+        call(1, 0);
+    }
+    catch (std::exception& e)
+    {
+        pop();
+        throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+
+void cybermon_lua::http_request(engine& an, const context_ptr f,
+				const std::string& method,
+				const std::string& url,
+				const http_header& hdr,
+				pdu_iter s,
+				pdu_iter e,
+				const timeval& time)
+{
+
+    // Get config.http_request
+    get_global("config");
+    get_field(-1, "http_request");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // Push method
+    push("method");
+    push(method);
+    set_table(-3);
+
+    // Push URL
+    push("url");
+    push(url);
+    set_table(-3);
+
+    // Build header table on stack.
+    push("header");
+    create_table(0, hdr.size());
+
+    // Loop through header
+    for(http_header::const_iterator it = hdr.begin();
+	it != hdr.end();
+	it++) {
+
+	// Set table row.
+	push(it->second.first);
+	push(it->second.second);
+	set_table(-3);
+
+    }
+    set_table(-3);
+
+    // Put data on stack.
+    push("body");
+    push(s, e);
+    set_table(-3);
+
+    // config.http_request(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+void cybermon_lua::http_response(engine& an, const context_ptr f,
+				 unsigned int code,
+				 const std::string& status,
+				 const http_header& hdr,
+				 const std::string& url,
+				 pdu_iter s,
+				 pdu_iter e,
+				 const timeval& time)
+{
+
+    // Get config.http_response
+    get_global("config");
+    get_field(-1, "http_response");
+    
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+
+    // Push code
+    push("code");
+    push(code);
+    set_table(-3);
+
+    // Push status
+    push("status");
+    push(status);
+    set_table(-3);
+
+    // Build header table on stack.
+    push("header");
+    create_table(0, hdr.size());
+
+    // Loop through header
+    for(http_header::const_iterator it = hdr.begin();
+	it != hdr.end();
+	it++) {
+
+	// Set table row.
+	push(it->second.first);
+	push(it->second.second);
+	set_table(-3);
+
+    }
+    set_table(-3);
+
+    // Push fully normalised URL if known.
+    push("url");
+    push(url);
+    set_table(-3);
+
+    // Put data on stack.
+    push("body");
+    push(s, e);
+    set_table(-3);
+
+    // config.http_response(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+void cybermon_lua::smtp_command(engine& an, const context_ptr f,
+				const std::string& command,
+				const timeval& time)
+{
+
+    // Get config.smtp_command
+    get_global("config");
+    get_field(-1, "smtp_command");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Push method
+    push("command");
+    push(command);
+    set_table(-3);
+
+    // config.smtp_command(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+void cybermon_lua::smtp_response(engine& an, const context_ptr f,
+				 int status,
+				 const std::list<std::string>& text,
+				 const timeval& time)
+{
+
+    // Get config.smtp_response
+    get_global("config");
+    get_field(-1, "smtp_response");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Push method
+    push("status");
+    push(status);
+    set_table(-3);
+
+    // Build texts table on stack.
+    push("text");
+    create_table(0, text.size());
+
+    // Loop through header
+    int row = 1;
+    for(std::list<std::string>::const_iterator it = text.begin();
+	it != text.end();
+	it++) {
+
+	// Set table row.
+	push(row++);
+	push(*it);
+	set_table(-3);
+
+    }
+    set_table(-3);
+
+    // config.smtp_response(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+void cybermon_lua::smtp_data(engine& an, const context_ptr f,
+			     const std::string& from,
+			     const std::list<std::string>& to,
+			     pdu_iter s, pdu_iter e,
+			     const timeval& time)
+{
+
+    // Get config.http_request
+    get_global("config");
+    get_field(-1, "smtp_data");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Push from.
+    push("from");
+    push(from);
+    set_table(-3);
+
+    // Build to table on stack.
+    push("to");
+    create_table(0, to.size());
+
+    // Loop through 'to'
+    int row = 1;
+    for(std::list<std::string>::const_iterator it = to.begin();
+	it != to.end();
+	it++) {
+
+	// Set table row.
+	push(row++);
+	push(*it);
+	set_table(-3);
+
+    }
+    set_table(-3);
+
+    // Push data.
+    push("data");
+    push(s, e);
+    set_table(-3);
+
+    // config.smtp_data(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+void cybermon_lua::ftp_command(engine& an, const context_ptr f,
+			       const std::string& command,
+			       const timeval& time)
+{
+
+    // Get config.http_request
+    get_global("config");
+    get_field(-1, "ftp_command");
+    
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Push method
+    push("command");
+    push(command);
+    set_table(-3);
+
+    // config.ftp_command(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+void cybermon_lua::ftp_response(engine& an, const context_ptr f,
+				int status,
+				const std::list<std::string>& text,
+				const timeval& time)
+{
+
+    // Get config.ftp_request
+    get_global("config");
+    get_field(-1, "ftp_response");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+    
+    // Push method
+    push("status");
+    push(status);
+    set_table(-3);
+
+    // Build texts table on stack.
+    push("text");
+    create_table(0, text.size());
+
+    // Loop through header
+    int row = 1;
+    for(std::list<std::string>::const_iterator it = text.begin();
+	it != text.end();
+	it++) {
+
+	// Set table row.
+	push(row++);
+	push(*it);
+	set_table(-3);
+
+    }
+    set_table(-3);
+
+    // config.ftp_response(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
 void cybermon_lua::dns_message(engine& an,
 			       const context_ptr f,
 			       const dns_header& hdr, 
@@ -920,25 +1227,48 @@ void cybermon_lua::dns_message(engine& an,
     // Get config.dns_over_udp_message
     get_global("config");
     get_field(-1, "dns_message");
-    
-    // Put time, context on the stack
-    push(time);
-    push(f);
 
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    push("header");
     push(hdr);
+    set_table(-3);
+
+    push("queries");
     push(queries);
+    set_table(-3);
+
+    push("answers");
     push(answers);
+    set_table(-3);
+
+    push("authorities");
     push(authorities);
+    set_table(-3);
+
+    push("additional");
     push(additional);
+    set_table(-3);
 
     try
     {
-	    call(7, 0);
+	call(1, 0);
     }
     catch (std::exception& e)
     {
-	    pop();
-	    throw;
+	pop();
+	throw;
     }
     
     // Still got 'config' left on stack, it can go.
@@ -953,15 +1283,31 @@ void cybermon_lua::ntp_timestamp_message(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "ntp_timestamp_message");
     
-    // Put time, context, hdr and timestamp info on the stack
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
     push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
     push(f);
+    set_table(-3);
+
+    push("header");
     push(ts.m_hdr);
+    set_table(-3);
+
+    push("timestamp");
     push(ts);
+    set_table(-3);
    
-    // config.ntp_timestamp_message(context, hdr, timestamp_info)
+    // config.ntp_timestamp_message(event)
     try {
-	call(4, 0);
+	call(1, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -978,16 +1324,32 @@ void cybermon_lua::ntp_control_message(engine& an, const context_ptr f,
     // Get config.ntp_control_message
     get_global("config");
     get_field(-1, "ntp_control_message");
+
     
-    // Put time, context, hdr and control info on the stack
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
     push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
     push(f);
+    set_table(-3);
+    
+    push("header");
     push(ctrl.m_hdr);
+    set_table(-3);
+
+    push("control");
     push(ctrl);
+    set_table(-3);
    
-    // config.ntp_control_message(context, hdr, control_info)
+    // config.ntp_control_message(event)
     try {
-	call(4, 0);
+	call(1, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;
@@ -1005,15 +1367,30 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
     get_global("config");
     get_field(-1, "ntp_private_message");
     
-    // Put context, hdr and control info on the stack
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
     push(time);
+    set_table(-3);
+
+    // Set table device.
+    push("context");
     push(f);
+    set_table(-3);
+    
+    push("header");
     push(priv.m_hdr);
+    set_table(-3);
+
+    push("private");
     push(priv);
+    set_table(-3);
    
-    // config.ntp_private_message(context, hdr)
+    // config.ntp_private_message(event)
     try {
-	call(4, 0);
+	call(1, 0);
     } catch (std::exception& e) {
 	pop();
 	throw;

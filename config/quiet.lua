@@ -14,106 +14,106 @@ local observer = {}
 
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
-observer.trigger_up = function(liid, addr)
+observer.trigger_up = function(e)
 end
 
 -- This function is called when an attacker goes off the air
-observer.trigger_down = function(liid)
+observer.trigger_down = function(e)
 end
 
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
-observer.connection_up = function(context)
+observer.connection_up = function(e)
 end
 
 -- This function is called when a stream-orientated connection is closed
-observer.connection_down = function(context)
+observer.connection_down = function(e)
 end
 
 -- This function is called when a datagram is observed, but the protocol
 -- is not recognised.
-observer.unrecognised_datagram = function(context, data)
+observer.unrecognised_datagram = function(e)
 end
 
 -- This function is called when stream data  is observed, but the protocol
 -- is not recognised.
-observer.unrecognised_stream = function(context, data)
+observer.unrecognised_stream = function(e)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, icmp_type, icmp_code, data)
+observer.icmp = function(e)
 end
 
 -- This function is called when an IMAP message is observed.
-observer.imap = function(context, data)
+observer.imap = function(e)
 end
 
 -- This function is called when an IMAP SSL message is observed.
-observer.imap_ssl = function(context, data)
+observer.imap_ssl = function(e)
 end
 
 -- This function is called when a POP3 message is observed.
-observer.pop3 = function(context, data)
+observer.pop3 = function(e)
 end
 
 -- This function is called when a POP3 SSL message is observed.
-observer.pop3_ssl = function(context, data)
+observer.pop3_ssl = function(e)
 end
 
 -- This function is called when an HTTP request is observed.
-observer.http_request = function(context, method, url, header, body)
+observer.http_request = function(e)
 end
 
 -- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url, body)
+observer.http_response = function(e)
 end
 
 -- This function is called when a SIP request message is observed.
-observer.sip_request = function(context, method, from, to, data)
+observer.sip_request = function(e)
 end
 
 -- This function is called when a SIP response message is observed.
-observer.sip_response = function(context, code, status, from, to, data)
+observer.sip_response = function(e)
 end
 
 -- This function is called when a SIP SSL message is observed.
-observer.sip_ssl = function(context, data)
+observer.sip_ssl = function(e)
 end
 
 -- This function is called when an SMTP command is observed.
-observer.smtp_command = function(context, command)
+observer.smtp_command = function(e)
 end
 
 -- This function is called when an SMTP response is observed.
-observer.smtp_response = function(context, status, text)
+observer.smtp_response = function(e)
 end
 
 -- This function is called when an SMTP response is observed.
-observer.smtp_data = function(context, from, to, data)
+observer.smtp_data = function(e)
 end
 
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(e)
 end
 
 -- This function is called when an FTP command is observed.
-observer.ftp_command = function(context, command)
+observer.ftp_command = function(e)
 end
 
 -- This function is called when an FTP response is observed.
-observer.ftp_response = function(context, status, text)
+observer.ftp_response = function(e)
 end
 
 -- This function is called when an NTP timestamp message is observed.
-observer.ntp_timestamp_message = function(context, hdr, info)
+observer.ntp_timestamp_message = function(e)
 end
 
 -- This function is called when an NTP control message is observed.
-observer.ntp_control_message = function(context, hdr, info)
+observer.ntp_control_message = function(e)
 end
 
 -- This function is called when an NTP private message is observed.
-observer.ntp_private_message = function(context, hdr, info)
+observer.ntp_private_message = function(e)
 end
 
 
