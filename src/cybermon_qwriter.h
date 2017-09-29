@@ -146,8 +146,19 @@ namespace cybermon {
 					   const pdu_time& tv);
 	virtual void close();
 
+	// Max size of queue.
+	const int q_limit = 1000;
+
 	virtual void push(q_entry* e) {
 	    lock.lock();
+
+	    // Sleep until queue is below the queue limit.
+	    while (cqueue.size() >= q_limit) {
+		lock.unlock();
+		usleep(10);
+		lock.lock();
+	    }
+
 	    cqueue.push(e);
 	    lock.unlock();
 	}
