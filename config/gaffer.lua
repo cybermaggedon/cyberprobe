@@ -474,99 +474,92 @@ end
 
 -- This function is called when a trigger events starts collection of an
 -- attacker. liid=the trigger ID, addr=trigger address
-observer.trigger_up = function(liid, addr)
+observer.trigger_up = function(e)
 end
 
 -- This function is called when an attacker goes off the air
-observer.trigger_down = function(liid)
+observer.trigger_down = function(e)
 end
 
 -- This function is called when a stream-orientated connection is made
 -- (e.g. TCP)
-observer.connection_up = function(context)
+observer.connection_up = function(e)
 end
 
 -- This function is called when a stream-orientated connection is closed
-observer.connection_down = function(context)
+observer.connection_down = function(e)
 end
 
 -- This function is called when a datagram is observed, but the protocol
 -- is not recognised.
-observer.unrecognised_datagram = function(context, data)
+observer.unrecognised_datagram = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "unrecognised_datagram")
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
-  add_edge_s(edges, id, rdfs .. "label", "unrecognised datagram")
+  local id = create_basic(edges, e.context, "unrecognised_datagram")
+  add_edge_s(edges, e.id, rdfs .. "label", "unrecognised datagram")
   submit_edges(edges)
 end
 
 -- This function is called when stream data  is observed, but the protocol
 -- is not recognised.
-observer.unrecognised_stream = function(context, data)
+observer.unrecognised_stream = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "unrecognised_stream")
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  local id = create_basic(edges, e.context, "unrecognised_stream")
   add_edge_s(edges, id, rdfs .. "label", "unrecognised stream")
   submit_edges(edges)
 end
 
 -- This function is called when an ICMP message is observed.
-observer.icmp = function(context, icmp_type, icmp_code, data)
+observer.icmp = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "icmp")
-  add_edge_s(edges, id, cybprop .. "type", icmp_type)
-  add_edge_s(edges, id, cybprop .. "code", icmp_code)
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  local id = create_basic(edges, e.context, "icmp")
+  add_edge_s(edges, id, cybprop .. "type", e.type)
+  add_edge_s(edges, id, cybprop .. "code", e.code)
   add_edge_s(edges, id, rdfs .. "label", "ICMP")
   submit_edges(edges)
 end
 
 -- This function is called when an IMAP message is observed.
-observer.imap = function(context, data)
+observer.imap = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "imap")
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  local id = create_basic(edges, e.context, "imap")
   add_edge_s(edges, id, rdfs .. "label", "IMAP")
   submit_edges(edges)
 end
 
 -- This function is called when an IMAP SSL message is observed.
-observer.imap_ssl = function(context, data)
+observer.imap_ssl = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "imap_ssl")
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  local id = create_basic(edges, e.context, "imap_ssl")
   add_edge_s(edges, id, rdfs .. "label", "IMAP_SSL")
   submit_edges(edges)
 end
 
 -- This function is called when a POP3 message is observed.
-observer.pop3 = function(context, data)
+observer.pop3 = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "pop3")
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  local id = create_basic(edges, e.context, "pop3")
   add_edge_s(edges, id, rdfs .. "label", "POP3")
   submit_edges(edges)
 end
 
 -- This function is called when a POP3 SSL message is observed.
-observer.pop3_ssl = function(context, data)
+observer.pop3_ssl = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "pop3_ssl")
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
+  local id = create_basic(edges, e.context, "pop3_ssl")
   add_edge_s(edges, id, rdfs .. "label", "POP3_SSL")
   submit_edges(edges)
 end
 
 -- This function is called when an HTTP request is observed.
-observer.http_request = function(context, method, url, header, body)
+observer.http_request = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "http_request")
-  add_edge_s(edges, id, cybprop .. "method", method)
-  if not (url == nil) and not (url == "") then
-    add_edge_u(edges, id, cybprop .. "url", url)
+  local id = create_basic(edges, e.context, "http_request")
+  add_edge_s(edges, e.id, cybprop .. "method", e.method)
+  if not (e.url == nil) and not (e.url == "") then
+    add_edge_u(edges, e.id, cybprop .. "url", e.url)
   end
-  for key, value in pairs(header) do
-    add_edge_s(edges, id, cybprop .. "header:" .. key, value)
+  for key, value in pairs(e.header) do
+    add_edge_s(edges, e.id, cybprop .. "header:" .. key, value)
 
     add_edge_u(edges, cybprop .. "header:" .. key, rdf .. "type",
                rdfs .. "Property")
@@ -575,26 +568,26 @@ observer.http_request = function(context, method, url, header, body)
 
   end
 --  if (body and not body == "") then
---    add_edge_s(edges, id, cybprop .. "body", b64(body))
+--    add_edge_s(edges, e.id, cybprop .. "body", b64(body))
 --  end
   if url == nil then
     url = ""
   end
-  add_edge_s(edges, id, rdfs .. "label", "HTTP " .. method .. " " .. url)
+  add_edge_s(edges, e.id, rdfs .. "label", "HTTP " .. method .. " " .. url)
   submit_edges(edges)
 end
 
 -- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url, body)
+observer.http_response = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "http_response")
-  add_edge_s(edges, id, cybprop .. "code", code)
-  add_edge_s(edges, id, cybprop .. "status", status)
-  if not (url == nil) and not (url == "") then
-    add_edge_u(edges, id, cybprop .. "url", url)
+  local id = create_basic(edges, e.context, "http_response")
+  add_edge_s(edges, e.id, cybprop .. "code", e.code)
+  add_edge_s(edges, e.id, cybprop .. "status", e.status)
+  if not (e.url == nil) and not (e.url == "") then
+    add_edge_u(edges, e.id, cybprop .. "url", e.url)
   end
-  for key, value in pairs(header) do
-    add_edge_s(edges, id, cybprop .. "header:" .. key, value)
+  for key, value in pairs(e.header) do
+    add_edge_s(edges, e.id, cybprop .. "header:" .. key, value)
 
     add_edge_u(edges, cybprop .. "header:" .. key, rdf .. "type",
                rdfs .. "Property")
@@ -602,180 +595,162 @@ observer.http_response = function(context, code, status, header, url, body)
                key)
 
   end
-  body = b64(body)
---  if (body) then
---    add_edge_s(edges, id, cybprop .. "body", body)
---  end
-  -- If there's an image payload, use the payload as the thumbnail
-  if header["Content-Type"] then
-    if string.sub(header["Content-Type"], 1, 6) == "image/" then
-      add_edge_u(edges, id, "http://dbpedia.org/ontology/thumbnail",
-                 "data:" .. header["Content-Type"] .. ";base64," .. body)
-    end
+  if e.url == nil then
+    url = e.""
   end
-  if url == nil then
-    url = ""
-  end
-  add_edge_s(edges, id, rdfs .. "label",
-             "HTTP " .. code .. " " .. status .. " " .. url)
+  add_edge_s(edges, e.id, rdfs .. "label",
+             "HTTP " .. code .. " " .. e.status .. " " .. e.url)
   submit_edges(edges)
 end
 
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "dns_message")
+  local id = create_basic(edges, e.context, "dns_message")
 
   local label = "DNS"
   
-  if header.qr == 0 then
-    add_edge_s(edges, id, cybprop .. "dns_type", "query")
+  if e.header.qr == 0 then
+    add_edge_s(edges, e.id, cybprop .. "dns_type", "query")
     label = "DNS query"
   else
-    add_edge_s(edges, id, cybprop .. "dns_type", "answer")
+    add_edge_s(edges, e.id, cybprop .. "dns_type", "answer")
     label = "DNS answer"
   end
 
-  for key, value in pairs(queries) do
-    add_edge_s(edges, id, cybprop .. "query", value.name)
+  for key, value in pairs(e.queries) do
+    add_edge_s(edges, e.id, cybprop .. "query", value.name)
     label = label .. " " .. value.name
   end
 
-  for key, value in pairs(answers) do
-    add_edge_s(edges, id, cybprop .. "answer_name", value.name)
+  for key, value in pairs(e.answers) do
+    add_edge_s(edges, e.id, cybprop .. "answer_name", value.name)
     if value.rdaddress then
-       add_edge_s(edges, id, cybprop .. "answer_address",
+       add_edge_s(edges, e.id, cybprop .. "answer_address",
                   value.rdaddress)
     end
     if value.rdname then
-       add_edge_s(edges, id, cybprop .. "answer_name",
+       add_edge_s(edges, e.id, cybprop .. "answer_name",
                             value.rdname)
     end
   end
 
-  add_edge_s(edges, id, rdfs .. "label", label)
+  add_edge_s(edges, e.id, rdfs .. "label", label)
 
   submit_edges(edges)
 end
 
 
 -- This function is called when an FTP command is observed.
-observer.ftp_command = function(context, command)
+observer.ftp_command = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "ftp_command")
-  add_edge_s(edges, id, cybprop .. "command", command)
-  add_edge_s(edges, id, rdfs .. "label", "FTP " .. command)
+  local id = create_basic(edges, e.context, "ftp_command")
+  add_edge_s(edges, e.id, cybprop .. "command", e.command)
+  add_edge_s(edges, e.id, rdfs .. "label", "FTP " .. e.command)
   submit_edges(edges)
 end
 
 -- This function is called when an FTP response is observed.
-observer.ftp_response = function(context, status, text)
+observer.ftp_response = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "ftp_response")
-  add_edge_s(edges, id, cybprop .. "status", status)
+  local id = create_basic(edges, e.context, "ftp_response")
+  add_edge_s(edges, e.id, cybprop .. "status", e.status)
   local t = ""
-  for k, v in ipairs(text) do
+  for k, v in ipairs(e.text) do
     if not (t == "") then
       t = t .. " "
     end
     t = t .. v
   end
-  add_edge_s(edges, id, cybprop .. "text", t)
-  add_edge_s(edges, id, rdfs .. "label", "FTP " .. status)
+  add_edge_s(edges, e.id, cybprop .. "text", t)
+  add_edge_s(edges, e.id, rdfs .. "label", "FTP " .. e.status)
   submit_edges(edges)
 end
 
 -- This function is called when a SIP request message is observed.
-observer.sip_request = function(context, method, from, to, data)
+observer.sip_request = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "sip_request")
-  add_edge_s(edges, id, cybprop .. "method", method)
-  add_edge_s(edges, id, cybprop .. "from", from)
-  add_edge_s(edges, id, cybprop .. "to", to)
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
-  add_edge_s(edges, id, rdfs .. "label", "SIP request")
+  local id = create_basic(edges, e.context, "sip_request")
+  add_edge_s(edges, e.id, cybprop .. "method", method)
+  add_edge_s(edges, e.id, cybprop .. "from", from)
+  add_edge_s(edges, e.id, cybprop .. "to", to)
+  add_edge_s(edges, e.id, rdfs .. "label", "SIP request")
   submit_edges(edges)
 end
 
 -- This function is called when a SIP response message is observed.
-observer.sip_response = function(context, code, status, from, to, data)
+observer.sip_response = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "sip_response")
-  add_edge_s(edges, id, cybprop .. "code", code)
-  add_edge_s(edges, id, cybprop .. "status", status)
-  add_edge_s(edges, id, cybprop .. "from", from)
-  add_edge_s(edges, id, cybprop .. "to", to)
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
-  add_edge_s(edges, id, rdfs .. "label", "SIP response")
+  local id = create_basic(edges, e.context, "sip_response")
+  add_edge_s(edges, e.id, cybprop .. "code", e.code)
+  add_edge_s(edges, e.id, cybprop .. "status", e.status)
+  add_edge_s(edges, e.id, cybprop .. "from", e.from)
+  add_edge_s(edges, e.id, cybprop .. "to", e.to)
+  add_edge_s(edges, e.id, rdfs .. "label", "SIP response")
   submit_edges(edges)
 end
 
 -- This function is called when a SIP SSL message is observed.
-observer.sip_ssl = function(context, data)
+observer.sip_ssl = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "sip_ssl")
-  add_edge_s(edges, id, cybprop .. "body", b64(data))
-  add_edge_s(edges, id, rdfs .. "label", "SIP SSL")
+  local id = create_basic(edges, e.context, "sip_ssl")
+  add_edge_s(edges, e.id, rdfs .. "label", "SIP SSL")
   submit_edges(edges)
 end
 
 -- This function is called when an SMTP command is observed.
-observer.smtp_command = function(context, command)
+observer.smtp_command = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "smtp_command")
-  add_edge_s(edges, id, cybprop .. "command", command)
-  add_edge_s(edges, id, rdfs .. "label", "SMTP " .. command)
+  local id = create_basic(edges, e.context, "smtp_command")
+  add_edge_s(edges, e.id, cybprop .. "command", e.command)
+  add_edge_s(edges, e.id, rdfs .. "label", "SMTP " .. e.command)
   submit_edges(edges)
 end
 
 -- This function is called when an SMTP response is observed.
-observer.smtp_response = function(context, status, text)
+observer.smtp_response = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "smtp_response")
-  add_edge_s(edges, id, cybprop .. "status", status)
+  local id = create_basic(edges, e.context, "smtp_response")
+  add_edge_s(edges, e.id, cybprop .. "status", e.status)
   local t = ""
-  for k, v in ipairs(text) do
+  for k, v in ipairs(e.text) do
     if not (t == "") then
       t = t .. " "
     end
     t = t .. v
   end
-  add_edge_s(edges, id, cybprop .. "text", t)
-  add_edge_s(edges, id, rdfs .. "label", "SMTP " .. status)
+  add_edge_s(edges, e.id, cybprop .. "text", t)
+  add_edge_s(edges, e.id, rdfs .. "label", "SMTP " .. e.status)
   submit_edges(edges)
 end
 
 -- This function is called when an SMTP response is observed.
-observer.smtp_data = function(context, from, to, data)
+observer.smtp_data = function(e)
   local edges = {}
-  local id = create_basic(edges, context, "smtp_data")
-  add_edge_s(edges, id, cybprop .. "from", from)
+  local id = create_basic(edges, e.context, "smtp_data")
+  add_edge_s(edges, e.id, cybprop .. "from", e.from)
   local t = ""
-  for k, v in ipairs(to) do
+  for k, v in ipairs(e.to) do
     if not (t == "") then
       t = t .. " "
     end
     t = t .. v
-    add_edge_s(edges, id, cybprop .. "to", v)
+    add_edge_s(edges, e.id, cybprop .. "to", v)
   end
---  local body = b64(data)
---  if (body) then
---    add_edge_s(edges, id, cybprop .. "body", body)
---  end
-  add_edge_s(edges, id, rdfs .. "label", "SMTP " .. from .. " " .. t)
+  add_edge_s(edges, e.id, rdfs .. "label", "SMTP " .. from .. " " .. t)
   submit_edges(edges)
 end
 
 -- This function is called when an NTP timestamp message is observed.
-observer.ntp_timestamp_message = function(context, hdr, info)
+observer.ntp_timestamp_message = function(e)
 end
 
 -- This function is called when an NTP control message is observed.
-observer.ntp_control_message = function(context, hdr, info)
+observer.ntp_control_message = function(e)
 end
 
 -- This function is called when an NTP private message is observed.
-observer.ntp_private_message = function(context, hdr, info)
+observer.ntp_private_message = function(e)
 end
 
 

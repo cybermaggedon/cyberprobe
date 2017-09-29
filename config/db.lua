@@ -51,14 +51,14 @@ observer.ntp_private_message = model.ntp_private_message
 
 
 -- special dns handling method to allow json to be searchable
-observer.dns_message = function(context, header, queries, answers, auth, add)
+observer.dns_message = function(e)
 
-  local obs = model.initialise_observation(context)
+  local obs = model.initialise_observation(e.context)
 
   obs["action"] = "dns_message"
   obs["dns"] = {}
 
-  if header.qr == 0 then
+  if e.header.qr == 0 then
     obs["dns"]["type"] = "query"
   else
     obs["dns"]["type"] = "response"
@@ -71,7 +71,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   json.util.InitArray(types)
   local classes = {}
   json.util.InitArray(classes)
-  for key, value in pairs(queries) do
+  for key, value in pairs(e.queries) do
     names[#names + 1] = value.name
     if dns.type_name[value.type] == nil then
       types[#types + 1] = tostring(value.type)
@@ -94,7 +94,7 @@ observer.dns_message = function(context, header, queries, answers, auth, add)
   json.util.InitArray(classes)
   local addresses = {}
   json.util.InitArray(addresses)
-  for key, value in pairs(answers) do
+  for key, value in pairs(e.answers) do
     names[#names + 1] = value.name
     if dns.type_name[value.type] == nil then
       types[#types + 1] = tostring(value.type)
