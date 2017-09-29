@@ -15,12 +15,12 @@
 
 namespace cybermon {
 
-class cybermon_qwriter: public engine {
+    class cybermon_qwriter: public engine {
 
-public:
+      public:
 
 	// Constructor
-	cybermon_qwriter(const std::string& path,
+        cybermon_qwriter(const std::string& path,
 			 std::queue<q_entry*>& cybermonq,
 			 threads::mutex& cqwrlock);
 	// Destructor.
@@ -145,7 +145,14 @@ public:
 					   pdu_iter s, pdu_iter e,
 					   const pdu_time& tv);
 	virtual void close();
-};
+
+	virtual void push(q_entry* e) {
+	    lock.lock();
+	    cqueue.push(e);
+	    lock.unlock();
+	}
+
+    };
 
 };
 
