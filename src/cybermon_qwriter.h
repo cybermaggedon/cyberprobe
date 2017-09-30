@@ -147,7 +147,7 @@ namespace cybermon {
 	virtual void close();
 
 	// Max size of queue.
-	const int q_limit = 1000;
+	const int q_limit = 500;
 
 	virtual void push(q_entry* e) {
 	    lock.lock();
