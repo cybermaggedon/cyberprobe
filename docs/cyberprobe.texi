@@ -241,6 +241,10 @@ Cyberprobe releases:
 
 @table @code
 
+@item 1.5.1
+Unbounded queue internal to cybermon has a queue limit, to prevent unbounded
+growth.
+
 @item 1.5.0
 Timestamp information at the time of packet capture in cyberprobe is now
 consistently passed through to cybermon and the Lua functions.  The Lua API

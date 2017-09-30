@@ -28,9 +28,13 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 	gettimeofday(&now, 0);
 	struct tm res;
 	struct tm* ts = gmtime_r(&now.tv_sec, &res);
-
+	if (ts == 0)
+	    throw std::runtime_error("gmtime_r failed");
+	
 	// Convert time in seconds into into year, month... seconds. 
-	strftime(tms, 128, "%Y%m%d%H%M%S", ts);
+	int ret = strftime(tms, 128, "%Y%m%d%H%M%S", ts);
+	if (ret < 0)
+	    throw std::runtime_error("Failed to format time string (strftime)");
 
 	// Append milliseconds and Z for GMT.
 	sprintf(tms + strlen(tms), ".%03dZ", int(now.tv_usec / 1000));
