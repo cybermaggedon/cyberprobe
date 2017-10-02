@@ -6,9 +6,6 @@ language: cpp
 cache:
   apt: true
 
-notifications:
-  slack: galatea-team:tTUVQsUO7aK0N6LoYTtdV8zl
-
 addons:
   apt:
     packages:
