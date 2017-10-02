@@ -241,6 +241,10 @@ Cyberprobe releases:
 
 @table @code
 
+@item 1.6.0
+Changed ETSI sender so that packet streams are multiplexed over multiple
+TCP streams.
+
 @item 1.5.1
 Unbounded queue internal to cybermon has a queue limit, to prevent unbounded
 growth.
