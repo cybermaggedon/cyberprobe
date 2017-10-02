@@ -262,6 +262,25 @@ void etsi_li_sender::handle(qpdu_ptr next)
 
     // Loop until successful delivery.
     while (running) {
+
+	if (muxes.find(liid) == muxes.end()) {
+	    
+	    transport_map.insert(
+		std::pair<std::string,cybermon::etsi_li::sender&>(liid,
+								  transports[cur_connect]));
+
+	    muxes.insert(
+		std::pair<std::string,cybermon::etsi_li::mux>(liid,
+							      cybermon::etsi_li::mux(transports[cur_connect])));
+
+	    // Increment connection count, wrap at num_connects.
+	    if (++cur_connect >= num_connects)
+		cur_connect = 0;
+
+	}
+	       
+	cybermon::etsi_li::sender& transport = transport_map.find(liid)->second;
+	cybermon::etsi_li::mux& mux = muxes.find(liid)->second;
 	
 	// Loop forever until we're connected.
 	while (running && !transport.connected()) {
@@ -277,6 +296,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		std::cerr << "ETSI LI connection to " 
 			  << h << ":" << p 
 			  << " established." << std::endl;
+
 	    } catch (...) {
 		// If fail, just for a sec, before the retry.
 		::sleep(1);

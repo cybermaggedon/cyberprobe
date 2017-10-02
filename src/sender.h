@@ -146,8 +146,11 @@ class etsi_li_sender : public sender {
   private:
   
     // ETSI LI transport and mux
-    cybermon::etsi_li::sender transport;
-    cybermon::etsi_li::mux mux;
+    static const unsigned int num_connects = 4;
+    unsigned int cur_connect = 0;
+    cybermon::etsi_li::sender transports[num_connects];
+    std::map<std::string,cybermon::etsi_li::sender&> transport_map;
+    std::map<std::string,cybermon::etsi_li::mux> muxes;
 
     // Connection details, host, port, TLS.
     std::string h;
@@ -171,7 +174,7 @@ class etsi_li_sender : public sender {
                    const std::string& transp,
 		   const std::map<std::string, std::string>& params,
 		   parameters& globals) : 
-    sender(globals), mux(transport), h(h), p(p), params(params)
+    sender(globals), h(h), p(p), params(params)
     {
 	if (transp == "tls")
 	    tls = true;
@@ -187,12 +190,6 @@ class etsi_li_sender : public sender {
 
     // Destructor.
     virtual ~etsi_li_sender() {}
-
-    // Doesn't actually connect, just defines the connection parameters.
-    // Should be called before the 'deliver' method is called.
-//    void connect(const std::string& h, unsigned short p) {
-//	this->h = h; this->p = p;
-//    }
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
