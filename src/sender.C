@@ -264,15 +264,14 @@ void etsi_li_sender::handle(qpdu_ptr next)
     while (running) {
 
 	if (muxes.find(liid) == muxes.end()) {
-	    
-	    transport_map.insert(
-		std::pair<std::string,cybermon::etsi_li::sender&>(liid,
-								  transports[cur_connect]));
-
-	    muxes.insert(
-		std::pair<std::string,cybermon::etsi_li::mux>(liid,
-							      cybermon::etsi_li::mux(transports[cur_connect])));
-
+	    cybermon::etsi_li::sender& transport = transports[cur_connect];
+	    std::pair<std::string,cybermon::etsi_li::sender&> tp(liid,
+								 transport);
+	    transport_map.insert(tp);
+	    std::pair<std::string,cybermon::etsi_li::mux> mp(liid,
+							     cybermon::etsi_li::mux(transports[cur_connect]));
+	    muxes.insert(mp);
+		
 	    // Increment connection count, wrap at num_connects.
 	    if (++cur_connect >= num_connects)
 		cur_connect = 0;

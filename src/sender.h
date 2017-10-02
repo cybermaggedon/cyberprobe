@@ -145,11 +145,21 @@ class nhis11_sender : public sender {
 class etsi_li_sender : public sender {
   private:
   
-    // ETSI LI transport and mux
-    static const unsigned int num_connects = 4;
+    // ETSI LI transport and mux...
+
+    // Number of TCP connections to multiplex over.
+    static const unsigned int num_connects = 12;
+
+    // Round-round count.
     unsigned int cur_connect = 0;
+
+    // Transports
     cybermon::etsi_li::sender transports[num_connects];
+
+    // Map of LIID to transport.
     std::map<std::string,cybermon::etsi_li::sender&> transport_map;
+
+    // Multiplexes
     std::map<std::string,cybermon::etsi_li::mux> muxes;
 
     // Connection details, host, port, TLS.
