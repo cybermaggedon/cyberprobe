@@ -263,13 +263,20 @@ void etsi_li_sender::handle(qpdu_ptr next)
     // Loop until successful delivery.
     while (running) {
 
+	// If we haven't handled the LIID before, map to a new
+	// transport / mux
 	if (muxes.find(liid) == muxes.end()) {
-	    cybermon::etsi_li::sender& transport = transports[cur_connect];
-	    std::pair<std::string,cybermon::etsi_li::sender&> tp(liid,
-								 transport);
+
+	    // Get next transport in the round robin
+	    e_sender& transport = transports[cur_connect];
+
+	    // Map LIID to the transport
+	    std::pair<std::string,e_sender&> tp(liid, transport);
 	    transport_map.insert(tp);
-	    std::pair<std::string,cybermon::etsi_li::mux> mp(liid,
-							     cybermon::etsi_li::mux(transports[cur_connect]));
+
+	    // Map LIID to mux
+	    std::pair<std::string,e_mux> mp(liid,
+					    e_mux(transports[cur_connect]));
 	    muxes.insert(mp);
 		
 	    // Increment connection count, wrap at num_connects.
@@ -277,9 +284,10 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		cur_connect = 0;
 
 	}
-	       
-	cybermon::etsi_li::sender& transport = transport_map.find(liid)->second;
-	cybermon::etsi_li::mux& mux = muxes.find(liid)->second;
+
+	// Get transport and mux.  Guaranteed to be allocated at this point.
+	e_sender& transport = transport_map.find(liid)->second;
+	e_mux& mux = muxes.find(liid)->second;
 	
 	// Loop forever until we're connected.
 	while (running && !transport.connected()) {

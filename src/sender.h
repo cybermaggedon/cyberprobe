@@ -144,23 +144,26 @@ class nhis11_sender : public sender {
 // spawn the thread, then call 'deliver' when you have packets to transmit.
 class etsi_li_sender : public sender {
   private:
-  
+
+    typedef cybermon::etsi_li::sender e_sender;
+    typedef cybermon::etsi_li::mux e_mux;
+    
     // ETSI LI transport and mux...
 
     // Number of TCP connections to multiplex over.
-    static const unsigned int num_connects = 12;
+    unsigned int num_connects;
 
     // Round-round count.
     unsigned int cur_connect = 0;
 
     // Transports
-    cybermon::etsi_li::sender transports[num_connects];
+    e_sender* transports;
 
     // Map of LIID to transport.
-    std::map<std::string,cybermon::etsi_li::sender&> transport_map;
+    std::map<std::string,e_sender&> transport_map;
 
     // Multiplexes
-    std::map<std::string,cybermon::etsi_li::mux> muxes;
+    std::map<std::string,e_mux> muxes;
 
     // Connection details, host, port, TLS.
     std::string h;
@@ -186,6 +189,18 @@ class etsi_li_sender : public sender {
 		   parameters& globals) : 
     sender(globals), h(h), p(p), params(params)
     {
+
+	// Get value of etsi-streams parameter, default is 12.
+	std::string par = globals.get_parameter("etsi-streams", "12");
+	std::istringstream buf(par);
+
+	num_connects = 0;
+	buf >> num_connects;
+	if (num_connects <= 0)
+	    throw std::runtime_error("Couldn't parse etsi-streams value: " +
+				     par);
+
+	transports = new e_sender[num_connects];
 	if (transp == "tls")
 	    tls = true;
 	else if (transp == "tcp")
@@ -199,7 +214,11 @@ class etsi_li_sender : public sender {
     virtual void handle(qpdu_ptr);
 
     // Destructor.
-    virtual ~etsi_li_sender() {}
+    virtual ~etsi_li_sender() {
+	muxes.clear();
+	transport_map.clear();
+	delete transports;
+    }
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;

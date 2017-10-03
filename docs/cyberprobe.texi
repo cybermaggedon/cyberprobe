@@ -2325,7 +2325,6 @@ or @code{tls} for an SSL/TLS stream.  If TLS is invoked, the attributes
 with filenames for client certificate, private key, and a trust CA chain.
 These should all be in PEM format.
 
-
 The optional @code{parameters} block defines a set of parameters which are
 only used in ETSI delivery. Each parameter element should have a @code{key}
 and a @code{value} attribute. The parameter values for @code{country},
@@ -2336,6 +2335,10 @@ the @code{username} values in the IPIRI construct in ETSI LI. The @code{key}
 value is the literal @code{username.} suffixed with the LIID. If such an
 entry is present, it is used for the @code{username}. All parameters are
 optional, meaningless defaults (e.g. unknown) will be used if not specified.
+The @code{etsi-streams} parameter specifies the number of TCP streams which
+will be opened for delivery, the default being 12.  This feature potentially
+increases throughput, and is useful if the destination is a load-balanced
+resource.
 
 @comment ----------------------------------------------------------------------
 
