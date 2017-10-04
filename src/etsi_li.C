@@ -3,6 +3,8 @@
 
 #include <cybermon/etsi_li.h>
 #include <cybermon/ber.h>
+#include <sys/time.h>
+#include <string.h>
 
 // Support for a simple usage of ETSI LI protocol, defined in ETSI TS 102 232.
 

@@ -36,6 +36,7 @@ sudo dnf install -y texinfo texlive texinfo-tex
 sudo dnf install -y luarocks python tcpdump tar
 sudo dnf install -y libtool make rpm-build openssl-devel
 sudo luarocks install md5
+sudo luarocks install uuid
 sudo dnf install -y cppzmq-devel
 sudo luarocks install lzmq
 git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe

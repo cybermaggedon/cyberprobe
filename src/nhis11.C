@@ -1,7 +1,8 @@
 
-#include <cybermon/nhis11.h>
+#include <sys/time.h>
 
 #include <cybermon/transport.h>
+#include <cybermon/nhis11.h>
 
 #include <string>
 #include <vector>
