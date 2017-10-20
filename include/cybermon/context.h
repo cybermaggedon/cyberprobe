@@ -35,7 +35,7 @@ namespace cybermon {
 	manager& get_manager() { return mgr; }
 
 	// Default time-to-live.
-	static const int default_ttl = 10;
+	static const int default_ttl = 120;
 
 	// Constructor.
         context(manager& m) : reapable(m), mgr(m) { 
