@@ -41,6 +41,8 @@ EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) \
 	samples/ntp.pcap.model samples/smtp.pcap.model \
         samples/vlan.pcap samples/vlan.pcap.model \
 	samples/vlan.pcap.indicators samples/vlan.pcap.monitor \
+        samples/ipv6-smtp.pcap samples/ipv6-smtp.pcap.model \
+	samples/ipv6-smtp.pcap.indicators samples/ipv6-smtp.pcap.monitor \
 	samples/tcp.pcap.model summarise_json
 
 TESTSUITE = $(srcdir)/testsuite
