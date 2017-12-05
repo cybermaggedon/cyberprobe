@@ -17,8 +17,15 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 
     while (s != e) {
 
-	switch (state) {
+#ifdef USEFUL_DEBUG_I_GUESS
+	std::cerr << state << std::endl;
+	for(pdu_iter i = s; i < e; i++) {
+	    std::cerr << (char) *i;
+	}
+	std::cerr << std::endl;
+#endif
 
+	switch (state) {
 	case http_parser::IN_REQUEST_METHOD:
 	    if (*s == ' ')
 		state = http_parser::IN_REQUEST_URL;
@@ -142,13 +149,13 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		 std::cerr << "Proto = " << protocol << std::endl;
 #endif
 
+		 std::istringstream buf(code);
+		 buf >> codeval;
+
 		 state = http_parser::IN_BODY;
 
 		 if (header.find("content-type") == header.end()) {
 		     // No body.
-
-		     std::istringstream buf(code);
-		     buf >> codeval;
 
 		     if (variant == REQUEST)
 		         complete_request(c, sl.time, mgr);
@@ -168,9 +175,29 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		     chunk_length = "";
 		     state = http_parser::IN_CHUNK_LENGTH;
 		 } else if (header.find("content-length") != header.end()) {
-		     state = http_parser::COUNTING_DATA;
-		     std::istringstream buf(header["content-length"].second);
-		     buf >> std::dec >> content_remaining;
+
+		     std::istringstream b2(header["content-length"].second);
+		     b2 >> std::dec >> content_remaining;
+
+		     // Deal with zero-length payload case.  Transaction stops
+		     // here.
+		     if (content_remaining == 0) {
+			 if (variant == REQUEST)
+			     complete_request(c, sl.time, mgr);
+			 else
+			     complete_response(c, sl.time, mgr);
+			 reset_transaction();
+			 
+			 // Start of next transaction.
+			 if (variant == REQUEST)
+			     state = http_parser::IN_REQUEST_METHOD;
+			 else
+			     state = http_parser::IN_RESPONSE_PROTOCOL;
+			 
+		     } else {
+			 state = http_parser::COUNTING_DATA;
+		     }
+		     
 		 } else
 		     // This state just looks for newline.
 		     state = http_parser::IN_BODY;
@@ -203,9 +230,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		state = http_parser::IN_BODY;
 	    } else {
 
-		std::istringstream buf(code);
-		buf >> codeval;
-
 		if (variant == REQUEST)
 		    complete_request(c, sl.time, mgr);
 		else
@@ -228,9 +252,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    content_remaining--;
 
 	    if (content_remaining == 0) {
-
-		std::istringstream buf(code);
-		buf >> codeval;
 
 		if (variant == REQUEST)
 		    complete_request(c, sl.time, mgr);
@@ -278,9 +299,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 
 	    if (*s == '\n') {
 		// Transaction complete
-
-		std::istringstream buf(code);
-		buf >> codeval;
 		
 		if (variant == REQUEST)
 		    complete_request(c, sl.time, mgr);
