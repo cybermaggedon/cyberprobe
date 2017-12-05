@@ -102,6 +102,14 @@ sort < $abs_srcdir/samples/vlan.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
+AT_SETUP([ipv6-smtp.pcap])
+cat $abs_srcdir/samples/ipv6-smtp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/ipv6-smtp.pcap.monitor > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
 # ----------------------------------------------------------------------------
 
 AT_BANNER([JSON objects created by cybermon.])
@@ -191,6 +199,14 @@ cat $abs_srcdir/samples/vlan.pcap | \
     $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
     $abs_top_srcdir/tests/summarise_json > output1
 cat $abs_srcdir/samples/vlan.pcap.model > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
+
+AT_SETUP([ipv6-smtp.pcap])
+cat $abs_srcdir/samples/ipv6-smtp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+    $abs_top_srcdir/tests/summarise_json > output1
+cat $abs_srcdir/samples/ipv6-smtp.pcap.model > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
@@ -334,6 +350,16 @@ AT_CLEANUP
 # cat $abs_srcdir/samples/dns2.pcap.elastic | sort > output2
 # AT_CHECK([diff output1 output2],,[])
 #AT_CLEANUP
+
+AT_SETUP([ipv6-smtp.pcap])
+STIX_INDICATORS=$abs_srcdir/stix/stix-default-combined.json
+export STIX_INDICATORS
+cat $abs_srcdir/samples/ipv6-smtp.pcap | \
+    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/stix+alert.lua | \
+    sort > output1
+sort < $abs_srcdir/samples/ipv6-smtp.pcap.indicators > output2
+AT_CHECK([diff output1 output2],,[])
+AT_CLEANUP
 
 # ----------------------------------------------------------------------------
 

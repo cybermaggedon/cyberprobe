@@ -105,6 +105,44 @@ namespace cybermon {
 
     };
 
+    // IPv6 context
+    class ip6_context : public context {
+
+	friend class ip;
+
+      public:
+
+	// Constructor.
+        ip6_context(manager& m) : context(m) {}
+
+	// Constructor, specifying flow address and parent.
+        ip6_context(manager& m, const flow_address& a, context_ptr par) : 
+	context(m) { 
+	    parent = par;
+	    addr = a; 
+	}
+
+	// Type is "ip6".
+	virtual std::string get_type() { return "ip6"; }
+
+	typedef boost::shared_ptr<ip6_context> ptr;
+
+	static context_ptr create(manager& m, const flow_address& f, 
+				  context_ptr par) {
+	    context_ptr cp = context_ptr(new ip6_context(m, f, par));
+	    return cp;
+	}
+
+	// Given a flow address, returns the child context.
+	static ptr get_or_create(context_ptr base, const flow_address& f) {
+	    context_ptr cp = context::get_or_create(base, f, 
+						    ip6_context::create);
+	    ptr sp = boost::dynamic_pointer_cast<ip6_context>(cp);
+	    return sp;
+	}
+
+    };
+
     // Processing
     class ip {
 

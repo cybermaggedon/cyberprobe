@@ -1,0 +1,15 @@
+PCAP: 2607:f8b0:400c:c03::1a:25 -> 2001:470:e5bf:dead:4957:2174:e82c:4887:63943. SMTP response 220
+    mx.google.com ESMTP m17si1051593vck.2 - gsmtp
+
+PCAP: 2001:470:e5bf:dead:4957:2174:e82c:4887:63943 -> 2607:f8b0:400c:c03::1a:25. SMTP command ehlo
+
+PCAP: 2607:f8b0:400c:c03::1a:25 -> 2001:470:e5bf:dead:4957:2174:e82c:4887:63943. SMTP response 250
+    SMTPUTF8
+    mx.google.com at your service, [2001:470:e5bf:dead:4957:2174:e82c:4887]
+    SIZE 35882577
+    8BITMIME
+    STARTTLS
+    ENHANCEDSTATUSCODES
+    PIPELINING
+    CHUNKING
+

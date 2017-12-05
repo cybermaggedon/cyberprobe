@@ -1,0 +1,26 @@
+.action connected_up 2
+.action smtp_command 1
+.action smtp_response 2
+.dest.0 ipv6:2001:470:e5bf:dead:4957:2174:e82c:4887 3
+.dest.0 ipv6:2607:f8b0:400c:c03::1a 2
+.dest.1 tcp:25 2
+.dest.1 tcp:63943 3
+.dest.2 smtp 3
+.device PCAP 5
+.smtp_command.command ehlo 1
+.smtp_response.status 220 1
+.smtp_response.status 250 1
+.smtp_response.text.0 mx.google.com ESMTP m17si1051593vck.2 - gsmtp 1
+.smtp_response.text.0 mx.google.com at your service, [2001:470:e5bf:dead:4957:2174:e82c:4887] 1
+.smtp_response.text.1 SIZE 35882577 1
+.smtp_response.text.2 8BITMIME 1
+.smtp_response.text.3 STARTTLS 1
+.smtp_response.text.4 ENHANCEDSTATUSCODES 1
+.smtp_response.text.5 PIPELINING 1
+.smtp_response.text.6 CHUNKING 1
+.smtp_response.text.7 SMTPUTF8 1
+.src.0 ipv6:2001:470:e5bf:dead:4957:2174:e82c:4887 2
+.src.0 ipv6:2607:f8b0:400c:c03::1a 3
+.src.1 tcp:25 3
+.src.1 tcp:63943 2
+.src.2 smtp 3

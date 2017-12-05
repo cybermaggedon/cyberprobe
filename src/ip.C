@@ -289,7 +289,78 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 void ip::process_ip6(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
-    throw exception("IPv6 processing not implemented.");
+
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+
+    if ((e - s) < 40) throw exception("Packet too small for IPv6");
+
+    unsigned int length = (s[4] << 8) + s[5];
+
+    // Packet is allowed to be too long, but not too short.  May have been
+    // padded by Ethernet.
+    if ((e - s) < length) throw exception("Truncated IP packet");
+
+    // Stuff from the IP header.
+    uint8_t version = (s[0] & 0xf0) >> 4;
+    uint8_t protocol = s[6];
+
+    if (version != 6) throw exception("IP packet version is invalid");
+
+    const uint8_t header_length = 40;
+
+    // This doesn't work on some systems.
+#ifdef CHECK_IP_CHECKSUM
+    // Calculate checksum.
+    uint16_t checked = calculate_cksum(s, s + header_length);
+    if (checked != 0)
+	throw exception("IP packet has invalid checksum");
+#endif
+
+    // Addresses.
+    address src, dest;
+    src.set(s + 8, s + 24, NETWORK, IP6);
+    dest.set(s + 24, s + 40, NETWORK, IP6);
+
+    // Create the flow address.
+    flow_address f(src, dest);
+
+    // Get the IP context.
+    ip6_context::ptr fc = ip6_context::get_or_create(c, f);
+
+    // Set / update TTL on the context.
+    // 120 seconds.
+    fc->set_ttl(context::default_ttl);
+
+    // Complete payload, just process it.
+
+    if (protocol == 6)
+
+	// TCP
+	tcp::process(mgr, fc,
+		     pdu_slice(s + header_length, s + header_length + length,
+			       sl.time));
+
+    else if (protocol == 17)
+	
+	// UDP
+	udp::process(mgr, fc,
+		     pdu_slice(s + header_length, s + header_length + length,
+			       sl.time));
+    
+    else if (protocol == 1)
+	
+	// ICMP
+	icmp::process(mgr, fc,
+		      pdu_slice(s + header_length, s + header_length + length,
+				sl.time));
+
+    else {
+	std::ostringstream buf;
+	buf << "IP protocol " << (int) protocol << " not handled.";
+	throw exception(buf.str());
+    }
+
 }
 
 uint16_t ip::calculate_cksum(pdu_iter s, pdu_iter e)
