@@ -154,7 +154,7 @@ class etsi_li_sender : public sender {
     unsigned int num_connects;
 
     // Round-round count.
-    unsigned int cur_connect = 0;
+    unsigned int cur_connect;
 
     // Transports
     e_sender* transports;
@@ -187,7 +187,7 @@ class etsi_li_sender : public sender {
                    const std::string& transp,
 		   const std::map<std::string, std::string>& params,
 		   parameters& globals) : 
-    sender(globals), h(h), p(p), params(params)
+    sender(globals), h(h), p(p), params(params), cur_connect(0)
     {
 
 	// Get value of etsi-streams parameter, default is 12.
