@@ -70,6 +70,9 @@ AS_IF([echo 'if require("mime") then print("yes") end' | lua -], [],
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
 AC_CHECK_LIB([pcap], [main], [], [AC_MSG_ERROR(Library pcap missing.)])
+AC_SEARCH_LIBS([pcap_create], [pcap],
+		    [AC_DEFINE([HAVE_PCAP_CREATE], 1, 
+		    [Set if pcap_create is supported (added in libpcap 1.0)])])
 AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
 AC_CHECK_LIB([readline], [main], [], [AC_MSG_ERROR(Library readline missing.)])
 AC_CHECK_LIB([ssl], [main], [], [AC_MSG_ERROR(Library ssl missing.)])

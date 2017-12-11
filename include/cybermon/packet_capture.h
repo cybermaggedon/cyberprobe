@@ -130,10 +130,19 @@ class pcap_interface : public pcap_capture {
     // snaplen = maximum packet size to capture.
     pcap_interface(const std::string& iface, int snaplen = 65535) {
 	char errmsg[8192];
-	p = pcap_open_live(iface.c_str(), snaplen, 1, 1, errmsg);
+#ifdef HAVE_PCAP_CREATE
+	p = pcap_create(iface.c_str(), errmsg);
 	if (p == 0)
 	    throw std::runtime_error(errmsg);
 	pcap_set_snaplen(p, 65535);
+	pcap_set_rfmon(p, 1);
+	pcap_set_promisc(p, 1);
+	pcap_activate(p);
+#else
+	p = pcap_open_live(iface.c_str(), snaplen, 1, 1, errmsg);
+	if (p == 0)
+	    throw std::runtime_error(errmsg);
+#endif
     }
 
     virtual ~pcap_interface() {}
