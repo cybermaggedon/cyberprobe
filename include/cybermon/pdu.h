@@ -3,6 +3,7 @@
 #define CYBERMON_PDU_H
 
 #include <vector>
+#include <sys/time.h>
 
 namespace cybermon {
 
