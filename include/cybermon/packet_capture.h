@@ -12,6 +12,7 @@
 #include <poll.h>
 #include <vector>
 #include <iostream>
+#include <string.h>
 
 extern "C" {
 #include <pcap.h>
@@ -55,6 +56,9 @@ class pcap_capture {
     // filter statement.  See 'pcap' man-page.  Throws a runtime_error 
     // exception if compilation fails.
     void add_filter(const std::string& spec) {
+
+	// Zero out the compilation filter.
+        memset((void*) &fltr, 0, sizeof(fltr));
 
 	// Compile the expression.
 	int ret = pcap_compile(p, &fltr, (char*) spec.c_str(), 1, 0);
@@ -134,10 +138,16 @@ class pcap_interface : public pcap_capture {
 	p = pcap_create(iface.c_str(), errmsg);
 	if (p == 0)
 	    throw std::runtime_error(errmsg);
+
 	pcap_set_snaplen(p, 65535);
-	pcap_set_rfmon(p, 1);
+	if (pcap_can_set_rfmon(p))
+	    pcap_set_rfmon(p, 1);
 	pcap_set_promisc(p, 1);
-	pcap_activate(p);
+
+        int ret = pcap_activate(p);
+	if (ret < 0) {
+	    throw std::runtime_error("pcap_activate failed");
+	}
 #else
 	p = pcap_open_live(iface.c_str(), snaplen, 1, 1, errmsg);
 	if (p == 0)
