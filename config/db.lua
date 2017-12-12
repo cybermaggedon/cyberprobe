@@ -53,7 +53,7 @@ observer.ntp_private_message = model.ntp_private_message
 -- special dns handling method to allow json to be searchable
 observer.dns_message = function(e)
 
-  local obs = model.initialise_observation(e.context)
+  local obs = model.initialise_observation(e)
 
   obs["action"] = "dns_message"
   obs["dns"] = {}
