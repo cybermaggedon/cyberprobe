@@ -7,6 +7,10 @@ I did:
     sudo xcodebuild -license
 - Install macports (go to the Mac ports page and click on the download pkg).
 - Install a bunch of stuff:
+  - sudo port install python27
+  - sudo port select --set python python27
+  - sudo port select --set python2 python27
+
   - sudo port install boost
   - sudo port install lua
   - sudo port install libpcap
@@ -14,10 +18,30 @@ I did:
   - sudo port install tcpdump
   - sudo port install autoconf
   - sudo port install automake
+  - sudo port install libtool
+  - sudo port install lua-luajson
+  - sudo port install lua-luasocket
+  - sudo port install lua-luafilesystem
+  - This doesn't work for me... sudo port install lua-md5
+    Instead use
+    - sudo port install luarocks
+    - sudo luarocks install --tree=/opt/local md5
+  - This doesn't work for me... sudo port install lua-luafilesystem
+    Instead use
+    - sudo luarocks install --tree=/opt/local luafilesystem
+
 - Should have enough to compile cyberprobe now.  For running configure,
   you need to run:
 
   - env CXXFLAGS=-L/opt/local/lib CFLAGS=-L/opt/local/lib ./configure
+
+- make works, but the commands created in order to generate the documentation
+  fail.  Still, you get a working cyberprobe and cybermon.  As a workaround,
+  go into the docs directory and do...
+
+    MAKEINFO='/bin/sh /Users/mark/dev/cyberprobe2/missing \
+       makeinfo   -I .' texi2dvi --pdf --batch  -o cyberprobe.pdf \
+       cyberprobe.texi
 
 - That's all good until you want to do the STIX stuff, for which you need a
   bunch of Python resources:
