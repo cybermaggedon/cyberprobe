@@ -9,9 +9,6 @@ local jsenc = require("json.encode")
 -- Object ID counter
 local id = 1
 
--- Time-to-live
-local default_ttl = "1h"
-
 -- Index
 local index = "cyberprobe"
 local object = "observation"
@@ -100,8 +97,6 @@ module.init = function()
 
   req = {}
   req[object] = {}
-  req[object]["_ttl"] = {}
-  req[object]["_ttl"]["enabled"] = "true"
   req[object]["properties"] = request
 
   request = req
@@ -119,8 +114,7 @@ end
 -- Create an observation object in ElasticSearch
 module.submit_observation = function(request)
 
-  local u = string.format("%s%s/%s/%d?ttl=%s", module.base, index, object, id,
-  	default_ttl)
+  local u = string.format("%s%s/%s/%d", module.base, index, object, id)
 print(u)
   id = id + 1
 

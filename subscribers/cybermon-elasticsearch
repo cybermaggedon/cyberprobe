@@ -20,8 +20,6 @@ if len(sys.argv) < 3:
 else:
     es_url = sys.argv[2]
 
-ttl = "1h"
-
 ############################################################################
 
 def init():
@@ -86,11 +84,9 @@ def init():
     while True:
         try: 
             r = requests.put(u)
-            if r.status_code != 201 and r.status_code != 200 and r.status_code !
-= 400:
+            if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
                 sys.stderr.write("elasticsearch: Error sending.\n")
-                sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_cod
-e) + "\n")
+                sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_code) + "\n")
             sys.stderr.write("elasticsearch: Index create: %d\n" % r.status_code)
             break
         except Exception, e:
@@ -117,7 +113,7 @@ def output(obs, id):
         es_object: obs
         }
 
-    u = "%s%s/%s/%s?ttl=%s" % (es_url, es_index, es_object, id, ttl)
+    u = "%s%s/%s/%s" % (es_url, es_index, es_object, id)
 
     r = requests.put(u, data=json.dumps(obs),
                      headers={"Content-Type": "application/json"})
