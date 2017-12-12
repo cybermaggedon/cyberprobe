@@ -21,6 +21,7 @@ local string = require("string")
 
 require "socket"
 local sha1 = require 'sha1'
+require 'bit32'
 local timeMS = socket.gettime()*1000
 local hostname = io.popen("uname -n"):read()
 local seedInput = hostname .. timeMS
@@ -28,9 +29,9 @@ local seedInput = hostname .. timeMS
 -- seed only excepts 32 bit numbers, so hash the input and extract last 32 bits
 local seedData = string.sub(sha1.binary(seedInput) , -4,-1)
 local seed = string.byte(seedData,4)
-seed = seed + (string.byte(seedData,3) << 8)
-seed = seed + (string.byte(seedData,3) << 16)
-seed = seed + (string.byte(seedData,3) << 24)
+seed = seed + bit32(string.byte(seedData,3),8)
+seed = seed + bit32(string.byte(seedData,3),16)
+seed = seed + bit32(string.byte(seedData,3),24)
 
 uuid.randomseed(seed)
 
