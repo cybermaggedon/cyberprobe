@@ -106,11 +106,15 @@ against attack. The software consists of a number of components, including:
 
 @item
 a probe, which collects data packets and forwards it over a network in
-standard streaming protocols.
+a streaming protocol.
 
 @item
 a monitor, which receives the streamed packets, decodes the protocols, and
 interprets the information.
+
+@item
+a set of subscribers which can be used to do things with the captured data
+e.g. store to ElasticSearch, BigQuery or Gaffer.
 
 @end itemize
 
@@ -187,46 +191,6 @@ be applicable to other UN*X-like platforms.
 
 The easiest way to learn about the software is to follow our Quick Start
 tutorial.
-
-@cindex Cyberprobe, motivation
-@heading Motivation
-
-Cyberprobe started out as a research tool to study networked applications to
-find out what they were doing, as we all know how software suppliers
-sometimes like to add some "extras" to their software :). So, a simple tool
-to configure how packets are captured from a network was produced. But as
-you are probably aware, the biggest threat to the safety of your information
-is from outside of your network. Thus, the ability to trigger collection of
-packets upon detection of a Snort rule hit was added.
-
-Snort is a powerful IDS system which studies packets on your network,
-analyses them against a set of signatures and creates logs and alerts. We
-felt there was a need to harness the Snort alerts, but use them to trigger
-collection and forwarding of packets from the address which caused the
-alert.
-
-You may be asking why you'd want to use Cyberprobe? After all, monitoring
-networks with tcpdump and Snort and collecting alerts and packet data for
-analysis is a straightforward process for many networks. However, real-time
-analysis is not possible if everything is file based. Collecting the data
-and forwarding over the network to a central collection point allows for a
-much more "industrialised" approach to intrusion detection. If you detect an
-attack attempt, and then observe vast quantities of data leaving your
-network from the credit card accounts database, then you know you need to
-act quickly.
-
-You need flexibility about how you monitor for network attacks. There isn't
-a one-size-fits-all solution. Attackers are ingenious in their approach to
-attacking your network, so you need to have a flexible, configurable
-monitoring tool to develop your defences.
-
-@cindex Cybermaggedon
-@cindex Prophesy of doom
-@heading Warning
-
-There's a war coming... The enemy is resourceful, they can use your networks
-and systems as their own weapon. But with the right tools, you can prepare a
-defence. It's time to get ready for Cybermaggedon.
 
 @cindex Release history
 @cindex Version history
@@ -559,7 +523,7 @@ Run @command{cybermon}.  The @command{cybermon} container exposes ports
 sudo docker -it --rm -p 9000:9000 -v \
   --net=host --privileged --cap-add=NET_ADMIN \
   docker.io/cybermaggedon/cybermon \
-  cybermon /etc/cyberprobe/zeromq.lua
+  cybermon -p 9000 -c /etc/cyberprobe/zeromq.lua
 @end example
 
 @item
@@ -1240,9 +1204,10 @@ OK
 
 @heading Trying other configuration files
 
-In the previous step, you started @command{cybermon} with the monitor.lua
+In the previous step, you started @command{cybermon} with the
+@file{monitor.lua}
 configuration file. Have a play with a couple of the others. Configuration
-file hexdump.lua produces little hex dumps of things like HTTP bodies:
+file @file{hexdump.lua} produces little hex dumps of things like HTTP bodies.
 
 @cindex @file{hexdump.lua}
 
@@ -1250,12 +1215,11 @@ file hexdump.lua produces little hex dumps of things like HTTP bodies:
 cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/hexdump.lua
 @end example
 
-Configuration file @file{dump.lua} causes @command{cybermon} to dump the
-information to files in the data directory.
+Configuration file @file{json.lua} causes @command{cybermon} to output the
+events as JSON objects.
 
 @example
-mkdir data
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/dump.lua
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/json.lua
 @end example
 
 The @file{quiet.lua} configuration file does nothing. It may be a good place
@@ -1465,7 +1429,7 @@ example.org has address 93.184.216.119
 @end example
 
 The @code{example.org} name has been resolved to a particular IP
-address. Let's hack the DNS request function in my.lua:
+address. Let's hack the DNS request function in @file{my.lua}:
 
 @cindex @code{dns_message}
 
@@ -1538,11 +1502,6 @@ you want to find out what else you can do in your LUA code.
 @cindex ElasticSearch
 @cindex Storing observations
 
-This is the most incomplete part of @command{Cyberprobe}. Look at this part
-as demonstrating what might be possible. If you find this interesting, and
-feel you could turn this into something more impressive, well... there's a
-git check-in with your name on.
-
 @heading Storing observations
 
 Now we need somewhere to store the observations which @command{cybermon}
@@ -1552,15 +1511,14 @@ favourite for this sort of scenario is the excellent ElasticSearch (
 of functionality, and is incredibly simple to interface with, thanks to its
 JSON API. So, your next action is to head over to the download page
 (@url{http://www.elasticsearch.org/download/}) and get hold of the latest
-version. I'm using version 2.3.5 to build this tutorial but the
+version. I'm using version 5.6 to build this tutorial but the
 ElasticSearch API has proven hugely stable, so should work with the latest.
 
-Having downloaded the latest version, you unpack it, and run it e.g.
+The easiest way to run ElasticSearch is as a Docker container, although you
+could download and run the distribution.
 
 @example
-tar xvfz elasticsearch-5.6.5.tar.gz
-cd elasticsearch-5.6.5
-bin/elasticsearch
+docker run --name elasticsearch -p 9200:9200 elasticsearch:5.6
 @end example
 
 One brilliant thing about ElasticSearch is that it needs almost no
@@ -1599,11 +1557,18 @@ The response will look something like this:
 @end example
 
 Once ElasticSearch is running, you can get @command{cybermon} to load
-observations into it by using the @file{db.lua} configuration file. So if
-you're continuing the tutorial, you can stop @command{cybermon}, and run:
+observations into it.  To do this we need to run two commands.
+Firstly, @command{cybermon} is run to output events on a ZeroMQ
+pub/sub queue.
 
 @example
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/db.lua
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/zeromq.lua
+@end example
+
+While that's running, we can start the ElasticSearch loader:
+
+@example
+cybermon-elasticsearch
 @end example
 
 After some network data has been observed, you should be able to see results
@@ -1645,10 +1610,9 @@ results.
 
 If you see a lot of information scrolling past on the screen, that's good.
 
-The @file{db.lua} configuration file maps the @command{cybermon}
+@command{cybermon-elasticsearch} maps the @command{cybermon}
 observations into a form which is appropriate to store in
-ElasticSearch. Each observation is stored with a 1 hour time-to-live, to
-the information is not stored for long.
+ElasticSearch. 
 
 @cindex Kibana, dashboard
 @cindex Dashboard
@@ -1659,23 +1623,25 @@ visualisation with Kibana. Kibana is a brilliant, user-configurable
 dashboard package designed to sit on ElasticSearch. The dashboard runs in
 your browser.
 
-First thing to do is to download and unpack Kibana. Kibana is managed by the
+First thing to do is to run up a Kibana container.  Kibana is made by the
 ElasticSearch people, download page is at
 @url{http://www.elasticsearch.co/downloads/kibana}.
 
-Unpack and execute:
+Run a Kibana container:
 
 @example
-tar xvfz tar xvfz kibana-5.6.0-linux-x86_64.tar.gz 
-cd kibana-5.6.0-linux-x86_64
-bin/kibana
+docker run --name kibana \
+  -e ELASTICSEARCH_URL=http://asticsearch:9200/ -p 5601:5601 \
+  --link elasticsearch:elasticsearch kibana:5.6
 @end example
 
 Kibana starts on port 5601, so point your browser at e.g.
 @url{http://localhost:5601}
 
-and hopefully you see Kibana's "Welcome to Kibana" screen.  Read the Kibana
-tutorial and start playing with the data.  First thing you need to do is
+and hopefully you see Kibana's "Welcome to Kibana" screen.
+
+Read the Kibana tutorial and start playing with the data.
+First thing you need to do is
 create a @code{cyberprobe} index with the time field @code{time}.
 The go to the Visualize tab to see raw data.
 

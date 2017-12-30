@@ -41,22 +41,6 @@ module.init = function(s)
   submit = s
 end
 
--- GeoIP -------------------------------------------------------------------
-
--- Open geoip module if it exists.
-local geoip
-status, rtn, geoip = pcall(function() return require("geoip.country") end)
-if status then
-  geoip = rtn
-end 
-
--- Open geoip database if it exists.
-local geodb
-if geoip then
-  geodb = geoip.open()
-  print("Using GeoIP: " .. tostring(geodb))
-end
-
 -- Base64 encoding
 local b64 = function(x)
   local a, b = mime.b64(x)
