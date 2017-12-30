@@ -80,7 +80,7 @@ def init():
         }
     }
 
-    u = "%s/%s" % (es_url, es_index)
+    u = "%s%s" % (es_url, es_index)
 
     while True:
         try: 
@@ -94,7 +94,7 @@ def init():
             sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
             time.sleep(1)
 
-    u = "%s/%s/_mapping/%s" % (es_url, es_index, es_object)
+    u = "%s%s/_mapping/%s" % (es_url, es_index, es_object)
 
     while True:
         try: 
@@ -110,9 +110,6 @@ def init():
             time.sleep(1)
 
 def output(obs, id):
-    obs = {
-        es_object: obs
-        }
 
     u = "%s%s/%s/%s" % (es_url, es_index, es_object, id)
 
