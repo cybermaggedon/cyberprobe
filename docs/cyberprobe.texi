@@ -653,6 +653,20 @@ Pub/sub subscriber, delivers events to ElasticSearch.
 @item cybermon-gaffer
 Pub/sub subscriber, delivers events to Gaffer.
 
+@cindex @command{cybermon-geoip}
+@item cybermon-geoip
+Pub/sub subscriber, uses GeoIP to add location information to events, and
+then republishes them.
+
+@cindex @command{cybermon-detector}
+@item cybermon-detector
+Pub/sub subscriber, looks for matches for STIX IOCs, adds IOC information
+to events, and then republishes them.
+
+@cindex @command{cybermon-dump}
+@item cybermon-dump
+Pub/sub subscriber, dumps out raw JSON messages.
+
 @end table
 
 @cindex Discussion forums
@@ -1951,13 +1965,39 @@ In order to use this mechanism, you need to ensure you have configured
 @file{zeromq.lua} to @file{cybermon.lua} in directory
 @file{@value{SYSCONFDIR}/cyberprobe/}.
 prior to executing
-@command{cybermon}.  Once running, @command{cybermon} will publish all events
+@command{cybermon}.  Alternatively, @command{cybermon} can be manually
+invoked, specifying the @file{zeromq.lua} pathname on the command line.
+
+Once running, @command{cybermon} will publish all events
 to it's publisher port on TCP port 5555.
 
 ZeroMQ allows subscribers to be started and stopped without affecting the
 delivery of events to other receivers.  That is, you can start
 @command{cybermon} with no subscribers, discarding data, and introduce
 subscribers later.
+
+For more advanced processing scenarios, multiple pub/sub components can be
+chained.  e.g.
+
+@itemize @bullet
+
+@item
+@command{cybermon} can be executed with @file{zeromq.lua} to publish
+events to TCP port 5555.
+
+@item
+@command{cybermon-geoip} can subscribe to port 5555, and push
+events containing information to port 5556.
+
+@item
+@command{cybermon-detector} can lookup for IOCs and push events with IOC
+detection information to port 5557.
+
+@item
+@command{cybermon-elasticsearch} can subscribe to port 5557 and write events to
+ElasticSearch.
+
+@end itemize
 
 @comment ----------------------------------------------------------------------
 
@@ -2172,6 +2212,9 @@ See @ref{@command{cybermon-monitor} invocation}.
 * @command{cybermon-bigquery} invocation::
 * @command{cybermon-gaffer} invocation::
 * @command{cybermon-cassandra} invocation::
+* @command{cybermon-geoip} invocation::
+* @command{cybermon-detector} invocation::
+* @command{cybermon-dump} invocation::
 * @command{taxii-client} invocation::
 * @command{taxii-sync-json} invocation::
 * @command{taxii-server} invocation::
@@ -4249,6 +4292,64 @@ The SMTP email body.
 
 @end table
 
+
+@item location
+@cindex GeoIP
+@cindex @command{cybermon-geoip}
+Not emitted by @command{cybermon}, but can be added to the message by
+@command{cybermon-geoip}.  See @ref{@command{cybermon-geoip} invocation}.
+
+The @code{location} object contains potentially two child-objects:
+@code{src} and @code{dest}.  Both @code{src} and @code{dest} may contain the
+following fields, if the information is known:
+
+@table @samp
+
+@item city
+Name of the city from the GeoIP database.
+
+@item iso
+Country ISO code, 2 characters.
+
+@item country
+Country name.
+
+@item latitude
+Latitude, degrees north of the equator.
+
+@item longitude
+Longitude, degrees east of Greenwich.
+
+@end table
+
+
+@item indicators
+@cindex IOC
+@cindex Indicator of compromise
+@cindex @command{cybermon-detector}
+Not emitted by @command{cybermon}, but can be added to the message by
+@command{cybermon-detector}.  See @ref{@command{cybermon-detector} invocation}.
+
+The @code{indicators} object is an array of IOC hits, if any have been
+detected.  Each array element is an object with the following fields:
+
+@table @samp
+
+@item id
+IOC identifier.
+
+@item type
+IOC type, one of: @code{ipv4}, @code{hostname}, @code{tcp}, @code{udp},
+@code{hostname}, @code{email}, @code{url}.
+
+@item value
+IOC hit value.
+
+@item description
+Human-readable text describing the IOC.
+
+@end table
+
 @end table
 
 @comment ----------------------------------------------------------------------
@@ -4413,10 +4514,6 @@ to @samp{http://gaffer:8080/example-rest/v1}.
 
 @end table
 
-The Gaffer subscriber is intended to work with a Gaffer schema which is
-installed at
-@file{@value{DOCDIR}/gaffer-schema.json}.
-
 @comment ----------------------------------------------------------------------
 
 @node @command{cybermon-cassandra} invocation
@@ -4456,6 +4553,117 @@ to @samp{tcp://localhost:5555}.
 Specifies a comma-separated list of Cassandra store hosts to contact.
 If not specified, defaults
 to @samp{localhost}.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-geoip} invocation
+@section @command{cybermon-geoip} invocation
+
+@cindex @command{cybermon-geoip}, invocation
+@cindex GeoIP
+
+@command{cybermon-geoip} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon} events, adds location information from GeoIP, and
+re-publishes the elaborated events.  This effectively creates a processing
+chain.  The event subscription and publishing events should be different in
+order to avoid creating an infinite loop.
+
+Synopsis:
+
+@example
+cybermon-geoip [BINDING [PUBLICATION] ]
+@end example
+
+Example:
+@example
+cybermon-geoip
+cybermon-geoip tcp://localhost:5555 tcp://localhost:5556
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@item PUBLICATION
+Specifies the ZeroMQ pub/sub queue to publish to.  If not specified, defaults
+to @samp{tcp://*:5556}.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-detector} invocation
+@section @command{cybermon-detector} invocation
+
+@cindex @command{cybermon-detector}, invocation
+@cindex STIX
+@cindex IOC
+@cindex Indicator of compromise
+
+@command{cybermon-detector} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon} events, inspects them for IOCs, and adds detection
+information if IOCs are observed before re-publishing
+the elaborated events.  This effectively creates a processing
+chain.  The event subscription and publishing events should be different in
+order to avoid creating an infinite loop.
+
+Synopsis:
+
+@example
+cybermon-detector [BINDING [PUBLICATION] ]
+@end example
+
+Example:
+@example
+cybermon-detector
+cybermon-detector tcp://localhost:5555 tcp://localhost:5556
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@item PUBLICATION
+Specifies the ZeroMQ pub/sub queue to publish to.  If not specified, defaults
+to @samp{tcp://*:5556}.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
+@node @command{cybermon-dump} invocation
+@section @command{cybermon-dump} invocation
+
+@cindex @command{cybermon-dump}, invocation
+@cindex JSON
+@cindex Cybermon JSON message format
+
+@command{cybermon-dump} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon} events, and dumps the raw JSON to standard output.
+
+Synopsis:
+
+@example
+cybermon-dump [BINDING]
+@end example
+
+Example:
+@example
+cybermon-dump
+cybermon-dump tcp://localhost:5555
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
 
 @end table
 
@@ -5214,7 +5422,7 @@ is a ZeroMQ subscriber which output @command{cybermon} events to a
 Google BigQuery table.
 
 @item cybermon-cassandra
-@cindex @command{cybermon-cassanra}
+@cindex @command{cybermon-cassandra}
 @cindex Cassandra
 @cindex Apache Cassandra
 is a ZeroMQ subscriber which output @command{cybermon} events to a
