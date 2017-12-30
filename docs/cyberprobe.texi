@@ -8,6 +8,7 @@
 
 @settitle Cyberprobe @value{VERSION}
 @syncodeindex pg cp
+@paragraphindent 0
 @comment %**end of header
 
 @copying
@@ -1690,7 +1691,8 @@ documents and dumps some stuff out.
 A script @command{taxii-sync-json} which connects to a TAXII server, gets
 STIX documents, massages the whole lot into a single JSON form, and dumps
 that to a file.  This is intended to be used with the
-@file{stix+db.lua} and @file{stix+alert.lua} configuration files.
+@file{cybermon-detector} subscriber.
+See @ref{@command{cybermon-detector} invocation}.
 
 @item
 A configuration file for @command{cybermon} which reads the JSON threat
@@ -1800,12 +1802,12 @@ If this works, you should see the following output:
 
 @example
 [
-  {
+  @{
     "type": "url",
     "id": "example1:7",
     "value": "http://www.malware.com/malware.dat",
     "description": "URL of a page serving malware"
-  }
+  @}
 ]
 @end example
 
@@ -4707,18 +4709,12 @@ YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm
 
 @cindex @command{taxii-sync-json}, invocation
 
-@cindex @file{stix+db.lua} configuration file
-@cindex @command{cybermon}, @file{stix+db.lua} configuration file
-@cindex @file{stix+alert.lua} configuration file
-@cindex @command{cybermon}, @file{stix+alert.lua} configuration file
-
 @command{taxii-sync-json} provides a means to connect with a TAXII compliant
 server to acquire cyber threat information.  @command{taxii-sync-json}
 uses a TAXII poll request, and reformats all STIX information into a single
 JSON file which is written to the current directory.  This JSON form is
-intended to be used with the @file{stix+db.lua} and @file{stix+alert.lua}
-configuration files for @command{cybermon}.  See
-@ref{@command{cybermon} example configurations}.
+intended to be used with @command{cybermon-detector}.
+See @ref{@command{cybermon-detector} invocation}.
 
 TAXII/STIX implementation is experimental and incomplete.
 
@@ -4904,10 +4900,8 @@ killall etsi-rcvr
 
 @heading Overview
 
-@cindex @file{stix+db.lua} configuration file
-@cindex @code{cybermon}, @file{stix+db.lua} configuration file
-When @command{cybermon} is used with the @file{stix+db.lua} or @file{db.lua}
-configuration files, observations are created in an ElasticSearch database.
+When @command{cybermon-elasticsearch} is used
+observations are created in an ElasticSearch database.
 These configuration files call the @file{elastic.lua} utility module.
 This section describes the data model used in the ElasticSearch database.
 
@@ -5317,12 +5311,9 @@ session/transport level events which result in user-configurable
 actions. For each event, a call is made to a Lua script which the caller
 provides.
 
-@item stix+db.lua
-@cindex @file{stix+db.lua} configuration file
-@cindex @command{cybermon}, @file{stix+db.lua} configuration file
-is a cybermon configuration file we provide. It translates the cybermon
-events into a JSON description which is fed into an ElasticSearch
-database. This configuration file also reads a STIX configuration file for
+@item cybermon-detector
+@cindex @command{cybermon-detector} invocation
+runs events past an IOC list, searching for
 cyber threat indicators. When these indicators are observed, the indicator
 meta-data is also added to the JSON events.
 
