@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+import zmq
+import json
+import sys
+import GeoIP
+
+geo = GeoIP.open("/usr/share/GeoIP/GeoLiteCity.dat", GeoIP.GEOIP_STANDARD)
+
+if len(sys.argv) < 2:
+    binding = "tcp://localhost:5555"
+else:
+    binding = sys.argv[1]
+    
+if len(sys.argv) < 3:
+    publish = "tcp://*:5556"
+else:
+    publish = sys.argv[1]
+
+def lookup(ip):
+
+    g = geo.record_by_addr(ip)
+    if g == None: return None
+
+    locn = {
+    }
+
+    if g["city"]: locn["city"] = g["city"]
+    if g["country_code"]: locn["iso"] = g["country_code"]
+    if g["country_name"]: locn["country"] = g["country_name"]
+    if g["latitude"] and g["longitude"]: locn["position"] = {
+            "latitude": g["latitude"],
+            "longitude": g["longitude"]
+    }
+    if g["postal_code"]: locn["postcode"] = g["postal_code"]
+
+    return locn
+    
+def handle(msg):
+    sip = None
+    dip = None
+
+    for v in msg["src"]:
+        if v.startswith("ipv4:"):
+            sip = v[5:]
+            break
+    
+    for v in msg["dest"]:
+        if v.startswith("ipv4:"):
+            dip = v[5:]
+            break
+
+    if sip != None:
+        g = lookup(sip)
+        if g != None:
+            if not msg.has_key("location"): msg["location"] = {}
+            msg["location"]["src"] = g
+
+    if dip != None:
+        g = lookup(dip)
+        if g != None:
+            if not msg.has_key("location"): msg["location"] = {}
+            msg["location"]["dest"] = g
+            
+    skt2.send(json.dumps(msg))
+
+ctxt = zmq.Context()
+skt = ctxt.socket(zmq.SUB)
+skt.connect(binding)
+skt.setsockopt(zmq.SUBSCRIBE, "")
+
+skt2 = ctxt.socket(zmq.PUB)
+skt2.bind(publish)
+
+while True:
+    try:
+        msg = skt.recv()
+        handle(json.loads(msg))
+    except Exception, e:
+        sys.stderr.write("Exception: %s\n" % str(e))
+
+

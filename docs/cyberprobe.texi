@@ -236,9 +236,13 @@ Cyberprobe releases:
 
 @table @code
 
+@item 1.7.0
+Gaffer subscriber brought up-to-date with Gaffer 1.0 API.  GeoIP and
+IOC processor added to the subscriber model.
+
 @item 1.6.8
 Numerous fixes. UUID generation uses a good seed.  ElasticSearch loading
-fixed, Mac compilation fixed.  Gaffer documentation updated.
+fixed, Mac compilation fixed.
 
 @item 1.6.0
 Changed ETSI sender so that packet streams are multiplexed over multiple

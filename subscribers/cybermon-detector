@@ -1,0 +1,216 @@
+#!/usr/bin/env python
+
+import zmq
+import json
+import sys
+import GeoIP
+import os
+
+geo = GeoIP.open("/usr/share/GeoIP/GeoLiteCity.dat", GeoIP.GEOIP_STANDARD)
+
+if len(sys.argv) < 2:
+    binding = "tcp://localhost:5556"
+else:
+    binding = sys.argv[1]
+    
+if len(sys.argv) < 3:
+    publish = "tcp://*:5557"
+else:
+    publish = sys.argv[1]
+
+stix = {}
+
+stix_file = os.getenv("STIX_INDICATORS", "stix-default-combined.json")
+mtime = 0
+
+def check_config():
+
+    global mtime
+    global stix
+    
+    s = os.stat(stix_file).st_mtime
+    if s != mtime:
+
+        stix = {
+            "index": {
+                "email": {},
+                "user_account": {},
+                "hostname": {},
+                "port": {},
+                "url": {},
+                "ipv4": {},
+                "mac": {},
+                "file": {},
+                "hash": {}
+            }
+        }
+
+        data = open(stix_file, "r").read()
+        stix["configuration"] = json.loads(data)
+
+        ind = stix["configuration"]["indicators"]
+        for i in ind:
+            o = i["observable"]["object"]["properties"]
+            if o["xsi:type"] == "AddressObjectType":
+                if o["category"] == "e-mail":
+                    stix["index"]["email"][o["address_value"]] = i
+                if o["category"] == "ipv4-addr":
+                    stix["index"]["ipv4"][o["address_value"]] = i
+                if o["category"] == "mac":
+                    stix["index"]["mac"][o["address_value"]] = i
+            elif o["xsi:type"] == "UserAccountObjectType":
+                if o["domain"] and o["username"]:
+	            ix = o["domain"] + "|" + o["username"]
+	            stix["index"]["user_account"][ix] = i
+            elif o["xsi:type"] == "HostnameObjectType":
+                stix["index"]["hostname"][o["hostname_value"]] = i
+            elif o["xsi:type"] == "PortObjectType":
+                if o["port_value"] and o["layer4_protocol"]:
+	            ix = o["layer4_protocol"]["value"] + ":" + str(o["port_value"])
+	            stix["index"]["port"][ix] = i
+            elif o["xsi:type"] == "URIObjectType":
+                stix["index"]["url"][o["value"]] = i
+
+        print "STIX data loaded."
+        mtime = s
+
+def check_addresses(msg):
+
+    ips = {}
+    for v in msg["src"]:
+        if v.startswith("ipv4"): ips[v[5:]] = True
+    for v in msg["dest"]:
+        if v.startswith("ipv4"): ips[v[5:]] = True
+
+    for v in ips:
+        if stix["index"]["ipv4"].has_key(v):
+            hit = stix["index"]["ipv4"][v]
+            indicator = {
+                "type": "ipv4",
+                "value": v,
+                "id": hit["id"],
+                "description": hit["description"]
+            }
+            if not msg.has_key("indicators"): msg["indicators"] = []
+            msg["indicators"].append(indicator)
+
+    ports = {}
+    for v in msg["src"]:
+        if v.startswith("tcp"): ports[v] = True
+    for v in msg["dest"]:
+        if v.startswith("tcp"): ports[v] = True
+
+    for v in ports:
+        if stix["index"]["port"].has_key(v):
+            hit = stix["index"]["port"][v]
+            indicator = {
+                "type": "tcp",
+                "value": v,
+                "id": hit["id"],
+                "description": hit["description"]
+            }
+            if not msg.has_key("indicators"): msg["indicators"] = []
+            msg["indicators"].append(indicator)
+
+    ports = {}
+    for v in msg["src"]:
+        if v.startswith("udp"): ports[v] = True
+    for v in msg["dest"]:
+        if v.startswith("udp"): ports[v] = True
+
+    for v in ports:
+        if stix["index"]["port"].has_key(v):
+            hit = stix["index"]["port"][v]
+            indicator = {
+                "type": "udp",
+                "value": v,
+                "id": hit["id"],
+                "description": hit["description"]
+            }
+            if not msg.has_key("indicators"): msg["indicators"] = []
+            msg["indicators"].append(indicator)
+
+def check_dns(msg):
+
+    hosts = {}
+
+    if msg.has_key("dns_message") and msg["dns_message"].has_key("query"):
+        for v in msg["dns_message"]["query"]:
+            if v.has_key("name"):
+                hosts[v["name"]] = True
+    if msg.has_key("dns_message") and msg["dns_message"].has_key("answer"):
+        for v in msg["dns_message"]["answer"]:
+            if v.has_key("name"):
+                hosts[v["name"]] = True
+
+    for v in hosts:
+        if stix["index"]["hostname"].has_key(v):
+            hit = stix["index"]["hostname"][v]
+            indicator = {
+                "type": "hostname",
+                "value": v,
+                "id": hit["id"],
+                "description": hit["description"]
+            }
+            if not msg.has_key("indicators"): msg["indicators"] = []
+            msg["indicators"].append(indicator)
+
+def check_url(msg):
+
+    if msg.has_key("url"):
+        if stix["index"]["url"].has_key(msg["url"]):
+            hit = stix["index"]["url"][msg["url"]]
+            indicator = {
+                "type": "url",
+                "value": msg["url"],
+                "id": hit["id"],
+                "description": hit["description"]
+            }
+            if not msg.has_key("indicators"): msg["indicators"] = []
+            msg["indicators"].append(indicator)
+
+def check_email(msg):
+
+    emails = {}
+    if msg.has_key("smtp_data") and msg["smtp_data"].has_key("from"):
+        emails[msg["smtp_data"]["from"]] = True
+    if msg.has_key("smtp_data") and msg["smtp_data"].has_key("to"):
+        for v in msg["smtp_data"]["to"]:
+            emails[v] = True
+
+    for v in emails:
+        if stix["index"]["email"].has_key(v):
+            hit = stix["index"]["email"][v]
+            indicator = {
+                "type": "url",
+                "value": v,
+                "id": hit["id"],
+                "description": hit["description"]
+            }
+            if not msg.has_key("indicators"): msg["indicators"] = []
+            msg["indicators"].append(indicator)
+
+def handle(msg):
+    check_addresses(msg)
+    check_dns(msg)
+    check_url(msg)
+    check_email(msg)
+    skt2.send(json.dumps(msg))
+
+ctxt = zmq.Context()
+skt = ctxt.socket(zmq.SUB)
+skt.connect(binding)
+skt.setsockopt(zmq.SUBSCRIBE, "")
+
+skt2 = ctxt.socket(zmq.PUB)
+skt2.bind(publish)
+
+while True:
+    try:
+        msg = skt.recv()
+        check_config()
+        handle(json.loads(msg))
+    except Exception, e:
+        sys.stderr.write("Exception: %s\n" % str(e))
+
+
