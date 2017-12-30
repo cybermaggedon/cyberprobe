@@ -73,11 +73,6 @@ environments, a number of probes can feed a single monitor. For more detail,
 and to see where we are going, read the @ref{Architecture} page.
 
 @quotation Note
-FIXME: This manual page is slightly out-of-date, and needs to cover the
-visualisation components.
-@end quotation
-
-@quotation Note
 FIXME: Architecture diagram needs an update.
 @end quotation
 
@@ -240,6 +235,10 @@ defence. It's time to get ready for Cybermaggedon.
 Cyberprobe releases:
 
 @table @code
+
+@item 1.6.8
+Numerous fixes. UUID generation uses a good seed.  ElasticSearch loading
+fixed, Mac compilation fixed.  Gaffer documentation updated.
 
 @item 1.6.0
 Changed ETSI sender so that packet streams are multiplexed over multiple
@@ -439,20 +438,8 @@ There are a number of ways to obtain the software:
 @heading Download packages
 
 The easiest way to obtain the software is to download the package for the
-operating system you are using.  Packages are currently available for:
-
-@itemize
-
-@item
-Fedora 24, 64-bit.
-
-@item
-Debian Jessie, 64-bit.
-
-@item
-Ubuntu, 64-bit.  FIXME: What version?
-
-@end itemize
+operating system you are using.  Packages are currently available for
+Fedora, Debian and Ubuntu.
 
 Downloads are available on the project page at
 @url{http://github.com/cybermaggedon/cyberprobe/releases}.
@@ -1973,6 +1960,11 @@ subscribers later.
 @node The Cassandra subscriber
 @section The Cassandra subscriber
 
+@quotation Note
+The Cassandra subscriber doesn't do much useful.  I recommend skipping this
+bit.
+@end quotation
+
 @cindex @command{cybermon-cassandra}, invocation
 @cindex Cassandra
 @cindex Apache Cassandra
@@ -2022,22 +2014,89 @@ See @ref{@command{cybermon-elasticsearch} invocation}.
 @cindex Gaffer
 @cindex Graph store
 
-Gaffer is an experimental graph database built on top of Accumulo, Zookeeper
-and Hadoop.  This subscriber writes IP-to-IP communication nodes in the
+@heading About Gaffer
+
+Gaffer is a graph database built on top of Accumulo, Zookeeper
+and Hadoop.  This subscriber writes IP, TCP and UDP communication information
+into the
 graph.  If you want to use this, get familiar with Gaffer.
-Gaffer is developed at @url{https://github.com/gchq/Gaffer}, and I have Gaffer
-containers here: @url{https://hub.docker.com/r/cybermaggedon/wildfly-gaffer/}.
+Gaffer development is hosted on Github at
+@url{https://github.com/gchq/Gaffer}, and I maintain Gaffer containers here:
+
+@table @url
+
+@item https://hub.docker.com/r/cybermaggedon/wildfly-gaffer/
+Gaffer component, provides REST interface running in a Wildfly container.
+
+@item https://hub.docker.com/r/cybermaggedon/accumulo-gaffer/
+Accumulo component, with added Gaffer operator library which is necessary
+to be able to use Gaffer on Accumulo.
+
+@item https://hub.docker.com/r/cybermaggedon/zookeeper/
+Zookeeper container, which is required by Accumulo.
+
+@item https://hub.docker.com/r/cybermaggedon/hadooop/
+Hadoop container, which is required by Accumulo.
+
+@end table
+
+@heading Running Gaffer
+
+To get started, you can run a Gaffer system by launching with the minimal
+set of containers:
+
+@example
+
+GAFFER_VERSION=1.1.2
+
+# Run Hadoop
+docker run -d --name hadoop cybermaggedon/hadoop:2.8.1
+
+# Run Zookeeper
+docker run -d --name zookeeper \
+      cybermaggedon/zookeeper:3.4.10b
+
+# Run Accumulo
+docker run -d --name accumulo --link zookeeper:zookeeper \
+      --link hadoop:hadoop \
+      cybermaggedon/accumulo-gaffer:$@{GAFFER_VERSION@}
+
+# Run Wildfly, exposing port 8080.
+docker run -d --name wildfly --link zookeeper:zookeeper \
+  --link hadoop:hadoop --link accumulo:accumulo \
+  -p 8080:8080 \
+  cybermaggedon/wildfly-gaffer:$@{GAFFER_VERSION@}
+
+@end example
+
+The Gaffer/Wildfly component takes about 30 seconds to bed in.  Once working,
+you can check the status of Gaffer by interacting with the REST API.  This
+command should return the Graph schema, which is a JSON object:
+
+@example
+wget -q -O- http://localhost:8080/rest/v1/graph/schema
+@end example
+
+You can fetch the entire graph using this command.  Initially, the graph will
+be empty.  This command may take a long while to run once the graph is loaded
+with loads of data:
+
+@example
+wget -q -O- --header 'Content-Type: application/json' \
+  --post-data '
+  @{"class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"@}
+  ' http://localhost:8080/rest/v2/graph/operations/execute
+@end example
+
+@heading Linking to @command{cybermon}
 
 On the command-line you need to tell the subscriber the location
 of the Gaffer REST API. e.g.
 
 @example
 cybermon-gaffer tcp://localhost:5555 \
-    http://gaffer-host1:8080/example-rest/v1
+    http://localhost:8080/rest/v1
 @end example
-
-The Gaffer subscriber is intended to work with a Gaffer schema which is
-@file{@value{DOCDIR}/gaffer-schema.json}.
 
 See @ref{@command{cybermon-gaffer} invocation}.
 
@@ -2071,11 +2130,6 @@ provide any further parameters on the command line.  Just run:
 @example
 cybermon-bigquery
 @end example
-
-@quotation Note
-FIXME: Document the schema.  The easiest way to see the schema is to use
-this subscriber, and view the schema in the Google BigQuery interface.
-@end quotation
 
 See @ref{@command{cybermon-bigquery} invocation}.
 
@@ -2415,7 +2469,7 @@ Can be one of @samp{tcp} or @samp{tls} for TCP or TLS transports.
 @end table
 
 Note: It is not possible to specify the appropriate transport paramters for
-TLS delivery using the management interface currently.  (FIXME).
+TLS delivery using the management interface currently.
 
 @item add interface INTERFACE DELAY [FILTER]
 Adds an interface for packet sniffing.
@@ -4340,7 +4394,7 @@ Example:
 @example
 cybermon-gaffer
 cybermon-gaffer tcp://localhost:5555 \
-    http://gaffer-store:8080/example-rest/v1
+    http://gaffer-store:8080/rest/v1
 @end example
 
 @table @samp

@@ -16,7 +16,7 @@ else:
     binding = sys.argv[1]
 
 if len(sys.argv) < 3:
-    gaffer = "http://gaffer:8080/example-rest/v1"
+    gaffer = "http://gaffer:8080/rest/v1"
 else:
     gaffer = sys.argv[2]
 
@@ -40,29 +40,32 @@ def init():
 def output(vertices, edges):
 
     body = {}
-    body["elements"] = []
+    body["input"] = []
+    body["class"] = "uk.gov.gchq.gaffer.operation.impl.add.AddElements"
+    body["validate"] = True
+    body["skipInvalidElements"] = False
 
     for v in vertices:
 
         elt = {}
-        elt["class"] = "gaffer.data.element.Entity"
+        elt["class"] = "uk.gov.gchq.gaffer.data.element.Entity"
         elt["group"] = v[0]
         elt["vertex"] = v[1]
         elt["properties"] = { "count": 1 }
 
-        body["elements"].append(elt)
+        body["input"].append(elt)
 
     for v in edges:
 
         elt = {}
         elt["directed"] = True
-        elt["class"] = "gaffer.data.element.Edge"
+        elt["class"] = "uk.gov.gchq.gaffer.data.element.Edge"
         elt["group"] = v[0]
         elt["source"] = v[1]
         elt["destination"] = v[2]
         elt["properties"] = { "count": 1 }
 
-        body["elements"].append(elt)
+        body["input"].append(elt)
 
     while True:
         try:
@@ -76,6 +79,7 @@ def output(vertices, edges):
             if r.status_code != 204:
                 sys.stderr.write("gaffer: Error sending to Gaffer\n")
                 sys.stderr.write("gaffer: HTTP code: %s\n" % str(r.status_code))
+                sys.stderr.write(r.text + "\n")
             break
         except Exception, e:
             # Keep retrying for transport errors
@@ -149,13 +153,13 @@ def handle(msg):
         dest = dip + ":" + dport
         add_vertex(vertices, "ip", sip)
         add_vertex(vertices, "ip", dip)
-        add_edge(edges, "ip_flow", sip, dip)
+        add_edge(edges, "ipflow", sip, dip)
         add_vertex(vertices, "tcp", src)
         add_vertex(vertices, "tcp", dest)
-        add_edge(edges, "tcp_flow", src, dest)
+        add_edge(edges, "tcpflow", src, dest)
 
         if msg.has_key("url") and msg["action"] == "http_request":
-            add_edge(edges, "http_request", src, msg["url"])
+            add_edge(edges, "httprequest", src, msg["url"])
 
     if sip != None and sport != None and dip != None and dport != None and \
        proto == "udp":
@@ -163,14 +167,14 @@ def handle(msg):
         dest = dip + ":" + dport
         add_vertex(vertices, "ip", sip)
         add_vertex(vertices, "ip", dip)
-        add_edge(edges, "ip_flow", sip, dip)
+        add_edge(edges, "ipflow", sip, dip)
         add_vertex(vertices, "udp", src)
         add_vertex(vertices, "udp", dest)
-        add_edge(edges, "udp_flow", src, dest)
+        add_edge(edges, "udpflow", src, dest)
 
         if msg.has_key("queries") and msg["action"] == "dns_message":
             for v in msg["queries"]:
-                add_edge(edges, "dns_request", src, v["name"])
+                add_edge(edges, "dnsrequest", src, v["name"])
 
     output(vertices, edges)
 
