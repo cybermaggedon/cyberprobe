@@ -1743,7 +1743,7 @@ taxii-server --port 8080
 If that works, use the test client to communicate:
 
 @example
-taxii-client --port 8080
+taxii-client --port 8080 --poll
 @end example
 
 And you should see some stuff that looks like cyber threat information
@@ -1760,49 +1760,53 @@ JSON form I can easily ingest into the LUA code:
 taxii-sync-json --port 8080
 @end example
 
-This should create a JSON file called @file{stix-default-combined.json}.
+This will create a JSON file called @file{stix-default-combined.json}.
 
-Finally, stop any running @command{cybermon} processes, and run
-@command{cybermon} with a configuration file which reads the JSON file.
-
-@cindex @file{stix+alert.lua}
-
-@cindex @file{stix+alert.lua} configuration file
-@cindex @command{cybermon}, @file{stix+alert.lua} configuration file
+Finally, run processing.  Stop any running @command{cybermon} and
+@command{cybermon-elasticsearch} processes.  Then run @command{cybermon}
+to publish to a queue on TCP port 5555:
 
 @example
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/stix+alert.lua
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/zeromq.lua
 @end example
 
-Now, this produces no output, except when activity which hits on a cyber
-threat is observed. If you used my sample data, then this activity should
-trigger a theat:
+Next run @command{cyberprobe-detector} to apply STIX rules.  By default,
+this will subscribe to port 5555 and publish to port 5556:
+
+@example
+STIX_INDICATORS=stix-default-combined.json cybermon-detector
+@end example
+
+Finally, in order to look at the output, we need to subscribe to port 5556:
+
+@example
+cybermon-dump tcp://localhost:5556
+@end example
+
+If you have @command{jq} installed, this will make it easier to see
+when indicators hit:
+
+@example
+cybermon-dump tcp://localhost:5556 | jq --unbuffered .indicators
+@end example
+
+This activity should trigger a theat:
 
 @example
 wget -q -O- http://www.malware.com/malware.dat
 @end example
 
-I should just say at this point, I have no idea if the @code{malware.com}
-site is dodgy or not, it just seems to redirect to Wikipedia. Hope they
-don't mind us using them for this test.
-
 If this works, you should see the following output:
 
 @example
-DNS query for www.malware.com, hits example1:5 (Hostname of malware
-server)!
-DNS query for www.malware.com, hits example1:5 (Hostname of malware
- server)!
-DNS response for www.malware.com, hits example1:5 (Hostname of malware
- server)!
-DNS response for www.malware.com, hits example1:5 (Hostname of malware
- server)!
-HTTP request to http://www.malware.com/malware.dat, hits example1:7 (URL
- of a page serving malware)!
-HTTP request to www.malware.com, hits example1:5 (Hostname of malware
- server)!
-HTTP response from http://www.malware.com/malware.dat, hits example1:7
- (URL of a page serving malware)!
+[
+  {
+    "type": "url",
+    "id": "example1:7",
+    "value": "http://www.malware.com/malware.dat",
+    "description": "URL of a page serving malware"
+  }
+]
 @end example
 
 This hits on a number of theat indicators. The hostname www.malware.com is
@@ -1811,22 +1815,18 @@ both the DNS query and response. Also, the URL
 @code{http://www.malware.com/malware.dat} is in a threat indicator and it is
 detected in both the HTTP request and response.
 
-@cindex @file{stix+alert.lua} configuration file
-@cindex @command{cybermon}, @file{stix+alert.lua} configuration file
-The @file{stix+alert.lua} configuration file updates its configuration if
+@command{cybermon-detector} updates its state if
 the JSON configuration file has changed. So, you can do a round-trip update
 by changing the input files, re-running stix-create, using
 @command{taxii-sync-json} to fetch the updates, and all without stopping the
 monitoring.
 
-@cindex @file{stix+db.lua} configuration file
-@cindex @command{cybermon}, @file{stix+db.lua} configuration file
+If you want to load the output of @command{cybermon-detector} into
+ElasticSearch, you can, but you need to subscribe to port 5556:
 
-The @file{stix+db.lua} configuration file generates ElasticSearch events as
-@file{db.lua} does, but it also adds indicator detection information to
-the events. If you use @file{stix+db.lua}, with the Kibana dashboard, the
-"Indications" table on the right hand side of the dashboard will show
-detected indicators.
+@example
+cybermon-elasticsearch tcp://localhost:5556
+@end example
 
 @heading Conclusion
 
@@ -3702,17 +3702,6 @@ protocol data in the DNS encoder.
 
 @table @file
 
-@item db.lua
-
-Connects to a local ElasticSearch instance, and generates observations
-which are stored as @code{observation} objects in the @code{cyberprobe}
-index.  A mapping is applied which applies a time-to-live of 1 hour on
-all objects.
-
-@item dump.lua
-
-Outputs event payloads to @file{data/dump.*} files.
-
 @item forge-dns.lua
 
 Example Lua script, spots DNS queries for @samp{example.org}, and responds
@@ -3769,31 +3758,6 @@ Each message is JSON format, see @ref{Cybermon JSON message format}.
 Does nothing.  This is an empty code shell, and a good template to write
 your own event handler.
 
-@item stix+alert.lua
-
-Looks in the current directory for the JSON file
-@file{stix-default-combined.json} which is read for STIX indicators.
-
-Then, scans events for threats, and if detected are alerted on standard output
-in a human-readable form.
-
-@item stix+db.lua
-@cindex @file{stix+db.lua} configuration file
-@cindex @code{cybermon}, @file{stix+db.lua} configuration file
-
-Like @file{stix+alert.lua} but also generates ElasticSearch observations
-as @file{db.lua} does.  The ElasticSearch observations have threat hit
-information added.q
-
-@item volmon+alert.lua
-
-Like @file{volmon} but alerts are written to a TCP server on port 10101.
-
-@item volmon.lua
-
-Monitors all sessions and calculates volumes of data.  Creates a human-readable
-alert when volumes exceed a certain value.
-
 @end table
 
 @heading Utilities
@@ -3811,21 +3775,10 @@ The utilities are:
 @table @file
 
 @item addresses.lua
-
 Some @code{cybermon} address handling functions.
 
-@item elastic.lua
-
-ElasticSearch observation creation.
-
-@item http.lua
-
-HTTP transport functions.
-
-@item stix.lua
-
-Utilities used to read STIX threat specifications, and detect their presence
-in @code{cybermon} events.
+@item json.lua
+The real JSON formatting is done here.
 
 @end table
 
