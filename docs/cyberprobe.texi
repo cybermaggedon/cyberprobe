@@ -202,7 +202,8 @@ Cyberprobe releases:
 
 @item 1.7.0
 Gaffer subscriber brought up-to-date with Gaffer 1.0 API.  GeoIP and
-IOC processor added to the subscriber model.
+IOC processor added to the subscriber model.  Some unmaintained Lua code
+deprecated, as the subscriber model takes care of the functionality.
 
 @item 1.6.8
 Numerous fixes. UUID generation uses a good seed.  ElasticSearch loading
