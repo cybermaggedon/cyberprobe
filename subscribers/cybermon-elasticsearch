@@ -28,56 +28,272 @@ def init():
     mapping = {
         es_object: {
             "properties": {
-                "id": { "type": "keyword" },
-                "time": { "type": "date" },
-                "url": { "type": "keyword" },
-                "queries": { "type": "keyword" },
-                "action": { "type": "keyword" },
-                "device": { "type": "keyword" },
-                "type": {"type": "keyword" },
-                "method": {"type": "keyword" },
-                "src": {
-                    "properties": {
-                        "ipv4": { "type": "ip" },
-                        "tcp": { "type": "integer"},
-                        "udp": { "type": "integer"}
-                    }
-                },
-                "dest": {
-                    "properties": {
-                        "ipv4": { "type": "ip" },
-                        "tcp": { "type": "integer"},
-                        "udp": { "type": "integer"}
-                    }
-                },
-                "queries": {
-                    "properties": {
-                        "name": {
-                            "type": "keyword"
-                        }
-                    }
-                },
-                "answers": {
-                    "properties": {
-                        "name": {
-                            "type": "keyword"
-                        },
-                        "address": {
-                            "type": "keyword"
-                        }
-                    }
-                },
-                "header": {
-                    "properties": {
-                        "User-Agent": { "type": "keyword" },
-                        "Host": { "type": "keyword" },
-                        "Content-Type": { "type": "keyword" },
-                        "Server": { "type": "keyword" },
-                        "Connection": { "type": "keyword" }
-                    }
-                }
-            }
-        }
+		"id": { "type": "keyword" },
+		"time": { "type": "date" },
+		"url": { "type": "keyword" },
+		"action": { "type": "keyword" },
+		"device": { "type": "keyword" },
+		"dns": {
+		    "properties": {
+		        "type": {
+		            "type": "keyword"
+		        },
+                        "query": {
+		            "properties": {
+		                "name": {
+		                    "type": "keyword"
+		                },
+		                "type": {
+		                    "type": "keyword"
+		                },
+		                "class": {
+		                    "type": "keyword"
+		                }
+		            }
+		        },
+		        "answer": {
+		            "properties": {
+		                "name": {
+		                    "type": "keyword"
+		                },
+		                "type": {
+		                    "type": "keyword"
+		                },
+		                "class": {
+		                    "type": "keyword"
+		                },
+		                "address": {
+		                    "type": "keyword"
+		                }
+		            }
+		        }
+		    }
+		},
+		"http": {
+		    "properties": {
+		        "method": {
+		            "type": "keyword"
+		        },
+		        "status": {
+		            "type": "keyword"
+		        },
+		        "code": {
+		            "type": "integer"
+		        },
+		        "header": {
+		            "properties": {
+		                "User-Agent": {
+		                    "type": "keyword"
+		                },
+		                "Host": {
+		                    "type": "keyword"
+		                },
+		                "Content-Type": {
+		                    "type": "keyword"
+		                },
+		                "Server": {
+		                    "type": "keyword"
+		                },
+		                "Connection": {
+		                    "type": "keyword"
+		                }
+		            }
+		        }
+		    }
+		},
+		"ftp": {
+		    "properties": {
+		        "command": {
+		            "type": "keyword"
+		        },
+		        "status": {
+		            "type": "integer"
+		        },
+		        "text": {
+		            "type": "text"
+		        }
+		    }
+		},
+		"icmp": {
+		    "properties": {
+		        "type": {
+		            "type": "integer"
+		        },
+		        "code": {
+		            "type": "integer"
+		        }
+		    }
+		},
+		"sip": {
+		    "properties": {
+		        "method": {
+		            "type": "keyword"
+		        },
+		        "from": {
+		            "type": "keyword"
+		        },
+		        "to": {
+		            "type": "keyword"
+		        },
+		        "status": {
+		            "type": "keyword"
+		        },
+		        "code": {
+		            "type": "integer"
+		        }
+		    }
+		},
+		"smtp": {
+		    "properties": {
+		        "command": {
+		            "type": "keyword"
+		        },
+		        "from": {
+		            "type": "keyword"
+		        },
+		        "to": {
+		            "type": "keyword"
+		        },
+		        "status": {
+		            "type": "keyword"
+		        },
+		        "text": {
+		            "type": "string"
+		        },
+		        "code": {
+		            "type": "integer"
+		        }
+		    }
+		},
+		"ntp": {
+		    "properties": {
+		        "version": {
+		            "type": "integer"
+		        },
+		        "mode": {
+		            "type": "integer"
+		        }
+		    }
+		},
+		"src": {
+		    "properties": {
+		        "ipv4": {
+		            "type": "ip"
+		        },
+		        "ipv6": {
+		            "type": "ip"
+		        },
+		        "tcp": {
+		            "type": "integer"
+		        },
+		        "udp": {
+		            "type": "integer"
+		        }
+		    }
+		},
+		"dest": {
+		    "properties": {
+		        "ipv4": {
+		            "type": "ip"
+		        },
+		        "ipv6": {
+		            "type": "ip"
+		        },
+		        "tcp": {
+		            "type": "integer"
+		        },
+		        "udp": {
+		            "type": "integer"
+		        }
+		    }
+		},
+		"location": {
+		    "properties": {
+		        "src": {
+		            "properties": {
+		                "city": {
+		                    "type": "keyword"
+		                },
+		                "iso": {
+		                    "type": "keyword"
+		                },
+		                "country": {
+		                    "type": "keyword"
+		                },
+		                "asnum": {
+		                    "type": "integer"
+		                },
+		                "asorg": {
+		                    "type": "keyword"
+		                },
+		                "position": {
+		                    "type": "geo_point"
+		                },
+		                "accuracy": {
+		                    "type": "integer"
+		                },
+		                "postcode": {
+		                    "type": "keyword"
+		                }
+		            }
+		        },
+		        "dest": {
+		            "properties": {
+		                "city": {
+		                    "type": "keyword"
+		                },
+		                "iso": {
+		                    "type": "keyword"
+		                },
+		                "country": {
+		                    "type": "keyword"
+		                },
+		                "asnum": {
+		                    "type": "integer"
+		                },
+		                "asorg": {
+		                    "type": "keyword"
+		                },
+		                "position": {
+		                    "type": "geo_point"
+		                },
+		                "accuracy": {
+		                    "type": "integer"
+		                },
+		                "postcode": {
+		                    "type": "keyword"
+		                }
+		            }
+		        }
+		    }
+		},
+		"indicators": {
+		    "properties": {
+		        "id": {
+		            "type": "keyword"
+		        },
+		        "type": {
+		            "type": "keyword"
+		        },
+		        "value": {
+		            "type": "keyword"
+		        },
+		        "description": {
+		            "type": "keyword"
+		        },
+		        "category": {
+		            "type": "keyword"
+		        },
+		        "author": {
+		            "type": "keyword"
+		        },
+		        "source": {
+		            "type": "keyword"
+		        }
+		    }
+		}
+	    }
+	}
     }
 
     u = "%s%s" % (es_url, es_index)
@@ -193,6 +409,23 @@ def handle(msg):
     output(observation, id)
 
 ############################################################################
+
+print "Connecting to ElasticSearch..."
+while True:
+    url = es_url
+    try:
+        r = requests.get(url)
+    except:
+        print "Not connected, will retry..."
+        time.sleep(10)
+        continue
+
+    if r.status_code == 200: break
+
+    print "Not connected, will retry..."
+    time.sleep(10)
+
+print "Connected."
 
 ctxt = zmq.Context()
 skt = ctxt.socket(zmq.SUB)

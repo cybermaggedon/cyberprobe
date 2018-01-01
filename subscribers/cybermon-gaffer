@@ -7,6 +7,7 @@ import json
 import uuid
 import sys
 import requests
+import time
 
 ############################################################################
 
@@ -179,6 +180,23 @@ def handle(msg):
     output(vertices, edges)
 
 ############################################################################
+
+print "Connecting to Gaffer..."
+while True:
+    url = gaffer + "/status"
+    try:
+        r = requests.get(url)
+    except:
+        print "Not connected, will retry..."
+        time.sleep(10)
+        continue
+
+    if r.status_code == 200: break
+
+    print "Not connected, will retry..."
+    time.sleep(10)
+
+print "Connected."
 
 ctxt = zmq.Context()
 skt = ctxt.socket(zmq.SUB)
