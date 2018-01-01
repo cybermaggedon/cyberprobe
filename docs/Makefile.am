@@ -3,8 +3,8 @@ dist_doc_DATA = architecture.png cyberprobe.css \
 	cyberprobe-overview.png kibana.png \
 	../stix/example1.txt ../stix/example2.txt \
 	cyberprobe.html kibana-dashboards.json \
-	cyberprobe.pdf docker-compose.yml stix-default-combined.json \
-	cyberprobe.cfg
+	cyberprobe.pdf docker-compose.yml docker-compose-cp-snort.yml \
+	stix-default-combined.json cyberprobe.cfg snort.rules
 
 info_TEXINFOS = cyberprobe.texi
 
@@ -18,7 +18,7 @@ EXTRA_DIST = nhis11-rcvr.1.in etsi-rcvr.1.in cyberprobe.1.in cybermon.1.in \
 	cybermon-gaffer.1.in cybermon-elasticsearch.1.in cybermon-monitor.1.in \
 	cybermon-bigquery.1.in cybermon-cassandra.1.in cyberprobe-cli.1.in \
 	cyberprobe-overview.eps architecture.eps \
-	docker-compose.yml.in
+	docker-compose.yml.in docker-compose-cp-snort.yml.in
 
 # FIXME: chmod needed to get make distcheck to work.
 install-data-hook:
@@ -65,10 +65,14 @@ cybermon-bigquery.1: $(srcdir)/cybermon-bigquery.1.in Makefile
 docker-compose.yml: $(srcdir)/docker-compose.yml.in Makefile
 	$(do_substitution) < $(srcdir)/docker-compose.yml.in > docker-compose.yml
 
+docker-compose-cp-snort.yml: $(srcdir)/docker-compose-cp-snort.yml.in Makefile
+	$(do_substitution) < $(srcdir)/docker-compose-cp-snort.yml.in > docker-compose-cp-snort.yml
+
 CLEANFILES = nhis11-rcvr.1 etsi-rcvr.1 cyberprobe.1 cyberprobe-cli.1 \
 	cybermon.1 \
 	cybermon-gaffer.1 cybermon-elasticsearch.1 cybermon-monitor.1 \
-	cybermon-bigquery.1 paths.texi cybermon-cassandra.1 docker-compose.yml
+	cybermon-bigquery.1 paths.texi cybermon-cassandra.1 docker-compose.yml \
+	docker-compose-cp-snort.yml
 
 cyberprobe_TEXINFOS = paths.texi fdl.texi
 

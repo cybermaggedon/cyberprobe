@@ -1,0 +1,5 @@
+
+# Some daft snort rules, to help testing.
+alert tcp any any -> any 11111 (msg:"Port 11111"; classtype:misc-activity;sid:200; rev:1;)
+alert tcp any any -> any 80 (msg:"Port 80"; classtype:misc-activity;sid:201; rev:1;)
+
