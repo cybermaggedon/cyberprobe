@@ -1,0 +1,73 @@
+# Deploys a cybermon process cluster with ElasticSearch, Kibana and Gaffer
+# back-end.
+
+version: '3'
+services:
+
+  # ElasticSearch and Kibana
+  elasticsearch:
+    image: elasticsearch:5.6
+    ports:
+     - "9200:9200"
+    restart: always
+  kibana:
+    image: kibana:5.6
+    ports:
+    - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200/
+    restart: always
+
+  # Gaffer
+  hadoop:
+    image: cybermaggedon/hadoop:2.8.1
+    restart: always
+  zookeeper:    
+    image: cybermaggedon/zookeeper:3.4.10b
+    restart: always
+  accumulo:
+    image: cybermaggedon/accumulo-gaffer:1.1.2a
+    restart: always
+  gaffer:
+    image: cybermaggedon/wildfly-gaffer:1.1.2a
+    ports:
+    - "8080:8080"
+    restart: always
+
+  # Cybermon receives packets on port 9000 and publishes events on port 5555.
+  cybermon:
+    image: cybermaggedon/cyberprobe:1.7.2
+    command: cybermon -p 9000 -c /etc/cyberprobe/zeromq.lua
+    ports:
+    - "9000:9000"
+    restart: always
+
+  # GeoIP: Adds location information to cybermon events and republishes.
+  cybermon-geoip:
+    image: cybermaggedon/cybermon:1.7.2
+    command: cybermon-geoip tcp://cybermon:5555 tcp://*:5555
+    restart: always
+
+  # Detector: Adds IOC information to output from cybermon-geoip
+  cybermon-detector:
+    image: cybermaggedon/cyberprobe:1.7.2
+    command: cybermon-detector tcp://cybermon-geoip:5555 tcp://*:5555
+    volumes:
+    - .:/etc/iocs
+    environment:
+      STIX_INDICATORS: /etc/iocs/stix-default-combined.json
+    ports:
+    - "5555:5555"
+    restart: always
+
+  # ElasticSearch loader
+  cybermon-elasticsearch:
+    image: cybermaggedon/cyberprobe:1.7.2
+    command: cybermon-elasticsearch tcp://cybermon-detector:5555 http://elasticsearch:9200/
+    restart: always
+
+  # Gaffer loader
+  cybermon-gaffer:
+    image: cybermaggedon/cyberprobe:1.7.2
+    command: cybermon-gaffer tcp://cybermon-detector:5555 http://gaffer:8080/rest/v1
+    restart: always

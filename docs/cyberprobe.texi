@@ -85,6 +85,7 @@ FIXME: Architecture diagram needs an update.
 * Quick start tutorial::
 * Running cyberprobe/cybermon::
 * The pub/sub infrastructure::
+* A containerised processing system::
 * Reference::
 * Architecture::
 * GNU Free Documentation License::
@@ -2162,6 +2163,78 @@ useful means to verify that @command{cyberprobe}, @command{cybermon} and
 pub/sub are configured correctly.
 
 See @ref{@command{cybermon-monitor} invocation}.
+
+@comment ----------------------------------------------------------------------
+
+@node A containerised processing system
+@chapter A containerised processing system
+
+@cindex Containers
+@cindex Docker
+@cindex Docker compose
+@cindex @file{docker-compose.yml}
+@cindex ElasticSearch
+@cindex Gaffer
+
+The @command{cybermon}, subscriber components and data stores can easily be
+deployed in containers to form a scalable processing system.
+
+To illustrate this in use, we distrubute a Docker Compose configuration which
+can be used to start:
+
+@itemize @bullet
+
+@item
+A @command{cybermon}, listening on port 9000.
+
+@item
+A @command{cybermon-geoip} container, adding GeoIP information to events.
+
+@item
+A @command{cybermon-detector} container, adding IOC information to events
+from a sample STIX data set.
+
+@item
+A @command{cybermon-elasticsearch} container, to load information into
+ElasticSearch.
+
+@item
+A @command{cybermon-gaffer} container, to load information into Gaffer.
+
+@item
+An @command{elasticsearch} container to store events.
+
+@item
+A @command{kibana} container to store events.
+
+@item
+A Gaffer cluster consisting of Hadoop, Zookeeper, Accumulo and Gaffer
+containers.
+
+@end itemize
+
+You can see the Docker Compose configuration at the path:
+
+@example
+@file{@value{DOCDIR}/docker-compose.yml}
+@end example
+
+In order to invoke this run:
+
+@example
+cd @file{@value{DOCDIR}/}
+docker-compose up
+@end example
+
+No data is stored persistently - you can change how this works by
+changing the @file{docker-compose.yml} file.
+It takes about a minute to settle down, at which point, you need to generate
+data using cyberprobe and send to port 9000.
+
+You can connect to the Kibana instance on port 5601.  The first thing you will
+need to do is to go to the Management > Index Patterns dialogue, and create
+an index pattern for index @samp{cyberprobe}, with time specified in the
+@samp{time} field.
 
 @comment ----------------------------------------------------------------------
 

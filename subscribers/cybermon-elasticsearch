@@ -335,48 +335,159 @@ def output(obs, id):
         print "Error sending to ElasticSearch"
         print "HTTP code: " + str(r.status_code)
 
+        print r.text
+
 ############################################################################
 
 def handle(msg):
 
-    id = msg["id"]
+    ob = {}
+    ob["id"] = msg["id"]
+    ob["action"] = msg["action"]
+    ob["device"] = msg["device"]
+    ob["time"] = msg["time"]
+    if msg.has_key("url"): ob["url"] = msg["url"]
+    if msg.has_key("location"): ob["location"] = msg["location"]
+    
+    if msg.has_key("dns_message"):
 
-    observation = {
-        "id": id,
-        "action": msg["action"],
-        "device": msg["device"],
-        "time": msg["time"]
+        ob["dns"] = {}
+
+        if msg["dns_message"].has_key("query"):
+
+            name = []
+            tpe = []
+            clss = []
+
+            for v in msg["dns_message"]["query"]:
+                if v.has_key("name"): name.append(v["name"])
+                if v.has_key("type"): tpe.append(v["type"])
+                if v.has_key("class"): clss.append(v["class"])
+
+            ob["dns"]["query"] = {
+                "name": name, "type": tpe, "class": clss
+            }
+
+        if msg["dns_message"].has_key("answer"):
+
+            name = []
+            tpe = []
+            clss = []
+            address = []
+
+            for v in msg["dns_message"]["answer"]:
+                if v.has_key("name"): name.append(v["name"])
+                if v.has_key("type"): tpe.append(v["type"])
+                if v.has_key("class"): clss.append(v["class"])
+                if v.has_key("address"): address.append(v["address"])
+
+            ob["dns"]["answer"] = {
+                "name": name, "type": tpe, "class": clss, "address": address
+            }
+
+            ob["dns"]["type"] = msg["dns_message"]["type"]
+
+    if msg.has_key("indicators"):
+
+        tpe = []
+        id = []
+        value = []
+        desc = []
+
+        for v in msg["indicators"]:
+            tpe.append(v["type"])
+            id.append(v["id"])
+            value.append(v["value"])
+            desc.append(v["description"])
+
+        ob["indicators"] = {
+            "type": tpe,
+            "id": id,
+            "value": value,
+            "description": desc
         }
 
-    if msg.has_key("method"):
-        observation["method"] = msg["method"]
-    if msg.has_key("url"):
-        observation["url"] = msg["url"]
-    if msg.has_key("command"):
-        observation["command"] = msg["command"]
-    if msg.has_key("status"):
-        observation["status"] = msg["status"]
-    if msg.has_key("text"):
-        observation["text"] = msg["text"]
-    if msg.has_key("payload"):
-        pass
-    if msg.has_key("body"):
-        pass
-    if msg.has_key("from"):
-        observation["from"] = msg["from"]
-    if msg.has_key("to"):
-        observation["to"] = msg["to"]
-    if msg.has_key("header"):
-        observation["header"] = msg["header"]
-    if msg.has_key("type"):
-        observation["type"] = msg["type"]
-    if msg.has_key("queries"):
-        observation["queries"] = msg["queries"]
-    if msg.has_key("answers"):
-        observation["answers"] = msg["answers"]
+    if msg.has_key("http_request"):
+        ob["http"] = {
+            "method": msg["http_request"]["method"],
+            "header": msg["http_request"]["header"]
+        }
 
-    observation["src"] = {}
-    observation["dest"] = {}
+    if msg.has_key("http_response"):
+        ob["http"] = {
+            "status": msg["http_response"]["status"],
+            "code": msg["http_response"]["code"],
+            "header": msg["http_response"]["header"]
+        }
+
+    if msg.has_key("ftp_request"):
+        ob["ftp"] = {
+            "command": msg["ftp_request"]["command"]
+        }
+
+    if msg.has_key("ftp_response"):
+        ob["ftp"] = {
+            "status": msg["ftp_response"]["status"],
+            "text": msg["ftp_response"]["text"]
+        }
+
+    if msg.has_key("icmp"):
+        ob["icmp"] = {
+            "type": msg["icmp"]["type"],
+            "code": msg["icmp"]["code"]
+        }
+
+    if msg.has_key("sip_request"):
+        ob["sip"] = {
+            "method": msg["sip_request"]["method"],
+            "from": msg["sip_request"]["from"],
+            "to": msg["sip_request"]["to"]
+        }
+
+    if msg.has_key("sip_response"):
+        ob["sip"] = {
+            "code": msg["sip_response"]["code"],
+            "status": msg["sip_response"]["status"],
+            "from": msg["sip_response"]["from"],
+            "to": msg["sip_response"]["to"]
+        }
+
+    if msg.has_key("smtp_command"):
+        ob["smtp"] = {
+            "command": msg["smtp_command"]["command"]
+        }
+
+    if msg.has_key("smtp_response"):
+        ob["smtp"] = {
+            "status": msg["smtp_response"]["status"],
+            "text": msg["smtp_response"]["text"]
+        }
+
+    if msg.has_key("smtp_data"):
+        ob["smtp"] = {
+            "from": msg["smtp_data"]["from"],
+            "to": msg["smtp_data"]["to"]
+        }
+
+    if msg.has_key("ntp_timestamp"):
+        ob["ntp"] = {
+            "version": msg["ntp_timestamp"]["version"],
+            "mode": msg["ntp_timestamp"]["mode"]
+        }
+
+    if msg.has_key("ntp_control"):
+        ob["ntp"] = {
+            "version": msg["ntp_control"]["version"],
+            "mode": msg["ntp_control"]["mode"]
+        }
+
+    if msg.has_key("ntp_private"):
+        ob["ntp"] = {
+            "version": msg["ntp_private"]["version"],
+            "mode": msg["ntp_private"]["mode"]
+        }
+
+    src = {}
 
     if msg.has_key("src"):
         for v in msg["src"]:
@@ -387,10 +498,14 @@ def handle(msg):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if not observation["src"].has_key(cls):
-                observation["src"][cls] = []
+            if not src.has_key(cls):
+                src[cls] = []
 
-            observation["src"][cls].append(addr)
+            src[cls].append(addr)
+
+        ob["src"] = src
+
+    dest = {}
 
     if msg.has_key("dest"):
         for v in msg["dest"]:
@@ -401,12 +516,14 @@ def handle(msg):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if not observation["dest"].has_key(cls):
-                observation["dest"][cls] = []
+            if not dest.has_key(cls):
+                dest[cls] = []
 
-            observation["dest"][cls].append(addr)
+            dest[cls].append(addr)
 
-    output(observation, id)
+        ob["dest"] = dest
+
+    output(ob, msg["id"])
 
 ############################################################################
 

@@ -3,7 +3,7 @@ dist_doc_DATA = architecture.png cyberprobe.css \
 	cyberprobe-overview.png kibana.png \
 	../stix/example1.txt ../stix/example2.txt \
 	cyberprobe.html kibana-small.png kibana-scaled.png \
-	cyberprobe.pdf
+	cyberprobe.pdf docker-compose.yml stix-default-combined.json
 
 info_TEXINFOS = cyberprobe.texi
 

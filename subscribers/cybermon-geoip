@@ -29,8 +29,8 @@ def lookup(ip):
     if g["country_code"]: locn["iso"] = g["country_code"]
     if g["country_name"]: locn["country"] = g["country_name"]
     if g["latitude"] and g["longitude"]: locn["position"] = {
-            "latitude": g["latitude"],
-            "longitude": g["longitude"]
+            "lat": g["latitude"],
+            "lon": g["longitude"]
     }
     if g["postal_code"]: locn["postcode"] = g["postal_code"]
 
