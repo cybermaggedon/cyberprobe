@@ -2,8 +2,9 @@
 dist_doc_DATA = architecture.png cyberprobe.css \
 	cyberprobe-overview.png kibana.png \
 	../stix/example1.txt ../stix/example2.txt \
-	cyberprobe.html kibana-small.png kibana-scaled.png \
-	cyberprobe.pdf docker-compose.yml stix-default-combined.json
+	cyberprobe.html kibana-dashboards.json \
+	cyberprobe.pdf docker-compose.yml stix-default-combined.json \
+	cyberprobe.cfg
 
 info_TEXINFOS = cyberprobe.texi
 
@@ -16,7 +17,7 @@ AM_MAKEINFOHTMLFLAGS = --no-split
 EXTRA_DIST = nhis11-rcvr.1.in etsi-rcvr.1.in cyberprobe.1.in cybermon.1.in \
 	cybermon-gaffer.1.in cybermon-elasticsearch.1.in cybermon-monitor.1.in \
 	cybermon-bigquery.1.in cybermon-cassandra.1.in cyberprobe-cli.1.in \
-	cyberprobe-overview.eps kibana-scaled.eps architecture.eps \
+	cyberprobe-overview.eps architecture.eps \
 	docker-compose.yml.in
 
 # FIXME: chmod needed to get make distcheck to work.

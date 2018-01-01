@@ -1651,6 +1651,12 @@ First thing you need to do is
 create a @code{cyberprobe} index with the time field @code{time}.
 The go to the Visualize tab to see raw data.
 
+Once you have data loading into ElasticSearch, you may want to install
+our basic dashboards.  These are installed at:
+@example
+@file{@value{DOCDIR}/kibana-dashboards.json}
+@end example
+
 @comment ----------------------------------------------------------------------
 
 @node Threat indicators using STIX
@@ -2235,6 +2241,14 @@ You can connect to the Kibana instance on port 5601.  The first thing you will
 need to do is to go to the Management > Index Patterns dialogue, and create
 an index pattern for index @samp{cyberprobe}, with time specified in the
 @samp{time} field.
+
+You may want to install our data dashboards, using Management > Saved Objects
+and press the Import button.  The dashboard file
+is installed at:
+@example
+@file{@value{DOCDIR}/kibana-dashboards.json}
+@end example
+
 
 @comment ----------------------------------------------------------------------
 
