@@ -36,7 +36,7 @@ services:
 
   # Cybermon receives packets on port 9000 and publishes events on port 5555.
   cybermon:
-    image: cybermaggedon/cyberprobe:1.7.2
+    image: cybermaggedon/cyberprobe:@VERSION@
     command: cybermon -p 9000 -c /etc/cyberprobe/zeromq.lua
     ports:
     - "9000:9000"
@@ -44,13 +44,13 @@ services:
 
   # GeoIP: Adds location information to cybermon events and republishes.
   cybermon-geoip:
-    image: cybermaggedon/cybermon:1.7.2
+    image: cybermaggedon/cybermon:@VERSION@
     command: cybermon-geoip tcp://cybermon:5555 tcp://*:5555
     restart: always
 
   # Detector: Adds IOC information to output from cybermon-geoip
   cybermon-detector:
-    image: cybermaggedon/cyberprobe:1.7.2
+    image: cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-detector tcp://cybermon-geoip:5555 tcp://*:5555
     volumes:
     - .:/etc/iocs
@@ -62,12 +62,12 @@ services:
 
   # ElasticSearch loader
   cybermon-elasticsearch:
-    image: cybermaggedon/cyberprobe:1.7.2
+    image: cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-elasticsearch tcp://cybermon-detector:5555 http://elasticsearch:9200/
     restart: always
 
   # Gaffer loader
   cybermon-gaffer:
-    image: cybermaggedon/cyberprobe:1.7.2
+    image: cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-gaffer tcp://cybermon-detector:5555 http://gaffer:8080/rest/v1
     restart: always
