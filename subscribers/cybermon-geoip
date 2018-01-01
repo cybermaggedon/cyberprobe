@@ -15,7 +15,7 @@ else:
 if len(sys.argv) < 3:
     publish = "tcp://*:5556"
 else:
-    publish = sys.argv[1]
+    publish = sys.argv[2]
 
 def lookup(ip):
 

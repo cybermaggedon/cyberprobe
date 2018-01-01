@@ -3,10 +3,7 @@
 import zmq
 import json
 import sys
-import GeoIP
 import os
-
-geo = GeoIP.open("/usr/share/GeoIP/GeoLiteCity.dat", GeoIP.GEOIP_STANDARD)
 
 if len(sys.argv) < 2:
     binding = "tcp://localhost:5555"
@@ -16,7 +13,7 @@ else:
 if len(sys.argv) < 3:
     publish = "tcp://*:5556"
 else:
-    publish = sys.argv[1]
+    publish = sys.argv[2]
 
 stix = {}
 

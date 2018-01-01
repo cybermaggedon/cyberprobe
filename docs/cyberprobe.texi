@@ -632,6 +632,10 @@ to events, and then republishes them.
 @item cybermon-dump
 Pub/sub subscriber, dumps out raw JSON messages.
 
+@cindex @command{cybermon-alert}
+@item cybermon-dump
+Pub/sub subscriber, alerts on matching IOCs.
+
 @end table
 
 @cindex Discussion forums
@@ -1632,7 +1636,7 @@ Run a Kibana container:
 
 @example
 docker run --name kibana \
-  -e ELASTICSEARCH_URL=http://asticsearch:9200/ -p 5601:5601 \
+  -e ELASTICSEARCH_URL=http://elasticsearch:9200/ -p 5601:5601 \
   --link elasticsearch:elasticsearch kibana:5.6
 @end example
 
@@ -2183,6 +2187,7 @@ See @ref{@command{cybermon-monitor} invocation}.
 * @command{cybermon-geoip} invocation::
 * @command{cybermon-detector} invocation::
 * @command{cybermon-dump} invocation::
+* @command{cybermon-alert} invocation::
 * @command{taxii-client} invocation::
 * @command{taxii-sync-json} invocation::
 * @command{taxii-server} invocation::
@@ -4590,6 +4595,38 @@ to @samp{tcp://localhost:5555}.
 
 @comment ----------------------------------------------------------------------
 
+@node @command{cybermon-alert} invocation
+@section @command{cybermon-alert} invocation
+
+@cindex @command{cybermon-alert}, invocation
+@cindex Alert
+
+@command{cybermon-alert} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon} events, and outputs a human-readable message
+when an IOC hits.
+
+Synopsis:
+
+@example
+cybermon-alert [BINDING]
+@end example
+
+Example:
+@example
+cybermon-alert
+cybermon-alert tcp://localhost:5555
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{tcp://localhost:5555}.
+
+@end table
+
+@comment ----------------------------------------------------------------------
+
 @node @command{taxii-client} invocation
 @section @command{taxii-client} invocation
 
@@ -4905,7 +4942,8 @@ observations are created in an ElasticSearch database.
 These configuration files call the @file{elastic.lua} utility module.
 This section describes the data model used in the ElasticSearch database.
 
-ElasticSearch accepts data in JSON form.  @command{cybermon} uses an
+ElasticSearch accepts data in JSON form.  @command{cybermon-elasticsearch}
+uses an
 index called @command{cyberprobe} and an object type @command{observation}.
 
 Here is an example of a JSON payload which is emitted for a DNS request:
@@ -4932,7 +4970,7 @@ Here is an example of a JSON payload which is emitted for a DNS request:
     @},
     "time": "20141018T175059.366Z",
     "action": "dns_message",
-    "oid": 1
+    "id": 1
   @}
 @}
 @end example

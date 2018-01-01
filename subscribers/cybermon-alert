@@ -10,7 +10,11 @@ else:
     binding = sys.argv[1]
     
 def handle(msg):
-    print msg
+    if msg.has_key("indicators"):
+        print "%s, %s, %s" % (msg["time"], msg["device"], msg["action"])
+        for v in msg["indicators"]:
+            print "  %s: %s" % (v["value"], v["description"])
+        print
 
 ctxt = zmq.Context()
 skt = ctxt.socket(zmq.SUB)
@@ -20,7 +24,7 @@ skt.setsockopt(zmq.SUBSCRIBE, "")
 while True:
     try:
         msg = skt.recv()
-        handle(msg)
+        handle(json.loads(msg))
     except Exception, e:
         sys.stderr.write("Exception: %s\n" % str(e))
 
