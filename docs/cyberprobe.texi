@@ -86,6 +86,7 @@ FIXME: Architecture diagram needs an update.
 * Running cyberprobe/cybermon::
 * The pub/sub infrastructure::
 * A containerised processing system::
+* Endace DAG::
 * Reference::
 * Architecture::
 * GNU Free Documentation License::
@@ -1517,14 +1518,15 @@ favourite for this sort of scenario is the excellent ElasticSearch (
 of functionality, and is incredibly simple to interface with, thanks to its
 JSON API. So, your next action is to head over to the download page
 (@url{http://www.elasticsearch.org/download/}) and get hold of the latest
-version. I'm using version 5.6 to build this tutorial but the
+version. I'm using version 6.1 to build this tutorial but the
 ElasticSearch API has proven hugely stable, so should work with the latest.
 
 The easiest way to run ElasticSearch is as a Docker container, although you
 could download and run the distribution.
 
 @example
-docker run --name elasticsearch -p 9200:9200 elasticsearch:5.6
+docker run --name elasticsearch -p 9200:9200 \
+  docker.elastic.co/elasticsearch/elasticsearch-oss:6.1.1
 @end example
 
 One brilliant thing about ElasticSearch is that it needs almost no
@@ -1548,15 +1550,17 @@ The response will look something like this:
 
 @example
 @{
-  "name" : "K-XJi4n",
-  "cluster_name" : "elasticsearch",
-  "cluster_uuid" : "4fCIVKrMTmqQwWZoRttW1g",
+  "name" : "gAbVXGZ",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "TPZLBGYnTNqe0-LVLiF6yw",
   "version" : @{
-    "number" : "5.6.5",
-    "build_hash" : "6a37571",
-    "build_date" : "2017-12-04T07:50:10.466Z",
+    "number" : "6.1.1",
+    "build_hash" : "bd92e7f",
+    "build_date" : "2017-12-17T20:23:25.338Z",
     "build_snapshot" : false,
-    "lucene_version" : "6.6.1"
+    "lucene_version" : "7.1.0",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
   @},
   "tagline" : "You Know, for Search"
 @}
@@ -1638,7 +1642,8 @@ Run a Kibana container:
 @example
 docker run --name kibana \
   -e ELASTICSEARCH_URL=http://elasticsearch:9200/ -p 5601:5601 \
-  --link elasticsearch:elasticsearch kibana:5.6
+  --link elasticsearch:elasticsearch \
+  docker.elastic.co/kibana/kibana-oss:6.1.1
 @end example
 
 Kibana starts on port 5601, so point your browser at e.g.
@@ -2175,10 +2180,13 @@ See @ref{@command{cybermon-monitor} invocation}.
 @node A containerised processing system
 @chapter A containerised processing system
 
+@heading Cybermon, Gaffer, ElasticSearch
+
 @cindex Containers
 @cindex Docker
 @cindex Docker compose
 @cindex @file{docker-compose.yml}
+@cindex @file{docker-compose-cp-snort.yml}
 @cindex ElasticSearch
 @cindex Gaffer
 
@@ -2249,6 +2257,54 @@ is installed at:
 @file{@value{DOCDIR}/kibana-dashboards.json}
 @end example
 
+@heading Snort, Cyberprobe, Cybermon, Gaffer, ElasticSearch
+
+There is a second configuration which adds Snort and Cyberprobe to the
+deployment.  This accesses the host network interface by providing
+host network access to the @command{cyberprobe} and @command{snort} containers.
+The network interface name is specified in the @file{cyberprobe.cfg}
+file for @command{cyberprobe} and the @file{docker-compose-cp-snort.yml}
+file for @command{snort} so you will need to edit accordingly.
+
+@example
+cd @file{@value{DOCDIR}/}
+docker-compose \
+  -f @file{@value{DOCDIR}/docker-compose-cp-snort.yml} up
+@end example
+
+The configuration results in trigger packet acquisition as soon as
+any port 80 or port 11111 data is observed. e.g.
+
+@example
+wget -q -O- http://www.example.org/
+@end example
+
+@comment ----------------------------------------------------------------------
+
+@node Endace DAG
+@chapter Endace DAG
+
+@cindex Endace
+@cindex DAG
+
+@command{cyberprobe} includes support for Endace DAG.  This is presently
+not distributed.  If you compile @command{cyberprobe} on a host which has
+the DAG library (@file{libdag}) installed, it will be detected at the
+@command{configure} step.
+
+If DAG support is compiled in, then the DAG devices can be referenced
+in the @file{cyberprobe.cfg} file using the prefix @samp{dag} plus the
+card number e.g.
+
+@example
+  <interfaces>
+    <interface name="dag0"/>
+  </interfaces>
+@end example
+
+To use DAG devices, you need to load DAG firmware, and set all
+appropriate card options using @command{dagload} and @command{dagconfig}
+prior to starting @command{cyberprobe}.
 
 @comment ----------------------------------------------------------------------
 

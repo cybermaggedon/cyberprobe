@@ -6,12 +6,13 @@ services:
 
   # ElasticSearch and Kibana
   elasticsearch:
-    image: elasticsearch:5.6
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.1.1
     ports:
      - "9200:9200"
     restart: always
+    shm_size: 1G
   kibana:
-    image: kibana:5.6
+    image: docker.elastic.co/kibana/kibana-oss:6.1.1
     ports:
     - "5601:5601"
     environment:
@@ -20,22 +21,22 @@ services:
 
   # Gaffer
   hadoop:
-    image: cybermaggedon/hadoop:2.8.1
+    image: docker.io/cybermaggedon/hadoop:2.8.1
     restart: always
   zookeeper:    
-    image: cybermaggedon/zookeeper:3.4.10b
+    image: docker.io/cybermaggedon/zookeeper:3.4.10b
     restart: always
   accumulo:
-    image: cybermaggedon/accumulo-gaffer:1.1.2a
+    image: docker.io/cybermaggedon/accumulo-gaffer:1.1.2a
     restart: always
   gaffer:
-    image: cybermaggedon/wildfly-gaffer:1.1.2a
+    image: docker.io/cybermaggedon/wildfly-gaffer:1.1.2a
     ports:
     - "8080:8080"
     restart: always
 
   cyberprobe:
-    image: cybermaggedon/cyberprobe:@VERSION@
+    image: docker.io/cybermaggedon/cyberprobe:@VERSION@
     command: cyberprobe /etc/config/cyberprobe.cfg
     volumes:
     - .:/etc/config
@@ -46,7 +47,7 @@ services:
       - NET_ADMIN
 
   snort:
-    image: cybermaggedon/snort:2.9.11a
+    image: docker.io/cybermaggedon/snort:2.9.11a
     command: snort -i enp0s3 -A unsock -N -l /var/log/snort/ -c /etc/snort/snort.conf
     volumes:
     - snort-logs:/var/log/snort
@@ -58,7 +59,7 @@ services:
 
   # Cybermon receives packets on port 9000 and publishes events on port 5555.
   cybermon:
-    image: cybermaggedon/cyberprobe:@VERSION@
+    image: docker.io/cybermaggedon/cyberprobe:@VERSION@
     command: cybermon -p 9000 -c /etc/cyberprobe/zeromq.lua
     ports:
     - "9000:9000"
@@ -66,13 +67,13 @@ services:
 
   # GeoIP: Adds location information to cybermon events and republishes.
   cybermon-geoip:
-    image: cybermaggedon/cybermon:@VERSION@
+    image: docker.io/cybermaggedon/cybermon:@VERSION@
     command: cybermon-geoip tcp://cybermon:5555 tcp://*:5555
     restart: always
 
   # Detector: Adds IOC information to output from cybermon-geoip
   cybermon-detector:
-    image: cybermaggedon/cyberprobe:@VERSION@
+    image: docker.io/cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-detector tcp://cybermon-geoip:5555 tcp://*:5555
     volumes:
     - .:/etc/iocs
@@ -84,13 +85,13 @@ services:
   
   # ElasticSearch loader
   cybermon-elasticsearch:
-    image: cybermaggedon/cyberprobe:@VERSION@
+    image: docker.io/cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-elasticsearch tcp://cybermon-detector:5555 http://elasticsearch:9200/
     restart: always
 
   # Gaffer loader
   cybermon-gaffer:
-    image: cybermaggedon/cyberprobe:@VERSION@
+    image: docker.io/cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-gaffer tcp://cybermon-detector:5555 http://gaffer:8080/rest/v1
     restart: always
 
