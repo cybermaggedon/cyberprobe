@@ -324,12 +324,17 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		// Get metadata parameters
 		oper = global_pars.get_parameter("operator", "unknown");
 		country = global_pars.get_parameter("country", "XX");
-		net_elt = global_pars.get_parameter("network_element",
-					     "unknown");
+
+		net_elt = global_pars.get_parameter("network_element." + liid,
+						    "");
+		if (net_elt == "")
+		    net_elt = global_pars.get_parameter("network_element",
+							"unknown");
+
 		int_pt = global_pars.get_parameter("interception_point",
-					    "unknown");
+						   "unknown");
 		username = global_pars.get_parameter("username." + liid,
-					      "unknown");
+						     "unknown");
 
 		// Send connect IRI stuff.
 		mux.target_connect(liid, *next->addr, 
@@ -361,10 +366,15 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		std::string oper, country, net_elt, int_pt;
 		oper = global_pars.get_parameter("operator", "unknown");
 		country = global_pars.get_parameter("country", "XX");
-		net_elt = global_pars.get_parameter("network_element",
-					     "unknown");
+
+		net_elt = global_pars.get_parameter("network_element." + liid,
+						    "");
+		if (net_elt == "")
+		    net_elt = global_pars.get_parameter("network_element",
+							"unknown");
+
 		int_pt = global_pars.get_parameter("interception_point",
-					    "unknown");
+						   "unknown");
 
 		// Deliver packet.
 		mux.target_ip(liid, pdu, oper, country, net_elt, 
@@ -394,10 +404,16 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		// Get metadata parameters
 		oper = global_pars.get_parameter("operator", "unknown");
 		country = global_pars.get_parameter("country", "XX");
-		net_elt = global_pars.get_parameter("network_element",
-					     "unknown");
+
+
+		net_elt = global_pars.get_parameter("network_element." + liid,
+						    "");
+		if (net_elt == "")
+		    net_elt = global_pars.get_parameter("network_element",
+							"unknown");
+
 		int_pt = global_pars.get_parameter("interception_point",
-					    "unknown");
+						   "unknown");
 
 		// Send disconnect IRI stuff.
 		mux.target_disconnect(liid, oper, country, net_elt,

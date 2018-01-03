@@ -173,7 +173,7 @@ void connection::run()
 
 	    struct timeval tv;
 	    gettimeofday(&tv, 0);
-	    p(liid, pdu.begin(), pdu.end(), tv);
+	    p(liid, "", pdu.begin(), pdu.end(), tv);
 
 	}
 	

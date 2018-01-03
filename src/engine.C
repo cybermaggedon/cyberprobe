@@ -6,7 +6,8 @@
 
 using namespace cybermon;
 
-context_ptr engine::get_root_context(const std::string& liid)
+context_ptr engine::get_root_context(const std::string& liid,
+				     const std::string& network)
 {
     lock.lock();
 
@@ -17,6 +18,7 @@ context_ptr engine::get_root_context(const std::string& liid)
 	
 	root_context* rp = dynamic_cast<root_context*>(c.get());
 	rp->set_liid(liid);
+	rp->set_network(network);
 	contexts[liid] = c;
     } else
 	c = contexts[liid];
@@ -101,12 +103,17 @@ void engine::get_root_info(context_ptr p, std::string& liid, address& a)
 }
 
 
-void engine::get_network_info(context_ptr p, address& src, address& dest)
+void engine::get_network_info(context_ptr p,
+			      std::string& net, address& src, address& dest)
 {
 
     src = address();
     dest = address();
     while (p) {
+        if (p->get_type() == "root") {
+	    root_context& rc = dynamic_cast<root_context&>(*p);
+	    net = rc.get_network();
+	}
 	if (p->get_type() == "ip4") {
 	    src = p->addr.src;
 	    dest = p->addr.dest;

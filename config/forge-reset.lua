@@ -25,7 +25,7 @@ end
 -- (e.g. TCP)
 observer.connection_up = function(e)
 
-    src, dest = e.context:get_network_info()
+    net, src, dest = e.context:get_network_info()
 
     local cls, src_addr, dest_addr
 

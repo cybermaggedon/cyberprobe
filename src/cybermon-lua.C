@@ -2134,14 +2134,16 @@ int cybermon_lua::context_get_network_info(lua_State* lua)
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
+    std::string network;
     address src, dest;
-    engine::get_network_info(cd->ctxt, src, dest);
+    engine::get_network_info(cd->ctxt, network, src, dest);
 
     cd->cml->pop(1);
+    cd->cml->push(network);
     cd->cml->push(src.to_ip_string());
     cd->cml->push(dest.to_ip_string());
 
-    return 2;
+    return 3;
 
 }
 

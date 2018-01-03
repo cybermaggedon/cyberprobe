@@ -47,35 +47,43 @@ public:
 
     // Called when a PDU is received.
     virtual void operator()(const std::string& liid,
+			    const std::string& network,
 			    const iter& s, const iter& e,
 			    const struct timeval& tv);
 
     // Called when attacker is discovered.
-    void target_up(const std::string& liid, const tcpip::address& addr,
+    void target_up(const std::string& liid,
+		   const std::string& network,
+		   const tcpip::address& addr,
 		   const struct timeval& tv);
     
     // Called when attacker is disconnected.
-    void target_down(const std::string& liid, const struct timeval& tv);
+    void target_down(const std::string& liid,
+		     const std::string& network,
+		     const struct timeval& tv);
     
 };
 
 // Called when attacker is discovered.
 void etsi_monitor::target_up(const std::string& liid,
+			     const std::string& network,
 			     const tcpip::address& addr,
 			     const struct timeval& tv)
 {
-    an.target_up(liid, addr, tv);
+    an.target_up(liid, network, addr, tv);
 }
 
 // Called when attacker is discovered.
 void etsi_monitor::target_down(const std::string& liid,
+			       const std::string& network,
 			       const struct timeval& tv)
 {
-    an.target_down(liid, tv);
+    an.target_down(liid, network, tv);
 }
 
 // Called when a PDU is received.
 void etsi_monitor::operator()(const std::string& liid, 
+			      const std::string& network,
 			      const iter& s, const iter& e,
 			      const struct timeval& tv)
 {
@@ -83,7 +91,7 @@ void etsi_monitor::operator()(const std::string& liid,
     try {
 
 	// Process the PDU
-	an.process(liid, cybermon::pdu_slice(s, e, tv));
+	an.process(liid, network, cybermon::pdu_slice(s, e, tv));
 
     } catch (std::exception& e) {
 
@@ -136,7 +144,8 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		timeval tv;
 		gettimeofday(&tv, 0);
 
-		e.process(liid, cybermon::pdu_slice(v.begin(), v.end(), tv));
+		e.process(liid, "",
+			  cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	    }
 
@@ -152,7 +161,8 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		timeval tv;
 		gettimeofday(&tv, 0);
 
-		e.process(liid, cybermon::pdu_slice(v.begin(), v.end(), tv));
+		e.process(liid, "",
+			  cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	    }
 
@@ -171,7 +181,7 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		    timeval tv;
 		    gettimeofday(&tv, 0);
 
-		    e.process(liid,
+		    e.process(liid, "",
 			      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 		}
@@ -188,7 +198,7 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 		    timeval tv;
 		    gettimeofday(&tv, 0);
 
-		    e.process(liid,
+		    e.process(liid, "",
 			      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 		}
@@ -210,7 +220,7 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 	    timeval tv;
 	    gettimeofday(&tv, 0);
 
-	    e.process(liid,
+	    e.process(liid, "",
 		      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	}

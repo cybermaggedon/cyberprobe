@@ -211,6 +211,9 @@ namespace cybermon {
 	// LIID.
 	std::string liid;
 
+	// NEID = network name.
+	std::string network;
+
 	// Address which caused acquisition of this data.
 	address trigger_address;
 
@@ -246,6 +249,14 @@ namespace cybermon {
 
 	void set_liid(const std::string& l) {
 	    liid = l;
+	}
+
+	std::string& get_network() {
+	    return network;
+	}
+
+	void set_network(const std::string& n) {
+	    network = n;
 	}
 
 	virtual std::string get_type() { return "root"; }

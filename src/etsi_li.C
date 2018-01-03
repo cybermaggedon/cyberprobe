@@ -739,6 +739,16 @@ void connection::run()
 		gettimeofday(&tv, 0);
 	    }
 
+	    std::string network;
+	    try {
+		ber::berpdu& cid_p = hdr_p.get_element(3);
+		ber::berpdu& nid_p = cid_p.get_element(0);
+		ber::berpdu& neid_p = nid_p.get_element(1);
+		neid_p.decode_string(network);
+	    } catch (...) {
+		// Missing NEID, just ignore.
+	    }
+
 	    std::list<ber::berpdu> payload_pdus;
 	    pay_p.decode_construct(payload_pdus);
 
@@ -771,7 +781,7 @@ void connection::run()
 			
 			packet_p.decode_vector(pkt);
 
-			p(liid, pkt.begin(), pkt.end(), tv);
+			p(liid, network, pkt.begin(), pkt.end(), tv);
 
 		    }
 
@@ -845,20 +855,20 @@ void connection::run()
 				    tcpip::ip4_address a;
 				    a.addr.assign(ip_addr.begin(),
 						  ip_addr.end());
-				    p.target_up(liid, a, tv);
+				    p.target_up(liid, network, a, tv);
 				}
 			
 				if (ip_addr.size() == 16) {
 				    tcpip::ip6_address a;
 				    a.addr.assign(ip_addr.begin(),
 						  ip_addr.end());
-				    p.target_up(liid, a, tv);
+				    p.target_up(liid, network, a, tv);
 				}
 
 			    }
 			    
 			    if (iritype == 2) {
-				p.target_down(liid, tv);
+				p.target_down(liid, network, tv);
 			    }
 
 			}

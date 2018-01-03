@@ -50,7 +50,8 @@ namespace cybermon {
 	virtual ~engine() {}
 
 	// Get the root context for a particular LIID.
-	context_ptr get_root_context(const std::string& liid);
+	context_ptr get_root_context(const std::string& liid,
+				     const std::string& network);
 
 	// Close an unwanted root context.
 	void close_root_context(const std::string& liid);
@@ -58,22 +59,23 @@ namespace cybermon {
 	// Process a packet belong to a LIID.  'liid' describes the context,
 	// 's' and 'e' are iterators pointing at the start and end of packet
 	// data to process.
-	void process(const std::string& liid, const pdu_slice& s) {
-	    context_ptr c = get_root_context(liid);
+	void process(const std::string& liid, const std::string& network,
+		     const pdu_slice& s) {
+	    context_ptr c = get_root_context(liid, network);
 	    process(c, s);
 	}
 
 	// Called when attacker is detected.
 	void target_up(const std::string& liid,
+		       const std::string& network,
 		       const tcpip::address& addr,
 		       const struct timeval& tv) {
 
 	    // Get the root context for this LIID.
-	    context_ptr c = get_root_context(liid);
+	    context_ptr c = get_root_context(liid, network);
 
 	    // Record the known address.
 	    root_context& rc = dynamic_cast<root_context&>(*c);
-
 	    rc.set_trigger_address(addr);
 
 	    // This is a reportable event.
@@ -82,7 +84,9 @@ namespace cybermon {
 	}
 
 	// Called when attacker goes off the air.
-	void target_down(const std::string& liid, const struct timeval& tv) {
+	void target_down(const std::string& liid,
+			 const std::string& network,
+			 const struct timeval& tv) {
 
 	    close_root_context(liid);
 
@@ -111,6 +115,7 @@ namespace cybermon {
 	// returns the network contexts source and destination address.
 	// Hint: probably IP addresses.
 	static void get_network_info(context_ptr p,
+				     std::string& network,
 				     address& src, address& dest);
 	
 	// Given a context, describe the address of the context in

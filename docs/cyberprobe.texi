@@ -3823,8 +3823,11 @@ addresses.
 Returns the trigger ID associated with a "target".
 
 @item context:get_network_info()
-Returns two variables: the source and destination network addresses (IP
-addresses) for this data. These are in normal IP address string format.
+Returns three variables: the network name (from ETSI NetworkElementID),
+the source and destination network addresses (IP addresses) for this data.
+These are in normal IP address string format.  Network name is
+the empty string, if not provided in the input stream.  Note that
+@command{cyberprobe} defaults to putting @samp{unknown} in ETSI streams.
 
 @item context:get_trigger_info()
 Returns the IP address which triggered this collection, if known. If not,
