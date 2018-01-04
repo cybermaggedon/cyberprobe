@@ -2522,7 +2522,14 @@ makes this a class-B address match.  That is, any address in the
 If no mask is specified, then this is an exact match against a single address.
 The @code{liid} attribute defines the LIID which will be applied
 if this
-particular IP address is detected. The address must be an IP address, and
+particular IP address is detected.
+@cindex @code{network} attribute, @file{cyberprobe.cfg}
+
+The optional @code{network} attribute
+defines the network (ETSI NetworkElementID), which, if specified,
+will be transmitted in the ETSI stream, and delivered as the JSON
+@samp{network} element in @command{cybermon} output.
+The address must be an IP address, and
 not a hostname. The address can be an IPv6 address if the @code{class}
 attribute is included, and set to @code{ipv6}.
 
@@ -3823,11 +3830,13 @@ addresses.
 Returns the trigger ID associated with a "target".
 
 @item context:get_network_info()
+@cindex @code{network} attribute, @file{cyberprobe.cfg}
 Returns three variables: the network name (from ETSI NetworkElementID),
 the source and destination network addresses (IP addresses) for this data.
 These are in normal IP address string format.  Network name is
-the empty string, if not provided in the input stream.  Note that
-@command{cyberprobe} defaults to putting @samp{unknown} in ETSI streams.
+the empty string, if not provided in the input stream.
+See @ref{@command{cyberprobe} configuration} for specifying the
+network.
 
 @item context:get_trigger_info()
 Returns the IP address which triggered this collection, if known. If not,
@@ -3959,6 +3968,12 @@ Unique ID for the event: UUID format
 
 @item device
 Device identifier / LIID.
+
+@item network
+@cindex @code{network} attribute, @file{cyberprobe.cfg}
+Network identifier, if ETSI stream delivery is used, and the
+@code{network} identifier is used in @file{cyberprobe.cfg}.
+See @ref{@command{cyberprobe} configuration}
 
 @item action
 The event type.  One of:
