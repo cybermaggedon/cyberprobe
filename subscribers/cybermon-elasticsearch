@@ -33,6 +33,7 @@ def init():
 		"url": { "type": "keyword" },
 		"action": { "type": "keyword" },
 		"device": { "type": "keyword" },
+		"network": { "type": "keyword" },
 		"dns": {
 		    "properties": {
 		        "type": {
@@ -347,6 +348,7 @@ def handle(msg):
     ob["id"] = msg["id"]
     ob["action"] = msg["action"]
     ob["device"] = msg["device"]
+    ob["network"] = msg["network"]
     ob["time"] = msg["time"]
     if msg.has_key("url"): ob["url"] = msg["url"]
     if msg.has_key("location"): ob["location"] = msg["location"]
