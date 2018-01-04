@@ -98,6 +98,7 @@ class delivery : public parameters, public management, public packet_consumer {
     threads::mutex targets_lock;
     std::map<int, std::map<tcpip::ip4_address, std::string> > targets;   // IPv4
     std::map<int, std::map<tcpip::ip6_address, std::string> > targets6;  // IPv6
+    std::map<std::string, std::string> networks;
 
     // Endpoints
     threads::mutex senders_lock;
@@ -176,9 +177,10 @@ class delivery : public parameters, public management, public packet_consumer {
 				int datalink);
 
     // Modifies the target map to include a mapping from address to target.
-    void add_target(const tcpip::address& addr, 
+    void add_target(const tcpip::address& addr,
 		    unsigned int mask,
-		    const std::string& liid);
+		    const std::string& liid,
+		    const std::string& network);
 
     // Removes a target mapping.
     void remove_target(const tcpip::address& addr,

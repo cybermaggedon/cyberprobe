@@ -20,6 +20,9 @@ public:
     // LIID.
     std::string liid;
 
+    // Network
+    std::string network;
+    
     // IP addresses
     tcpip::ip4_address addr;
     tcpip::ip6_address addr6;
@@ -33,16 +36,22 @@ public:
     target_spec() { universe = IPv4; }
 
     // Set IPv4 address match.
-    void set_ipv4(const std::string& liid, const tcpip::ip4_address& addr,
+    void set_ipv4(const std::string& liid, const std::string& network,
+		  const tcpip::ip4_address& addr,
 		  unsigned int mask = 32) {
+	this->network = network;
 	this->liid = liid; this->addr = addr; universe = IPv4; 
 	this->mask = mask;
     }
 
     // Set IPv6 address match.
-    void set_ipv6(const std::string& liid, const tcpip::ip6_address& addr,
+    void set_ipv6(const std::string& liid,
+		  const std::string& network,
+		  const tcpip::ip6_address& addr,
 		  unsigned int mask = 128) {
-	this->liid = liid; this->addr6 = addr; universe = IPv6;
+	this->liid = liid;
+	this->network = network;
+	this->addr6 = addr; universe = IPv6;
 	this->mask = mask;
     }
 
@@ -54,6 +63,8 @@ public:
 	    buf << "IPv4:" << addr;
 	else
 	    buf << "IPv6:" << addr6;
+
+	buf << ":" << network;
 
 	buf << ":" << liid;
 
@@ -86,10 +97,10 @@ public:
 
 	std::string txt;
 	if (spec.universe == target_spec::IPv4) {
-	    deliv.add_target(spec.addr, spec.mask, spec.liid);
+	    deliv.add_target(spec.addr, spec.mask, spec.liid, spec.network);
 	    spec.addr.to_string(txt);
 	} else {
-	    deliv.add_target(spec.addr6, spec.mask, spec.liid);
+	    deliv.add_target(spec.addr6, spec.mask, spec.liid, spec.network);
 	    spec.addr6.to_string(txt);
 	}
 

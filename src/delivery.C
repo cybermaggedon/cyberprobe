@@ -254,7 +254,7 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(liid, start, end);
+	    it->second->deliver(liid, networks[liid], start, end);
 	}
 	
 	// Unlock, we're done.
@@ -281,7 +281,7 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(liid, start, end);
+	    it->second->deliver(liid, networks[liid], start, end);
 	}
 	
 	// Unlock, we're done.
@@ -394,7 +394,8 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 // Modifies the target map to include a mapping from address to target.
 void delivery::add_target(const tcpip::address& addr, 
 			  unsigned int mask,
-			  const std::string& liid) 
+			  const std::string& liid,
+			  const std::string& network) 
 {
 
     targets_lock.lock();
@@ -409,12 +410,14 @@ void delivery::add_target(const tcpip::address& addr,
 	targets6[mask][a & mask] = liid;
     }
 
+    networks[liid] = network;
+
     // Tell all senders, target up.
     senders_lock.lock();
     for(std::map<ep,sender*>::iterator it = senders.begin();
 	it != senders.end();
 	it++) {
-	it->second->target_up(liid, addr);
+        it->second->target_up(liid, network, addr);
     }
     senders_lock.unlock();
 
@@ -452,7 +455,8 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->target_down(targets[mask][a]);
+	    const std::string& liid = targets[mask][a];
+	    it->second->target_down(liid, networks[liid]);
 	}
 	senders_lock.unlock();
 
@@ -480,7 +484,8 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->target_down(targets6[mask][a]);
+	    const std::string& liid = targets6[mask][a];
+	    it->second->target_down(liid, networks[liid]);
 	}
 
 	senders_lock.unlock();

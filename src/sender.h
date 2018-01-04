@@ -19,6 +19,7 @@ class qpdu {
   public:
     enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
     std::string liid;		            // Valid for: PDU, TARGET_UP/DOWN
+    std::string network;                    // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
     address_ptr addr;                       // Valid for: TARGET_UP
 };
@@ -65,11 +66,14 @@ class sender : public threads::thread {
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
     // Hints about targets coming on/off-stream
-    virtual void target_up(const std::string& l, const tcpip::address& a);
-    virtual void target_down(const std::string& liid);
+    virtual void target_up(const std::string& l, const std::string& n,
+			   const tcpip::address& a);
+    virtual void target_down(const std::string& liid,
+			     const std::string& n);
 
     // Called to push a packet down the sender transport.
     void deliver(const std::string& liid,
+		 const std::string& n,
 		 const_iterator& start,
 		 const_iterator& end);
 

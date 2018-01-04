@@ -332,7 +332,8 @@ void connection::cmd_add_target(const std::vector<std::string>& lst)
 	    unsigned int mask;
 	    tcpip::ip4_address::parse(lst[3], a4, mask);
 
-	    d.add_target(a4, mask, liid);
+	    // FIXME: Can't control network parameter.
+	    d.add_target(a4, mask, liid, "");
 
 	} catch (...) {
 	    error(302, "Failed to parse address.");
@@ -350,7 +351,8 @@ void connection::cmd_add_target(const std::vector<std::string>& lst)
 	    unsigned int mask;
 	    tcpip::ip6_address a6;
 	    tcpip::ip6_address::parse(lst[3], a6, mask);
-	    d.add_target(a6, mask, liid);
+	    // FIXME: Can't control network parameter.
+	    d.add_target(a6, mask, liid, "");
 	} catch (...) {
 	    error(302, "Failed to parse address.");
 	    return;

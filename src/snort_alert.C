@@ -174,7 +174,8 @@ void snort_alerter::run()
 
 		std::string liid = deliv.get_parameter(buf.str(), fallb.str());
 
-		deliv.add_target(*src, mask, liid);
+		// FIXME: Can't control network parameter.
+		deliv.add_target(*src, mask, liid, "");
 
 	    }
 

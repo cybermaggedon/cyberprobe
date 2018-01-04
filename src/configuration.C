@@ -86,6 +86,7 @@ void config_manager::read(const std::string& file,
 		    std::string ip = it->attributes["address"];
 		    std::string liid = it->attributes["liid"];
 		    std::string cs = it->attributes["class"];
+		    std::string network = it->attributes["network"];
 
 		    if (cs != "ipv6") {
 			
@@ -106,7 +107,7 @@ void config_manager::read(const std::string& file,
 			
 			// Create target specification.
 			target_spec* sp = new target_spec;
-			sp->set_ipv4(liid, addr, mask);
+			sp->set_ipv4(liid, network, addr, mask);
 			lst.push_back(sp);
 			
 		    } else {
@@ -128,7 +129,7 @@ void config_manager::read(const std::string& file,
 			
 			// Create target specfication.
 			target_spec* sp = new target_spec;
-			sp->set_ipv6(liid, addr, mask);
+			sp->set_ipv6(liid, network, addr, mask);
 			lst.push_back(sp);
 			
 		    }

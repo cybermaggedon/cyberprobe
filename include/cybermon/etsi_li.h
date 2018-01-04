@@ -103,8 +103,8 @@ class sender {
 				const std::string& oper,
 				uint32_t seq, uint32_t cin,
 				const std::string& country = "XX",
-				const std::string& net_element = "unknown",
-				const std::string& int_pt = "unknown");
+				const std::string& net_element = "",
+				const std::string& int_pt = "");
 
     static void encode_ipiri(ber::berpdu& ipiri_p,
 			     const std::string& username,
@@ -121,35 +121,35 @@ class sender {
     void ia_acct_start_request(const std::string& liid,
 			       uint32_t seq, uint32_t cin,
 			       const std::string& oper,
-			       const std::string& country = "XX",
-			       const std::string& net_element = "unknown",
-			       const std::string& int_pt = "unknown",
-			       const std::string& username = "unknown");
+			       const std::string& country = "",
+			       const std::string& net_element = "",
+			       const std::string& int_pt = "",
+			       const std::string& username = "");
 			       
     void ia_acct_start_response(const std::string& liid,
 				const tcpip::address& target_addr,
 				uint32_t seq, uint32_t cin,
 				const std::string& oper,
-				const std::string& country = "XX",
-				const std::string& net_element = "unknown",
-				const std::string& int_pt = "unknown",
-				const std::string& username = "unknown");
+				const std::string& country = "",
+				const std::string& net_element = "",
+				const std::string& int_pt = "",
+				const std::string& username = "");
 
     void send_ip(const std::string& liid,
 		 const std::string& oper,
 		 uint32_t seq, uint32_t cid,
 		 const std::vector<unsigned char>& packet,
-		 const std::string& country = "XX",
-		 const std::string& net_element = "unknown",
-		 const std::string& int_pt = "unknown");
+		 const std::string& country = "",
+		 const std::string& net_element = "",
+		 const std::string& int_pt = "");
 
     void ia_acct_stop(const std::string& liid,
 				const std::string& oper,
 				uint32_t seq, uint32_t cin,
-				const std::string& country = "XX",
-				const std::string& net_element = "unknown",
-				const std::string& int_pt = "unknown",
-				const std::string& username = "unknown");
+				const std::string& country = "",
+				const std::string& net_element = "",
+				const std::string& int_pt = "",
+				const std::string& username = "");
 
 };
 
@@ -181,24 +181,24 @@ class mux {
     void target_connect(const std::string& liid,
 			const tcpip::address& target_addr,
 			const std::string& oper = "unknown",
-			const std::string& country = "XX",
-			const std::string& net_elt = "unknown",
-			const std::string& int_pt = "unknown",
-			const std::string& username = "unknown");
+			const std::string& country = "",
+			const std::string& net_elt = "",
+			const std::string& int_pt = "",
+			const std::string& username = "");
 
     void target_disconnect(const std::string& liid,
 			   const std::string& oper = "unknown",
-			   const std::string& country = "XX",
-			   const std::string& net_elt = "unknown",
-			   const std::string& int_pt = "unknown",
-			   const std::string& username = "unknown");
+			   const std::string& country = "",
+			   const std::string& net_elt = "",
+			   const std::string& int_pt = "",
+			   const std::string& username = "");
 
     void target_ip(const std::string& liid,
 		   const std::vector<unsigned char>& pdu,
 		   const std::string& oper = "unknown",
-		   const std::string& country = "XX",
-		   const std::string& net_elt = "unknown",
-		   const std::string& int_pt = "unknown");
+		   const std::string& country = "",
+		   const std::string& net_elt = "",
+		   const std::string& int_pt = "");
 
 };
 

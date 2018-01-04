@@ -55,13 +55,15 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 
     // network element
     ber::berpdu netelt_p;
-    netelt_p.encode_string(ber::context_specific, 1, net_element);
+    if (net_element != "") 
+	netelt_p.encode_string(ber::context_specific, 1, net_element);
 
     // NetworkIdentifier
     ber::berpdu neid_p;
     pdus.clear();
     pdus.push_back(&operid_p);
-    pdus.push_back(&netelt_p);
+    if (net_element != "") 
+	pdus.push_back(&netelt_p);
     neid_p.encode_construct(ber::context_specific, 0, pdus);
 
     // ----------------------------------------------------------------------
@@ -74,14 +76,16 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 
     // Deliv country
     ber::berpdu deliv_cc_p;
-    deliv_cc_p.encode_string(ber::context_specific, 2, country);
+    if (country != "")
+	deliv_cc_p.encode_string(ber::context_specific, 2, country);
 
     // Encode CID
     ber::berpdu cid_p;
     pdus.clear();
     pdus.push_back(&neid_p);
     pdus.push_back(&cin_p);
-    pdus.push_back(&deliv_cc_p);
+    if (country != "")
+	pdus.push_back(&deliv_cc_p);
     cid_p.encode_construct(ber::context_specific, 3, pdus);
 
     // ----------------------------------------------------------------------
@@ -99,7 +103,8 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 
     // Auth country code
     ber::berpdu authcountry_p;
-    authcountry_p.encode_string(ber::context_specific, 2, country);
+    if (country != "")
+	authcountry_p.encode_string(ber::context_specific, 2, country);
 
     // Encode Sequence
     ber::berpdu seq_p;
@@ -111,15 +116,19 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 
     // Encode interceptionPointID
     ber::berpdu intpt_p;
-    intpt_p.encode_string(ber::context_specific, 6, intpt);
+    if (intpt != "")
+	intpt_p.encode_string(ber::context_specific, 6, intpt);
+
     pdus.clear();
     pdus.push_back(&psdomainid_p);
     pdus.push_back(&liid_p);
-    pdus.push_back(&authcountry_p);
+    if (country != "")
+	pdus.push_back(&authcountry_p);
     pdus.push_back(&cid_p);
     pdus.push_back(&seq_p);
     pdus.push_back(&tm_p);
-    pdus.push_back(&intpt_p);
+    if (intpt != "")
+	pdus.push_back(&intpt_p);
     psheader_p.encode_construct(ber::context_specific, 1, pdus);
 
 }

@@ -3,6 +3,7 @@
 
 // Called to add packets to the queue.
 void sender::deliver(const std::string& liid, // LIID
+		     const std::string& network, // Network
 		     const_iterator& start,   // Start of packet
 		     const_iterator& end)     // End of packet
 {
@@ -32,6 +33,7 @@ void sender::deliver(const std::string& liid, // LIID
     p->msg_type = qpdu::PDU;
     p->pdu.assign(start, end);
     p->liid = liid;
+    p->network = network;
     packets.push(p);
 
     // Wake up the sender's run method.
@@ -44,6 +46,7 @@ void sender::deliver(const std::string& liid, // LIID
 
 // Called to add packets to the queue.
 void sender::target_up(const std::string& liid,        // LIID
+		       const std::string& network,     // Network
 		       const tcpip::address& addr)     // Address
 {
 
@@ -83,6 +86,7 @@ void sender::target_up(const std::string& liid,        // LIID
     qpdu_ptr p = qpdu_ptr(new qpdu());
     p->msg_type = qpdu::TARGET_UP;
     p->liid = liid;
+    p->network = network;
     p->addr = np;
     packets.push(p);
 
@@ -95,7 +99,8 @@ void sender::target_up(const std::string& liid,        // LIID
 }
 
 // Called to add packets to the queue.
-void sender::target_down(const std::string& liid)        // LIID
+void sender::target_down(const std::string& liid,        // LIID
+			 const std::string& network)     // Network
 {
 
     // Get lock.
@@ -122,6 +127,7 @@ void sender::target_down(const std::string& liid)        // LIID
     qpdu_ptr q = qpdu_ptr(new qpdu());
     q->msg_type = qpdu::TARGET_DOWN;
     q->liid = liid;
+    q->network = network;
     packets.push(q);
 
     // Wake up the sender's run method.
@@ -195,6 +201,8 @@ void nhis11_sender::handle(qpdu_ptr next)
     // Short-hand.
     const std::string& liid = next->liid;
 
+    // Network is ignored, not used for NHIS.
+    
     // NHIS 1.1 can only handle the PDUs.
     if (next->msg_type != qpdu::PDU) return;
 
@@ -209,7 +217,7 @@ void nhis11_sender::handle(qpdu_ptr next)
 	       (transport.find(liid) == transport.end())) {
 	    try {
 		if (tls) 
-		    transport[liid].connect_tls(h, p, liid,
+		    transport[liid].connect_tls(h, p, liid, 
 						params["key"],
 						params["certificate"],
 						params["chain"]);
@@ -257,6 +265,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 
     // Short-hand.
     const std::string& liid = next->liid;
+    const std::string& network = next->network;
     const std::vector<unsigned char>& pdu = next->pdu;
     const address_ptr addr = next->addr;
 
@@ -311,6 +320,24 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	}
 	
 	if (!running) break;
+
+	std::string oper, country, net_elt, int_pt;
+	std::string username;
+		
+	// Get metadata parameters
+	oper = global_pars.get_parameter("operator", "unknown");
+	country = global_pars.get_parameter("country", "");
+
+	if (network != "")
+	    net_elt = network;
+	else {
+	    if (net_elt == "")
+		net_elt = global_pars.get_parameter("network_element",
+						    "");
+	}
+	
+	int_pt = global_pars.get_parameter("interception_point",
+					   "");
 	
 	// Target is up.
 	if (next->msg_type == qpdu::TARGET_UP) {
@@ -318,23 +345,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	    // Describe the target connection.
 	    try {
 		
-		std::string oper, country, net_elt, int_pt;
-		std::string username;
-		
-		// Get metadata parameters
-		oper = global_pars.get_parameter("operator", "unknown");
-		country = global_pars.get_parameter("country", "XX");
-
-		net_elt = global_pars.get_parameter("network_element." + liid,
-						    "");
-		if (net_elt == "")
-		    net_elt = global_pars.get_parameter("network_element",
-							"unknown");
-
-		int_pt = global_pars.get_parameter("interception_point",
-						   "unknown");
-		username = global_pars.get_parameter("username." + liid,
-						     "unknown");
+		username = global_pars.get_parameter("username." + liid, "");
 
 		// Send connect IRI stuff.
 		mux.target_connect(liid, *next->addr, 
@@ -362,20 +373,6 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	    // Send a PDU
 	    try {
 
-		// Fetch metadata parameters
-		std::string oper, country, net_elt, int_pt;
-		oper = global_pars.get_parameter("operator", "unknown");
-		country = global_pars.get_parameter("country", "XX");
-
-		net_elt = global_pars.get_parameter("network_element." + liid,
-						    "");
-		if (net_elt == "")
-		    net_elt = global_pars.get_parameter("network_element",
-							"unknown");
-
-		int_pt = global_pars.get_parameter("interception_point",
-						   "unknown");
-
 		// Deliver packet.
 		mux.target_ip(liid, pdu, oper, country, net_elt, 
 			      int_pt);
@@ -398,22 +395,6 @@ void etsi_li_sender::handle(qpdu_ptr next)
 
 	    // Describe target disconnection.
 	    try {
-
-		std::string oper, country, net_elt, int_pt;
-
-		// Get metadata parameters
-		oper = global_pars.get_parameter("operator", "unknown");
-		country = global_pars.get_parameter("country", "XX");
-
-
-		net_elt = global_pars.get_parameter("network_element." + liid,
-						    "");
-		if (net_elt == "")
-		    net_elt = global_pars.get_parameter("network_element",
-							"unknown");
-
-		int_pt = global_pars.get_parameter("interception_point",
-						   "unknown");
 
 		// Send disconnect IRI stuff.
 		mux.target_disconnect(liid, oper, country, net_elt,
