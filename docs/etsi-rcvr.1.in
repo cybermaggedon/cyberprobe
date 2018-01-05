@@ -1,4 +1,4 @@
-.TH ETSI-RCVR "1" "October 2014" "@PACKAGE@ @VERSION@" "User Commands"
+.TH ETSI-RCVR "1" "January 2018" "@PACKAGE@ @VERSION@" "User Commands"
 .SH NAME
 etsi-rcvr \- Decode ETSI LI streams to PCAP data
 .SH SYNOPSIS
@@ -24,7 +24,9 @@ Part of the Cyberprobe project.
 .SH "REPORTING BUGS"
 Visit <http://cyberprobe.sf.net> for support.
 .SH COPYRIGHT
-Copyright \(co 2013-2014 Cyber MacGeddon
+Copyright \(co 2013-2018 Cyber MacGeddon
+.br
+Copyright \(co 2013-2018 Trust Networks Inc.
 .br
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
 .br
