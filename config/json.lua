@@ -9,6 +9,7 @@
 local observer = {}
 
 local model = require("util.json")
+local json = require("json")
 
 -- The table should contain functions.
 
