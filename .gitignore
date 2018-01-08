@@ -37,6 +37,12 @@ docs/cybermon-monitor.1
 docs/cybermon-gaffer.1
 docs/cybermon-bigquery.1
 docs/cybermon-cassandra.1
+docs/cybermon-alert.1
+docs/cybermon-detector.1
+docs/cybermon-dump.1
+docs/cybermon-geoip.1
+docs/docker-compose-cp-snort.yml
+docs/docker-compose.yml
 docs/cyberprobe.info
 docs/cyberprobe.html
 docs/cyberprobe.pdf
