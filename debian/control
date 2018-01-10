@@ -6,7 +6,7 @@ Standards-Version: 3.9.2
 Build-Depends: lua5.2, python2.7,  
   mime-support, libboost-dev, python-minimal, libexpat1,
   liblua5.2-dev, mawk, libpcap0.8, python2.7-minimal,
-  libc6, libreadline6
+  libc6, libreadline7
 Homepage: http://cyberprobe.trustnetwork.com/
 
 Package: cyberprobe
