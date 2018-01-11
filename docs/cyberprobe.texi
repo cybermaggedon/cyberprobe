@@ -66,6 +66,10 @@ standard streaming protocols.
 a monitor, which receives the streamed packets, decodes the protocols, and
 interprets the information.
 
+@item
+a set of subscribers which can be used to do things with the captured data
+e.g. store to ElasticSearch, BigQuery or Gaffer.
+
 @end itemize
 
 These components can be used together or separately. For a simple
@@ -184,10 +188,6 @@ Supports IP, TCP, UDP, ICMP, HTTP and DNS protocols, currently.
 
 @end itemize
 
-The cybermon software is a bit of a work-in-progress at the moment, and
-needs more protocols added, but there's enough capability to be useful, and
-to demonstrate the value of this architecture.
-
 The code is targeted at the Linux platform, although it is generic enough to
 be applicable to other UN*X-like platforms.
 
@@ -201,6 +201,9 @@ tutorial.
 Cyberprobe releases:
 
 @table @code
+
+@item 1.8.4
+Endace DAG package support added.
 
 @item 1.7.0
 Gaffer subscriber brought up-to-date with Gaffer 1.0 API.  GeoIP and
@@ -336,92 +339,102 @@ First release on SourceForge.
 @node Obtaining the software
 @chapter Obtaining the software
 
-The code doesn't have many dependencies. Exotic dependencies are:
+@heading Deployment using containers
 
-@cindex dependencies
-@cindex Build dependencies
-@cindex Boost
-@cindex Lua
-@cindex @code{libpcap}
-@cindex @code{expat}
-@cindex @code{tcpdump}
-@cindex @code{telnet}
-@cindex @code{luafilesystem}
-@cindex @code{luajson}
-@cindex @code{libtaxii}
-@cindex @code{stix}
-@cindex @code{lua-md5}
-@cindex @code{ncurses}
-@cindex @code{readline}
+Deploying containers is by far the easiest way to get the software running.
+It is possible to deploy a complete software stack for data capture and
+analysis using Docker containers which requires the minimal amount of
+software installation.
+See @ref{A containerised processing system}.
 
-@itemize
+@heading Debian / Ubuntu repository
 
-@item
-Boost regex.
+We use GoCD to build the software, and regularly release packages
+in DEB and RPM form.  Installing from the repository is the easiest way to
+install if you're not using containers.
 
-@item
-Boost shared pointer.
+In order to install, you need to add our signing key to your system:
 
-@item
-LUA - 5.1 or later.
+@example
+  wget -q -O- http://download.trustnetworks.com/trust-networks.asc | \
+    apt-key add -
+@end example
 
-@item
-GCC C++ compiler and development support.
+Once done you then add our repository to @file{/etc/apt/sources.list}.
 
-@item
-@code{libpcap}.
+For Debian Stretch, add:
+@example
+deb http://download.trustnetworks.com/debian stretch main
+@end example
 
-@item
-Expat (XML parser).
+For Debian Jessie, add:
+@example
+deb http://download.trustnetworks.com/debian jessie main
+@end example
 
-@item
-@code{tcpdump} - not needed to build the software, but we use it in the
-tutorial.
+For Debian Wheezy, add:
+@example
+deb http://download.trustnetworks.com/debian wheezy main
+@end example
 
-@item
-@code{telnet} - not needed to build the software, but we use it in the
-tutorial.
+For Ubuntu Artful, add:
+@example
+deb http://download.trustnetworks.com/ubuntu artful main
+@end example
 
-@item
-@code{luafilesystem}, if using certain Lua configuration files.
+For Ubuntu Zesty, add:
+@example
+deb http://download.trustnetworks.com/ubuntu zesty main
+@end example
 
-@item
-@code{luajson}, if using certain Lua configuration files.
+Once added, the cyberprobe installation proceeds thus:
 
-@item
-@code{lua-md5}, for MD5 hashing payloads.
+@example
+apt-get update
+apt-get install cyberprobe
+@end example
 
-@item
-@code{ncurses}, needed for the command line admin utility.
+@heading Centos / Fedora
 
-@item
-@code{readline}, needed for the command line admin utility.
+To install using Yum or DNF, create file
+@file{/etc/yum.repos.d/trust-networks.repo}:
 
-@item
-For STIX support, @code{libtaxii} and @code{stix} are Python modules
-made available at @url{http://mitre.org} which can be downloaded using
-@code{pip}.
+@example
+[trustnetworks]
+name=Trust Networks
+baseurl=http://download.trustnetworks.com/fedora/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=http://download.trustnetworks.com/trust-networks.asc
+@end example
 
-@end itemize
+and then:
 
-There are a number of ways to obtain the software:
+@example
+dnf install cyberprobe
+@end example
+
+Or, for Centos 7:
+
+
+@example
+yum install cyberprobe
+@end example
 
 @heading Download packages
 
-The easiest way to obtain the software is to download the package for the
-operating system you are using.  Packages are currently available for
-Fedora, Debian and Ubuntu.
-
-Downloads are available on the project page at
+You can download packages manually; packages are currently available for
+Fedora, CentOS, Debian and Ubuntu.  Downloads are available on the project
+page at
 @url{http://github.com/cybermaggedon/cyberprobe/releases}.
 
-Fedora packages are installed using @code{yum}:
+Fedora packages are installed using @code{dnf}:
 
 @example
 sudo dnf install <package>
 @end example
 
-Debian, Mint and Ubuntu packages are installed using @code{dpkg}:
+Debian and Ubuntu packages are installed using @code{dpkg}:
 
 @example
 sudo dpkg -i <package>
@@ -545,6 +558,76 @@ sudo docker -it --rm -v \
 Running cyberprobe in a container makes the deployment easier, but it needs
 to run with elevated privileges in order to sniff the network, which reduces
 some of the advantages of running it in a container.
+
+@heading Dependencies
+
+The code doesn't have many dependencies. Exotic dependencies are:
+
+@cindex dependencies
+@cindex Build dependencies
+@cindex Boost
+@cindex Lua
+@cindex @code{libpcap}
+@cindex @code{expat}
+@cindex @code{tcpdump}
+@cindex @code{telnet}
+@cindex @code{luafilesystem}
+@cindex @code{luajson}
+@cindex @code{libtaxii}
+@cindex @code{stix}
+@cindex @code{lua-md5}
+@cindex @code{ncurses}
+@cindex @code{readline}
+
+@itemize
+
+@item
+Boost regex.
+
+@item
+Boost shared pointer.
+
+@item
+LUA - 5.1 or later.
+
+@item
+GCC C++ compiler and development support.
+
+@item
+@code{libpcap}.
+
+@item
+Expat (XML parser).
+
+@item
+@code{tcpdump} - not needed to build the software, but we use it in the
+tutorial.
+
+@item
+@code{telnet} - not needed to build the software, but we use it in the
+tutorial.
+
+@item
+@code{luafilesystem}, if using certain Lua configuration files.
+
+@item
+@code{luajson}, if using certain Lua configuration files.
+
+@item
+@code{lua-md5}, for MD5 hashing payloads.
+
+@item
+@code{ncurses}, needed for the command line admin utility.
+
+@item
+@code{readline}, needed for the command line admin utility.
+
+@item
+For STIX support, @code{libtaxii} and @code{stix} are Python modules
+made available at @url{http://mitre.org} which can be downloaded using
+@code{pip}.
+
+@end itemize
 
 @comment ----------------------------------------------------------------------
 
