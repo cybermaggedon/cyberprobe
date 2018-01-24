@@ -1,5 +1,6 @@
 
-bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli
+bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli \
+	stream-rcvr tls-rcvr
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C xml.C capture.C configuration.C control.C snort_alert.C \
@@ -25,6 +26,12 @@ nhis11_rcvr_LDADD = libcybermon.la -lssl
 
 etsi_rcvr_SOURCES = etsi_rcvr.C
 etsi_rcvr_LDADD = libcybermon.la -lssl
+
+stream_rcvr_SOURCES = stream_rcvr.C
+stream_rcvr_LDADD = libcybermon.la -lssl
+
+tls_rcvr_SOURCES = tls_rcvr.C
+tls_rcvr_LDADD = libcybermon.la -lssl
 
 lib_LTLIBRARIES = libcybermon.la
 
