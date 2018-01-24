@@ -120,7 +120,8 @@ void connection::run()
 	while (1) {
 
 	    std::vector<unsigned char> buffer;
-	    int ret = s->read(buffer, 1024);
+	    int ret = s->read(buffer, 256);
+	    std::cerr << ret << std::endl;
 	    if (ret <= 0) break;
 	    
 	    out.write(reinterpret_cast<char*>(buffer.data()), ret);
