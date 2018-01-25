@@ -1,0 +1,220 @@
+#!/usr/bin/env python
+
+import sys
+import pcapy
+import binascii
+
+# Usage:
+#   ./decode-etsi file.etsi > out.pcap
+#   tcpdump -n -r out.pcap
+
+#############################################################################
+# ASN.1 BER decode
+#############################################################################
+
+#
+# Hacky.  Reads a BER PDU from a stream, and recursively decodes.
+#
+
+class Ber:
+
+    UNIVERSAL = 0
+    CONTEXT_SPECIFIC = 1
+    PRIV = 2
+    APPLICATION = 3
+    
+    def __init__(self, pdu):
+        self.pdu = pdu
+        self.decode()
+
+    def get_class(self):
+        bits = self.pdu[0] & 0xc0
+        if bits == 0:
+            return Ber.UNIVERSAL
+        elif bits == 0x80:
+            return Ber.CONTEXT_SPECIFIC
+        elif bits == 0xc0:
+            return Ber.PRIV
+        else:
+            return Ber.APPLICATION
+
+    @staticmethod
+    def read_stream(stream, len):
+
+        b = bytearray()
+        for i in range(0, len):
+            b.append(stream.next())
+            
+        return b
+
+    def decode(self):
+
+        data = self.pdu
+        self.pdus = {}
+        
+        self.is_constructed = data[0] & 0x20
+
+
+	if data[0] & 0x1f != 0x1f:
+            pos = 1
+	    self.tag = data[0] & 0x1f
+        else:
+	    pos = 1
+	    self.tag = 0
+
+            while True:
+                self.tag <<= 7
+                self.tag |= data[pos] & 0x7f
+                pos += 1
+	        if data[pos] & 0x80:
+		    break
+
+	if data[pos] & 0x80 == 0:
+
+            self.length = data[pos]
+            pos += 1
+
+        else:
+
+	    llen = data[pos] & 0x7f
+            pos += 1
+
+	    self.length = 0
+	    for i in range(0, llen):
+		self.length <<= 8;
+		self.length |= data[pos]
+                pos += 1
+
+        self.start = pos
+        self.end = self.start + self.length
+
+        if self.is_constructed:
+
+            data = iter(self.pdu[self.start:self.end])
+
+            while True:
+                try:
+                    pdu = Ber.read(data)
+                    self.pdus[pdu.tag] = pdu
+                except Exception, v:
+                    break
+
+    @staticmethod
+    def read(stream):
+        pdu = bytearray()
+
+        byte = Ber.read_stream(stream, 1)[0]
+        pdu.append(byte)
+
+        if (byte & 0x1f) == 0x1f:
+            while True:
+                byte = Ber.read_stream(stream, 1)[0]
+                pdu.append(byte)
+                if byte & 0x80:
+                    break
+
+        byte = Ber.read_stream(stream, 1)[0]
+        pdu.append(byte)
+
+        if byte & 0x80 == 0:
+
+            length = byte & 0x7f
+
+        else:
+
+            length = 0
+            llen = byte & 0x7f
+            
+            for i in range(0, llen):
+                byte = Ber.read_stream(stream, 1)[0]
+                pdu.append(byte)
+                length <<= 8
+                length |= byte
+
+        if length > (1024 * 1024 * 1024):
+            raise Exception, "PDU length too big"
+
+        pdu.extend(Ber.read_stream(stream, length))
+
+        return Ber(pdu)
+
+# Turns a file into an iterator which provides bytes.
+def bytes_from_file(filename, chunksize=8192):
+    with open(filename, "rb") as f:
+        while True:
+            chunk = f.read(chunksize)
+            if chunk:
+                for b in chunk:
+                    yield b
+                else:
+                    break
+
+# Hacky thing.  Takes a list of strings containing hex dump, and outputs the
+# raw data.
+def writeByteStringToFile(bytestring, file):
+    bytelist = bytestring.split()  
+    bytes = binascii.a2b_hex(''.join(bytelist))
+    file.write(bytes)
+
+# PCAP output is also hacky.  PCAP support in Python for outputting is
+# so horifically complicated.
+
+# Global header for pcap 2.4
+pcap_global_header =   ('D4 C3 B2 A1'   
+                        '02 00'         # PCAP major
+                        '04 00'         # PCAP minor
+                        '00 00 00 00'     
+                        '00 00 00 00'     
+                        'FF FF 00 00'     
+                        '65 00 00 00')
+
+# Open input file, and get generator.
+infile = sys.argv[1]
+stream = bytes_from_file(infile)
+
+# Output PCAP header to stdout.
+writeByteStringToFile(pcap_global_header, sys.stdout)
+
+while True:
+    
+    try:
+
+        # Parse a BER PDU.
+        pdu = Ber.read(stream)
+
+        # Poor exception handling to skip over anything which doesn't look
+        # right.
+        try:
+
+            # Get the IP PDU out for the BER PDU.
+            sp = pdu.pdus[2].pdus[1].pdus[16].pdus[2].pdus[2].pdus[1].pdus[0]
+
+            # Get the actual IP packet.
+            pkt = sp.pdu[sp.start:sp.end]
+
+            # Convert the length into a hex string to write into the
+            # PCAP header. (Hacky).  Can you tell I got this from stackoverflow?
+            pcap_len = len(pkt)
+            hex = "%08x"%pcap_len
+            reverse_hex = hex[6:] + hex[4:6] + hex[2:4] + hex[:2]
+
+            # PCAP packet header.
+            pcap_packet_header =   ('AA 77 9F 47'     
+                                    '90 A2 04 00'     
+                                    'XX XX XX XX'   #Frame Size (little endian) 
+                                    'YY YY YY YY')  #Frame Size (little endian)
+
+            # Write lengths into PCAP header.
+            pcaph = pcap_packet_header.replace('XX XX XX XX',reverse_hex)
+            pcaph = pcaph.replace('YY YY YY YY',reverse_hex)
+
+            # Output PCAP header and IP packet
+            writeByteStringToFile(pcaph, sys.stdout)
+            sys.stdout.write(pkt)
+
+        except:
+            pass
+
+    except:
+        break
+
