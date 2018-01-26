@@ -360,6 +360,11 @@ In order to install, you need to add our signing key to your system:
     apt-key add -
 @end example
 
+We use this signing key:
+@example
+@include signing.texi
+@end example
+
 Once done you then add our repository to @file{/etc/apt/sources.list}.
 
 For Debian Stretch, add:
@@ -416,9 +421,13 @@ dnf install cyberprobe
 
 Or, for Centos 7:
 
-
 @example
 yum install cyberprobe
+@end example
+
+We use this signing key:
+@example
+@include signing.texi
 @end example
 
 @heading Download packages

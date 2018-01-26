@@ -89,7 +89,7 @@ CLEANFILES = nhis11-rcvr.1 etsi-rcvr.1 cyberprobe.1 cyberprobe-cli.1 \
 	docker-compose-cp-snort.yml cybermon-alert.1 \
 	cybermon-detector.1 cybermon-dump.1 cybermon-geoip.1
 
-cyberprobe_TEXINFOS = paths.texi fdl.texi
+cyberprobe_TEXINFOS = paths.texi fdl.texi signing.texi
 
 # FIXME: Want to put a dependency on the Makefile, so that paths.texi gets
 # updated on a change of paths.  However, this causes distcheck to fail.
