@@ -1,5 +1,5 @@
 
-SUBDIRS = src include config docs stix www tests init subscribers
+SUBDIRS = src include config docs stix www tests init subscribers utils
 
 ACLOCAL_AMFLAGS = -I m4
 

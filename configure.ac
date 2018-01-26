@@ -112,7 +112,8 @@ AC_CHECK_FUNCS([gethostbyname gettimeofday socket strdup uname])
 
 AC_CONFIG_FILES([Makefile src/Makefile include/Makefile config/Makefile
 	docs/Makefile stix/Makefile www/Makefile tests/Makefile tests/atlocal
-	init/Makefile subscribers/Makefile pkg.mk cyberprobe.spec])
+	init/Makefile subscribers/Makefile pkg.mk utils/Makefile
+ 	cyberprobe.spec])
 
 AC_OUTPUT
 
