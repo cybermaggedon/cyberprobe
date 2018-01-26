@@ -23,7 +23,7 @@ class connection : public threads::thread {
 	       std::string fname) : s(s), r(r) {
 	running = true;
 	std::cout << "Writing to " << fname << std::endl;
-	out.open(fname);
+	out.open(fname.c_str());
     }
     virtual ~connection() {}
     virtual void run();
