@@ -128,8 +128,8 @@ bool delivery::ipv4_match(const_iterator& start,
 
     // Search mask map
     typedef std::map<tcpip::ip4_address, std::string> addr_map;
-    std::map<int, addr_map>::const_iterator it;
-    for(it = targets.begin(); it != targets.end(); it++) {
+    std::map<int, addr_map>::const_reverse_iterator it;
+    for(it = targets.rbegin(); it != targets.rend(); it++) {
 
 	// mask
 	unsigned int mask = it->first;
@@ -183,11 +183,11 @@ bool delivery::ipv6_match(const_iterator& start,
 
     // Search mask map
     typedef std::map<tcpip::ip6_address, std::string> addr_map;
-    std::map<int, addr_map>::iterator it;
-    for(it = targets6.begin(); it != targets6.end(); it++) {
+    std::map<int, addr_map>::const_reverse_iterator it;
+    for(it = targets6.rbegin(); it != targets6.rend(); it++) {
 
 	// Find a match against the source or destination IP address.
-	std::map<tcpip::ip6_address, std::string>::iterator it2;
+	std::map<tcpip::ip6_address, std::string>::const_iterator it2;
 
 	// mask
 	unsigned int mask = it->first;
