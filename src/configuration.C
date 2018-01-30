@@ -54,6 +54,10 @@ void config_manager::read(const std::string& file,
 
 		    lst.push_back(sp);
 
+		} else {
+		    std::cerr
+			<< "interface element without 'name' attribute, ignored"
+			<< std::endl;
 		}
 
 	    }
@@ -77,11 +81,22 @@ void config_manager::read(const std::string& file,
 		if (it->name == "target") {
 		    
 		    // Bail if liid or address aren't specified.
-		    if (it->attributes.find("liid") == it->attributes.end())
+		    if (it->attributes.find("liid") == it->attributes.end()) {
+			std::cerr
+			    << "target element without 'liid' attribute, "
+			    << "ignored"
+			    << std::endl;
 			continue;
+		    }
 		    
-		    if (it->attributes.find("address") == it->attributes.end())
+		    if (it->attributes.find("address") ==
+			it->attributes.end()) {
+			std::cerr
+			    << "target element without 'address' attribute, "
+			    << "ignored"
+			    << std::endl;
 			continue;
+		    }
 
 		    std::string ip = it->attributes["address"];
 		    std::string liid = it->attributes["liid"];
@@ -163,31 +178,61 @@ void config_manager::read(const std::string& file,
 		if (it->name == "endpoint") {
 		    
 		    // All these attributes are mandatory.
-		    if (it->attributes.find("hostname") == it->attributes.end())
+		    if (it->attributes.find("hostname") ==
+			it->attributes.end()) {
+			std::cerr
+			    << "endpoint element without 'hostname' attribute, "
+			    << "ignored"
+			    << std::endl;
 			continue;
-		    if (it->attributes.find("port") == it->attributes.end())
+		    }
+		    if (it->attributes.find("port") == it->attributes.end()) {
+			std::cerr
+			    << "endpoint element without 'port' attribute, "
+			    << "ignored"
+			    << std::endl;
 			continue;
-		    if (it->attributes.find("type") == it->attributes.end())
+		    }
+		    if (it->attributes.find("type") == it->attributes.end()) {
+			std::cerr
+			    << "endpoint element without 'type' attribute, "
+			    << "ignored"
+			    << std::endl;
 			continue;
-		    if (it->attributes.find("transport") ==
-			it->attributes.end())
-			continue;
+		    }
 
 		    // Get the attributes.
 		    std::string hostname = it->attributes["hostname"];
 		    std::string type = it->attributes["type"];
 		    std::string transport = it->attributes["transport"];
 
+		    // Transport defaults to TCP.
+		    if (transport == "") transport = "tcp";
+
 		    if (transport == "tls") {
 			if (it->attributes.find("certificate") ==
-			    it->attributes.end())
+			    it->attributes.end()) {
+			    std::cerr
+				<< "TLS endpoint element without 'certficate' "
+				<< "attributed, ignored"
+				<< std::endl;
 			    continue;
 			if (it->attributes.find("key") ==
-			    it->attributes.end())
+			    it->attributes.end()) {
+			    std::cerr
+				<< "TLS endpoint element without 'key' "
+				<< "attributed, ignored"
+				<< std::endl;
 			    continue;
+			}
 			if (it->attributes.find("trusted-ca") ==
 			    it->attributes.end())
+			    std::cerr
+				<< "TLS endpoint element without 'trusted-ca' "
+				<< "attributed, ignored"
+				<< std::endl;
 			    continue;
+			}
 		    }
 
 		    // Optional attributes
@@ -234,10 +279,20 @@ void config_manager::read(const std::string& file,
 		if (it->name == "parameter") {
 		    
 		    // Both attributes are mandatory.
-		    if (it->attributes.find("key") == it->attributes.end())
+		    if (it->attributes.find("key") == it->attributes.end()) {
+			std::cerr
+			    << "parameter element without 'key' attribute, "
+			    << "ignored"
+			    << std::endl;
 			continue;
-		    if (it->attributes.find("value") == it->attributes.end())
+		    }
+		    if (it->attributes.find("value") == it->attributes.end()) {
+			std::cerr
+			    << "parameter element without 'vakue' attribute, "
+			    << "ignored"
+			    << std::endl;
 			continue;
+		    }
 		    
 		    // Get attributes.
 		    std::string key = it->attributes["key"];
