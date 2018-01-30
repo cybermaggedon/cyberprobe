@@ -6,8 +6,36 @@
 #include <cybermon/manager.h>
 
 #include <ctype.h>
+#include <sstream>
+#include <iomanip>
 
 using namespace cybermon;
+
+std::string http_parser::generate_error_string(bool request,
+                                               const std::string & state,
+                                               const std::string & expected,
+                                               const char actual,
+                                               const std::string & context) {
+    std::ostringstream error_oss;
+    if (request) {
+        error_oss 	<< "HTTP protocol violation! state: ";
+    } else {
+        error_oss 	<< "HTTP response protocol violation! state: ";
+    }
+    error_oss << state << ", expected " << expected << " but instead got: '";
+    if (isprint(actual)) {
+        error_oss << actual;
+    } else {
+        std::ostringstream hex_oss;
+        hex_oss << std::setfill('0') << std::setw(2) << std::hex
+            << static_cast<unsigned int>(actual);
+        error_oss << "0x" << hex_oss.str();
+    }
+    error_oss << "'.\nmethod: " << method << ", url: " << url << ", protocol: "
+              << protocol << ", next 20 bytes: " << context;
+
+    return error_oss.str();
+}
 
 // HTTP response processing function.
 void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
@@ -49,11 +77,17 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 
 	case http_parser::POST_REQUEST_PROTOCOL_EXP_NL:
 	    if (*s == '\n') {
-		state = http_parser::MAYBE_KEY;
-		key = value = "";
-	    } else
-		// Protocol violation!
-		throw exception("HTTP protocol violation!");
+    		state = http_parser::MAYBE_KEY;
+    		key = value = "";
+        } else {
+			// Protocol violation!
+			std::string error_str = generate_error_string(true,
+				"POST_REQUEST_PROTOCOL_EXP_NL",
+				"\\n",
+				*s,
+				std::string(s, s+20));
+			throw exception(error_str.c_str());
+        }
 	    break;
 
 	case http_parser::IN_RESPONSE_PROTOCOL:
@@ -83,7 +117,12 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		key = value = "";
 	    } else {
 		// Protocol violation!
-		throw exception("HTTP protocol violation!");
+			std::string error_str = generate_error_string(true,
+				"POST_RESPONSE_STATUS_EXP_NL",
+				"\\n",
+				*s,
+				std::string(s, s+20));
+			throw exception(error_str.c_str());
 	    }
 	    break;
 
@@ -108,7 +147,12 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		state = http_parser::IN_VALUE;
 	    else {
 		// Protocol violation!
-		throw exception("HTTP protocol violation!");
+			std::string error_str = generate_error_string(true,
+				"POST_KEY_EXP_SPACE",
+				" ",
+				*s,
+				std::string(s, s+20));
+			throw exception(error_str.c_str());
 	    }
 	    break;
 
@@ -116,7 +160,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    if (*s == '\r') {
 
 		 std::string lowerc;
-		 std::transform(key.begin(), key.end(), back_inserter(lowerc), 
+		 std::transform(key.begin(), key.end(), back_inserter(lowerc),
 				::tolower);
 
 		 header[lowerc] =
@@ -136,7 +180,12 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		 key = value = "";
 	     } else {
 		 // Protocol violation!
-		 throw exception("HTTP response protocol violation!");
+			std::string error_str = generate_error_string(false,
+				"POST_VALUE_EXP_NL",
+				"\\n",
+				*s,
+				std::string(s, s+20));
+			throw exception(error_str.c_str());
 	     }
 	     break;
 
@@ -169,7 +218,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 
 		     reset_transaction();
 
-		 } else if ((header.find("transfer-encoding") != 
+		 } else if ((header.find("transfer-encoding") !=
 			     header.end()) &&
 			    (header["transfer-encoding"].second == "chunked")) {
 		     chunk_length = "";
@@ -187,24 +236,29 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 			 else
 			     complete_response(c, sl.time, mgr);
 			 reset_transaction();
-			 
+
 			 // Start of next transaction.
 			 if (variant == REQUEST)
 			     state = http_parser::IN_REQUEST_METHOD;
 			 else
 			     state = http_parser::IN_RESPONSE_PROTOCOL;
-			 
+
 		     } else {
 			 state = http_parser::COUNTING_DATA;
 		     }
-		     
+
 		 } else
 		     // This state just looks for newline.
 		     state = http_parser::IN_BODY;
 
-	     } else {
+         } else {
 		 // Protocol violation!
-		 throw exception("HTTP response protocol violation!");
+			std::string error_str = generate_error_string(false,
+				"POST_HEADER_EXP_NL",
+				"\\n",
+				*s,
+				std::string(s, s+20));
+			throw exception(error_str.c_str());
 	     }
 	     break;
 
@@ -236,7 +290,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		    complete_response(c, sl.time, mgr);
 
 		reset_transaction();
-		
+
 		// Start of next transaction.
 		if (variant == REQUEST)
 		    state = http_parser::IN_REQUEST_METHOD;
@@ -259,7 +313,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		    complete_response(c, sl.time, mgr);
 
 		reset_transaction();
-		
+
 		// Start of next transaction.
 		if (variant == REQUEST)
 		    state = http_parser::IN_REQUEST_METHOD;
@@ -286,12 +340,17 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 
 		    state = http_parser::POST_CHUNKED_EXP_NL;
 
-		} else 
+		} else
 
 		    state = http_parser::COUNTING_CHUNK_DATA;
 
-	    } else {
-		throw exception("HTTP response protocol violation!");
+		} else {
+			std::string error_str = generate_error_string(false,
+				"POST_CHUNK_LENGTH_EXP_NL",
+				"\\n",
+				*s,
+				std::string(s, s+20));
+			throw exception(error_str.c_str());
 	    }
 	    break;
 
@@ -299,7 +358,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 
 	    if (*s == '\n') {
 		// Transaction complete
-		
+
 		if (variant == REQUEST)
 		    complete_request(c, sl.time, mgr);
 		else
@@ -339,7 +398,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		    complete_request(c, sl.time, mgr);
 		else
 		    complete_response(c, sl.time, mgr);
-		
+
 		reset_transaction();
 
 		// Start of next transaction.
@@ -364,7 +423,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 }
 
 // HTTP request processing function.
-void http::process_request(manager& mgr, context_ptr c, 
+void http::process_request(manager& mgr, context_ptr c,
 			   const pdu_slice& sl)
 {
 
@@ -391,7 +450,7 @@ void http::process_request(manager& mgr, context_ptr c,
 }
 
 // HTTP response processing function.
-void http::process_response(manager& mgr, context_ptr c, 
+void http::process_response(manager& mgr, context_ptr c,
 			    const pdu_slice& sl)
 {
 
@@ -420,21 +479,21 @@ void http::process_response(manager& mgr, context_ptr c,
 void http_parser::complete_request(context_ptr c, const pdu_time& time,
 				   manager& mgr)
 {
-	    
+
     std::string norm;
-    
+
     // Convert host and URL into a fully normalised URL.
     normalise_url(header["host"].second, url, norm);
 
     // Stash the URL on a queue in our context structure.
-    http_request_context::ptr sp = 
+    http_request_context::ptr sp =
 	boost::dynamic_pointer_cast<http_request_context>(c);
     sp->urls_requested.push_back(norm);
 
     // Raise an HTTP request event.
-    mgr.http_request(c, method, norm, header, 
+    mgr.http_request(c, method, norm, header,
 		     body.begin(), body.end(), time);
-    
+
 }
 
 void http_parser::complete_response(context_ptr c, const pdu_time& time,
@@ -448,7 +507,7 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
 
     // If we have a reverse flow pointer...
     if (rev) {
-	http_request_context::ptr sp_rev = 
+	http_request_context::ptr sp_rev =
 	    boost::dynamic_pointer_cast<http_request_context>(rev);
 
 	// ... then use it to get the URL of this HTTP response.
@@ -464,7 +523,7 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
 	sp_rev->lock.unlock();
     }
 
-    mgr.http_response(c, codeval, status, header, url, 
+    mgr.http_response(c, codeval, status, header, url,
 		      body.begin(), body.end(), time);
 
 }
