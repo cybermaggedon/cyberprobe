@@ -28,7 +28,7 @@ std::string http_parser::generate_error_string(bool request,
     } else {
         std::ostringstream hex_oss;
         hex_oss << std::setfill('0') << std::setw(2) << std::hex
-            << static_cast<unsigned int>(actual);
+            << (static_cast<unsigned int>(actual) & 0xff);
         error_oss << "0x" << hex_oss.str();
     }
     error_oss << "'.\nmethod: " << method << ", url: " << url << ", protocol: "
