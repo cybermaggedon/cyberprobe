@@ -4,6 +4,7 @@
 #include <cybermon/address.h>
 #include <cybermon/http.h>
 #include <cybermon/manager.h>
+#include <cybermon/unrecognised.h>
 
 #include <ctype.h>
 #include <sstream>
@@ -40,6 +41,7 @@ std::string http_parser::generate_error_string(bool request,
 // HTTP response processing function.
 void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 {
+
     pdu_iter s = sl.start;
     pdu_iter e = sl.end;
 
@@ -52,6 +54,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	}
 	std::cerr << std::endl;
 #endif
+
 
 	switch (state) {
 	case http_parser::IN_REQUEST_METHOD:
@@ -436,16 +439,22 @@ void http::process_request(manager& mgr, context_ptr c,
 
     http_request_context::ptr fc = http_request_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    // if this session is streaming just send unrecognised_stream
+    if (fc->streaming) {
+        unrecognised::process_unrecognised_stream(mgr, fc, sl);
+    } else {
+        // process HTTP packet
+        fc->lock.lock();
 
-    try {
-	fc->parse(fc, sl, mgr);
-    } catch (std::exception& e) {
-	fc->lock.unlock();
-	throw;
+        try {
+    	fc->parse(fc, sl, mgr);
+        } catch (std::exception& e) {
+    	fc->lock.unlock();
+    	throw;
+        }
+
+        fc->lock.unlock();
     }
-
-    fc->lock.unlock();
 
 }
 
@@ -463,16 +472,22 @@ void http::process_response(manager& mgr, context_ptr c,
 
     http_response_context::ptr fc = http_response_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    // if this session is streaming just send unrecognised_stream
+    if (fc->streaming) {
+       unrecognised::process_unrecognised_stream(mgr, c, sl);
+    } else {
+        // process HTTP packet
+        fc->lock.lock();
 
-    try {
-	fc->parse(fc, sl, mgr);
-    } catch (std::exception& e) {
-	fc->lock.unlock();
-	throw;
+        try {
+    	fc->parse(fc, sl, mgr);
+        } catch (std::exception& e) {
+    	fc->lock.unlock();
+    	throw;
+        }
+
+        fc->lock.unlock();
     }
-
-    fc->lock.unlock();
 
 }
 
@@ -490,10 +505,14 @@ void http_parser::complete_request(context_ptr c, const pdu_time& time,
 	boost::dynamic_pointer_cast<http_request_context>(c);
     sp->urls_requested.push_back(norm);
 
+    // if this is a connect message we need to flag it in the context
+    if (method == "CONNECT") {
+        sp->streaming_requested = true;
+    }
+
     // Raise an HTTP request event.
     mgr.http_request(c, method, norm, header,
 		     body.begin(), body.end(), time);
-
 }
 
 void http_parser::complete_response(context_ptr c, const pdu_time& time,
@@ -519,6 +538,19 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
 	    url = sp_rev->urls_requested.front();
 	    sp_rev->urls_requested.pop_front();
 	}
+
+    // check if the request was to start streaming
+    if (sp_rev->streaming_requested) {
+        sp_rev->streaming_requested = false;
+        // any 2XX code is valid
+        if (code[0] == '2') {
+            sp_rev->streaming = true;
+
+            http_response_context::ptr rc =
+                boost::dynamic_pointer_cast<http_response_context>(c);
+            rc->streaming = true;
+        }
+    }
 
 	sp_rev->lock.unlock();
     }
