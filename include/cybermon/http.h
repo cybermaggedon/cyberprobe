@@ -140,13 +140,6 @@ namespace cybermon {
 	// Parse.
 	void parse(context_ptr cp, const pdu_slice& sl, manager& mgr);
 
-	private:
-	std::string generate_error_string(	bool request,
-						const std::string & state,
-						const std::string & expected,
-						const char actual,
-						const std::string & context);
-	bool in_stream(context_ptr c) const;
     };
 
     // An HTTP request context.

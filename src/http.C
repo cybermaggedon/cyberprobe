@@ -12,32 +12,6 @@
 
 using namespace cybermon;
 
-std::string http_parser::generate_error_string(bool request,
-                                               const std::string & state,
-                                               const std::string & expected,
-                                               const char actual,
-                                               const std::string & context) {
-    std::ostringstream error_oss;
-    if (request) {
-        error_oss 	<< "HTTP protocol violation! state: ";
-    } else {
-        error_oss 	<< "HTTP response protocol violation! state: ";
-    }
-    error_oss << state << ", expected " << expected << " but instead got: '";
-    if (isprint(actual)) {
-        error_oss << actual;
-    } else {
-        std::ostringstream hex_oss;
-        hex_oss << std::setfill('0') << std::setw(2) << std::hex
-            << (static_cast<unsigned int>(actual) & 0xff);
-        error_oss << "0x" << hex_oss.str();
-    }
-    error_oss << "'.\nmethod: " << method << ", url: " << url << ", protocol: "
-              << protocol << ", next 20 bytes: " << context;
-
-    return error_oss.str();
-}
-
 // HTTP response processing function.
 void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 {
@@ -83,13 +57,11 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
     		state = http_parser::MAYBE_KEY;
     		key = value = "";
         } else {
-			// Protocol violation!
-			std::string error_str = generate_error_string(true,
-				"POST_REQUEST_PROTOCOL_EXP_NL",
-				"\\n",
-				*s,
-				std::string(s, s+20));
-			throw exception(error_str.c_str());
+			// This would be a protocol violation, but much more likely to be
+			// a HTTP CONNECT session, but we've missed the CONNECT or 200
+			// response. Assume it is binary data
+			c->lock.unlock();
+			unrecognised::process_unrecognised_stream(mgr, c, sl);
         }
 	    break;
 
@@ -119,13 +91,11 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		state = http_parser::MAYBE_KEY;
 		key = value = "";
 	    } else {
-		// Protocol violation!
-			std::string error_str = generate_error_string(true,
-				"POST_RESPONSE_STATUS_EXP_NL",
-				"\\n",
-				*s,
-				std::string(s, s+20));
-			throw exception(error_str.c_str());
+			// This would be a protocol violation, but much more likely to be
+			// a HTTP CONNECT session, but we've missed the CONNECT or 200
+			// response. Assume it is binary data
+			c->lock.unlock();
+			unrecognised::process_unrecognised_stream(mgr, c, sl);
 	    }
 	    break;
 
@@ -149,13 +119,11 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    if (*s == ' ')
 		state = http_parser::IN_VALUE;
 	    else {
-		// Protocol violation!
-			std::string error_str = generate_error_string(true,
-				"POST_KEY_EXP_SPACE",
-				" ",
-				*s,
-				std::string(s, s+20));
-			throw exception(error_str.c_str());
+			// This would be a protocol violation, but much more likely to be
+			// a HTTP CONNECT session, but we've missed the CONNECT or 200
+			// response. Assume it is binary data
+			c->lock.unlock();
+			unrecognised::process_unrecognised_stream(mgr, c, sl);
 	    }
 	    break;
 
@@ -182,13 +150,11 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		 state = http_parser::MAYBE_KEY;
 		 key = value = "";
 	     } else {
-		 // Protocol violation!
-			std::string error_str = generate_error_string(false,
-				"POST_VALUE_EXP_NL",
-				"\\n",
-				*s,
-				std::string(s, s+20));
-			throw exception(error_str.c_str());
+ 			// This would be a protocol violation, but much more likely to be
+ 			// a HTTP CONNECT session, but we've missed the CONNECT or 200
+ 			// response. Assume it is binary data
+ 			c->lock.unlock();
+ 			unrecognised::process_unrecognised_stream(mgr, c, sl);
 	     }
 	     break;
 
@@ -255,13 +221,11 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		     state = http_parser::IN_BODY;
 
          } else {
-		 // Protocol violation!
-			std::string error_str = generate_error_string(false,
-				"POST_HEADER_EXP_NL",
-				"\\n",
-				*s,
-				std::string(s, s+20));
-			throw exception(error_str.c_str());
+ 			// This would be a protocol violation, but much more likely to be
+ 			// a HTTP CONNECT session, but we've missed the CONNECT or 200
+ 			// response. Assume it is binary data
+ 			c->lock.unlock();
+ 			unrecognised::process_unrecognised_stream(mgr, c, sl);
 	     }
 	     break;
 
@@ -348,12 +312,11 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		    state = http_parser::COUNTING_CHUNK_DATA;
 
 		} else {
-			std::string error_str = generate_error_string(false,
-				"POST_CHUNK_LENGTH_EXP_NL",
-				"\\n",
-				*s,
-				std::string(s, s+20));
-			throw exception(error_str.c_str());
+			// This would be a protocol violation, but much more likely to be
+			// a HTTP CONNECT session, but we've missed the CONNECT or 200
+			// response. Assume it is binary data
+			c->lock.unlock();
+			unrecognised::process_unrecognised_stream(mgr, c, sl);
 	    }
 	    break;
 
