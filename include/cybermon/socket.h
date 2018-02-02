@@ -237,6 +237,24 @@ namespace tcpip {
 	    return write(str.c_str(), str.length());
 	}
 
+	/** Set socket linger time for client sockets. */
+	virtual void set_linger(bool on, int seconds) {}
+
+	/** Set socket linger time for client sockets - helper for
+	    derived classes. */
+	static void set_linger(int sock, bool on, int seconds) {
+	    struct linger {
+		int l_onoff;    /* linger active */
+		int l_linger;   /* how many seconds to linger for */
+	    };
+
+	    linger l;
+	    l.l_onoff = on;
+	    l.l_linger = seconds;
+
+	    setsockopt(sock, SOL_SOCKET, SO_LINGER, (void*) &l, sizeof(l));
+	}
+
     };
 
     class stream_socket : public socket {
@@ -343,6 +361,11 @@ namespace tcpip {
 	    activity on the socket. */
 	virtual bool poll(float timeout);
 
+	/** Set socket linger time for client sockets. */
+	virtual void set_linger(bool on, int seconds) {
+	    socket::set_linger(sock, on, seconds);
+	}
+
     };
 
     /** A UDP socket. */
@@ -399,6 +422,11 @@ namespace tcpip {
 	/** Poll, waits for timeout (in seconds) and returns true if there's
 	    activity on the socket. */
 	virtual bool poll(float timeout);
+
+	/** Set socket linger time for client sockets. */
+	virtual void set_linger(bool on, int seconds) {
+	    socket::set_linger(sock, on, seconds);
+	}
 
     };
 
@@ -457,6 +485,11 @@ namespace tcpip {
 	/** Poll, waits for timeout (in seconds) and returns true if there's
 	    activity on the socket. */
 	virtual bool poll(float timeout);
+
+	/** Set socket linger time for client sockets. */
+	virtual void set_linger(bool on, int seconds) {
+	    socket::set_linger(sock, on, seconds);
+	}
 
     };
 
@@ -618,6 +651,11 @@ namespace tcpip {
 	/** Poll, waits for timeout (in seconds) and returns true if there's
 	    activity on the socket. */
 	virtual bool poll(float timeout);
+
+	/** Set socket linger time for client sockets. */
+	virtual void set_linger(bool on, int seconds) {
+	    socket::set_linger(sock, on, seconds);
+	}
 
     };
 

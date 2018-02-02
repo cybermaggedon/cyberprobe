@@ -76,6 +76,9 @@ class transport {
 	sock->connect(host, port);
 	cnx = true;
 
+	// Turn off socket linger, so that close-down is quick.
+	sock->set_linger(false, 0);
+
 	for(std::deque<pdu_ptr>::iterator it = buffer.begin();
 	    it != buffer.end();
 	    it++) {
@@ -111,6 +114,9 @@ class transport {
 	sock->connect(host, port);
 	
 	cnx = true;
+
+	// Set socket linger off, so that close-down is quick.
+	sock->set_linger(false, 0);
 
 	for(std::deque<pdu_ptr>::iterator it = buffer.begin();
 	    it != buffer.end();
