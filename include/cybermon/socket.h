@@ -17,6 +17,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -605,9 +606,7 @@ namespace tcpip {
 	virtual int read(std::vector<unsigned char>& buffer, int len);
 
 	/** Write to the socket. */
-	virtual int write(const char* buffer, int len) {
-	    return SSL_write(ssl, buffer, len);
-	}
+	virtual int write(const char* buffer, int len);
 
 	using socket::write;
 	
@@ -634,7 +633,6 @@ namespace tcpip {
 	    otherwise a file descriptor gets leaked. */
 	virtual ~ssl_socket() {
 	    if (ssl) {
-		SSL_shutdown(ssl);
 		SSL_free(ssl);
 		ssl = 0;
 	    }
@@ -652,9 +650,21 @@ namespace tcpip {
 	    activity on the socket. */
 	virtual bool poll(float timeout);
 
+	virtual bool poll_write(float timeout);
+
 	/** Set socket linger time for client sockets. */
 	virtual void set_linger(bool on, int seconds) {
 	    socket::set_linger(sock, on, seconds);
+	}
+
+	static void set_nonblock(int fd) {
+
+	  int flags = fcntl(fd, F_GETFL, 0);
+	  if (flags == -1) throw std::runtime_error("fcntl fail");
+	  flags |= O_NONBLOCK;
+	  int ret = fcntl(fd, F_SETFL, flags);
+	  if (ret < 0) throw std::runtime_error("fcntl fail");
+
 	}
 
     };

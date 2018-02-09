@@ -8,6 +8,12 @@
 #include <sys/types.h>
 #include <sys/un.h>
 
+// Some wait periods.
+const float small_time = 0.1;
+
+// SSL socket timeouts.
+const int timeout = 5;
+
 bool tcpip::ssl_socket::ssl_init = false;
 
 // Certificate verification callback, always accept certificates which are
@@ -112,8 +118,19 @@ void tcpip::ssl_socket::connect(const std::string& hostname, int port)
 	   sizeof(addr.sin_addr.s_addr));
 
     int ret = ::connect(sock, (sockaddr*) &addr, sizeof(addr));
-    if (ret < 0)
+    if (ret < 0 && errno != EINPROGRESS)
 	throw std::runtime_error("Couldn't connect to host.");
+
+    poll_write(timeout);
+
+    int val;
+    socklen_t len = sizeof(val);
+    ret = ::getsockopt(sock, SOL_SOCKET, SO_ERROR, (void *)&val, &len);
+    if (ret < 0)
+	throw std::runtime_error("getsockopt failed.");
+
+    if (val != 0)
+	throw std::runtime_error("Socket connect failed.");
 
     // Verify server certificate.
     SSL_set_verify(ssl, 
@@ -121,8 +138,33 @@ void tcpip::ssl_socket::connect(const std::string& hostname, int port)
 		   verify_callback);
     SSL_set_verify_depth(ssl, 5);
 
-    if (SSL_connect(ssl) < 0)
-	throw std::runtime_error("SSL connection failed.");
+    time_t then = time(0);
+ 
+    while (1) {
+	ret = SSL_connect(ssl);
+	if (ret < 0) {
+
+	    int err = SSL_get_error(ssl, ret);
+
+	    if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+		
+		poll(small_time);
+		
+		if ((time(0) - then) > timeout) {
+		    // Timeout.  Also, things are broken and can't recover
+		    ::close(sock);
+		    throw std::runtime_error("Socket read timeout");
+		}
+		
+		continue;
+
+	    }
+
+	    throw std::runtime_error("SSL connection failed.");
+	} else
+	    break;
+
+    }
 
 }
 
@@ -183,6 +225,39 @@ bool tcpip::ssl_socket::poll(float timeout)
     struct pollfd fds;
     fds.fd = sock;
     fds.events = POLLIN|POLLPRI;
+    int ret = ::poll(&fds, 1, (int) (timeout * 1000));
+    if (ret < 0) {
+	if (errno != EINTR)
+	    throw std::runtime_error("Socket poll failed");
+	else
+	    return false; // Treat EINTR as timeout.
+    }
+    
+    if (ret == 0) return false;
+
+    if (fds.revents & POLLERR)
+	throw std::runtime_error("Socket in error");
+
+    if (fds.revents & POLLHUP)
+	throw std::runtime_error("Hangup");
+
+    if (fds.revents & POLLNVAL)
+	throw std::runtime_error("Socket closed");
+
+    if (fds.revents)
+	return true;
+    else
+	return false;
+
+}
+
+// FIXME: SSL socket re-uses loads of tcp_socket code!  Should be derived.
+bool tcpip::ssl_socket::poll_write(float timeout) 
+{
+
+    struct pollfd fds;
+    fds.fd = sock;
+    fds.events = POLLOUT|POLLPRI;
     int ret = ::poll(&fds, 1, (int) (timeout * 1000));
     if (ret < 0) {
 	if (errno != EINTR)
@@ -281,16 +356,39 @@ int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 {
 
+    const int timeout = 4;
+    
     unsigned char tmp[len];
     int got = 0;
+    time_t then = time(0);
 
     while (got != len) {
 
 	int ret = SSL_read(ssl, tmp, len - got);
-	if (ret < 0)
-	    throw std::runtime_error("Read error");
-	if (ret == 0)
-	    return 0;
+	if (ret <= 0) {
+
+	    int err = SSL_get_error(ssl, ret);
+
+	    if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+		
+		poll(small_time);
+		
+		if ((time(0) - then) > timeout) {
+		    // Timeout.  Also, things are broken and can't recover
+		    ::close(sock);
+		    throw std::runtime_error("Socket read timeout");
+		}
+		
+		continue;
+
+	    }
+
+	    if (got != 0)
+		return got;
+	    else
+		throw std::runtime_error("Socket read failure");
+
+	}
 
 	buffer.insert(buffer.end(), tmp, tmp + ret);
 
@@ -333,6 +431,8 @@ int tcpip::tcp_socket::read(char* buffer, int len)
 {
     int needed = len;
     int got = 0;
+
+    time_t then = time(0);
 	    
     while (needed > 0) {
 
@@ -369,14 +469,35 @@ int tcpip::ssl_socket::read(char* buffer, int len)
 {
 
     int got = 0;
+    time_t then = time(0);
 
     while (got != len) {
 
 	int ret = SSL_read(ssl, buffer + got, len - got);
-	if (ret < 0)
-	    throw std::runtime_error("Read error");
-	if (ret == 0)
-	    return 0;
+	if (ret <= 0) {
+
+	    int err = SSL_get_error(ssl, ret);
+
+	    if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+		
+		poll(small_time);
+		
+		if ((time(0) - then) > timeout) {
+		    // Timeout.  Also, things are broken and can't recover
+		    ::close(sock);
+		    throw std::runtime_error("Socket read timeout");
+		}
+		
+		continue;
+
+	    }
+
+	    if (got != 0)
+		return got;
+	    else
+		throw std::runtime_error("Socket read failure");
+
+	}
 
 	got += ret;
 
@@ -607,6 +728,13 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 	throw std::runtime_error("Socket accept failed");
     }
 
+    try {
+	set_nonblock(ns);
+    } catch (...) {
+	::close(ns);
+	throw std::runtime_error("Couldn't set socket non-blocking");
+    }
+
     SSL* ssl2 = SSL_new(context);
     SSL_set_fd(ssl2, ns);
     SSL_set_verify(ssl2,
@@ -614,11 +742,40 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 		   verify_callback);
     SSL_set_verify_depth(ssl2, 5);
 
-    int ret = SSL_accept(ssl2);
-    if (ret != 1) {
-	::close(ns);
-	SSL_free(ssl2);
-	throw std::runtime_error("SSL accept failed");
+    time_t then = time(0);
+    
+    while (1) {
+
+	int ret = SSL_accept(ssl2);
+	if (ret != 1) {
+	    if (ret < 0) {
+
+		int err = SSL_get_error(ssl2, ret);
+
+		if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+
+		    poll(small_time);
+
+		    if ((time(0) - then) > timeout) {
+			// Timeout.  Also, things are broken and can't recover
+			::close(ns);
+			SSL_free(ssl2);
+			throw std::runtime_error("Socket accept failed");
+		    }
+
+		    continue;
+
+		}
+
+	    }
+
+	    ::close(ns);
+	    SSL_free(ssl2);
+	    throw std::runtime_error("Socket accept failed");
+
+	} else
+	    break;
+
     }
 
     ssl_socket* conn = new ssl_socket(ns);
@@ -633,7 +790,6 @@ void tcpip::ssl_socket::close()
 {
 
     if (ssl) {
-	SSL_shutdown(ssl);
 	SSL_free(ssl);
 	ssl = 0;
     }
@@ -667,14 +823,64 @@ tcpip::ssl_socket::ssl_socket() {
     
     sock = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0)
-       throw std::runtime_error("Socket creation failed.");
-	    
+	throw std::runtime_error("Socket creation failed.");
+
+    try {
+	set_nonblock(sock);
+    } catch (...) {
+	throw std::runtime_error("Couldn't set socket non-blocking");
+    }
+
+}
+
+int tcpip::ssl_socket::write(const char* buffer, int len)
+{
+
+    const int timeout = 2;
+
+    time_t then = time(0);
+
+    while (1) {
+
+	int ret = SSL_write(ssl, buffer, len);
+	if (ret > 0)
+	    return ret;
+
+	int err = SSL_get_error(ssl, err);
+	if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+
+	    poll(small_time);
+
+	    if ((time(0) - then) > timeout) {
+		// Timeout.  Also, things are broken and can't recover,
+		// because may have done a partial write.
+		::close(sock);
+
+		// FIXME: Why not throw?
+		return -1;
+	    } else
+		continue;
+
+	}
+
+	// FIXME: Why not throw?
+	return -1;
+
+    }
+
 }
 
 
 /** Constructor. */
 tcpip::ssl_socket::ssl_socket(int s) { 
+
     bufstart = bufsize = 0;
+
+    try {
+	set_nonblock(s);
+    } catch (...) {
+	throw std::runtime_error("Couldn't set socket non-blocking");
+    }
 
     if (!ssl_init) {
 	SSL_library_init();
