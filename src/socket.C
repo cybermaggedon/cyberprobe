@@ -265,7 +265,7 @@ bool tcpip::ssl_socket::poll_write(float timeout)
 	else
 	    return false; // Treat EINTR as timeout.
     }
-    
+
     if (ret == 0) return false;
 
     if (fds.revents & POLLERR)
@@ -356,8 +356,6 @@ int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 {
 
-    const int timeout = 4;
-    
     unsigned char tmp[len];
     int got = 0;
     time_t then = time(0);
@@ -836,20 +834,19 @@ tcpip::ssl_socket::ssl_socket() {
 int tcpip::ssl_socket::write(const char* buffer, int len)
 {
 
-    const int timeout = 2;
-
     time_t then = time(0);
 
     while (1) {
 
 	int ret = SSL_write(ssl, buffer, len);
+
 	if (ret > 0)
 	    return ret;
 
-	int err = SSL_get_error(ssl, err);
+	int err = SSL_get_error(ssl, ret);
 	if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
 
-	    poll(small_time);
+	    poll_write(small_time);
 
 	    if ((time(0) - then) > timeout) {
 		// Timeout.  Also, things are broken and can't recover,
