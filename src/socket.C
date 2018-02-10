@@ -7,6 +7,7 @@
 #include <sys/utsname.h>
 #include <sys/types.h>
 #include <sys/un.h>
+#include <netinet/tcp.h>
 
 // Some wait periods.
 const float small_time = 0.1;
@@ -97,6 +98,26 @@ void tcpip::tcp_socket::connect(const std::string& hostname, int port)
 
 void tcpip::ssl_socket::connect(const std::string& hostname, int port)
 {
+
+#ifdef __linux
+    int optval;
+
+    // Send 3 keep-alives before closing connection.
+    optval = 3;
+    setsockopt(sock, SOL_TCP, TCP_KEEPCNT, &optval, sizeof(optval));
+
+    // keep-alives sent every 5 seconds.
+    optval = 5;
+    setsockopt(sock, SOL_TCP, TCP_KEEPINTVL, &optval, sizeof(optval));
+
+    // Keep-alives sent after 10 seconds idle.
+    optval = 10;
+    setsockopt(sock, SOL_TCP, TCP_KEEPIDLE, &optval, sizeof(optval));
+
+    // Turn on keep-alives
+    optval = 1;
+    setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof(optval));
+#endif
 
     if (ssl == 0) {
 	ssl = SSL_new(context);
@@ -736,6 +757,26 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 	::close(ns);
 	throw std::runtime_error("Couldn't set socket non-blocking");
     }
+
+#ifdef __linux
+    int optval;
+
+    // Send 3 keep-alives before closing connection.
+    optval = 3;
+    setsockopt(ns, SOL_TCP, TCP_KEEPCNT, &optval, sizeof(optval));
+
+    // keep-alives sent every 5 seconds.
+    optval = 5;
+    setsockopt(ns, SOL_TCP, TCP_KEEPINTVL, &optval, sizeof(optval));
+
+    // Keep-alives sent after 10 seconds idle.
+    optval = 10;
+    setsockopt(ns, SOL_TCP, TCP_KEEPIDLE, &optval, sizeof(optval));
+
+    // Turn on keep-alives
+    optval = 1;
+    setsockopt(ns, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof(optval));
+#endif
 
     SSL* ssl2 = SSL_new(context);
     SSL_set_fd(ssl2, ns);
