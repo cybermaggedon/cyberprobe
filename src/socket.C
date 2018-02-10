@@ -356,6 +356,8 @@ int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 {
 
+    const int timeout = 900;
+
     unsigned char tmp[len];
     int got = 0;
     time_t then = time(0);
@@ -465,6 +467,8 @@ int tcpip::tcp_socket::read(char* buffer, int len)
 
 int tcpip::ssl_socket::read(char* buffer, int len)
 {
+
+    const int timeout = 900;
 
     int got = 0;
     time_t then = time(0);
