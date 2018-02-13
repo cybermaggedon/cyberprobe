@@ -13,6 +13,7 @@
 #include <vector>
 #include <iostream>
 #include <string.h>
+#include <sys/time.h>
 
 extern "C" {
 #include <pcap.h>
@@ -39,13 +40,13 @@ class pcap_capture {
     static void handler(unsigned char* usr, const struct pcap_pkthdr *h,
 			const unsigned char* bytes) {
 	pcap_capture* c = reinterpret_cast<pcap_capture*>(usr);
-	c->handle(h->len, h->caplen, bytes);
+	c->handle(h->ts, h->len, h->caplen, bytes);
     }
 
     bool running;
 
   public:
-    
+
     // Constructor.
     pcap_capture() { p = 0; running = true; }
 
@@ -53,7 +54,7 @@ class pcap_capture {
     virtual ~pcap_capture() { if (p) pcap_close(p); p = 0; }
 
     // Adds a filter to the capture class.  spec specifies a PCAP-style
-    // filter statement.  See 'pcap' man-page.  Throws a runtime_error 
+    // filter statement.  See 'pcap' man-page.  Throws a runtime_error
     // exception if compilation fails.
     void add_filter(const std::string& spec) {
 
@@ -67,14 +68,14 @@ class pcap_capture {
 
 	// Attach to PCAP handle.
 	ret = pcap_setfilter(p, &fltr);
-	if (ret < 0) 
+	if (ret < 0)
 	    throw std::runtime_error(pcap_geterr(p));
 
     }
 
     // This is the method which gets called when a packet is received.
     // The user should implement this method.
-    virtual void handle(unsigned long len, unsigned long captured, 
+    virtual void handle(timeval tv, unsigned long len, unsigned long captured,
 		const unsigned char* bytes) = 0;
 
     // Invokes packet processing on this capture handle, channelling received
@@ -93,7 +94,7 @@ class pcap_capture {
 	      throw std::runtime_error("Poll failed");
 
 	  if (pfd.revents) {
-	  
+
 	      struct pcap_pkthdr* hdr;
 	      const unsigned char* data;
 
@@ -175,7 +176,7 @@ class pcap_reader : public pcap_capture {
     }
 
     virtual ~pcap_reader() {}
-    
+
 
 };
 
@@ -189,7 +190,7 @@ class pcap_writer {
 	p = pcap_open_dead(DLT_RAW, 65535);
 	if (p == 0)
 	    throw std::runtime_error("pcap_open_dead failed.");
-	dumper = pcap_dump_open(p, file.c_str());	
+	dumper = pcap_dump_open(p, file.c_str());
 	if (dumper == 0)
 	    throw std::runtime_error("pcap_dump_open_dead failed.");
     }

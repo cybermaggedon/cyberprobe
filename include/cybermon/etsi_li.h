@@ -32,6 +32,7 @@ need to be called on the etsi_li object are connect and close.
 #include <string>
 #include <map>
 #include <queue>
+#include <sys/time.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -60,8 +61,8 @@ class sender {
   public:
 
     // Constructor.
-    sender() { 
-	
+    sender() {
+
 	cnx = false;
 
 	// 128kB buffer.
@@ -77,7 +78,7 @@ class sender {
 
     // Connect to host/port.
     void connect(const std::string& host, int port) {
-	
+
 	// Connect.
 	sock.connect(host, port);
 
@@ -90,7 +91,7 @@ class sender {
     void connect_tls(const std::string& host, int port,
 		     const std::string& keyfile, const std::string& certfile,
 		     const std::string& cafile) {
-	
+
 	// Connect.
 	sock.connect_tls(host, port, keyfile, certfile, cafile);
 
@@ -99,6 +100,7 @@ class sender {
     }
 
     static void encode_psheader(ber::berpdu& psheader_p,
+                                timeval tv,
 				const std::string& liid,
 				const std::string& oper,
 				uint32_t seq, uint32_t cin,
@@ -125,7 +127,7 @@ class sender {
 			       const std::string& net_element = "",
 			       const std::string& int_pt = "",
 			       const std::string& username = "");
-			       
+
     void ia_acct_start_response(const std::string& liid,
 				const tcpip::address& target_addr,
 				uint32_t seq, uint32_t cin,
@@ -135,7 +137,8 @@ class sender {
 				const std::string& int_pt = "",
 				const std::string& username = "");
 
-    void send_ip(const std::string& liid,
+    void send_ip(timeval tv,
+                 const std::string& liid,
 		 const std::string& oper,
 		 uint32_t seq, uint32_t cid,
 		 const std::vector<unsigned char>& packet,
@@ -193,7 +196,8 @@ class mux {
 			   const std::string& int_pt = "",
 			   const std::string& username = "");
 
-    void target_ip(const std::string& liid,
+    void target_ip(timeval tv,
+                   const std::string& liid,
 		   const std::vector<unsigned char>& pdu,
 		   const std::string& oper = "unknown",
 		   const std::string& country = "",
@@ -245,11 +249,11 @@ class receiver : public threads::thread {
 	running = true;
 	svr = s;
     }
-    
+
     virtual ~receiver() {}
     virtual void run();
     virtual void close_me(connection* c);
-    
+
 };
 
 };

@@ -2,7 +2,8 @@
 #include "sender.h"
 
 // Called to add packets to the queue.
-void sender::deliver(const std::string& liid, // LIID
+void sender::deliver(timeval tv,
+                     const std::string& liid, // LIID
 		     const std::string& network, // Network
 		     const_iterator& start,   // Start of packet
 		     const_iterator& end)     // End of packet
@@ -16,7 +17,7 @@ void sender::deliver(const std::string& liid, // LIID
 
 	// Give up lock so that packets can be delivered.
 	lock.unlock();
-	
+
 	// Sleep for a sec.
 	::sleep(1);
 
@@ -32,6 +33,7 @@ void sender::deliver(const std::string& liid, // LIID
     qpdu_ptr p = qpdu_ptr(new qpdu());
     p->msg_type = qpdu::PDU;
     p->pdu.assign(start, end);
+    p->tv = tv;
     p->liid = liid;
     p->network = network;
     packets.push(p);
@@ -58,7 +60,7 @@ void sender::target_up(const std::string& liid,        // LIID
 
 	// Give up lock so that packets can be delivered.
 	lock.unlock();
-	
+
 	// Sleep for a sec.
 	::sleep(1);
 
@@ -71,13 +73,13 @@ void sender::target_up(const std::string& liid,        // LIID
     if (!running) { lock.unlock(); return; }
 
     address_ptr np;
-    
+
     if (addr.universe == addr.ipv4) {
-	const tcpip::ip4_address& addr4 = 
+	const tcpip::ip4_address& addr4 =
 	    dynamic_cast<const tcpip::ip4_address&>(addr);
 	np = address_ptr(new tcpip::ip4_address(addr4));
     } else {
-    	const tcpip::ip6_address& addr6 = 
+    	const tcpip::ip6_address& addr6 =
 	    dynamic_cast<const tcpip::ip6_address&>(addr);
 	np = address_ptr(new tcpip::ip6_address(addr6));
     }
@@ -111,7 +113,7 @@ void sender::target_down(const std::string& liid,        // LIID
 
 	// Give up lock so that packets can be delivered.
 	lock.unlock();
-	
+
 	// Sleep for a sec.
 	::sleep(1);
 
@@ -159,7 +161,7 @@ void sender::run()
 
 	    // Got the packet, so the queue can unlock.
 	    lock.unlock();
-	    
+
 	    // Keep trying to handle the PDU until handled without exception.
 	    while (running) {
 
@@ -202,7 +204,7 @@ void nhis11_sender::handle(qpdu_ptr next)
     const std::string& liid = next->liid;
 
     // Network is ignored, not used for NHIS.
-    
+
     // NHIS 1.1 can only handle the PDUs.
     if (next->msg_type != qpdu::PDU) return;
 
@@ -213,17 +215,17 @@ void nhis11_sender::handle(qpdu_ptr next)
     while (running) {
 
 	// Loop forever until we're connected.
-	while (running && 
+	while (running &&
 	       (transport.find(liid) == transport.end())) {
 	    try {
-		if (tls) 
-		    transport[liid].connect_tls(h, p, liid, 
+		if (tls)
+		    transport[liid].connect_tls(h, p, liid,
 						params["key"],
 						params["certificate"],
 						params["chain"]);
 		else
 		    transport[liid].connect(h, p, liid);
-		std::cerr << "NHIS 1.1 connection to " 
+		std::cerr << "NHIS 1.1 connection to "
 			  << h << ":" << p << " for LIID "
 			  << liid << " established." << std::endl;
 	    } catch (...) {
@@ -254,7 +256,7 @@ void nhis11_sender::handle(qpdu_ptr next)
 	    transport.erase(liid);
 	    ::sleep(1);
 	}
-	
+
     }
 
 }
@@ -287,7 +289,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	    std::pair<std::string,e_mux> mp(liid,
 					    e_mux(transports[cur_connect]));
 	    muxes.insert(mp);
-		
+
 	    // Increment connection count, wrap at num_connects.
 	    if (++cur_connect >= num_connects)
 		cur_connect = 0;
@@ -297,20 +299,20 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	// Get transport and mux.  Guaranteed to be allocated at this point.
 	e_sender& transport = transport_map.find(liid)->second;
 	e_mux& mux = muxes.find(liid)->second;
-	
+
 	// Loop forever until we're connected.
 	while (running && !transport.connected()) {
 	    try {
-		if (tls) 
+		if (tls)
 		    transport.connect_tls(h, p,
 					  params["key"],
 					  params["certificate"],
 					  params["chain"]);
 		else
 		    transport.connect(h, p);
-		
-		std::cerr << "ETSI LI connection to " 
-			  << h << ":" << p 
+
+		std::cerr << "ETSI LI connection to "
+			  << h << ":" << p
 			  << " established." << std::endl;
 
 	    } catch (...) {
@@ -318,12 +320,12 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		::sleep(1);
 	    }
 	}
-	
+
 	if (!running) break;
 
 	std::string oper, country, net_elt, int_pt;
 	std::string username;
-		
+
 	// Get metadata parameters
 	oper = global_pars.get_parameter("operator", "unknown");
 	country = global_pars.get_parameter("country", "");
@@ -335,20 +337,20 @@ void etsi_li_sender::handle(qpdu_ptr next)
 		net_elt = global_pars.get_parameter("network_element",
 						    "");
 	}
-	
+
 	int_pt = global_pars.get_parameter("interception_point",
 					   "");
-	
+
 	// Target is up.
 	if (next->msg_type == qpdu::TARGET_UP) {
-	    
+
 	    // Describe the target connection.
 	    try {
-		
+
 		username = global_pars.get_parameter("username." + liid, "");
 
 		// Send connect IRI stuff.
-		mux.target_connect(liid, *next->addr, 
+		mux.target_connect(liid, *next->addr,
 				   oper, country, net_elt,
 				   int_pt, username);
 
@@ -374,7 +376,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	    try {
 
 		// Deliver packet.
-		mux.target_ip(liid, pdu, oper, country, net_elt, 
+		mux.target_ip(next->tv, liid, pdu, oper, country, net_elt,
 			      int_pt);
 
 		// Only break out of the loop on success.

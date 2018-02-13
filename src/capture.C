@@ -6,7 +6,7 @@
 // FIXME: Thread this for performance.
 
 // Packet handler.
-void pcap_dev::handle(unsigned long len, unsigned long captured, 
+void pcap_dev::handle(timeval tv, unsigned long len, unsigned long captured,
 		      const unsigned char* payload)
 {
 
@@ -18,7 +18,7 @@ void pcap_dev::handle(unsigned long len, unsigned long captured,
 	packet.assign(payload, payload + captured);
 
 	// Submit to the delivery engine.
-	deliv.receive_packet(packet, datalink);
+	deliv.receive_packet(tv, packet, datalink);
 
     } else {
 
@@ -31,7 +31,7 @@ void pcap_dev::handle(unsigned long len, unsigned long captured,
 
 	// Set packet exit time.
 	timeradd(&now, &delay_val, &(delay_line.back().exit_time));
-    
+
 	// Put packet data on queue.
 	delay_line.back().packet.assign(payload, payload + captured);
 
@@ -74,7 +74,8 @@ void pcap_dev::run()
 		break;
 
 	    // Packet ready to go.
-	    deliv.receive_packet(delay_line.front().packet, datalink);
+            // Time of packets from delay line will be 'now'
+	    deliv.receive_packet((struct timeval){0}, delay_line.front().packet, datalink);
 	    delay_line.pop();
 
 
