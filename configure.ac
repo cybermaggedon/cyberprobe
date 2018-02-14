@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([cyberprobe], [1.9.1], [cyberprobe@trustnetworks.com])
+AC_INIT([cyberprobe], [1.9.2], [cyberprobe@trustnetworks.com])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
@@ -26,7 +26,7 @@ AC_ARG_WITH([systemdsystemunitdir],
   [AS_HELP_STRING([--with-systemdsystemunitdir=DIR],
   [Directory for systemd service files])],,
   [with_systemdsystemunitdir=auto])
-     
+
 AS_IF([test "x$with_systemdsystemunitdir" = "xyes" -o "x$with_systemdsystemunitdir" = "xauto"], [
   def_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)
   AS_IF([test "x$def_systemdsystemunitdir" = "x"],
@@ -71,7 +71,7 @@ AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
 AC_CHECK_LIB([pcap], [main], [], [AC_MSG_ERROR(Library pcap missing.)])
 AC_SEARCH_LIBS([pcap_create], [pcap],
-		    [AC_DEFINE([HAVE_PCAP_CREATE], 1, 
+		    [AC_DEFINE([HAVE_PCAP_CREATE], 1,
 		    [Set if pcap_create is supported (added in libpcap 1.0)])])
 AC_CHECK_LIB([pthread], [main], [], [AC_MSG_ERROR(Library pthread missing.)])
 AC_CHECK_LIB([readline], [main], [], [AC_MSG_ERROR(Library readline missing.)])
@@ -84,13 +84,13 @@ AC_CHECK_LIB([dag], [main],
 
 # LUA specifics
 AC_SEARCH_LIBS([luaL_register], [lua lua5.1],
-		    [AC_DEFINE([HAVE_LUAL_REGISTER], 1, 
+		    [AC_DEFINE([HAVE_LUAL_REGISTER], 1,
 		    [Set if luaL_register is supported (removed in 5.2)])])
 AC_SEARCH_LIBS([luaL_setfuncs], [lua lua5.2],
-		    [AC_DEFINE([HAVE_LUAL_SETFUNCS], 1, 
+		    [AC_DEFINE([HAVE_LUAL_SETFUNCS], 1,
 		    [Set if luaL_setfuncs is supported (added in 5.2)])])
 AC_SEARCH_LIBS([lua_rawlen], [lua lua5.2],
-		    [AC_DEFINE([HAVE_LUA_RAWLEN], 1, 
+		    [AC_DEFINE([HAVE_LUA_RAWLEN], 1,
 		    [Set if lua_rawlen is supported (added in 5.2)])])
 
 # Checks for header files.

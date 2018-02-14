@@ -6,6 +6,8 @@
 #include <pcap.h>
 #include <pcap-bpf.h>
 
+#include <sys/time.h>
+
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
 class dag_dev : public capture_dev {
@@ -45,8 +47,8 @@ public:
     virtual void run();
 
     // Constructor.  i=interface name, d=packet consumer.
-    dag_dev(const std::string& i, float delay, packet_consumer& d) : 
-      deliv(d) { 
+    dag_dev(const std::string& i, float delay, packet_consumer& d) :
+      deliv(d) {
 	  this->delay = delay;
 	  this->datalink = DLT_EN10MB; // FIXME: Hard-coded?
 	  this->iface = i;
@@ -57,7 +59,7 @@ public:
     virtual ~dag_dev() {}
 
     // Packet handler.
-    virtual void handle(unsigned long len, unsigned long captured, 
+    virtual void handle(timeval tv, unsigned long len, unsigned long captured,
 			const unsigned char* bytes);
 
     virtual void stop() {
