@@ -285,7 +285,8 @@ void sender::ia_acct_start_request(const std::string& liid,
 
     ber::berpdu psheader_p;
     // time for connection request will be taken as 'now'
-    encode_psheader(psheader_p, (struct timeval){0}, liid, oper, seq, cin, country, net_element,
+    timeval tv = {0};
+    encode_psheader(psheader_p, tv, liid, oper, seq, cin, country, net_element,
 		    int_pt);
 
     // ----------------------------------------------------------------------
@@ -366,7 +367,8 @@ void sender::ia_acct_start_response(const std::string& liid,
 
     ber::berpdu psheader_p;
     // time for connection response will be taken as 'now'
-    encode_psheader(psheader_p, (struct timeval){0}, liid, oper, seq, cin, country, net_element,
+    timeval tv = {0};
+    encode_psheader(psheader_p, tv, liid, oper, seq, cin, country, net_element,
 		    int_pt);
 
     // ----------------------------------------------------------------------
@@ -447,7 +449,8 @@ void sender::ia_acct_stop(const std::string& liid,
 
     ber::berpdu psheader_p;
     // time for disconnect will be taken as 'now'
-    encode_psheader(psheader_p, (struct timeval){0}, liid, oper, seq, cin, country, net_element,
+    timeval tv = {0};
+    encode_psheader(psheader_p, tv, liid, oper, seq, cin, country, net_element,
 		    int_pt);
 
     // ----------------------------------------------------------------------

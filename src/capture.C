@@ -75,7 +75,8 @@ void pcap_dev::run()
 
 	    // Packet ready to go.
             // Time of packets from delay line will be 'now'
-	    deliv.receive_packet((struct timeval){0}, delay_line.front().packet, datalink);
+            timeval tv = {0};
+	    deliv.receive_packet(tv, delay_line.front().packet, datalink);
 	    delay_line.pop();
 
 
