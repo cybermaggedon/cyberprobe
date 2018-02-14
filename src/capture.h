@@ -12,8 +12,6 @@
 #include <cybermon/thread.h>
 #include <packet_consumer.h>
 
-#include <sys/time.h>
-
 #include <queue>
 
 class capture_dev : public threads::thread {
@@ -56,9 +54,9 @@ public:
     virtual void run();
 
     // Constructor.  i=interface name, d=packet consumer.
-    pcap_dev(const std::string& i, float delay, packet_consumer& d) : 
-	pcap_interface(i), deliv(d) { 
-	datalink = pcap_datalink(p); 
+    pcap_dev(const std::string& i, float delay, packet_consumer& d) :
+	pcap_interface(i), deliv(d) {
+	datalink = pcap_datalink(p);
 	this->delay = delay;
     }
 
@@ -66,7 +64,7 @@ public:
     virtual ~pcap_dev() {}
 
     // Packet handler.
-    virtual void handle(unsigned long len, unsigned long captured, 
+    virtual void handle(timeval tv, unsigned long len, unsigned long captured,
 			const unsigned char* bytes);
 
     virtual void stop() {

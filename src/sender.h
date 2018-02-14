@@ -4,6 +4,7 @@
 
 #include <queue>
 #include <boost/shared_ptr.hpp>
+#include <sys/time.h>
 
 #include "management.h"
 #include <cybermon/thread.h>
@@ -18,6 +19,7 @@ typedef boost::shared_ptr<tcpip::address> address_ptr;
 class qpdu {
   public:
     enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
+    timeval tv;                             // Valid for: PDU
     std::string liid;		            // Valid for: PDU, TARGET_UP/DOWN
     std::string network;                    // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
@@ -72,7 +74,8 @@ class sender : public threads::thread {
 			     const std::string& n);
 
     // Called to push a packet down the sender transport.
-    void deliver(const std::string& liid,
+    void deliver(timeval tv,
+                 const std::string& liid,
 		 const std::string& n,
 		 const_iterator& start,
 		 const_iterator& end);
@@ -91,7 +94,7 @@ class sender : public threads::thread {
 // spawn the thread, then call 'deliver' when you have packets to transmit.
 class nhis11_sender : public sender {
   private:
-  
+
     // NHIS 1.1 transport.
     std::map<std::string,cybermon::nhis11::sender> transport;
 
@@ -133,7 +136,7 @@ class nhis11_sender : public sender {
 	info.hostname = h;
 	info.port = p;
 	info.type = "nhis1.1";
-	
+
 	std::ostringstream buf;
 	buf << "NHIS 1.1 endpoint on " << h << ":" << p;
 	info.description = buf.str();
@@ -151,7 +154,7 @@ class etsi_li_sender : public sender {
 
     typedef cybermon::etsi_li::sender e_sender;
     typedef cybermon::etsi_li::mux e_mux;
-    
+
     // ETSI LI transport and mux...
 
     // Number of TCP connections to multiplex over.
@@ -187,10 +190,10 @@ class etsi_li_sender : public sender {
   public:
 
     // Constructor.
-    etsi_li_sender(const std::string& h, unsigned int short p, 
+    etsi_li_sender(const std::string& h, unsigned int short p,
                    const std::string& transp,
 		   const std::map<std::string, std::string>& params,
-		   parameters& globals) : 
+		   parameters& globals) :
     sender(globals), h(h), p(p), params(params), cur_connect(0)
     {
 
@@ -211,7 +214,7 @@ class etsi_li_sender : public sender {
 	    tls = false;
 	else
 	    throw std::runtime_error("Transport " + transp + " not known.");
-	initialise(); 
+	initialise();
     }
 
     // PDU handler
@@ -232,7 +235,7 @@ class etsi_li_sender : public sender {
 	info.hostname = h;
 	info.port = p;
 	info.type = "etsi";
-	
+
 	std::ostringstream buf;
 	buf << "ETSI LI endpoint on " << h << ":" << p;
 	info.description = buf.str();

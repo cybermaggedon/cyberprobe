@@ -15,6 +15,7 @@ uint32_t mux::next_cin = 0;
 
 // Encodes the ETSI LI PS PDU PSHeader construct.
 void sender::encode_psheader(ber::berpdu& psheader_p,
+                             timeval tv,
 			     const std::string& liid,
 			     const std::string& oper,
 			     uint32_t seq, uint32_t cin,
@@ -26,20 +27,23 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
     // Create a time string, GeneralizedTime.
     char tms[128];
     {
-	struct timeval now;
-	gettimeofday(&now, 0);
+        // If we've been passed no specific time then use 'now'
+        if (tv.tv_sec == 0) {
+	    gettimeofday(&tv, 0);
+        }
+
 	struct tm res;
-	struct tm* ts = gmtime_r(&now.tv_sec, &res);
+	struct tm* ts = gmtime_r(&tv.tv_sec, &res);
 	if (ts == 0)
 	    throw std::runtime_error("gmtime_r failed");
-	
-	// Convert time in seconds into into year, month... seconds. 
+
+	// Convert time in seconds into into year, month... seconds.
 	int ret = strftime(tms, 128, "%Y%m%d%H%M%S", ts);
 	if (ret < 0)
 	    throw std::runtime_error("Failed to format time string (strftime)");
 
 	// Append milliseconds and Z for GMT.
-	sprintf(tms + strlen(tms), ".%03dZ", int(now.tv_usec / 1000));
+	sprintf(tms + strlen(tms), ".%03dZ", int(tv.tv_usec / 1000));
 
     }
 
@@ -55,14 +59,14 @@ void sender::encode_psheader(ber::berpdu& psheader_p,
 
     // network element
     ber::berpdu netelt_p;
-    if (net_element != "") 
+    if (net_element != "")
 	netelt_p.encode_string(ber::context_specific, 1, net_element);
 
     // NetworkIdentifier
     ber::berpdu neid_p;
     pdus.clear();
     pdus.push_back(&operid_p);
-    if (net_element != "") 
+    if (net_element != "")
 	pdus.push_back(&netelt_p);
     neid_p.encode_construct(ber::context_specific, 0, pdus);
 
@@ -151,16 +155,16 @@ void sender::encode_ipiri(ber::berpdu& ipiri_p,
 
 	// Binary address
 	ber::berpdu binary_p;
-	binary_p.encode_string(ber::context_specific, 1, address->addr.begin(), 
+	binary_p.encode_string(ber::context_specific, 1, address->addr.begin(),
 			       address->addr.end());
-	
+
 	// IPtype
 	ber::berpdu iptype_p;
 	if (address->universe == address->ipv4)
 	    iptype_p.encode_int(ber::context_specific, 1, 0); // IPv4 = 0
 	else
 	    iptype_p.encode_int(ber::context_specific, 1, 1); // IPv6 = 1
-	
+
 	// IPvalue
 	ber::berpdu ipvalue_p;
 	pdus.clear();
@@ -174,7 +178,7 @@ void sender::encode_ipiri(ber::berpdu& ipiri_p,
 	ipaddress_p.encode_construct(ber::context_specific, 4, pdus);
 
     }
-	
+
     // ----------------------------------------------------------------------
     // Encode IPIRI
     // ----------------------------------------------------------------------
@@ -280,7 +284,9 @@ void sender::ia_acct_start_request(const std::string& liid,
     // ----------------------------------------------------------------------
 
     ber::berpdu psheader_p;
-    encode_psheader(psheader_p, liid, oper, seq, cin, country, net_element,
+    // time for connection request will be taken as 'now'
+    timeval tv = {0};
+    encode_psheader(psheader_p, tv, liid, oper, seq, cin, country, net_element,
 		    int_pt);
 
     // ----------------------------------------------------------------------
@@ -360,7 +366,9 @@ void sender::ia_acct_start_response(const std::string& liid,
     // ----------------------------------------------------------------------
 
     ber::berpdu psheader_p;
-    encode_psheader(psheader_p, liid, oper, seq, cin, country, net_element,
+    // time for connection response will be taken as 'now'
+    timeval tv = {0};
+    encode_psheader(psheader_p, tv, liid, oper, seq, cin, country, net_element,
 		    int_pt);
 
     // ----------------------------------------------------------------------
@@ -440,7 +448,9 @@ void sender::ia_acct_stop(const std::string& liid,
     // ----------------------------------------------------------------------
 
     ber::berpdu psheader_p;
-    encode_psheader(psheader_p, liid, oper, seq, cin, country, net_element,
+    // time for disconnect will be taken as 'now'
+    timeval tv = {0};
+    encode_psheader(psheader_p, tv, liid, oper, seq, cin, country, net_element,
 		    int_pt);
 
     // ----------------------------------------------------------------------
@@ -460,7 +470,8 @@ void sender::ia_acct_stop(const std::string& liid,
 }
 
 // Transmit an IP packet
-void sender::send_ip(const std::string& liid,
+void sender::send_ip(timeval tv,
+                     const std::string& liid,
 		     const std::string& oper,
 		     uint32_t seq, uint32_t cin,
 		     const std::vector<unsigned char>& packet,
@@ -532,7 +543,7 @@ void sender::send_ip(const std::string& liid,
     // ----------------------------------------------------------------------
 
     ber::berpdu psheader_p;
-    encode_psheader(psheader_p, liid, oper, seq, cin, country, net_element,
+    encode_psheader(psheader_p, tv, liid, oper, seq, cin, country, net_element,
 		    int_pt);
 
     // ----------------------------------------------------------------------
@@ -567,13 +578,13 @@ void mux::target_connect(const std::string& liid,     // LIID
 
     cin[liid] = next_cin++;
 
-    // Describes connetion request.
+    // Describes connection request.
     transport.ia_acct_start_request(liid, iri_seq[liid]++, cin[liid], oper,
 				    country, net_elt, int_pt, username);
 
     // Describes connection response.
-    transport.ia_acct_start_response(liid, target_addr, iri_seq[liid]++, 
-				     cin[liid], oper, country, net_elt, 
+    transport.ia_acct_start_response(liid, target_addr, iri_seq[liid]++,
+				     cin[liid], oper, country, net_elt,
 				     int_pt, username);
 
 }
@@ -605,7 +616,8 @@ void mux::target_disconnect(const std::string& liid,     // LIID
 }
 
 // Called when a target IP packet is observed.
-void mux::target_ip(const std::string& liid,               // LIID
+void mux::target_ip(timeval tv,                            // Time of capture
+                    const std::string& liid,               // LIID
 		    const std::vector<unsigned char>& pdu, // Packet
 		    const std::string& oper,               // Operator ID
 		    const std::string& country,            // Country
@@ -623,7 +635,7 @@ void mux::target_ip(const std::string& liid,               // LIID
     }
 
     // Describes the IP packet.
-    transport.send_ip(liid, oper, cc_seq[liid]++, cin[liid],
+    transport.send_ip(tv, liid, oper, cc_seq[liid]++, cin[liid],
 		      pdu, country, net_elt, int_pt);
 
 
@@ -712,7 +724,7 @@ void connection::run()
 		ber::berpdu& time_p = hdr_p.get_element(5);
 		std::string tm;
 		time_p.decode_string(tm);
-		    
+
 		int Y, M, D, h, m, s, ms=0;
 		unsigned char gmt = 0;
 
@@ -741,7 +753,7 @@ void connection::run()
 
 		tv.tv_sec = timegm(&t);
 		tv.tv_usec = ms * 1000;  // Turn milliseconds into seconds.
-		
+
 	    } catch (...) {
 		// Time value defaults to 'now' if there's no timestamp in the
 		// data.
@@ -771,7 +783,7 @@ void connection::run()
 		it++) {
 
 		if (it->get_tag() == 1) {
-		  
+
 		    // CC case
 
 		    std::list<ber::berpdu> seq_pdus;
@@ -787,7 +799,7 @@ void connection::run()
 			ber::berpdu& packet_p = ipccontents_p.get_element(0);
 
 			std::vector<unsigned char> pkt;
-			
+
 			packet_p.decode_vector(pkt);
 
 			p(liid, network, pkt.begin(), pkt.end(), tv);
@@ -806,7 +818,7 @@ void connection::run()
 			std::list<ber::berpdu> seq_pdus;
 			it->decode_construct(seq_pdus);
 
-			for(std::list<ber::berpdu>::iterator it2 = 
+			for(std::list<ber::berpdu>::iterator it2 =
 				seq_pdus.begin();
 			    it2 != seq_pdus.end();
 			    it2++) {
@@ -817,10 +829,10 @@ void connection::run()
 			    ber::berpdu& iricontents_p = it2->get_element(2);
 			    ber::berpdu& ipiri_p = iricontents_p.get_element(2);
 
-			    ber::berpdu& ipiricontents_p = 
+			    ber::berpdu& ipiricontents_p =
 				ipiri_p.get_element(1);
 
-			    ber::berpdu& accesseventtype_p = 
+			    ber::berpdu& accesseventtype_p =
 				ipiricontents_p.get_element(0);
 
 			    accesseventtype = accesseventtype_p.decode_int();
@@ -828,15 +840,15 @@ void connection::run()
 			    // Get ready to decode IP address.
 			    try {
 
-				ber::berpdu& targetipaddress_p = 
+				ber::berpdu& targetipaddress_p =
 				    ipiricontents_p.get_element(4);
-				
-				ber::berpdu& ipvalue_p = 
+
+				ber::berpdu& ipvalue_p =
 				    targetipaddress_p.get_element(2);
-				
-				ber::berpdu& ipbinary_p = 
+
+				ber::berpdu& ipbinary_p =
 				    ipvalue_p.get_element(1);
-				
+
 				ipbinary_p.decode_vector(ip_addr);
 
 			    } catch (...) {
@@ -847,11 +859,11 @@ void connection::run()
 
 /*
 			    std::cerr << "IRI type = " << iritype << std::endl;
-			    std::cerr << "AET = " << accesseventtype 
+			    std::cerr << "AET = " << accesseventtype
 				      << std::endl;
 			    std::cerr << "Liid = " << liid << std::endl;;
-			    std::cerr << "Addr vec size = " 
-				      << ip_addr.size() 
+			    std::cerr << "Addr vec size = "
+				      << ip_addr.size()
 				      << std::endl;
 			    std::cerr << std::endl;
 */
@@ -866,7 +878,7 @@ void connection::run()
 						  ip_addr.end());
 				    p.target_up(liid, network, a, tv);
 				}
-			
+
 				if (ip_addr.size() == 16) {
 				    tcpip::ip6_address a;
 				    a.addr.assign(ip_addr.begin(),
@@ -875,7 +887,7 @@ void connection::run()
 				}
 
 			    }
-			    
+
 			    if (iritype == 2) {
 				p.target_down(liid, network, tv);
 			    }
@@ -892,7 +904,7 @@ void connection::run()
 	    }
 
 	}
-	
+
     } catch (std::exception& e) {
 	std::cerr << e.what() << std::endl;
     }

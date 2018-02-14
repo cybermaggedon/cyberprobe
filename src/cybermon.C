@@ -56,12 +56,12 @@ public:
 		   const std::string& network,
 		   const tcpip::address& addr,
 		   const struct timeval& tv);
-    
+
     // Called when attacker is disconnected.
     void target_down(const std::string& liid,
 		     const std::string& network,
 		     const struct timeval& tv);
-    
+
 };
 
 // Called when attacker is discovered.
@@ -82,7 +82,7 @@ void etsi_monitor::target_down(const std::string& liid,
 }
 
 // Called when a PDU is received.
-void etsi_monitor::operator()(const std::string& liid, 
+void etsi_monitor::operator()(const std::string& liid,
 			      const std::string& network,
 			      const iter& s, const iter& e,
 			      const struct timeval& tv)
@@ -108,21 +108,21 @@ private:
     int count;
 
 public:
-    pcap_input(const std::string& f, cybermon::engine& e) : 
+    pcap_input(const std::string& f, cybermon::engine& e) :
 	pcap_reader(f), e(e) {
 	count = 0;
     }
 
-    virtual void handle(unsigned long len, unsigned long captured, 
+    virtual void handle(timeval tv, unsigned long len, unsigned long captured,
 			const unsigned char* f);
 
 };
 
 
-void pcap_input::handle(unsigned long len, unsigned long captured, 
+void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
 			const unsigned char* f)
 {
-    
+
     int datalink = pcap_datalink(p);
 
     try {
@@ -134,15 +134,12 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 
 	    // IPv4 ethernet
 	    if (f[12] == 0x08 && f[13] == 0) {
-		
+
 		std::vector<unsigned char> v;
 		v.assign(f + 14, f + captured);
 
 		// FIXME: Hard-coded?!
 		std::string liid = "PCAP";
-
-		timeval tv;
-		gettimeofday(&tv, 0);
 
 		e.process(liid, "",
 			  cybermon::pdu_slice(v.begin(), v.end(), tv));
@@ -151,15 +148,12 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 
 	    // IPv6 ethernet only
 	    if (f[12] == 0x86 && f[13] == 0xdd) {
-		
+
 		std::vector<unsigned char> v;
 		v.assign(f + 14, f + captured);
 
 		// FIXME: Hard-coded?!
 		std::string liid = "PCAP";
-
-		timeval tv;
-		gettimeofday(&tv, 0);
 
 		e.process(liid, "",
 			  cybermon::pdu_slice(v.begin(), v.end(), tv));
@@ -171,15 +165,12 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 
 		// IPv4 ethernet
 		if (f[16] == 0x08 && f[17] == 0) {
-		
+
 		    std::vector<unsigned char> v;
 		    v.assign(f + 18, f + captured);
-		    
+
 		    // FIXME: Hard-coded?!
 		    std::string liid = "PCAP";
-
-		    timeval tv;
-		    gettimeofday(&tv, 0);
 
 		    e.process(liid, "",
 			      cybermon::pdu_slice(v.begin(), v.end(), tv));
@@ -188,15 +179,12 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 
 		// IPv6 ethernet only
 		if (f[16] == 0x86 && f[17] == 0xdd) {
-		
+
 		    std::vector<unsigned char> v;
 		    v.assign(f + 18, f + captured);
 
 		    // FIXME: Hard-coded?!
 		    std::string liid = "PCAP";
-
-		    timeval tv;
-		    gettimeofday(&tv, 0);
 
 		    e.process(liid, "",
 			      cybermon::pdu_slice(v.begin(), v.end(), tv));
@@ -216,9 +204,6 @@ void pcap_input::handle(unsigned long len, unsigned long captured,
 	    std::string liid = "PCAP";
 
 	    std::string str( v.begin(), v.end() );
-
-	    timeval tv;
-	    gettimeofday(&tv, 0);
 
 	    e.process(liid, "",
 		      cybermon::pdu_slice(v.begin(), v.end(), tv));
@@ -271,7 +256,7 @@ int main(int argc, char** argv)
 
 	if (pcap_file != "" && port != 0)
 	    throw std::runtime_error("Specify EITHER a PCAP file OR a port.");
-	    	    
+
 	if (pcap_file == "") {
 
 	    if (transport != "tls" && transport != "tcp")
@@ -302,7 +287,7 @@ int main(int argc, char** argv)
     }
 
     try {
-	
+
 	//queue to store the incoming packets to be processed
     std::queue<q_entry*>	cqueue;
 
@@ -330,7 +315,7 @@ int main(int argc, char** argv)
 	    sock->use_certificate_file(cert);
 	    sock->use_certificate_chain_file(chain);
 	    sock->check_private_key();
-	    
+
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
 	    etsi_monitor m(cqw);
@@ -340,10 +325,10 @@ int main(int argc, char** argv)
 	    r.start();
 
 	    // Wait forever.
-	    r.join();	    
+	    r.join();
 
 	} else {
-	
+
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
 		etsi_monitor m(cqw);
@@ -363,10 +348,10 @@ int main(int argc, char** argv)
 	cqr.join();
 
     } catch (std::exception& e) {
-	
+
 	std::cerr << "Exception: " << e.what() << std::endl;
 	return 1;
-	
+
     }
 
 }

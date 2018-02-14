@@ -68,7 +68,7 @@ void delivery::identify_link(const_iterator& start,
 	// Linux "cooked" case
 
 	// Cooked header length.
-	if ((end - start) < 16) 
+	if ((end - start) < 16)
 	    throw std::runtime_error("Too small for cooked");
 
 	// Get IP version from Ethertype
@@ -87,7 +87,7 @@ void delivery::identify_link(const_iterator& start,
 	// Not long enough for check, bail.  In other bits of the code,
 	// there's a check for the real IP header length.
 	if ((end - start) < 1) return;
-	
+
 	// IPv4 or 6 test.
 	if ((start[0] & 0xf0) == 0x40)
 	    ipv = 4;
@@ -117,7 +117,7 @@ bool delivery::ipv4_match(const_iterator& start,
 
     // Too small to be an IP packet?
     if (end - start < 20) return false;
-    
+
     // Get the source address
     tcpip::ip4_address saddr, daddr;
     saddr.addr.assign(start + 12, start + 16);
@@ -138,11 +138,11 @@ bool delivery::ipv4_match(const_iterator& start,
 
 	// Find a match against the source or destination IP address.
 	std::map<tcpip::ip4_address, std::string>::const_iterator it2;
-	
+
 	it2 = it->second.find(saddr & mask);
 	if (it2 == it->second.end())
 	    it2 = it->second.find(daddr & mask);
-	
+
 	// If match, then return info.
 	if (it2 != it->second.end()) {
 	    hit = it2->first;
@@ -168,7 +168,7 @@ bool delivery::ipv6_match(const_iterator& start,
 {
 
     // FIXME: What if it matches on more than one address?!
-    // FIXME: Should be tagged with more than one LIID? 
+    // FIXME: Should be tagged with more than one LIID?
 
     // Too small to be an IPv6 packet?
     if (end - start < 40) return false;
@@ -196,7 +196,7 @@ bool delivery::ipv6_match(const_iterator& start,
 	it2 = it->second.find(saddr & mask);
 	if (it2 == it->second.end())
 	    it2 = it->second.find(daddr & mask);
-	
+
 	// If match, then return info.
 	if (it2 != it->second.end()) {
 	    hit = it2->first;
@@ -215,7 +215,7 @@ bool delivery::ipv6_match(const_iterator& start,
 
 // The 'main' packet handling method.  This is what the caller calls when
 // they have a packet.  datalink = the PCAP datalink value.
-void delivery::receive_packet(const std::vector<unsigned char>& packet, 
+void delivery::receive_packet(timeval tv, const std::vector<unsigned char>& packet,
 			      int datalink)
 {
 
@@ -254,9 +254,9 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(liid, networks[liid], start, end);
+	    it->second->deliver(tv, liid, networks[liid], start, end);
 	}
-	
+
 	// Unlock, we're done.
 	senders_lock.unlock();
 
@@ -281,9 +281,9 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(liid, networks[liid], start, end);
+	    it->second->deliver(tv, liid, networks[liid], start, end);
 	}
-	
+
 	// Unlock, we're done.
 	senders_lock.unlock();
 
@@ -294,11 +294,11 @@ void delivery::receive_packet(const std::vector<unsigned char>& packet,
 // Modifies interface capture
 void delivery::add_interface(const std::string& iface,
 			     const std::string& filter,
-			     float delay) 
+			     float delay)
 {
-    
+
     interfaces_lock.lock();
-    
+
     intf i;
     i.interface = iface;
     i.filter = filter;
@@ -329,9 +329,9 @@ void delivery::add_interface(const std::string& iface,
 	pcap_dev* p = new pcap_dev(iface, delay, *this);
 	if (filter != "")
 	    p->add_filter(filter);
-	
+
 	p->start();
-	
+
 	interfaces[i] = p;
 
 #ifdef WITH_DAG
@@ -374,9 +374,9 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 {
 
     ii.clear();
-    
+
     interfaces_lock.lock();
-    
+
     for(std::map<intf,capture_dev*>::iterator it = interfaces.begin();
 	it != interfaces.end();
 	it++) {
@@ -386,16 +386,16 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 	inf.delay = it->first.delay;
 	ii.push_back(inf);
     }
-    
+
     interfaces_lock.unlock();
 
 }
 
 // Modifies the target map to include a mapping from address to target.
-void delivery::add_target(const tcpip::address& addr, 
+void delivery::add_target(const tcpip::address& addr,
 			  unsigned int mask,
 			  const std::string& liid,
-			  const std::string& network) 
+			  const std::string& network)
 {
 
     targets_lock.lock();
@@ -426,15 +426,15 @@ void delivery::add_target(const tcpip::address& addr,
 }
 
 // Removes a target mapping.
-void delivery::remove_target(const tcpip::address& addr, unsigned int mask) 
+void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 {
-    
+
     targets_lock.lock();
 
     std::string liid;
 
     if (addr.universe == addr.ipv4) {
-	
+
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
 
@@ -499,10 +499,10 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 }
 
 // Fetch current target list.
-void delivery::get_targets(std::map<int, 
+void delivery::get_targets(std::map<int,
 			   std::map<tcpip::ip4_address, std::string> >& t4,
 			   std::map<int,
-			   std::map<tcpip::ip6_address, std::string> >& t6) 
+			   std::map<tcpip::ip6_address, std::string> >& t6)
 {
     t4 = targets;
     t6 = targets6;
@@ -516,7 +516,7 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
 {
 
     senders_lock.lock();
-    
+
     ep e(host, port, type, transport, params);
 
     sender* s;
@@ -564,7 +564,7 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 }
 
 // Fetch current target list.
-void delivery::get_endpoints(std::list<sender_info>& info) 
+void delivery::get_endpoints(std::list<sender_info>& info)
 {
 
     senders_lock.lock();

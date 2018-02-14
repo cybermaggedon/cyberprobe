@@ -34,7 +34,7 @@ class ep {
 	this->params = params;
 	make_key();
     }
-	
+
     void make_key() {
 	std::ostringstream buf;
 	buf << hostname << ":" << port << ":" << type << ":" << transport;
@@ -73,7 +73,7 @@ class intf {
 
 	if (delay < i.delay)
 	    return true;
-	else 
+	else
 	    return false;
 
     }
@@ -90,7 +90,7 @@ class intf {
 
 class delivery : public parameters, public management, public packet_consumer {
   private:
-    
+
     // Lock for senders and targets maps.
     //threads::mutex lock;
 
@@ -145,7 +145,7 @@ class delivery : public parameters, public management, public packet_consumer {
     virtual void remove_interface(const std::string& iface,
 				  const std::string& filter,
 				  float delay);
-    
+
     // Returns the interfaces list.
     virtual void get_interfaces(std::list<interface_info>& ii);
 
@@ -173,7 +173,7 @@ class delivery : public parameters, public management, public packet_consumer {
     virtual ~delivery() {}
 
     // Allows caller to provide an IP packet for delivery.
-    virtual void receive_packet(const std::vector<unsigned char>& packet, 
+    virtual void receive_packet(timeval tv, const std::vector<unsigned char>& packet,
 				int datalink);
 
     // Modifies the target map to include a mapping from address to target.
