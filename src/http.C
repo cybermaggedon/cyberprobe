@@ -62,6 +62,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 			// response. Assume it is binary data
 			c->lock.unlock();
 			unrecognised::process_unrecognised_stream(mgr, c, sl);
+                throw exception("HTTP protocol violation! POST_REQUEST_PROTOCOL_EXP_NL");
         }
 	    break;
 
@@ -96,6 +97,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 			// response. Assume it is binary data
 			c->lock.unlock();
 			unrecognised::process_unrecognised_stream(mgr, c, sl);
+                throw exception("HTTP protocol violation! POST_RESPONSE_STATUS_EXP_NL");
 	    }
 	    break;
 
@@ -124,6 +126,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 			// response. Assume it is binary data
 			c->lock.unlock();
 			unrecognised::process_unrecognised_stream(mgr, c, sl);
+                throw exception("HTTP protocol violation! POST_KEY_EXP_SPACE");
 	    }
 	    break;
 
@@ -155,6 +158,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
  			// response. Assume it is binary data
  			c->lock.unlock();
  			unrecognised::process_unrecognised_stream(mgr, c, sl);
+                throw exception("HTTP protocol violation! POST_VALUE_EXP_NL");
 	     }
 	     break;
 
@@ -226,6 +230,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
  			// response. Assume it is binary data
  			c->lock.unlock();
  			unrecognised::process_unrecognised_stream(mgr, c, sl);
+                throw exception("HTTP protocol violation! POST_HEADER_EXP_NL");
 	     }
 	     break;
 
@@ -317,6 +322,7 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 			// response. Assume it is binary data
 			c->lock.unlock();
 			unrecognised::process_unrecognised_stream(mgr, c, sl);
+                throw exception("HTTP protocol violation! POST_CHUNK_LENGTH_EXP_NL");
 	    }
 	    break;
 
