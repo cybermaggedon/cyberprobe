@@ -13,25 +13,29 @@ context_ptr engine::get_root_context(const std::string& liid,
 
     context_ptr c;
 
-    if (contexts.find(liid) == contexts.end()) {
+    root_id id(liid, network);
+    
+    if (contexts.find(id) == contexts.end()) {
 	c = context_ptr(new root_context(*this));
 	
 	root_context* rp = dynamic_cast<root_context*>(c.get());
 	rp->set_liid(liid);
 	rp->set_network(network);
-	contexts[liid] = c;
+	contexts[id] = c;
     } else
-	c = contexts[liid];
+	c = contexts[id];
 
     lock.unlock();
 
     return c;
 }
 
-void engine::close_root_context(const std::string& liid)
+void engine::close_root_context(const std::string& liid,
+				const std::string& network)
 {
     lock.lock();
-    contexts.erase(liid);
+    root_id id(liid, network);
+    contexts.erase(id);
     lock.unlock();
 }
 

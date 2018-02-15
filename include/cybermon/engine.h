@@ -34,7 +34,8 @@ namespace cybermon {
 	threads::mutex lock;
 
 	// Child contexts.
-	std::map<std::string, context_ptr> contexts;
+	typedef std::pair<std::string,std::string> root_id;
+	std::map<root_id, context_ptr> contexts;
 
 	// Process a packet within a context.  'c' describes the context,
 	// 's' and 'e' are iterators pointing at the start and end of packet
@@ -54,7 +55,8 @@ namespace cybermon {
 				     const std::string& network);
 
 	// Close an unwanted root context.
-	void close_root_context(const std::string& liid);
+	void close_root_context(const std::string& liid,
+				const std::string& network);
 
 	// Process a packet belong to a LIID.  'liid' describes the context,
 	// 's' and 'e' are iterators pointing at the start and end of packet
@@ -88,7 +90,7 @@ namespace cybermon {
 			 const std::string& network,
 			 const struct timeval& tv) {
 
-	    close_root_context(liid);
+	  close_root_context(liid, network);
 
 	    // This is a reportable event.
 	    trigger_down(liid, tv);
