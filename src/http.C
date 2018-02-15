@@ -467,7 +467,10 @@ void http_parser::complete_request(context_ptr c, const pdu_time& time,
     std::string norm;
 
     // Convert host and URL into a fully normalised URL.
-    normalise_url(header["host"].second, url, norm);
+    if (method == "CONNECT")
+	norm = url;
+    else
+	normalise_url(header["host"].second, url, norm);
 
     // Stash the URL on a queue in our context structure.
     http_request_context::ptr sp =
