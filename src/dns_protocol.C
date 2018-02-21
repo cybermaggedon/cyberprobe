@@ -50,6 +50,10 @@ void dns_decoder::parse_name(pdu_iter ms, pdu_iter me,
 
 	if ((len & 0xc0) == 0xc0) {
 	    const uint16_t offset = (len & 0x3f) + *(validate_iter(pos, e)++);
+
+	    if (offset > (me - ms))
+		throw std::runtime_error("Invalid DNS offset");
+
 	    pdu_iter pos2 = ms + offset;
 
 	    parse_name(ms, me, pos2, me, name, first);
