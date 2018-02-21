@@ -150,7 +150,11 @@ module.unrecognised_datagram = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "unrecognised_datagram"
   obs["unrecognised_datagram"] = {}
-  obs["unrecognised_datagram"]["payload"] = b64(e.data)
+  local payload = b64(e.data)
+  obs["unrecognised_datagram"]["payload"] = payload
+  obs["unrecognised_datagram"]["payload-length"] = e.data:len()
+  obs["unrecognised_datagram"]["payload-b64length"] = payload:len()
+  obs["unrecognised_datagram"]["payload-sha1"] = sha1(e.data)
   submit(obs)
 end
 
@@ -160,7 +164,11 @@ module.unrecognised_stream = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "unrecognised_stream"
   obs["unrecognised_stream"] = {}
-  obs["unrecognised_stream"]["payload"] = b64(e.data)
+  local payload = b64(e.data)
+  obs["unrecognised_stream"]["payload"] = payload
+  obs["unrecognised_stream"]["payload-length"] = e.data:len()
+  obs["unrecognised_stream"]["payload-b64length"] = payload:len()
+  obs["unrecognised_stream"]["payload-sha1"] = sha1(e.data)
   submit(obs)
 end
 
