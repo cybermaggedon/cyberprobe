@@ -33,7 +33,8 @@ void tcp_ports::init_handlers(void)
     // Now assign specific handlers
     port_handler[21]  = &ftp::process;
     port_handler[25]  = &smtp::process;
-    port_handler[53]  = &dns_over_tcp::process;
+    // DNS over TCP is broken if packets span multiple TCP PDUs.
+    //    port_handler[53]  = &dns_over_tcp::process;
     port_handler[110] = &pop3::process;
     port_handler[220] = &imap::process;
     port_handler[465] = &smtp_auth::process;
