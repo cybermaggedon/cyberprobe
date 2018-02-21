@@ -22,13 +22,14 @@ sort < $abs_srcdir/samples/dns2.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
-AT_SETUP([dnstcp.pcap])
-cat $abs_srcdir/samples/dnstcp.pcap | \
-    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
-    sort > output1
-sort < $abs_srcdir/samples/dnstcp.pcap.monitor > output2
-AT_CHECK([diff -B output1 output2],,[])
-AT_CLEANUP
+# disabled whilst dns over tcp processing is disabled
+#AT_SETUP([dnstcp.pcap])
+#cat $abs_srcdir/samples/dnstcp.pcap | \
+#    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
+#    sort > output1
+#sort < $abs_srcdir/samples/dnstcp.pcap.monitor > output2
+#AT_CHECK([diff -B output1 output2],,[])
+#AT_CLEANUP
 
 AT_SETUP([ether.pcap])
 cat $abs_srcdir/samples/ether.pcap | \
@@ -130,13 +131,14 @@ cat $abs_srcdir/samples/dns2.pcap.model > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
-AT_SETUP([dnstcp.pcap])
-cat $abs_srcdir/samples/dnstcp.pcap | \
-    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
-    $abs_top_srcdir/tests/summarise_json > output1
-cat $abs_srcdir/samples/dnstcp.pcap.model > output2
-AT_CHECK([diff output1 output2],,[])
-AT_CLEANUP
+# disabled whilst dns over tcp processing is disabled
+#AT_SETUP([dnstcp.pcap])
+#cat $abs_srcdir/samples/dnstcp.pcap | \
+#    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/json.lua | \
+#    $abs_top_srcdir/tests/summarise_json > output1
+#cat $abs_srcdir/samples/dnstcp.pcap.model > output2
+#AT_CHECK([diff output1 output2],,[])
+#AT_CLEANUP
 
 AT_SETUP([ether.pcap])
 cat $abs_srcdir/samples/ether.pcap | \
@@ -252,4 +254,3 @@ Stop lion resource lioness
 Stop tiger resource tiger
 ])
 AT_CLEANUP
-
