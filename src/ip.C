@@ -212,11 +212,12 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    fc->f_list.erase(id);
 	    fc->hdrs_list.erase(id);
 
+	    // Need to unlock, because the re-entrant call will take the lock.
+	    fc->lock.unlock();
+
 	    // We now have a complete IP packet!  Process it.
 	    ip::process_ip4(mgr, c,
 			    pdu_slice(pdu.begin(), pdu.end(), sl.time));
-
-	    fc->lock.unlock();
 
 	    return;
 
