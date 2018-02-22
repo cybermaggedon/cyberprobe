@@ -53,7 +53,8 @@ void dns_decoder::parse_name(pdu_iter ms, pdu_iter me,
 	if (len == 0) break;
 
 	if ((len & 0xc0) == 0xc0) {
-	    const uint16_t offset = (len & 0x3f) + *(validate_iter(pos, e)++);
+	    const uint16_t offset = ((len & 0x3f)<<8) +
+		*(validate_iter(pos, e)++);
 
 	    if (offset > (me - ms))
 		throw std::runtime_error("Invalid DNS offset");
@@ -172,6 +173,7 @@ void dns_decoder::parse_rr(dns_rr& rr)
 	    rr.rdaddress.set(rr.rdata, NETWORK, IP6);
 	}
     }
+
 
 }
 
