@@ -41,6 +41,10 @@ void dns_decoder::parse_name(pdu_iter ms, pdu_iter me,
 			     pdu_iter& pos, pdu_iter e, std::string& name,
 			     bool& first)
 {
+
+    // Save this for later.
+    pdu_iter start = pos;
+
     validate_iter(pos, e);
 
     while (1) {
@@ -55,6 +59,11 @@ void dns_decoder::parse_name(pdu_iter ms, pdu_iter me,
 		throw std::runtime_error("Invalid DNS offset");
 
 	    pdu_iter pos2 = ms + offset;
+
+	    // No point calling myself with the same args, that would be
+	    // infinite loop.
+	    if (pos2 == start)
+		throw std::runtime_error("Infinite loop in DNS structure.");
 
 	    parse_name(ms, me, pos2, me, name, first);
 	    return;
@@ -75,6 +84,7 @@ void dns_decoder::parse_name(pdu_iter ms, pdu_iter me,
 
 void dns_decoder::parse()
 {
+
     queries.clear();
 
     parse_header(s);
