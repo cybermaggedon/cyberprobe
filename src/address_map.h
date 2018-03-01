@@ -23,14 +23,14 @@ public:
 	m[mask].erase(a & mask);
     }
 
-    bool get(const A& a, const T*& t) {
+    bool get(const A& a, T*& t) {
       
-	typename mask_map::const_reverse_iterator it;
+	typename mask_map::reverse_iterator it;
 
 	for(it = m.rbegin(); it != m.rend(); it++) {
 
 
-	    typename std::map<A, T>::const_iterator it2;
+	    typename std::map<A, T>::iterator it2;
 
 	    unsigned int mask = it->first;
 

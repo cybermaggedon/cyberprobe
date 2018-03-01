@@ -108,7 +108,7 @@ void delivery::identify_link(const_iterator& start,
 // address.  Returns true for a match, and 'liid' returns the target LIID.
 bool delivery::ipv4_match(const_iterator& start,
 			  const_iterator& end,
-			  match*& m,
+			  const match*& m,
 			  tcpip::ip4_address& hit)
 {
 
@@ -127,14 +127,20 @@ bool delivery::ipv4_match(const_iterator& start,
     targets_lock.lock();
 
     bool is_hit;
-    const match_state* md = 0;
+    match_state* md = 0;
 
     is_hit = targets.get(saddr, md);
 
     if (is_hit) {
-	// FIXME: Copying!  And doesn't use mangling cache.
-	m->liid = md->liid;
-	m->network = md->network;
+
+	// Cache manipulation
+	// FIXME: but this doesn't deal with templating.
+	if (md->mangled.find(saddr) == md->mangled.end()) {
+	    md->mangled[saddr].liid = md->liid;
+	    md->mangled[saddr].network = md->network;
+	}
+
+	m = &(md->mangled.find(saddr)->second);
 	hit = saddr;
 	targets_lock.unlock();
 	return true;
@@ -143,9 +149,15 @@ bool delivery::ipv4_match(const_iterator& start,
     is_hit = targets.get(daddr, md);
 
     if (is_hit) {
-	// FIXME: Copying!  And doesn't use mangling cache.
-	m->liid = md->liid;
-	m->network = md->network;
+
+	// Cache manipulation
+	// FIXME: but this doesn't deal with templating.
+	if (md->mangled.find(daddr) == md->mangled.end()) {
+	    md->mangled[daddr].liid = md->liid;
+	    md->mangled[daddr].network = md->network;
+	}
+
+	m = &(md->mangled.find(daddr)->second);
 	hit = daddr;
 	targets_lock.unlock();
 	return true;
@@ -160,7 +172,7 @@ bool delivery::ipv4_match(const_iterator& start,
 // address.  Returns true for a match, and 'liid' returns the target LIID.
 bool delivery::ipv6_match(const_iterator& start,
 			  const_iterator& end,
-			  match*& m,
+			  const match*& m,
 			  tcpip::ip6_address& hit)
 {
 
@@ -178,16 +190,21 @@ bool delivery::ipv6_match(const_iterator& start,
     // Get the target map lock.
     targets_lock.lock();
 
-
     bool is_hit;
-    const match_state* md = 0;
+    match_state* md = 0;
 
     is_hit = targets6.get(saddr, md);
 
     if (is_hit) {
-	// FIXME: Copying!  And doesn't use mangling cache.
-	m->liid = md->liid;
-	m->network = md->network;
+
+	// Cache manipulation
+	// FIXME: but this doesn't deal with templating.
+	if (md->mangled6.find(saddr) == md->mangled6.end()) {
+	    md->mangled6[saddr].liid = md->liid;
+	    md->mangled6[saddr].network = md->network;
+	}
+
+	m = &(md->mangled6.find(saddr)->second);
 	hit = saddr;
 	targets_lock.unlock();
 	return true;
@@ -196,9 +213,15 @@ bool delivery::ipv6_match(const_iterator& start,
     is_hit = targets6.get(daddr, md);
 
     if (is_hit) {
-	// FIXME: Copying!  And doesn't use mangling cache.
-	m->liid = md->liid;
-	m->network = md->network;
+
+	// Cache manipulation
+	// FIXME: but this doesn't deal with templating.
+	if (md->mangled6.find(daddr) == md->mangled6.end()) {
+	    md->mangled6[daddr].liid = md->liid;
+	    md->mangled6[daddr].network = md->network;
+	}
+
+	m = &(md->mangled6.find(daddr)->second);
 	hit = daddr;
 	targets_lock.unlock();
 	return true;
@@ -233,7 +256,7 @@ void delivery::receive_packet(timeval tv,
 
 	// IPv4 case
 
-	match* m = 0;
+	const match* m = 0;
 	tcpip::ip4_address hit;
 
 	// Match the IP addresses.
@@ -264,7 +287,7 @@ void delivery::receive_packet(timeval tv,
 
 	// IPv6 case
 
-	match* m = 0;
+	const match* m = 0;
 	tcpip::ip6_address hit;
 
 	// Match the IP addresses.
@@ -438,7 +461,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
 
-	const match_state* ms;
+	match_state* ms;
 	bool hit = targets.get(a, ms);
 
 	if (hit) {
@@ -462,7 +485,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	const tcpip::ip6_address& a =
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
 
-	const match_state* ms;
+	match_state* ms;
 	bool hit = targets6.get(a, ms);
 
 	if (hit) {

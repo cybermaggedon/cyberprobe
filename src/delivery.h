@@ -75,8 +75,8 @@ class match_state {
     std::string network;
 
     // Caching hits for templated values - the output of 'mangling'.
-    std::map<tcpip::ip4_address, std::string> hits;   // IPv4
-    std::map<tcpip::ip6_address, std::string> hits6;  // IPv6
+    std::map<tcpip::ip4_address, match> mangled;   // IPv4
+    std::map<tcpip::ip6_address, match> mangled6;  // IPv6
 
 };
 
@@ -126,9 +126,6 @@ class delivery : public parameters, public management, public packet_consumer {
     address_map<tcpip::ip4_address, match_state> targets;
     address_map<tcpip::ip6_address, match_state> targets6;
 
-//    std::map<int, std::map<tcpip::ip4_address, match> > targets;   // IPv4
-//    std::map<int, std::map<tcpip::ip6_address, match> > targets6;  // IPv6
-
     // Endpoints
     threads::mutex senders_lock;
     std::map<ep, sender*> senders;
@@ -154,13 +151,13 @@ class delivery : public parameters, public management, public packet_consumer {
     // IPv4 header to LIID
     bool ipv4_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
-		    match*& hit,
+		    const match*& hit,
 		    tcpip::ip4_address& match);
 
     // IPv6 header to LIID
     bool ipv6_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
-		    match*& hit,
+		    const match*& hit,
 		    tcpip::ip6_address& match);
 
   public:

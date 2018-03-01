@@ -23,7 +23,7 @@ void test4() {
     map.insert(tcpip::ip4_address("1.2.0.0"), 16, bunchy("lemon", "bill"));
     map.insert(tcpip::ip4_address("1.0.0.0"), 8, bunchy("apple", "fred"));
 
-    const bunchy* b;
+    bunchy* b;
 
     bool hit = map.get(tcpip::ip4_address("1.2.3.4"), b);
     assert(hit == true);
@@ -70,7 +70,7 @@ void test6() {
     map.insert(tcpip::ip6_address("a1ff:ee::0"), 32,
 	       bunchy("apple", "fred"));
 
-    const bunchy* b;
+    bunchy* b;
 
     bool hit = map.get(tcpip::ip6_address("a1ff:ee:cc:dd::1"), b);
     assert(hit == true);
