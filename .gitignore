@@ -56,6 +56,7 @@ init/*.service
 package.m4
 tests/test_socket
 tests/test_resource
+tests/test_address_map
 tests/testsuite.dir
 tests/testsuite.log
 tests/testsuite

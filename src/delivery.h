@@ -7,6 +7,7 @@
 #include "management.h"
 #include "capture.h"
 #include "packet_consumer.h"
+#include "address_map.h"
 
 #include <map>
 #include <list>
@@ -53,6 +54,32 @@ class ep {
 
 };
 
+// Results of a match, returned by ipv4_match and ipv6_match.
+class match {
+ public:
+    std::string liid;
+    std::string network;
+};
+
+// Internal ipv4_match and ipv6_match state.
+class match_state {
+
+ public:
+
+    match_state(const std::string& l, const std::string& n) :
+        liid(l), network(n) {}
+    match_state() {}
+    
+    // On a match, these values are the input to 'mangling'.
+    std::string liid;
+    std::string network;
+
+    // Caching hits for templated values - the output of 'mangling'.
+    std::map<tcpip::ip4_address, std::string> hits;   // IPv4
+    std::map<tcpip::ip6_address, std::string> hits6;  // IPv6
+
+};
+
 // Defines an interface.
 class intf {
   public:
@@ -60,7 +87,6 @@ class intf {
     std::string filter;
     float delay;
 
-    // FIXME: I haven't checked this works?!?!?!
     bool operator<(const intf& i) const {
 
 	if (interface < i.interface)
@@ -96,9 +122,12 @@ class delivery : public parameters, public management, public packet_consumer {
 
     // Targets : an IP address to LIID mapping.
     threads::mutex targets_lock;
-    std::map<int, std::map<tcpip::ip4_address, std::string> > targets;   // IPv4
-    std::map<int, std::map<tcpip::ip6_address, std::string> > targets6;  // IPv6
-    std::map<std::string, std::string> networks;
+
+    address_map<tcpip::ip4_address, match_state> targets;
+    address_map<tcpip::ip6_address, match_state> targets6;
+
+//    std::map<int, std::map<tcpip::ip4_address, match> > targets;   // IPv4
+//    std::map<int, std::map<tcpip::ip6_address, match> > targets6;  // IPv6
 
     // Endpoints
     threads::mutex senders_lock;
@@ -125,13 +154,13 @@ class delivery : public parameters, public management, public packet_consumer {
     // IPv4 header to LIID
     bool ipv4_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
-		    std::string& liid,
+		    match*& hit,
 		    tcpip::ip4_address& match);
 
     // IPv6 header to LIID
     bool ipv6_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
-		    std::string& liid,
+		    match*& hit,
 		    tcpip::ip6_address& match);
 
   public:

@@ -254,3 +254,15 @@ Stop lion resource lioness
 Stop tiger resource tiger
 ])
 AT_CLEANUP
+
+AT_SETUP([libcybermon/address_map])
+AT_CHECK([$abs_builddir/test_address_map],,[--------------------
+---- IPv4
+--------------------
+Tests passed.
+--------------------
+---- IPv6
+--------------------
+Tests passed.
+])
+AT_CLEANUP
