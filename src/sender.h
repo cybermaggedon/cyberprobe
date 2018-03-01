@@ -20,8 +20,8 @@ class qpdu {
   public:
     enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
     timeval tv;                             // Valid for: PDU
-    std::string liid;		            // Valid for: PDU, TARGET_UP/DOWN
-    std::string network;                    // Valid for: PDU, TARGET_UP/DOWN
+    boost::shared_ptr<std::string> liid;    // Valid for: PDU, TARGET_UP/DOWN
+    boost::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
     address_ptr addr;                       // Valid for: TARGET_UP
 };
@@ -68,15 +68,16 @@ class sender : public threads::thread {
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
     // Hints about targets coming on/off-stream
-    virtual void target_up(const std::string& l, const std::string& n,
+    virtual void target_up(boost::shared_ptr<std::string> l,
+			   boost::shared_ptr<std::string> n,
 			   const tcpip::address& a);
-    virtual void target_down(const std::string& liid,
-			     const std::string& n);
+    virtual void target_down(boost::shared_ptr<std::string> liid,
+			     boost::shared_ptr<std::string> n);
 
     // Called to push a packet down the sender transport.
     void deliver(timeval tv,
-                 const std::string& liid,
-		 const std::string& n,
+                 boost::shared_ptr<std::string> liid,
+		 boost::shared_ptr<std::string> n,
 		 const_iterator& start,
 		 const_iterator& end);
 

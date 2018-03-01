@@ -145,6 +145,10 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(saddr) == md->mangled.end()) {
+	    md->mangled[saddr].liid =
+		boost::shared_ptr<std::string>(new std::string);
+	    md->mangled[saddr].network =
+		boost::shared_ptr<std::string>(new std::string);
 	    expand_template(md->liid, md->mangled[saddr].liid, saddr, link);
 	    expand_template(md->network, md->mangled[saddr].network, saddr,
 			    link);
@@ -175,6 +179,10 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(daddr) == md->mangled.end()) {
+	    md->mangled[saddr].liid =
+		boost::shared_ptr<std::string>(new std::string);
+	    md->mangled[saddr].network =
+		boost::shared_ptr<std::string>(new std::string);
 	    expand_template(md->liid, md->mangled[daddr].liid, daddr, link);
 	    expand_template(md->network, md->mangled[daddr].network, daddr,
 			    link);
@@ -236,6 +244,8 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(saddr) == md->mangled6.end()) {
+	    md->mangled6[saddr].liid = boost::shared_ptr<std::string>();
+	    md->mangled6[saddr].network = boost::shared_ptr<std::string>();
 	    expand_template(md->liid, md->mangled6[saddr].liid, saddr,
 			    link);
 	    expand_template(md->network, md->mangled6[saddr].network, saddr,
@@ -267,6 +277,8 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(daddr) == md->mangled6.end()) {
+	    md->mangled6[saddr].liid = boost::shared_ptr<std::string>();
+	    md->mangled6[saddr].network = boost::shared_ptr<std::string>();
 	    expand_template(md->liid, md->mangled6[daddr].liid, daddr,
 			    link);
 	    expand_template(md->network, md->mangled6[daddr].network, daddr,
@@ -683,12 +695,12 @@ void delivery::get_endpoints(std::list<sender_info>& info)
 }
 
 void delivery::expand_template(const std::string& in,
-			       std::string& out,
+			       boost::shared_ptr<std::string> out,
 			       const tcpip::address& addr,
 			       const link_info& link)
 {
 
-    out.erase();
+    out->erase();
 
     for(std::string::const_iterator it = in.begin(); it != in.end(); it++) {
 
@@ -697,14 +709,14 @@ void delivery::expand_template(const std::string& in,
 	    it++;
 
 	    if (it == in.end()) {
-		out.push_back('%');
+		out->push_back('%');
 		continue;
 	    }
 
 	    if (*it == 'i') {
 		std::string a;
 		addr.to_string(a);
-		out.append(a);
+		out->append(a);
 		continue;
 	    }
 
@@ -721,23 +733,23 @@ void delivery::expand_template(const std::string& in,
 		    buf << std::hex << std::setw(2) << std::setfill('0')
 			<< (unsigned int)*it;
 		}
-		out.append(buf.str());
+		out->append(buf.str());
 		continue;
 	    }
 
 	    if (*it == 'v') {
 		std::ostringstream buf;
 		buf << std::dec << std::setw(1) << link.vlan;
-		out.append(buf.str());
+		out->append(buf.str());
 		continue;
 	    }
 
-	    out.push_back(*it);
+	    out->push_back(*it);
 	    continue;
 
 	} else
 
-	    out.push_back(*it);
+	    out->push_back(*it);
 
     }
 

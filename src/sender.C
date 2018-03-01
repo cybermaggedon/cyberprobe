@@ -3,8 +3,8 @@
 
 // Called to add packets to the queue.
 void sender::deliver(timeval tv,
-                     const std::string& liid, // LIID
-		     const std::string& network, // Network
+		     boost::shared_ptr<std::string> liid, // LIID
+		     boost::shared_ptr<std::string> network, // Network
 		     const_iterator& start,   // Start of packet
 		     const_iterator& end)     // End of packet
 {
@@ -47,9 +47,9 @@ void sender::deliver(timeval tv,
 }
 
 // Called to add packets to the queue.
-void sender::target_up(const std::string& liid,        // LIID
-		       const std::string& network,     // Network
-		       const tcpip::address& addr)     // Address
+void sender::target_up(boost::shared_ptr<std::string> liid,        // LIID
+		       boost::shared_ptr<std::string> network,     // Network
+		       const tcpip::address& addr)                 // Address
 {
 
     // Get lock.
@@ -101,8 +101,8 @@ void sender::target_up(const std::string& liid,        // LIID
 }
 
 // Called to add packets to the queue.
-void sender::target_down(const std::string& liid,        // LIID
-			 const std::string& network)     // Network
+void sender::target_down(boost::shared_ptr<std::string> liid,        // LIID
+			 boost::shared_ptr<std::string> network)     // Network
 {
 
     // Get lock.
@@ -201,7 +201,7 @@ void nhis11_sender::handle(qpdu_ptr next)
 {
 
     // Short-hand.
-    const std::string& liid = next->liid;
+    const std::string& liid = *(next->liid);
 
     // Network is ignored, not used for NHIS.
 
@@ -266,8 +266,8 @@ void etsi_li_sender::handle(qpdu_ptr next)
 {
 
     // Short-hand.
-    const std::string& liid = next->liid;
-    const std::string& network = next->network;
+    const std::string& liid = *(next->liid);
+    const std::string& network = *(next->network);
     const std::vector<unsigned char>& pdu = next->pdu;
     const address_ptr addr = next->addr;
 

@@ -12,6 +12,7 @@
 #include <map>
 #include <list>
 #include <algorithm>
+#include <boost/shared_ptr.hpp>
 
 // Defines an endpoint.
 class ep {
@@ -57,8 +58,8 @@ class ep {
 // Results of a match, returned by ipv4_match and ipv6_match.
 class match {
  public:
-    std::string liid;
-    std::string network;
+    boost::shared_ptr<std::string> liid;
+    boost::shared_ptr<std::string> network;
 };
 
 // Internal ipv4_match and ipv6_match state.
@@ -173,7 +174,7 @@ class delivery : public parameters, public management, public packet_consumer {
 
     // Expand liid/network template
     static void expand_template(const std::string& in,
-				std::string& out,
+				boost::shared_ptr<std::string> out,
 				const tcpip::address& addr,
 				const link_info& link);
 
