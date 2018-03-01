@@ -138,6 +138,17 @@ bool delivery::ipv4_match(const_iterator& start,
 	if (md->mangled.find(saddr) == md->mangled.end()) {
 	    expand_template(md->liid, md->mangled[saddr].liid, saddr);
 	    expand_template(md->network, md->mangled[saddr].network, saddr);
+
+	    // Tell all senders, target up.
+	    senders_lock.lock();
+	    for(std::map<ep,sender*>::iterator it = senders.begin();
+		it != senders.end();
+		it++) {
+		it->second->target_up(md->mangled[saddr].liid,
+				      md->mangled[saddr].network, saddr);
+	    }
+	    senders_lock.unlock();
+
 	}
 
 	m = &(md->mangled.find(saddr)->second);
@@ -156,6 +167,17 @@ bool delivery::ipv4_match(const_iterator& start,
 	if (md->mangled.find(daddr) == md->mangled.end()) {
 	    expand_template(md->liid, md->mangled[daddr].liid, daddr);
 	    expand_template(md->network, md->mangled[daddr].network, daddr);
+
+	    // Tell all senders, target up.
+	    senders_lock.lock();
+	    for(std::map<ep,sender*>::iterator it = senders.begin();
+		it != senders.end();
+		it++) {
+		it->second->target_up(md->mangled[saddr].liid,
+				      md->mangled[saddr].network, saddr);
+	    }
+	    senders_lock.unlock();
+
 	}
 
 	m = &(md->mangled.find(daddr)->second);
@@ -204,6 +226,17 @@ bool delivery::ipv6_match(const_iterator& start,
 	if (md->mangled6.find(saddr) == md->mangled6.end()) {
 	    expand_template(md->liid, md->mangled6[saddr].liid, saddr);
 	    expand_template(md->network, md->mangled6[saddr].network, saddr);
+
+	    // Tell all senders, target up.
+	    senders_lock.lock();
+	    for(std::map<ep,sender*>::iterator it = senders.begin();
+		it != senders.end();
+		it++) {
+		it->second->target_up(md->mangled6[saddr].liid,
+				      md->mangled6[saddr].network, saddr);
+	    }
+	    senders_lock.unlock();
+
 	}
 
 	m = &(md->mangled6.find(saddr)->second);
@@ -222,6 +255,17 @@ bool delivery::ipv6_match(const_iterator& start,
 	if (md->mangled6.find(daddr) == md->mangled6.end()) {
 	    expand_template(md->liid, md->mangled6[daddr].liid, daddr);
 	    expand_template(md->network, md->mangled6[daddr].network, daddr);
+
+	    // Tell all senders, target up.
+	    senders_lock.lock();
+	    for(std::map<ep,sender*>::iterator it = senders.begin();
+		it != senders.end();
+		it++) {
+		it->second->target_up(md->mangled6[saddr].liid,
+				      md->mangled6[saddr].network, saddr);
+	    }
+	    senders_lock.unlock();
+
 	}
 
 	m = &(md->mangled6.find(daddr)->second);
@@ -439,15 +483,6 @@ void delivery::add_target(const tcpip::address& addr,
 	targets6.insert(a, mask, match_state(liid, network));
     }
 
-    // Tell all senders, target up.
-    senders_lock.lock();
-    for(std::map<ep,sender*>::iterator it = senders.begin();
-	it != senders.end();
-	it++) {
-        it->second->target_up(liid, network, addr);
-    }
-    senders_lock.unlock();
-
     targets_lock.unlock();
 
 }
@@ -475,8 +510,23 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		// FIXME: Template? Cache?
-		it->second->target_down(ms->liid, ms->network);
+
+		for(std::map<tcpip::ip4_address,match>::iterator it2 =
+			ms->mangled.begin();
+		    it2 != ms->mangled.end();
+		    it2++) {
+		    it->second->target_down(it2->second.liid,
+					    it2->second.network);
+		}
+
+		for(std::map<tcpip::ip6_address,match>::iterator it2 =
+			ms->mangled6.begin();
+		    it2 != ms->mangled6.end();
+		    it2++) {
+		    it->second->target_down(it2->second.liid,
+					    it2->second.network);
+		}
+
 	    }
 	    senders_lock.unlock();
 
@@ -499,8 +549,23 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		// FIXME: Template? Cache?
-		it->second->target_down(ms->liid, ms->network);
+
+		for(std::map<tcpip::ip4_address,match>::iterator it2 =
+			ms->mangled.begin();
+		    it2 != ms->mangled.end();
+		    it2++) {
+		    it->second->target_down(it2->second.liid,
+					    it2->second.network);
+		}
+
+		for(std::map<tcpip::ip6_address,match>::iterator it2 =
+			ms->mangled6.begin();
+		    it2 != ms->mangled6.end();
+		    it2++) {
+		    it->second->target_down(it2->second.liid,
+					    it2->second.network);
+		}
+
 	    }
 	    senders_lock.unlock();
 

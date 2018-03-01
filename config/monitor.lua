@@ -22,7 +22,7 @@ end
 
 -- This function is called when an attacker goes off the air
 observer.trigger_down = function(e)
-  io.write(string.format("Target %s gone off air\n\n", e.liid))
+  io.write(string.format("Target %s gone off air\n\n", e.device))
   io.flush()
 end
 
