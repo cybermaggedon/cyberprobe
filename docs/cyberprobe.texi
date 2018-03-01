@@ -2615,8 +2615,8 @@ If no mask is specified, then this is an exact match against a single address.
 The @code{liid} attribute defines the LIID which will be applied
 if this
 particular IP address is detected.
-@cindex @code{network} attribute, @file{cyberprobe.cfg}
 
+@cindex @code{network} attribute, @file{cyberprobe.cfg}
 The optional @code{network} attribute
 defines the network (ETSI NetworkElementID), which, if specified,
 will be transmitted in the ETSI stream, and delivered as the JSON
@@ -2625,8 +2625,31 @@ The address must be an IP address, and
 not a hostname. The address can be an IPv6 address if the @code{class}
 attribute is included, and set to @code{ipv6}.
 
-LIIDs can occur in multiple places in the target block, but an IP address
+LIIDs can occur in multiple places in the target block, allowing multiple IP
+addresses to match to the same LIID, but the same IP address/mask specifier
 should only occur once in the target block.
+
+If subnetwork ranges overlap, the longest prefix match applies.
+
+The @code{liid} and @code{network} can contain template constructs:
+
+@table @samp
+
+@item %i
+This is replaced with the IP address which causes a match.
+
+@item %m
+This is replaced with the source MAC address in the header of the packet
+which causes a match.
+
+@item %v
+This is replaced with the VLAN ID in the header of the packet which causes
+a match.
+
+@item %%
+This is replaced with a literal @code{%}.
+
+@end table
 
 @cindex @code{certificate}, cyberprobe configuration option
 @cindex @code{key}, cyberprobe configuration option
