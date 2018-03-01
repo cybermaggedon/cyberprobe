@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include <pcap.h>
+#include <iomanip>
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -19,7 +20,7 @@
 void delivery::identify_link(const_iterator& start,
 			     const_iterator& end,
 			     int datalink,
-			     int& ipv)
+			     link_info& link)
 {
 
     if (datalink == DLT_EN10MB) {
@@ -30,13 +31,17 @@ void delivery::identify_link(const_iterator& start,
 	if ((end - start) < 14)
 	    throw std::runtime_error("Too small for Ethernet");
 
+	// Store MAC address
+	link.mac.clear();
+	std::copy(start + 6, start + 12, std::back_inserter(link.mac));
+
 	// Get IP version from Ethertype
 	if (start[12] == 0x08 && start[13] == 0) {
-	    ipv = 4;		// IPv4
+	    link.ipv = 4;		// IPv4
 	    start += 14;	// Skip the Ethernet frame.
 	    return;
 	} else if (start[12] == 0x86 && start[13] == 0xdd) {
-	    ipv = 6;		// IPv6
+	    link.ipv = 6;		// IPv6
 	    start += 14;	// Skip the Ethernet frame.
 	    return;
 	}
@@ -47,14 +52,17 @@ void delivery::identify_link(const_iterator& start,
 	    if ((end - start) < 18)
 		throw std::runtime_error("Too small for 802.1q");
 
+	    // Get VLAN
+	    link.vlan = (start[12] & 0xf) << 8 + start[13];
+
 	    if (start[16] == 0x08 && start[17] == 0) {
-		ipv = 4;		// IPv4
+		link.ipv = 4;		// IPv4
 		start += 18;		// Skip the Ethernet frame.
 		return;
 	    }
 
 	    if (start[16] == 0x86 && start[17] == 0xdd) {
-		ipv = 6;		// IPv6
+		link.ipv = 6;		// IPv6
 		start += 18;		// Skip the Ethernet frame.
 		return;
 	    }
@@ -72,8 +80,8 @@ void delivery::identify_link(const_iterator& start,
 	    throw std::runtime_error("Too small for cooked");
 
 	// Get IP version from Ethertype
-	if (start[14] == 0x08 && start[15] == 0) ipv = 4;
-	if (start[14] == 0x86 && start[15] == 0xdd) ipv = 6;
+	if (start[14] == 0x08 && start[15] == 0) link.ipv = 4;
+	if (start[14] == 0x86 && start[15] == 0xdd) link.ipv = 6;
 
 	// Skip cooked header
 	start += 16;
@@ -90,9 +98,9 @@ void delivery::identify_link(const_iterator& start,
 
 	// IPv4 or 6 test.
 	if ((start[0] & 0xf0) == 0x40)
-	    ipv = 4;
+	    link.ipv = 4;
 	else
-	    ipv = 6;
+	    link.ipv = 6;
 
     } else {
 
@@ -109,7 +117,8 @@ void delivery::identify_link(const_iterator& start,
 bool delivery::ipv4_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
-			  tcpip::ip4_address& hit)
+			  tcpip::ip4_address& hit,
+			  const link_info& link)
 {
 
     // FIXME: What if it matches on more than one address?!
@@ -136,8 +145,9 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(saddr) == md->mangled.end()) {
-	    expand_template(md->liid, md->mangled[saddr].liid, saddr);
-	    expand_template(md->network, md->mangled[saddr].network, saddr);
+	    expand_template(md->liid, md->mangled[saddr].liid, saddr, link);
+	    expand_template(md->network, md->mangled[saddr].network, saddr,
+			    link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
@@ -165,8 +175,9 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(daddr) == md->mangled.end()) {
-	    expand_template(md->liid, md->mangled[daddr].liid, daddr);
-	    expand_template(md->network, md->mangled[daddr].network, daddr);
+	    expand_template(md->liid, md->mangled[daddr].liid, daddr, link);
+	    expand_template(md->network, md->mangled[daddr].network, daddr,
+			    link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
@@ -197,7 +208,8 @@ bool delivery::ipv4_match(const_iterator& start,
 bool delivery::ipv6_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
-			  tcpip::ip6_address& hit)
+			  tcpip::ip6_address& hit,
+			  const link_info& link)
 {
 
     // FIXME: What if it matches on more than one address?!
@@ -224,8 +236,10 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(saddr) == md->mangled6.end()) {
-	    expand_template(md->liid, md->mangled6[saddr].liid, saddr);
-	    expand_template(md->network, md->mangled6[saddr].network, saddr);
+	    expand_template(md->liid, md->mangled6[saddr].liid, saddr,
+			    link);
+	    expand_template(md->network, md->mangled6[saddr].network, saddr,
+			    link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
@@ -253,8 +267,10 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(daddr) == md->mangled6.end()) {
-	    expand_template(md->liid, md->mangled6[daddr].liid, daddr);
-	    expand_template(md->network, md->mangled6[daddr].network, daddr);
+	    expand_template(md->liid, md->mangled6[daddr].liid, daddr,
+			    link);
+	    expand_template(md->network, md->mangled6[daddr].network, daddr,
+			    link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
@@ -290,17 +306,17 @@ void delivery::receive_packet(timeval tv,
     // Iterators, initially point at the start and end of the packet.
     std::vector<unsigned char>::const_iterator start = packet.begin();
     std::vector<unsigned char>::const_iterator end = packet.end();
-    int ipv;
+    link_info link;
 
     // Start by handling the link layer.
     try {
-	identify_link(start, end, datalink, ipv);
+	identify_link(start, end, datalink, link);
     } catch (...) {
 	// Silently ignore exceptions.
 	return;
     }
 
-    if (ipv == 4) {
+    if (link.ipv == 4) {
 
 	// IPv4 case
 
@@ -308,7 +324,7 @@ void delivery::receive_packet(timeval tv,
 	tcpip::ip4_address hit;
 
 	// Match the IP addresses.
-	bool was_hit = ipv4_match(start, end, m, hit);
+	bool was_hit = ipv4_match(start, end, m, hit, link);
 
 	// No target match?
 	if (!was_hit) return;
@@ -331,7 +347,7 @@ void delivery::receive_packet(timeval tv,
 
     }
 
-    if (ipv == 6) {
+    if (link.ipv == 6) {
 
 	// IPv6 case
 
@@ -339,7 +355,7 @@ void delivery::receive_packet(timeval tv,
 	tcpip::ip6_address hit;
 
 	// Match the IP addresses.
-	bool was_hit = ipv6_match(start, end, m, hit);
+	bool was_hit = ipv6_match(start, end, m, hit, link);
 
 	// No target match?
 	if (!was_hit) return;
@@ -668,7 +684,8 @@ void delivery::get_endpoints(std::list<sender_info>& info)
 
 void delivery::expand_template(const std::string& in,
 			       std::string& out,
-			       const tcpip::address& addr)
+			       const tcpip::address& addr,
+			       const link_info& link)
 {
 
     out.erase();
@@ -688,6 +705,30 @@ void delivery::expand_template(const std::string& in,
 		std::string a;
 		addr.to_string(a);
 		out.append(a);
+		continue;
+	    }
+
+	    if (*it == 'm') {
+		std::ostringstream buf;
+		bool first = true;
+		for(std::vector<unsigned char>::const_iterator it = link.mac.begin();
+		    it != link.mac.end();
+		    it++) {
+		    if (first)
+			first = false;
+		    else
+			buf << ':';
+		    buf << std::hex << std::setw(2) << std::setfill('0')
+			<< (unsigned int)*it;
+		}
+		out.append(buf.str());
+		continue;
+	    }
+
+	    if (*it == 'v') {
+		std::ostringstream buf;
+		buf << std::dec << std::setw(1) << link.vlan;
+		out.append(buf.str());
 		continue;
 	    }
 

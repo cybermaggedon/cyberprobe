@@ -106,6 +106,15 @@ class intf {
 
 };
 
+// Information extracted from the link layer.
+class link_info {
+  public:
+    link_info() : vlan(0), ipv(0) {}
+    std::vector<unsigned char> mac;
+    uint16_t vlan;
+    uint8_t ipv;
+};
+
 // Delivery manager class.  You feed it IP packets, and it works out what to
 // do with the IP packets.  The 'delivery' class owns the NHIS connections
 // to the recipient endpoints, and also a target map, which maps IP addresses
@@ -146,24 +155,27 @@ class delivery : public parameters, public management, public packet_consumer {
     void identify_link(const_iterator& start,      /* Start of packet */
 		       const_iterator& end,	   /* End of packet */
 		       int linktype,		   /* PCAP linktype */
-		       int& ipv);		   /* IP version (return) */
+		       link_info& link);
 
     // IPv4 header to LIID
     bool ipv4_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
-		    tcpip::ip4_address& match);
+		    tcpip::ip4_address& match,
+		    const link_info&);
 
     // IPv6 header to LIID
     bool ipv6_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
-		    tcpip::ip6_address& match);
+		    tcpip::ip6_address& match,
+		    const link_info&);
 
     // Expand liid/network template
     static void expand_template(const std::string& in,
 				std::string& out,
-				const tcpip::address& addr);
+				const tcpip::address& addr,
+				const link_info& link);
 
   public:
 
@@ -204,7 +216,8 @@ class delivery : public parameters, public management, public packet_consumer {
     virtual ~delivery() {}
 
     // Allows caller to provide an IP packet for delivery.
-    virtual void receive_packet(timeval tv, const std::vector<unsigned char>& packet,
+    virtual void receive_packet(timeval tv,
+				const std::vector<unsigned char>& packet,
 				int datalink);
 
     // Modifies the target map to include a mapping from address to target.
