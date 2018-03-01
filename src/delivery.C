@@ -136,14 +136,15 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(saddr) == md->mangled.end()) {
-	    md->mangled[saddr].liid = md->liid;
-	    md->mangled[saddr].network = md->network;
+	    expand_template(md->liid, md->mangled[saddr].liid, saddr);
+	    expand_template(md->network, md->mangled[saddr].network, saddr);
 	}
 
 	m = &(md->mangled.find(saddr)->second);
 	hit = saddr;
 	targets_lock.unlock();
 	return true;
+
     }
 
     is_hit = targets.get(daddr, md);
@@ -153,14 +154,15 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(daddr) == md->mangled.end()) {
-	    md->mangled[daddr].liid = md->liid;
-	    md->mangled[daddr].network = md->network;
+	    expand_template(md->liid, md->mangled[daddr].liid, daddr);
+	    expand_template(md->network, md->mangled[daddr].network, daddr);
 	}
 
 	m = &(md->mangled.find(daddr)->second);
 	hit = daddr;
 	targets_lock.unlock();
 	return true;
+
     }
 
     targets_lock.unlock();
@@ -200,14 +202,15 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(saddr) == md->mangled6.end()) {
-	    md->mangled6[saddr].liid = md->liid;
-	    md->mangled6[saddr].network = md->network;
+	    expand_template(md->liid, md->mangled6[saddr].liid, saddr);
+	    expand_template(md->network, md->mangled6[saddr].network, saddr);
 	}
 
 	m = &(md->mangled6.find(saddr)->second);
 	hit = saddr;
 	targets_lock.unlock();
 	return true;
+
     }
 
     is_hit = targets6.get(daddr, md);
@@ -217,14 +220,15 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(daddr) == md->mangled6.end()) {
-	    md->mangled6[daddr].liid = md->liid;
-	    md->mangled6[daddr].network = md->network;
+	    expand_template(md->liid, md->mangled6[daddr].liid, daddr);
+	    expand_template(md->network, md->mangled6[daddr].network, daddr);
 	}
 
 	m = &(md->mangled6.find(daddr)->second);
 	hit = daddr;
 	targets_lock.unlock();
 	return true;
+
     }
 
     targets_lock.unlock();
@@ -596,3 +600,40 @@ void delivery::get_endpoints(std::list<sender_info>& info)
     senders_lock.unlock();
 
 }
+
+void delivery::expand_template(const std::string& in,
+			       std::string& out,
+			       const tcpip::address& addr)
+{
+
+    out.erase();
+
+    for(std::string::const_iterator it = in.begin(); it != in.end(); it++) {
+
+	if (*it == '%') {
+
+	    it++;
+
+	    if (it == in.end()) {
+		out.push_back('%');
+		continue;
+	    }
+
+	    if (*it == 'i') {
+		std::string a;
+		addr.to_string(a);
+		out.append(a);
+		continue;
+	    }
+
+	    out.push_back(*it);
+	    continue;
+
+	} else
+
+	    out.push_back(*it);
+
+    }
+
+}
+

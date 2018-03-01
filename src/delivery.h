@@ -160,6 +160,11 @@ class delivery : public parameters, public management, public packet_consumer {
 		    const match*& hit,
 		    tcpip::ip6_address& match);
 
+    // Expand liid/network template
+    static void expand_template(const std::string& in,
+				std::string& out,
+				const tcpip::address& addr);
+
   public:
 
     // Modifies interface capture
