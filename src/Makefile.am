@@ -44,7 +44,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
 	cybermon_qargs.h cybermon_qwriter.h cybermon_qreader.h \
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
-	../include/cybermon/address_map.h		                \
+	address_map.h		                \
 	../include/cybermon/base_context.h				\
 	../include/cybermon/context.h					\
 	../include/cybermon/cybermon-lua.h				\
