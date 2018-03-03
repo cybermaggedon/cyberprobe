@@ -174,8 +174,9 @@ class delivery : public parameters, public management, public packet_consumer {
 
     // Expand liid/network template
     static void expand_template(const std::string& in,
-				boost::shared_ptr<std::string> out,
+				std::string& out,
 				const tcpip::address& addr,
+				const tcpip::address& subnet,
 				const link_info& link);
 
   public:

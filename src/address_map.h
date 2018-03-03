@@ -51,8 +51,8 @@ public:
 
     // Searches the map for address 'a'.  If it exists, returns true and
     // a pointer to the value is returned in 't'.  Otherwise, returns false,
-    // and t is undefined.
-    bool get(const A& a, T*& t) {
+    // and t is undefined.  The hit key is returned as 'hit'.
+    bool get(const A& a, T*& t, const A*& hit) {
       
 	typename mask_map::reverse_iterator it;
 
@@ -70,7 +70,8 @@ public:
 	    it2 = it->second.find(a & mask);
 
 	    if (it2 != it->second.end()) {
-		t = & it2->second;
+		t = &it2->second;
+		hit = &it2->first;
 		return true;
 	    }
 	    
@@ -80,6 +81,14 @@ public:
 
     }
 
+    // Searches the map for address 'a'.  If it exists, returns true and
+    // a pointer to the value is returned in 't'.  Otherwise, returns false,
+    // and t is undefined.
+    bool get(const A& a, T*& t) {
+	const A* ignored = 0;
+	return get(a, t, ignored);
+    }
+      
 };
 
 #endif

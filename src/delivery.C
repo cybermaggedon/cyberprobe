@@ -137,31 +137,35 @@ bool delivery::ipv4_match(const_iterator& start,
 
     bool is_hit;
     match_state* md = 0;
-
-    is_hit = targets.get(saddr, md);
+    const tcpip::ip4_address* subnet = 0;
+    
+    is_hit = targets.get(saddr, md, subnet);
 
     if (is_hit) {
 
+	assert(md != 0);
+	assert(subnet != 0);
+
 	// Cache manipulation
-	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(saddr) == md->mangled.end()) {
-	    md->mangled[saddr].liid =
-		boost::shared_ptr<std::string>(new std::string);
-	    md->mangled[saddr].network =
-		boost::shared_ptr<std::string>(new std::string);
-	    expand_template(md->liid, md->mangled[saddr].liid, saddr, link);
-	    expand_template(md->network, md->mangled[saddr].network, saddr,
-			    link);
+
+	    boost::shared_ptr<std::string> liid(new std::string);
+	    boost::shared_ptr<std::string> network(new std::string);
+
+	    expand_template(md->liid, *liid, saddr, *subnet, link);
+	    expand_template(md->network, *network, saddr, *subnet, link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(md->mangled[saddr].liid,
-				      md->mangled[saddr].network, saddr);
+		it->second->target_up(liid, network, saddr);
 	    }
 	    senders_lock.unlock();
+
+	    md->mangled[saddr].liid = liid;
+	    md->mangled[saddr].network = network;
 
 	}
 
@@ -172,30 +176,33 @@ bool delivery::ipv4_match(const_iterator& start,
 
     }
 
-    is_hit = targets.get(daddr, md);
+    is_hit = targets.get(daddr, md, subnet);
 
     if (is_hit) {
 
+	assert(md != 0);
+	assert(subnet != 0);
+
 	// Cache manipulation
-	// FIXME: but this doesn't deal with templating.
 	if (md->mangled.find(daddr) == md->mangled.end()) {
-	    md->mangled[saddr].liid =
-		boost::shared_ptr<std::string>(new std::string);
-	    md->mangled[saddr].network =
-		boost::shared_ptr<std::string>(new std::string);
-	    expand_template(md->liid, md->mangled[daddr].liid, daddr, link);
-	    expand_template(md->network, md->mangled[daddr].network, daddr,
-			    link);
+
+	    boost::shared_ptr<std::string> liid(new std::string);
+	    boost::shared_ptr<std::string> network(new std::string);
+
+	    expand_template(md->liid, *liid, daddr, *subnet, link);
+	    expand_template(md->network, *network, daddr, *subnet, link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(md->mangled[saddr].liid,
-				      md->mangled[saddr].network, saddr);
+		it->second->target_up(liid, network, daddr);
 	    }
 	    senders_lock.unlock();
+
+	    md->mangled[daddr].liid = liid;
+	    md->mangled[daddr].network = network;
 
 	}
 
@@ -236,30 +243,35 @@ bool delivery::ipv6_match(const_iterator& start,
 
     bool is_hit;
     match_state* md = 0;
+    const tcpip::ip6_address* subnet = 0;
 
-    is_hit = targets6.get(saddr, md);
+    is_hit = targets6.get(saddr, md, subnet);
 
     if (is_hit) {
 
+	assert(md != 0);
+	assert(subnet != 0);
+
 	// Cache manipulation
-	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(saddr) == md->mangled6.end()) {
-	    md->mangled6[saddr].liid = boost::shared_ptr<std::string>();
-	    md->mangled6[saddr].network = boost::shared_ptr<std::string>();
-	    expand_template(md->liid, md->mangled6[saddr].liid, saddr,
-			    link);
-	    expand_template(md->network, md->mangled6[saddr].network, saddr,
-			    link);
+
+	    boost::shared_ptr<std::string> liid(new std::string);
+	    boost::shared_ptr<std::string> network(new std::string);
+
+	    expand_template(md->liid, *liid, saddr, *subnet, link);
+	    expand_template(md->network, *network, saddr, *subnet, link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(md->mangled6[saddr].liid,
-				      md->mangled6[saddr].network, saddr);
+		it->second->target_up(liid, network, saddr);
 	    }
 	    senders_lock.unlock();
+
+	    md->mangled6[saddr].liid = liid;
+	    md->mangled6[saddr].network = network;
 
 	}
 
@@ -270,29 +282,33 @@ bool delivery::ipv6_match(const_iterator& start,
 
     }
 
-    is_hit = targets6.get(daddr, md);
+    is_hit = targets6.get(daddr, md, subnet);
 
     if (is_hit) {
 
+	assert(md != 0);
+	assert(subnet != 0);
+
 	// Cache manipulation
-	// FIXME: but this doesn't deal with templating.
 	if (md->mangled6.find(daddr) == md->mangled6.end()) {
-	    md->mangled6[saddr].liid = boost::shared_ptr<std::string>();
-	    md->mangled6[saddr].network = boost::shared_ptr<std::string>();
-	    expand_template(md->liid, md->mangled6[daddr].liid, daddr,
-			    link);
-	    expand_template(md->network, md->mangled6[daddr].network, daddr,
-			    link);
+
+	    boost::shared_ptr<std::string> liid(new std::string);
+	    boost::shared_ptr<std::string> network(new std::string);
+
+	    expand_template(md->liid, *liid, daddr, *subnet, link);
+	    expand_template(md->network, *network, daddr, *subnet, link);
 
 	    // Tell all senders, target up.
 	    senders_lock.lock();
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(md->mangled6[saddr].liid,
-				      md->mangled6[saddr].network, saddr);
+		it->second->target_up(liid, network, daddr);
 	    }
 	    senders_lock.unlock();
+
+	    md->mangled6[daddr].liid = liid;
+	    md->mangled6[daddr].network = network;
 
 	}
 
@@ -341,8 +357,7 @@ void delivery::receive_packet(timeval tv,
 	// No target match?
 	if (!was_hit) return;
 
-	if (m == 0)
-	    throw std::runtime_error("Internal error: hit but no match");
+	assert(m != 0);
 
 	// Get the senders list lock.
 	senders_lock.lock();
@@ -372,8 +387,7 @@ void delivery::receive_packet(timeval tv,
 	// No target match?
 	if (!was_hit) return;
 
-	if (m == 0)
-	    throw std::runtime_error("Internal error: hit but no match");
+	assert(m != 0);
 
 	// Get the senders list lock.
 	senders_lock.lock();
@@ -695,12 +709,13 @@ void delivery::get_endpoints(std::list<sender_info>& info)
 }
 
 void delivery::expand_template(const std::string& in,
-			       boost::shared_ptr<std::string> out,
+			       std::string& out,
 			       const tcpip::address& addr,
+			       const tcpip::address& subnet,
 			       const link_info& link)
 {
 
-    out->erase();
+    out.erase();
 
     for(std::string::const_iterator it = in.begin(); it != in.end(); it++) {
 
@@ -709,21 +724,29 @@ void delivery::expand_template(const std::string& in,
 	    it++;
 
 	    if (it == in.end()) {
-		out->push_back('%');
+		out.push_back('%');
 		continue;
 	    }
 
 	    if (*it == 'i') {
 		std::string a;
 		addr.to_string(a);
-		out->append(a);
+		out.append(a);
+		continue;
+	    }
+
+	    if (*it == 's') {
+		std::string a;
+		subnet.to_string(a);
+		out.append(a);
 		continue;
 	    }
 
 	    if (*it == 'm') {
 		std::ostringstream buf;
 		bool first = true;
-		for(std::vector<unsigned char>::const_iterator it = link.mac.begin();
+		for(std::vector<unsigned char>::const_iterator it =
+		      link.mac.begin();
 		    it != link.mac.end();
 		    it++) {
 		    if (first)
@@ -733,23 +756,23 @@ void delivery::expand_template(const std::string& in,
 		    buf << std::hex << std::setw(2) << std::setfill('0')
 			<< (unsigned int)*it;
 		}
-		out->append(buf.str());
+		out.append(buf.str());
 		continue;
 	    }
 
 	    if (*it == 'v') {
 		std::ostringstream buf;
 		buf << std::dec << std::setw(1) << link.vlan;
-		out->append(buf.str());
+		out.append(buf.str());
 		continue;
 	    }
 
-	    out->push_back(*it);
+	    out.push_back(*it);
 	    continue;
 
 	} else
 
-	    out->push_back(*it);
+	    out.push_back(*it);
 
     }
 

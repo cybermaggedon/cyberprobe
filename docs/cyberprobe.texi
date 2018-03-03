@@ -2638,6 +2638,10 @@ The @code{liid} and @code{network} can contain template constructs:
 @item %i
 This is replaced with the IP address which causes a match.
 
+@item %s
+This is replaced with the IP address in the target rule - useful if this
+is a subnetwork address.
+
 @item %m
 This is replaced with the source MAC address in the header of the packet
 which causes a match.
