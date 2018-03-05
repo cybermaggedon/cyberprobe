@@ -53,7 +53,7 @@ void delivery::identify_link(const_iterator& start,
 		throw std::runtime_error("Too small for 802.1q");
 
 	    // Get VLAN
-	    link.vlan = (start[12] & 0xf) << 8 + start[13];
+	    link.vlan = (start[14] & 0xf) << 8 + start[15];
 
 	    if (start[16] == 0x08 && start[17] == 0) {
 		link.ipv = 4;		// IPv4
