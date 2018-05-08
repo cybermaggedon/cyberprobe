@@ -10,7 +10,7 @@ local observer = {}
 
 -- Other modules -----------------------------------------------------------
 local json = require("json")
-local amqp = require("amqp")
+local amqp = require("amqp.amqp")
 local os = require("os")
 local string = require("string")
 local model = require("util.json")
@@ -27,14 +27,14 @@ else
   broker = default_broker
 end
 
-if os.getenv("EXCHANGE") then
-  exch = os.getenv("EXCHANGE")
+if os.getenv("AMQP_EXCHANGE") then
+  exch = os.getenv("AMQP_EXCHANGE")
 else
   exch = 'amq.topic'
 end
 
-if os.getenv("ROUTING_KEY") then
-  rkey = os.getenv("ROUTING_KEY")
+if os.getenv("AMQP_ROUTING_KEY") then
+  rkey = os.getenv("AMQP_ROUTING_KEY")
 else
   rkey = 'cyberprobe'
 end
@@ -54,9 +54,9 @@ local init = function()
       ok = ctx:connect("127.0.0.1",5672)
 
       if not ok then
-       print("AMQP connection failed, will retry...")
-       ctx:close()
-       socket.select(nil, nil, 5)
+        print("AMQP connection failed, will retry...")
+        ctx:close()
+        socket.select(nil, nil, 5)
       else
 
        ok = ctx:setup()
@@ -88,6 +88,7 @@ local submit = function(obs)
     if not ok then
       ctx:close()
       print("AMQP delivery failed, will reconnect.")
+      socket.select(nil, nil, 5)
       init()
     else
       return
