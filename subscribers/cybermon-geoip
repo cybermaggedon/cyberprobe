@@ -5,7 +5,7 @@ import json
 import sys
 import GeoIP
 
-geo = GeoIP.open("/usr/share/GeoIP/GeoLiteCity.dat", GeoIP.GEOIP_STANDARD)
+geo = GeoIP.open("/usr/share/GeoIP/GeoLite2-City.mmdb", GeoIP.GEOIP_STANDARD)
 
 if len(sys.argv) < 2:
     binding = "tcp://localhost:5555"
