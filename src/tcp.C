@@ -69,7 +69,6 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     if (flags & SYN) {
 	fc->syn_observed = true;
 	fc->seq_expected = seq + 1;
-	fc->m_first_seq = seq;
 	fc->lock.unlock();
 	return;
     }
@@ -89,7 +88,8 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	return;
     }
 
-    // Haven't ever seen SYN... ignore.
+    // Haven't ever seen SYN... ignore.  Could be a SYN flood, could be
+    // packets with weird ordering.  Could be a port scan.
     if (fc->syn_observed == false) {
 	// FIXME: Do something more useful.  Should at least event on the
 	// data.
@@ -98,13 +98,31 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     }
 
     // In a connected state.
-    // First deal with this PDU.  Either process it, or put it on the queue.
+    // First deal with this PDU.  Either process it, or put it in the segment
+    // queue.
+
+    // Zero length payload, we can just move on.  Done all the flag handling.
+    if (payload_length == 0) {
+	fc->lock.unlock();
+	return;
+    }
+
+    // The algorithm here is two phases.  The first phase looks at the
+    // input PDU:
+    // - Can we use it straight away?  If so, just process it.
+    // - If not, put it on the segments list.
+    // Phase two looks at the segments list and either uses PDU which we can
+    // use, or discard ones which are superfluous.
 
     if (fc->seq_expected == seq) {
+
+	// This is the case where it's the next PDU we were expected.
+	// Easy case, just process the data.
 
 	// Advance the expected sequence.
 	fc->seq_expected += payload_length;
 
+	// If there's data, process the data.
 	if (payload_length > 0) {
 	    fc->lock.unlock();
 	    post_process(mgr, fc,
@@ -112,73 +130,12 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    fc->lock.lock();
 	}
 
-	fc->m_seq = seq;
-    }
-    else if(payload_length && (fc->m_seq == seq))
-    {
-	// a retransmission
-	const uint32_t expected_next_seq = seq + payload_length;
-	if (fc->seq_expected == expected_next_seq)
-	{
-	    // simple common retransmission case
-	}
-	else if (fc->seq_expected < expected_next_seq)
-	{
-	    // a retransmission having a bigger payload.
-	    // So process the extra bytes
+    } else {
 
-	    // note: this calc is guarenteed to be positive
-	    const uint32_t payload_subset_len =
-		expected_next_seq - fc->seq_expected.value();
-	    fc->lock.unlock();
-	    if (s > (e - payload_subset_len))
-	    {
-		throw exception("TCP calculation logic error");
-	    }
-	    post_process(mgr, fc,
-			 pdu_slice(e - payload_subset_len, e, sl.time));
-	    fc->lock.lock();
-	    fc->seq_expected = expected_next_seq;
-	}
-	else if (fc->seq_expected > expected_next_seq)
-	{
-	    // FIXME: this packet may be interesting?
-	    // See http://en.wikipedia.org/wiki/TCP_sequence_prediction_attack
-	}
-	else
-	{
-	    fc->lock.unlock();
-	    throw exception("TCP retransmission logic error");
-	}
-
-	fc->lock.unlock();
-	return;
-    }
-    else if (fc->seq_expected > (seq + payload_length))
-    {
-	fc->lock.unlock();
-
-	if (payload_length)
-	{
-	    if (fc->m_seq >= seq)
-	    {
-		// An old seq delivered - unusual but not unexpected
-	    }
-	    else
-	    {
-
-	        // FIXME: We do see this?
-
-		// Very odd to see this
-		throw exception("Unexpected seq logic error");
-	    }
-	}
-	return;
-
-    }
-    else {
-
-	// Can't use it now.  Put it on the queue.
+	// Second case, it's not the expected packet.  Plan is to put the
+	// PDU in the segment queue, and process what's in the queue.
+	
+	// Can't use it now.  Put it on the segments queue.
 
 	// Put this segment at the back of the list.
 	// FIXME: Too much copying.
@@ -191,7 +148,8 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	// Check for queue filling up.
 	if (fc->segments.size() > fc->max_segments) {
 
-	    // Rectify the situation by leaping over the hole.
+	    // Rectify the situation by leaping over the hole to the first
+	    // segment in the queue.
 	    fc->seq_expected = fc->segments.begin()->first;
 
 	    // FIXME: Should report this occurance as an event.
@@ -200,8 +158,8 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     }
 
-    // Now time to look at the queue, in case this new PDU has allowed queued
-    // items to be used.
+    // Now time to look at the segment set, in case this new PDU has allowed
+    // queued items to be used.
         
     while (1) {
 
@@ -211,10 +169,11 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	
 	// Study first item on queue.
 
-	// Is it any use?
+	// Is it any use? i.e. its sequence num is less than what we're looking
+	// for.
 	if (fc->seq_expected >= fc->segments.begin()->first) {
 
-	    // Is it too late for this one?
+	    // Does it totally precede the sequence number we want?
 	    if (fc->seq_expected >=  fc->segments.begin()->last) {
 
 		// It's no use now.
@@ -222,7 +181,7 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 		// What's it doing on the queue?  Probably a dup of a packet
 		// that we couldn't use straight away.
 
-		// Get rid of it.  
+		// Discard, and loop round.
 		fc->segments.erase(fc->segments.begin());
 
 		continue;
@@ -230,7 +189,8 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    }
 
 	    // At this point we know at least some of the first segment is
-	    // useful.  Will want all of it in most cases.
+	    // useful.  Will want all of it in most cases.  If any of it is
+	    // not wanted, it will at the start of the segment.
 	    
 	    // Work out how much to chuck away.
 	    int unwanted = 
@@ -244,6 +204,7 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    pdu_slice sl2(fc->segments.begin()->segment.begin() + unwanted,
 			 fc->segments.begin()->segment.end(),
 			 sl.time);
+
 	    post_process(mgr, fc, sl2);
 
 	    fc->lock.lock();
@@ -253,11 +214,12 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    // Remove the used segment.
 	    fc->segments.erase(fc->segments.begin());
 
+	    // Loop round, see if the next is any use.
 	    continue;
 
 	}
 
-	// PDU at start of queue was no use.  Bail.
+	// PDU at start of queue is no use yet, stop processing.
 	
 	break;
 
