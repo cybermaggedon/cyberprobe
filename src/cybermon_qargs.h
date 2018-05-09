@@ -24,11 +24,10 @@ public:
     //Constructor
     qargs() {
     }
-    ;
+
     //Destructor
     virtual ~qargs() {
     }
-    ;
 
     //enum to use in cybermon_qreader to find out which cybermon lua function to call
     enum call_type {
@@ -101,8 +100,12 @@ public:
 class unrecognised_stream_args: public qargs {
 
 public:
-    unrecognised_stream_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    unrecognised_stream_args(const cybermon::context_ptr cp,
+			     cybermon::pdu_iter s, cybermon::pdu_iter e,
+			     const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -113,8 +116,11 @@ class unrecognised_datagram_args: public qargs {
 
 public:
     unrecognised_datagram_args(const cybermon::context_ptr cp,
-			       cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+			       cybermon::pdu_iter s, cybermon::pdu_iter e,
+			       const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -125,8 +131,12 @@ class icmp_args: public qargs {
 
 public:
     icmp_args(const cybermon::context_ptr cp, unsigned int type,
-	      unsigned int code, cybermon::pdu data, const timeval& time) :
-	cptr(cp), icmptype(type), icmpcode(code), icmpdata(data), time(time) {
+	      unsigned int code,
+	      cybermon::pdu_iter s, cybermon::pdu_iter e,
+	      const timeval& time) :
+	cptr(cp), icmptype(type), icmpcode(code), time(time) {
+	icmpdata.resize(e - s);
+	std::copy(s, e, icmpdata.begin());
     }
     cybermon::context_ptr cptr;
     unsigned int icmptype;
@@ -138,8 +148,12 @@ public:
 class imap_args: public qargs {
 
 public:
-    imap_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    imap_args(const cybermon::context_ptr cp,
+	      cybermon::pdu_iter s, cybermon::pdu_iter e,
+	      const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -149,8 +163,12 @@ public:
 class imap_ssl_args: public qargs {
 
 public:
-    imap_ssl_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    imap_ssl_args(const cybermon::context_ptr cp,
+		  cybermon::pdu_iter s, cybermon::pdu_iter e,
+		  const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -160,8 +178,12 @@ public:
 class pop3_args: public qargs {
 
 public:
-    pop3_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    pop3_args(const cybermon::context_ptr cp,
+	      cybermon::pdu_iter s, cybermon::pdu_iter e,
+	      const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -171,8 +193,12 @@ public:
 class pop3_ssl_args: public qargs {
 
 public:
-    pop3_ssl_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    pop3_ssl_args(const cybermon::context_ptr cp,
+		  cybermon::pdu_iter s, cybermon::pdu_iter e,
+		  const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -182,8 +208,12 @@ public:
 class rtp_args: public qargs {
 
 public:
-    rtp_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    rtp_args(const cybermon::context_ptr cp,
+	     cybermon::pdu_iter s, cybermon::pdu_iter e,
+	     const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -193,8 +223,12 @@ public:
 class rtp_ssl_args: public qargs {
 
 public:
-    rtp_ssl_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    rtp_ssl_args(const cybermon::context_ptr cp,
+		 cybermon::pdu_iter s, cybermon::pdu_iter e,
+		 const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -204,8 +238,12 @@ public:
 class smtp_auth_args: public qargs {
 
 public:
-    smtp_auth_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    smtp_auth_args(const cybermon::context_ptr cp,
+		   cybermon::pdu_iter s, cybermon::pdu_iter e,
+		   const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -216,8 +254,12 @@ public:
 class sip_ssl_args: public qargs {
 
 public:
-    sip_ssl_args(const cybermon::context_ptr cp, cybermon::pdu data, const timeval& time) :
-	cptr(cp), pdu(data), time(time) {
+    sip_ssl_args(const cybermon::context_ptr cp,
+		 cybermon::pdu_iter s, cybermon::pdu_iter e,
+		 const timeval& time) :
+	cptr(cp), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
@@ -228,8 +270,12 @@ class sip_request_args: public qargs {
 
 public:
     sip_request_args(const cybermon::context_ptr cp, const std::string& method,
-		     const std::string& from, const std::string& to, cybermon::pdu data, const timeval& time) :
-	cptr(cp), sipmethod(method), sipfrom(from), sipto(to), pdu(data), time(time) {
+		     const std::string& from, const std::string& to,
+		     cybermon::pdu_iter s, cybermon::pdu_iter e,
+		     const timeval& time) :
+	cptr(cp), sipmethod(method), sipfrom(from), sipto(to), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     const std::string sipmethod;
@@ -244,9 +290,13 @@ class sip_response_args: public qargs {
 public:
     sip_response_args(const cybermon::context_ptr cp, unsigned int code,
 		      const std::string& status, const std::string& from,
-		      const std::string& to, cybermon::pdu data, const timeval& time) :
+		      const std::string& to,
+		      cybermon::pdu_iter s, cybermon::pdu_iter e,
+		      const timeval& time) :
 	cptr(cp), sipcode(code), sipstatus(status), sipfrom(from), sipto(
-	    to), pdu(data), time(time) {
+	    to), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     unsigned int sipcode;
@@ -261,9 +311,14 @@ class http_request_args: public qargs {
 
 public:
     http_request_args(const cybermon::context_ptr cp, const std::string& method,
-		      const std::string& url, const cybermon::observer::http_hdr_t& hdr,
-		      cybermon::pdu data, const timeval& time) :
-	cptr(cp), httpmethod(method), httpurl(url), httphdr(hdr), pdu(data), time(time) {
+		      const std::string& url,
+		      const cybermon::observer::http_hdr_t& hdr,
+		      cybermon::pdu_iter s, cybermon::pdu_iter e,
+		      const timeval& time) :
+	cptr(cp), httpmethod(method), httpurl(url), httphdr(hdr),
+	time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     const std::string httpmethod;
@@ -278,10 +333,14 @@ class http_response_args: public qargs {
 public:
     http_response_args(const cybermon::context_ptr cp, unsigned int code,
 		       const std::string& status,
-		       const cybermon::observer::http_hdr_t& hdr, const std::string& url,
-		       cybermon::pdu data, const timeval& time) :
+		       const cybermon::observer::http_hdr_t& hdr,
+		       const std::string& url,
+		       cybermon::pdu_iter s, cybermon::pdu_iter e,
+		       const timeval& time) :
 	cptr(cp), httpcode(code), httpstatus(status), httphdr(hdr), httpurl(
-	    url), pdu(data), time(time) {
+	    url), time(time) {
+	pdu.resize(e - s);
+	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     unsigned int httpcode;
@@ -308,7 +367,8 @@ class smtp_response_args: public qargs {
 
 public:
     smtp_response_args(const cybermon::context_ptr cp, int status,
-		       const std::list<std::string>& text, const timeval& time) :
+		       const std::list<std::string>& text,
+		       const timeval& time) :
 	cptr(cp), smtpstatus(status), smtptext(text), time(time) {
     }
     cybermon::context_ptr cptr;
@@ -349,7 +409,8 @@ class ftp_response_args: public qargs {
 
 public:
     ftp_response_args(const cybermon::context_ptr cp, int status,
-		      const std::list<std::string>& responses, const timeval& time) :
+		      const std::list<std::string>& responses,
+		      const timeval& time) :
 	cptr(cp), ftpstatus(status), ftpresponses(responses), time(time) {
     }
     cybermon::context_ptr cptr;
@@ -366,10 +427,10 @@ public:
 		     const std::list<cybermon::dns_query> queries,
 		     const std::list<cybermon::dns_rr> answers,
 		     const std::list<cybermon::dns_rr> authorities,
-		     const std::list<cybermon::dns_rr> additional, const timeval& time) :
-	cptr(cp), dnshdr(hdr), dnsqueries(queries), dnsanswers(answers), dnsauthorities(
-	    authorities), dnsadditional(additional), time(time) {
-
+		     const std::list<cybermon::dns_rr> additional,
+		     const timeval& time) :
+	cptr(cp), dnshdr(hdr), dnsqueries(queries), dnsanswers(answers),
+	dnsauthorities(authorities), dnsadditional(additional), time(time) {
     }
     cybermon::context_ptr cptr;
     cybermon::dns_header dnshdr;
@@ -384,7 +445,8 @@ class ntp_timestamp_message_args: public qargs {
 
 public:
     ntp_timestamp_message_args(const cybermon::context_ptr cp,
-			       const cybermon::ntp_timestamp& ts, const timeval& time) :
+			       const cybermon::ntp_timestamp& ts,
+			       const timeval& time) :
 	cptr(cp), ntpts(ts), time(time) {
     }
     cybermon::context_ptr cptr;
@@ -408,14 +470,14 @@ public:
 class ntp_private_message_args: public qargs {
 public:
     ntp_private_message_args(const cybermon::context_ptr cp,
-			     const cybermon::ntp_private& priv, const timeval& time) :
+			     const cybermon::ntp_private& priv,
+			     const timeval& time) :
 	cptr(cp), ntppriv(priv), time(time) {
     }
     cybermon::context_ptr cptr;
     const cybermon::ntp_private ntppriv;
     timeval time;
 };
-
 
 
 /*q_entry class acting as a medium to store args and add in to queue by cybermon_qwriter
@@ -432,14 +494,12 @@ public:
 
     //Constructor
     q_entry(const q_entry &obj) {
-
 	queueargs = obj.queueargs;
 	calltype = obj.calltype;
     }
 
     q_entry& operator=(const q_entry &obj) {
 	if (this != &obj) {
-
 	    queueargs = obj.queueargs;
 	    calltype = obj.calltype;
 	}
@@ -449,10 +509,10 @@ public:
     //Destructor
     virtual ~q_entry() {
     }
-    ;
 
     qargs* queueargs;
     qargs::call_type calltype;
 
 };
+
 #endif /* CYBERMON_QARGS_H_ */

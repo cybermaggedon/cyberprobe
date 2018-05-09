@@ -40,10 +40,7 @@ void cybermon_qwriter::connection_up(const context_ptr cp,
     try {
 	qargs* args = new connection_args(cp, tv);
 	q_entry* qentry = new q_entry(qargs::connection_up, args);
-	lock.lock();
-	cqueue.push(qentry);
-	lock.unlock();
-
+	push(qentry);
     } catch (std::exception& e) {
 	std::cerr << "Error: " << e.what() << std::endl;
     }
@@ -54,10 +51,7 @@ void cybermon_qwriter::connection_down(const context_ptr cp,
     try {
 	qargs* args = new connection_args(cp, tv);
 	q_entry* qentry = new q_entry(qargs::connection_down, args);
-	lock.lock();
-	cqueue.push(qentry);
-	lock.unlock();
-
+	push(qentry);
     } catch (std::exception& e) {
 	std::cerr << "Error: " << e.what() << std::endl;
     }
@@ -72,10 +66,7 @@ void cybermon_qwriter::trigger_up(const std::string& liid,
 	a.to_string(addr);
 	qargs* args = new trigger_up_args(liid, addr, tv);
 	q_entry* qentry = new q_entry(qargs::trigger_up, args);
-	lock.lock();
-	cqueue.push(qentry);
-	lock.unlock();
-
+	push(qentry);
     } catch (std::exception& e) {
 	std::cerr << "Error: " << e.what() << std::endl;
     }
@@ -86,10 +77,7 @@ void cybermon_qwriter::trigger_down(const std::string& liid,
     try {
 	qargs* args = new trigger_down_args(liid, tv);
 	q_entry* qentry = new q_entry(qargs::trigger_down, args);
-	lock.lock();
-	cqueue.push(qentry);
-	lock.unlock();
-
+	push(qentry);
     } catch (std::exception& e) {
 	std::cerr << "Error: " << e.what() << std::endl;
     }
@@ -100,10 +88,7 @@ void cybermon_qwriter::unrecognised_stream(const context_ptr cp,
 					   pdu_iter e,
 					   const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new unrecognised_stream_args(cp, data, tv);
+	qargs* args = new unrecognised_stream_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::unrecognised_stream, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -116,11 +101,7 @@ void cybermon_qwriter::unrecognised_datagram(const context_ptr cp,
 					     pdu_iter s, pdu_iter e,
 					     const timeval& tv) {
     try {
-
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new unrecognised_datagram_args(cp, data, tv);
+	qargs* args = new unrecognised_datagram_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::unrecognised_datagram, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -132,10 +113,7 @@ void cybermon_qwriter::icmp(const context_ptr cp, unsigned int type,
 			    unsigned int code, pdu_iter s, pdu_iter e,
 			    const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new icmp_args(cp, type, code, data, tv);
+	qargs* args = new icmp_args(cp, type, code, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::icmp, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -147,10 +125,7 @@ void cybermon_qwriter::imap(const context_ptr cp, pdu_iter s, pdu_iter e,
 			    const timeval& tv)
 {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new imap_args(cp, data, tv);
+	qargs* args = new imap_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::imap, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -163,10 +138,7 @@ void cybermon_qwriter::imap_ssl(const context_ptr cp,
 				const timeval& tv)
 {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new imap_ssl_args(cp, data, tv);
+	qargs* args = new imap_ssl_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::imap_ssl, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -178,10 +150,7 @@ void cybermon_qwriter::pop3(const context_ptr cp, pdu_iter s, pdu_iter e,
 			    const timeval& tv)
 {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new pop3_args(cp, data, tv);
+	qargs* args = new pop3_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::pop3, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -193,10 +162,7 @@ void cybermon_qwriter::pop3_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
 				const timeval& tv)
 {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new pop3_ssl_args(cp, data, tv);
+	qargs* args = new pop3_ssl_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::pop3_ssl, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -207,10 +173,7 @@ void cybermon_qwriter::pop3_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
 void cybermon_qwriter::rtp(const context_ptr cp, pdu_iter s, pdu_iter e,
 			   const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new rtp_args(cp, data, tv);
+	qargs* args = new rtp_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::rtp, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -221,10 +184,7 @@ void cybermon_qwriter::rtp(const context_ptr cp, pdu_iter s, pdu_iter e,
 void cybermon_qwriter::rtp_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
 			       const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new rtp_ssl_args(cp, data, tv);
+	qargs* args = new rtp_ssl_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::rtp_ssl, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -235,10 +195,7 @@ void cybermon_qwriter::rtp_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
 void cybermon_qwriter::smtp_auth(const context_ptr cp, pdu_iter s, pdu_iter e,
 				 const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new smtp_auth_args(cp, data, tv);
+	qargs* args = new smtp_auth_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::smtp_auth, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -249,10 +206,7 @@ void cybermon_qwriter::smtp_auth(const context_ptr cp, pdu_iter s, pdu_iter e,
 void cybermon_qwriter::sip_ssl(const context_ptr cp, pdu_iter s, pdu_iter e,
 			       const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new sip_ssl_args(cp, data, tv);
+	qargs* args = new sip_ssl_args(cp, s, e, tv);
 	q_entry* qentry = new q_entry(qargs::sip_ssl, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -266,10 +220,7 @@ void cybermon_qwriter::sip_request(const context_ptr cp,
 				   pdu_iter s, pdu_iter e,
 				   const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new sip_request_args(cp, method, from, to, data,
+	qargs* args = new sip_request_args(cp, method, from, to, s, e,
 					   tv);
 	q_entry* qentry = new q_entry(qargs::sip_request, args);
 	push(qentry);
@@ -286,10 +237,8 @@ void cybermon_qwriter::sip_response(const context_ptr cp,
 				    pdu_iter s, pdu_iter e,
 				    const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new sip_response_args(cp, code, status, from, to, data, tv);
+	qargs* args = new sip_response_args(cp, code, status, from, to,
+					    s, e, tv);
 	q_entry* qentry = new q_entry(qargs::sip_response, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -305,10 +254,8 @@ void cybermon_qwriter::http_request(const context_ptr cp,
 				    pdu_iter s, pdu_iter e,
 				    const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new http_request_args(cp, method, url, hdr, data, tv);
+	qargs* args = new http_request_args(cp, method, url, hdr,
+					    s, e, tv);
 	q_entry* qentry = new q_entry(qargs::http_request, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -324,10 +271,8 @@ void cybermon_qwriter::http_response(const context_ptr cp,
 				     pdu_iter s, pdu_iter e,
 				     const timeval& tv) {
     try {
-	pdu data(e - s);
-	memcpy(&data[0], &(*s), e - s);
-
-	qargs* args = new http_response_args(cp, code, status, hdr, url, data, tv);
+	qargs* args = new http_response_args(cp, code, status, hdr, url,
+					     s, e, tv);
 	q_entry* qentry = new q_entry(qargs::http_response, args);
 	push(qentry);
     } catch (std::exception& e) {
