@@ -19,12 +19,17 @@ local socket = require("socket")
 -- Config ------------------------------------------------------------------
 
 local default_broker = "localhost:5672"
-local amqp_port = 5672
-
 if os.getenv("AMQP_BROKER") then
   broker = os.getenv("AMQP_BROKER")
 else
   broker = default_broker
+end
+local broker_host = broker
+local broker_port = 5672
+local a, b = string.find(broker, ":")
+if a then
+  broker_host = string.sub(broker, 1, a-1)
+  broker_port = tonumber(string.sub(broker, b + 1, -1))
 end
 
 if os.getenv("AMQP_EXCHANGE") then
@@ -39,6 +44,10 @@ else
   rkey = 'cyberprobe'
 end
 
+print("Broker: " .. broker_host .. ":" .. tostring(broker_port))
+print("Exchange: " .. exch)
+print("Routing key: " .. rkey)
+
 -- Initialise.
 local init = function()
 
@@ -51,7 +60,7 @@ local init = function()
 
     else
 
-      ok = ctx:connect("127.0.0.1",5672)
+      ok = ctx:connect(broker_host, broker_port)
 
       if not ok then
         print("AMQP connection failed, will retry...")
