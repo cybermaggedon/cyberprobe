@@ -202,6 +202,9 @@ Cyberprobe releases:
 
 @table @code
 
+@item 1.10.0
+Add RabbitMQ / AMQP 0.9.1 support for cybermon and subscribers.
+
 @item 1.8.4
 Endace DAG package support added.
 
@@ -542,13 +545,13 @@ sudo docker -it --rm -v /etc/cyberprobe:/etc/cyberprobe_host \
 @end example
 
 @item
-Run @command{cybermon}.  The @command{cybermon} container exposes ports
-9000 and 5555.
+Run @command{cybermon}.  The @command{cybermon} container exposes port
+9000.
 @example
 sudo docker -it --rm -p 9000:9000 -v \
   --net=host --privileged --cap-add=NET_ADMIN \
   docker.io/cybermaggedon/cybermon \
-  cybermon -p 9000 -c /etc/cyberprobe/zeromq.lua
+  cybermon -p 9000 -c /etc/cyberprobe/amqp-topic.lua
 @end example
 
 @item
@@ -558,7 +561,7 @@ of the Cassandra servers.
 @example
 sudo docker -it --rm -v \
   docker.io/cybermaggedon/cybermon \
-  cybermon-cassandra tcp://147.146.0.1:5555 \
+  cybermon-cassandra cyberprobe \
   10.142.146.6,10.142.146.8
 @end example
 
@@ -1659,18 +1662,26 @@ The response will look something like this:
 @end example
 
 Once ElasticSearch is running, you can get @command{cybermon} to load
-observations into it.  To do this we need to run two commands.
-Firstly, @command{cybermon} is run to output events on a ZeroMQ
+observations into it.  Before we do that, need RabbitMQ to provide the
+pub/sub infrastructure:
+
+@example
+docker run --name amqp -p 5672:5672 -p 15672:15672 \
+    docker.io/library/rabbitmq:3.7.4-management
+@end example
+
+Next we need to run two commands.
+Firstly, @command{cybermon} is run to output events on a RabbitMQ
 pub/sub queue.
 
 @example
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/zeromq.lua
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/amqp-topic.lua
 @end example
 
 While that's running, we can start the ElasticSearch loader:
 
 @example
-cybermon-elasticsearch
+cybermon-elasticsearch cyberprobe
 @end example
 
 After some network data has been observed, you should be able to see results
@@ -1679,7 +1690,7 @@ loaded into ElasticSearch using the following command:
 @example
 es=localhost:9200
 curl -s -XPOST \
-  "http://$es/cyberprobe/observation/_search?pretty=true" -d '
+  "http://$es/cyberprobe/_search?pretty=true" -d '
 @{
   "query" : @{
     "match_all": @{@}
@@ -1874,30 +1885,32 @@ This will create a JSON file called @file{stix-default-combined.json}.
 
 Finally, run processing.  Stop any running @command{cybermon} and
 @command{cybermon-elasticsearch} processes.  Then run @command{cybermon}
-to publish to a queue on TCP port 5555:
+to publish to a queue on RabbitMQ:
 
 @example
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/zeromq.lua
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/amqp-topic.lua
 @end example
 
 Next run @command{cyberprobe-detector} to apply STIX rules.  By default,
-this will subscribe to port 5555 and publish to port 5556:
+this will subscribe to @samp{cyberprobe} and publish to @samp{ioc}:
 
 @example
-STIX_INDICATORS=stix-default-combined.json cybermon-detector
+STIX_INDICATORS=stix-default-combined.json cybermon-detector \
+    cyberprobe ioc
 @end example
 
-Finally, in order to look at the output, we need to subscribe to port 5556:
+Finally, in order to look at the output, we need to subscribe to
+@samp{ioc}:
 
 @example
-cybermon-dump tcp://localhost:5556
+cybermon-dump ioc
 @end example
 
 If you have @command{jq} installed, this will make it easier to see
 when indicators hit:
 
 @example
-cybermon-dump tcp://localhost:5556 | jq --unbuffered .indicators
+cybermon-dump ioc | jq --unbuffered .indicators
 @end example
 
 This activity should trigger a theat:
@@ -1932,10 +1945,10 @@ by changing the input files, re-running stix-create, using
 monitoring.
 
 If you want to load the output of @command{cybermon-detector} into
-ElasticSearch, you can, but you need to subscribe to port 5556:
+ElasticSearch, you can, but you need to subscribe to @samp{ioc}:
 
 @example
-cybermon-elasticsearch tcp://localhost:5556
+cybermon-elasticsearch ioc
 @end example
 
 @heading Conclusion
@@ -1986,7 +1999,7 @@ appropriate configuration in file
 The standard installation
 does not create a file at this location, and you should create one.  You can
 copy an example from the @file{@value{SYSCONFDIR}/cyberprobe} directory.
-Use @file{@value{SYSCONFDIR}/cyberprobe/zeromq.lua} if you want to use
+Use @file{@value{SYSCONFDIR}/cyberprobe/amqp-topic.lua} if you want to use
 pub/sub delivery.  See @ref{@command{cybermon} configuration} for more
 information on constructing the configuration file.
 See @ref{@command{cybermon} example configurations} for descriptions of the
@@ -2033,21 +2046,21 @@ systemctl start cybermon
 
 Events from @command{cybermon} can be delivered to a pub/sub mechanism which
 allows subscribers to connect and disconnect without disrupting delivery
-to other subscribers.  The pub/sub mechanism used is ZeroMQ, which is a
+to other subscribers.  The pub/sub mechanism used is RabbitMQ, which is a
 simple non-persistent, broker-less mechanism.
 
 In order to use this mechanism, you need to ensure you have configured
 @command{cybermon} appropriately.  This is normally done by copying the
-@file{zeromq.lua} to @file{cybermon.lua} in directory
+@file{amqp-topic.lua} to @file{cybermon.lua} in directory
 @file{@value{SYSCONFDIR}/cyberprobe/}.
 prior to executing
 @command{cybermon}.  Alternatively, @command{cybermon} can be manually
-invoked, specifying the @file{zeromq.lua} pathname on the command line.
+invoked, specifying the @file{amqp-topic.lua} pathname on the command line.
 
 Once running, @command{cybermon} will publish all events
-to it's publisher port on TCP port 5555.
+to RabbitMQ.
 
-ZeroMQ allows subscribers to be started and stopped without affecting the
+RabbitMQ allows subscribers to be started and stopped without affecting the
 delivery of events to other receivers.  That is, you can start
 @command{cybermon} with no subscribers, discarding data, and introduce
 subscribers later.
@@ -2058,19 +2071,19 @@ chained.  e.g.
 @itemize @bullet
 
 @item
-@command{cybermon} can be executed with @file{zeromq.lua} to publish
-events to TCP port 5555.
+@command{cybermon} can be executed with @file{amqp-topic.lua} to publish
+events to RabbitMQ queue @samp{cyberprobe}.
 
 @item
-@command{cybermon-geoip} can subscribe to port 5555, and push
-events containing information to port 5556.
+@command{cybermon-geoip} can subscribe to @samp{cyberprobe}, and push
+events containing information to @samp{geo}.
 
 @item
 @command{cybermon-detector} can lookup for IOCs and push events with IOC
-detection information to port 5557.
+detection information to @samp{ioc}.
 
 @item
-@command{cybermon-elasticsearch} can subscribe to port 5557 and write events to
+@command{cybermon-elasticsearch} can subscribe to @samp{ioc} and write events to
 ElasticSearch.
 
 @end itemize
@@ -2101,7 +2114,7 @@ On the command-line you need to tell the subscriber the location
 of the Cassandra contact points e.g.
 
 @example
-cybermon-cassandra tcp://localhost:5555 cas1,cas2,cas3
+cybermon-cassandra ioc cas1,cas2,cas3
 @end example
 
 See @ref{@command{cybermon-cassandra} invocation}.
@@ -2120,7 +2133,7 @@ to ElasticSearch.  The only piece of information you need is the ElasticSearch
 base URI, which is used as a command-line parameter e.g.
 
 @example
-cybermon-elasticsearch tcp://localhost:5555 http://es-host1:9200
+cybermon-elasticsearch ioc http://es-host1:9200
 @end example
 
 See @ref{@command{cybermon-elasticsearch} invocation}.
@@ -2214,7 +2227,7 @@ On the command-line you need to tell the subscriber the location
 of the Gaffer REST API. e.g.
 
 @example
-cybermon-gaffer tcp://localhost:5555 \
+cybermon-gaffer ioc \
     http://localhost:8080/rest/v1
 @end example
 
@@ -4013,6 +4026,20 @@ output.
 For each Lua event, a JSON record is formatted and published to a ZeroMQ
 queue on port 5555.  See @ref{Cybermon JSON message format}.
 
+@item amqp-topic.lua
+
+@cindex AMQP
+@cindex RabbitMQ
+@cindex Cybermon JSON message format
+@cindex publish/subscribe
+@cindex pub/sub
+@cindex JSON
+
+For each Lua event, a JSON record is formatted and published to a RabbitMQ
+broker.  See @ref{Cybermon JSON message format}.  Environment variables
+@samp{AMQP_BROKER}, @samp{AMQP_EXCHANGE}, @samp{AMQP_ROUTING_KEY} can be
+used to tailor delivery.
+
 @item redis.lua
 
 @cindex Redis
@@ -4069,13 +4096,16 @@ The real JSON formatting is done here.
 @section Cybermon JSON message format
 
 @cindex ZeroMQ
+@cindex RabbitMQ
+@cindex AMQP
 @cindex Redis
 @cindex Cybermon JSON message format
 @cindex publish/subscribe
 @cindex pub/sub
 @cindex JSON
 
-Cybermon's @samp{zeromq.lua} and @samp{redis.lua} configuration files
+Cybermon's @samp{amqp-topic.lua}, @samp{zeromq.lua} and @samp{redis.lua}
+configuration files
 transmit messages in JSON format.  Each message is a JSON object
 with the following fields:
 
@@ -4565,7 +4595,7 @@ Human-readable text describing the IOC.
 
 @cindex @command{cybermon-monitor}, invocation
 
-@command{cybermon-monitor} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-monitor} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon}
 events, and upon receipt of events, formats them for output in a human-readable
 manner.
@@ -4579,14 +4609,14 @@ cybermon-monitor [BINDING]
 Example:
 @example
 cybermon-monitor
-cybermon-monitor tcp://localhost:5555
+cybermon-monitor cyberprobe
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{cyberprobe}.
 
 @end table
 
@@ -4597,7 +4627,7 @@ to @samp{tcp://localhost:5555}.
 
 @cindex @command{cybermon-elasticsearch}, invocation
 
-@command{cybermon-elasticsearch} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-elasticsearch} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to an
 ElasticSearch store.
@@ -4611,14 +4641,14 @@ cybermon-elasticsearch [BINDING [ELASTICSEARCH-URL] ]
 Example:
 @example
 cybermon-elasticsearch
-cybermon-elasticsearch tcp://localhost:5555 http://elastic-store:9200/
+cybermon-elasticsearch ioc http://elastic-store:9200/
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
 
 @item ELASTICSEARCH-URL
 Specifies the base URL for ElasticSearch.  If not specified, defaults
@@ -4633,7 +4663,7 @@ to @samp{http://localhost:9200}.
 
 @cindex @command{cybermon-bigquery}, invocation
 
-@command{cybermon-bigquery} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-bigquery} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to a Google
 BigQuery table.
@@ -4647,14 +4677,14 @@ cybermon-bigquery [BINDING [KEY-FILE [PROJECT [DATASET [TABLE] ] ] ] ]
 Example:
 @example
 cybermon-bigquery
-cybermon-bigquery tcp://localhost:5555 /priv.json
+cybermon-bigquery ioc /priv.json
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
 
 @item KEY-FILE
 Specifies the path to a Google cloud key file in 'private JSON' format.
@@ -4685,7 +4715,7 @@ schema, data won't load correctly.
 @cindex Gaffer
 @cindex Graph store
 
-@command{cybermon-gaffer} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-gaffer} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to a
 Gaffer store.  The format used is intended to allow Gaffer to be used
@@ -4704,15 +4734,15 @@ cybermon-gaffer [BINDING [GAFFER-URL] ]
 Example:
 @example
 cybermon-gaffer
-cybermon-gaffer tcp://localhost:5555 \
+cybermon-gaffer ioc \
     http://gaffer-store:8080/rest/v1
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
 
 @item GAFFER-URL
 Specifies the base URL for Gaffer.  If not specified, defaults
@@ -4730,7 +4760,7 @@ to @samp{http://gaffer:8080/example-rest/v1}.
 @cindex Cassandra
 @cindex Graph store
 
-@command{cybermon-cassandra} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-cassandra} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to a
 Cassandra store.  The format used is intended to allow Cassandra to be used
@@ -4746,14 +4776,14 @@ cybermon-cassandra [BINDING [CASSANDRA-HOSTS] ]
 Example:
 @example
 cybermon-cassandra
-cybermon-cassandra tcp://localhost:5555 cassandra1,cassandra2
+cybermon-cassandra ioc cassandra1,cassandra2
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
 
 @item CASSANDRA-HOSTS
 Specifies a comma-separated list of Cassandra store hosts to contact.
@@ -4770,7 +4800,7 @@ to @samp{localhost}.
 @cindex @command{cybermon-geoip}, invocation
 @cindex GeoIP
 
-@command{cybermon-geoip} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-geoip} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon} events, adds location information from GeoIP, and
 re-publishes the elaborated events.  This effectively creates a processing
 chain.  The event subscription and publishing events should be different in
@@ -4785,18 +4815,18 @@ cybermon-geoip [BINDING [PUBLICATION] ]
 Example:
 @example
 cybermon-geoip
-cybermon-geoip tcp://localhost:5555 tcp://localhost:5556
+cybermon-geoip cyberprobe geo
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{cyberprobe}.
 
 @item PUBLICATION
-Specifies the ZeroMQ pub/sub queue to publish to.  If not specified, defaults
-to @samp{tcp://*:5556}.
+Specifies the RabbitMQ pub/sub queue to publish to.  If not specified, defaults
+to @samp{geo}.
 
 @end table
 
@@ -4810,7 +4840,7 @@ to @samp{tcp://*:5556}.
 @cindex IOC
 @cindex Indicator of compromise
 
-@command{cybermon-detector} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-detector} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon} events, inspects them for IOCs, and adds detection
 information if IOCs are observed before re-publishing
 the elaborated events.  This effectively creates a processing
@@ -4826,18 +4856,18 @@ cybermon-detector [BINDING [PUBLICATION] ]
 Example:
 @example
 cybermon-detector
-cybermon-detector tcp://localhost:5555 tcp://localhost:5556
+cybermon-detector geo ioc
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{geo}.
 
 @item PUBLICATION
-Specifies the ZeroMQ pub/sub queue to publish to.  If not specified, defaults
-to @samp{tcp://*:5556}.
+Specifies the RabbitMQ pub/sub queue to publish to.  If not specified, defaults
+to @samp{ioc}.
 
 @end table
 
@@ -4850,7 +4880,7 @@ to @samp{tcp://*:5556}.
 @cindex JSON
 @cindex Cybermon JSON message format
 
-@command{cybermon-dump} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-dump} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon} events, and dumps the raw JSON to standard output.
 
 Synopsis:
@@ -4862,14 +4892,14 @@ cybermon-dump [BINDING]
 Example:
 @example
 cybermon-dump
-cybermon-dump tcp://localhost:5555
+cybermon-dump cyberprobe
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{cyberprobe}.
 
 @end table
 
@@ -4881,7 +4911,7 @@ to @samp{tcp://localhost:5555}.
 @cindex @command{cybermon-alert}, invocation
 @cindex Alert
 
-@command{cybermon-alert} subscribes to a ZeroMQ pub/sub queue for
+@command{cybermon-alert} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon} events, and outputs a human-readable message
 when an IOC hits.
 
@@ -4894,14 +4924,14 @@ cybermon-alert [BINDING]
 Example:
 @example
 cybermon-alert
-cybermon-alert tcp://localhost:5555
+cybermon-alert ioc
 @end example
 
 @table @samp
 
 @item BINDING
-Specifies the ZeroMQ pub/sub queue to connect to.  If not specified, defaults
-to @samp{tcp://localhost:5555}.
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
 
 @end table
 
@@ -5636,36 +5666,36 @@ cyber threat indicators. When these indicators are observed, the indicator
 meta-data is also added to the JSON events.
 
 @item zeromq.lua
-@cindex @file{zeromq.lua} configuration file
-@cindex @code{cybermon}, @file{zeromq.lua} configuration file
+@cindex @file{amqp-topic.lua} configuration file
+@cindex @code{cybermon}, @file{amqp-topic.lua} configuration file
 is a cybermon configuration file we provide which publishes data to a
-ZeroMQ pub/sub queue.  It allows connection of consumers to the
+RabbitMQ pub/sub queue.  It allows connection of consumers to the
 @command{cybermon} event stream.
 
 @item cybermon-bigquery
 @cindex @command{cybermon-bigquery}
 @cindex Google BigQuery
 @cindex BigQuery
-is a ZeroMQ subscriber which output @command{cybermon} events to a
+is a RabbitMQ subscriber which output @command{cybermon} events to a
 Google BigQuery table.
 
 @item cybermon-cassandra
 @cindex @command{cybermon-cassandra}
 @cindex Cassandra
 @cindex Apache Cassandra
-is a ZeroMQ subscriber which output @command{cybermon} events to a
+is a RabbitMQ subscriber which output @command{cybermon} events to a
 Cassandra store.
 
 @item cybermon-elasticsearch
 @cindex @command{cybermon-elasticsearch}
 @cindex ElasticSearch
-is a ZeroMQ subscriber which output @command{cybermon} events to a
+is a RabbitMQ subscriber which output @command{cybermon} events to a
 ElasticSearch store.
 
 @item cybermon-gaffer
 @cindex @command{cybermon-gaffer}
 @cindex Gaffer
-is a ZeroMQ subscriber which output @command{cybermon} events to a
+is a RabbitMQ subscriber which output @command{cybermon} events to a
 Gaffer store.
 
 @item taxii-server
