@@ -462,47 +462,113 @@ def handle(msg, output):
     
     id = ev["id"]
 
-    observation = {
+    ob = {
         "id": id,
         "action": ev["action"],
         "device": ev["device"],
         "time": ev["time"]
-        }
+    }
 
-    if ev.has_key("method"):
-        observation["method"] = ev["method"]
-    if ev.has_key("url"):
-        observation["url"] = ev["url"]
-    if ev.has_key("command"):
-        observation["command"] = ev["command"]
-    if ev.has_key("status"):
-        observation["status"] = ev["status"]
-    if ev.has_key("code"):
-        observation["code"] = int(ev["code"])
-#    if ev.has_key("text"):
-#        observation["text"] = ev["text"]
-    if ev.has_key("payload"):
-        observation["size"] = len(ev["payload"])
-    if ev.has_key("body"):
-        observation["size"] = len(ev["body"])
-    if ev.has_key("from"):
-        observation["from"] = ev["from"]
-    if ev.has_key("to"):
-        observation["to"] = ev["to"]
-    if ev.has_key("header"):
-        observation["header"] = {}
-#        observation["header"] = ev["header"]
-        for k in ev["header"]:
+    if ev.has_key("url"): ob["url"] = ev["url"]
+    
+    if ev.has_key("dns_message"):
+
+        if ev["dns_message"].has_key("query"):
+
+            name = []
+
+            for v in ev["dns_message"]["query"]:
+                if v.has_key("name"): name.append(v["name"])
+
+            ob["queries"] = name
+
+        if ev["dns_message"].has_key("answer"):
+
+            address = []
+
+            for v in ev["dns_message"]["answer"]:
+                if v.has_key("address"): address.append(v["address"])
+
+            ob["answers"] = address
+
+        ob["type"] = ev["dns_message"]["type"]
+
+    if ev.has_key("indicators"):
+
+        tpe = []
+        id = []
+        value = []
+        desc = []
+
+        for v in ev["indicators"]:
+            tpe.append(v["type"])
+            id.append(v["id"])
+            value.append(v["value"])
+            desc.append(v["description"])
+
+    if ev.has_key("http_request"):
+        ob["method"] = ev["http_request"]["method"]
+        ob["header"] = {}
+        for k in ev["http_request"]["header"]:
             nk = k.replace("-", "").lower()
             if wanted_http_headers.has_key(k):
-                observation["header"][nk] = ev["header"][k]
-    if ev.has_key("type"):
-        observation["type"] = ev["type"]
-    if ev.has_key("queries"):
-        observation["queries"] = ev["queries"]
-    if ev.has_key("answers"):
-        if len(ev["answers"]) > 0:
-            observation["answers"] = ev["answers"]
+                ob["header"][nk] = ev["http_request"]["header"][k]
+
+    if ev.has_key("http_response"):
+        ob["code"] = ev["http_response"]["code"]
+        ob["status"] = ev["http_response"]["status"],
+        ob["header"] = {}
+        for k in ev["http_response"]["header"]:
+            nk = k.replace("-", "").lower()
+            if wanted_http_headers.has_key(k):
+                ob["header"][nk] = ev["http_response"]["header"][k]
+
+    if ev.has_key("ftp_request"):
+        ob["command"] = ev["ftp_request"]["command"]
+
+    if ev.has_key("ftp_response"):
+        ob["status"] = ev["ftp_response"]["status"]
+
+
+
+
+
+        
+    src = {}
+
+    if ev.has_key("src"):
+        for v in ev["src"]:
+            if v.find(":") < 0:
+                cls = v
+                addr = ""
+            else:
+                cls = v[0:v.find(":")]
+                addr = v[v.find(":") + 1:]
+
+            if not src.has_key(cls):
+                src[cls] = []
+
+            src[cls].append(addr)
+
+        ob["src"] = src
+
+    dest = {}
+
+    if ev.has_key("dest"):
+        for v in ev["dest"]:
+            if v.find(":") < 0:
+                cls = v
+                addr = ""
+            else:
+                cls = v[0:v.find(":")]
+                addr = v[v.find(":") + 1:]
+
+            if not dest.has_key(cls):
+                dest[cls] = []
+
+            dest[cls].append(addr)
+
+        ob["dest"] = dest
 
     if ev.has_key("src"):
         for v in ev["src"]:
@@ -536,6 +602,7 @@ def handle(msg, output):
 
     bq_output(observation, id)
 
+    
 ############################################################################
 
 init()
