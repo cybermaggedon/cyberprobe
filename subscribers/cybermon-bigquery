@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import zmq
 import json
 import sys
 import requests
+import cyberprobe.qcomms as q
 
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
@@ -45,7 +45,7 @@ wanted_http_headers = {
 ############################################################################
 
 if len(sys.argv) < 2:
-    binding = "tcp://localhost:5555"
+    binding = "ioc"
 else:
     binding = sys.argv[1]
 
@@ -417,7 +417,7 @@ else:
 def init():
     pass
 
-def output(obs, id):
+def bq_output(obs, id):
 
     body = {
         "kind": "biquery#tableDataInsertAllRequest",
@@ -455,54 +455,57 @@ def output(obs, id):
 
 ############################################################################
 
-def handle(msg):
+# FIXME: Uses old schema
+def handle(msg, output):
 
-    id = msg["id"]
+    ev = json.loads(msg)
+    
+    id = ev["id"]
 
     observation = {
         "id": id,
-        "action": msg["action"],
-        "device": msg["device"],
-        "time": msg["time"]
+        "action": ev["action"],
+        "device": ev["device"],
+        "time": ev["time"]
         }
 
-    if msg.has_key("method"):
-        observation["method"] = msg["method"]
-    if msg.has_key("url"):
-        observation["url"] = msg["url"]
-    if msg.has_key("command"):
-        observation["command"] = msg["command"]
-    if msg.has_key("status"):
-        observation["status"] = msg["status"]
-    if msg.has_key("code"):
-        observation["code"] = int(msg["code"])
-#    if msg.has_key("text"):
-#        observation["text"] = msg["text"]
-    if msg.has_key("payload"):
-        observation["size"] = len(msg["payload"])
-    if msg.has_key("body"):
-        observation["size"] = len(msg["body"])
-    if msg.has_key("from"):
-        observation["from"] = msg["from"]
-    if msg.has_key("to"):
-        observation["to"] = msg["to"]
-    if msg.has_key("header"):
+    if ev.has_key("method"):
+        observation["method"] = ev["method"]
+    if ev.has_key("url"):
+        observation["url"] = ev["url"]
+    if ev.has_key("command"):
+        observation["command"] = ev["command"]
+    if ev.has_key("status"):
+        observation["status"] = ev["status"]
+    if ev.has_key("code"):
+        observation["code"] = int(ev["code"])
+#    if ev.has_key("text"):
+#        observation["text"] = ev["text"]
+    if ev.has_key("payload"):
+        observation["size"] = len(ev["payload"])
+    if ev.has_key("body"):
+        observation["size"] = len(ev["body"])
+    if ev.has_key("from"):
+        observation["from"] = ev["from"]
+    if ev.has_key("to"):
+        observation["to"] = ev["to"]
+    if ev.has_key("header"):
         observation["header"] = {}
-#        observation["header"] = msg["header"]
-        for k in msg["header"]:
+#        observation["header"] = ev["header"]
+        for k in ev["header"]:
             nk = k.replace("-", "").lower()
             if wanted_http_headers.has_key(k):
-                observation["header"][nk] = msg["header"][k]
-    if msg.has_key("type"):
-        observation["type"] = msg["type"]
-    if msg.has_key("queries"):
-        observation["queries"] = msg["queries"]
-    if msg.has_key("answers"):
-        if len(msg["answers"]) > 0:
-            observation["answers"] = msg["answers"]
+                observation["header"][nk] = ev["header"][k]
+    if ev.has_key("type"):
+        observation["type"] = ev["type"]
+    if ev.has_key("queries"):
+        observation["queries"] = ev["queries"]
+    if ev.has_key("answers"):
+        if len(ev["answers"]) > 0:
+            observation["answers"] = ev["answers"]
 
-    if msg.has_key("src"):
-        for v in msg["src"]:
+    if ev.has_key("src"):
+        for v in ev["src"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -516,8 +519,8 @@ def handle(msg):
             if cls == "tcp" or cls == "udp":
                 observation[cls + "_src"] = int(addr)
 
-    if msg.has_key("dest"):
-        for v in msg["dest"]:
+    if ev.has_key("dest"):
+        for v in ev["dest"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -531,25 +534,15 @@ def handle(msg):
             if cls == "tcp" or cls == "udp":
                 observation[cls + "_dest"] = int(addr)
 
-    output(observation, id)
+    bq_output(observation, id)
 
 ############################################################################
-
-ctxt = zmq.Context()
-skt = ctxt.socket(zmq.SUB)
-skt.connect(binding)
-skt.setsockopt(zmq.SUBSCRIBE, "")
 
 init()
 import time
 
-while True:
-    try:
-        msg = skt.recv()
-        handle(json.loads(msg))
-    except Exception, e:
-        sys.stderr.write("Exception: %s\n" % str(e))
-        time.sleep(3600)
-
-        
+try:
+    q.subscribe(binding, handle)
+except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))
 

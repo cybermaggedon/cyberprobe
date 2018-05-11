@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
-import zmq
 import json
 import sys
 import os
+import cyberprobe.qcomms as q
 
 if len(sys.argv) < 2:
-    binding = "tcp://localhost:5555"
+    binding = "geo"
 else:
     binding = sys.argv[1]
     
 if len(sys.argv) < 3:
-    publish = "tcp://*:5556"
+    output = "ioc"
 else:
-    publish = sys.argv[2]
+    output = "ioc"
 
 stix = {}
 
@@ -71,12 +71,12 @@ def check_config():
         print "STIX data loaded."
         mtime = s
 
-def check_addresses(msg):
+def check_addresses(obj):
 
     ips = {}
-    for v in msg["src"]:
+    for v in obj["src"]:
         if v.startswith("ipv4"): ips[v[5:]] = True
-    for v in msg["dest"]:
+    for v in obj["dest"]:
         if v.startswith("ipv4"): ips[v[5:]] = True
 
     for v in ips:
@@ -88,13 +88,13 @@ def check_addresses(msg):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not msg.has_key("indicators"): msg["indicators"] = []
-            msg["indicators"].append(indicator)
+            if not obj.has_key("indicators"): obj["indicators"] = []
+            obj["indicators"].append(indicator)
 
     ports = {}
-    for v in msg["src"]:
+    for v in obj["src"]:
         if v.startswith("tcp"): ports[v] = True
-    for v in msg["dest"]:
+    for v in obj["dest"]:
         if v.startswith("tcp"): ports[v] = True
 
     for v in ports:
@@ -106,13 +106,13 @@ def check_addresses(msg):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not msg.has_key("indicators"): msg["indicators"] = []
-            msg["indicators"].append(indicator)
+            if not obj.has_key("indicators"): obj["indicators"] = []
+            obj["indicators"].append(indicator)
 
     ports = {}
-    for v in msg["src"]:
+    for v in obj["src"]:
         if v.startswith("udp"): ports[v] = True
-    for v in msg["dest"]:
+    for v in obj["dest"]:
         if v.startswith("udp"): ports[v] = True
 
     for v in ports:
@@ -124,19 +124,19 @@ def check_addresses(msg):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not msg.has_key("indicators"): msg["indicators"] = []
-            msg["indicators"].append(indicator)
+            if not obj.has_key("indicators"): obj["indicators"] = []
+            obj["indicators"].append(indicator)
 
-def check_dns(msg):
+def check_dns(obj):
 
     hosts = {}
 
-    if msg.has_key("dns_message") and msg["dns_message"].has_key("query"):
-        for v in msg["dns_message"]["query"]:
+    if obj.has_key("dns_message") and obj["dns_message"].has_key("query"):
+        for v in obj["dns_message"]["query"]:
             if v.has_key("name"):
                 hosts[v["name"]] = True
-    if msg.has_key("dns_message") and msg["dns_message"].has_key("answer"):
-        for v in msg["dns_message"]["answer"]:
+    if obj.has_key("dns_message") and obj["dns_message"].has_key("answer"):
+        for v in obj["dns_message"]["answer"]:
             if v.has_key("name"):
                 hosts[v["name"]] = True
 
@@ -149,30 +149,30 @@ def check_dns(msg):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not msg.has_key("indicators"): msg["indicators"] = []
-            msg["indicators"].append(indicator)
+            if not obj.has_key("indicators"): obj["indicators"] = []
+            obj["indicators"].append(indicator)
 
-def check_url(msg):
+def check_url(obj):
 
-    if msg.has_key("url"):
-        if stix["index"]["url"].has_key(msg["url"]):
-            hit = stix["index"]["url"][msg["url"]]
+    if obj.has_key("url"):
+        if stix["index"]["url"].has_key(obj["url"]):
+            hit = stix["index"]["url"][obj["url"]]
             indicator = {
                 "type": "url",
-                "value": msg["url"],
+                "value": obj["url"],
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not msg.has_key("indicators"): msg["indicators"] = []
-            msg["indicators"].append(indicator)
+            if not obj.has_key("indicators"): obj["indicators"] = []
+            obj["indicators"].append(indicator)
 
-def check_email(msg):
+def check_email(obj):
 
     emails = {}
-    if msg.has_key("smtp_data") and msg["smtp_data"].has_key("from"):
-        emails[msg["smtp_data"]["from"]] = True
-    if msg.has_key("smtp_data") and msg["smtp_data"].has_key("to"):
-        for v in msg["smtp_data"]["to"]:
+    if obj.has_key("smtp_data") and obj["smtp_data"].has_key("from"):
+        emails[obj["smtp_data"]["from"]] = True
+    if obj.has_key("smtp_data") and obj["smtp_data"].has_key("to"):
+        for v in obj["smtp_data"]["to"]:
             emails[v] = True
 
     for v in emails:
@@ -184,30 +184,20 @@ def check_email(msg):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not msg.has_key("indicators"): msg["indicators"] = []
-            msg["indicators"].append(indicator)
+            if not obj.has_key("indicators"): obj["indicators"] = []
+            obj["indicators"].append(indicator)
 
-def handle(msg):
-    check_addresses(msg)
-    check_dns(msg)
-    check_url(msg)
-    check_email(msg)
-    skt2.send(json.dumps(msg))
+def handle(msg, output):
+    obj = json.loads(msg)
+    check_config()
+    check_addresses(obj)
+    check_dns(obj)
+    check_url(obj)
+    check_email(obj)
+    output(json.dumps(obj))
 
-ctxt = zmq.Context()
-skt = ctxt.socket(zmq.SUB)
-skt.connect(binding)
-skt.setsockopt(zmq.SUBSCRIBE, "")
-
-skt2 = ctxt.socket(zmq.PUB)
-skt2.bind(publish)
-
-while True:
-    try:
-        msg = skt.recv()
-        check_config()
-        handle(json.loads(msg))
-    except Exception, e:
-        sys.stderr.write("Exception: %s\n" % str(e))
-
+try:
+    q.subscribe(binding, handle, output)
+except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))
 

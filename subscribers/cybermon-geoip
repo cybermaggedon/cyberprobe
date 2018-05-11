@@ -1,51 +1,56 @@
 #!/usr/bin/env python
 
-import zmq
 import json
 import sys
-import GeoIP
+import geoip2.database
+import cyberprobe.qcomms as q
 
-geo = GeoIP.open("/usr/share/GeoIP/GeoLite2-City.mmdb", GeoIP.GEOIP_STANDARD)
+geo = geoip2.database.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
 
 if len(sys.argv) < 2:
-    binding = "tcp://localhost:5555"
+    binding = "cyberprobe"
 else:
     binding = sys.argv[1]
     
 if len(sys.argv) < 3:
-    publish = "tcp://*:5556"
+    output = "geo"
 else:
-    publish = sys.argv[2]
+    output = sys.argv[2]
 
 def lookup(ip):
 
-    g = geo.record_by_addr(ip)
-    if g == None: return None
+    try:
+        g = geo.city(ip)
+    except Exception, e:
+        return None
 
     locn = {
     }
 
-    if g["city"]: locn["city"] = g["city"]
-    if g["country_code"]: locn["iso"] = g["country_code"]
-    if g["country_name"]: locn["country"] = g["country_name"]
-    if g["latitude"] and g["longitude"]: locn["position"] = {
-            "lat": g["latitude"],
-            "lon": g["longitude"]
+    if g.city: locn["city"] = g.city.name
+    if g.country.iso_code: locn["iso"] = g.country.iso_code
+    if g.country.name: locn["country"] = g.country.name
+    if g.location.latitude and g.location.longitude: locn["position"] = {
+            "lat": g.location.latitude,
+            "lon": g.location.longitude
     }
-    if g["postal_code"]: locn["postcode"] = g["postal_code"]
+    if g.postal.code: locn["postcode"] = g.postal.code
 
     return locn
     
-def handle(msg):
+def handle(msg, output):
+
+    obj = json.loads(msg)
+    
     sip = None
     dip = None
 
-    for v in msg["src"]:
+    for v in obj["src"]:
         if v.startswith("ipv4:"):
             sip = v[5:]
             break
     
-    for v in msg["dest"]:
+    for v in obj["dest"]:
         if v.startswith("ipv4:"):
             dip = v[5:]
             break
@@ -53,30 +58,19 @@ def handle(msg):
     if sip != None:
         g = lookup(sip)
         if g != None:
-            if not msg.has_key("location"): msg["location"] = {}
-            msg["location"]["src"] = g
+            if not obj.has_key("location"): obj["location"] = {}
+            obj["location"]["src"] = g
 
     if dip != None:
         g = lookup(dip)
         if g != None:
-            if not msg.has_key("location"): msg["location"] = {}
-            msg["location"]["dest"] = g
+            if not obj.has_key("location"): obj["location"] = {}
+            obj["location"]["dest"] = g
             
-    skt2.send(json.dumps(msg))
+    output(json.dumps(obj))
 
-ctxt = zmq.Context()
-skt = ctxt.socket(zmq.SUB)
-skt.connect(binding)
-skt.setsockopt(zmq.SUBSCRIBE, "")
-
-skt2 = ctxt.socket(zmq.PUB)
-skt2.bind(publish)
-
-while True:
-    try:
-        msg = skt.recv()
-        handle(json.loads(msg))
-    except Exception, e:
-        sys.stderr.write("Exception: %s\n" % str(e))
-
+try:
+    q.subscribe(binding, handle, output)
+except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))
 

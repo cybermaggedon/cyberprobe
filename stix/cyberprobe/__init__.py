@@ -1,6 +1,6 @@
 
 """
-cyberprobe - STIX/TAXII support.
+cyberprobe - Miscellaneous Cyberprobe integration support.
 """
 
 __author__ = 'Cyber MacGeddon'

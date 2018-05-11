@@ -2,17 +2,16 @@
 
 ############################################################################
 
-import zmq
 import json
-import uuid
 import sys
 import requests
 import time
+import cyberprobe.qcomms as q
 
 ############################################################################
 
 if len(sys.argv) < 2:
-    binding = "tcp://localhost:5555"
+    binding = "ioc"
 else:
     binding = sys.argv[1]
 
@@ -38,7 +37,7 @@ def add_vertex(vertices, group, v):
 def init():
     pass
 
-def output(vertices, edges):
+def gaffer_output(vertices, edges):
 
     body = {}
     body["input"] = []
@@ -77,7 +76,7 @@ def output(vertices, edges):
 
             # Ignore a valid HTTP response.  Errors are probably bugs in my
             # code.
-            if r.status_code != 204:
+            if r.status_code < 200 or r.status_code > 299:
                 sys.stderr.write("gaffer: Error sending to Gaffer\n")
                 sys.stderr.write("gaffer: HTTP code: %s\n" % str(r.status_code))
                 sys.stderr.write(r.text + "\n")
@@ -89,12 +88,14 @@ def output(vertices, edges):
             time.sleep(1)
   
 ############################################################################
-def handle(msg):
+def handle(msg, output):
 
-    if msg["action"] == "connected_up":
+    obj = json.loads(msg)
+
+    if obj["action"] == "connected_up":
         return
 
-    if msg["action"] == "connected_down":
+    if obj["action"] == "connected_down":
         return
 
     vertices = []
@@ -106,9 +107,9 @@ def handle(msg):
     dport = None
     proto = None
 
-    if msg.has_key("src"):
+    if obj.has_key("src"):
         ip = None
-        for v in msg["src"]:
+        for v in obj["src"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -127,9 +128,9 @@ def handle(msg):
                 sport = addr
                 proto = "udp"
 
-    if msg.has_key("dest"):
+    if obj.has_key("dest"):
         ip = None
-        for v in msg["dest"]:
+        for v in obj["dest"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -159,8 +160,8 @@ def handle(msg):
         add_vertex(vertices, "tcp", dest)
         add_edge(edges, "tcpflow", src, dest)
 
-        if msg.has_key("url") and msg["action"] == "http_request":
-            add_edge(edges, "httprequest", src, msg["url"])
+        if obj.has_key("url") and obj["action"] == "http_request":
+            add_edge(edges, "httprequest", src, obj["url"])
 
     if sip != None and sport != None and dip != None and dport != None and \
        proto == "udp":
@@ -173,11 +174,11 @@ def handle(msg):
         add_vertex(vertices, "udp", dest)
         add_edge(edges, "udpflow", src, dest)
 
-        if msg.has_key("queries") and msg["action"] == "dns_message":
-            for v in msg["queries"]:
+        if obj.has_key("queries") and obj["action"] == "dns_message":
+            for v in obj["queries"]:
                 add_edge(edges, "dnsrequest", src, v["name"])
 
-    output(vertices, edges)
+    gaffer_output(vertices, edges)
 
 ############################################################################
 
@@ -198,18 +199,9 @@ while True:
 
 print "Connected."
 
-ctxt = zmq.Context()
-skt = ctxt.socket(zmq.SUB)
-skt.connect(binding)
-skt.setsockopt(zmq.SUBSCRIBE, "")
-
-init()
-
-while True:
-    try:
-        msg = skt.recv()
-        handle(json.loads(msg))
-    except Exception, e:
-        sys.stderr.write("Exception: %s\n" % str(e))
+try:
+    q.subscribe(binding, handle)
+except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))
 
 

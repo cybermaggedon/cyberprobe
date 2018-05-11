@@ -2,17 +2,17 @@
 
 ############################################################################
 
-import zmq
 import json
 import uuid
 import sys
 import requests
 from cassandra.cluster import Cluster
+import cyberprobe.qcomms as q
 
 ############################################################################
 
 if len(sys.argv) < 2:
-    binding = "tcp://localhost:5555"
+    binding = "ioc"
 else:
     binding = sys.argv[1]
 
@@ -184,9 +184,9 @@ def init():
     add_uri(obs, prop_uri("ip"), rdftype, rdf + "Property")
     add_string(obs, prop_uri("ip"), rdfslabel, "IP")
 
-    output(obs)
+    cass_output(obs)
 
-def output(obs):
+def cass_output(obs):
 
     for o in obs:
         session.execute(insert_stmt, [
@@ -195,102 +195,104 @@ def output(obs):
     
 ############################################################################
 
-def handle(msg):
+def handle(msg, output):
 
-    if msg["action"] == "connected_up":
+    ev = json.loads(msg)
+
+    if ev["action"] == "connected_up":
         return
 
-    if msg["action"] == "connected_down":
+    if ev["action"] == "connected_down":
         return
 
     obs = []
 
-    id = msg["id"]
+    id = ev["id"]
 
     uri = obj_uri("obs", id)
     add_string(obs, uri, rdftype, type_uri("observation"))
 
-    if msg["action"] == "unrecognised_datagram":
+    if ev["action"] == "unrecognised_datagram":
         add_string(obs, uri, rdfslabel, "unrecognised datagram")
-    elif msg["action"] == "unrecognised_stream":
+    elif ev["action"] == "unrecognised_stream":
         add_string(obs, uri, rdfslabel, "unrecognised stream")
-    elif msg["action"] == "icmp":
+    elif ev["action"] == "icmp":
         add_string(obs, uri, rdfslabel, "ICMP")
-    elif msg["action"] == "http_request":
-        add_string(obs, uri, rdfslabel, "HTTP " + msg["method"] + " " +
-                   msg["url"])
-    elif msg["action"] == "http_response":
-        add_string(obs, uri, rdfslabel, "HTTP " + str(msg["code"]) + " " +
-                   msg["status"] + " " + msg["url"])
-    elif msg["action"] == "dns_message":
-        if msg["type"] == "query":
+    elif ev["action"] == "http_request":
+        add_string(obs, uri, rdfslabel, "HTTP " + ev["method"] + " " +
+                   ev["url"])
+    elif ev["action"] == "http_response":
+        add_string(obs, uri, rdfslabel, "HTTP " + str(ev["code"]) + " " +
+                   ev["status"] + " " + ev["url"])
+    elif ev["action"] == "dns_message":
+        if ev["type"] == "query":
             lbl = "DNS query"
         else:
             lbl = "DNS answer"
-        for v in msg["queries"]:
+        for v in ev["queries"]:
             lbl = lbl + " " + v["name"]
         add_string(obs, uri, rdfslabel, lbl)
-    elif msg["action"] == "ftp_command":
-        add_string(obs, uri, rdfslabel, "FTP " + msg["command"])
-    elif msg["action"] == "ftp_response":
-        add_string(obs, uri, rdfslabel, "FTP " + msg["status"])
-    elif msg["action"] == "smtp_command":
-        add_string(obs, uri, rdfslabel, "SMTP " + msg["command"])
-    elif msg["action"] == "smtp_response":
-        add_string(obs, uri, rdfslabel, "SMTP " + msg["status"])
-    elif msg["action"] == "smtp_data":
-        lbl = "SMTP " + msg["from"]
-        for v in msg["to"]:
+    elif ev["action"] == "ftp_command":
+        add_string(obs, uri, rdfslabel, "FTP " + ev["command"])
+    elif ev["action"] == "ftp_response":
+        add_string(obs, uri, rdfslabel, "FTP " + ev["status"])
+    elif ev["action"] == "smtp_command":
+        add_string(obs, uri, rdfslabel, "SMTP " + ev["command"])
+    elif ev["action"] == "smtp_response":
+        add_string(obs, uri, rdfslabel, "SMTP " + ev["status"])
+    elif ev["action"] == "smtp_data":
+        lbl = "SMTP " + ev["from"]
+        for v in ev["to"]:
             lbl = lbl + " " + v
         add_string(obs, uri, rdfslabel, lbl)
     
-    add_string(obs, uri, prop_uri("action"), msg["action"])
-    add_uri(obs, uri, prop_uri("device"), obj_uri("device", msg["device"]))
+    add_string(obs, uri, prop_uri("action"), ev["action"])
+    add_uri(obs, uri, prop_uri("device"), obj_uri("device", ev["device"]))
 
-    add_uri(obs, obj_uri("device", msg["device"]), rdftype, type_uri("device"))
-    add_string(obs, obj_uri("device", msg["device"]), rdfslabel,
-               "Device " + msg["device"])
+    add_uri(obs, obj_uri("device", ev["device"]), rdftype, type_uri("device"))
+    add_string(obs, obj_uri("device", ev["device"]), rdfslabel,
+               "Device " + ev["device"])
 
-    add_dt(obs, uri, prop_uri("time"), msg["time"])
-    if msg.has_key("method"):
-        add_string(obs, uri, prop_uri("method"), msg["method"])
-    if msg.has_key("url"):
-        add_uri(obs, uri, prop_uri("url"), msg["url"])
-    if msg.has_key("command"):
-        add_string(obs, uri, prop_uri("command"), msg["command"])
-    if msg.has_key("status"):
-        add_string(obs, uri, prop_uri("status"), str(msg["status"]))
-    if msg.has_key("text"):
+    add_dt(obs, uri, prop_uri("time"), ev["time"])
+    if ev.has_key("method"):
+        add_string(obs, uri, prop_uri("method"), ev["method"])
+    if ev.has_key("url"):
+        add_uri(obs, uri, prop_uri("url"), ev["url"])
+    if ev.has_key("command"):
+        add_string(obs, uri, prop_uri("command"), ev["command"])
+    if ev.has_key("status"):
+        add_string(obs, uri, prop_uri("status"), str(ev["status"]))
+    if ev.has_key("text"):
         t = ""
         s = ""
-        for v in msg["text"]:
+        for v in ev["text"]:
             t = t + v + s
             s = " "
         add_string(obs, uri, prop_uri("text"), t)
-    if msg.has_key("payload"):
+    if ev.has_key("payload"):
         pass
-    if msg.has_key("body"):
+    if ev.has_key("body"):
         pass
-    if msg.has_key("from"):
-        add_string(obs, uri, prop_uri("from"), msg["from"])
-    if msg.has_key("to"):
-        for v in msg["to"]:
+    if ev.has_key("from"):
+        add_string(obs, uri, prop_uri("from"), ev["from"])
+    if ev.has_key("to"):
+        for v in ev["to"]:
             add_string(obs, uri, prop_uri("to"), v)
-    if msg.has_key("header"):
-        for k in msg["header"]:
-            add_string(obs, uri, prop_uri("header:" + k), msg["header"][k])
-    if msg.has_key("type"):
-        add_string(obs, uri, prop_uri("type"), msg["type"])
-    if msg.has_key("queries"):
-        for v in msg["queries"]:
+    if ev.has_key("header"):
+        for k in ev["header"]:
+            add_string(obs, uri, prop_uri("header:" + k), ev["header"][k])
+    if ev.has_key("type"):
+        add_string(obs, uri, prop_uri("type"), ev["type"])
+    if ev.has_key("queries"):
+        for v in ev["queries"]:
             if v.has_key("name"):
                 add_string(obs, uri, prop_uri("query_name"), v["name"])
             if v.has_key("type"):
                 add_string(obs, uri, prop_uri("query_type"), v["type"])
             if v.has_key("class"):
                 add_string(obs, uri, prop_uri("query_class"), v["class"])    
-    if msg.has_key("answers"):
-        for v in msg["answers"]:
+    if ev.has_key("answers"):
+        for v in ev["answers"]:
             if v.has_key("name"):
                 add_string(obs, uri, prop_uri("answer_name"), v["name"])
             if v.has_key("type"):
@@ -300,9 +302,9 @@ def handle(msg):
             if v.has_key("address"):
                 add_string(obs, uri, prop_uri("answer_address"), v["address"])
 
-    if msg.has_key("src"):
+    if ev.has_key("src"):
         ip = None
-        for v in msg["src"]:
+        for v in ev["src"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -340,9 +342,9 @@ def handle(msg):
                 add_string(obs, obj_uri("ip", addr), rdfslabel, addr)
                 add_string(obs, obj_uri("ip", addr), prop_uri("ip"), addr)
 
-    if msg.has_key("dest"):
+    if ev.has_key("dest"):
         ip = None
-        for v in msg["dest"]:
+        for v in ev["dest"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -380,7 +382,7 @@ def handle(msg):
                 add_string(obs, obj_uri("ip", addr), rdfslabel, addr)
                 add_string(obs, obj_uri("ip", addr), prop_uri("ip"), addr)
 
-    output(obs)
+    cass_output(obs)
 
 ############################################################################
 
@@ -427,18 +429,8 @@ BEGIN BATCH
 APPLY BATCH;
 """)
 
-ctxt = zmq.Context()
-skt = ctxt.socket(zmq.SUB)
-skt.connect(binding)
-skt.setsockopt(zmq.SUBSCRIBE, "")
-
-init()
-
-while True:
-    try:
-        msg = skt.recv()
-        handle(json.loads(msg))
-    except Exception, e:
-        sys.stderr.write("Exception: %s\n" % str(e))
-        
+try:
+    q.subscribe(binding, handle)
+except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))
 

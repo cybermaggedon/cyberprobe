@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 
-import zmq
 import json
 import sys
 import requests
 import time
+import cyberprobe.qcomms as q
 
 ############################################################################
 
 if len(sys.argv) < 2:
-    binding = "tcp://localhost:5555"
+    binding = "ioc"
 else:
     binding = sys.argv[1]
     
-es_index = "cyberprobe"
-es_object = "observation"
-
 if len(sys.argv) < 3:
     es_url = "http://localhost:9200/"
 else:
     es_url = sys.argv[2]
+
+es_index = "cyberprobe"
+es_object = "cyberprobe"
 
 ############################################################################
 
@@ -328,7 +328,7 @@ def init():
             sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
             time.sleep(1)
 
-def output(obs, id):
+def es_output(obs, id):
 
     u = "%s%s/%s/%s" % (es_url, es_index, es_object, id)
 
@@ -342,28 +342,30 @@ def output(obs, id):
 
 ############################################################################
 
-def handle(msg):
+def handle(msg, output):
+
+    ev = json.loads(msg)
 
     ob = {}
-    ob["id"] = msg["id"]
-    ob["action"] = msg["action"]
-    ob["device"] = msg["device"]
-    ob["network"] = msg["network"]
-    ob["time"] = msg["time"]
-    if msg.has_key("url"): ob["url"] = msg["url"]
-    if msg.has_key("location"): ob["location"] = msg["location"]
+    ob["id"] = ev["id"]
+    ob["action"] = ev["action"]
+    ob["device"] = ev["device"]
+    ob["network"] = ev["network"]
+    ob["time"] = ev["time"]
+    if ev.has_key("url"): ob["url"] = ev["url"]
+    if ev.has_key("location"): ob["location"] = ev["location"]
     
-    if msg.has_key("dns_message"):
+    if ev.has_key("dns_message"):
 
         ob["dns"] = {}
 
-        if msg["dns_message"].has_key("query"):
+        if ev["dns_message"].has_key("query"):
 
             name = []
             tpe = []
             clss = []
 
-            for v in msg["dns_message"]["query"]:
+            for v in ev["dns_message"]["query"]:
                 if v.has_key("name"): name.append(v["name"])
                 if v.has_key("type"): tpe.append(v["type"])
                 if v.has_key("class"): clss.append(v["class"])
@@ -372,14 +374,14 @@ def handle(msg):
                 "name": name, "type": tpe, "class": clss
             }
 
-        if msg["dns_message"].has_key("answer"):
+        if ev["dns_message"].has_key("answer"):
 
             name = []
             tpe = []
             clss = []
             address = []
 
-            for v in msg["dns_message"]["answer"]:
+            for v in ev["dns_message"]["answer"]:
                 if v.has_key("name"): name.append(v["name"])
                 if v.has_key("type"): tpe.append(v["type"])
                 if v.has_key("class"): clss.append(v["class"])
@@ -389,16 +391,16 @@ def handle(msg):
                 "name": name, "type": tpe, "class": clss, "address": address
             }
 
-            ob["dns"]["type"] = msg["dns_message"]["type"]
+            ob["dns"]["type"] = ev["dns_message"]["type"]
 
-    if msg.has_key("indicators"):
+    if ev.has_key("indicators"):
 
         tpe = []
         id = []
         value = []
         desc = []
 
-        for v in msg["indicators"]:
+        for v in ev["indicators"]:
             tpe.append(v["type"])
             id.append(v["id"])
             value.append(v["value"])
@@ -411,90 +413,90 @@ def handle(msg):
             "description": desc
         }
 
-    if msg.has_key("http_request"):
+    if ev.has_key("http_request"):
         ob["http"] = {
-            "method": msg["http_request"]["method"],
-            "header": msg["http_request"]["header"]
+            "method": ev["http_request"]["method"],
+            "header": ev["http_request"]["header"]
         }
 
-    if msg.has_key("http_response"):
+    if ev.has_key("http_response"):
         ob["http"] = {
-            "status": msg["http_response"]["status"],
-            "code": msg["http_response"]["code"],
-            "header": msg["http_response"]["header"]
+            "status": ev["http_response"]["status"],
+            "code": ev["http_response"]["code"],
+            "header": ev["http_response"]["header"]
         }
 
-    if msg.has_key("ftp_request"):
+    if ev.has_key("ftp_request"):
         ob["ftp"] = {
-            "command": msg["ftp_request"]["command"]
+            "command": ev["ftp_request"]["command"]
         }
 
-    if msg.has_key("ftp_response"):
+    if ev.has_key("ftp_response"):
         ob["ftp"] = {
-            "status": msg["ftp_response"]["status"],
-            "text": msg["ftp_response"]["text"]
+            "status": ev["ftp_response"]["status"],
+            "text": ev["ftp_response"]["text"]
         }
 
-    if msg.has_key("icmp"):
+    if ev.has_key("icmp"):
         ob["icmp"] = {
-            "type": msg["icmp"]["type"],
-            "code": msg["icmp"]["code"]
+            "type": ev["icmp"]["type"],
+            "code": ev["icmp"]["code"]
         }
 
-    if msg.has_key("sip_request"):
+    if ev.has_key("sip_request"):
         ob["sip"] = {
-            "method": msg["sip_request"]["method"],
-            "from": msg["sip_request"]["from"],
-            "to": msg["sip_request"]["to"]
+            "method": ev["sip_request"]["method"],
+            "from": ev["sip_request"]["from"],
+            "to": ev["sip_request"]["to"]
         }
 
-    if msg.has_key("sip_response"):
+    if ev.has_key("sip_response"):
         ob["sip"] = {
-            "code": msg["sip_response"]["code"],
-            "status": msg["sip_response"]["status"],
-            "from": msg["sip_response"]["from"],
-            "to": msg["sip_response"]["to"]
+            "code": ev["sip_response"]["code"],
+            "status": ev["sip_response"]["status"],
+            "from": ev["sip_response"]["from"],
+            "to": ev["sip_response"]["to"]
         }
 
-    if msg.has_key("smtp_command"):
+    if ev.has_key("smtp_command"):
         ob["smtp"] = {
-            "command": msg["smtp_command"]["command"]
+            "command": ev["smtp_command"]["command"]
         }
 
-    if msg.has_key("smtp_response"):
+    if ev.has_key("smtp_response"):
         ob["smtp"] = {
-            "status": msg["smtp_response"]["status"],
-            "text": msg["smtp_response"]["text"]
+            "status": ev["smtp_response"]["status"],
+            "text": ev["smtp_response"]["text"]
         }
 
-    if msg.has_key("smtp_data"):
+    if ev.has_key("smtp_data"):
         ob["smtp"] = {
-            "from": msg["smtp_data"]["from"],
-            "to": msg["smtp_data"]["to"]
+            "from": ev["smtp_data"]["from"],
+            "to": ev["smtp_data"]["to"]
         }
 
-    if msg.has_key("ntp_timestamp"):
+    if ev.has_key("ntp_timestamp"):
         ob["ntp"] = {
-            "version": msg["ntp_timestamp"]["version"],
-            "mode": msg["ntp_timestamp"]["mode"]
+            "version": ev["ntp_timestamp"]["version"],
+            "mode": ev["ntp_timestamp"]["mode"]
         }
 
-    if msg.has_key("ntp_control"):
+    if ev.has_key("ntp_control"):
         ob["ntp"] = {
-            "version": msg["ntp_control"]["version"],
-            "mode": msg["ntp_control"]["mode"]
+            "version": ev["ntp_control"]["version"],
+            "mode": ev["ntp_control"]["mode"]
         }
 
-    if msg.has_key("ntp_private"):
+    if ev.has_key("ntp_private"):
         ob["ntp"] = {
-            "version": msg["ntp_private"]["version"],
-            "mode": msg["ntp_private"]["mode"]
+            "version": ev["ntp_private"]["version"],
+            "mode": ev["ntp_private"]["mode"]
         }
 
     src = {}
 
-    if msg.has_key("src"):
-        for v in msg["src"]:
+    if ev.has_key("src"):
+        for v in ev["src"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -511,8 +513,8 @@ def handle(msg):
 
     dest = {}
 
-    if msg.has_key("dest"):
-        for v in msg["dest"]:
+    if ev.has_key("dest"):
+        for v in ev["dest"]:
             if v.find(":") < 0:
                 cls = v
                 addr = ""
@@ -527,7 +529,7 @@ def handle(msg):
 
         ob["dest"] = dest
 
-    output(ob, msg["id"])
+    es_output(ob, ev["id"])
 
 ############################################################################
 
@@ -548,17 +550,8 @@ while True:
 
 print "Connected."
 
-ctxt = zmq.Context()
-skt = ctxt.socket(zmq.SUB)
-skt.connect(binding)
-skt.setsockopt(zmq.SUBSCRIBE, "")
-
-init()
-
-while True:
-    try:
-        msg = skt.recv()
-        handle(json.loads(msg))
-    except Exception, e:
-        sys.stderr.write("Exception: %s\n" % str(e))
+try:
+    q.subscribe(binding, handle)
+except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))
 

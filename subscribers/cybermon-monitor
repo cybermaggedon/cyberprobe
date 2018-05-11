@@ -1,31 +1,33 @@
 #!/usr/bin/env python
 
-import zmq
 import json
 import sys
+import cyberprobe.qcomms as q
 
 if len(sys.argv) < 2:
-    binding = "tcp://localhost:5555"
+    binding = "cyberprobe"
 else:
     binding = sys.argv[1]
     
-def handle(msg):
+def handle(msg, output):
+
+    obj = json.loads(msg)
+
     print
+    print "Action: %s" % obj["action"]
+    print "Device: %s" % obj["device"]
 
-    print "Action: %s" % msg["action"]
-    print "Device: %s" % msg["device"]
+    print "Time: %s" % obj["time"]
 
-    print "Time: %s" % msg["time"]
+    if obj.has_key("url"):
+        print "URL: %s" % obj["url"]
 
-    if msg.has_key("url"):
-        print "URL: %s" % msg["url"]
+    if obj.has_key("icmp"):
+        print "ICMP type: %d" % obj["icmp"]["type"]
+        print "ICMP code: %d" % obj["icmp"]["code"]
 
-    if msg.has_key("icmp"):
-        print "ICMP type: %d" % msg["icmp"]["type"]
-        print "ICMP code: %d" % msg["icmp"]["code"]
-
-    if msg.has_key("dns_message"):
-        detail=msg["dns_message"]
+    if obj.has_key("dns_message"):
+        detail=obj["dns_message"]
         if detail.has_key("type"):
             print "Type: %s" % detail["type"]
             if detail["type"] == "query" and detail.has_key("query"):
@@ -48,33 +50,33 @@ def handle(msg):
                     if v.has_key("address"):
                         print "Answer address: %s" % v["address"]
 
-    if msg.has_key("http_request"):
-        detail=msg["http_request"]
+    if obj.has_key("http_request"):
+        detail=obj["http_request"]
         print "Method: %s" % detail["method"]
         if detail.has_key("header"):
             for k in detail["header"]:
                  print "%s: %s" % (k, detail["header"][k])
 
-    if msg.has_key("http_response"):
-        detail=msg["http_response"]
+    if obj.has_key("http_response"):
+        detail=obj["http_response"]
         print "Code: %d" % detail["code"]
         print "Status: %s" % detail["status"]
         if detail.has_key("header"):
             for k in detail["header"]:
                  print "%s: %s" % (k, detail["header"][k])
 
-    if msg.has_key("ftp_command"):
-        detail=msg["ftp_command"]
+    if obj.has_key("ftp_command"):
+        detail=obj["ftp_command"]
         print "Command: %s" % detail["command"]
 
-    if msg.has_key("ftp_response"):
-        detail=msg["ftp_response"]
+    if obj.has_key("ftp_response"):
+        detail=obj["ftp_response"]
         print "Status: %d" % detail["status"]
         for v in detail["text"]:
             print "Text: %s" % v
 
-    if msg.has_key("sip_request"):
-        detail=msg["sip_request"]
+    if obj.has_key("sip_request"):
+        detail=obj["sip_request"]
         print "Method: %s" % detail["method"]
         print "From: %s" % detail["from"]
         print "To: %s" % detail["from"]
@@ -82,31 +84,25 @@ def handle(msg):
             for k in detail["header"]:
                  print "%s: %s" % (k, detail["header"][k])
 
-    if msg.has_key("sip_response"):
-        detail=msg["sip_response"]
+    if obj.has_key("sip_response"):
+        detail=obj["sip_response"]
         print "Code: %d" % detail["code"]
         print "Status: %s" % detail["status"]
         print "From: %s" % detail["from"]
         print "To: %s" % detail["from"]
 
-    if msg.has_key("smtp_command"):
-        detail=msg["smtp_command"]
+    if obj.has_key("smtp_command"):
+        detail=obj["smtp_command"]
         print "Command: %s" % detail["command"]
 
-    if msg.has_key("smtp_response"):
-        detail=msg["smtp_response"]
+    if obj.has_key("smtp_response"):
+        detail=obj["smtp_response"]
         print "Status: %d" % detail["status"]
         for v in detail["text"]:
             print "Text: %s" % v
 
-ctxt = zmq.Context()
-skt = ctxt.socket(zmq.SUB)
-skt.connect(binding)
-skt.setsockopt(zmq.SUBSCRIBE, "")
+try:
+    q.subscribe(binding, handle)
+except Exception, e:
+    sys.stderr.write("Exception: %s\n" % str(e))
 
-while True:
-    try:
-        msg = skt.recv()
-        handle(json.loads(msg))
-    except Exception, e:
-        sys.stderr.write("Exception: %s\n" % str(e))
