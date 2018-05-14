@@ -10,7 +10,7 @@ local observer = {}
 
 -- Other modules -----------------------------------------------------------
 local json = require("json")
-local amqp = require("amqp.amqp")
+local amqp = require("amqp")
 local os = require("os")
 local string = require("string")
 local model = require("util.json")
