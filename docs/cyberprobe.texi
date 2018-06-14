@@ -202,6 +202,10 @@ Cyberprobe releases:
 
 @table @code
 
+@item 1.11.0
+Added @samp{origin} field to identify whether or not the triggering
+device caused an event.
+
 @item 1.10.0
 Add RabbitMQ / AMQP 0.9.1 support for cybermon and subscribers.
 
@@ -4123,6 +4127,17 @@ Device identifier / LIID.
 Network identifier, if ETSI stream delivery is used, and the
 @code{network} identifier is used in @file{cyberprobe.cfg}.
 See @ref{@command{cyberprobe} configuration}
+
+@item origin
+If known, set to @samp{network} or @samp{device} depending on whether or not the
+event is observed to originate from the device or, the device is the recipient.
+This assertion is made by comparing the triggering IP address with the
+source/destination IP addresses of an event.  The @samp{origin} field will
+only be
+useful if a device IP address is set in the @file{cyberprobe.cfg} file;
+if a wildcard address e.g. @samp{0.0.0.0/0} is set, it is not defined
+which of the source or destination addresses will trigger in
+@command{cyberprobe}, and so the @samp{origin} field will be of no value.
 
 @item action
 The event type.  One of:

@@ -84,7 +84,7 @@ local initialise_observation = function(e, indicators)
   local obs = {}
   obs["device"] = e.context:get_liid()
 
-  net, s, a = e.context:get_network_info()
+  net, src, dest = e.context:get_network_info()
   if not(net == "") then
     obs["network"] = net
   end
@@ -97,6 +97,18 @@ local initialise_observation = function(e, indicators)
   get_stack(e.context, addrs, false)
   obs["dest"] = addrs
 
+  device_addr = e.context:get_trigger_info()
+  if not(device_addr == nil) and not(device_addr == "") then
+    print(device_addr)
+    if device_addr == src then
+      obs["origin"] = "device"
+    else
+      if device_addr == dest then
+        obs["origin"] = "network"
+      end
+    end
+  end
+  
   if indicators and not(#indicators == 0) then
     obs["indicators"] = {}
     obs["indicators"]["on"] = {}
