@@ -20,7 +20,7 @@ void imap::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, IMAP);
     dest.set(empty, APPLICATION, IMAP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     imap_context::ptr fc = imap_context::get_or_create(c, f);
 

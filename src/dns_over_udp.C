@@ -33,7 +33,7 @@ void dns_over_udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(id, APPLICATION, DNS);
     dest.set(id, APPLICATION, DNS);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     dns_context::ptr fc = dns_context::get_or_create(c, f);
 

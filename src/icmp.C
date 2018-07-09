@@ -29,7 +29,7 @@ void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     uint32_t payload_length = (e - s) - header_length;
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     // FIXME: Check checksum?
 

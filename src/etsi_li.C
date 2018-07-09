@@ -5,6 +5,7 @@
 #include <cybermon/ber.h>
 #include <sys/time.h>
 #include <string.h>
+#include <cybermon/pdu.h>
 
 // Support for a simple usage of ETSI LI protocol, defined in ETSI TS 102 232.
 
@@ -477,7 +478,8 @@ void sender::send_ip(timeval tv,
 		     const std::vector<unsigned char>& packet,
 		     const std::string& country,
 		     const std::string& net_element,
-		     const std::string& int_pt)
+		     const std::string& int_pt,
+                     direction dir)
 {
 
     // ----------------------------------------------------------------------
@@ -511,6 +513,19 @@ void sender::send_ip(timeval tv,
     // Encode CCPayload
     // ----------------------------------------------------------------------
 
+    // Direction
+    ber::berpdu payload_direction_p;
+    int direction;
+    if (dir == FROM_TARGET)
+        direction = 0;
+    else if (dir == TO_TARGET)
+        direction = 1;
+    else
+        direction = 2;
+        
+    payload_direction_p.encode_int(ber::context_specific, 0, direction);
+    pdus.clear();
+
     // CCContents
     ber::berpdu cccontents_p;
     pdus.clear();
@@ -520,6 +535,7 @@ void sender::send_ip(timeval tv,
     // Sequence
     ber::berpdu ccpayload_p;
     pdus.clear();
+    pdus.push_back(&payload_direction_p);
     pdus.push_back(&cccontents_p);
     ccpayload_p.encode_construct(ber::universal, 16, pdus);
 
@@ -622,7 +638,8 @@ void mux::target_ip(timeval tv,                            // Time of capture
 		    const std::string& oper,               // Operator ID
 		    const std::string& country,            // Country
 		    const std::string& net_elt,            // Net element
-		    const std::string& int_pt)             // Intercept
+		    const std::string& int_pt,             // Intercept
+                    direction dir)                         // To/from target
 {
 
 
@@ -636,7 +653,7 @@ void mux::target_ip(timeval tv,                            // Time of capture
 
     // Describes the IP packet.
     transport.send_ip(tv, liid, oper, cc_seq[liid]++, cin[liid],
-		      pdu, country, net_elt, int_pt);
+		      pdu, country, net_elt, int_pt, dir);
 
 
 }
@@ -793,6 +810,19 @@ void connection::run()
 			it2 != seq_pdus.end();
 			it2++) {
 
+                        // Decode direction.
+                        direction dir = NOT_KNOWN;
+                        try {
+                            ber::berpdu& dir_p = it2->get_element(0);
+                            int direc = dir_p.decode_int();
+                            if (direc == 0)
+                                dir = FROM_TARGET;
+                            else if (direc == 1)
+                                dir = TO_TARGET;
+                            std::cout << "Direction:" << dir << std::endl;
+                        } catch (...) {
+                        }
+
 			ber::berpdu& ccc_p = it2->get_element(2);
 			ber::berpdu& ipcc_p = ccc_p.get_element(2);
 			ber::berpdu& ipccontents_p = ipcc_p.get_element(1);
@@ -802,7 +832,7 @@ void connection::run()
 
 			packet_p.decode_vector(pkt);
 
-			p(liid, network, pkt.begin(), pkt.end(), tv);
+			p(liid, network, pkt.begin(), pkt.end(), tv, dir);
 
 		    }
 

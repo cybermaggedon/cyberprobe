@@ -20,7 +20,7 @@ void imap_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, IMAP_SSL);
     dest.set(empty, APPLICATION, IMAP_SSL);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     imap_ssl_context::ptr fc = imap_ssl_context::get_or_create(c, f);
 

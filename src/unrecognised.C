@@ -13,7 +13,7 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
     src.set(empty, TRANSPORT, UNRECOGNISED);
     dest.set(empty, TRANSPORT, UNRECOGNISED);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     unrecognised_stream_context::ptr fc = 
 	unrecognised_stream_context::get_or_create(c, f);
@@ -41,7 +41,7 @@ void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c,
     src.set(empty, TRANSPORT, UNRECOGNISED);
     dest.set(empty, TRANSPORT, UNRECOGNISED);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     unrecognised_datagram_context::ptr fc = 
 	unrecognised_datagram_context::get_or_create(c, f);

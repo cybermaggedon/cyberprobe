@@ -32,8 +32,7 @@ void udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     }
 
     // FIXME: Check checksum?
-
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     udp_context::ptr fc = udp_context::get_or_create(c, f);
 
@@ -64,13 +63,13 @@ void udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
         fc->lock.unlock();
 
-	pdu_slice sl2(start_of_next_protocol, e, sl.time);
+	pdu_slice sl2(start_of_next_protocol, e, sl.time, sl.direc);
         (*fc->processor)(mgr, fc, sl2);
         return;
     }
     else
     {
-      pdu_slice sl2(start_of_next_protocol, e, sl.time);
+      pdu_slice sl2(start_of_next_protocol, e, sl.time, sl.direc);
       unrecognised::process_unrecognised_datagram(mgr, fc, sl2);
     }
 }

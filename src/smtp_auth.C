@@ -18,7 +18,7 @@ void smtp_auth::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, SMTP_AUTH);
     dest.set(empty, APPLICATION, SMTP_AUTH);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     smtp_auth_context::ptr fc = smtp_auth_context::get_or_create(c, f);
 

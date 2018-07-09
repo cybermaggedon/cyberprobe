@@ -17,7 +17,7 @@ void pop3::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, POP3);
     dest.set(empty, APPLICATION, POP3);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     pop3_context::ptr fc = pop3_context::get_or_create(c, f);
 

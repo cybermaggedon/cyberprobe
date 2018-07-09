@@ -22,7 +22,7 @@ public:
 			    const std::string& network,
 			    const std::vector<unsigned char>::iterator& s,
 			    const std::vector<unsigned char>::iterator& e,
-			    const timeval& tv) {
+			    const timeval& tv, cybermon::direction d) {
 	lock.lock();
 	p.write(s, e);
 	lock.unlock();

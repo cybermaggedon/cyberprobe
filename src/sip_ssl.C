@@ -17,7 +17,7 @@ void sip_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, SIP_SSL);
     dest.set(empty, APPLICATION, SIP_SSL);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     sip_context::ptr fc = sip_context::get_or_create(c, f);
 

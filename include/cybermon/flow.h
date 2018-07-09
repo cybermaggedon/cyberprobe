@@ -10,11 +10,13 @@ namespace cybermon {
       public:
 	address src;
 	address dest;
+        direction direc;
 
 	flow_address() {}
 
-	flow_address(const address& s, const address& d) {
+	flow_address(const address& s, const address& d, direction dir) {
 	    src = s; dest = d;
+            direc = dir;
 	}
 
 	bool operator<(const flow_address& a) const {
@@ -23,6 +25,9 @@ namespace cybermon {
 	    else if (src == a.src)
 		if (dest < a.dest)
 		    return true;
+                else if (dest == a.dest)
+                    if (direc < a.direc)
+                        return true;
 	    return false;
 	}
     };

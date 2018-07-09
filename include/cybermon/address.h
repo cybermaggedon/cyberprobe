@@ -19,43 +19,43 @@ namespace cybermon {
 
     // Protocol type.
     enum protocol {
-	NO_PROTOCOL,		// No protocol.  This is the default when no
-	                        // address information has been assigned.
-	                        // A kind of 'null'.
-	IP4,			// IPv4.
-	IP6,			// IPv6.
-	TCP,			// TCP.
-	UDP,			// UDP.  'Address' is DNS id.
-	ICMP,			// ICMP.
-	HTTP,           // HTTP.
-    DNS,
-	SMTP,
-	FTP,
-	NTP,
-    IMAP,
-    IMAP_SSL,
-    POP3,
-    POP3_SSL,
-    RTP,
-    RTP_SSL,
-    SIP,
-    SIP_SSL,
-    SMTP_AUTH,
+        NO_PROTOCOL,            // No protocol.  This is the default when no
+                                // address information has been assigned.
+                                // A kind of 'null'.
+        IP4,                    // IPv4.
+        IP6,                    // IPv6.
+        TCP,                    // TCP.
+        UDP,                    // UDP.  'Address' is DNS id.
+        ICMP,                   // ICMP.
+        HTTP,                   // HTTP.
+        DNS,
+        SMTP,
+        FTP,
+        NTP,
+        IMAP,
+        IMAP_SSL,
+        POP3,
+        POP3_SSL,
+        RTP,
+        RTP_SSL,
+        SIP,
+        SIP_SSL,
+        SMTP_AUTH,
 
-	// Unknown stuff
-	UNRECOGNISED
+        // Unknown stuff
+        UNRECOGNISED
     };
     
     // The purpose served by the address.
     enum purpose {
-	ROOT,                   // Root context
-	NOT_SPECIFIED,		// Not specified.
-	LINK,			// Link layer address.
-	NETWORK,		// Network layer address.
-	TRANSPORT,		// Transport address.
-	SERVICE,		// Service address.
-	APPLICATION,		// Application-layer address.
-	CONTROL			// Control address.
+        ROOT,                   // Root context
+        NOT_SPECIFIED,          // Not specified.
+        LINK,                   // Link layer address.
+        NETWORK,                // Network layer address.
+        TRANSPORT,              // Transport address.
+        SERVICE,                // Service address.
+        APPLICATION,            // Application-layer address.
+        CONTROL                 // Control address.
     };
 
     // Address class, represents all kinds of addresses.
@@ -66,7 +66,7 @@ namespace cybermon {
 	purpose layer;
 	
 	// Protocol.
-	protocol proto;		
+	protocol proto;
 
 	// Address.
 	std::vector<unsigned char> addr;
@@ -96,8 +96,7 @@ namespace cybermon {
 	pdu_iter end() const { return addr.begin(); }
 
 	// Assign to the address.
-	void set(pdu_iter s, pdu_iter e, purpose pu, 
-		 protocol pr) {
+	void set(pdu_iter s, pdu_iter e, purpose pu, protocol pr) {
 	    layer = pu; proto = pr;
 	    addr.assign(s, e);
 	}
@@ -116,7 +115,7 @@ namespace cybermon {
 		    else
 			if (proto == a.proto)
 			    if (addr < a.addr)
-				return true;
+                                return true;
 		}
 	    return false;
 	}

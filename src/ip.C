@@ -51,7 +51,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     dest.set(s + 16, s + 20, NETWORK, IP4);
 
     // Create the flow address.
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     // Get the IP context.
     ip4_context::ptr fc = ip4_context::get_or_create(c, f);
@@ -217,7 +217,8 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	    // We now have a complete IP packet!  Process it.
 	    ip::process_ip4(mgr, c,
-			    pdu_slice(pdu.begin(), pdu.end(), sl.time));
+			    pdu_slice(pdu.begin(), pdu.end(), sl.time,
+                                      sl.direc));
 
 	    return;
 
@@ -265,20 +266,17 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     if (protocol == 6)
 
 	// TCP
-	tcp::process(mgr, fc,
-		     pdu_slice(s + header_length, s + length, sl.time));
+        tcp::process(mgr, fc, sl.skip(header_length));
 
     else if (protocol == 17)
 	
 	// UDP
-	udp::process(mgr, fc,
-		     pdu_slice(s + header_length, s + length, sl.time));
+	udp::process(mgr, fc, sl.skip(header_length));
 
     else if (protocol == 1)
 	
 	// ICMP
-	icmp::process(mgr, fc,
-		      pdu_slice(s + header_length, s + length, sl.time));
+	icmp::process(mgr, fc, sl.skip(header_length));
 
     else {
 	std::ostringstream buf;
@@ -324,7 +322,7 @@ void ip::process_ip6(manager& mgr, context_ptr c, const pdu_slice& sl)
     dest.set(s + 24, s + 40, NETWORK, IP6);
 
     // Create the flow address.
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     // Get the IP context.
     ip6_context::ptr fc = ip6_context::get_or_create(c, f);
@@ -338,23 +336,17 @@ void ip::process_ip6(manager& mgr, context_ptr c, const pdu_slice& sl)
     if (protocol == 6)
 
 	// TCP
-	tcp::process(mgr, fc,
-		     pdu_slice(s + header_length, s + header_length + length,
-			       sl.time));
+	tcp::process(mgr, fc, sl.skip(header_length));
 
     else if (protocol == 17)
 	
 	// UDP
-	udp::process(mgr, fc,
-		     pdu_slice(s + header_length, s + header_length + length,
-			       sl.time));
+	udp::process(mgr, fc, sl.skip(header_length));
     
     else if (protocol == 1)
 	
 	// ICMP
-	icmp::process(mgr, fc,
-		      pdu_slice(s + header_length, s + header_length + length,
-				sl.time));
+	icmp::process(mgr, fc, sl.skip(header_length));
 
     else {
 	std::ostringstream buf;

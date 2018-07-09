@@ -233,11 +233,11 @@ namespace cybermon {
 	void set_trigger_address(const tcpip::address& a) {
 	    if (a.universe == a.ipv4) {
 		if (a.addr.size() == 4)
-		    trigger_address.set(a.addr, NETWORK, IP4);
+                    trigger_address.set(a.addr, NETWORK, IP4);
 	    }
 	    if (a.universe == a.ipv6) {
 		if (a.addr.size() == 16)
-		    trigger_address.set(a.addr, NETWORK, IP6);
+                    trigger_address.set(a.addr, NETWORK, IP6);
 	    }
 	}
 

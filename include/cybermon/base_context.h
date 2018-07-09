@@ -51,12 +51,12 @@ namespace cybermon {
 	flow_address addr;
 
 	void get_src(std::vector<unsigned char>& a, purpose& pu, 
-			protocol& pr) const {
-	    addr.src.get(a, pu, pr);
+                     protocol& pr) const {
+            addr.src.get(a, pu, pr);
 	}
 
 	void get_dest(std::vector<unsigned char>& a, purpose& pu, 
-			protocol& pr) const {
+                      protocol& pr) const {
 	    addr.dest.get(a, pu, pr);
 	}
 

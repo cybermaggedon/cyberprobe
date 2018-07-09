@@ -17,7 +17,7 @@ void pop3_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, POP3_SSL);
     dest.set(empty, APPLICATION, POP3_SSL);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     pop3_ssl_context::ptr fc = pop3_ssl_context::get_or_create(c, f);
 

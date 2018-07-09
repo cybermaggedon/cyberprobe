@@ -49,7 +49,7 @@ public:
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
 			    const iter& s, const iter& e,
-			    const struct timeval& tv);
+			    const struct timeval& tv, cybermon::direction d);
 
     // Called when attacker is discovered.
     void target_up(const std::string& liid,
@@ -85,13 +85,13 @@ void etsi_monitor::target_down(const std::string& liid,
 void etsi_monitor::operator()(const std::string& liid,
 			      const std::string& network,
 			      const iter& s, const iter& e,
-			      const struct timeval& tv)
+			      const struct timeval& tv, cybermon::direction d)
 {
 
     try {
 
 	// Process the PDU
-	an.process(liid, network, cybermon::pdu_slice(s, e, tv));
+        an.process(liid, network, cybermon::pdu_slice(s, e, tv, d));
 
     } catch (std::exception& e) {
 

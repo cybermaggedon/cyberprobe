@@ -28,7 +28,7 @@ void ntp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, NTP);
     dest.set(empty, APPLICATION, NTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
     ntp_context::ptr fc = ntp_context::get_or_create(c, f);
 
     fc->lock.lock();

@@ -11,6 +11,7 @@
 #include <cybermon/nhis11.h>
 #include <cybermon/etsi_li.h>
 #include "parameters.h"
+#include <cybermon/pdu.h>
 
 // Shared pointers to TCP/IP address.
 typedef boost::shared_ptr<tcpip::address> address_ptr;
@@ -24,6 +25,7 @@ class qpdu {
     boost::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
     address_ptr addr;                       // Valid for: TARGET_UP
+    cybermon::direction dir;                // Valid for: PDU, from/to target.
 };
 
 // Queue PDU pointer
@@ -78,6 +80,7 @@ class sender : public threads::thread {
     void deliver(timeval tv,
                  boost::shared_ptr<std::string> liid,
 		 boost::shared_ptr<std::string> n,
+                 cybermon::direction dir,
 		 const_iterator& start,
 		 const_iterator& end);
 

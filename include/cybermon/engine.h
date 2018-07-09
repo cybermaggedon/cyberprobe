@@ -62,7 +62,7 @@ namespace cybermon {
 	// 's' and 'e' are iterators pointing at the start and end of packet
 	// data to process.
 	void process(const std::string& liid, const std::string& network,
-		     const pdu_slice& s) {
+                     const pdu_slice& s) {
 	    context_ptr c = get_root_context(liid, network);
 	    process(c, s);
 	}

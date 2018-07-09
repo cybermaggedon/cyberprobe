@@ -5,6 +5,7 @@
 void sender::deliver(timeval tv,
 		     boost::shared_ptr<std::string> liid, // LIID
 		     boost::shared_ptr<std::string> network, // Network
+                     cybermon::direction dir, // To/from target.
 		     const_iterator& start,   // Start of packet
 		     const_iterator& end)     // End of packet
 {
@@ -36,6 +37,7 @@ void sender::deliver(timeval tv,
     p->tv = tv;
     p->liid = liid;
     p->network = network;
+    p->dir = dir;
     packets.push(p);
 
     // Wake up the sender's run method.
@@ -377,7 +379,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 
 		// Deliver packet.
 		mux.target_ip(next->tv, liid, pdu, oper, country, net_elt,
-			      int_pt);
+			      int_pt, next->dir);
 
 		// Only break out of the loop on success.
 		break;

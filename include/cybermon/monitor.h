@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <cybermon/pdu.h>
 #include "socket.h"
 
 // Monitor function, handles packets.
@@ -17,7 +18,8 @@ class monitor {
 			    const std::string& network,
 			    const std::vector<unsigned char>::iterator&,
 			    const std::vector<unsigned char>::iterator&,
-			    const struct timeval& tv) = 0;
+			    const struct timeval& tv,
+                            cybermon::direction dir) = 0;
 
     // Gets called if initiator's connection is seen.
     virtual void target_up(const std::string& liid,

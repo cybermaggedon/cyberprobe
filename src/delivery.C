@@ -118,6 +118,7 @@ bool delivery::ipv4_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
 			  tcpip::ip4_address& hit,
+                          cybermon::direction& dir,
 			  const link_info& link)
 {
 
@@ -172,6 +173,7 @@ bool delivery::ipv4_match(const_iterator& start,
 	m = &(md->mangled.find(saddr)->second);
 	hit = saddr;
 	targets_lock.unlock();
+        dir = cybermon::FROM_TARGET;
 	return true;
 
     }
@@ -209,6 +211,7 @@ bool delivery::ipv4_match(const_iterator& start,
 	m = &(md->mangled.find(daddr)->second);
 	hit = daddr;
 	targets_lock.unlock();
+        dir = cybermon::TO_TARGET;
 	return true;
 
     }
@@ -224,6 +227,7 @@ bool delivery::ipv6_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
 			  tcpip::ip6_address& hit,
+                          cybermon::direction& dir,
 			  const link_info& link)
 {
 
@@ -278,6 +282,7 @@ bool delivery::ipv6_match(const_iterator& start,
 	m = &(md->mangled6.find(saddr)->second);
 	hit = saddr;
 	targets_lock.unlock();
+        dir = cybermon::FROM_TARGET;
 	return true;
 
     }
@@ -315,6 +320,7 @@ bool delivery::ipv6_match(const_iterator& start,
 	m = &(md->mangled6.find(daddr)->second);
 	hit = daddr;
 	targets_lock.unlock();
+        dir = cybermon::TO_TARGET;
 	return true;
 
     }
@@ -350,9 +356,10 @@ void delivery::receive_packet(timeval tv,
 
 	const match* m = 0;
 	tcpip::ip4_address hit;
+        cybermon::direction dir;
 
 	// Match the IP addresses.
-	bool was_hit = ipv4_match(start, end, m, hit, link);
+	bool was_hit = ipv4_match(start, end, m, hit, dir, link);
 
 	// No target match?
 	if (!was_hit) return;
@@ -366,7 +373,7 @@ void delivery::receive_packet(timeval tv,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(tv, m->liid, m->network, start, end);
+	    it->second->deliver(tv, m->liid, m->network, dir, start, end);
 	}
 
 	// Unlock, we're done.
@@ -380,9 +387,10 @@ void delivery::receive_packet(timeval tv,
 
 	const match* m = 0;
 	tcpip::ip6_address hit;
+        cybermon::direction dir;
 
 	// Match the IP addresses.
-	bool was_hit = ipv6_match(start, end, m, hit, link);
+	bool was_hit = ipv6_match(start, end, m, hit, dir, link);
 
 	// No target match?
 	if (!was_hit) return;
@@ -396,7 +404,7 @@ void delivery::receive_packet(timeval tv,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(tv, m->liid, m->network, start, end);
+	    it->second->deliver(tv, m->liid, m->network, dir, start, end);
 	}
 
 	// Unlock, we're done.

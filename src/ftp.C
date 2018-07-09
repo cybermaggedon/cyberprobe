@@ -39,7 +39,7 @@ void ftp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, TRANSPORT, FTP);
     dest.set(empty, TRANSPORT, FTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     ftp_client_context::ptr fc = ftp_client_context::get_or_create(c, f);
 
@@ -68,7 +68,7 @@ void ftp::process_server(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, TRANSPORT, FTP);
     dest.set(empty, TRANSPORT, FTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     ftp_server_context::ptr fc = ftp_server_context::get_or_create(c, f);
 

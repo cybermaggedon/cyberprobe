@@ -27,6 +27,7 @@ need to be called on the etsi_li object are connect and close.
 #include <cybermon/thread.h>
 #include <cybermon/monitor.h>
 #include <cybermon/transport.h>
+#include <cybermon/pdu.h>
 
 #include <vector>
 #include <string>
@@ -144,7 +145,8 @@ class sender {
 		 const std::vector<unsigned char>& packet,
 		 const std::string& country = "",
 		 const std::string& net_element = "",
-		 const std::string& int_pt = "");
+		 const std::string& int_pt = "",
+                 direction = NOT_KNOWN);
 
     void ia_acct_stop(const std::string& liid,
 				const std::string& oper,
@@ -202,7 +204,8 @@ class mux {
 		   const std::string& oper = "unknown",
 		   const std::string& country = "",
 		   const std::string& net_elt = "",
-		   const std::string& int_pt = "");
+		   const std::string& int_pt = "",
+                   direction dir = NOT_KNOWN);
 
 };
 

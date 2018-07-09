@@ -21,7 +21,7 @@ void rtp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, APPLICATION, RTP);
     dest.set(empty, APPLICATION, RTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     rtp_context::ptr fc = rtp_context::get_or_create(c, f);
 

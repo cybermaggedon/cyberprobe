@@ -404,7 +404,7 @@ void http::process_request(manager& mgr, context_ptr c,
     src.set(empty, TRANSPORT, HTTP);
     dest.set(empty, TRANSPORT, HTTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     http_request_context::ptr fc = http_request_context::get_or_create(c, f);
 
@@ -437,7 +437,7 @@ void http::process_response(manager& mgr, context_ptr c,
     src.set(empty, TRANSPORT, HTTP);
     dest.set(empty, TRANSPORT, HTTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     http_response_context::ptr fc = http_response_context::get_or_create(c, f);
 

@@ -3,6 +3,7 @@
 
 #include <cybermon/cybermon-lua.h>
 #include <cybermon/forgery.h>
+#include <cybermon/pdu.h>
 
 using namespace cybermon;
 
@@ -43,6 +44,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     afns["forge_tcp_reset"] = &context_forge_tcp_reset;
     afns["forge_tcp_data"] = &context_forge_tcp_data;
     afns["get_creation_time"] = &context_get_creation_time;
+    afns["get_direction"] = &context_get_direction;
 
     register_table(afns);
 
@@ -2078,6 +2080,28 @@ int cybermon_lua::context_get_creation_time(lua_State* lua)
 
     cd->cml->pop(1);
     cd->cml->push(d);
+
+    return 1;
+
+}
+
+int cybermon_lua::context_get_direction(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
+    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+
+    direction dir = cd->ctxt->addr.direc;
+
+    cd->cml->pop(1);
+
+    if (dir == FROM_TARGET)
+        cd->cml->push("FROM_DEVICE");
+    else if (dir == TO_TARGET)
+        cd->cml->push("TO_DEVICE");
+    else
+        cd->cml->push("NOT_KNOWN");
 
     return 1;
 

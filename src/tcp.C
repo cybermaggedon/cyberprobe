@@ -50,7 +50,18 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     // FIXME: Check checksum?
 
-    flow_address f(src, dest);
+#ifdef DEBUG
+    std::cerr << "Flags:" << std::endl
+              << (flags & SYN ? " SYN" : "")
+              << (flags & FIN ? " FIN" : "")
+              << (flags & ACK ? " ACK" : "")
+              << (flags & RST ? " RST" : "")
+              << " seq=" << seq
+              << " ack=" << ack
+              << std::endl;
+#endif
+
+    flow_address f(src, dest, sl.direc);
 
     tcp_context::ptr fc = tcp_context::get_or_create(c, f);
 
@@ -125,8 +136,7 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	// If there's data, process the data.
 	if (payload_length > 0) {
 	    fc->lock.unlock();
-	    post_process(mgr, fc,
-			 pdu_slice(s + header_length, e, sl.time));
+	    post_process(mgr, fc, sl.skip(header_length));
 	    fc->lock.lock();
 	}
 
@@ -202,8 +212,8 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    fc->lock.unlock();
 
 	    pdu_slice sl2(fc->segments.begin()->segment.begin() + unwanted,
-			 fc->segments.begin()->segment.end(),
-			 sl.time);
+                          fc->segments.begin()->segment.end(),
+                          sl.time, sl.direc);
 
 	    post_process(mgr, fc, sl2);
 
@@ -319,7 +329,8 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
         pdu p;
         p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
 
-        (*fc->processor)(mgr, fc, pdu_slice(p.begin(), p.end(), sl.time));
+        (*fc->processor)(mgr, fc, pdu_slice(p.begin(), p.end(), sl.time,
+                                            sl.direc));
         return;
     }
     

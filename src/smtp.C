@@ -38,7 +38,7 @@ void smtp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, TRANSPORT, SMTP);
     dest.set(empty, TRANSPORT, SMTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     smtp_client_context::ptr fc = smtp_client_context::get_or_create(c, f);
 
@@ -64,7 +64,7 @@ void smtp::process_server(manager& mgr, context_ptr c, const pdu_slice& sl)
     src.set(empty, TRANSPORT, SMTP);
     dest.set(empty, TRANSPORT, SMTP);
 
-    flow_address f(src, dest);
+    flow_address f(src, dest, sl.direc);
 
     smtp_server_context::ptr fc = smtp_server_context::get_or_create(c, f);
 

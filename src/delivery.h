@@ -8,6 +8,7 @@
 #include "capture.h"
 #include "packet_consumer.h"
 #include "address_map.h"
+#include <cybermon/pdu.h>
 
 #include <map>
 #include <list>
@@ -163,6 +164,7 @@ class delivery : public parameters, public management, public packet_consumer {
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
 		    tcpip::ip4_address& match,
+                    cybermon::direction& direc,
 		    const link_info&);
 
     // IPv6 header to LIID
@@ -170,6 +172,7 @@ class delivery : public parameters, public management, public packet_consumer {
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
 		    tcpip::ip6_address& match,
+                    cybermon::direction& direc,
 		    const link_info&);
 
     // Expand liid/network template

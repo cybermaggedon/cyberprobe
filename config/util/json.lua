@@ -97,15 +97,12 @@ local initialise_observation = function(e, indicators)
   get_stack(e.context, addrs, false)
   obs["dest"] = addrs
 
-  device_addr = e.context:get_trigger_info()
-  if not(device_addr == nil) and not(device_addr == "") then
-    print(device_addr)
-    if device_addr == src then
-      obs["origin"] = "device"
-    else
-      if device_addr == dest then
-        obs["origin"] = "network"
-      end
+  dir = e.context:get_direction()
+  if dir == "FROM_DEVICE" then
+    obs["origin"] = "device"
+  else
+    if dir == "TO_DEVICE" then
+      obs["origin"] = "network"
     end
   end
   
