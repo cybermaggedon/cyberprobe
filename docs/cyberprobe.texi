@@ -202,6 +202,9 @@ Cyberprobe releases:
 
 @table @code
 
+@item 1.11.1
+Altered handling of @samp{origin} to make it more resilient.
+
 @item 1.11.0
 Added @samp{origin} field to identify whether or not the triggering
 device caused an event.
