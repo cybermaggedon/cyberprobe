@@ -23,11 +23,11 @@ namespace cybermon {
 	    if (src < a.src)
 		return true;
 	    else if (src == a.src)
-		if (dest < a.dest)
+                if (dest < a.dest)
 		    return true;
-                else if (dest == a.dest)
-                    if (direc < a.direc)
-                        return true;
+//                else if (dest == a.dest)
+//                    if (direc < a.direc)
+//                        return true;
 	    return false;
 	}
     };

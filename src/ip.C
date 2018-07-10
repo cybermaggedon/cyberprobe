@@ -266,17 +266,20 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     if (protocol == 6)
 
 	// TCP
-        tcp::process(mgr, fc, sl.skip(header_length));
+        tcp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                        sl.time, sl.direc));
 
     else if (protocol == 17)
 	
 	// UDP
-	udp::process(mgr, fc, sl.skip(header_length));
+        udp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                        sl.time, sl.direc));
 
     else if (protocol == 1)
 	
 	// ICMP
-	icmp::process(mgr, fc, sl.skip(header_length));
+        icmp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                         sl.time, sl.direc));
 
     else {
 	std::ostringstream buf;
@@ -336,17 +339,26 @@ void ip::process_ip6(manager& mgr, context_ptr c, const pdu_slice& sl)
     if (protocol == 6)
 
 	// TCP
-	tcp::process(mgr, fc, sl.skip(header_length));
+	tcp::process(mgr, fc,
+                     pdu_slice(s + header_length, s + header_length + length,
+                               sl.time,
+                               sl.direc));
 
     else if (protocol == 17)
 	
 	// UDP
-	udp::process(mgr, fc, sl.skip(header_length));
+	udp::process(mgr, fc,
+                     pdu_slice(s + header_length, s + header_length + length,
+                               sl.time, sl.direc));
+
     
     else if (protocol == 1)
 	
 	// ICMP
-	icmp::process(mgr, fc, sl.skip(header_length));
+	icmp::process(mgr, fc,
+                      pdu_slice(s + header_length, s + header_length + length,
+                                sl.time, sl.direc));
+
 
     else {
 	std::ostringstream buf;
