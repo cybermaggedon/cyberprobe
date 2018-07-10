@@ -3978,6 +3978,14 @@ network.
 Returns the IP address which triggered this collection, if known. If not,
 @code{0.0.0.0}x is returned. This is in normal IP address string format.
 
+@item context:get_direction()
+Returns the direction of the event with respect to the target device, if
+known.  This will be a string containing @samp{FROM_DEVICE}, @samp{TO_DEVICE},
+or @samp{NOT_KNOWN}.  The packet direction can only be determined if
+the ETSI stream delivery format is in use.  @command{cyberprobe} works out
+packet direction with respect to the addresses specified in the
+@file{cyberprobe.cfg} file.
+
 @item context:forge_tcp_reset()
 Creates a TCP reset packet and directs it at the source address associated
 with this context. Must have TCP protocol present in the stack.
