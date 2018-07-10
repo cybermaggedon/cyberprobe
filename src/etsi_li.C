@@ -819,7 +819,6 @@ void connection::run()
                                 dir = FROM_TARGET;
                             else if (direc == 1)
                                 dir = TO_TARGET;
-                            std::cout << "Direction:" << dir << std::endl;
                         } catch (...) {
                         }
 
