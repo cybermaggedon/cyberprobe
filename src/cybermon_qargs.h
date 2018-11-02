@@ -102,14 +102,15 @@ class unrecognised_stream_args: public qargs {
 public:
     unrecognised_stream_args(const cybermon::context_ptr cp,
 			     cybermon::pdu_iter s, cybermon::pdu_iter e,
-			     const timeval& time) :
-	cptr(cp), time(time) {
+			     const timeval& time, int64_t posn) :
+        cptr(cp), time(time), position(posn) {
 	pdu.resize(e - s);
 	std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     cybermon::pdu pdu;
     timeval time;
+    int64_t position;
 };
 
 class unrecognised_datagram_args: public qargs {

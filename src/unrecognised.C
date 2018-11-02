@@ -1,6 +1,7 @@
 
 #include <cybermon/unrecognised.h>
 #include <cybermon/manager.h>
+#include <cybermon/tcp.h>
 
 using namespace cybermon;
 
@@ -21,7 +22,8 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-        mgr.unrecognised_stream(fc, sl.start, sl.end, sl.time);
+        mgr.unrecognised_stream(fc, sl.start, sl.end, sl.time, fc->position);
+        fc->position += sl.end - sl.start;
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;

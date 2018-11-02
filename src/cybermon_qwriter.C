@@ -86,9 +86,10 @@ void cybermon_qwriter::trigger_down(const std::string& liid,
 void cybermon_qwriter::unrecognised_stream(const context_ptr cp,
 					   pdu_iter s,
 					   pdu_iter e,
-					   const timeval& tv) {
+					   const timeval& tv,
+                                           int64_t posn) {
     try {
-	qargs* args = new unrecognised_stream_args(cp, s, e, tv);
+	qargs* args = new unrecognised_stream_args(cp, s, e, tv, posn);
 	q_entry* qentry = new q_entry(qargs::unrecognised_stream, args);
 	push(qentry);
     } catch (std::exception& e) {

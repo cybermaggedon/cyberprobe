@@ -140,7 +140,8 @@ namespace cybermon {
 
 	virtual void unrecognised_stream(const context_ptr cp,
 					 pdu_iter s, pdu_iter e,
-					 const pdu_time& tv);
+					 const pdu_time& tv,
+                                         int64_t posn);
 	virtual void unrecognised_datagram(const context_ptr cp,
 					   pdu_iter s, pdu_iter e,
 					   const pdu_time& tv);

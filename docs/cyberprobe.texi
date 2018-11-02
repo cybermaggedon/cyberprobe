@@ -3204,6 +3204,7 @@ end
 -- protocol is not recognised.
 -- e.context = protocol context
 -- e.data = payload
+-- e.position = stream position
 observer.unrecognised_stream = function(e)
 end
 
@@ -3753,6 +3754,10 @@ from @command{cybermon}.
 @item data
 the payload.
 
+@item position
+the stream position of the payload in bytes.  Starts at 0 when stream is
+connected, and increases with payload size.
+
 @end table
 
 @item imap(e)
@@ -4271,6 +4276,10 @@ The value is a JSON object ontaining the following fields:
 
 @item payload
 The datagram body, Base64 encoded.
+
+@item position
+The stream position, 0 for a newly connected stream, increases with each
+payload size.
 
 @end table
 

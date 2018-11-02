@@ -109,7 +109,7 @@ void cybermon_qreader::run() {
 		pdu_iter pdue = ursargs->pdu.end();
 		cml.unrecognised_stream(qwriter, ursargs->cptr,
 					pdus, pdue,
-					ursargs->time);
+					ursargs->time, ursargs->position);
 		delete (qentry);
 		delete (ursargs);
 		break;

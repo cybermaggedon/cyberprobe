@@ -21,7 +21,8 @@ namespace cybermon {
 
 	virtual void unrecognised_stream(const context_ptr cp,
 					 pdu_iter s, pdu_iter e,
-					 const timeval& tv) = 0;
+					 const timeval& tv,
+                                         int64_t posn) = 0;
 
 	// Connection-less
 	virtual void unrecognised_datagram(const context_ptr cp,
