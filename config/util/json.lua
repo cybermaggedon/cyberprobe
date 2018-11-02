@@ -170,6 +170,7 @@ module.unrecognised_stream = function(e)
   obs["action"] = "unrecognised_stream"
   obs["unrecognised_stream"] = {}
   obs["unrecognised_stream"]["payload"] = b64(e.data)
+  obs["unrecognised_stream"]["position"] = e.position
   submit(obs)
 end
 

@@ -448,7 +448,7 @@ namespace cybermon {
 	// in LUA space for the duration of this call.
 	void unrecognised_stream(engine& an, const context_ptr f, 
 				 pdu_iter s, pdu_iter e,
-				 const timeval& time);
+				 const timeval& time, int64_t posn);
 
 	void unrecognised_datagram(engine& an, const context_ptr f, 
 				   pdu_iter s, pdu_iter e, const timeval& time);

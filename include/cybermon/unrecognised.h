@@ -14,25 +14,29 @@
 
 #include <cybermon/context.h>
 #include "manager.h"
-//#include "serial.h"
 #include "protocol.h"
 
 namespace cybermon {
     
     // An unrecoginsed stream.
     class unrecognised_stream_context : public context {
-      public:
+        
+    public:
+
+        int64_t position;
 	
 	// Constructor.
         unrecognised_stream_context(manager& m) : 
 	context(m) {
+            position = 0;
 	}
 
 	// Constructor, describing flow address and parent pointer.
         unrecognised_stream_context(manager& m, const flow_address& a, 
 				    context_ptr p) : 
 	context(m) { 
-	    addr = a; parent = p; 
+	    addr = a; parent = p;
+            position = 0;
 	}
 
 	// Type.

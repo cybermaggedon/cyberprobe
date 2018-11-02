@@ -212,7 +212,7 @@ void cybermon_lua::connection_down(engine& an, const context_ptr f,
 // in LUA space for the duration of this call.
 void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f, 
 				       pdu_iter s, pdu_iter e,
-				       const timeval& time)
+				       const timeval& time, int64_t posn)
 {
     
     // Get config.unrecognised_stream
@@ -235,6 +235,11 @@ void cybermon_lua::unrecognised_stream(engine& an, const context_ptr f,
     // Put data on stack.
     push("data");
     push(s, e);
+    set_table(-3);
+    
+    // Put data on stack.
+    push("position");
+    push(posn);
     set_table(-3);
     
     // config.unrecognised_stream(event)
