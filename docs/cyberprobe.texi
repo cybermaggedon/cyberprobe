@@ -366,7 +366,7 @@ install if you're not using containers.
 In order to install, you need to add our signing key to your system:
 
 @example
-  wget -q -O- http://download.trustnetworks.com/trust-networks.asc | \
+  wget -q -O- https://cybermaggedon.github.io/cyberprobe-docs/cyberprobe.asc | \
     apt-key add -
 @end example
 
@@ -379,27 +379,27 @@ Once done you then add our repository to @file{/etc/apt/sources.list}.
 
 For Debian Stretch, add:
 @example
-deb http://download.trustnetworks.com/debian stretch main
+deb https://cybermaggedon.github.io/cyberprobe-docs/debian stretch main
 @end example
 
 For Debian Jessie, add:
 @example
-deb http://download.trustnetworks.com/debian jessie main
+deb https://cybermaggedon.github.io/cyberprobe-docs/debian jessie main
 @end example
 
 For Debian Wheezy, add:
 @example
-deb http://download.trustnetworks.com/debian wheezy main
+deb https://cybermaggedon.github.io/cyberprobe-docs/debian wheezy main
 @end example
 
-For Ubuntu Artful, add:
+For Ubuntu Xenial, add:
 @example
-deb http://download.trustnetworks.com/ubuntu artful main
+deb https://cybermaggedon.github.io/cyberprobe-docs/ubuntu xenial main
 @end example
 
-For Ubuntu Zesty, add:
+For Ubuntu Bionic, add:
 @example
-deb http://download.trustnetworks.com/ubuntu zesty main
+deb https://cybermaggedon.github.io/cyberprobe-docs/ubuntu bionic main
 @end example
 
 Once added, the cyberprobe installation proceeds thus:
@@ -412,15 +412,15 @@ apt-get install cyberprobe
 @heading Centos / Fedora
 
 To install using Yum or DNF, create file
-@file{/etc/yum.repos.d/trust-networks.repo}:
+@file{/etc/yum.repos.d/cyberprobe.repo}:
 
 @example
-[trustnetworks]
-name=Trust Networks
-baseurl=http://download.trustnetworks.com/fedora/$releasever/$basearch/
+[cyberprobe]
+name=Cyberprobe
+baseurl=https://cybermaggedon.github.io/cyberprobe-docs/fedora/$releasever/$basearch/
 gpgcheck=1
 enabled=1
-gpgkey=http://download.trustnetworks.com/trust-networks.asc
+gpgkey=https://cybermaggedon.github.io/cyberprobe-docs/cyberprobe.asc
 @end example
 
 and then:
@@ -515,7 +515,7 @@ sudo make install
 @end example
 
 Powered by Github, project page is at
-@url{http://cyberprobe.trustnetworks.com}.
+@url{https://cybermaggedon.github.io/cyberprobe-docs/}.
 
 @cindex Docker
 @cindex Containers
