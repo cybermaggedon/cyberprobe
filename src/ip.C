@@ -184,7 +184,8 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    }
 
 	    // Copy this frag into place.
-	    std::copy(s + header_length, e,
+	    // Use length to avoid picking up trailers from VLAN/ETH
+	    std::copy(s + header_length, s + length,
 		      pdu.begin() + header_length + frag_first);
 
 	    // Now put the header in place.
