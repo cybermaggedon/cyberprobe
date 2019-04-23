@@ -93,7 +93,7 @@ class TaxiiDefaultQuery:
         
         result = doc.xpath(expr, namespaces=namespaces)
 
-        #print expr
+        #print(expr)
         
         if result == True:
             ret = True

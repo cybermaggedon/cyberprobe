@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Takes a file which is a capture of an ETSI stream, extracts the IP packets
 # and outputs a PCAP file.
@@ -99,7 +99,7 @@ class Ber:
                 try:
                     pdu = Ber.read(data)
                     self.pdus[pdu.tag] = pdu
-                except Exception, v:
+                except Exception as v:
                     break
 
     @staticmethod
@@ -135,7 +135,7 @@ class Ber:
                 length |= byte
 
         if length > (1024 * 1024 * 1024):
-            raise Exception, "PDU length too big"
+            raise Exception("PDU length too big")
 
         pdu.extend(Ber.read_stream(stream, length))
 

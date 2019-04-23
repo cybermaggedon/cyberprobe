@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import argparse
@@ -81,11 +81,11 @@ resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
 resp = t.get_message_from_http_response(resp, '0')
 
 if type(resp) != tm11.StatusMessage:
-    print "Expecting a status message!"
+    print("Expecting a status message!")
     sys.exit(1)
 
 if resp.status_type != tm11.ST_SUCCESS:
-    print "%s: %s" % (resp.status_type, resp.message)
+    print("%s: %s" % (resp.status_type, resp.message))
 
 
 

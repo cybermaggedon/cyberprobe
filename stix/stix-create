@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # Converts a simple CSV input file into Indicators in a STIX document 
@@ -139,7 +139,7 @@ for row in reader:
     row_count = row_count + 1
 
     if row_count % 1000 == 0:
-        print row_count, "..."
+        print(row_count, "...")
 
     # Parser id
     id = row[0]

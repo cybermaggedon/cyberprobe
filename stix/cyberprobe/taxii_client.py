@@ -133,7 +133,7 @@ class TaxiiClient:
         # Get response
         resp = t.get_message_from_http_response(resp, '0')
         
-        print resp.to_xml()
+        print(resp.to_xml())
 
     # Perform a TAXII CollecitonInformationRequest
     def perform_collection_information(path="/"):
@@ -156,7 +156,7 @@ class TaxiiClient:
         # Get response
         resp = t.get_message_from_http_response(resp, '0')
 
-        print resp.to_xml()
+        print(resp.to_xml())
 
     def push(s, collection, content, path="/"):
 
@@ -184,7 +184,7 @@ class TaxiiClient:
         resp = t.get_message_from_http_response(resp, '0')
 
         if resp.status_type != tm11.ST_SUCCESS:
-            print "%s: %s" % (resp.status_type, resp.message)
+            print("%s: %s" % (resp.status_type, resp.message))
         
     def subscribe(s, path="/", collection="default", query=None,
                   inbox="http://localhost:8888"):
@@ -225,7 +225,7 @@ class TaxiiClient:
         # Get response
         resp = t.get_message_from_http_response(resp, '0')
 
-        print resp.to_xml()
+        print(resp.to_xml())
 
     # Perform a TAXII ManageCollectionSubscription
     def perform_manage_collection_subscription(path="/", act="status",
@@ -242,7 +242,7 @@ class TaxiiClient:
         elif act == "status":
             action = tm11.ACT_STATUS
         else:
-            print "Need a subscription action I recognise"
+            print("Need a subscription action I recognise")
             sys.exit(1)
 
         # Create request
@@ -265,4 +265,4 @@ class TaxiiClient:
         # Get response
         resp = t.get_message_from_http_response(resp, '0')
 
-        print resp.to_xml()
+        print(resp.to_xml())

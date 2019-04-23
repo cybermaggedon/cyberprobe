@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -76,9 +76,9 @@ try:
         end_ts = None
 except ValueError:
 
-    print "Unable to parse timestamp value. Timestamp should include "
+    print("Unable to parse timestamp value. Timestamp should include "
     "both date and time information along with a timezone or UTC offset "
-    "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll."
+    "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll.")
     sys.exit()
 
 # Create poll request
@@ -102,7 +102,7 @@ resp = client.callTaxiiService2(args.host, args.path, t.VID_TAXII_XML_11,
 # Get response
 resp = t.get_message_from_http_response(resp, '0')
 
-print "End timestamp: %s" % resp.inclusive_end_timestamp_label
+print("End timestamp: %s" % resp.inclusive_end_timestamp_label)
 
 # Create STIX header
 header = STIXHeader()

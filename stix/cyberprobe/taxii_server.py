@@ -73,7 +73,7 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         def handle(content, file):
 
-            print "Adding %s..." % file
+            print("Adding %s..." % file)
     
             # Create content block.
             cb = tm11.ContentBlock(tm11.ContentBinding(t.CB_STIX_XML_11), 
@@ -82,11 +82,11 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             # Append content block to list.
             cbs.append(cb)
 
-        print "Building response..."
+        print("Building response...")
 
         latest = s.get_matching(collection, begin, end, query, handle)
 
-        print "Done"
+        print("Done")
 
         # Create poll response.
         resp = tm11.PollResponse(message_id=tm11.generate_message_id(),
@@ -123,7 +123,7 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # Handling a TAXII CollectionInformationRequest
     def handle_manage_collection_subscription_request(s, msg):
 
-        print msg.to_xml(True)
+        print(msg.to_xml(True))
         
         # Create poll response.
         msg_id=tm11.generate_message_id()
@@ -135,7 +135,7 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         inbox=msg.push_parameters.inbox_address
 
         if query:
-            print query.to_xml()
+            print(query.to_xml())
 
         if action == tm11.ACT_SUBSCRIBE:
 
@@ -213,12 +213,12 @@ class TAXIIServer(BaseHTTPServer.HTTPServer):
         BaseHTTPServer.HTTPServer.__init__(s, (host, port), handler)
 
     def run(s):
-        print time.asctime(), "Server Starts - %s:%d" % (s.host, s.port)
+        print(time.asctime(), "Server Starts - %s:%d" % (s.host, s.port))
 
         # Serve indefinitely.
         try:
             s.serve_forever()
         except KeyboardInterrupt:
             s.server_close()
-            print time.asctime(), "Server Stops - %s:%d" % (s.host, s.port)
+            print(time.asctime(), "Server Stops - %s:%d" % (s.host, s.port))
 

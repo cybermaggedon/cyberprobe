@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([cyberprobe], [1.12.0], [cyberprobe@trustnetworks.com])
+AC_INIT([cyberprobe], [1.12.1], [cyberprobe@trustnetworks.com])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
@@ -41,7 +41,7 @@ AM_CONDITIONAL([HAVE_SYSTEMD], [test "x$with_systemdsystemunitdir" != "xno"])
 AC_MSG_RESULT([$with_systemdsystemunitdir])
 
 # Python
-AM_PATH_PYTHON
+AM_PATH_PYTHON([3.0])
 
 # Check for Boost.
 BOOST_REQUIRE

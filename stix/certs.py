@@ -91,7 +91,7 @@ signed_msg = sign(host_key, data, "sha1")
 
 #signed_msg = 'a' + signed_msg[1:len(signed_msg)]
 
-#print signed_msg
+#print(signed_msg)
 
 verify(host, signed_msg, data, "sha1")
 

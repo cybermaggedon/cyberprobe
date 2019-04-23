@@ -26,7 +26,7 @@ class Handler(TAXIIHandler):
 
         # Hack XML header on.
         package = STIXPackage.from_xml(StringIO.StringIO(content))
-        print "Received",package.id_
+        print("Received",package.id_)
 
     # Handling a TAXII PollRequest
     def get_matching(s, collection, begin, end, query, handle):

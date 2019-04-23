@@ -74,24 +74,24 @@ try:
     stor.unsubscribe(subs_id1)
     stor.unsubscribe(subs_id2)
 
-    print stor.get_collections()
+    print(stor.get_collections())
 
     docs = stor.get_documents("bunchy")
-    print "BUNCY"
-    print docs[0][0], docs[0][1]
+    print("BUNCY")
+    print(docs[0][0], docs[0][1])
 
 #    print stor.get_document(docs[0])
 
 #    print docs
 
     valz = stor.get_matching("bunchy", None, None, None, app)
-    print "VALZ",valz
-    print str
+    print("VALZ",valz)
+    print(str)
 
     stor = None
 
 except KeyboardInterrupt:
 
-    print "Interrupt."
+    print("Interrupt.")
 
 sys.exit(0)

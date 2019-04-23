@@ -3,6 +3,6 @@
 cyberprobe - Miscellaneous Cyberprobe integration support.
 """
 
-__author__ = 'Cyber MacGeddon'
+__author__ = 'cybermageddon'
 __license__ = 'GPLv3'
 

@@ -14,9 +14,9 @@ def dump_indicator(ind):
     
     # Dump stuff out
     if ind.id_:
-        print "Id: %s" % ind.id_
+        print("Id: %s" % ind.id_)
     if ind.description:
-        print "Description: %s" % ind.description
+        print("Description: %s" % ind.description)
 
     # Get object
     obs = ind.observable
@@ -24,44 +24,44 @@ def dump_indicator(ind):
 
     if isinstance(obj, Address):
 
-        print "Address:"
+        print("Address:")
         if obj.category == Address.CAT_EMAIL:
-            print '  Email address: %s' % obj.address_value
+            print('  Email address: %s' % obj.address_value)
         if obj.category == Address.CAT_IPV4:
-            print '  IPv4 address: %s' % obj.address_value
+            print('  IPv4 address: %s' % obj.address_value)
         if obj.category == Address.CAT_MAC:
-            print '  MAC address: %s' % obj.address_value
+            print('  MAC address: %s' % obj.address_value)
 
     if isinstance(obj, File):
-        print "File:"
+        print("File:")
 
-        if obj.full_path:  print "  Path: %s" % obj.full_path
+        if obj.full_path:  print("  Path: %s" % obj.full_path)
 
         if obj.hashes:
             for h in obj.hashes:
-                print "  Hash: "
+                print("  Hash: ")
                 if h.simple_hash_value:
-                    print "    Simple hash: %s" % h.simple_hash_value
+                    print("    Simple hash: %s" % h.simple_hash_value)
                 if h.fuzzy_hash_value:
-                    print "    Fuzzy hash: %s" % h.fuzzy_hash_value
+                    print("    Fuzzy hash: %s" % h.fuzzy_hash_value)
                 if h.type_:
-                    print "    Type: %s" % h.type_
+                    print("    Type: %s" % h.type_)
 
     if isinstance(obj, DomainName):
-        print "Hostname (%s): %s" % (obj.type_, obj.value)
+        print("Hostname (%s): %s" % (obj.type_, obj.value))
 
     if isinstance(obj, Port):
-        print "Port: %s (%s)" % (obj.port_value, obj.layer4_protocol)
+        print("Port: %s (%s)" % (obj.port_value, obj.layer4_protocol))
 
     if isinstance(obj, URI):
-        print "URI: %s" % obj.value
+        print("URI: %s" % obj.value)
 
     if isinstance(obj, UserAccount):
-        print "User account:"
-        print "  Username: %s" % obj.username
-        print "  Domain: %s" % obj.domain
+        print("User account:")
+        print("  Username: %s" % obj.username)
+        print("  Domain: %s" % obj.domain)
 
-    print
+    print()
 
 ############################################################################
 # Dump a STIX package in human readable form
@@ -69,7 +69,7 @@ def dump_indicator(ind):
 
 def dump_package(pkg):
 
-    print
+    print()
 
     # Walk through indicators
     for ind in pkg.indicators:

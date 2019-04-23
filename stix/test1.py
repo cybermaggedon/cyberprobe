@@ -18,9 +18,9 @@ f.close()
 
 s.add_content(content, "bunchy")
 
-print s.get_collections()
+print(s.get_collections())
 
-print s.get_documents("bunchy")
+print(s.get_documents("bunchy"))
 
 target = "//Information_Source/Identity/@idref"
 value = "source:bunchy"
@@ -36,7 +36,7 @@ criteria = tdq.DefaultQuery.Criteria(operator=tdq.OP_AND,
 qry=tdq.DefaultQuery(t.CB_STIX_XML_11, criteria)
 
 def printme(content, file):
-    print "MATCH: ", file
+    print("MATCH: ", file)
 
 s.get_matching("bunchy", None, None, qry, printme)
 
@@ -44,6 +44,6 @@ tc = TaxiiClient()
 
 ret = tc.perform_poll(collection="bunchy")
 for r in ret:
-    print "PACKAGE", r.id_
+    print("PACKAGE", r.id_)
 
 

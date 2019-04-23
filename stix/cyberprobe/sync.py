@@ -42,12 +42,12 @@ class DbSynchroniser(Synchroniser):
         s.db = db
 
     def remove_internal(s, id):
-        print "Delete", id
+        print("Delete", id)
         pass
 
     def add_internal(s, file):
         id = "FIXME: Need id."
-        print "Add", file, id
+        print("Add", file, id)
         return id
 
     def remove(s, item):

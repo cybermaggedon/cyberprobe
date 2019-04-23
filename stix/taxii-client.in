@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import argparse
@@ -27,14 +27,14 @@ def perform_poll(args):
                              collection=args.collection,
                              begin_ts=begin_ts, end_ts=end_ts)
 
-    print "End timestamp:", last
+    print("End timestamp:", last)
 
     # Process each content block
     for package in pkgs:
         
         # Dump package ID
         if package.id_:
-            print "***** Package id: %s" % package.id_
+            print("***** Package id: %s" % package.id_)
             
             # Dump package
             indicator.dump_package(package)
@@ -62,7 +62,7 @@ def perform_discovery(args):
     # Get response
     resp = t.get_message_from_http_response(resp, '0')
 
-    print resp.to_xml()
+    print(resp.to_xml())
 
 ############################################################################
 # Perform a TAXII CollectionInformationRequest
@@ -88,7 +88,7 @@ def perform_collection_information(args):
     # Get response
     resp = t.get_message_from_http_response(resp, '0')
 
-    print resp.to_xml()
+    print(resp.to_xml())
 
 ############################################################################
 # Perform a TAXII ManageCollectionSubscription with subscribe action
@@ -102,7 +102,7 @@ def perform_subscribe(args):
                                query=args.query,
                                inbox=args.inbox)
 
-    print "Subscription:", subs_id
+    print("Subscription:", subs_id)
 
 ############################################################################
 # main body
@@ -171,13 +171,13 @@ try:
         end_ts = None
 except ValueError:
 
-    print "Unable to parse timestamp value. Timestamp should include "
+    print("Unable to parse timestamp value. Timestamp should include "
     "both date and time information along with a timezone or UTC offset "
-    "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll."
+    "(e.g., YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm). Aborting poll.")
     sys.exit(1)
 
 if args.action == None:
-    print "An action must be specified (e.g. --poll)."
+    print("An action must be specified (e.g. --poll).")
     sys.exit(1)
 
 client = TaxiiClient(args.host, args.port)

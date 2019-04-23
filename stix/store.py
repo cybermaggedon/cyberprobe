@@ -168,7 +168,7 @@ class Store:
 
         s.senders_lock.acquire()
 
-        if not s.subscriptions.has_key(collection):
+        if collection not in s.subscriptions:
             s.subscriptions[collection] = {}
 
         s.subscriptions[collection][id] = {}
@@ -228,7 +228,7 @@ class Store:
 
         for collection in collections:
             
-            if not s.subscriptions.has_key(collection): continue
+            if collection not in s.subscriptions: continue
 
             for subs in s.subscriptions[collection]:
 
@@ -263,7 +263,7 @@ class Store:
 
         s.senders_lock.acquire()
 
-        if s.senders.has_key(id):
+        if id in s.senders:
             
             collection = s.senders[id].subscription["collection"]
 

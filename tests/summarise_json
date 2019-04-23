@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # Reads JSON, one JSON object per line, and outputs a summary of the data on
@@ -21,21 +21,21 @@ def parse(s, key, d):
     # Ignore ID field, it's random.
     if key == ".id": return
         
-    if type(d) == types.DictType:
+    if isinstance(d, dict):
         for k2 in d:
             parse(s, key + "." + k2, d[k2])
-    elif type(d) == types.ListType:
+    elif isinstance(d, list):
         for i in range(0, len(d)):
             parse(s, key + "." + str(i), d[i])
-    elif type(d) == types.StringType or type(d) == types.UnicodeType:
+    elif isinstance(d, str):
         sk = key + " " + d
-        if summary.has_key(sk):
+        if sk in summary:
             summary[sk] += 1
         else:
             summary[sk] = 1
     else:
         sk = key + " " + str(d)
-        if summary.has_key(sk):
+        if sk in summary:
             summary[sk] += 1
         else:
             summary[sk] = 1
@@ -52,5 +52,5 @@ for v in summary:
 sorted_summary.sort()
 
 for v in sorted_summary:
-    print v
+    print(v)
 

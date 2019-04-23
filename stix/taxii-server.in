@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import BaseHTTPServer
 import time
@@ -34,7 +34,7 @@ class Sync(sync.DbSynchroniser):
 
     def remove_internal(s, id):
         s.store.delete(id)
-        print "Deleted", id
+        print("Deleted", id)
 
     def add_internal(s, file):
 
@@ -46,7 +46,7 @@ class Sync(sync.DbSynchroniser):
         # Add to store.
         id = s.store.store(content, ["default"])
 
-        print "Added", file
+        print("Added", file)
 
         # Return the created ID.
         return id
