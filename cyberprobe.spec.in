@@ -60,7 +60,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/cyberprobe/util/*.lua
 %config /etc/cyberprobe.cfg
 /usr/bin/*
-/usr/lib/python2.7/site-packages/cyberprobe
+/usr/lib/python3.7/site-packages/cyberprobe
 /usr/include/cybermon/*
 %{_libdir}/lib*
 /usr/lib/systemd/system/cyberprobe.service
