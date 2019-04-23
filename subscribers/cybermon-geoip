@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -21,7 +21,7 @@ def lookup(ip):
 
     try:
         g = geo.city(ip)
-    except Exception, e:
+    except Exception as e:
         return None
 
     locn = {
@@ -58,19 +58,19 @@ def handle(msg, output):
     if sip != None:
         g = lookup(sip)
         if g != None:
-            if not obj.has_key("location"): obj["location"] = {}
+            if "location" not in obj: obj["location"] = {}
             obj["location"]["src"] = g
 
     if dip != None:
         g = lookup(dip)
         if g != None:
-            if not obj.has_key("location"): obj["location"] = {}
+            if "location" not in obj: obj["location"] = {}
             obj["location"]["dest"] = g
             
     output(json.dumps(obj))
 
 try:
     q.subscribe(binding, handle, output)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 

@@ -366,7 +366,8 @@ install if you're not using containers.
 In order to install, you need to add our signing key to your system:
 
 @example
-  wget -q -O- https://cybermaggedon.github.io/cyberprobe-release/cyberprobe.asc | \
+  wget -q -O- \
+    https://cybermaggedon.github.io/cyberprobe-release/cyberprobe.asc | \
     apt-key add -
 @end example
 
@@ -379,27 +380,32 @@ Once done you then add our repository to @file{/etc/apt/sources.list}.
 
 For Debian Stretch, add:
 @example
-deb https://cybermaggedon.github.io/cyberprobe-release/debian stretch main
+deb https://cybermaggedon.github.io/cyberprobe-release/debian \
+  stretch main
 @end example
 
 For Debian Jessie, add:
 @example
-deb https://cybermaggedon.github.io/cyberprobe-release/debian jessie main
+deb https://cybermaggedon.github.io/cyberprobe-release/debian \
+  jessie main
 @end example
 
 For Debian Wheezy, add:
 @example
-deb https://cybermaggedon.github.io/cyberprobe-release/debian wheezy main
+deb https://cybermaggedon.github.io/cyberprobe-release/debian \
+  wheezy main
 @end example
 
 For Ubuntu Xenial, add:
 @example
-deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu xenial main
+deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu \
+  xenial main
 @end example
 
 For Ubuntu Bionic, add:
 @example
-deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu bionic main
+deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu \
+  bionic main
 @end example
 
 Once added, the cyberprobe installation proceeds thus:

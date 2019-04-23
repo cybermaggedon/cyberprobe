@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ############################################################################
 
@@ -81,7 +81,7 @@ def gaffer_output(vertices, edges):
                 sys.stderr.write("gaffer: HTTP code: %s\n" % str(r.status_code))
                 sys.stderr.write(r.text + "\n")
             break
-        except Exception, e:
+        except Exception as e:
             # Keep retrying for transport errors
             sys.stderr.write("gaffer: Could not deliver to Gaffer...\n")
             sys.stderr.write("gaffer: Exception: %s\n" % str(e))
@@ -107,7 +107,7 @@ def handle(msg, output):
     dport = None
     proto = None
 
-    if obj.has_key("src"):
+    if "src" in obj:
         ip = None
         for v in obj["src"]:
             if v.find(":") < 0:
@@ -128,7 +128,7 @@ def handle(msg, output):
                 sport = addr
                 proto = "udp"
 
-    if obj.has_key("dest"):
+    if "dest" in obj:
         ip = None
         for v in obj["dest"]:
             if v.find(":") < 0:
@@ -160,7 +160,7 @@ def handle(msg, output):
         add_vertex(vertices, "tcp", dest)
         add_edge(edges, "tcpflow", src, dest)
 
-        if obj.has_key("url") and obj["action"] == "http_request":
+        if "url" in obj and obj["action"] == "http_request":
             add_edge(edges, "httprequest", src, obj["url"])
 
     if sip != None and sport != None and dip != None and dport != None and \
@@ -174,34 +174,35 @@ def handle(msg, output):
         add_vertex(vertices, "udp", dest)
         add_edge(edges, "udpflow", src, dest)
 
-        if obj.has_key("queries") and obj["action"] == "dns_message":
-            for v in obj["queries"]:
-                add_edge(edges, "dnsrequest", src, v["name"])
+        if obj["action"] == "dns_message" and "query" in obj["dns_message"]:
+            for v in ev["dns_message"]["query"]:
+                if "name" in v:
+                    add_edge(edges, "dnsrequest", src, v["name"])
 
     gaffer_output(vertices, edges)
 
 ############################################################################
 
-print "Connecting to Gaffer..."
+print("Connecting to Gaffer...")
 while True:
     url = gaffer + "/status"
     try:
         r = requests.get(url)
     except:
-        print "Not connected, will retry..."
+        print("Not connected, will retry...")
         time.sleep(10)
         continue
 
     if r.status_code == 200: break
 
-    print "Not connected, will retry..."
+    print("Not connected, will retry...")
     time.sleep(10)
 
-print "Connected."
+print("Connected.")
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
 

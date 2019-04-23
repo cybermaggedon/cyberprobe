@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -68,7 +68,7 @@ def check_config():
             elif o["xsi:type"] == "URIObjectType":
                 stix["index"]["url"][o["value"]] = i
 
-        print "STIX data loaded."
+        print("STIX data loaded.")
         mtime = s
 
 def check_addresses(obj):
@@ -80,7 +80,7 @@ def check_addresses(obj):
         if v.startswith("ipv4"): ips[v[5:]] = True
 
     for v in ips:
-        if stix["index"]["ipv4"].has_key(v):
+        if v in stix["index"]["ipv4"]:
             hit = stix["index"]["ipv4"][v]
             indicator = {
                 "type": "ipv4",
@@ -88,7 +88,7 @@ def check_addresses(obj):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not obj.has_key("indicators"): obj["indicators"] = []
+            if "indicators" not in obj: obj["indicators"] = []
             obj["indicators"].append(indicator)
 
     ports = {}
@@ -98,7 +98,7 @@ def check_addresses(obj):
         if v.startswith("tcp"): ports[v] = True
 
     for v in ports:
-        if stix["index"]["port"].has_key(v):
+        if v in stix["index"]["port"]:
             hit = stix["index"]["port"][v]
             indicator = {
                 "type": "tcp",
@@ -106,7 +106,7 @@ def check_addresses(obj):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not obj.has_key("indicators"): obj["indicators"] = []
+            if "indicators" not in obj: obj["indicators"] = []
             obj["indicators"].append(indicator)
 
     ports = {}
@@ -116,7 +116,7 @@ def check_addresses(obj):
         if v.startswith("udp"): ports[v] = True
 
     for v in ports:
-        if stix["index"]["port"].has_key(v):
+        if v not in stix["index"]["port"]:
             hit = stix["index"]["port"][v]
             indicator = {
                 "type": "udp",
@@ -124,24 +124,24 @@ def check_addresses(obj):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not obj.has_key("indicators"): obj["indicators"] = []
+            if "indicators" not in obj:: obj["indicators"] = []
             obj["indicators"].append(indicator)
 
 def check_dns(obj):
 
     hosts = {}
 
-    if obj.has_key("dns_message") and obj["dns_message"].has_key("query"):
+    if "dns_message" in obj and "query" in obj["dns_message"]:
         for v in obj["dns_message"]["query"]:
-            if v.has_key("name"):
+            if "name" in v:
                 hosts[v["name"]] = True
-    if obj.has_key("dns_message") and obj["dns_message"].has_key("answer"):
+    if "dns_message" in obj and "answer" in obj["dns_message"]:
         for v in obj["dns_message"]["answer"]:
-            if v.has_key("name"):
+            if "name" in v:
                 hosts[v["name"]] = True
 
     for v in hosts:
-        if stix["index"]["hostname"].has_key(v):
+        if v in stix["index"]["hostname"]:
             hit = stix["index"]["hostname"][v]
             indicator = {
                 "type": "hostname",
@@ -149,13 +149,13 @@ def check_dns(obj):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not obj.has_key("indicators"): obj["indicators"] = []
+            if "indicators" not in not obj: obj["indicators"] = []
             obj["indicators"].append(indicator)
 
 def check_url(obj):
 
-    if obj.has_key("url"):
-        if stix["index"]["url"].has_key(obj["url"]):
+    if "url" in obj:
+        if obj["url"] in stix["index"]["url"]:
             hit = stix["index"]["url"][obj["url"]]
             indicator = {
                 "type": "url",
@@ -163,20 +163,20 @@ def check_url(obj):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not obj.has_key("indicators"): obj["indicators"] = []
+            if "indicators" not in obj: obj["indicators"] = []
             obj["indicators"].append(indicator)
 
 def check_email(obj):
 
     emails = {}
-    if obj.has_key("smtp_data") and obj["smtp_data"].has_key("from"):
+    if "smtp_data" in obj and "from" in obj["smtp_data"]:
         emails[obj["smtp_data"]["from"]] = True
-    if obj.has_key("smtp_data") and obj["smtp_data"].has_key("to"):
+    if "smtp_data" in obj and "to" in obj["smtp_data"]:
         for v in obj["smtp_data"]["to"]:
             emails[v] = True
 
     for v in emails:
-        if stix["index"]["email"].has_key(v):
+        if v in stix["index"]["email"]:
             hit = stix["index"]["email"][v]
             indicator = {
                 "type": "url",
@@ -184,7 +184,7 @@ def check_email(obj):
                 "id": hit["id"],
                 "description": hit["description"]
             }
-            if not obj.has_key("indicators"): obj["indicators"] = []
+            if "indicators" not int obj: obj["indicators"] = []
             obj["indicators"].append(indicator)
 
 def handle(msg, output):
@@ -198,6 +198,6 @@ def handle(msg, output):
 
 try:
     q.subscribe(binding, handle, output)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 

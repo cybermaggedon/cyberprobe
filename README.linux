@@ -2,27 +2,35 @@
 Debian, Ubuntu
 ==============
 
-- sudo apt-get install git
-- sudo apt-get install automake autoconf
-- sudo apt-get install libpcap-dev libboost-dev libboost-regex-dev
-- sudo apt-get install libboost-program-options-dev
-- sudo apt-get install g++
-- sudo apt-get install -y libexpat-dev
-- sudo apt-get install -y libncurses-dev libreadline-dev
-- sudo apt-get install -y lua-filesystem lua-json lua-md5 lua-socket
-- sudo apt-get install -y texinfo texlive
-- sudo apt-get install -y python
-- sudo apt-get install -y tcpdump
-- sudo apt-get install -y libtool make
-- sudo apt-get install -y build-essential devscripts apt-utils
-- sudo apt-get install -y lua5.2 liblua5.2-dev
-- sudo apt-get install -y dh-make
-- sudo apt-get install -y libssl-dev
-- git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
-- autoreconf -fi
-- ./configure --prefix=/usr/local
-- make
-- make install
+sudo apt install -y git
+sudo apt install -y automake autoconf
+sudo apt install -y libpcap-dev libboost-dev libboost-regex-dev
+sudo apt install -y libboost-program-options-dev
+sudo apt install -y g++
+sudo apt install -y libexpat-dev
+sudo apt install -y libncurses-dev libreadline-dev
+sudo apt install -y lua-filesystem lua-json lua-md5 lua-socket
+sudo apt install -y texinfo texlive
+sudo apt install -y python
+sudo apt install -y tcpdump
+sudo apt install -y libtool make
+sudo apt install -y build-essential devscripts apt-utils
+sudo apt install -y lua5.2 liblua5.2-dev
+sudo apt install -y dh-make
+sudo apt install -y libssl-dev
+sudo apt install -y luarocks
+sudo luarocks install amqp
+sudo luarocks install luabitop
+sudo luarocks install sha1
+sudo luarocks install md5
+sudo luarocks install uuid
+sudo apt install texlive-latex-extra
+git clone https://github.com/cybermaggedon/cyberprobe cyberprobe
+cd cyberprobe
+autoreconf -fi
+./configure --prefix=/usr/local
+make
+make install
 
 Fedora
 ======
@@ -35,6 +43,9 @@ sudo dnf install -y lua-filesystem lua-json lua-md5 lua-socket
 sudo dnf install -y texinfo texlive texinfo-tex
 sudo dnf install -y luarocks python tcpdump tar
 sudo dnf install -y libtool make rpm-build openssl-devel
+sudo luarocks install amqp
+sudo luarocks install luabitop
+sudo luarocks install sha1
 sudo luarocks install md5
 sudo luarocks install uuid
 sudo dnf install -y cppzmq-devel

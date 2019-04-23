@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -13,96 +13,95 @@ def handle(msg, output):
 
     obj = json.loads(msg)
 
-    print
-    print "Action: %s" % obj["action"]
-    print "Device: %s" % obj["device"]
+    print()
+    print("Action: %s" % obj["action"])
+    print("Device: %s" % obj["device"])
 
-    print "Time: %s" % obj["time"]
+    print("Time: %s" % obj["time"])
 
-    if obj.has_key("url"):
-        print "URL: %s" % obj["url"]
+    if "url" not in obj:
+        print("URL: %s" % obj["url"])
 
-    if obj.has_key("icmp"):
-        print "ICMP type: %d" % obj["icmp"]["type"]
-        print "ICMP code: %d" % obj["icmp"]["code"]
+    if "icmp" not in obj:
+        print("ICMP type: %d" % obj["icmp"]["type"])
+        print("ICMP code: %d" % obj["icmp"]["code"])
 
-    if obj.has_key("dns_message"):
-        detail=obj["dns_message"]
-        if detail.has_key("type"):
-            print "Type: %s" % detail["type"]
-            if detail["type"] == "query" and detail.has_key("query"):
+    if "dns_message" not in obj:
+        detail = obj["dns_message"]
+        if "type" in detail:
+            print("Type: %s" % detail["type"])
+            if detail["type"] == "query" and "query" in detail:
                 for v in detail["query"]:
-
-                    if v.has_key("name"):
-                        print "Query name: %s" % v["name"]
-                    if v.has_key("type"):
-                        print "Query type: %s" % v["type"]
-                    if v.has_key("class"):
-                        print "Query class: %s" % v["class"]
-            if detail.has_key("answer"):
+                    if "name" in v:
+                        print("Query name: %s" % v["name"])
+                    if "type" in v:
+                        print("Query type: %s" % v["type"])
+                    if "class" in v:
+                        print("Query class: %s" % v["class"])
+            if "answer" in detail:
                 for v in detail["answer"]:
-                    if v.has_key("name"):
-                        print "Answer name: %s" % v["name"]
-                    if v.has_key("type"):
-                        print "Answer type: %s" % v["type"]
-                    if v.has_key("class"):
-                        print "Answer class: %s" % v["class"]
-                    if v.has_key("address"):
-                        print "Answer address: %s" % v["address"]
+                    if "name" in v:
+                        print("Answer name: %s" % v["name"])
+                    if "type" in v:
+                        print("Answer type: %s" % v["type"])
+                    if "class" in v:
+                        print("Answer class: %s" % v["class"])
+                    if "address" in v:
+                        print("Answer address: %s" % v["address"])
 
-    if obj.has_key("http_request"):
-        detail=obj["http_request"]
-        print "Method: %s" % detail["method"]
-        if detail.has_key("header"):
+    if "http_request" in obj:
+        detail = obj["http_request"]
+        print("Method: %s" % detail["method"])
+        if "header" in detail:
             for k in detail["header"]:
-                 print "%s: %s" % (k, detail["header"][k])
+                 print("%s: %s" % (k, detail["header"][k]))
 
-    if obj.has_key("http_response"):
-        detail=obj["http_response"]
-        print "Code: %d" % detail["code"]
-        print "Status: %s" % detail["status"]
-        if detail.has_key("header"):
+    if "http_response" in obj:
+        detail = obj["http_response"]
+        print("Code: %d" % detail["code"])
+        print("Status: %s" % detail["status"])
+        if "header" in detail:
             for k in detail["header"]:
-                 print "%s: %s" % (k, detail["header"][k])
+                 print("%s: %s" % (k, detail["header"][k]))
 
-    if obj.has_key("ftp_command"):
-        detail=obj["ftp_command"]
-        print "Command: %s" % detail["command"]
+    if "ftp_command" in obj:
+        detail = obj["ftp_command"]
+        print("Command: %s" % detail["command"])
 
-    if obj.has_key("ftp_response"):
-        detail=obj["ftp_response"]
-        print "Status: %d" % detail["status"]
+    if "ftp_response" in obj:
+        detail = obj["ftp_response"]
+        print("Status: %d" % detail["status"])
         for v in detail["text"]:
-            print "Text: %s" % v
+            print("Text: %s" % v)
 
-    if obj.has_key("sip_request"):
-        detail=obj["sip_request"]
-        print "Method: %s" % detail["method"]
-        print "From: %s" % detail["from"]
-        print "To: %s" % detail["from"]
-        if detail.has_key("header"):
+    if "sip_request" in obj:
+        detail = obj["sip_request"]
+        print("Method: %s" % detail["method"])
+        print("From: %s" % detail["from"])
+        print("To: %s" % detail["from"])
+        if "header" in detail:
             for k in detail["header"]:
-                 print "%s: %s" % (k, detail["header"][k])
+                 print("%s: %s" % (k, detail["header"][k]))
 
-    if obj.has_key("sip_response"):
-        detail=obj["sip_response"]
-        print "Code: %d" % detail["code"]
-        print "Status: %s" % detail["status"]
-        print "From: %s" % detail["from"]
-        print "To: %s" % detail["from"]
+    if "sip_response" in obj:
+        detail = obj["sip_response"]
+        print("Code: %d" % detail["code"])
+        print("Status: %s" % detail["status"])
+        print("From: %s" % detail["from"])
+        print("To: %s" % detail["from"])
 
-    if obj.has_key("smtp_command"):
-        detail=obj["smtp_command"]
-        print "Command: %s" % detail["command"]
+    if "smtp_command" in obj:
+        detail = obj["smtp_command"]
+        print("Command: %s" % detail["command"])
 
-    if obj.has_key("smtp_response"):
-        detail=obj["smtp_response"]
-        print "Status: %d" % detail["status"]
+    if "smtp_response" in obj:
+        detail = obj["smtp_response"]
+        print("Status: %d" % detail["status"])
         for v in detail["text"]:
-            print "Text: %s" % v
+            print("Text: %s" % v)
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 

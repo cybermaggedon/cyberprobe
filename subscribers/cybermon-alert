@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -12,13 +12,13 @@ else:
 def handle(msg, output):
     obj = json.loads(msg)
     if obj.has_key("indicators"):
-        print "%s, %s, %s" % (obj["time"], obj["device"], obj["action"])
+        print("%s, %s, %s" % (obj["time"], obj["device"], obj["action"]))
         for v in obj["indicators"]:
-            print "  %s: %s" % (v["value"], v["description"])
+            print("  %s: %s" % (v["value"], v["description"]))
         print
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
