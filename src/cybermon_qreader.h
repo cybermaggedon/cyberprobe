@@ -24,11 +24,11 @@ namespace cybermon {
 	// State: true if we're running, false if we've been asked to stop.
 	bool running;
 
-      public:
-
 	std::queue<q_entry*>& cqueue;
 
 	threads::mutex& lock;
+
+      public:
 
 	// Constructor
 	cybermon_qreader(const std::string& path,

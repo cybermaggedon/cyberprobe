@@ -852,7 +852,7 @@ tcpip::ssl_socket::ssl_socket() {
 	ssl_init = true;
     }
 
-    context = SSL_CTX_new(TLSv1_2_method());
+    context = SSL_CTX_new(TLS_method());
     if (context == 0)
        throw std::runtime_error("Couldn't initialise SSL context.");
 
@@ -929,7 +929,7 @@ tcpip::ssl_socket::ssl_socket(int s) {
 	ssl_init = true;
     }
 
-    context = SSL_CTX_new(TLSv1_2_method());
+    context = SSL_CTX_new(TLS_method());
     if (context == 0)
        throw std::runtime_error("Couldn't initialise SSL context.");
 
