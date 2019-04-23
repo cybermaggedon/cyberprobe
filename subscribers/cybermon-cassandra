@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ############################################################################
 
@@ -254,55 +254,55 @@ def handle(msg, output):
                "Device " + ev["device"])
 
     add_dt(obs, uri, prop_uri("time"), ev["time"])
-    if ev.has_key("method"):
+    if "method" in ev:
         add_string(obs, uri, prop_uri("method"), ev["method"])
-    if ev.has_key("url"):
+    if "url" in ev:
         add_uri(obs, uri, prop_uri("url"), ev["url"])
-    if ev.has_key("command"):
+    if "command" in ev:
         add_string(obs, uri, prop_uri("command"), ev["command"])
-    if ev.has_key("status"):
+    if "status" in ev:
         add_string(obs, uri, prop_uri("status"), str(ev["status"]))
-    if ev.has_key("text"):
+    if "text" in ev:
         t = ""
         s = ""
         for v in ev["text"]:
             t = t + v + s
             s = " "
         add_string(obs, uri, prop_uri("text"), t)
-    if ev.has_key("payload"):
+    if "payload" in ev:
         pass
-    if ev.has_key("body"):
+    if "body" in ev:
         pass
-    if ev.has_key("from"):
+    if "from" in ev:
         add_string(obs, uri, prop_uri("from"), ev["from"])
-    if ev.has_key("to"):
+    if "to" in ev:
         for v in ev["to"]:
             add_string(obs, uri, prop_uri("to"), v)
-    if ev.has_key("header"):
+    if "header" in ev:
         for k in ev["header"]:
             add_string(obs, uri, prop_uri("header:" + k), ev["header"][k])
-    if ev.has_key("type"):
+    if "type" in ev:
         add_string(obs, uri, prop_uri("type"), ev["type"])
-    if ev.has_key("queries"):
+    if "queries" in ev:
         for v in ev["queries"]:
-            if v.has_key("name"):
+            if "name" in v:
                 add_string(obs, uri, prop_uri("query_name"), v["name"])
-            if v.has_key("type"):
+            if "type" in v:
                 add_string(obs, uri, prop_uri("query_type"), v["type"])
-            if v.has_key("class"):
+            if "class" in v:
                 add_string(obs, uri, prop_uri("query_class"), v["class"])    
-    if ev.has_key("answers"):
+    if "answers" in ev:
         for v in ev["answers"]:
-            if v.has_key("name"):
+            if "name" in v:
                 add_string(obs, uri, prop_uri("answer_name"), v["name"])
-            if v.has_key("type"):
+            if "type" in v:
                 add_string(obs, uri, prop_uri("answer_type"), v["type"])
-            if v.has_key("class"):
+            if "class" in v:
                 add_string(obs, uri, prop_uri("answer_class"), v["class"])   
-            if v.has_key("address"):
+            if "address" in v:
                 add_string(obs, uri, prop_uri("answer_address"), v["address"])
 
-    if ev.has_key("src"):
+    if "src" in ev:
         ip = None
         for v in ev["src"]:
             if v.find(":") < 0:
@@ -342,7 +342,7 @@ def handle(msg, output):
                 add_string(obs, obj_uri("ip", addr), rdfslabel, addr)
                 add_string(obs, obj_uri("ip", addr), prop_uri("ip"), addr)
 
-    if ev.has_key("dest"):
+    if "dest" in ev:
         ip = None
         for v in ev["dest"]:
             if v.find(":") < 0:
@@ -431,6 +431,6 @@ APPLY BATCH;
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 

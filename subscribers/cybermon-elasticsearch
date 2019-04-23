@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -305,10 +305,10 @@ def init():
             if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
                 sys.stderr.write("elasticsearch: Error sending.\n")
                 sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_code) + "\n")
-                print r.text
+                print(r.text)
             sys.stderr.write("elasticsearch: Index create: %d\n" % r.status_code)
             break
-        except Exception, e:
+        except Exception as e:
             sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
             time.sleep(1)
 
@@ -321,10 +321,10 @@ def init():
             if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
                 sys.stderr.write("elasticsearch: Error sending to ElasticSearch\n")
                 sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_code) + "\n")
-                print r.text
+                print(r.text)
             sys.stderr.write("elasticsearch: Mapping put: %d\n" % r.status_code)
             break
-        except Exception, e:
+        except Exception as e:
             sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
             time.sleep(1)
 
@@ -335,10 +335,10 @@ def es_output(obs, id):
     r = requests.put(u, data=json.dumps(obs),
                      headers={"Content-Type": "application/json"})
     if r.status_code != 201:
-        print "Error sending to ElasticSearch"
-        print "HTTP code: " + str(r.status_code)
+        print("Error sending to ElasticSearch")
+        print("HTTP code: " + str(r.status_code))
 
-        print r.text
+        print(r.text)
 
 ############################################################################
 
@@ -352,29 +352,29 @@ def handle(msg, output):
     ob["device"] = ev["device"]
     ob["network"] = ev["network"]
     ob["time"] = ev["time"]
-    if ev.has_key("url"): ob["url"] = ev["url"]
-    if ev.has_key("location"): ob["location"] = ev["location"]
+    if "url" in ev: ob["url"] = ev["url"]
+    if "location" in ev: ob["location"] = ev["location"]
     
-    if ev.has_key("dns_message"):
+    if "dns_message" in ev:
 
         ob["dns"] = {}
 
-        if ev["dns_message"].has_key("query"):
+        if "query" in ev["dns_message"]:
 
             name = []
             tpe = []
             clss = []
 
             for v in ev["dns_message"]["query"]:
-                if v.has_key("name"): name.append(v["name"])
-                if v.has_key("type"): tpe.append(v["type"])
-                if v.has_key("class"): clss.append(v["class"])
+                if "name" in v: name.append(v["name"])
+                if "type" in v: tpe.append(v["type"])
+                if "class" in v: clss.append(v["class"])
 
             ob["dns"]["query"] = {
                 "name": name, "type": tpe, "class": clss
             }
 
-        if ev["dns_message"].has_key("answer"):
+        if "answer" in ev["dns_message"]:
 
             name = []
             tpe = []
@@ -382,10 +382,10 @@ def handle(msg, output):
             address = []
 
             for v in ev["dns_message"]["answer"]:
-                if v.has_key("name"): name.append(v["name"])
-                if v.has_key("type"): tpe.append(v["type"])
-                if v.has_key("class"): clss.append(v["class"])
-                if v.has_key("address"): address.append(v["address"])
+                if "name" in v: name.append(v["name"])
+                if "type" in v: tpe.append(v["type"])
+                if "class" in v: clss.append(v["class"])
+                if "address" in v: address.append(v["address"])
 
             ob["dns"]["answer"] = {
                 "name": name, "type": tpe, "class": clss, "address": address
@@ -393,7 +393,7 @@ def handle(msg, output):
 
             ob["dns"]["type"] = ev["dns_message"]["type"]
 
-    if ev.has_key("indicators"):
+    if "indicators" in ev:
 
         tpe = []
         id = []
@@ -413,44 +413,44 @@ def handle(msg, output):
             "description": desc
         }
 
-    if ev.has_key("http_request"):
+    if "http_request" in ev:
         ob["http"] = {
             "method": ev["http_request"]["method"],
             "header": ev["http_request"]["header"]
         }
 
-    if ev.has_key("http_response"):
+    if "http_response" in ev:
         ob["http"] = {
             "status": ev["http_response"]["status"],
             "code": ev["http_response"]["code"],
             "header": ev["http_response"]["header"]
         }
 
-    if ev.has_key("ftp_request"):
+    if "ftp_request" in ev:
         ob["ftp"] = {
             "command": ev["ftp_request"]["command"]
         }
 
-    if ev.has_key("ftp_response"):
+    if "ftp_response" in ev:
         ob["ftp"] = {
             "status": ev["ftp_response"]["status"],
             "text": ev["ftp_response"]["text"]
         }
 
-    if ev.has_key("icmp"):
+    if "icmp" in ev:
         ob["icmp"] = {
             "type": ev["icmp"]["type"],
             "code": ev["icmp"]["code"]
         }
 
-    if ev.has_key("sip_request"):
+    if "sip_request" in ev:
         ob["sip"] = {
             "method": ev["sip_request"]["method"],
             "from": ev["sip_request"]["from"],
             "to": ev["sip_request"]["to"]
         }
 
-    if ev.has_key("sip_response"):
+    if "sip_response" in ev:
         ob["sip"] = {
             "code": ev["sip_response"]["code"],
             "status": ev["sip_response"]["status"],
@@ -458,36 +458,36 @@ def handle(msg, output):
             "to": ev["sip_response"]["to"]
         }
 
-    if ev.has_key("smtp_command"):
+    if "smtp_command" in ev:
         ob["smtp"] = {
             "command": ev["smtp_command"]["command"]
         }
 
-    if ev.has_key("smtp_response"):
+    if "smtp_response" in ev:
         ob["smtp"] = {
             "status": ev["smtp_response"]["status"],
             "text": ev["smtp_response"]["text"]
         }
 
-    if ev.has_key("smtp_data"):
+    if "smtp_data" in ev:
         ob["smtp"] = {
             "from": ev["smtp_data"]["from"],
             "to": ev["smtp_data"]["to"]
         }
 
-    if ev.has_key("ntp_timestamp"):
+    if "ntp_timestamp" in ev:
         ob["ntp"] = {
             "version": ev["ntp_timestamp"]["version"],
             "mode": ev["ntp_timestamp"]["mode"]
         }
 
-    if ev.has_key("ntp_control"):
+    if "ntp_control" in ev:
         ob["ntp"] = {
             "version": ev["ntp_control"]["version"],
             "mode": ev["ntp_control"]["mode"]
         }
 
-    if ev.has_key("ntp_private"):
+    if "ntp_private" in ev:
         ob["ntp"] = {
             "version": ev["ntp_private"]["version"],
             "mode": ev["ntp_private"]["mode"]
@@ -495,7 +495,7 @@ def handle(msg, output):
 
     src = {}
 
-    if ev.has_key("src"):
+    if "src" in ev:
         for v in ev["src"]:
             if v.find(":") < 0:
                 cls = v
@@ -504,7 +504,7 @@ def handle(msg, output):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if not src.has_key(cls):
+            if cls not in src:
                 src[cls] = []
 
             src[cls].append(addr)
@@ -513,7 +513,7 @@ def handle(msg, output):
 
     dest = {}
 
-    if ev.has_key("dest"):
+    if "dest" in ev:
         for v in ev["dest"]:
             if v.find(":") < 0:
                 cls = v
@@ -522,7 +522,7 @@ def handle(msg, output):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if not dest.has_key(cls):
+            if cls not in dest:
                 dest[cls] = []
 
             dest[cls].append(addr)
@@ -533,25 +533,25 @@ def handle(msg, output):
 
 ############################################################################
 
-print "Connecting to ElasticSearch..."
+print("Connecting to ElasticSearch...")
 while True:
     url = es_url
     try:
         r = requests.get(url)
     except:
-        print "Not connected, will retry..."
+        print("Not connected, will retry...")
         time.sleep(10)
         continue
 
     if r.status_code == 200: break
 
-    print "Not connected, will retry..."
+    print("Not connected, will retry...")
     time.sleep(10)
 
-print "Connected."
+print("Connected.")
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 

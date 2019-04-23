@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -10,10 +10,10 @@ else:
     binding = sys.argv[1]
     
 def handle(msg, output):
-    print msg
+    print(msg)
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 

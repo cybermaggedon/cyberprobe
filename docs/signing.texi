@@ -1,4 +1,3 @@
-pub   rsa4096 2018-01-09 [SC]
-      C701 FBD8 7B10 B17A 96A5  3D2E 6B30 A920 3344 433B
-uid           [ultimate] Trust Networks <cyberprobe@@trustnetworks.com>
-
+pub   rsa4096 2019-04-16 [SC]
+      F6D4 AAA5 BFA0 8F63 515A  E22D DA59 F5B6 12EA 476C
+uid           [ultimate] Cyber MacGeddon <cybermaggedon@@gmail.com>

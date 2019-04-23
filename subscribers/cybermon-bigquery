@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -79,7 +79,7 @@ credentials = ServiceAccountCredentials.from_json_keyfile_name(private,
 
 if project == None:
     project = json.loads(open(private,'r').read())['project_id']
-    print project
+    print(project)
 
 http = Http()
 http_auth = credentials.authorize(http)
@@ -100,7 +100,7 @@ except googleapiclient.errors.HttpError:
     found=False
 
 if found:
-    print "Table %s exists." % table
+    print("Table %s exists." % table)
 else:
 
     body = {
@@ -406,10 +406,10 @@ else:
     try: 
         table_info = tables.insert(projectId=project, datasetId=dataset,
                                    body=body).execute(http)
-        print "Table %s created." % table
-    except googleapiclient.errors.HttpError, e:
-        print "Table creation failed."
-        print e
+        print("Table %s created." % table)
+    except googleapiclient.errors.HttpError as e:
+        print("Table creation failed.")
+        print(e)
         sys.exit(0)
 
 ############################################################################
@@ -432,12 +432,12 @@ def bq_output(obs, id):
         result = tabledata.insertAll(projectId=project, datasetId=dataset,
                                      tableId=table, body=body).\
                                      execute(http)
-        if result.has_key("insertErrors"):
-            print json.dumps(obs)
-            print json.dumps(result)
-    except googleapiclient.errors.HttpError, e:
-        print "Table insert failed."
-        print e
+        if "insertErrors" in result:
+            print(json.dumps(obs))
+            print(json.dumps(result))
+    except googleapiclient.errors.HttpError as e:
+        print("Table insert failed.")
+        print(e)
 
     return
 
@@ -450,8 +450,8 @@ def bq_output(obs, id):
     r = requests.put(u, data=json.dumps(obs),
                      headers={"Content-Type": "application/json"})
     if r.status_code != 201:
-        print "Error sending to ElasticSearch"
-        print "HTTP code: " + str(r.status_code)
+        print("Error sending to ElasticSearch")
+        print("HTTP code: " + str(r.status_code))
 
 ############################################################################
 
@@ -469,31 +469,31 @@ def handle(msg, output):
         "time": ev["time"]
     }
 
-    if ev.has_key("url"): ob["url"] = ev["url"]
+    if "url" in ev: ob["url"] = ev["url"]
     
-    if ev.has_key("dns_message"):
+    if "dns_message" in ev:
 
-        if ev["dns_message"].has_key("query"):
+        if "query" in ev["dns_message"]:
 
             name = []
 
             for v in ev["dns_message"]["query"]:
-                if v.has_key("name"): name.append(v["name"])
+                if "name" in v: name.append(v["name"])
 
             ob["queries"] = name
 
-        if ev["dns_message"].has_key("answer"):
+        if "answer" in ev["dns_message"]:
 
             address = []
 
             for v in ev["dns_message"]["answer"]:
-                if v.has_key("address"): address.append(v["address"])
+                if "address" in v: address.append(v["address"])
 
             ob["answers"] = address
 
         ob["type"] = ev["dns_message"]["type"]
 
-    if ev.has_key("indicators"):
+    if "indicators" in ev:
 
         tpe = []
         id = []
@@ -506,37 +506,32 @@ def handle(msg, output):
             value.append(v["value"])
             desc.append(v["description"])
 
-    if ev.has_key("http_request"):
+    if "http_request" in ev:
         ob["method"] = ev["http_request"]["method"]
         ob["header"] = {}
         for k in ev["http_request"]["header"]:
             nk = k.replace("-", "").lower()
-            if wanted_http_headers.has_key(k):
+            if k in wanted_http_headers:
                 ob["header"][nk] = ev["http_request"]["header"][k]
 
-    if ev.has_key("http_response"):
+    if "http_response" in ev:
         ob["code"] = ev["http_response"]["code"]
         ob["status"] = ev["http_response"]["status"],
         ob["header"] = {}
         for k in ev["http_response"]["header"]:
             nk = k.replace("-", "").lower()
-            if wanted_http_headers.has_key(k):
+            if k in wanted_http_headers:
                 ob["header"][nk] = ev["http_response"]["header"][k]
 
-    if ev.has_key("ftp_request"):
+    if "ftp_request" in ev:
         ob["command"] = ev["ftp_request"]["command"]
 
-    if ev.has_key("ftp_response"):
+    if "ftp_response" in ev:
         ob["status"] = ev["ftp_response"]["status"]
 
-
-
-
-
-        
     src = {}
 
-    if ev.has_key("src"):
+    if "src" in ev:
         for v in ev["src"]:
             if v.find(":") < 0:
                 cls = v
@@ -545,7 +540,7 @@ def handle(msg, output):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if not src.has_key(cls):
+            if cls not in src:
                 src[cls] = []
 
             src[cls].append(addr)
@@ -554,7 +549,7 @@ def handle(msg, output):
 
     dest = {}
 
-    if ev.has_key("dest"):
+    if "dest" in ev:
         for v in ev["dest"]:
             if v.find(":") < 0:
                 cls = v
@@ -563,14 +558,14 @@ def handle(msg, output):
                 cls = v[0:v.find(":")]
                 addr = v[v.find(":") + 1:]
 
-            if not dest.has_key(cls):
+            if cls not in dest:
                 dest[cls] = []
 
             dest[cls].append(addr)
 
         ob["dest"] = dest
 
-    if ev.has_key("src"):
+    if "src" in ev:
         for v in ev["src"]:
             if v.find(":") < 0:
                 cls = v
@@ -585,7 +580,7 @@ def handle(msg, output):
             if cls == "tcp" or cls == "udp":
                 observation[cls + "_src"] = int(addr)
 
-    if ev.has_key("dest"):
+    if "dest" in ev:
         for v in ev["dest"]:
             if v.find(":") < 0:
                 cls = v
@@ -610,6 +605,6 @@ import time
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
