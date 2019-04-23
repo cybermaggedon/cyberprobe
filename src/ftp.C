@@ -13,9 +13,6 @@ using namespace cybermon;
 // FTP processing function.
 void ftp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
-    pdu_iter s = sl.start;
-    pdu_iter e = sl.end;
-    
     if (c->addr.dest.get_uint16() == 21) {
         ftp::process_client(mgr, c, sl);
         return;
@@ -30,9 +27,6 @@ void ftp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 // FTP client processing function.
 void ftp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
-
-    pdu_iter s = sl.start;
-    pdu_iter e = sl.end;
 
     std::vector<unsigned char> empty;
     address src, dest;
@@ -59,9 +53,6 @@ void ftp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
 // FTP server processing function.
 void ftp::process_server(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
-
-    pdu_iter s = sl.start;
-    pdu_iter e = sl.end;
 
     std::vector<unsigned char> empty;
     address src, dest;

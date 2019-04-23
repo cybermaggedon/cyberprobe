@@ -24,10 +24,9 @@ void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     uint8_t type = s[0];
     uint8_t code = s[1];
-    uint16_t checksum = (s[2] << 8) + s[3];
-    uint32_t roh = (s[4] << 24) + (s[5] << 16) + (s[6] << 8) + s[7];
-
-    uint32_t payload_length = (e - s) - header_length;
+    // uint16_t checksum = (s[2] << 8) + s[3];
+    // uint32_t roh = (s[4] << 24) + (s[5] << 16) + (s[6] << 8) + s[7];
+    // uint32_t payload_length = (e - s) - header_length;
 
     flow_address f(src, dest, sl.direc);
 

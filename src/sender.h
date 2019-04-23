@@ -164,9 +164,6 @@ class etsi_li_sender : public sender {
     // Number of TCP connections to multiplex over.
     unsigned int num_connects;
 
-    // Round-round count.
-    unsigned int cur_connect;
-
     // Transports
     e_sender* transports;
 
@@ -176,17 +173,22 @@ class etsi_li_sender : public sender {
     // Multiplexes
     std::map<std::string,e_mux> muxes;
 
-    // Connection details, host, port, TLS.
+    // Connection details, host, port.
     std::string h;
     unsigned short p;
-    bool tls;			/* True if TLS enabled. */
+
+    // Params
+    std::map<std::string, std::string> params;
+
+    // Round-round count.
+    unsigned int cur_connect;
+
+    // True if TLS enabled.
+    bool tls;			
 
     // Map, records if appropriate IRI BEGIN messages have been sent
     // to introduce this LIID.
     std::map<std::string, bool> setup;
-
-    // Params
-    std::map<std::string, std::string> params;
 
     // Initialise some configuration
     void initialise() { }

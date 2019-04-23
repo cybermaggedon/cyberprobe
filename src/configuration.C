@@ -217,6 +217,7 @@ void config_manager::read(const std::string& file,
 				<< "attributed, ignored"
 				<< std::endl;
 			    continue;
+			}
 			if (it->attributes.find("key") ==
 			    it->attributes.end()) {
 			    std::cerr
@@ -226,7 +227,7 @@ void config_manager::read(const std::string& file,
 			    continue;
 			}
 			if (it->attributes.find("trusted-ca") ==
-			    it->attributes.end())
+			    it->attributes.end()) {
 			    std::cerr
 				<< "TLS endpoint element without 'trusted-ca' "
 				<< "attributed, ignored"

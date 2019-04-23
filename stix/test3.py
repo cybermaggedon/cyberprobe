@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import libtaxii as t
 import libtaxii.messages_11 as tm11

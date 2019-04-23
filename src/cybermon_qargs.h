@@ -511,8 +511,8 @@ public:
     virtual ~q_entry() {
     }
 
-    qargs* queueargs;
     qargs::call_type calltype;
+    qargs* queueargs;
 
 };
 
