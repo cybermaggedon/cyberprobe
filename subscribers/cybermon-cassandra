@@ -431,6 +431,6 @@ APPLY BATCH;
 
 try:
     q.subscribe(binding, handle)
-except Exception, e:
+except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
