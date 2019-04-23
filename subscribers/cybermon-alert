@@ -15,7 +15,7 @@ def handle(msg, output):
         print("%s, %s, %s" % (obj["time"], obj["device"], obj["action"]))
         for v in obj["indicators"]:
             print("  %s: %s" % (v["value"], v["description"]))
-        print
+        print()
 
 try:
     q.subscribe(binding, handle)
