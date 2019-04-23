@@ -16,22 +16,26 @@
 namespace cybermon {
 
     class cybermon_qreader: public threads::thread {
+
       private:
 	cybermon_lua cml;
+
       protected:
 	// State: true if we're running, false if we've been asked to stop.
 	bool running;
+
       public:
+
+	std::queue<q_entry*>& cqueue;
+
+	threads::mutex& lock;
+
 	// Constructor
 	cybermon_qreader(const std::string& path,
 			 std::queue<q_entry*>& cybermonq,
 			 threads::mutex& cqwrlock, cybermon_qwriter cqwriter);
 
 	cybermon_qwriter qwriter;
-
-	std::queue<q_entry*>& cqueue;
-
-	threads::mutex& lock;
 
 	// Thread body.
 	virtual void run();
