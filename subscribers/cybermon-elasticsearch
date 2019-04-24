@@ -19,14 +19,13 @@ else:
     es_url = sys.argv[2]
 
 es_index = "cyberprobe"
-es_object = "cyberprobe"
 
 ############################################################################
 
 def init():
 
     mapping = {
-        es_object: {
+        "mappings": {
             "properties": {
 		"id": { "type": "keyword" },
 		"time": { "type": "date" },
@@ -301,21 +300,6 @@ def init():
 
     while True:
         try: 
-            r = requests.put(u)
-            if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
-                sys.stderr.write("elasticsearch: Error sending.\n")
-                sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_code) + "\n")
-                print(r.text)
-            sys.stderr.write("elasticsearch: Index create: %d\n" % r.status_code)
-            break
-        except Exception as e:
-            sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
-            time.sleep(1)
-
-    u = "%s%s/_mapping/%s" % (es_url, es_index, es_object)
-
-    while True:
-        try: 
             r = requests.put(u, data=json.dumps(mapping),
                              headers={"Content-Type": "application/json"})
             if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
@@ -330,11 +314,13 @@ def init():
 
 def es_output(obs, id):
 
-    u = "%s%s/%s/%s" % (es_url, es_index, es_object, id)
+    u = "%s%s/_doc/%s" % (es_url, es_index, id)
+    print(u)
 
     r = requests.put(u, data=json.dumps(obs),
                      headers={"Content-Type": "application/json"})
     if r.status_code != 201:
+        print(obs)
         print("Error sending to ElasticSearch")
         print("HTTP code: " + str(r.status_code))
 
@@ -354,7 +340,7 @@ def handle(msg, output):
     ob["time"] = ev["time"]
     if "url" in ev: ob["url"] = ev["url"]
     if "location" in ev: ob["location"] = ev["location"]
-    
+        
     if "dns_message" in ev:
 
         ob["dns"] = {}
@@ -549,6 +535,8 @@ while True:
     time.sleep(10)
 
 print("Connected.")
+
+init()
 
 try:
     q.subscribe(binding, handle)

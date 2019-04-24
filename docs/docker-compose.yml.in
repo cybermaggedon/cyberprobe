@@ -6,13 +6,15 @@ services:
 
   # ElasticSearch and Kibana
   elasticsearch:
-    image: elasticsearch:6.7.1
+    image: elasticsearch:7.0.0
     ports:
     - "9200:9200"
+    environment:
+      discovery.type: single-node
     restart: always
     shm_size: 1G
   kibana:
-    image: kibana:6.7.1
+    image: kibana:7.0.0
     ports:
     - "5601:5601"
     environment:

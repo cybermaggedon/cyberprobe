@@ -35,7 +35,7 @@ Texts.  A copy of the license is included in the section entitled
 @titlepage
 @title Cyberprobe
 @subtitle for version @value{VERSION}, @value{UPDATED}
-@author Cyber MacGeddon (@email{cyberprobe@@trustnetworks.com})
+@author cybermaggedon
 @page
 @vskip 0pt plus 1filll
 @insertcopying
@@ -201,6 +201,9 @@ tutorial.
 Cyberprobe releases:
 
 @table @code
+
+@item 1.12.3
+Brought subscribers and docker-compose files up-to-date.
 
 @item 1.11.1
 Altered handling of @samp{origin} to make it more resilient.
@@ -508,7 +511,7 @@ If installing on MacOS, read @file{README.mac}.
 To checkout the latest code using git:
 
 @example
-git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+git clone https://github.com/cybermaggedon/cyberprobe
 @end example
 
 To build, use:
@@ -1626,7 +1629,7 @@ favourite for this sort of scenario is the excellent ElasticSearch (
 of functionality, and is incredibly simple to interface with, thanks to its
 JSON API. So, your next action is to head over to the download page
 (@url{http://www.elasticsearch.org/download/}) and get hold of the latest
-version. I'm using version 6.1 to build this tutorial but the
+version. I'm using version 7.0 to build this tutorial but the
 ElasticSearch API has proven hugely stable, so should work with the latest.
 
 The easiest way to run ElasticSearch is as a Docker container, although you
@@ -1634,7 +1637,7 @@ could download and run the distribution.
 
 @example
 docker run --name elasticsearch -p 9200:9200 \
-  docker.elastic.co/elasticsearch/elasticsearch-oss:6.1.1
+  elasticsearch:7.0
 @end example
 
 One brilliant thing about ElasticSearch is that it needs almost no
@@ -1662,7 +1665,7 @@ The response will look something like this:
   "cluster_name" : "docker-cluster",
   "cluster_uuid" : "TPZLBGYnTNqe0-LVLiF6yw",
   "version" : @{
-    "number" : "6.1.1",
+    "number" : "7.0.0",
     "build_hash" : "bd92e7f",
     "build_date" : "2017-12-17T20:23:25.338Z",
     "build_snapshot" : false,
@@ -1759,7 +1762,7 @@ Run a Kibana container:
 docker run --name kibana \
   -e ELASTICSEARCH_URL=http://elasticsearch:9200/ -p 5601:5601 \
   --link elasticsearch:elasticsearch \
-  docker.elastic.co/kibana/kibana-oss:6.1.1
+  kibana:7.0
 @end example
 
 Kibana starts on port 5601, so point your browser at e.g.

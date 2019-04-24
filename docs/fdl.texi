@@ -5,8 +5,8 @@
 @c hence no sectioning command or @node.
 
 @display
-Copyright @copyright{} 2013-2014 Cyber MacGeddon
-@uref{http://cyberprobe.sf.net/}
+Copyright @copyright{} 2013-2019 cybermageddon
+@uref{https://github.com/cybermaggedon/cyberprobe}
 
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.

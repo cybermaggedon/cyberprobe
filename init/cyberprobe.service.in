@@ -1,7 +1,7 @@
 
 [Unit]
 Description=cyberprobe service
-Documentation=http://cyberprobe.trustnetworks.com/cyberprobe.html
+Documentation=https://cybermaggedon.github.io/cyberprobe-docs/
 
 [Service]
 PIDFile=/var/run/cyberprobe.pid

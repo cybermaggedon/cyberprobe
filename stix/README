@@ -24,7 +24,7 @@ Checkout Cyberprobe (where I stashed the STIX stuff)
 ====================================================
 
 - mkdir BLAH; cd BLAH
-- git clone ssh://cybermaggedon@git.code.sf.net/p/cyberprobe/code .
+- git clone https://github.com/cybermaggedon/cyberprobe .
 - git checkout stix
 - cd stix
 

@@ -1,7 +1,7 @@
 
 [Unit]
 Description=cybermon bigquery service
-Documentation=http://cyberprobe.sourceforge.net/cyberprobe.html
+Documentation=https://cybermaggedon.github.io/cyberprobe-docs/
 
 [Service]
 PIDFile=/var/run/cybermon-bigquery.pid

@@ -31,7 +31,7 @@ cybermon-cassandra tcp://host1:5555 cassandra1,cassandra2
 .SH AUTHOR
 Part of the Cyberprobe project.
 .SH "REPORTING BUGS"
-Visit <http://cyberprobe.sf.net> for support.
+Visit <https://github.com/cybermaggedon/cyberprobe> for support.
 .SH COPYRIGHT
 Copyright \(co 2013-2018 Cyber MacGeddon
 .br

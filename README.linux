@@ -50,7 +50,7 @@ sudo luarocks install md5
 sudo luarocks install uuid
 sudo dnf install -y cppzmq-devel
 sudo luarocks install lzmq
-git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+git clone http://github.com/cybermaggedon/cyberprobe .
 autoreconf -fi
 ./configure --prefix=/usr/local
 make
@@ -73,7 +73,7 @@ sudo yum install -y libtool make rpm-build openssl-devel
 sudo luarocks install md5
 sudo dnf install -y cppzmq-devel
 sudo luarocks install lzmq
-git clone http://git.code.sf.net/p/cyberprobe/code cyberprobe
+git clone http://github.com/cybermaggedon/cyberprobe .
 autoreconf -fi
 ./configure --prefix=/usr/local
 make
