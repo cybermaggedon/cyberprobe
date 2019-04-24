@@ -10,6 +10,7 @@ services:
     ports:
     - "9200:9200"
     restart: always
+    shm_size: 1G
   kibana:
     image: kibana:6.7.1
     ports:

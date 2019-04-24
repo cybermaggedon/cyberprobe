@@ -6,13 +6,13 @@ services:
 
   # ElasticSearch and Kibana
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.1.1
+    image: elasticsearch:6.7.1
     ports:
-     - "9200:9200"
+    - "9200:9200"
     restart: always
     shm_size: 1G
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:6.1.1
+    image: kibana:6.7.1
     ports:
     - "5601:5601"
     environment:
@@ -21,16 +21,16 @@ services:
 
   # Gaffer
   hadoop:
-    image: docker.io/cybermaggedon/hadoop:2.8.1
+    image: docker.io/cybermaggedon/hadoop:3.2.0
     restart: always
   zookeeper:    
-    image: docker.io/cybermaggedon/zookeeper:3.4.10b
+    image: docker.io/cybermaggedon/zookeeper:3.4.14
     restart: always
   accumulo:
-    image: docker.io/cybermaggedon/accumulo-gaffer:1.1.2a
+    image: docker.io/cybermaggedon/accumulo-gaffer:1.9.0
     restart: always
   gaffer:
-    image: docker.io/cybermaggedon/wildfly-gaffer:1.1.2a
+    image: docker.io/cybermaggedon/wildfly-gaffer:1.9.0
     ports:
     - "8080:8080"
     restart: always
@@ -57,42 +57,56 @@ services:
     cap_add:
       - NET_ADMIN
 
+  # RabbitMQ
+  amqp:
+    image: rabbitmq:3.7.14
+    restart: always
+    ports:
+    - "5672:5672"
+
   # Cybermon receives packets on port 9000 and publishes events on port 5555.
   cybermon:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon -p 9000 -c /etc/cyberprobe/zeromq.lua
+    command: cybermon -p 9000 -c /etc/cyberprobe/amqp-topic.lua
     ports:
     - "9000:9000"
     restart: always
+    environment:
+      AMQP_BROKER: amqp:5672
 
   # GeoIP: Adds location information to cybermon events and republishes.
   cybermon-geoip:
     image: docker.io/cybermaggedon/cybermon:@VERSION@
-    command: cybermon-geoip tcp://cybermon:5555 tcp://*:5555
+    command: cybermon-geoip
     restart: always
+    environment:
+      AMQP_BROKER: amqp
 
   # Detector: Adds IOC information to output from cybermon-geoip
   cybermon-detector:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon-detector tcp://cybermon-geoip:5555 tcp://*:5555
+    command: cybermon-detector
     volumes:
     - .:/etc/iocs
     environment:
       STIX_INDICATORS: /etc/iocs/stix-default-combined.json
-    ports:
-    - "5555:5555"
+      AMQP_BROKER: amqp
     restart: always
-  
+
   # ElasticSearch loader
   cybermon-elasticsearch:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon-elasticsearch tcp://cybermon-detector:5555 http://elasticsearch:9200/
+    command: cybermon-elasticsearch ioc http://elasticsearch:9200/
+    environment:
+      AMQP_BROKER: amqp
     restart: always
 
   # Gaffer loader
   cybermon-gaffer:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon-gaffer tcp://cybermon-detector:5555 http://gaffer:8080/rest/v1
+    command: cybermon-gaffer
+    environment:
+      AMQP_BROKER: amqp
     restart: always
 
 volumes:
