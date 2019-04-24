@@ -2375,6 +2375,12 @@ is installed at:
 @file{@value{DOCDIR}/kibana-dashboards.json}
 @end example
 
+ElasticSearch bails out unless @samp{vm.max_map_count} setting is right.
+If you have problems, try:
+@example
+sudo sysctl vm.max_map_count=512000
+@end example
+
 @heading Snort, Cyberprobe, Cybermon, Gaffer, ElasticSearch
 
 There is a second configuration which adds Snort and Cyberprobe to the

@@ -4,8 +4,10 @@ import json
 import sys
 import geoip2.database
 import cyberprobe.qcomms as q
-
-geo = geoip2.database.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
+import os
+ 
+db = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-City.mmdb")
+geo = geoip2.database.Reader(db)
 
 if len(sys.argv) < 2:
     binding = "cyberprobe"
