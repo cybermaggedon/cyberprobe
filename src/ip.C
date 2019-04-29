@@ -161,6 +161,12 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	    fragment_list& fl = fc->f_list[id];
 
+	    // check that the current frag is the first, and set the header
+	    if (frag_first == 0)
+	    {
+		    fc->hdrs_list[id].assign(s, s + header_length);
+	    }
+
 	    unsigned long header_size = fc->hdrs_list[id].size();
 
 	    for(std::list<fragment*>::iterator it2 = fl.begin();
@@ -182,8 +188,8 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	    // Now the frag that triggered this re-assembly.
 
-	    // Resize the PDU.
-	    if ((header_size + frag_last) > pdu_size) {
+	    // Resize the PDU - only if this isnt the first
+	    if (frag_first != 0 && (header_size + frag_last) > pdu_size) {
 		pdu_size = header_size + frag_last;
 		pdu.resize(pdu_size);
 	    }
