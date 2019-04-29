@@ -70,6 +70,10 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     // at.
     frag_proc |= (fc->h_list.find(id) != fc->h_list.end());
 
+    // Frag processing if this is the last frag, but the first one we've seen
+    // (otherwise the start of this frame will be interpretted as the next proto header)
+    frag_proc |= (frag_offset != 0 && ((flags & 1) == 0));
+
     // FIXME: Manage the queue size!  Timeout etc!
 
     if (frag_proc) {
