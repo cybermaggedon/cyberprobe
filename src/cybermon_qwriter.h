@@ -147,6 +147,24 @@ namespace cybermon {
 					   const pdu_time& tv);
 	virtual void close();
 
+	virtual void gre(const context_ptr cp,
+				     const std::string& nxt_proto,
+ 				     const uint32_t key,
+ 				     const uint32_t seq,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv);
+
+	virtual void gre_pptp(const context_ptr cp,
+				     const std::string& nxt_proto,
+ 				     const uint16_t payload_length,
+ 				     const uint16_t call_id,
+ 				     const uint32_t sequenceNo,
+ 				     const uint32_t ackNo,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

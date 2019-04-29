@@ -394,6 +394,27 @@ void cybermon_qreader::run() {
 		delete (ntpprivatemessageargs);
 		break;
 	    }
+	    case qargs::gre_message: {
+		gre_args* greMessageArgs =
+		    static_cast<gre_args*>(qentry->queueargs);
+		cml.gre_message(qwriter, greMessageArgs->cptr,
+					greMessageArgs->nextProto, greMessageArgs->key, greMessageArgs->sequenceNo,
+					greMessageArgs->pdu.begin(), greMessageArgs->pdu.end(), greMessageArgs->time);
+		delete (qentry);
+		delete (greMessageArgs);
+		break;
+	    }
+	    case qargs::gre_pptp_message: {
+		gre_pptp_args* grePptpMessageArgs =
+		    static_cast<gre_pptp_args*>(qentry->queueargs);
+		cml.gre_pptp_message(qwriter, grePptpMessageArgs->cptr,
+					grePptpMessageArgs->nextProto, grePptpMessageArgs->payload_length, grePptpMessageArgs->call_id,
+					grePptpMessageArgs->sequenceNo, grePptpMessageArgs->ackNo,
+					grePptpMessageArgs->pdu.begin(), grePptpMessageArgs->pdu.end(), grePptpMessageArgs->time);
+		delete (qentry);
+		delete (grePptpMessageArgs);
+		break;
+	    }
 	    default: {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }
