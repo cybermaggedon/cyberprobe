@@ -180,6 +180,18 @@ namespace cybermon {
  				     pdu_iter end,
  				     const timeval& tv);
 
+	virtual void wlan(const context_ptr cp,
+ 				     const uint8_t version,
+ 				     const uint8_t type,
+ 				     const uint8_t subtype,
+ 				     const uint8_t flags,
+ 				     const bool is_protected,
+ 				     const uint16_t duration,
+ 				     const std::string& filt_addr,
+ 				     const uint8_t frag_num,
+ 				     const uint16_t seq_num,
+ 				     const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

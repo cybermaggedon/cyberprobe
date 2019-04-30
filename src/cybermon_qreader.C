@@ -434,6 +434,16 @@ void cybermon_qreader::run() {
 		delete (unknownIpProtoArgs);
 		break;
 	    }
+	    case qargs::wlan: {
+		wlan_args* wlanArgs =
+		    static_cast<wlan_args*>(qentry->queueargs);
+		cml.wlan(qwriter, wlanArgs->cptr, wlanArgs->version, wlanArgs->type, wlanArgs->subtype,
+			wlanArgs->flags, wlanArgs->is_protected, wlanArgs->duration, wlanArgs->filt_addr,
+			wlanArgs->frag_num, wlanArgs->seq_num, wlanArgs->time);
+		delete (qentry);
+		delete (wlanArgs);
+		break;
+	    }
 	    default: {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }

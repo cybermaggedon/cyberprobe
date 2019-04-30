@@ -2,6 +2,8 @@
 #include <cybermon/socket.h>
 #include <cybermon/address.h>
 
+#include "hardware_addr_utils.h"
+
 #include <iomanip>
 #include <arpa/inet.h>
 
@@ -137,6 +139,12 @@ void address::get(std::string& cls, std::string& address) const
       throw std::runtime_error("Invalid address data for esp spi");
     }
   	return;
+  }
+
+  if (proto == WLAN) {
+    cls = "802.11";
+    address = hw_addr_utils::to_string(&addr[0]);
+    return;
   }
 
 

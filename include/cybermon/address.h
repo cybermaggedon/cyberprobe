@@ -43,6 +43,7 @@ namespace cybermon {
         SMTP_AUTH,
         GRE,
         ESP,
+        WLAN,
 
         // Unknown stuff
         UNRECOGNISED

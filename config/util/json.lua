@@ -436,5 +436,16 @@ module.unrecognised_ip_protocol = function(e)
   submit(obs)
 end
 
+-- This function is called when a 802.11 packet is observed.
+module.wlan = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "802.11"
+  obs["802.11"] = { version=e.version, type=e.type, subtype=e.subtype, flags=e.flags,
+    protected=e.protected, filt_addr=e.filt_addr, frag_num=e.frag_num, seq_num=e.seq_num,
+    duration=e.duration}
+
+  submit(obs)
+end
+
 -- Return the table
 return module

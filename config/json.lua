@@ -43,6 +43,7 @@ observer.gre = model.gre
 observer.grep_pptp = model.gre_pptp
 observer.esp = model.esp
 observer.unrecognised_ip_protocol = model.unrecognised_ip_protocol
+observer.wlan = model.wlan
 
 local submit = function(obj)
   data = json.encode(obj)
