@@ -41,6 +41,7 @@ namespace cybermon {
         SIP,
         SIP_SSL,
         SMTP_AUTH,
+        GRE,
 
         // Unknown stuff
         UNRECOGNISED

@@ -591,9 +591,28 @@ namespace cybermon {
 	void ntp_private_message(engine& an, const context_ptr cf,
 				 const ntp_private& priv, const timeval& time);
 	
+	void gre_message(engine& an,
+  			 const context_ptr cf,
+         const std::string& nextProto,
+         const uint32_t key,
+         const uint32_t sequenceNo,
+         pdu_iter payload_start,
+         pdu_iter payload_end,
+         const timeval& time);
+
+	void gre_pptp_message(engine& an,
+  			 const context_ptr cf,
+         const std::string& nextProto,
+         const uint16_t payload_length,
+         const uint16_t call_id,
+         const uint32_t sequenceNo,
+         const uint32_t ackNo,
+         pdu_iter payload_start,
+         pdu_iter payload_end,
+         const timeval& time);
+
     };
 
 };
 
 #endif
-

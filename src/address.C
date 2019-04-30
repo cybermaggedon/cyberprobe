@@ -117,6 +117,11 @@ void address::get(std::string& cls, std::string& address) const
 	return;
     }
 
+    if (proto == GRE) {
+	cls = "gre"; address = "";
+	return;
+    }
+
 
     if (proto == UNRECOGNISED) {
 	cls = "unrecognised"; address = "";

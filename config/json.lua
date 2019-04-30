@@ -39,6 +39,8 @@ observer.ftp_response = model.ftp_response
 observer.ntp_timestamp_message = model.ntp_timestamp_message
 observer.ntp_control_message = model.ntp_control_message
 observer.ntp_private_message = model.ntp_private_message
+observer.gre = model.gre
+observer.grep_pptp = model.gre_pptp
 
 local submit = function(obj)
   data = json.encode(obj)

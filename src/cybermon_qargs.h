@@ -59,7 +59,9 @@ public:
 	dns_message,
 	ntp_timestamp_message,
 	ntp_control_message,
-	ntp_private_message
+	ntp_private_message,
+	gre_message,
+	gre_pptp_message
 
     };
 };
@@ -479,6 +481,48 @@ public:
     const cybermon::ntp_private ntppriv;
     timeval time;
 };
+
+class gre_args: public qargs {
+
+public:
+    gre_args(const cybermon::context_ptr cp, const std::string& nextProto,
+		   const uint32_t key, const uint32_t seqNo,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), nextProto(nextProto), key(key), sequenceNo(seqNo), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const std::string nextProto;
+    const uint32_t key;
+    const uint32_t sequenceNo;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class gre_pptp_args: public qargs {
+
+public:
+    gre_pptp_args(const cybermon::context_ptr cp, const std::string& nextProto,
+		   const uint16_t len, const uint16_t c_id,
+       const uint32_t seqNo, const uint32_t ackNo,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), nextProto(nextProto), payload_length(len), call_id(c_id), sequenceNo(seqNo), ackNo(ackNo), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const std::string nextProto;
+    const uint16_t payload_length;
+    const uint16_t call_id;
+    const uint32_t sequenceNo;
+    const uint32_t ackNo;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
 
 
 /*q_entry class acting as a medium to store args and add in to queue by cybermon_qwriter

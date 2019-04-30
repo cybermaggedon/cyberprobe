@@ -407,9 +407,45 @@ void cybermon_qwriter::ntp_private_message(const context_ptr cp,
     }
 
 }
+
+void cybermon_qwriter::gre(const context_ptr cp,
+					 const std::string& nxt_proto,
+					 const uint32_t key,
+					 const uint32_t seq,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+    try {
+	qargs* args = new gre_args(cp, nxt_proto, key, seq, start, end, tv);
+	q_entry* qentry = new q_entry(qargs::gre_message, args);
+	push(qentry);
+    } catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
+void cybermon_qwriter::gre_pptp(const context_ptr cp,
+					 const std::string& nxt_proto,
+					 const uint16_t payload_length,
+					 const uint16_t call_id,
+					 const uint32_t sequenceNo,
+					 const uint32_t ackNo,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+    try {
+	qargs* args = new gre_pptp_args(cp, nxt_proto, payload_length, call_id, sequenceNo, ackNo, start, end, tv);
+	q_entry* qentry = new q_entry(qargs::gre_pptp_message, args);
+	push(qentry);
+    } catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;
     push(qentry);
 }
-

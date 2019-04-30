@@ -382,6 +382,36 @@ module.ntp_private_message = function(e)
   submit(obs)
 end
 
+-- This function is called when a gre message is observed.
+module.gre = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "gre"
+  obs["gre"] = { next_proto=e.next_proto, payload=b64(e.payload) }
+
+  if e.key ~= 0 then
+    obs["gre"]["key"] = tostring(e.key)
+  end
+  if e.sequence_number ~= 0 then
+    obs["gre"]["sequence_number"] = tostring(e.sequence_number)
+  end
+  submit(obs)
+end
+
+-- This function is called when a gre message is observed.
+module.gre_pptp = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "gre_pptp"
+  obs["gre_pptp"] = { next_proto=e.next_proto, call_id=e.call_id,
+    payload_length=e.payload_length, payload=b64(e.payload) }
+
+  if e.sequence_number ~= 0 then
+    obs["gre_pptp"]["sequence_number"] = tostring(e.sequence_number)
+  end
+  if e.acknowledgement_number ~= 0 then
+    obs["gre_pptp"]["acknowledgement_number"] = tostring(e.acknowledgement_number)
+  end
+  submit(obs)
+end
+
 -- Return the table
 return module
-

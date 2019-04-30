@@ -1401,7 +1401,125 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
 	pop();
 	throw;
     }
-    
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::gre_message(engine& an,
+				       const context_ptr cf,
+				       const std::string& nextProto,
+				       const uint32_t key,
+				       const uint32_t sequenceNo,
+				       pdu_iter payload_start,
+				       pdu_iter payload_end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "gre");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("next_proto");
+    push(nextProto);
+    set_table(-3);
+
+    push("key");
+    push(key);
+    set_table(-3);
+
+    push("sequence_number");
+    push(sequenceNo);
+    set_table(-3);
+
+    push("payload");
+    push(payload_start, payload_end);
+    set_table(-3);
+
+    // config.gre_message(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::gre_pptp_message(engine& an,
+				       const context_ptr cf,
+				       const std::string& nextProto,
+				       const uint16_t payload_length,
+				       const uint16_t call_id,
+				       const uint32_t sequenceNo,
+				       const uint32_t ackNo,
+				       pdu_iter payload_start,
+				       pdu_iter payload_end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "gre_pptp");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("next_proto");
+    push(nextProto);
+    set_table(-3);
+
+    push("call_id");
+    push(call_id);
+    set_table(-3);
+
+    push("sequence_number");
+    push(sequenceNo);
+    set_table(-3);
+
+    push("acknowledgement_number");
+    push(ackNo);
+    set_table(-3);
+
+    push("payload_legnth");
+    push(payload_length);
+    set_table(-3);
+
+    push("payload");
+    push(payload_start, payload_end);
+    set_table(-3);
+
+    // config.gre_message(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
     // Still got 'config' left on stack, it can go.
     pop();
 }
