@@ -1524,6 +1524,59 @@ void cybermon_lua::gre_pptp_message(engine& an,
     pop();
 }
 
+void cybermon_lua::esp(engine& an,
+				       const context_ptr cf,
+				       const uint32_t spi,
+				       const uint32_t sequence,
+				       const uint32_t length,
+				       pdu_iter start,
+				       pdu_iter end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "esp");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("spi");
+    push(spi);
+    set_table(-3);
+
+    push("sequence_number");
+    push(sequence);
+    set_table(-3);
+
+    push("payload_length");
+    push(length);
+    set_table(-3);
+
+    push("payload");
+    push(start, end);
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

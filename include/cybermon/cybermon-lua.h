@@ -611,6 +611,15 @@ namespace cybermon {
          pdu_iter payload_end,
          const timeval& time);
 
+	void esp(engine& an,
+  			 const context_ptr cf,
+  			 const uint32_t spi,
+  			 const uint32_t sequence,
+  			 const uint32_t length,
+  			 pdu_iter start,
+  			 pdu_iter end,
+  			 const timeval& time);
+
     };
 
 };

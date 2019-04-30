@@ -444,6 +444,23 @@ void cybermon_qwriter::gre_pptp(const context_ptr cp,
     }
 }
 
+void cybermon_qwriter::esp(const context_ptr cp,
+					 const uint32_t spi,
+					 const uint32_t sequence,
+					 const uint32_t length,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+    try {
+	qargs* args = new esp_args(cp, spi, sequence, length, start, end, tv);
+	q_entry* qentry = new q_entry(qargs::esp, args);
+	push(qentry);
+    } catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;
