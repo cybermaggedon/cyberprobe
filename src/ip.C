@@ -367,7 +367,7 @@ void ip::process_ip6(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Complete payload, just process it.
-    handle_nxt_proto(mgr, fc, protocol, sl, length, header_length);
+    handle_nxt_proto(mgr, fc, protocol, sl, length + header_length, header_length);
 
 }
 

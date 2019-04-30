@@ -1,0 +1,7 @@
+.action unrecognised_ip_protocol 1
+.dest.0 ipv6:ff02::2 1
+.device PCAP 1
+.src.0 ipv6:fe80::5054:ff:fead:3ffd 1
+.unrecognised_ip_protocol.next_proto 58 1
+.unrecognised_ip_protocol.payload hQDtOAAAAAA= 1
+.unrecognised_ip_protocol.payload_length 8 1
