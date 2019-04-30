@@ -413,5 +413,18 @@ module.gre_pptp = function(e)
   submit(obs)
 end
 
+-- This function is called when an esp packet is observed.
+module.esp = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "esp"
+  obs["esp"] = { spi=e.spi, sequence_number=e.sequence_number,
+    payload_length=e.payload_length }
+
+  -- the payload is available to be output, but it is encrypted so not a lot of use
+  -- obs["esp"]["payload"] = b64(e.payload)
+
+  submit(obs)
+end
+
 -- Return the table
 return module

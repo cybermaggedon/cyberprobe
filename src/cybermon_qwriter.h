@@ -165,6 +165,14 @@ namespace cybermon {
  				     pdu_iter end,
  				     const timeval& tv);
 
+	virtual void esp(const context_ptr cp,
+ 				     const uint32_t spi,
+ 				     const uint32_t sequence,
+ 				     const uint32_t length,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

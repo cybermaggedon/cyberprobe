@@ -190,6 +190,14 @@ namespace cybermon {
  				     pdu_iter end,
  				     const timeval& tv) = 0;
 
+	virtual void esp(const context_ptr cp,
+             const uint32_t spi,
+             const uint32_t seq,
+             const uint32_t len,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv) = 0;
+
     };
 
 };

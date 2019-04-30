@@ -6,6 +6,7 @@
 #include <cybermon/udp.h>
 #include <cybermon/icmp.h>
 #include <cybermon/gre.h>
+#include <cybermon/esp.h>
 #include <cybermon/manager.h>
 
 using namespace cybermon;
@@ -297,6 +298,12 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
  	// gre
          gre::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                          sl.time, sl.direc));
+
+     else if (protocol == 50)
+
+ 	// gre
+         esp::process(mgr, fc, pdu_slice(s + header_length, s + length,
                                           sl.time, sl.direc));
 
     else {

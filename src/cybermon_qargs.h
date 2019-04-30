@@ -61,7 +61,8 @@ public:
 	ntp_control_message,
 	ntp_private_message,
 	gre_message,
-	gre_pptp_message
+	gre_pptp_message,
+	esp
 
     };
 };
@@ -519,6 +520,25 @@ public:
     const uint16_t call_id;
     const uint32_t sequenceNo;
     const uint32_t ackNo;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class esp_args: public qargs {
+
+public:
+    esp_args(const cybermon::context_ptr cp,
+       const uint32_t spi, const uint32_t seq, const uint32_t len,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), spi(spi), sequence(seq), length(len), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const uint32_t spi;
+    const uint32_t sequence;
+    const uint32_t length;
     cybermon::pdu pdu;
     timeval time;
 };

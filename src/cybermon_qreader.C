@@ -415,6 +415,15 @@ void cybermon_qreader::run() {
 		delete (grePptpMessageArgs);
 		break;
 	    }
+	    case qargs::esp: {
+		esp_args* espArgs =
+		    static_cast<esp_args*>(qentry->queueargs);
+		cml.esp(qwriter, espArgs->cptr, espArgs->spi, espArgs->sequence, espArgs->length,
+					espArgs->pdu.begin(), espArgs->pdu.end(), espArgs->time);
+		delete (qentry);
+		delete (espArgs);
+		break;
+	    }
 	    default: {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }
