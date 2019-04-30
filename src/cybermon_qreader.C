@@ -424,6 +424,16 @@ void cybermon_qreader::run() {
 		delete (espArgs);
 		break;
 	    }
+	    case qargs::unrecognised_ip_protocol: {
+		unknown_ip_proto_args* unknownIpProtoArgs =
+		    static_cast<unknown_ip_proto_args*>(qentry->queueargs);
+		cml.unrecognised_ip_protocol(qwriter, unknownIpProtoArgs->cptr, unknownIpProtoArgs->nxtProto,
+					unknownIpProtoArgs->length, unknownIpProtoArgs->pdu.begin(), unknownIpProtoArgs->pdu.end(),
+					unknownIpProtoArgs->time);
+		delete (qentry);
+		delete (unknownIpProtoArgs);
+		break;
+	    }
 	    default: {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }

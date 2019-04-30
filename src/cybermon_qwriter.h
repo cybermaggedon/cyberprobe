@@ -173,6 +173,13 @@ namespace cybermon {
  				     pdu_iter end,
  				     const timeval& tv);
 
+	virtual void unrecognised_ip_protocol(const context_ptr cp,
+ 				     const uint8_t nxtProto,
+ 				     const uint32_t len,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

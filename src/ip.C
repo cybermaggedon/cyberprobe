@@ -307,9 +307,8 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
                                           sl.time, sl.direc));
 
     else {
-	std::ostringstream buf;
-	buf << "IP protocol " << (int) protocol << " not handled.";
-	throw exception(buf.str());
+      mgr.unrecognised_ip_protocol(fc, protocol, length - header_length,
+        s + header_length, s + length, sl.time);
     }
 
 }

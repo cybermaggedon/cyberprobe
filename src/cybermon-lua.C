@@ -1577,6 +1577,54 @@ void cybermon_lua::esp(engine& an,
     pop();
 }
 
+void cybermon_lua::unrecognised_ip_protocol(engine& an,
+				       const context_ptr cf,
+				       const uint8_t nxtProto,
+				       const uint32_t len,
+				       pdu_iter start,
+				       pdu_iter end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "unrecognised_ip_protocol");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("next_proto");
+    push(nxtProto);
+    set_table(-3);
+
+    push("payload_length");
+    push(len);
+    set_table(-3);
+
+    push("payload");
+    push(start, end);
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

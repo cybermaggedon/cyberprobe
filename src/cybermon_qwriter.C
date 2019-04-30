@@ -461,6 +461,22 @@ void cybermon_qwriter::esp(const context_ptr cp,
     }
 }
 
+void cybermon_qwriter::unrecognised_ip_protocol(const context_ptr cp,
+					 const uint8_t nxtProto,
+					 const uint32_t len,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new unknown_ip_proto_args(cp, nxtProto, len, start, end, tv);
+		q_entry* qentry = new q_entry(qargs::unrecognised_ip_protocol, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;
