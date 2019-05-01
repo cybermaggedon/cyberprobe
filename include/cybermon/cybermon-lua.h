@@ -206,13 +206,9 @@ namespace cybermon {
 	}
 
 	// Push a string (defined by iterators).
-	void push(std::vector<unsigned char>::const_iterator s,
-		  std::vector<unsigned char>::const_iterator e) {
-	    // FIXME: Lot of copying?
-	    unsigned char* buf = new unsigned char[e - s];
-	    std::copy(s, e, buf);
-	    lua_pushlstring(lua, (char*) buf, e - s);
-	    delete[] buf;
+	template < class Iter >
+	void push(Iter s, Iter e) {
+	    lua_pushlstring(lua, reinterpret_cast<const char*>(&(*s)), e - s);
 	}
 
 /*	void push(int size, unsigned char* buf ) {
