@@ -74,7 +74,8 @@ public:
   	tls_server_hello_done,
   	tls_handshake_generic,
   	tls_certificate_request,
-  	tls_client_key_exchange
+  	tls_client_key_exchange,
+  	tls_certificate_verify
 
     };
 };
@@ -705,6 +706,22 @@ public:
     }
     cybermon::context_ptr cptr;
     const std::vector<uint8_t> key;
+    timeval time;
+};
+
+class tls_certificate_verify_args: public qargs {
+
+public:
+    tls_certificate_verify_args(const cybermon::context_ptr cp,
+      const uint8_t sigHashAlgo, const uint8_t sigAlgo,
+      const std::string& sig, const timeval& time)
+      : cptr(cp), sigHashAlgo(sigHashAlgo), sigAlgo(sigAlgo), sig(sig), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t sigHashAlgo;
+    const uint8_t sigAlgo;
+    const std::string sig;
     timeval time;
 };
 

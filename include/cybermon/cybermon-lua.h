@@ -695,6 +695,13 @@ namespace cybermon {
            			 const context_ptr cp,
            			 const std::vector<uint8_t>& key,
            			 const timeval& tv);
+
+	void tls_certificate_verify(engine& an,
+            			 const context_ptr cp,
+            			 const uint8_t sigHashAlgo,
+            			 const uint8_t sigAlgo,
+            			 const std::string& sig,
+            			 const timeval& tv);
     };
 
 };

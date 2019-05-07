@@ -2307,6 +2307,55 @@ throw;
     pop();
 }
 
+void cybermon_lua::tls_certificate_verify(engine& an, const context_ptr cp, const uint8_t sigHashAlgo,
+				       const uint8_t sigAlgo, const std::string& sig, const timeval& time)
+{
+
+    // Get config.connection_up
+    get_global("config");
+    get_field(-1, "tls_certificate_verify");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cp);
+    set_table(-3);
+
+    push("signature_algorithm");
+    create_table(2,0);
+    push("hash_algorithm");
+    push(sigHashAlgo);
+    set_table(-3);
+    push("signature_algorithm");
+    push(sigAlgo);
+    set_table(-3);
+    set_table(-3);
+
+    // Set table context.
+    push("signature");
+    push(sig);
+    set_table(-3);
+
+    // config.connection_up(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

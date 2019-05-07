@@ -659,5 +659,16 @@ module.tls_client_key_exchange = function(e)
   submit(obs)
 end
 
+-- This function is called when a tls certificate verify packet is observed.
+module.tls_certificate_verify = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_certificate_verify"
+  obs["tls"] = {signature_algorithm=e.signature_algorithm,
+    signature=e.signature}
+
+
+  submit(obs)
+end
+
 -- Return the table
 return module

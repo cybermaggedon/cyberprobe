@@ -227,36 +227,42 @@ namespace cybermon {
  				     const timeval& tv) = 0;
 
 	virtual void tls_client_hello(const context_ptr cp,
-  				     const tls_handshake_protocol::client_hello_data& data,
+ 				     const tls_handshake_protocol::client_hello_data& data,
  				     const timeval& tv) = 0;
 
 	virtual void tls_server_hello(const context_ptr cp,
-   				     const tls_handshake_protocol::server_hello_data& data,
+ 				     const tls_handshake_protocol::server_hello_data& data,
  				     const timeval& tv) = 0;
 
 	virtual void tls_certificates(const context_ptr cp,
-    				     const std::vector<std::vector<uint8_t>>& certs,
+ 				     const std::vector<std::vector<uint8_t>>& certs,
  				     const timeval& tv) = 0;
 
 	virtual void tls_server_key_exchange(const context_ptr cp,
-  				     const tls_handshake_protocol::key_exchange_data& data,
+ 				     const tls_handshake_protocol::key_exchange_data& data,
  				     const timeval& tv) = 0;
 
   virtual void tls_server_hello_done(const context_ptr cp,
-   				     const timeval& tv) = 0;
+ 				     const timeval& tv) = 0;
 
   virtual void tls_handshake_generic(const context_ptr cp,
-    				     const uint8_t type,
-    				     const uint32_t len,
-    				     const timeval& tv) = 0;
+ 				     const uint8_t type,
+ 				     const uint32_t len,
+ 				     const timeval& tv) = 0;
 
   virtual void tls_certificate_request(const context_ptr cp,
-     				     const tls_handshake_protocol::certificate_request_data& data,
-     				     const timeval& tv) = 0;
+ 				     const tls_handshake_protocol::certificate_request_data& data,
+ 				     const timeval& tv) = 0;
 
   virtual void tls_client_key_exchange(const context_ptr cp,
-      				     const std::vector<uint8_t>& key,
-      				     const timeval& tv) = 0;
+ 				     const std::vector<uint8_t>& key,
+ 				     const timeval& tv) = 0;
+
+  virtual void tls_certificate_verify(const context_ptr cp,
+ 				     const uint8_t sigHashAlgo,
+ 				     const uint8_t sigAlgo,
+ 				     const std::string& sig,
+ 				     const timeval& tv) = 0;
     };
 
 };

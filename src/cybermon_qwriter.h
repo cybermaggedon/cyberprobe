@@ -233,6 +233,12 @@ namespace cybermon {
              const std::vector<uint8_t>& key,
              const timeval& tv);
 
+  virtual void tls_certificate_verify(const context_ptr cp,
+             const uint8_t sigHashAlgo,
+             const uint8_t sigAlgo,
+             const std::string& sig,
+             const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

@@ -46,6 +46,9 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
     case 14:
       serverHelloDone(mgr, ctx, data, len);
       break;
+    case 15:
+      certificateVerify(mgr, ctx, data, len);
+      break;
     case 16:
       clientKeyExchange(mgr, ctx, data, len);
       break;
@@ -434,6 +437,38 @@ void tls_handshake::clientKeyExchange(manager& mgr, tls_context::ptr ctx, const 
   }
 
   mgr.tls_client_key_exchange(ctx, key, pduSlice.time);
+}
+
+void tls_handshake::certificateVerify(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  uint16_t dataLeft = length;
+  pdu_iter dataPtr = pduSlice.start;
+
+  uint8_t sigHashAlgo = dataPtr[0];
+  dataPtr += 1;
+  dataLeft -= 1;
+  uint8_t sigAlgo = dataPtr[0];
+  dataPtr += 1;
+  dataLeft -= 1;
+
+  uint16_t sigLen = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
+  dataPtr += 2;
+  dataLeft -= 2;
+
+  if (sigLen > dataLeft)
+  {
+    throw exception("TLS Protocol Error - not enough room for signature");
+  }
+
+  std::ostringstream oss;
+  for (pdu_iter iter=dataPtr;
+    iter != dataPtr+sigLen;
+    ++iter)
+  {
+    oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
+  }
+
+  mgr.tls_certificate_verify(ctx, sigHashAlgo, sigAlgo, oss.str(), pduSlice.time);
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)
