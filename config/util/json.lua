@@ -575,5 +575,22 @@ module.tls_server_hello = function(e)
   submit(obs)
 end
 
+-- This function is called when a tls client hello packet is observed.
+module.tls_certificates = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_certificates"
+  obs["tls"] = {}
+  certs = {}
+  json.util.InitArray(exts)
+  for key, value in pairs(e.certificates) do
+    -- key is just the index
+    certs[#certs + 1] = str_to_hex(value)
+  end
+  obs["tls"]["certificates"] = certs
+
+
+  submit(obs)
+end
+
 -- Return the table
 return module

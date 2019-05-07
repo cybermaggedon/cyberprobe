@@ -7,6 +7,8 @@
 #include <cybermon/ntp_protocol.h>
 #include <cybermon/tls_handshake_protocol.h>
 
+#include <vector>
+
 namespace cybermon {
 
     // Observer interface.  The observer interface is called when various
@@ -230,6 +232,10 @@ namespace cybermon {
 
 	virtual void tls_server_hello(const context_ptr cp,
    				     const tls_handshake_protocol::server_hello_data& data,
+ 				     const timeval& tv) = 0;
+
+	virtual void tls_certificates(const context_ptr cp,
+    				     const std::vector<std::vector<uint8_t>>& certs,
  				     const timeval& tv) = 0;
 
     };

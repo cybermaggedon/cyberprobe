@@ -47,6 +47,7 @@ observer.wlan = model.wlan
 observer.tls = model.tls
 observer.tls_client_hello = model.tls_client_hello
 observer.tls_server_hello = model.tls_server_hello
+observer.tls_certificates = model.tls_certificates
 
 local submit = function(obj)
   data = json.encode(obj)

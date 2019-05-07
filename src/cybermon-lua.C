@@ -1959,6 +1959,53 @@ void cybermon_lua::tls_server_hello(engine& an,
     pop();
 }
 
+void cybermon_lua::tls_certificates(engine& an,
+				       const context_ptr cf,
+               const std::vector<std::vector<uint8_t>>& certs,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "tls_certificates");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("certificates");
+    create_table(certs.size(), 0);
+    int index = 1;
+    for (std::vector<std::vector<uint8_t>>::const_iterator iter=certs.begin();
+      iter != certs.end();
+      ++iter)
+    {
+      push(index);
+      push(std::begin(*iter), std::end(*iter));
+      set_table(-3);
+      ++index;
+    }
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

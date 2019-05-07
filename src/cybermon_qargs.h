@@ -68,7 +68,8 @@ public:
 	wlan,
 	tls,
  	tls_client_hello,
- 	tls_server_hello
+ 	tls_server_hello,
+ 	tls_certificates
 
     };
 };
@@ -631,6 +632,21 @@ public:
     }
     cybermon::context_ptr cptr;
     const cybermon::tls_handshake_protocol::server_hello_data data;
+    timeval time;
+};
+
+class tls_certificates_args: public qargs {
+
+public:
+    tls_certificates_args(const cybermon::context_ptr cp,
+      const std::vector<std::vector<uint8_t>>& certsArg, const timeval& time)
+      : cptr(cp), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+      certs.reserve(certsArg.size());
+      certs.insert(certs.end(), certsArg.begin(), certsArg.end());
+    }
+    cybermon::context_ptr cptr;
+    std::vector<std::vector<uint8_t>> certs;
     timeval time;
 };
 

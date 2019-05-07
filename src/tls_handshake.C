@@ -34,6 +34,11 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
     case 2:
       serverHello(mgr, ctx, data, len);
       break;
+    case 11:
+      certificate(mgr, ctx, data, len);
+      break;
+    default:
+      std::cout << "----- not processing handshake message type " << static_cast<uint16_t>(type) << std::endl;
     }
 
     data = data.skip(len);
@@ -249,6 +254,40 @@ void tls_handshake::processExtensions(const pdu_slice& pduSlice, uint16_t length
     dataLeft -= len;
     dataPtr += len;
   }
+}
+
+void tls_handshake::certificate(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  uint16_t dataLeft = length;
+  pdu_iter dataPtr = pduSlice.start;
+
+  uint32_t certsLength = (dataPtr[0] << 16) + (dataPtr[1] << 8) + dataPtr[2];
+  dataLeft -= 3;
+  dataPtr += 3;
+
+  std::vector<std::vector<uint8_t>> certs;
+  while (certsLength > 0 && dataLeft > 0)
+  {
+    uint32_t certLength = (dataPtr[0] << 16) + (dataPtr[1] << 8) + dataPtr[2];
+    dataLeft -= 3;
+    dataPtr += 3;
+    certsLength -= 3;
+
+    if (certLength > certsLength || certLength > dataLeft)
+    {
+      // TODO - nice handling
+      throw exception("not enough room for certificate");
+    }
+
+    certs.emplace_back(dataPtr, dataPtr + certLength);
+
+    dataLeft -= certLength;
+    dataPtr += certLength;
+    certsLength -= certLength;
+  }
+
+  // TODO extract cert info? - openssl?
+  mgr.tls_certificates(ctx, certs, pduSlice.time);
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)

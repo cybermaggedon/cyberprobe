@@ -80,7 +80,7 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
     pdu_slice msg(flowContext->buffer.begin(),
                       flowContext->buffer.end(),
                       pduSlice.time, pduSlice.direc);
-    survey(mgr, flowContext, msg, hdr);
+    processMessage(mgr, flowContext, msg, hdr);
     // we're now done with the buffered PDU, and can process the rest of the slice
     // TODO probably want a max capacity to cap this too so we dont eat loads of memory and
     // never free it.

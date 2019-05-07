@@ -20,6 +20,7 @@ private:
   static void serverHello(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
   static uint16_t commonHello(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::hello_base& hello);
   static void processExtensions(const pdu_slice& pduSlice, uint16_t length, std::vector<tls_handshake_protocol::extension>& exts);
+  static void certificate(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
 
   struct common_hello {
     uint8_t majVersion;
