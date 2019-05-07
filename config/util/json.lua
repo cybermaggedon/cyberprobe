@@ -584,7 +584,7 @@ module.tls_certificates = function(e)
   json.util.InitArray(exts)
   for key, value in pairs(e.certificates) do
     -- key is just the index
-    certs[#certs + 1] = str_to_hex(value)
+    certs[#certs + 1] = b64(value)
   end
   obs["tls"]["certificates"] = certs
 
@@ -601,9 +601,10 @@ module.tls_server_key_exchange = function(e)
   if e.key_exchange_algorithm == "ec-dh" then
     obs["tls"]["curve_type"] = e.curve_type
     obs["tls"]["curve_metadata"] = e.curve_metadata
+    obs["tls"]["public_key"] = b64(e.public_key)
     obs["tls"]["signature_hash_algorithm"] = e.signature_hash_algorithm
     obs["tls"]["signature_algorithm"] = e.signature_algorithm
-    obs["tls"]["signature_hash"] = str_to_hex(e.signature_hash)
+    obs["tls"]["signature_hash"] = e.signature_hash
   else
     obs["tls"]["prime"] = str_to_hex(e.prime)
     obs["tls"]["generator"] = str_to_hex(e.generator)
@@ -652,7 +653,7 @@ end
 module.tls_client_key_exchange = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_client_key_exchange"
-  obs["tls"] = {key=str_to_hex(e.key)}
+  obs["tls"] = {key=b64(e.key)}
 
 
   submit(obs)

@@ -7,12 +7,13 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 namespace cybermon {
 namespace tls_key_exchange {
 
 void server_ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md);
-std::string client_ecdh(const pdu_slice& pduSlice, uint16_t length);
+void client_ecdh(const pdu_slice& pduSlice, uint16_t length, std::vector<uint8_t>& key);
 
 enum NamedCurve {
   sect163k1=1, sect163r1=2, sect163r2=3,

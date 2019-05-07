@@ -425,11 +425,11 @@ void tls_handshake::clientKeyExchange(manager& mgr, tls_context::ptr ctx, const 
 
   cipher::KeyExchangeAlgorithm algo = cipher::lookup_key_exchange_algorithm(cipherSuite);
 
-  std::string key;
+  std::vector<uint8_t> key;
   switch (algo)
   {
   case cipher::KeyExchangeAlgorithm::ec_dh:
-    key = tls_key_exchange::client_ecdh(pduSlice, length);
+    tls_key_exchange::client_ecdh(pduSlice, length, key);
     break;
   }
 

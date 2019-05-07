@@ -606,7 +606,7 @@ void cybermon_qwriter::tls_certificate_request(const context_ptr cp,
 }
 
 void cybermon_qwriter::tls_client_key_exchange(const context_ptr cp,
-					 const std::string& key,
+					 const std::vector<uint8_t>& key,
 					 const timeval& tv)
 {
 	try {

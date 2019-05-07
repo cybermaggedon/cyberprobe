@@ -2051,6 +2051,10 @@ void cybermon_lua::tls_server_key_exchange(engine& an,
       }
       set_table(-3); // curve metadata
 
+      push("public_key");
+      push(data.ecdh->pubKey.begin(), data.ecdh->pubKey.end());
+      set_table(-3);
+
       push("signature_hash_algorithm");
       push(data.ecdh->sigHashAlgo);
       set_table(-3);
@@ -2267,7 +2271,7 @@ void cybermon_lua::tls_certificate_request(engine& an,
 
 void cybermon_lua::tls_client_key_exchange(engine& an,
 				       const context_ptr cp,
-				       const std::string& key,
+				       const std::vector<uint8_t>& key,
 				       const timeval& tv)
 {
     // Get config.connection_up
@@ -2288,7 +2292,7 @@ void cybermon_lua::tls_client_key_exchange(engine& an,
     set_table(-3);
 
     push("key");
-    push(key);
+    push(key.begin(), key.end());
     set_table(-3);
 
     // config.connection_up(event)

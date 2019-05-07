@@ -699,12 +699,12 @@ class tls_client_key_exchange_args: public qargs {
 
 public:
     tls_client_key_exchange_args(const cybermon::context_ptr cp,
-      const std::string& key, const timeval& time)
+      const std::vector<uint8_t>& key, const timeval& time)
       : cptr(cp), key(key), time(time)
     {
     }
     cybermon::context_ptr cptr;
-    const std::string key;
+    const std::vector<uint8_t> key;
     timeval time;
 };
 

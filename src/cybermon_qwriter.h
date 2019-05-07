@@ -230,7 +230,7 @@ namespace cybermon {
              const timeval& tv);
 
   virtual void tls_client_key_exchange(const context_ptr cp,
-             const std::string& key,
+             const std::vector<uint8_t>& key,
              const timeval& tv);
 
 	// Max size of queue.

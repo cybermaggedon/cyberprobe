@@ -129,19 +129,10 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
     throw exception("TLS ECDH Error - Not enough room for public key point");
   }
 
-  std::vector<uint8_t> pubKey(dataPtr, dataPtr + pointLen);
+  md->pubKey.reserve(pointLen);
+  md->pubKey.insert(md->pubKey.end(), dataPtr, dataPtr + pointLen);
   dataPtr += pointLen;
   dataLeft -= pointLen;
-
-  std::ostringstream oss;
-  oss << "0x";
-  for (std::vector<uint8_t>::const_iterator iter=pubKey.begin();
-    iter != pubKey.end();
-    ++iter)
-  {
-    oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
-  }
-  md->curveData.emplace_back("pubKey", oss.str());
 
   md->sigHashAlgo = dataPtr[0];
   dataPtr += 1;
@@ -158,15 +149,20 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
     throw exception("TLS ECDH Error - Not enough room for signature hash");
   }
 
-  md->hash.insert(md->hash.end(), dataPtr, dataPtr + hashLen);
+  std::ostringstream oss;
+  for (pdu_iter iter=dataPtr;
+    iter != dataPtr+hashLen;
+    ++iter)
+  {
+    oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
+  }
+  md->hash = oss.str();
   dataPtr += hashLen;
   dataLeft -= hashLen;
 
 }
 
-
-
-std::string cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t length)
+void cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t length, std::vector<uint8_t>& key)
 {
   pdu_iter dataPtr = pduSlice.start;
   uint16_t dataLeft = length;
@@ -180,19 +176,8 @@ std::string cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, u
     throw exception("TLS ECDH Error - Not enough room for public key point");
   }
 
-  std::vector<uint8_t> pubKey(dataPtr, dataPtr + pointLen);
-  dataPtr += pointLen;
-  dataLeft -= pointLen;
-
-  std::ostringstream oss;
-  oss << "0x";
-  for (std::vector<uint8_t>::const_iterator iter=pubKey.begin();
-    iter != pubKey.end();
-    ++iter)
-  {
-    oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
-  }
-  return oss.str();
+  key.reserve(pointLen);
+  key.insert(key.end(), dataPtr, dataPtr + pointLen);
 
 }
 

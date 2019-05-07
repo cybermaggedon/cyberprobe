@@ -107,9 +107,10 @@ struct curve_data {
 struct ecdh_data {
   uint8_t curveType;
   std::vector<curve_data> curveData;
+  std::vector<uint8_t> pubKey;
   uint8_t sigHashAlgo;
   uint8_t sigAlgo;
-  std::vector<uint8_t> hash;
+  std::string hash;
 };
 
 struct dhanon_data {
