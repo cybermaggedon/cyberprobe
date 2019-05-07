@@ -147,6 +147,12 @@ void address::get(std::string& cls, std::string& address) const
     return;
   }
 
+    if (proto == TLS) {
+ 	cls = "tls";
+ 	address = "";
+ 	return;
+     }
+     
 
     if (proto == UNRECOGNISED) {
 	cls = "unrecognised"; address = "";

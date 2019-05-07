@@ -447,5 +447,14 @@ module.wlan = function(e)
   submit(obs)
 end
 
+-- This function is called when a 802.11 packet is observed.
+module.tls = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls"
+  obs["tls"] = { version=e.version, content_type=e.content_type, length=e.length}
+
+  submit(obs)
+end
+
 -- Return the table
 return module

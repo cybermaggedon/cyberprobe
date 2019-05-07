@@ -217,6 +217,12 @@ namespace cybermon {
  				     const uint16_t seq_num,
  				     const timeval& tv) = 0;
 
+	virtual void tls(const context_ptr cp,
+ 				     const std::string& version,
+ 				     const uint8_t contentType,
+ 				     const uint16_t length,
+ 				     const timeval& tv) = 0;
+
     };
 
 };

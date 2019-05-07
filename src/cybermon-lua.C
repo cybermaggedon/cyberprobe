@@ -1702,6 +1702,53 @@ void cybermon_lua::wlan(engine& an,
     pop();
 }
 
+void cybermon_lua::tls(engine& an,
+				       const context_ptr cf,
+               const std::string& version,
+               const uint8_t contentType,
+               const uint16_t length,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "tls");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("version");
+    push(version);
+    set_table(-3);
+
+    push("content_type");
+    push(contentType);
+    set_table(-3);
+
+    push("length");
+    push(length);
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

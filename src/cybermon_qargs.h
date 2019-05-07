@@ -64,7 +64,8 @@ public:
 	gre_pptp_message,
 	esp,
 	unrecognised_ip_protocol,
-	wlan
+	wlan,
+	tls
 
     };
 };
@@ -585,6 +586,22 @@ public:
     const std::string filt_addr;
     const uint8_t frag_num;
     const uint16_t seq_num;
+    timeval time;
+};
+
+class tls_args: public qargs {
+
+public:
+    tls_args(const cybermon::context_ptr cp,
+       const std::string& version, const uint8_t contentType,
+       const uint16_t length, const timeval& time) :
+	cptr(cp), version(version), contentType(contentType), length(length), time(time) {
+    }
+    cybermon::context_ptr cptr;
+    const std::string version;
+    const uint8_t contentType;
+    const uint16_t length;
+    cybermon::pdu pdu;
     timeval time;
 };
 
