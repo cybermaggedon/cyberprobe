@@ -67,7 +67,8 @@ public:
 	unrecognised_ip_protocol,
 	wlan,
 	tls,
-	tls_client_hello
+ 	tls_client_hello,
+ 	tls_server_hello
 
     };
 };
@@ -617,6 +618,19 @@ public:
     }
     cybermon::context_ptr cptr;
     const cybermon::tls_handshake_protocol::client_hello_data data;
+    timeval time;
+};
+
+class tls_server_hello_args: public qargs {
+
+public:
+    tls_server_hello_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::server_hello_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::server_hello_data data;
     timeval time;
 };
 

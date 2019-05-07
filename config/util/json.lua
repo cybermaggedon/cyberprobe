@@ -511,7 +511,57 @@ module.tls_client_hello = function(e)
     -- the id is available in the value too if needed (only used for unassigned currently)
     ext = {}
     ext["length"] = value.length
-    ext["data"] = str_to_hex(value.name)
+    if string.len(value.data) > 0 then
+      ext["data"] = str_to_hex(value.data)
+    end
+    if value.name == "Unassigned" then
+      ext["name"] = value.name .. " - " .. int_to_hex(value.type)
+    else
+      ext["name"] = value.name
+    end
+    exts[#exts + 1] = ext
+  end
+  obs["tls"]["extensions"] = exts
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls client hello packet is observed.
+module.tls_server_hello = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_server_hello"
+  obs["tls"] = { version=e.version, session_id=e.session_id}
+  obs["tls"]["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
+
+  -- the id is available too if needed (only used for unassigned currently)
+  local cipherName = ""
+  if e.cipher_suite.name == "Unassigned" then
+    cipherName = e.cipher_suite.name .. " - " .. int_to_hex(e.cipher_suite.id)
+  else
+    cipherName = e.cipher_suite.name
+  end
+  obs["tls"]["cipher_suite"] = cipherName
+
+  -- the id is available in the value too if needed (only used for unassigned currently)
+  local compressionName = ""
+  if e.compression_methods.name == "Unassigned" then
+    compressionName = e.compression_methods.name .. " - " .. int_to_hex(e.compression_methods.id)
+  else
+    compressionName = e.compression_methods.name
+  end
+  obs["tls"]["compression_methods"] = compressionName
+
+  exts = {}
+  json.util.InitArray(exts)
+  for key, value in pairs(e.extensions) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    ext = {}
+    ext["length"] = value.length
+    if string.len(value.data) > 0 then
+      ext["data"] = str_to_hex(value.data)
+    end
     if value.name == "Unassigned" then
       ext["name"] = value.name .. " - " .. int_to_hex(value.type)
     else

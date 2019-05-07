@@ -31,6 +31,9 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
     case 1:
       clientHello(mgr, ctx, data, len);
       break;
+    case 2:
+      serverHello(mgr, ctx, data, len);
+      break;
     }
 
     data = data.skip(len);
@@ -38,31 +41,30 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
   }
 }
 
-void tls_handshake::clientHello(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+uint16_t tls_handshake::commonHello(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::hello_base& hello)
 {
   uint16_t dataLeft = length;
   pdu_iter dataPtr = pduSlice.start;
-  if (dataLeft < sizeof(client_hello))
+  if (dataLeft < sizeof(common_hello))
   {
     // TODO - nice handling
-    throw exception("not enough room for client hello message");
+    throw exception("not enough room for hello message");
   }
 
-  const client_hello* ch = reinterpret_cast<const client_hello*>(&dataPtr[0]);
-  dataLeft -= sizeof(client_hello);
-  dataPtr += sizeof(client_hello);
+  const common_hello* ch = reinterpret_cast<const common_hello*>(&dataPtr[0]);
+  dataLeft -= sizeof(common_hello);
+  dataPtr += sizeof(common_hello);
   // just grab all the fields
-  tls_handshake_protocol::client_hello_data data;
-  data.version = tls_utils::convertTLSVersion(ch->majVersion, ch->minVersion);
-  data.randomTimestamp = (ntohs(ch->date1) << 16) + ntohs(ch->date2);
-  std::copy(&ch->random[0], &ch->random[27], &data.random[0]);
+  hello.version = tls_utils::convertTLSVersion(ch->majVersion, ch->minVersion);
+  hello.randomTimestamp = (ntohs(ch->date1) << 16) + ntohs(ch->date2);
+  std::copy(&ch->random[0], &ch->random[27], &hello.random[0]);
   uint16_t sessionIDLen = *dataPtr;
   dataLeft -= 1;
   dataPtr += 1;
   if (sessionIDLen > dataLeft)
   {
       // TODO - nice handling
-      throw exception("not enough room for client hello message");
+      throw exception("not enough room for hello message");
   }
   // extract the sessionID
   std::ostringstream sessionIDBuilder;
@@ -70,10 +72,23 @@ void tls_handshake::clientHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
   {
     sessionIDBuilder << std::setw(2) << std::setfill('0') << std::hex << static_cast<uint16_t>(*(dataPtr + i));
   }
-  data.sessionID = sessionIDBuilder.str();
+  hello.sessionID = sessionIDBuilder.str();
 
   dataLeft -= sessionIDLen;
   dataPtr += sessionIDLen;
+
+  return length - dataLeft;
+}
+
+void tls_handshake::clientHello(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  uint16_t dataLeft = length;
+  pdu_iter dataPtr = pduSlice.start;
+  tls_handshake_protocol::client_hello_data data;
+
+  uint16_t commonLength = commonHello(pduSlice, length, data);
+  dataLeft -= commonLength;
+  dataPtr += commonLength;
 
   // extract cipher suites
   uint16_t cipherSuiteLen = (dataPtr[0] << 8) + dataPtr[1];
@@ -143,6 +158,73 @@ void tls_handshake::clientHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
   mgr.tls_client_hello(ctx, data, pduSlice.time);
 }
 
+void tls_handshake::serverHello(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  uint16_t dataLeft = length;
+  pdu_iter dataPtr = pduSlice.start;
+  tls_handshake_protocol::server_hello_data data;
+
+  uint16_t commonLength = commonHello(pduSlice, length, data);
+  dataLeft -= commonLength;
+  dataPtr += commonLength;
+
+  // extract cipher suite
+  if (2 > dataLeft)
+  {
+      // TODO - nice handling
+      throw exception("not enough room for client hello message");
+  }
+  const uint16_t cipherId = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
+  std::string cipherName = cipher::lookup(cipherId);
+  data.cipherSuite = tls_handshake_protocol::cipher_suite(cipherId, cipherName);
+
+  dataLeft -= 2;
+  dataPtr += 2;
+
+
+  // extract compression method
+  if (! dataLeft)
+  {
+      // TODO - nice handling
+      throw exception("not enough room for client hello message");
+  }
+  uint8_t compressionId = *dataPtr;
+  dataLeft -= 1;
+  dataPtr += 1;
+  std::string compressionName;
+  if (compressionId < 224)
+  {
+    switch (compressionId) {
+    case 0:
+      compressionName = "NULL";
+      break;
+    case 1:
+      compressionName = "DEFLATE";
+      break;
+    case 64:
+      compressionName = "LZS";
+      break;
+    default:
+      compressionName = "Unassigned";
+      break;
+    }
+  } else {
+    compressionName = "Reserved";
+  }
+  data.compressionMethod = tls_handshake_protocol::compression_method(compressionId, compressionName);
+
+  // check for extensions and process
+  if (dataLeft)
+  {
+    pdu_slice extSlice = pduSlice.skip(dataPtr - pduSlice.start);
+    processExtensions(extSlice, dataLeft, data.extensions);
+  }
+
+  // send client hello event
+  //TODO store relevent info in context
+  mgr.tls_server_hello(ctx, data, pduSlice.time);
+}
+
 void tls_handshake::processExtensions(const pdu_slice& pduSlice, uint16_t length, std::vector<tls_handshake_protocol::extension>& exts)
 {
   uint16_t dataLeft = length;
@@ -167,7 +249,6 @@ void tls_handshake::processExtensions(const pdu_slice& pduSlice, uint16_t length
     dataLeft -= len;
     dataPtr += len;
   }
-
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)

@@ -203,6 +203,10 @@ namespace cybermon {
              const tls_handshake_protocol::client_hello_data& data,
              const timeval& tv);
 
+	virtual void tls_server_hello(const context_ptr cp,
+             const tls_handshake_protocol::server_hello_data& data,
+             const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

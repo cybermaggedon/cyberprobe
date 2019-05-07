@@ -661,6 +661,11 @@ namespace cybermon {
     			 const tls_handshake_protocol::client_hello_data& data,
     			 const timeval& time);
 
+	void tls_server_hello(engine& an,
+     			 const context_ptr cf,
+     			 const tls_handshake_protocol::server_hello_data& data,
+     			 const timeval& time);
+
     };
 
 };

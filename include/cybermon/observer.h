@@ -228,6 +228,10 @@ namespace cybermon {
   				     const tls_handshake_protocol::client_hello_data& data,
  				     const timeval& tv) = 0;
 
+	virtual void tls_server_hello(const context_ptr cp,
+   				     const tls_handshake_protocol::server_hello_data& data,
+ 				     const timeval& tv) = 0;
+
     };
 
 };
