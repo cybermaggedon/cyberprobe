@@ -1,6 +1,8 @@
 #include <cybermon/gre.h>
 
 #include <cybermon/manager.h>
+#include <cybermon/ip.h>
+#include <cybermon/802_11.h>
 
 #include <arpa/inet.h>
 #include <iomanip>
@@ -112,8 +114,15 @@ void gre::process_gre(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, 
   gre_context::ptr flowContext = gre_context::get_or_create(ctx, fAddr);
   flowContext->set_ttl(context::default_ttl);
 
+  uint16_t nxtProtoVal = ntohs(hdr->nextProto);
 
-  mgr.gre(flowContext, nxtProto, key, sequenceNo, startOfPayload, pduSlice.end, pduSlice.time);
+  if (nxtProtoVal == 0x8200) {
+    wlan::process(mgr, flowContext, pdu_slice(startOfPayload, pduSlice.end, pduSlice.time, pduSlice.direc));
+  } else if (nxtProtoVal == 0x0800 || nxtProtoVal == 0x86DD) {
+    ip::process(mgr, flowContext, pdu_slice(startOfPayload, pduSlice.end, pduSlice.time, pduSlice.direc));
+  } else {
+    mgr.gre(flowContext, nxtProto, key, sequenceNo, startOfPayload, pduSlice.end, pduSlice.time);
+  }
 
 }
 
@@ -170,9 +179,16 @@ void gre::process_pptp(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice,
   gre_context::ptr flowContext = gre_context::get_or_create(ctx, fAddr);
   flowContext->set_ttl(context::default_ttl);
 
+  uint16_t nxtProtoVal = ntohs(hdr->nextProto);
+  if (nxtProtoVal == 0x8200) {
+    wlan::process(mgr, flowContext, pdu_slice(startOfPayload, pduSlice.end, pduSlice.time, pduSlice.direc));
+  } else if (nxtProtoVal == 0x0800 || nxtProtoVal == 0x86DD) {
+    ip::process(mgr, flowContext, pdu_slice(startOfPayload, pduSlice.end, pduSlice.time, pduSlice.direc));
+  } else {
+    mgr.gre_pptp(flowContext, nxtProto, ntohs(pHdr->keyPayloadLength), ntohs(pHdr->keyCallID),
+                 sequenceNo, ackNo, startOfPayload, pduSlice.end, pduSlice.time);
+  }
 
-  mgr.gre_pptp(flowContext, nxtProto, ntohs(pHdr->keyPayloadLength), ntohs(pHdr->keyCallID),
-               sequenceNo, ackNo, startOfPayload, pduSlice.end, pduSlice.time);
 
 
 }

@@ -1625,6 +1625,83 @@ void cybermon_lua::unrecognised_ip_protocol(engine& an,
     pop();
 }
 
+void cybermon_lua::wlan(engine& an,
+				       const context_ptr cf,
+				       const uint8_t version,
+				       const uint8_t type,
+				       const uint8_t subtype,
+				       const uint8_t flags,
+				       const bool is_protected,
+				       const uint16_t duration,
+				       const std::string& filt_addr,
+				       const uint8_t frag_num,
+				       const uint16_t seq_num,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "wlan");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("version");
+    push(version);
+    set_table(-3);
+
+    push("type");
+    push(type);
+    set_table(-3);
+
+    push("subtype");
+    push(subtype);
+    set_table(-3);
+
+    push("flags");
+    push(flags);
+    set_table(-3);
+
+    push("protected");
+    push(is_protected);
+    set_table(-3);
+
+    push("duration");
+    push(duration);
+    set_table(-3);
+
+    push("filt_addr");
+    push(filt_addr);
+    set_table(-3);
+
+    push("frag_num");
+    push(frag_num);
+    set_table(-3);
+
+    push("seq_num");
+    push(seq_num);
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

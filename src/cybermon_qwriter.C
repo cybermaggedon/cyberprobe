@@ -477,6 +477,28 @@ void cybermon_qwriter::unrecognised_ip_protocol(const context_ptr cp,
 	}
 }
 
+void cybermon_qwriter::wlan(const context_ptr cp,
+					 const uint8_t version,
+					 const uint8_t type,
+					 const uint8_t subtype,
+					 const uint8_t flags,
+					 const bool is_protected,
+					 const uint16_t duration,
+					 const std::string& filt_addr,
+					 const uint8_t frag_num,
+					 const uint16_t seq_num,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new wlan_args(cp, version, type, subtype, flags, is_protected,
+					duration, filt_addr, frag_num, seq_num, tv);
+		q_entry* qentry = new q_entry(qargs::wlan, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;

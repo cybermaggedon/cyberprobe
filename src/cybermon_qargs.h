@@ -63,7 +63,8 @@ public:
 	gre_message,
 	gre_pptp_message,
 	esp,
-	unrecognised_ip_protocol
+	unrecognised_ip_protocol,
+	wlan
 
     };
 };
@@ -562,6 +563,30 @@ public:
     timeval time;
 };
 
+class wlan_args: public qargs {
+
+public:
+    wlan_args(const cybermon::context_ptr cp,
+       const uint8_t version, const uint8_t type, const uint8_t subtype,
+       const uint8_t flags, const bool is_protected, const uint16_t duration,
+       const std::string& filt_addr, const uint8_t frag_num, const uint16_t seq_num,
+       const timeval& time) :
+	cptr(cp), version(version), type(type), subtype(subtype), flags(flags),
+  is_protected(is_protected), duration(duration), filt_addr(filt_addr), frag_num(frag_num),
+  seq_num(seq_num), time(time) {
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t version;
+    const uint8_t type;
+    const uint8_t subtype;
+    const uint8_t flags;
+    const bool is_protected;
+    const uint16_t duration;
+    const std::string filt_addr;
+    const uint8_t frag_num;
+    const uint16_t seq_num;
+    timeval time;
+};
 
 
 /*q_entry class acting as a medium to store args and add in to queue by cybermon_qwriter
