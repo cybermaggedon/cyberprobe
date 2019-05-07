@@ -242,43 +242,43 @@ namespace cybermon {
  				     const tls_handshake_protocol::key_exchange_data& data,
  				     const timeval& tv) = 0;
 
-  virtual void tls_server_hello_done(const context_ptr cp,
+	virtual void tls_server_hello_done(const context_ptr cp,
  				     const timeval& tv) = 0;
 
-  virtual void tls_handshake_generic(const context_ptr cp,
+	virtual void tls_handshake_generic(const context_ptr cp,
  				     const uint8_t type,
  				     const uint32_t len,
  				     const timeval& tv) = 0;
 
-  virtual void tls_certificate_request(const context_ptr cp,
+	virtual void tls_certificate_request(const context_ptr cp,
  				     const tls_handshake_protocol::certificate_request_data& data,
  				     const timeval& tv) = 0;
 
-  virtual void tls_client_key_exchange(const context_ptr cp,
+	virtual void tls_client_key_exchange(const context_ptr cp,
  				     const std::vector<uint8_t>& key,
  				     const timeval& tv) = 0;
 
-  virtual void tls_certificate_verify(const context_ptr cp,
+	virtual void tls_certificate_verify(const context_ptr cp,
  				     const uint8_t sigHashAlgo,
  				     const uint8_t sigAlgo,
  				     const std::string& sig,
  				     const timeval& tv) = 0;
 
-  virtual void tls_change_cipher_spec(const context_ptr cp,
-             const uint8_t val,
-             const timeval& tv) = 0;
+	virtual void tls_change_cipher_spec(const context_ptr cp,
+ 				     const uint8_t val,
+ 				     const timeval& tv) = 0;
 
-  virtual void tls_handshake_finished(const context_ptr cp,
-             const std::vector<uint8_t>& msg,
-             const timeval& tv) = 0;
+	virtual void tls_handshake_finished(const context_ptr cp,
+ 				     const std::vector<uint8_t>& msg,
+ 				     const timeval& tv) = 0;
 
-  virtual void tls_handshake_complete(const context_ptr cp,
-             const timeval& tv) = 0;
+	virtual void tls_handshake_complete(const context_ptr cp,
+ 				     const timeval& tv) = 0;
 
-  virtual void tls_application_data(const context_ptr cp,
-             const std::string& version,
-             const std::vector<uint8_t>& data,
-             const timeval& tv) = 0;
+	virtual void tls_application_data(const context_ptr cp,
+ 				     const std::string& version,
+ 				     const std::vector<uint8_t>& data,
+ 				     const timeval& tv) = 0;
     };
 
 };

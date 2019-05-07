@@ -490,96 +490,96 @@ std::vector<std::string> lookupD0 = {
 
 
 static std::string lookup(uint16_t id) {
-  uint8_t id0 = (id & 0xFF00) >> 8;
-  uint8_t id1 = id & 0xFF;
+    uint8_t id0 = (id & 0xFF00) >> 8;
+    uint8_t id1 = id & 0xFF;
 
-  switch (id0) {
-  case 0:
-    return lookup00[id1];
-    break;
-  case 0x13:
-    if (id1 > 0x05) {
-      return "Unassigned";
+    switch (id0) {
+    case 0:
+        return lookup00[id1];
+        break;
+    case 0x13:
+        if (id1 > 0x05) {
+        return "Unassigned";
+        }
+        return lookup13[id1];
+        break;
+    case 0x56:
+        if (id1 == 0) {
+        return "TLS_FALLBACK_SCSV";
+        } else {
+        return "Unassigned";
+        }
+        break;
+    case 0xC0:
+        return lookupC0[id1];
+        break;
+        case 0xC1:
+        if (id1 > 0x02) {
+        return "Unassigned";
+        }
+        return lookupC1[id1];
+        break;
+    case 0xCC:
+        if (id1 < 0xA8 || id1 > 0xAE) {
+        return "Unassigned";
+        }
+        return lookupCC[id1 - 0xA8];
+        break;
+    case 0xD0:
+        if (id1 > 0x05) {
+        return "Unassigned";
+        }
+        return lookupD0[id1];
+        break;
+    case 0xFE:
+        if (id1 < 0xFE) {
+        return "Unassigned";
+        } else {
+        return "Reserved";
+        }
+        break;
+    case 0xFF:
+        return "Reserved";
+        break;
+    default:
+        return "Unassigned";
+        break;
     }
-    return lookup13[id1];
-    break;
-  case 0x56:
-    if (id1 == 0) {
-      return "TLS_FALLBACK_SCSV";
-    } else {
-      return "Unassigned";
-    }
-    break;
-  case 0xC0:
-    return lookupC0[id1];
-    break;
-  case 0xC1:
-    if (id1 > 0x02) {
-      return "Unassigned";
-    }
-      return lookupC1[id1];
-    break;
-  case 0xCC:
-    if (id1 < 0xA8 || id1 > 0xAE) {
-      return "Unassigned";
-    }
-    return lookupCC[id1 - 0xA8];
-    break;
-  case 0xD0:
-    if (id1 > 0x05) {
-      return "Unassigned";
-    }
-    return lookupD0[id1];
-    break;
-  case 0xFE:
-    if (id1 < 0xFE) {
-      return "Unassigned";
-    } else {
-      return "Reserved";
-    }
-    break;
-  case 0xFF:
-      return "Reserved";
-    break;
-  default:
-    return "Unassigned";
-    break;
-  }
 }
 
 enum KeyExchangeAlgorithm {
-  dhe_dss,
-  dhe_rsa,
-  dh_anon,
-  rsa,
-  dh_dss,
-  dh_rsa,
-  ec_dh,
+    dhe_dss,
+    dhe_rsa,
+    dh_anon,
+    rsa,
+    dh_dss,
+    dh_rsa,
+    ec_dh,
 
-  unknown
+    unknown
 };
 
 static KeyExchangeAlgorithm lookup_key_exchange_algorithm(uint16_t id) {
-  uint8_t id0 = (id & 0xFF00) >> 8;
-  uint8_t id1 = id & 0xFF;
+    uint8_t id0 = (id & 0xFF00) >> 8;
+    uint8_t id1 = id & 0xFF;
 
-  if ((id > 0xC000 && id < 0xC01A) ||
-      (id > 0xC022 && id < 0xC03C) ||
-      (id > 0xC047 && id < 0xC050) ||
-      (id > 0xC05B && id < 0xC064) ||
-      (id > 0xC06F && id < 0xC07A) ||
-      (id > 0xC085 && id < 0xC08E) ||
-      (id > 0xC099 && id < 0xC09C) ||
-      (id > 0xC0AB && id < 0xC0B0) ||
-      (id > 0xCCA7 && id < 0xCCAA) ||
-      (id == 0xCCAC) ||
-      (id > 0xD000 && id < 0xD004) ||
-      (id == 0xD005))
-  {
-    return KeyExchangeAlgorithm::ec_dh;
-  }
+    if ((id > 0xC000 && id < 0xC01A) ||
+        (id > 0xC022 && id < 0xC03C) ||
+        (id > 0xC047 && id < 0xC050) ||
+        (id > 0xC05B && id < 0xC064) ||
+        (id > 0xC06F && id < 0xC07A) ||
+        (id > 0xC085 && id < 0xC08E) ||
+        (id > 0xC099 && id < 0xC09C) ||
+        (id > 0xC0AB && id < 0xC0B0) ||
+        (id > 0xCCA7 && id < 0xCCAA) ||
+        (id == 0xCCAC) ||
+        (id > 0xD000 && id < 0xD004) ||
+        (id == 0xD005))
+    {
+        return KeyExchangeAlgorithm::ec_dh;
+    }
 
-  return KeyExchangeAlgorithm::unknown;
+    return KeyExchangeAlgorithm::unknown;
 }
 }
 }
