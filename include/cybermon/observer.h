@@ -245,6 +245,10 @@ namespace cybermon {
   virtual void tls_server_hello_done(const context_ptr cp,
    				     const timeval& tv) = 0;
 
+  virtual void tls_handshake_generic(const context_ptr cp,
+    				     const uint8_t type,
+    				     const uint32_t len,
+    				     const timeval& tv) = 0;
     };
 
 };

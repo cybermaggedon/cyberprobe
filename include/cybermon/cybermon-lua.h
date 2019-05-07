@@ -680,6 +680,12 @@ namespace cybermon {
         			 const context_ptr cf,
         			 const timeval& time);
 
+	void tls_handshake_generic(engine& an,
+         			 const context_ptr cp,
+         			 const uint8_t type,
+         			 const uint32_t len,
+         			 const timeval& tv);
+
     };
 
 };

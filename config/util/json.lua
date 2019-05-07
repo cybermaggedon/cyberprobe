@@ -617,5 +617,24 @@ module.tls_server_key_exchange = function(e)
   submit(obs)
 end
 
+-- This function is called when a tls server hello done packet is observed.
+module.tls_server_hello_done = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_server_hello_done"
+  obs["tls"] = {}
+
+  submit(obs)
+end
+
+-- This function is called when a tls client hello packet is observed.
+module.tls_handshake = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_handshake"
+  obs["tls"] = {type=e.type, length=e.length}
+
+
+  submit(obs)
+end
+
 -- Return the table
 return module

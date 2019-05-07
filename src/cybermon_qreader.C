@@ -493,6 +493,14 @@ void cybermon_qreader::run() {
 		delete (tlsArgs);
 		break;
 	    }
+	    case qargs::tls_handshake_generic: {
+		tls_handshake_generic_args* tlsArgs =
+		    static_cast<tls_handshake_generic_args*>(qentry->queueargs);
+		cml.tls_handshake_generic(qwriter, tlsArgs->cptr, tlsArgs->type, tlsArgs->len, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
 	    default: {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }

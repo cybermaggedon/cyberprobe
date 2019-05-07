@@ -578,6 +578,20 @@ void cybermon_qwriter::tls_server_hello_done(const context_ptr cp,
 	}
 }
 
+void cybermon_qwriter::tls_handshake_generic(const context_ptr cp,
+					 const uint8_t type,
+					 const uint32_t len,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_handshake_generic_args(cp, type, len, tv);
+		q_entry* qentry = new q_entry(qargs::tls_handshake_generic, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;

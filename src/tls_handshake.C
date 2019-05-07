@@ -26,7 +26,6 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
     data = data.skip(4);
     left -= 4;
 
-    std::cout << "--------------\ntype is " << static_cast<uint16_t>(type) << " length of handshake message is " << len << std::endl;
     switch (type)
     {
     case 1:
@@ -45,7 +44,7 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
       serverHelloDone(mgr, ctx, data, len);
       break;
     default:
-      std::cout << "----- not processing handshake message type " << static_cast<uint16_t>(type) << std::endl;
+      mgr.tls_handshake_generic(ctx, type, len, pduSlice.time);
     }
 
     data = data.skip(len);

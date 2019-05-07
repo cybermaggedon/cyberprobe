@@ -2149,6 +2149,53 @@ void cybermon_lua::tls_server_hello_done(engine& an, context_ptr f, const timeva
 
 }
 
+
+
+void cybermon_lua::tls_handshake_generic(engine& an,
+				       const context_ptr cp,
+				       const uint8_t type,
+				       const uint32_t len,
+				       const timeval& tv)
+{
+  // Get config.connection_up
+  get_global("config");
+  get_field(-1, "tls_handshake");
+
+  // Build event table on stack.
+  create_table(0, 0);
+
+  // Set table time.
+  push("time");
+  push(tv);
+  set_table(-3);
+
+  // Set table context.
+  push("context");
+  push(cp);
+  set_table(-3);
+
+  // Set table context.
+  push("type");
+  push(type);
+  set_table(-3);
+
+  // Set table context.
+  push("length");
+  push(len);
+  set_table(-3);
+
+  // config.connection_up(event)
+  try {
+call(1, 0);
+  } catch (std::exception& e) {
+pop();
+throw;
+  }
+
+  // Still got 'config' left on stack, it can go.
+  pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);
