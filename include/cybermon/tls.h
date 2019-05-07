@@ -67,6 +67,7 @@ private:
   static void processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, const header* hdr);
   static void changeCipherSpec(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice);
   static void survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr);
+  static void applicationData(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr);
 };
 
 } // namespace cybermon

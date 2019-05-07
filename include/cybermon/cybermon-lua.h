@@ -716,6 +716,12 @@ namespace cybermon {
 	void tls_handshake_complete(engine& an,
    			 const context_ptr cp,
    			 const timeval& tv);
+
+	void tls_application_data(engine& an,
+   			 const context_ptr cp,
+   			 const std::string& version,
+   			 const std::vector<uint8_t>& data,
+   			 const timeval& tv);
     };
 
 };

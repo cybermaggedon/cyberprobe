@@ -78,7 +78,8 @@ public:
   	tls_certificate_verify,
   	tls_change_cipher_spec,
   	tls_handshake_finished,
-  	tls_handshake_complete
+  	tls_handshake_complete,
+  	tls_application_data
 
     };
 };
@@ -751,6 +752,20 @@ public:
     }
     cybermon::context_ptr cptr;
     const std::vector<uint8_t> msg;
+    timeval time;
+};
+
+class tls_application_data_args: public qargs {
+
+public:
+    tls_application_data_args(const cybermon::context_ptr cp, const std::string& ver,
+      const std::vector<uint8_t>& data, const timeval& time)
+      : cptr(cp), version(ver), data(data), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const std::string version;
+    const std::vector<uint8_t> data;
     timeval time;
 };
 

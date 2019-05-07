@@ -198,6 +198,9 @@ void tls::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pd
   case 22: // handshake
     tls_handshake::process(mgr, ctx, pduSlice, hdr);
     break;
+  case 23:
+    applicationData(mgr, ctx, pduSlice, hdr);
+    break;
   default: // catch all - just survey
     survey(mgr, ctx, pduSlice, hdr);
     break;
@@ -222,4 +225,22 @@ void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const
   uint16_t length = (hdr->length1 << 8) + hdr->length2;
 
   mgr.tls(ctx, version, hdr->contentType, length, pduSlice.time);
+}
+
+void tls::applicationData(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr)
+{
+  // already know it is TLS header dont need to recheck
+  std::string version = tls_utils::convertTLSVersion(hdr->majorVersion, hdr->minorVersion);
+
+  uint16_t length = (hdr->length1 << 8) + hdr->length2;
+
+  pdu_slice data = pduSlice.skip(sizeof(tls::header));
+
+  if (length > (data.end - data.start ))
+  {
+    throw exception("TLS Application Data: not enough space for data");
+  }
+  std::vector<uint8_t> encMessage(data.start, data.start + length);
+
+  mgr.tls_application_data(ctx, version, encMessage, pduSlice.time);
 }

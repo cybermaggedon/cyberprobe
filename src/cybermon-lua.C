@@ -2466,6 +2466,49 @@ throw;
   pop();
 }
 
+void cybermon_lua::tls_application_data(engine& an,
+				       const context_ptr cp,
+               const std::string& version,
+               const std::vector<uint8_t>& data,
+				       const timeval& tv)
+{
+  // Get config.connection_up
+  get_global("config");
+  get_field(-1, "tls_application_data");
+
+  // Build event table on stack.
+  create_table(0, 0);
+
+  // Set table time.
+  push("time");
+  push(tv);
+  set_table(-3);
+
+  // Set table context.
+  push("context");
+  push(cp);
+  set_table(-3);
+
+  push("version");
+  push(version);
+  set_table(-3);
+
+  push("data");
+  push(data.begin(), data.end());
+  set_table(-3);
+
+  // config.connection_up(event)
+  try {
+call(1, 0);
+  } catch (std::exception& e) {
+pop();
+throw;
+  }
+
+  // Still got 'config' left on stack, it can go.
+  pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

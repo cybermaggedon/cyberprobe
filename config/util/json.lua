@@ -700,5 +700,16 @@ module.tls_handshake_complete = function(e)
   submit(obs)
 end
 
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_application_data = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_application_data"
+  obs["tls"] = {version=e.version, length=string.len(e.data)}
+  -- the binary data is available but is encrypted so not extracting
+
+
+  submit(obs)
+end
+
 -- Return the table
 return module

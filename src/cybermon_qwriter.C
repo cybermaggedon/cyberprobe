@@ -671,6 +671,20 @@ void cybermon_qwriter::tls_handshake_complete(const context_ptr cp,
 	}
 }
 
+void cybermon_qwriter::tls_application_data(const context_ptr cp,
+					 const std::string& ver,
+					 const std::vector<uint8_t>& data,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_application_data_args(cp, ver, data, tv);
+		q_entry* qentry = new q_entry(qargs::tls_application_data, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;

@@ -57,6 +57,7 @@ observer.tls_certificate_verify = model.tls_certificate_verify
 observer.tls_change_cipher_spec = model.tls_change_cipher_spec
 observer.tls_handshake_finished = model.tls_handshake_finished
 observer.tls_handshake_complete = model.tls_handshake_complete
+observer.tls_application_data = model.tls_application_data
 
 local submit = function(obj)
   data = json.encode(obj)
