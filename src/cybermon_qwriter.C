@@ -605,6 +605,19 @@ void cybermon_qwriter::tls_certificate_request(const context_ptr cp,
 	}
 }
 
+void cybermon_qwriter::tls_client_key_exchange(const context_ptr cp,
+					 const std::string& key,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_client_key_exchange_args(cp, key, tv);
+		q_entry* qentry = new q_entry(qargs::tls_client_key_exchange, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;

@@ -2174,12 +2174,10 @@ void cybermon_lua::tls_handshake_generic(engine& an,
   push(cp);
   set_table(-3);
 
-  // Set table context.
   push("type");
   push(type);
   set_table(-3);
 
-  // Set table context.
   push("length");
   push(len);
   set_table(-3);
@@ -2261,6 +2259,44 @@ void cybermon_lua::tls_certificate_request(engine& an,
     } catch (std::exception& e) {
 	pop();
 	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::tls_client_key_exchange(engine& an,
+				       const context_ptr cp,
+				       const std::string& key,
+				       const timeval& tv)
+{
+    // Get config.connection_up
+    get_global("config");
+    get_field(-1, "tls_client_key_exchange");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(tv);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cp);
+    set_table(-3);
+
+    push("key");
+    push(key);
+    set_table(-3);
+
+    // config.connection_up(event)
+    try {
+call(1, 0);
+    } catch (std::exception& e) {
+pop();
+throw;
     }
 
     // Still got 'config' left on stack, it can go.

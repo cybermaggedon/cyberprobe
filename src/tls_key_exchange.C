@@ -23,7 +23,7 @@ std::string extract_hex_string(cybermon::pdu_iter start, cybermon::pdu_iter end)
 }
 
 
-void cybermon::tls_key_exchange::ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md)
+void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md)
 {
   pdu_iter dataPtr = pduSlice.start;
   uint16_t dataLeft = length;
@@ -161,6 +161,38 @@ void cybermon::tls_key_exchange::ecdh(const pdu_slice& pduSlice, uint16_t length
   md->hash.insert(md->hash.end(), dataPtr, dataPtr + hashLen);
   dataPtr += hashLen;
   dataLeft -= hashLen;
+
+}
+
+
+
+std::string cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t length)
+{
+  pdu_iter dataPtr = pduSlice.start;
+  uint16_t dataLeft = length;
+
+  uint8_t pointLen = *dataPtr;
+  dataPtr += 1;
+  dataLeft -= 1;
+
+  if (pointLen > dataLeft)
+  {
+    throw exception("TLS ECDH Error - Not enough room for public key point");
+  }
+
+  std::vector<uint8_t> pubKey(dataPtr, dataPtr + pointLen);
+  dataPtr += pointLen;
+  dataLeft -= pointLen;
+
+  std::ostringstream oss;
+  oss << "0x";
+  for (std::vector<uint8_t>::const_iterator iter=pubKey.begin();
+    iter != pubKey.end();
+    ++iter)
+  {
+    oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
+  }
+  return oss.str();
 
 }
 

@@ -39,6 +39,45 @@ std::string tls_context::get_type()
   return "tls";
 }
 
+void tls_context::set_cipher_suite(uint16_t cs)
+{
+  cipherSuite = cs;
+  cipherSuiteSet = true;
+  context_ptr rev = reverse.lock();
+  if (rev) {
+    tls_context::ptr revPtr =
+      boost::dynamic_pointer_cast<tls_context>(rev);
+    revPtr->cipherSuite = cs;
+    revPtr->cipherSuiteSet = true;
+  }
+}
+
+bool tls_context::get_cipher_suite(uint16_t& cs)
+{
+  if (cipherSuiteSet)
+  {
+    cs = cipherSuite;
+    return true;
+  }
+
+  // haven't got it in this context, try the reverse.
+  context_ptr rev = reverse.lock();
+  if (rev) {
+    tls_context::ptr revPtr =
+      boost::dynamic_pointer_cast<tls_context>(rev);
+    if (revPtr->cipherSuiteSet)
+    {
+      cipherSuiteSet = true;
+      cipherSuite = revPtr->cipherSuite;
+      cs = cipherSuite;
+      return true;
+    }
+  }
+
+  // unable to get the cipherSuite
+  return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // tls processor
 

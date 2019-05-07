@@ -33,6 +33,9 @@ public:
 		return sp;
 	}
 
+  void set_cipher_suite(uint16_t cs);
+  bool get_cipher_suite(uint16_t& cs);
+
   // buffer for if messages are split over packets/segments
   pdu buffer;
   // the agreed cipher suite for the connection

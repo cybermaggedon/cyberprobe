@@ -690,6 +690,11 @@ namespace cybermon {
           			 const context_ptr cf,
           			 const tls_handshake_protocol::certificate_request_data& data,
           			 const timeval& time);
+
+	void tls_client_key_exchange(engine& an,
+           			 const context_ptr cp,
+           			 const std::string& key,
+           			 const timeval& tv);
     };
 
 };

@@ -626,7 +626,8 @@ module.tls_server_hello_done = function(e)
   submit(obs)
 end
 
--- This function is called when a tls client hello packet is observed.
+-- This function is called when a tls handshake message which isn't explicitly
+-- handled is observed.
 module.tls_handshake = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_handshake"
@@ -636,12 +637,22 @@ module.tls_handshake = function(e)
   submit(obs)
 end
 
--- This function is called when a tls client hello packet is observed.
+-- This function is called when a tls certificate request packet is observed.
 module.tls_certificate_request = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_certificate_request"
   obs["tls"] = {cert_types=e.cert_types, signature_algorithms=e.signature_algorithms,
     distinguished_names=str_to_hex(e.distinguished_names)}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls client key exchange is observed.
+module.tls_client_key_exchange = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_client_key_exchange"
+  obs["tls"] = {key=str_to_hex(e.key)}
 
 
   submit(obs)

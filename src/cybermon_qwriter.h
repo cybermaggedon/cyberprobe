@@ -229,6 +229,10 @@ namespace cybermon {
              const tls_handshake_protocol::certificate_request_data& data,
              const timeval& tv);
 
+  virtual void tls_client_key_exchange(const context_ptr cp,
+             const std::string& key,
+             const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

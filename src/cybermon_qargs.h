@@ -73,7 +73,8 @@ public:
   	tls_server_key_exchange,
   	tls_server_hello_done,
   	tls_handshake_generic,
-  	tls_certificate_request
+  	tls_certificate_request,
+  	tls_client_key_exchange
 
     };
 };
@@ -691,6 +692,19 @@ public:
     }
     cybermon::context_ptr cptr;
     const cybermon::tls_handshake_protocol::certificate_request_data data;
+    timeval time;
+};
+
+class tls_client_key_exchange_args: public qargs {
+
+public:
+    tls_client_key_exchange_args(const cybermon::context_ptr cp,
+      const std::string& key, const timeval& time)
+      : cptr(cp), key(key), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const std::string key;
     timeval time;
 };
 

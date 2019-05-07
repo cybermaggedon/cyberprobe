@@ -11,7 +11,8 @@
 namespace cybermon {
 namespace tls_key_exchange {
 
-void ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md);
+void server_ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md);
+std::string client_ecdh(const pdu_slice& pduSlice, uint16_t length);
 
 enum NamedCurve {
   sect163k1=1, sect163r1=2, sect163r2=3,

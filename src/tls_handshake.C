@@ -46,6 +46,9 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
     case 14:
       serverHelloDone(mgr, ctx, data, len);
       break;
+    case 16:
+      clientKeyExchange(mgr, ctx, data, len);
+      break;
     default:
       mgr.tls_handshake_generic(ctx, type, len, pduSlice.time);
     }
@@ -188,8 +191,7 @@ void tls_handshake::serverHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
       // TODO - nice handling
       throw exception("not enough room for client hello message");
   }
-  ctx->cipherSuite = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
-  ctx->cipherSuiteSet = true;
+  ctx->set_cipher_suite(ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0])));
   std::string cipherName = cipher::lookup(ctx->cipherSuite);
   data.cipherSuite = tls_handshake_protocol::cipher_suite(ctx->cipherSuite, cipherName);
 
@@ -303,20 +305,22 @@ void tls_handshake::certificate(manager& mgr, tls_context::ptr ctx, const pdu_sl
 
 void tls_handshake::serverKeyExchange(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
 {
-  if (!ctx->cipherSuiteSet)
+  uint16_t cipherSuite;
+  bool success = ctx->get_cipher_suite(cipherSuite);
+  if (!success)
   {
     // server key exchange without seeing the server hello... TLS Error
     throw exception("TLS Protocol Error - Server Key Exchange seen before server hello.");
   }
 
-  cipher::KeyExchangeAlgorithm algo = cipher::lookup_key_exchange_algorithm(ctx->cipherSuite);
+  cipher::KeyExchangeAlgorithm algo = cipher::lookup_key_exchange_algorithm(cipherSuite);
 
   tls_handshake_protocol::key_exchange_data data;
   switch (algo)
   {
   case cipher::KeyExchangeAlgorithm::ec_dh:
     data.ecdh = std::make_shared<tls_handshake_protocol::ecdh_data>();
-    tls_key_exchange::ecdh(pduSlice, length, data.ecdh);
+    tls_key_exchange::server_ecdh(pduSlice, length, data.ecdh);
     break;
   }
 
@@ -407,6 +411,29 @@ void tls_handshake::certificateRequest(manager& mgr, tls_context::ptr ctx, const
   data.distinguishedNames.insert(data.distinguishedNames.end(), dataPtr, dataPtr + distNameLen);
 
   mgr.tls_certificate_request(ctx, data, pduSlice.time);
+}
+
+void tls_handshake::clientKeyExchange(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  uint16_t cipherSuite;
+  bool success = ctx->get_cipher_suite(cipherSuite);
+  if (!success)
+  {
+    // client key exchange without seeing the server hello... TLS Error
+    throw exception("TLS Protocol Error - Client Key Exchange seen before server hello.");
+  }
+
+  cipher::KeyExchangeAlgorithm algo = cipher::lookup_key_exchange_algorithm(cipherSuite);
+
+  std::string key;
+  switch (algo)
+  {
+  case cipher::KeyExchangeAlgorithm::ec_dh:
+    key = tls_key_exchange::client_ecdh(pduSlice, length);
+    break;
+  }
+
+  mgr.tls_client_key_exchange(ctx, key, pduSlice.time);
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)
