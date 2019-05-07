@@ -2063,8 +2063,7 @@ void cybermon_lua::tls_server_key_exchange(engine& an,
       push(data.ecdh->hash.begin(), data.ecdh->hash.end());
       set_table(-3);
     }
-
-    if (data.dhrsa || data.dhanon)
+    else if (data.dhrsa || data.dhanon)
     {
       std::shared_ptr<tls_handshake_protocol::dhanon_data> dh = data.dhrsa ? data.dhrsa : data.dhanon;
 
@@ -2097,6 +2096,13 @@ void cybermon_lua::tls_server_key_exchange(engine& an,
         push(data.dhrsa->sig.begin(), data.dhrsa->sig.end());
         set_table(-3);
       }
+    }
+    else
+    {
+      // completely empty Key exchange means its a type we dont handle
+      push("key_exchange_algorithm");
+      push("unhandled");
+      set_table(-3);
     }
 
     try {
