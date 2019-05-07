@@ -40,6 +40,9 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
     case 12:
       serverKeyExchange(mgr, ctx, data, len);
       break;
+    case 13:
+      certificateRequest(mgr, ctx, data, len);
+      break;
     case 14:
       serverHelloDone(mgr, ctx, data, len);
       break;
@@ -323,6 +326,87 @@ void tls_handshake::serverKeyExchange(manager& mgr, tls_context::ptr ctx, const 
 void tls_handshake::serverHelloDone(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
 {
   mgr.tls_server_hello_done(ctx, pduSlice.time);
+}
+
+void tls_handshake::certificateRequest(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  uint16_t dataLeft = length;
+  pdu_iter dataPtr = pduSlice.start;
+
+  tls_handshake_protocol::certificate_request_data data;
+
+  uint8_t certTypeCount = *dataPtr;
+  dataLeft -= 1;
+  dataPtr += 1;
+
+  data.certTypes.reserve(certTypeCount);
+  for (int i=0; i < certTypeCount; ++i)
+  {
+    uint8_t certId = *dataPtr;
+    dataLeft -= 1;
+    dataPtr += 1;
+    std::string name;
+    switch (certId)
+    {
+    case 1:
+      name = "rsa_sign";
+      break;
+    case 2:
+      name = "dss_sign";
+      break;
+    case 3:
+      name = "rsa_fixed_dh";
+      break;
+    case 4:
+      name = "dss_fixed_dh";
+      break;
+    case 5:
+      name = "rsa_ephemeral_dh_RESERVED";
+      break;
+    case 6:
+      name = "dss_ephemeral_dh_RESERVED";
+      break;
+    case 20:
+      name = "fortezza_dms_RESERVED";
+      break;
+    case 64:
+      name = "ecdsa_sign";
+      break;
+    case 65:
+      name = "rsa_fixed_ecdh";
+      break;
+    case 66:
+      name = "ecdsa_fixed_ecdh";
+      break;
+    default:
+       name = "unknown - " + std::to_string(certId);
+       break;
+    }
+    data.certTypes.push_back(name);
+  }
+
+  uint16_t sigsLen = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
+  dataLeft -= 2;
+  dataPtr += 2;
+  data.sigAlgos.reserve(sigsLen/2);
+  for (int i=0; i < sigsLen; i+=2)
+  {
+    uint8_t hashAlgo = *dataPtr;
+    dataLeft -= 1;
+    dataPtr += 1;
+    uint8_t sigAlgo = *dataPtr;
+    dataLeft -= 1;
+    dataPtr += 1;
+    data.sigAlgos.emplace_back(hashAlgo, sigAlgo);
+  }
+
+  uint16_t distNameLen = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
+  dataLeft -= 2;
+  dataPtr += 2;
+  data.distinguishedNames.reserve(distNameLen);
+  data.distinguishedNames.insert(data.distinguishedNames.end(), dataPtr, dataPtr + distNameLen);
+
+  mgr.tls_certificate_request(ctx, data, pduSlice.time);
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)

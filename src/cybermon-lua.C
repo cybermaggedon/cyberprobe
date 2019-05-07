@@ -2196,6 +2196,77 @@ throw;
   pop();
 }
 
+void cybermon_lua::tls_certificate_request(engine& an,
+				       const context_ptr cf,
+               const tls_handshake_protocol::certificate_request_data& data,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "tls_certificate_request");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("cert_types");
+    create_table(data.certTypes.size(), 0);
+    int index = 1;
+    for (std::vector<std::string>::const_iterator iter=data.certTypes.begin();
+      iter != data.certTypes.end();
+      ++iter)
+    {
+      push(index);
+      push(*iter);
+      set_table(-3);
+      ++index;
+    }
+    set_table(-3);
+
+    push("signature_algorithms");
+    create_table(data.sigAlgos.size(), 0);
+    index = 1;
+    for (std::vector<tls_handshake_protocol::signature_algorithm>::const_iterator iter=data.sigAlgos.begin();
+      iter != data.sigAlgos.end();
+      ++iter)
+    {
+      push(index);
+      create_table(2,0);
+      push("hash_algorithm");
+      push(iter->sigHashAlgo);
+      set_table(-3);
+      push("signature_algorithm");
+      push(iter->sigAlgo);
+      set_table(-3);
+      set_table(-3);
+      ++index;
+    }
+    set_table(-3);
+
+    push("distinguished_names");
+    push(data.distinguishedNames.begin(),data.distinguishedNames.end());
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

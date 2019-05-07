@@ -249,6 +249,10 @@ namespace cybermon {
     				     const uint8_t type,
     				     const uint32_t len,
     				     const timeval& tv) = 0;
+
+  virtual void tls_certificate_request(const context_ptr cp,
+     				     const tls_handshake_protocol::certificate_request_data& data,
+     				     const timeval& tv) = 0;
     };
 
 };

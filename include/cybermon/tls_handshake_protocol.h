@@ -132,6 +132,21 @@ struct key_exchange_data {
   dhanon_ptr dhanon;
 };
 
+struct signature_algorithm {
+  uint8_t sigHashAlgo;
+  uint8_t sigAlgo;
+
+  signature_algorithm(uint8_t h, uint8_t a) : sigHashAlgo(h), sigAlgo(a)
+  {}
+};
+
+struct certificate_request_data {
+  std::vector<std::string> certTypes;
+  std::vector<signature_algorithm> sigAlgos;
+  std::vector<uint8_t> distinguishedNames;
+};
+
+
 } // tls_handshake_protocol
 } // cybermon
 

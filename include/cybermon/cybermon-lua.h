@@ -686,6 +686,10 @@ namespace cybermon {
          			 const uint32_t len,
          			 const timeval& tv);
 
+	void tls_certificate_request(engine& an,
+          			 const context_ptr cf,
+          			 const tls_handshake_protocol::certificate_request_data& data,
+          			 const timeval& time);
     };
 
 };

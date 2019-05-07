@@ -636,5 +636,16 @@ module.tls_handshake = function(e)
   submit(obs)
 end
 
+-- This function is called when a tls client hello packet is observed.
+module.tls_certificate_request = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_certificate_request"
+  obs["tls"] = {cert_types=e.cert_types, signature_algorithms=e.signature_algorithms,
+    distinguished_names=str_to_hex(e.distinguished_names)}
+
+
+  submit(obs)
+end
+
 -- Return the table
 return module

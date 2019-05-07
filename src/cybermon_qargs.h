@@ -72,7 +72,8 @@ public:
   	tls_certificates,
   	tls_server_key_exchange,
   	tls_server_hello_done,
-  	tls_handshake_generic
+  	tls_handshake_generic,
+  	tls_certificate_request
 
     };
 };
@@ -677,6 +678,19 @@ public:
     cybermon::context_ptr cptr;
     const uint8_t type;
     const uint32_t len;
+    timeval time;
+};
+
+class tls_certificate_request_args: public qargs {
+
+public:
+    tls_certificate_request_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::certificate_request_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::certificate_request_data data;
     timeval time;
 };
 
