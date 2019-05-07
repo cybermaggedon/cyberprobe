@@ -43,6 +43,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	sip_ssl.C	\
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
 	cybermon_qargs.h cybermon_qwriter.h cybermon_qreader.h \
+	tls_key_exchange.C \
 	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C tls_handshake.C tls_utils.C \
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
 	address_map.h		                \

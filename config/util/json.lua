@@ -592,5 +592,30 @@ module.tls_certificates = function(e)
   submit(obs)
 end
 
+-- This function is called when a tls server key exchange packet is observed.
+module.tls_server_key_exchange = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_server_key_exchange"
+  obs["tls"] = {key_exchange_algorithm=e.key_exchange_algorithm}
+
+  if e.key_exchange_algorithm == "ec-dh" then
+    obs["tls"]["curve_type"] = e.curve_type
+    obs["tls"]["curve_metadata"] = e.curve_metadata
+    obs["tls"]["signature_hash_algorithm"] = e.signature_hash_algorithm
+    obs["tls"]["signature_algorithm"] = e.signature_algorithm
+    obs["tls"]["signature_hash"] = str_to_hex(e.signature_hash)
+  else
+    obs["tls"]["prime"] = str_to_hex(e.prime)
+    obs["tls"]["generator"] = str_to_hex(e.generator)
+    obs["tls"]["pubkey"] = str_to_hex(e.pubkey)
+    if e.key_exchange_algorithm == "dh-rsa" then
+      obs["tls"]["signature"] = str_to_hex(e.signature)
+    end
+  end
+
+
+  submit(obs)
+end
+
 -- Return the table
 return module

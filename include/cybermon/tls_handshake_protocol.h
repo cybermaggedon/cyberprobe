@@ -2,10 +2,13 @@
 #ifndef CYBERMON_TLS_HANDSHAKE_PROTOCOL_H
 #define CYBERMON_TLS_HANDSHAKE_PROTOCOL_H
 
+#include <cybermon/pdu.h>
+
 #include <string>
 #include <vector>
 #include <iterator>
 #include <iostream>
+#include <memory>
 
 namespace cybermon {
 namespace tls_handshake_protocol {
@@ -91,6 +94,42 @@ struct server_hello_data : public hello_base  {
     extensions.reserve(other.extensions.size());
     extensions.insert(extensions.end(), other.extensions.begin(), other.extensions.end());
   }
+};
+
+struct curve_data {
+  std::string name;
+  std::string value;
+
+  curve_data(std::string n, std::string v) : name(n), value(v)
+  {}
+};
+
+struct ecdh_data {
+  uint8_t curveType;
+  std::vector<curve_data> curveData;
+  uint8_t sigHashAlgo;
+  uint8_t sigAlgo;
+  std::vector<uint8_t> hash;
+};
+
+struct dhanon_data {
+  std::vector<uint8_t> p;
+  std::vector<uint8_t> g;
+  std::vector<uint8_t> pubKey;
+};
+
+struct dhrsa_data : public dhanon_data {
+  std::vector<uint8_t> sig;
+};
+
+using ecdh_ptr = std::shared_ptr<ecdh_data>;
+using dhrsa_ptr = std::shared_ptr<dhrsa_data>;
+using dhanon_ptr = std::shared_ptr<dhanon_data>;
+
+struct key_exchange_data {
+  ecdh_ptr ecdh;
+  dhrsa_ptr dhrsa;
+  dhanon_ptr dhanon;
 };
 
 } // tls_handshake_protocol

@@ -35,6 +35,9 @@ public:
 
   // buffer for if messages are split over packets/segments
   pdu buffer;
+  // the agreed cipher suite for the connection
+  uint16_t cipherSuite;
+  bool cipherSuiteSet;
 };
 
 class tls {

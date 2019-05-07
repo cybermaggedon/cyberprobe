@@ -671,6 +671,11 @@ namespace cybermon {
       			 const std::vector<std::vector<uint8_t>>& certs,
       			 const timeval& time);
 
+	void tls_server_key_exchange(engine& an,
+       			 const context_ptr cf,
+       			 const tls_handshake_protocol::key_exchange_data& data,
+       			 const timeval& time);
+
     };
 
 };

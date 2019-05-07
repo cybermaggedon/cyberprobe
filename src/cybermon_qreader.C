@@ -477,6 +477,14 @@ void cybermon_qreader::run() {
 		delete (tlsArgs);
 		break;
 	    }
+	    case qargs::tls_server_key_exchange: {
+		tls_server_key_exchange_args* tlsArgs =
+		    static_cast<tls_server_key_exchange_args*>(qentry->queueargs);
+		cml.tls_server_key_exchange(qwriter, tlsArgs->cptr, tlsArgs->data, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
 	    default: {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }

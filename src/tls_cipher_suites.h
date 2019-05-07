@@ -546,6 +546,41 @@ static std::string lookup(uint16_t id) {
     break;
   }
 }
+
+enum KeyExchangeAlgorithm {
+  dhe_dss,
+  dhe_rsa,
+  dh_anon,
+  rsa,
+  dh_dss,
+  dh_rsa,
+  ec_dh,
+
+  unknown
+};
+
+static KeyExchangeAlgorithm lookup_key_exchange_algorithm(uint16_t id) {
+  uint8_t id0 = (id & 0xFF00) >> 8;
+  uint8_t id1 = id & 0xFF;
+
+  if ((id > 0xC000 && id < 0xC01A) ||
+      (id > 0xC022 && id < 0xC03C) ||
+      (id > 0xC047 && id < 0xC050) ||
+      (id > 0xC05B && id < 0xC064) ||
+      (id > 0xC06F && id < 0xC07A) ||
+      (id > 0xC085 && id < 0xC08E) ||
+      (id > 0xC099 && id < 0xC09C) ||
+      (id > 0xC0AB && id < 0xC0B0) ||
+      (id > 0xCCA7 && id < 0xCCAA) ||
+      (id == 0xCCAC) ||
+      (id > 0xD000 && id < 0xD004) ||
+      (id == 0xD005))
+  {
+    return KeyExchangeAlgorithm::ec_dh;
+  }
+
+  return KeyExchangeAlgorithm::unknown;
+}
 }
 }
 

@@ -28,7 +28,7 @@ tls_context::tls_context(manager& mngr) : context(mngr)
 tls_context::tls_context(manager& mngr,
             const flow_address& fAddr,
             context_ptr ctxPtr)
-  : context(mngr)
+  : context(mngr), cipherSuite(0xFFFF), cipherSuiteSet(false)
 {
   addr = fAddr;
   parent = ctxPtr;

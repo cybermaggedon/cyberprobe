@@ -69,7 +69,8 @@ public:
 	tls,
  	tls_client_hello,
  	tls_server_hello,
- 	tls_certificates
+  	tls_certificates,
+  	tls_server_key_exchange
 
     };
 };
@@ -647,6 +648,19 @@ public:
     }
     cybermon::context_ptr cptr;
     std::vector<std::vector<uint8_t>> certs;
+    timeval time;
+};
+
+class tls_server_key_exchange_args: public qargs {
+
+public:
+    tls_server_key_exchange_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::key_exchange_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::key_exchange_data data;
     timeval time;
 };
 

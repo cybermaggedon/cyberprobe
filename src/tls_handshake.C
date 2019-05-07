@@ -4,6 +4,7 @@
 #include <tls_extensions.h>
 
 #include <cybermon/tls_handshake_protocol.h>
+#include <tls_key_exchange.h>
 
 #include <arpa/inet.h>
 #include <iomanip>
@@ -36,6 +37,9 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
       break;
     case 11:
       certificate(mgr, ctx, data, len);
+      break;
+    case 12:
+      serverKeyExchange(mgr, ctx, data, len);
       break;
     default:
       std::cout << "----- not processing handshake message type " << static_cast<uint16_t>(type) << std::endl;
@@ -179,9 +183,10 @@ void tls_handshake::serverHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
       // TODO - nice handling
       throw exception("not enough room for client hello message");
   }
-  const uint16_t cipherId = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
-  std::string cipherName = cipher::lookup(cipherId);
-  data.cipherSuite = tls_handshake_protocol::cipher_suite(cipherId, cipherName);
+  ctx->cipherSuite = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
+  ctx->cipherSuiteSet = true;
+  std::string cipherName = cipher::lookup(ctx->cipherSuite);
+  data.cipherSuite = tls_handshake_protocol::cipher_suite(ctx->cipherSuite, cipherName);
 
   dataLeft -= 2;
   dataPtr += 2;
@@ -288,6 +293,29 @@ void tls_handshake::certificate(manager& mgr, tls_context::ptr ctx, const pdu_sl
 
   // TODO extract cert info? - openssl?
   mgr.tls_certificates(ctx, certs, pduSlice.time);
+}
+
+
+void tls_handshake::serverKeyExchange(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  if (!ctx->cipherSuiteSet)
+  {
+    // server key exchange without seeing the server hello... TLS Error
+    throw exception("TLS Protocol Error - Server Key Exchange seen before server hello.");
+  }
+
+  cipher::KeyExchangeAlgorithm algo = cipher::lookup_key_exchange_algorithm(ctx->cipherSuite);
+
+  tls_handshake_protocol::key_exchange_data data;
+  switch (algo)
+  {
+  case cipher::KeyExchangeAlgorithm::ec_dh:
+    data.ecdh = std::make_shared<tls_handshake_protocol::ecdh_data>();
+    tls_key_exchange::ecdh(pduSlice, length, data.ecdh);
+    break;
+  }
+
+  mgr.tls_server_key_exchange(ctx, data, pduSlice.time);
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)

@@ -48,6 +48,7 @@ observer.tls = model.tls
 observer.tls_client_hello = model.tls_client_hello
 observer.tls_server_hello = model.tls_server_hello
 observer.tls_certificates = model.tls_certificates
+observer.tls_server_key_exchange = model.tls_server_key_exchange
 
 local submit = function(obj)
   data = json.encode(obj)

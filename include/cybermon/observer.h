@@ -238,6 +238,10 @@ namespace cybermon {
     				     const std::vector<std::vector<uint8_t>>& certs,
  				     const timeval& tv) = 0;
 
+	virtual void tls_server_key_exchange(const context_ptr cp,
+  				     const tls_handshake_protocol::key_exchange_data& data,
+ 				     const timeval& tv) = 0;
+
     };
 
 };

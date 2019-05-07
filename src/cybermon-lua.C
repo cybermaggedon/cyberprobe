@@ -2006,6 +2006,110 @@ void cybermon_lua::tls_certificates(engine& an,
     pop();
 }
 
+void cybermon_lua::tls_server_key_exchange(engine& an,
+				       const context_ptr cf,
+               const tls_handshake_protocol::key_exchange_data& data,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "tls_server_key_exchange");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    if (data.ecdh)
+    {
+      push("key_exchange_algorithm");
+      push("ec-dh");
+      set_table(-3);
+
+      push("curve_type");
+      push(data.ecdh->curveType);
+      set_table(-3);
+
+      push("curve_metadata");
+      create_table(data.ecdh->curveData.size(),0);
+
+      for (std::vector<tls_handshake_protocol::curve_data>::const_iterator iter=data.ecdh->curveData.begin();
+        iter != data.ecdh->curveData.end();
+        ++iter)
+      {
+        push(iter->name);
+        push(iter->value);
+        set_table(-3);
+      }
+      set_table(-3); // curve metadata
+
+      push("signature_hash_algorithm");
+      push(data.ecdh->sigHashAlgo);
+      set_table(-3);
+
+      push("signature_algorithm");
+      push(data.ecdh->sigAlgo);
+      set_table(-3);
+
+      push("signature_hash");
+      push(data.ecdh->hash.begin(), data.ecdh->hash.end());
+      set_table(-3);
+    }
+
+    if (data.dhrsa || data.dhanon)
+    {
+      std::shared_ptr<tls_handshake_protocol::dhanon_data> dh = data.dhrsa ? data.dhrsa : data.dhanon;
+
+      push("key_exchange_algorithm");
+      if (data.dhrsa)
+      {
+        push("dh-rsa");
+      }
+      else
+      {
+        push("dh-anon");
+      }
+      set_table(-3);
+
+      push("prime");
+      push(dh->p.begin(),dh->p.end());
+      set_table(-3);
+
+      push("generator");
+      push(dh->g.begin(),dh->g.end());
+      set_table(-3);
+
+      push("pubkey");
+      push(dh->pubKey.begin(),dh->pubKey.end());
+      set_table(-3);
+
+      if (data.dhrsa)
+      {
+        push("signature");
+        push(data.dhrsa->sig.begin(), data.dhrsa->sig.end());
+        set_table(-3);
+      }
+    }
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);
