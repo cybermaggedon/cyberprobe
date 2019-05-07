@@ -17,7 +17,7 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
   uint16_t left = (hdr->length1 << 8) + hdr->length2;
   pdu_slice data = pduSlice.skip(sizeof(tls::header));
 
-  while (left > 0 && (data.end - data.start) > 4)
+  while (left > 0 && (data.end - data.start) >= 4)
   {
     const uint8_t type = data.start[0];
     const uint32_t len = ntohl(*reinterpret_cast<const uint32_t*>(&data.start[0])) & 0x00FFFFFF;
@@ -40,6 +40,9 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
       break;
     case 12:
       serverKeyExchange(mgr, ctx, data, len);
+      break;
+    case 14:
+      serverHelloDone(mgr, ctx, data, len);
       break;
     default:
       std::cout << "----- not processing handshake message type " << static_cast<uint16_t>(type) << std::endl;
@@ -316,6 +319,11 @@ void tls_handshake::serverKeyExchange(manager& mgr, tls_context::ptr ctx, const 
   }
 
   mgr.tls_server_key_exchange(ctx, data, pduSlice.time);
+}
+
+void tls_handshake::serverHelloDone(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  mgr.tls_server_hello_done(ctx, pduSlice.time);
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)

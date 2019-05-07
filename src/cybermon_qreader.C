@@ -66,8 +66,8 @@ void cybermon_qreader::run() {
 	    switch (qentry->calltype) {
 
 	    case qargs::connection_up: {
-		connection_args* connectionargs =
-		    static_cast<connection_args*>(qentry->queueargs);
+		basic_args* connectionargs =
+		    static_cast<basic_args*>(qentry->queueargs);
 		cml.connection_up(qwriter, connectionargs->cptr,
 				  connectionargs->time);
 		delete (qentry);
@@ -75,8 +75,8 @@ void cybermon_qreader::run() {
 		break;
 	    }
 	    case qargs::connection_down: {
-		connection_args* connectionargs =
-		    static_cast<connection_args*>(qentry->queueargs);
+		basic_args* connectionargs =
+		    static_cast<basic_args*>(qentry->queueargs);
 		cml.connection_down(qwriter, connectionargs->cptr, connectionargs->time);
 		delete (qentry);
 		delete (connectionargs);
@@ -481,6 +481,14 @@ void cybermon_qreader::run() {
 		tls_server_key_exchange_args* tlsArgs =
 		    static_cast<tls_server_key_exchange_args*>(qentry->queueargs);
 		cml.tls_server_key_exchange(qwriter, tlsArgs->cptr, tlsArgs->data, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_server_hello_done: {
+		basic_args* tlsArgs =
+		    static_cast<basic_args*>(qentry->queueargs);
+		cml.tls_server_hello_done(qwriter, tlsArgs->cptr, tlsArgs->time);
 		delete (qentry);
 		delete (tlsArgs);
 		break;

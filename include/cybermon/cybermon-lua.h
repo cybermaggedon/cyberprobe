@@ -676,6 +676,10 @@ namespace cybermon {
        			 const tls_handshake_protocol::key_exchange_data& data,
        			 const timeval& time);
 
+	void tls_server_hello_done(engine& an,
+        			 const context_ptr cf,
+        			 const timeval& time);
+
     };
 
 };

@@ -70,15 +70,16 @@ public:
  	tls_client_hello,
  	tls_server_hello,
   	tls_certificates,
-  	tls_server_key_exchange
+  	tls_server_key_exchange,
+  	tls_server_hello_done
 
     };
 };
 
-class connection_args: public qargs {
+class basic_args: public qargs {
 
 public:
-    connection_args(const cybermon::context_ptr cp, const timeval& time) :
+    basic_args(const cybermon::context_ptr cp, const timeval& time) :
 	cptr(cp), time(time) {
     }
     cybermon::context_ptr cptr;

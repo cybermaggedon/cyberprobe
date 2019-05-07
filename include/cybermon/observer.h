@@ -242,6 +242,9 @@ namespace cybermon {
   				     const tls_handshake_protocol::key_exchange_data& data,
  				     const timeval& tv) = 0;
 
+  virtual void tls_server_hello_done(const context_ptr cp,
+   				     const timeval& tv) = 0;
+
     };
 
 };

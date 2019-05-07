@@ -2116,6 +2116,39 @@ void cybermon_lua::tls_server_key_exchange(engine& an,
     pop();
 }
 
+void cybermon_lua::tls_server_hello_done(engine& an, context_ptr f, const timeval& time)
+{
+
+    // Get config.connection_up
+    get_global("config");
+    get_field(-1, "tls_server_hello_done");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(f);
+    set_table(-3);
+
+    // config.connection_up(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);
