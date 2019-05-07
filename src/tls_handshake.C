@@ -2,6 +2,7 @@
 #include <tls_cipher_suites.h>
 #include <tls_utils.h>
 #include <tls_extensions.h>
+#include <tls_exception.h>
 
 #include <cybermon/tls_handshake_protocol.h>
 #include <tls_key_exchange.h>
@@ -74,7 +75,7 @@ uint16_t tls_handshake::commonHello(const pdu_slice& pduSlice, uint16_t length, 
     if (dataLeft < sizeof(common_hello))
     {
         // TODO - nice handling
-        throw exception("not enough room for hello message");
+        throw tls_exception("not enough room for hello message");
     }
 
     const common_hello* ch = reinterpret_cast<const common_hello*>(&dataPtr[0]);
@@ -90,7 +91,7 @@ uint16_t tls_handshake::commonHello(const pdu_slice& pduSlice, uint16_t length, 
     if (sessionIDLen > dataLeft)
     {
         // TODO - nice handling
-        throw exception("not enough room for hello message");
+        throw tls_exception("not enough room for hello message");
     }
     // extract the sessionID
     std::ostringstream sessionIDBuilder;
@@ -125,7 +126,7 @@ void tls_handshake::clientHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
     if (cipherSuiteLen > dataLeft)
     {
         // TODO - nice handling
-        throw exception("not enough room for client hello message");
+        throw tls_exception("not enough room for client hello message");
     }
 
     data.cipherSuites.reserve(cipherSuiteLen/2);
@@ -198,7 +199,7 @@ void tls_handshake::serverHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
     if (2 > dataLeft)
     {
         // TODO - nice handling
-        throw exception("not enough room for client hello message");
+        throw tls_exception("not enough room for client hello message");
     }
     ctx->set_cipher_suite(ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0])));
     std::string cipherName = cipher::lookup(ctx->cipherSuite);
@@ -212,7 +213,7 @@ void tls_handshake::serverHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
     if (! dataLeft)
     {
         // TODO - nice handling
-        throw exception("not enough room for client hello message");
+        throw tls_exception("not enough room for client hello message");
     }
     uint8_t compressionId = *dataPtr;
     dataLeft -= 1;
@@ -297,7 +298,7 @@ void tls_handshake::certificate(manager& mgr, tls_context::ptr ctx, const pdu_sl
         if (certLength > certsLength || certLength > dataLeft)
         {
             // TODO - nice handling
-            throw exception("not enough room for certificate");
+            throw tls_exception("not enough room for certificate");
         }
 
         certs.emplace_back(dataPtr, dataPtr + certLength);
@@ -319,7 +320,7 @@ void tls_handshake::serverKeyExchange(manager& mgr, tls_context::ptr ctx, const 
     if (!success)
     {
         // server key exchange without seeing the server hello... TLS Error
-        throw exception("TLS Protocol Error - Server Key Exchange seen before server hello.");
+        throw tls_exception("TLS Protocol Error - Server Key Exchange seen before server hello.");
     }
 
     cipher::KeyExchangeAlgorithm algo = cipher::lookup_key_exchange_algorithm(cipherSuite);
@@ -429,7 +430,7 @@ void tls_handshake::clientKeyExchange(manager& mgr, tls_context::ptr ctx, const 
     if (!success)
     {
         // client key exchange without seeing the server hello... TLS Error
-        throw exception("TLS Protocol Error - Client Key Exchange seen before server hello.");
+        throw tls_exception("TLS Protocol Error - Client Key Exchange seen before server hello.");
     }
 
     cipher::KeyExchangeAlgorithm algo = cipher::lookup_key_exchange_algorithm(cipherSuite);
@@ -463,7 +464,7 @@ void tls_handshake::certificateVerify(manager& mgr, tls_context::ptr ctx, const 
 
     if (sigLen > dataLeft)
     {
-        throw exception("TLS Protocol Error - not enough room for signature");
+        throw tls_exception("TLS Protocol Error - not enough room for signature");
     }
 
     std::ostringstream oss;

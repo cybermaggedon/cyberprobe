@@ -1,6 +1,6 @@
 #include <tls_key_exchange.h>
 
-#include <cybermon/exception.h>
+#include <tls_exception.h>
 
 #include <iomanip>
 #include <iostream>
@@ -126,7 +126,7 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
 
     if (pointLen > dataLeft)
     {
-        throw exception("TLS ECDH Error - Not enough room for public key point");
+        throw tls_exception("TLS ECDH Error - Not enough room for public key point");
     }
 
     md->pubKey.reserve(pointLen);
@@ -146,7 +146,7 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
     dataLeft -= 2;
 
     if (hashLen > dataLeft) {
-        throw exception("TLS ECDH Error - Not enough room for signature hash");
+        throw tls_exception("TLS ECDH Error - Not enough room for signature hash");
     }
 
     std::ostringstream oss;
@@ -173,7 +173,7 @@ void cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t
 
     if (pointLen > dataLeft)
     {
-        throw exception("TLS ECDH Error - Not enough room for public key point");
+        throw tls_exception("TLS ECDH Error - Not enough room for public key point");
     }
 
     key.reserve(pointLen);

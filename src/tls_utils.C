@@ -1,6 +1,6 @@
 #include <tls_utils.h>
 
-#include <cybermon/exception.h>
+#include <tls_exception.h>
 
 
 std::string cybermon::tls_utils::convertTLSVersion(uint8_t maj, uint8_t min)
@@ -17,5 +17,5 @@ std::string cybermon::tls_utils::convertTLSVersion(uint8_t maj, uint8_t min)
             return "TLS 1." + std::to_string(min - 1);
         }
     }
-    throw cybermon::exception("Invalid TLS Version");
+    throw cybermon::tls_exception("Invalid TLS Version");
 }
