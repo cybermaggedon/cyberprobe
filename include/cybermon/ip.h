@@ -162,9 +162,11 @@ namespace cybermon {
 	// IPv6 processing.
 	static void process_ip6(manager&, context_ptr c, const pdu_slice& s);
 
+	// IPv6 processing.
+	static void handle_nxt_proto(manager&, context_ptr c, uint8_t proto, const pdu_slice& s, uint16_t length, uint8_t header_length);
+
     };
 
 };
 
 #endif
-

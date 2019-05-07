@@ -62,7 +62,8 @@ public:
 	ntp_private_message,
 	gre_message,
 	gre_pptp_message,
-	esp
+	esp,
+	unrecognised_ip_protocol
 
     };
 };
@@ -538,6 +539,24 @@ public:
     cybermon::context_ptr cptr;
     const uint32_t spi;
     const uint32_t sequence;
+    const uint32_t length;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class unknown_ip_proto_args: public qargs {
+
+public:
+    unknown_ip_proto_args(const cybermon::context_ptr cp,
+       const uint8_t nxtProto, const uint32_t len,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), nxtProto(nxtProto), length(len), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t nxtProto;
     const uint32_t length;
     cybermon::pdu pdu;
     timeval time;

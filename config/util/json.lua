@@ -426,5 +426,15 @@ module.esp = function(e)
   submit(obs)
 end
 
+-- This function is called when an ip packet with an unprocessed next protocol is observed.
+module.unrecognised_ip_protocol = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "unrecognised_ip_protocol"
+  obs["unrecognised_ip_protocol"] = { next_proto=e.next_proto, payload_length=e.payload_length,
+    payload=b64(e.payload)}
+
+  submit(obs)
+end
+
 -- Return the table
 return module

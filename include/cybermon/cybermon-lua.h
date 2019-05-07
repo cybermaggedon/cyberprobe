@@ -616,6 +616,14 @@ namespace cybermon {
   			 pdu_iter end,
   			 const timeval& time);
 
+	void unrecognised_ip_protocol(engine& an,
+  			 const context_ptr cf,
+  			 const uint8_t nxtProto,
+  			 const uint32_t len,
+  			 pdu_iter start,
+  			 pdu_iter end,
+  			 const timeval& time);
+
     };
 
 };
