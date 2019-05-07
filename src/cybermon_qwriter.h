@@ -12,6 +12,7 @@
 #include <cybermon/engine.h>
 #include <queue>
 #include <cybermon_qargs.h>
+#include <cybermon/tls_handshake_protocol.h>
 
 namespace cybermon {
 
@@ -192,11 +193,14 @@ namespace cybermon {
  				     const uint16_t seq_num,
  				     const timeval& tv);
 
-
 	virtual void tls(const context_ptr cp,
              const std::string& version,
              const uint8_t contentType,
              const uint16_t length,
+             const timeval& tv);
+
+	virtual void tls_client_hello(const context_ptr cp,
+             const tls_handshake_protocol::client_hello_data& data,
              const timeval& tv);
 
 	// Max size of queue.

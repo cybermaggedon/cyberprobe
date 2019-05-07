@@ -1,5 +1,8 @@
 #include <cybermon/tls.h>
 
+#include <tls_handshake.h>
+#include <tls_utils.h>
+
 #include <vector>
 #include <algorithm>
 #include <iomanip>
@@ -13,21 +16,6 @@ namespace {
   const std::vector<uint8_t>::const_iterator CT_START = CONTENT_TYPES.begin();
   const std::vector<uint8_t>::const_iterator CT_END = CONTENT_TYPES.end();
 
-  std::string convertTLSVersion(uint8_t maj, uint8_t min)
-  {
-    // should always be true
-    if (maj == 3)
-    {
-      if (min == 0)
-      {
-        return "SSL 3.0";
-      } else if (min < 5)
-      {
-        return "TLS 1." + std::to_string(min - 1);
-      }
-    }
-    throw exception("Invalid TLS Version");
-  }
 } // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,15 +67,15 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
     pdu_slice newSlice(flowContext->buffer.begin(),
                       flowContext->buffer.end(),
                       pduSlice.time, pduSlice.direc);
-    const tls_header* hdr = verifyHeader(newSlice);
+    const header* hdr = verifyHeader(newSlice);
     if (!hdr)
     {
       // TODO handle header on boundry
       throw exception("Invalid TLS Header");
     }
     uint16_t length = (hdr->length1 << 8) + hdr->length2;
-    extra = length + sizeof(tls_header) - flowContext->buffer.size();
-    flowContext->buffer.resize(length + sizeof(tls_header));
+    extra = length + sizeof(header) - flowContext->buffer.size();
+    flowContext->buffer.resize(length + sizeof(header));
     flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.start + extra);
     pdu_slice msg(flowContext->buffer.begin(),
                       flowContext->buffer.end(),
@@ -103,13 +91,13 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
   pdu_slice restOfSlice = pduSlice.skip(extra);
   while (restOfSlice.start < restOfSlice.end)
   {
-    const tls_header* hdr = verifyHeader(restOfSlice);
+    const header* hdr = verifyHeader(restOfSlice);
     if (!hdr)
     {
       // TODO handle header on boundry
       throw exception("Invalid TLS Header");
     }
-    uint16_t length = (hdr->length1 << 8) + hdr->length2 + sizeof(tls_header);
+    uint16_t length = (hdr->length1 << 8) + hdr->length2 + sizeof(header);
     if (length > (restOfSlice.end - restOfSlice.start))
     {
       // have half a tls message, save into the buffer
@@ -122,7 +110,7 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
     // we have a full message to process
     pdu_slice msg(restOfSlice.start,restOfSlice.end,
                   restOfSlice.time, restOfSlice.direc);
-    survey(mgr, flowContext, msg, hdr);
+    processMessage(mgr, flowContext, msg, hdr);
     restOfSlice = restOfSlice.skip(length);
   }
 
@@ -130,17 +118,17 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
   flowContext->lock.unlock();
 }
 
-const tls::tls_header* tls::verifyHeader(const pdu_slice& pduSlice)
+const tls::header* tls::verifyHeader(const pdu_slice& pduSlice)
 {
   // check enough bytes for the header
-  if ((pduSlice.end - pduSlice.start) < sizeof(tls_header))
+  if ((pduSlice.end - pduSlice.start) < sizeof(header))
   {
     return nullptr;
     //throw exception("PDU too small for tls header");
   }
 
   // verify this looks like a TLS header
-  const tls_header* hdr = reinterpret_cast<const tls_header*>(&pduSlice.start[0]);
+  const header* hdr = reinterpret_cast<const header*>(&pduSlice.start[0]);
   if (std::find(CT_START, CT_END, hdr->contentType) == CT_END)
   {
     return nullptr;
@@ -160,10 +148,24 @@ const tls::tls_header* tls::verifyHeader(const pdu_slice& pduSlice)
   return hdr;
 }
 
-void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const tls_header* hdr)
+void tls::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, const header* hdr)
 {
   // already know it is TLS header dont need to recheck
-  std::string version = convertTLSVersion(hdr->majorVersion, hdr->minorVersion);
+
+  switch (hdr->contentType) {
+  case 22: // handshake
+    tls_handshake::process(mgr, ctx, pduSlice, hdr);
+    break;
+  default: // catch all - just survey
+    survey(mgr, ctx, pduSlice, hdr);
+    break;
+  }
+}
+
+void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr)
+{
+  // already know it is TLS header dont need to recheck
+  std::string version = tls_utils::convertTLSVersion(hdr->majorVersion, hdr->minorVersion);
 
   uint16_t length = (hdr->length1 << 8) + hdr->length2;
 

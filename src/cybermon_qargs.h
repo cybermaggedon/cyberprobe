@@ -14,6 +14,7 @@
 #define CYBERMON_QARGS_H_
 
 #include <cybermon/engine.h>
+#include <cybermon/tls_handshake_protocol.h>
 
 /*
  * args classes for different protocols
@@ -65,7 +66,8 @@ public:
 	esp,
 	unrecognised_ip_protocol,
 	wlan,
-	tls
+	tls,
+	tls_client_hello
 
     };
 };
@@ -605,6 +607,18 @@ public:
     timeval time;
 };
 
+class tls_client_hello_args: public qargs {
+
+public:
+    tls_client_hello_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::client_hello_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::client_hello_data data;
+    timeval time;
+};
 
 /*q_entry class acting as a medium to store args and add in to queue by cybermon_qwriter
  * and cybermon_qreader pick up it from queue to process by calling

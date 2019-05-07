@@ -5,6 +5,7 @@
 #include <cybermon/context.h>
 #include <cybermon/dns_protocol.h>
 #include <cybermon/ntp_protocol.h>
+#include <cybermon/tls_handshake_protocol.h>
 
 namespace cybermon {
 
@@ -221,6 +222,10 @@ namespace cybermon {
  				     const std::string& version,
  				     const uint8_t contentType,
  				     const uint16_t length,
+ 				     const timeval& tv) = 0;
+
+	virtual void tls_client_hello(const context_ptr cp,
+  				     const tls_handshake_protocol::client_hello_data& data,
  				     const timeval& tv) = 0;
 
     };

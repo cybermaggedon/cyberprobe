@@ -1749,6 +1749,121 @@ void cybermon_lua::tls(engine& an,
     pop();
 }
 
+void cybermon_lua::tls_client_hello(engine& an,
+				       const context_ptr cf,
+               const tls_handshake_protocol::client_hello_data& data,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "tls_client_hello");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("version");
+    push(data.version);
+    set_table(-3);
+
+    push("random_timestamp");
+    push(data.randomTimestamp);
+    set_table(-3);
+
+    push("random_data");
+    push(std::begin(data.random), std::end(data.random));
+    set_table(-3);
+
+    push("session_id");
+    push(data.sessionID);
+    set_table(-3);
+
+    push("cipher_suites");
+    create_table(data.cipherSuites.size(), 0);
+    int index=1;
+    for (std::vector<tls_handshake_protocol::cipher_suite>::const_iterator iter=data.cipherSuites.begin();
+      iter != data.cipherSuites.end();
+      ++iter)
+    {
+      push(index);
+      create_table(2,0);
+      push("id");
+      push(iter->id);
+      set_table(-3);
+      push("name");
+      push(iter->name);
+      set_table(-3);
+      set_table(-3);
+      ++index;
+    }
+    set_table(-3);
+
+    push("compression_methods");
+    create_table(data.compressionMethods.size(), 0);
+    index=1;
+    for (std::vector<tls_handshake_protocol::compression_method>::const_iterator iter=data.compressionMethods.begin();
+      iter != data.compressionMethods.end();
+      ++iter)
+    {
+      push(index);
+      create_table(2,0);
+      push("id");
+      push(iter->id);
+      set_table(-3);
+      push("name");
+      push(iter->name);
+      set_table(-3);
+      set_table(-3);
+      ++index;
+    }
+    set_table(-3);
+
+    push("extensions");
+    create_table(data.extensions.size(), 0);
+    index = 1;
+    for (std::vector<tls_handshake_protocol::extension>::const_iterator iter=data.extensions.begin();
+      iter != data.extensions.end();
+      ++iter)
+    {
+      push(index);
+      create_table(4,0);
+      push("type");
+      push(iter->type);
+      set_table(-3);
+      push("name");
+      push(iter->name);
+      set_table(-3);
+      push("length");
+      push(iter->len);
+      set_table(-3);
+      push("data");
+      push(iter->data.begin(), iter->data.end());
+      set_table(-3);
+      set_table(-3);
+      ++index;
+    }
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

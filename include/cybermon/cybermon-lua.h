@@ -28,6 +28,7 @@ extern "C" {
 #include <map>
 
 #include "engine.h"
+#include <cybermon/tls_handshake_protocol.h>
 
 namespace cybermon {
 
@@ -205,11 +206,22 @@ namespace cybermon {
 	    lua_pushboolean(lua, b);
 	}
 
+	// // Push a string (defined by iterators).
+	// void push(std::vector<unsigned char>::const_iterator s,
+	// 	  std::vector<unsigned char>::const_iterator e) {
+	//     // FIXME: Lot of copying?
+	//     unsigned char* buf = new unsigned char[e - s];
+	//     std::copy(s, e, buf);
+	//     lua_pushlstring(lua, (char*) buf, e - s);
+	//     delete[] buf;
+	// }
+
 	// Push a string (defined by iterators).
 	template < class Iter >
 	void push(Iter s, Iter e) {
 	    lua_pushlstring(lua, reinterpret_cast<const char*>(&(*s)), e - s);
 	}
+
 
 /*	void push(int size, unsigned char* buf ) {
 	    // FIXME: Lot of copying?
@@ -643,6 +655,11 @@ namespace cybermon {
    			 const uint8_t contentType,
    			 const uint16_t length,
    			 const timeval& time);
+
+	void tls_client_hello(engine& an,
+    			 const context_ptr cf,
+    			 const tls_handshake_protocol::client_hello_data& data,
+    			 const timeval& time);
 
     };
 

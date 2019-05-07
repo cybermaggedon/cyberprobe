@@ -41,8 +41,7 @@ class tls {
 public:
   static void process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice);
 
-private:
-  struct tls_header {
+  struct header {
     uint8_t contentType;
     uint8_t majorVersion;
     uint8_t minorVersion;
@@ -51,8 +50,10 @@ private:
     uint8_t length1;
     uint8_t length2;
   };
-  static const tls_header* verifyHeader(const pdu_slice& pduSlice);
-  static void survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const tls_header* hdr);
+private:
+  static const header* verifyHeader(const pdu_slice& pduSlice);
+  static void processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, const header* hdr);
+  static void survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr);
 };
 
 } // namespace cybermon

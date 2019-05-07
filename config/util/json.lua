@@ -50,6 +50,17 @@ local b64 = function(x)
   return a
 end
 
+-- hex encoding
+local str_to_hex = function(x)
+  return "0x" .. x:gsub('.', function (c)
+      return string.format('%02X', string.byte(c))
+    end)
+end
+
+local int_to_hex = function(x)
+  return "0x" .. string.format('%x', x)
+end
+
 -- Gets the stack of addresses on the src/dest side of a context.
 local function get_stack(context, addrs, is_src)
 
@@ -447,11 +458,69 @@ module.wlan = function(e)
   submit(obs)
 end
 
--- This function is called when a 802.11 packet is observed.
+-- This function is called when a tls packet is observed and surveyed.
 module.tls = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls"
   obs["tls"] = { version=e.version, content_type=e.content_type, length=e.length}
+
+  submit(obs)
+end
+
+-- This function is called when a tls client hello packet is observed.
+module.tls_client_hello = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_client_hello"
+  obs["tls"] = { version=e.version, session_id=e.session_id}
+  obs["tls"]["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
+
+  cs = {}
+  json.util.InitArray(cs)
+  for key, value in pairs(e.cipher_suites) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    local val = ""
+    if value.name == "Unassigned" then
+      val = value.name .. " - " .. int_to_hex(value.id)
+    else
+      val = value.name
+    end
+    cs[#cs + 1] = val
+  end
+  obs["tls"]["cipher_suites"] = cs
+
+  cm = {}
+  json.util.InitArray(cm)
+  for key, value in pairs(e.compression_methods) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    local val = ""
+    if value.name == "Unassigned" then
+      val = value.name .. " - " .. int_to_hex(value.id)
+    else
+      val = value.name
+    end
+    cm[#cm + 1] = val
+  end
+  obs["tls"]["compression_methods"] = cm
+
+  exts = {}
+  json.util.InitArray(exts)
+  for key, value in pairs(e.extensions) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    ext = {}
+    ext["length"] = value.length
+    ext["data"] = str_to_hex(value.name)
+    if value.name == "Unassigned" then
+      ext["name"] = value.name .. " - " .. int_to_hex(value.type)
+    else
+      ext["name"] = value.name
+    end
+    exts[#exts + 1] = ext
+  end
+  obs["tls"]["extensions"] = exts
+
 
   submit(obs)
 end
