@@ -26,6 +26,7 @@ private:
   static void certificateRequest(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
   static void clientKeyExchange(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
   static void certificateVerify(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
+  static void finished(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
 
   struct common_hello {
     uint8_t majVersion;

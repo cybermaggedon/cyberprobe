@@ -633,6 +633,44 @@ void cybermon_qwriter::tls_certificate_verify(const context_ptr cp,
 	}
 }
 
+void cybermon_qwriter::tls_change_cipher_spec(const context_ptr cp,
+					 const uint8_t val,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_change_cipher_spec_args(cp, val, tv);
+		q_entry* qentry = new q_entry(qargs::tls_change_cipher_spec, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_handshake_finished(const context_ptr cp,
+					 const std::vector<uint8_t>& msg,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_handshake_finished_args(cp, msg, tv);
+		q_entry* qentry = new q_entry(qargs::tls_handshake_finished, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_handshake_complete(const context_ptr cp,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new basic_args(cp, tv);
+		q_entry* qentry = new q_entry(qargs::tls_handshake_complete, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;

@@ -263,6 +263,17 @@ namespace cybermon {
  				     const uint8_t sigAlgo,
  				     const std::string& sig,
  				     const timeval& tv) = 0;
+
+  virtual void tls_change_cipher_spec(const context_ptr cp,
+             const uint8_t val,
+             const timeval& tv) = 0;
+
+  virtual void tls_handshake_finished(const context_ptr cp,
+             const std::vector<uint8_t>& msg,
+             const timeval& tv) = 0;
+
+  virtual void tls_handshake_complete(const context_ptr cp,
+             const timeval& tv) = 0;
     };
 
 };

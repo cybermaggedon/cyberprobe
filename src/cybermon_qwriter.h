@@ -239,6 +239,17 @@ namespace cybermon {
              const std::string& sig,
              const timeval& tv);
 
+  virtual void tls_change_cipher_spec(const context_ptr cp,
+             const uint8_t val,
+             const timeval& tv);
+
+  virtual void tls_handshake_finished(const context_ptr cp,
+             const std::vector<uint8_t>& msg,
+             const timeval& tv);
+
+  virtual void tls_handshake_complete(const context_ptr cp,
+             const timeval& tv);
+
 	// Max size of queue.
 	static const int q_limit = 1000;
 

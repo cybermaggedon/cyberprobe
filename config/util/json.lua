@@ -670,5 +670,35 @@ module.tls_certificate_verify = function(e)
   submit(obs)
 end
 
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_change_cipher_spec = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_change_cipher_spec"
+  obs["tls"] = {value=e.val}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_handshake_finished = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_handshake_finished"
+  obs["tls"] = {message=b64(e.msg)}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_handshake_complete = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_handshake_complete"
+  obs["tls"] = {}
+
+
+  submit(obs)
+end
+
 -- Return the table
 return module

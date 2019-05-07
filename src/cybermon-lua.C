@@ -2356,6 +2356,116 @@ void cybermon_lua::tls_certificate_verify(engine& an, const context_ptr cp, cons
 
 }
 
+void cybermon_lua::tls_change_cipher_spec(engine& an, const context_ptr cp,
+				       const uint8_t val, const timeval& time)
+{
+
+    // Get config.connection_up
+    get_global("config");
+    get_field(-1, "tls_change_cipher_spec");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cp);
+    set_table(-3);
+
+    // Set table context.
+    push("val");
+    push(val);
+    set_table(-3);
+
+    // config.connection_up(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
+void cybermon_lua::tls_handshake_finished(engine& an,
+				       const context_ptr cp,
+				       const std::vector<uint8_t>& msg,
+				       const timeval& tv)
+{
+  // Get config.connection_up
+  get_global("config");
+  get_field(-1, "tls_handshake_finished");
+
+  // Build event table on stack.
+  create_table(0, 0);
+
+  // Set table time.
+  push("time");
+  push(tv);
+  set_table(-3);
+
+  // Set table context.
+  push("context");
+  push(cp);
+  set_table(-3);
+
+  push("msg");
+  push(msg.begin(), msg.end());
+  set_table(-3);
+
+  // config.connection_up(event)
+  try {
+call(1, 0);
+  } catch (std::exception& e) {
+pop();
+throw;
+  }
+
+  // Still got 'config' left on stack, it can go.
+  pop();
+}
+
+void cybermon_lua::tls_handshake_complete(engine& an,
+				       const context_ptr cp,
+				       const timeval& tv)
+{
+  // Get config.connection_up
+  get_global("config");
+  get_field(-1, "tls_handshake_complete");
+
+  // Build event table on stack.
+  create_table(0, 0);
+
+  // Set table time.
+  push("time");
+  push(tv);
+  set_table(-3);
+
+  // Set table context.
+  push("context");
+  push(cp);
+  set_table(-3);
+
+  // config.connection_up(event)
+  try {
+call(1, 0);
+  } catch (std::exception& e) {
+pop();
+throw;
+  }
+
+  // Still got 'config' left on stack, it can go.
+  pop();
+}
+
 void cybermon_lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);

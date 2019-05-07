@@ -526,6 +526,30 @@ void cybermon_qreader::run() {
 		delete (tlsArgs);
 		break;
 	    }
+	    case qargs::tls_change_cipher_spec: {
+		tls_change_cipher_spec_args* tlsArgs =
+		    static_cast<tls_change_cipher_spec_args*>(qentry->queueargs);
+		cml.tls_change_cipher_spec(qwriter, tlsArgs->cptr, tlsArgs->val, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_handshake_finished: {
+		tls_handshake_finished_args* tlsArgs =
+		    static_cast<tls_handshake_finished_args*>(qentry->queueargs);
+		cml.tls_handshake_finished(qwriter, tlsArgs->cptr, tlsArgs->msg, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_handshake_complete: {
+		basic_args* tlsArgs =
+		    static_cast<basic_args*>(qentry->queueargs);
+		cml.tls_handshake_complete(qwriter, tlsArgs->cptr, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
 	    default: {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }

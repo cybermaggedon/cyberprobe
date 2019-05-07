@@ -28,7 +28,7 @@ tls_context::tls_context(manager& mngr) : context(mngr)
 tls_context::tls_context(manager& mngr,
             const flow_address& fAddr,
             context_ptr ctxPtr)
-  : context(mngr), cipherSuite(0xFFFF), cipherSuiteSet(false)
+  : context(mngr), cipherSuite(0xFFFF), cipherSuiteSet(false), seenChangeCipherSuite(false)
 {
   addr = fAddr;
   parent = ctxPtr;
@@ -159,6 +159,7 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
 
 const tls::header* tls::verifyHeader(const pdu_slice& pduSlice)
 {
+
   // check enough bytes for the header
   if ((pduSlice.end - pduSlice.start) < sizeof(header))
   {
@@ -190,8 +191,10 @@ const tls::header* tls::verifyHeader(const pdu_slice& pduSlice)
 void tls::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, const header* hdr)
 {
   // already know it is TLS header dont need to recheck
-
   switch (hdr->contentType) {
+  case 20:
+    changeCipherSpec(mgr, ctx, pduSlice);
+    break;
   case 22: // handshake
     tls_handshake::process(mgr, ctx, pduSlice, hdr);
     break;
@@ -199,6 +202,16 @@ void tls::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pd
     survey(mgr, ctx, pduSlice, hdr);
     break;
   }
+}
+
+void tls::changeCipherSpec(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice)
+{
+  pdu_slice data = pduSlice.skip(sizeof(tls::header));
+  uint8_t val = *(data.start);
+
+  ctx->seenChangeCipherSuite = true;
+
+  mgr.tls_change_cipher_spec(ctx, val, pduSlice.time);
 }
 
 void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr)

@@ -17,6 +17,12 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
   uint16_t left = (hdr->length1 << 8) + hdr->length2;
   pdu_slice data = pduSlice.skip(sizeof(tls::header));
 
+  if (ctx->seenChangeCipherSuite)
+  {
+    finished(mgr, ctx, data, left);
+    ctx->seenChangeCipherSuite = false;
+    return;
+  }
   while (left > 0 && (data.end - data.start) >= 4)
   {
     const uint8_t type = data.start[0];
@@ -469,6 +475,25 @@ void tls_handshake::certificateVerify(manager& mgr, tls_context::ptr ctx, const 
   }
 
   mgr.tls_certificate_verify(ctx, sigHashAlgo, sigAlgo, oss.str(), pduSlice.time);
+}
+void tls_handshake::finished(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
+{
+  std::vector<uint8_t> encMessage(pduSlice.start, pduSlice.start + length);
+
+  // create event on this finished message
+  mgr.tls_handshake_finished(ctx, encMessage, pduSlice.time);
+  ctx->finished = true;
+
+  // check if the entire handshake has been finished, (i.e. reverse has finished too)
+  context_ptr rev = ctx->reverse.lock();
+  if (rev)
+  {
+    tls_context::ptr revPtr = boost::dynamic_pointer_cast<tls_context>(rev);
+    if (revPtr->finished)
+    {
+      mgr.tls_handshake_complete(ctx, pduSlice.time);
+    }
+  }
 }
 
 void tls_handshake::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint8_t type)

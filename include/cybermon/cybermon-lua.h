@@ -657,51 +657,65 @@ namespace cybermon {
    			 const timeval& time);
 
 	void tls_client_hello(engine& an,
-    			 const context_ptr cf,
-    			 const tls_handshake_protocol::client_hello_data& data,
-    			 const timeval& time);
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::client_hello_data& data,
+   			 const timeval& time);
 
 	void tls_server_hello(engine& an,
-     			 const context_ptr cf,
-     			 const tls_handshake_protocol::server_hello_data& data,
-     			 const timeval& time);
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::server_hello_data& data,
+   			 const timeval& time);
 
 	void tls_certificates(engine& an,
-      			 const context_ptr cf,
-      			 const std::vector<std::vector<uint8_t>>& certs,
-      			 const timeval& time);
+   			 const context_ptr cf,
+   			 const std::vector<std::vector<uint8_t>>& certs,
+   			 const timeval& time);
 
 	void tls_server_key_exchange(engine& an,
-       			 const context_ptr cf,
-       			 const tls_handshake_protocol::key_exchange_data& data,
-       			 const timeval& time);
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::key_exchange_data& data,
+   			 const timeval& time);
 
 	void tls_server_hello_done(engine& an,
-        			 const context_ptr cf,
-        			 const timeval& time);
+   			 const context_ptr cf,
+   			 const timeval& time);
 
 	void tls_handshake_generic(engine& an,
-         			 const context_ptr cp,
-         			 const uint8_t type,
-         			 const uint32_t len,
-         			 const timeval& tv);
+   			 const context_ptr cp,
+   			 const uint8_t type,
+   			 const uint32_t len,
+   			 const timeval& tv);
 
 	void tls_certificate_request(engine& an,
-          			 const context_ptr cf,
-          			 const tls_handshake_protocol::certificate_request_data& data,
-          			 const timeval& time);
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::certificate_request_data& data,
+   			 const timeval& time);
 
 	void tls_client_key_exchange(engine& an,
-           			 const context_ptr cp,
-           			 const std::vector<uint8_t>& key,
-           			 const timeval& tv);
+   			 const context_ptr cp,
+   			 const std::vector<uint8_t>& key,
+   			 const timeval& tv);
 
 	void tls_certificate_verify(engine& an,
-            			 const context_ptr cp,
-            			 const uint8_t sigHashAlgo,
-            			 const uint8_t sigAlgo,
-            			 const std::string& sig,
-            			 const timeval& tv);
+   			 const context_ptr cp,
+   			 const uint8_t sigHashAlgo,
+   			 const uint8_t sigAlgo,
+   			 const std::string& sig,
+   			 const timeval& tv);
+
+	void tls_change_cipher_spec(engine& an,
+   			 const context_ptr cp,
+   			 const uint8_t val,
+   			 const timeval& tv);
+
+	void tls_handshake_finished(engine& an,
+   			 const context_ptr cp,
+   			 const std::vector<uint8_t>& msg,
+   			 const timeval& tv);
+
+	void tls_handshake_complete(engine& an,
+   			 const context_ptr cp,
+   			 const timeval& tv);
     };
 
 };

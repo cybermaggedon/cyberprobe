@@ -41,6 +41,12 @@ public:
   // the agreed cipher suite for the connection
   uint16_t cipherSuite;
   bool cipherSuiteSet;
+
+  // flag to show if the last message was a change cipher spec message
+  bool seenChangeCipherSuite;
+
+  // flag to show if this side of the connection has finished
+  bool finished;
 };
 
 class tls {
@@ -59,6 +65,7 @@ public:
 private:
   static const header* verifyHeader(const pdu_slice& pduSlice);
   static void processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, const header* hdr);
+  static void changeCipherSpec(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice);
   static void survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr);
 };
 
