@@ -3363,6 +3363,58 @@ end
 observer.ntp_private_message = function(e)
 end
 
+-- This function is called when a GRE message with an unhandled ethertype is observed.
+-- e.context = protocol context
+-- e.next_proto = the ethertype of the next protocol
+-- e.payload = the payload
+-- e.key = the key (default is 0 if it is not present in packet)
+-- e.sequence_number = the sequence number (default is 0 if it is not present in packet)
+observer.gre = function(e)
+end
+
+-- This function is called when a GRE PPTP message with an unhandled ethertype is observed.
+-- e.context = protocol context
+-- e.next_proto = the ethertype of the next protocol
+-- e.call_id = gre call id
+-- e.payload_length = the payload length
+-- e.payload = the payload
+-- e.sequence_number = the sequence number (default is 0 if it is not present in packet)
+-- e.acknowledgement_number = the acknowledgement number (default is 0 if it is not present in packet)
+observer.gtp_pptp = function(e)
+end
+
+-- This function is called when an ESP packet is observed.
+-- e.context = protocol context
+-- e.next_proto = the ethertype of the next protocol
+-- e.spi = gre call id
+-- e.sequence_number = the sequence number
+-- e.payload_length = the payload length
+-- e.payload = the payload
+observer.esp = function(e)
+end
+
+-- This function is called when an IP packet with an unprocessed next protocol is observed.
+-- e.context = protocol context
+-- e.next_proto = the protocol number of the next protocol
+-- e.payload_length = the payload length
+-- e.payload = the payload
+observer.unrecognised_ip_protocol = function(e)
+end
+
+-- This function is called when an 802.11 packet is observed.
+-- e.context = protocol context
+-- e.version = the 802.11 version
+-- e.type = the type of 802.11 data frame
+-- e.subtype = the subtype of 802.11 data frame
+-- e.flags = the flags on the data frame
+-- e.protected = the protected flag
+-- e.filt_addr = the filter MAC address
+-- e.frag_num = the fragmentation number
+-- e.seq_num = the sequence number
+-- e.duration = the duration
+observer.wlan = function(e)
+end
+
 -- Return the table
 return observer
 
