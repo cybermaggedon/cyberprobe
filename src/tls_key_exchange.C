@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <arpa/inet.h>
+#include <sstream>
 
 namespace {
 
