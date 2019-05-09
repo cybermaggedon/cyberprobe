@@ -3415,6 +3415,110 @@ end
 observer.wlan = function(e)
 end
 
+-- This function is called when an unknown tls message is observed.
+-- e.version = The TLS version of the message
+-- e.content_type = the type of TLS message
+-- e.length = the length of the message
+observer.tls_unknown = function(e)
+end
+
+-- This function is called when a tls client hello message is observed.
+-- e.version = the version specified in the client hello
+-- e.session_id = the session id, in hex
+-- e.random_timestamp = the timestamp in the random field
+-- e.random_data = the data in the random field
+-- e.cipher_suites = the cipher suites specified in the header in an ordered array
+--   of tables containing 'name' and 'id' fields
+-- e.compression_methods = the compression methods specified in the header in an
+--   ordered array of tables containing 'name' and 'id' fields
+-- e.extensions = the extensions specified in the header in an ordered array of
+--   tables containing the fields 'name', 'length' and 'data' (if length > 0)
+observer.tls_client_hello = function(e)
+end
+
+-- This function is called when a tls server hello message is observed.
+-- e.version = the version specified in the server hello
+-- e.session_id = the session id, in hex
+-- e.random_timestamp = the timestamp in the random field
+-- e.random_data = the data in the random field
+-- e.cipher_suite = the cipher suite specified in the header in a table containing
+--   'name' and 'id' fields
+-- e.compression_method = the compression method specified in the header in a
+--   table containing 'name' and 'id' fields
+-- e.extensions = the extensions specified in the header in an ordered array of
+--   tables containing the fields 'name', 'length' and 'data' (if length > 0)
+observer.tls_server_hello = function(e)
+end
+
+-- This function is called when a tls certificates message is observed.
+-- e.certificates = an ordered array of strings representing the certificate in
+--   bytes
+observer.tls_certificates = function(e)
+end
+
+-- This function is called when a tls server key exchange message is observed.
+-- e.key_exchange_algorithm = string representation of the key exchange algorithm
+-- if e.key_exchange_algorithm == "ec-dh"
+--   e.curve_metadata = the curve metadata as key value pairs
+--   e.public_key = the public key in bytes
+--   e.signature_hash_algorithm = the signature hash algorithm field
+--   e.signature_algorithm = the signature algorithm field
+--   e.signature_hash = the signature hash as a hex string
+observer.tls_server_key_exchange = function(e)
+end
+
+-- This function is called when a tls server hello done message is observed.
+observer.tls_server_hello_done = function(e)
+end
+
+-- This function is called when an unknown tls handshake message is observed.
+-- (unknown meaning not currently handled by the protocol analyser)
+-- e.type = the type field
+-- e.length = the length of the handshake message
+observer.tls_handshake_unknown = function(e)
+end
+
+-- This function is called when a tls certificate request message is observed.
+-- e.cert_types = the certificate types in an ordered array or strings
+-- e.signature_algorithms = the signature algorithms in an ordered array of tables
+--   containing 'hash_algorithm' and 'signature_algorithm' fields
+-- e.distinguished_names = the distinguished names field in bytes
+observer.tls_certificate_request = function(e)
+end
+
+-- This function is called when a tls client_key exchange message is observed.
+-- e.key = the key in bytes
+observer.tls_client_key_exchange = function(e)
+end
+
+-- This function is called when a tls certificate verify message is observed.
+-- e.signature_algorithm = the signature algorithm used, as a table containing
+--   'hash_algorithm' and 'signature_algorithm' fields
+-- e.signature = the signature as a hex string
+observer.tls_certificate_verify = function(e)
+end
+
+-- This function is called when a tls change cipher spec message is observed.
+-- e.val = the value field
+observer.tls_change_cipher_spec = function(e)
+end
+
+-- This function is called when a tls handshake finished message is observed.
+-- e.msg = the message in bytes
+observer.tls_handshake_finished = function(e)
+end
+
+-- This function is called when both sides of the handshake have finished.
+observer.tls_handshake_complete = function(e)
+end
+
+-- This function is called when a tls application data message is observed.
+-- e.version = the version on the TLS header
+-- e.data = the encrypted message data in bytes
+observer.tls_application_data = function(e)
+end
+
+
 -- Return the table
 return observer
 
@@ -4149,6 +4253,418 @@ the sequence number of the dataframe
 
 @end table
 
+@item tls_unknown(e)
+Called when an unknown TLS message (i.e. one that isn't covered by further
+handling) is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+The version of the TLS header.
+
+@item content_type
+The content type of the TLS message.
+
+@item length
+The length of the TLS message.
+
+@end table
+
+@end table
+
+@item tls_client_hello(e)
+Called when a TLS Client Hello message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+The TLS version specified in the client hello message.
+
+@item session_id
+The session ID of the message.
+
+@item random_timestamp
+The timestamp field in the random field of the TLS message.
+
+@item random_data
+The data field in the random field of the TLS message.
+
+@item cipher_suites
+An ordered array of the cipher suites from the message.
+Each entry is a table with @code{id} and @code{name} fields.
+
+@item compression_methods
+An ordered array of the compression methods from the message.
+Each entry is a table with @code{id} and @code{name} fields.
+
+@item extensions
+An ordered array of the extensions from the message.
+Each entry is a table with @code{name}, @code{length} and @code{data} fields.
+(@code{data} will only be present if the @code{length} > 0)
+
+@end table
+
+@end table
+
+@item tls_server_hello(e)
+Called when a TLS Server Hello message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+The TLS version specified in the server hello message.
+
+@item session_id
+The session ID of the message.
+
+@item random_timestamp
+The timestamp field in the random field of the TLS message.
+
+@item random_data
+The data field in the random field of the TLS message.
+
+@item cipher_suite
+The cipher suite from the message, as a table with @code{id} and @code{name} fields.
+
+@item compression_method
+The compression method from the message, as a table with @code{id} and @code{name} fields.
+
+@item extensions
+An ordered array of the extensions from the message.
+Each entry is a table with @code{name}, @code{length} and @code{data} fields.
+(@code{data} will only be present if the @code{length} > 0)
+
+@end table
+
+@end table
+
+@item tls_server_key_exchange(e)
+Called when a TLS Server Key Exchange message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item key_exchange_algorithm
+The key exchange algorithm being used.
+
+@item curve_metadata
+Metadata about the curve (if ecdh) being used, as key:value pairs.
+
+@item public_key
+The public key field as bytes.
+
+@item signature_hash_algorithm
+The signature hash algorithm field.
+
+@item signature_algorithm
+The signature algorithm field.
+
+@item signature_hash
+The signature hash field. As a hex string
+
+@end table
+
+@end table
+
+@item tls_certificates(e)
+Called when a TLS certificates message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item certificates
+an ordered array of certificates, each in bytes.
+
+@end table
+
+@end table
+
+@item tls_server_hello_done(e)
+Called when a TLS Server Hello Done message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+@end table
+
+@end table
+
+@item tls_handshake_unknown(e)
+Called when a TLS handshake message is detected, that isnt explicitly handled.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item type
+the type of the handshake message
+
+@item length
+the length of the handshake message
+
+@end table
+
+@end table
+
+@item tls_certificate_request(e)
+Called when a TLS certificate request message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item cert_types
+An ordered array of certificate types
+
+@item signature_algorithms
+An ordered array of the Signature Algorithms from the message.
+Each entry is a table with @code{hash_algorithm} and @code{signature_algorithm} fields.
+
+@item distinguished_names
+the distinguished names field in bytes
+
+@end table
+
+@end table
+
+@item tls_client_key_exchange(e)
+Called when a TLS client key exchange message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item key
+the key in bytes
+
+@end table
+
+@end table
+
+@item tls_certificate_verify(e)
+Called when a TLS certificate verify message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item signature_algorithm
+the Signature Algorithms from the message. As a table with @code{hash_algorithm}
+and @code{signature_algorithm} fields.
+
+@item signature
+the signature as a hex string
+
+@end table
+
+@end table
+
+@item tls_change_cipher_spec(e)
+Called when a TLS change cipher spec message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item val
+the value field
+
+@end table
+
+@end table
+
+@item tls_handshake_finished(e)
+Called when a TLS handshake finished message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item msg
+the encrypted message
+
+@end table
+
+@end table
+
+@item tls_handshake_complete(e)
+Called when a TLS handshake has been completely finished - i.e. both sides of the
+communication have sent change_cipher_spec and handshake_finished.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@end table
+
+@end table
+
+@item tls_application_data(e)
+Called when a TLS application data message is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+the version on the TLS header.
+
+@item data
+the encrypted message.
+
+@end table
+
+@end table
+
+
 @end table
 
 @cindex @code{context} object
@@ -4450,6 +4966,35 @@ Records the presence of ESP data.
 Records the sending of a PDU over IP with an unrecognised next protocol.
 @item wlan
 Records the presence of 802.11 data.
+@item tls_unknown
+Records the presence of a tls message.
+@item tls_client_hello
+Records the presence of a tls client hello message.
+@item tls_server_hello
+Records the presence of a tls server hello message.
+@item tls_certificates
+Records the presence of a tls certificates message.
+@item tls_server_key_exchange
+Records the presence of a tls server key exchange message.
+@item tls_server_hello_done
+Records the presence of a tls server hello done message.
+@item tls_handshake_unknown
+Records the presence of a tls handshake message.
+@item tls_certificate_request
+Records the presence of a tls certificate request message.
+@item tls_client_key_exchange
+Records the presence of a tls client_key exchange message.
+@item tls_certificate_verify
+Records the presence of a tls certificate verify message.
+@item tls_change_cipher_spec
+Records the presence of a tls change cipher spec message.
+@item tls_handshake_finished
+Records the presence of a tls handshake finished message.
+@item tls_handshake_complete
+Records the that both sides of the TLS handshake are complete.
+@item tls_application_data
+Records the presence of a tls application data message.
+
 @end table
 
 @item url
@@ -4933,6 +5478,314 @@ The value in the SEQUENCE NUMBER field, a 16 bit number
 The value in the DURATION field, a 16 bit number
 
 @end table
+
+
+@item tls_unknown
+Emitted when @code{action} is @code{tls_unknown}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version of the TLS header.
+
+@item content_type
+The content type of the TLS message.
+
+@item length
+The length of the TLS message.
+
+@end table
+
+@end table
+
+
+@item tls_client_hello
+Emitted when @code{action} is @code{tls_client_hello}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version requested in the hello message.
+
+@item session_id
+The session id of the message.
+
+@item random
+@table @samp
+
+@item timestamp
+The timestamp field of the random field of the hello message.
+
+@item data
+The data field of the random field of the hello message.
+
+@end table
+
+@item cipher_suites
+An ordered array of the cipher suites names
+
+@item compression_methods
+An ordered array of the compression methods names
+
+@item extensions
+An ordered array of the extensions, in the form of an object with the keys
+@code{name}, @code{length} and @code{data}. (@code{data} will only be present if
+@code{length > 0})
+
+@end table
+
+@end table
+
+
+@item tls_server_hello
+Emitted when @code{action} is @code{tls_server_hello}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version requested in the hello message.
+
+@item session_id
+The session id of the message.
+
+@item random
+@table @samp
+
+@item timestamp
+The timestamp field of the random field of the hello message.
+
+@item data
+The data field of the random field of the hello message.
+
+@end table
+
+@item cipher_suite
+The name of the cipher suite
+
+@item compression_method
+The name of the compression methods
+
+@item extensions
+An ordered array of the extensions, in the form of an object with the keys
+@code{name}, @code{length} and @code{data}. (@code{data} will only be present if
+@code{length > 0})
+
+@end table
+
+@end table
+
+
+@item tls_certificates
+Emitted when @code{action} is @code{tls_certificates}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item certificates
+An ordered array of base64 encoded certificates.
+
+@end table
+
+@end table
+
+
+@item tls_server_key_exchange
+Emitted when @code{action} is @code{tls_server_key_exchange}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item key_exchange_algorithm
+The key exchange algorithm being used.
+
+@item curve_type
+The curve type field.
+
+@item curve_metadata
+Metadata about the curve being used. In the format of an object of Key:Value pairs.
+(usually this will only contain 'name' and the value will be the named curve
+being used)
+
+@item public_key
+Base64 encoded public key.
+
+@item signature_hash_algorithm
+The type of hash algorithm used for the signature.
+
+@item signature_algorithm
+The type of algorithm used for the signature.
+
+@item signature_hash
+The signature hash as a hex string
+
+@end table
+
+@end table
+
+
+@item tls_server_hello_done
+Emitted when @code{action} is @code{tls_server_hello_done}. The value is an empty
+JSON object with the key @code{tls}
+
+
+@item tls_handshake_unknown
+Emitted when @code{action} is @code{tls_handshake_unknown}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item type
+The type of the handshake message.
+
+@item length
+The length of the message.
+
+@end table
+
+@end table
+
+
+@item tls_certificate_request
+Emitted when @code{action} is @code{tls_certificate_request}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item cert_types
+An ordered array of the certificate types.
+
+@item signature_algorithms
+An ordered array of the signature algorithms, each one an object with the keys
+@code{hash_algorithm} and @code{signature_algorithm}.
+
+@item distinguished_names
+The distinguished names field.
+
+@end table
+
+@end table
+
+
+@item tls_client_key_exchange
+Emitted when @code{action} is @code{tls_client_key_exchange}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item key
+Base64 encoded key.
+
+@end table
+
+@end table
+
+
+@item tls_certificate_verify
+Emitted when @code{action} is @code{tls_certificate_verify}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item signature_algorithm
+The signature algorithm as an object with the keys @code{hash_algorithm} and
+@code{signature_algorithm}.
+
+@item signature
+The signature hash as a hex string.
+
+@end table
+
+@end table
+
+
+@item tls_change_cipher_spec
+Emitted when @code{action} is @code{tls_change_cipher_spec}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item value
+The value from the change cipher spec message.
+
+@end table
+
+@end table
+
+
+@item tls_handshake_finished
+Emitted when @code{action} is @code{tls_handshake_finished}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item message
+base64 encoded message.
+
+@end table
+
+@end table
+
+
+@item tls_handshake_complete
+Emitted when @code{action} is @code{tls_handshake_complete}. The value is an empty
+JSON object with the key @code{tls}
+
+
+@item tls_application_data
+Emitted when @code{action} is @code{tls_application_data}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version of TLS being used.
+
+@item length
+The length of the message being sent.
+
+@end table
+
+@end table
+
 
 
 @item location
