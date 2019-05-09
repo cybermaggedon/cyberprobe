@@ -335,6 +335,69 @@ observer.ntp_private_message = function(e)
   io.flush()
 end
 
+-- This function is called when a gre message is observed.
+observer.gre = function(e)
+  local a = string.format("GRE")
+  observer.describe(e, a);
+  io.write(string.format("  Next Proto             -> %s\n", e.next_proto));
+  io.write(string.format("  Key                    -> %u\n", e.key));
+  io.write(string.format("  Sequence Number        -> %u\n", e.sequence_number));
+  io.write(string.format("  Payload Size           -> %u\n", string.len(e.payload)));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a grep pptp message is observed.
+observer.grep_pptp = function(e)
+  local a = string.format("GRE PPTP")
+  observer.describe(e, a);
+  io.write(string.format("  Next Proto             -> %s\n", e.next_proto));
+  io.write(string.format("  Call ID                -> %u\n", e.call_id));
+  io.write(string.format("  Sequence Number        -> %u\n", e.sequence_number));
+  io.write(string.format("  Acknowledgement Number -> %u\n", e.acknowledgement_number));
+  io.write(string.format("  Payload Size           -> %u\n", e.payload_length));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when an esp message is observed.
+observer.esp = function(e)
+  local a = string.format("ESP")
+  observer.describe(e, a);
+  io.write(string.format("  SPI             -> %s\n", e.spi));
+  io.write(string.format("  Sequence Number -> %u\n", e.sequence_number));
+  io.write(string.format("  Payload Size    -> %u\n", e.payload_length));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when an unrecognised ip protocol message is observed.
+observer.unrecognised_ip_protocol = function(e)
+  local a = string.format("Unrecognised IP")
+  observer.describe(e, a);
+  io.write(string.format("  Next Proto   -> %u\n", e.next_proto));
+  io.write(string.format("  Payload Size -> %u\n", e.payload_length));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when an 802.11 message is observed.
+observer.wlan = function(e)
+  local a = string.format("802.11")
+  observer.describe(e, a);
+  io.write(string.format("  Version              -> %u\n", e.version));
+  io.write(string.format("  Type                 -> %u\n", e.type));
+  io.write(string.format("  Sub Type             -> %u\n", e.subtype));
+  io.write(string.format("  Flags                -> %u\n", e.flags));
+  io.write(string.format("  Protected            -> %u\n", e.protected));
+  io.write(string.format("  Duration             -> %u\n", e.duration));
+  io.write(string.format("  Filter address       -> %s\n", e.filt_addr));
+  io.write(string.format("  Fragmentation number -> %u\n", e.frag_num));
+  io.write(string.format("  Sequence number      -> %u\n", e.seq_num));
+  io.write("\n")
+  io.flush()
+end
+
 -- Return the table
 return observer
 
