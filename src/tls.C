@@ -241,7 +241,7 @@ void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const
 
     uint16_t length = (hdr->length1 << 8) + hdr->length2;
 
-    mgr.tls(ctx, version, hdr->contentType, length, pduSlice.time);
+    mgr.tls_unknown(ctx, version, hdr->contentType, length, pduSlice.time);
 }
 
 void tls::applicationData(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr)

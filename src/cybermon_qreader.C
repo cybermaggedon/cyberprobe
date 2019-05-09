@@ -444,10 +444,10 @@ void cybermon_qreader::run() {
 		delete (wlanArgs);
 		break;
 	    }
-	    case qargs::tls: {
-		tls_args* tlsArgs =
-		    static_cast<tls_args*>(qentry->queueargs);
-		cml.tls(qwriter, tlsArgs->cptr, tlsArgs->version, tlsArgs->contentType, tlsArgs->length,
+	    case qargs::tls_unknown: {
+		tls_unknown_args* tlsArgs =
+		    static_cast<tls_unknown_args*>(qentry->queueargs);
+		cml.tls_unknown(qwriter, tlsArgs->cptr, tlsArgs->version, tlsArgs->contentType, tlsArgs->length,
 			tlsArgs->time);
 		delete (qentry);
 		delete (tlsArgs);

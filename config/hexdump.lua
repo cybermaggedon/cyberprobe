@@ -326,8 +326,8 @@ end
 observer.wlan = function(e)
 end
 
--- This function is called when a tls message is observed.
-observer.tls = function(e)
+-- This function is called when an unknown tls message is observed.
+observer.tls_unknown = function(e)
 end
 
 -- This function is called when a tls client hello message is observed.
@@ -350,8 +350,8 @@ end
 observer.tls_server_hello_done = function(e)
 end
 
--- This function is called when a tls handshake message is observed.
-observer.tls_handshake = function(e)
+-- This function is called when an unknown tls handshake message is observed.
+observer.tls_handshake_unknown = function(e)
 end
 
 -- This function is called when a tls certificate request message is observed.
@@ -374,7 +374,7 @@ end
 observer.tls_handshake_finished = function(e)
 end
 
--- This function is called when a tls handshake complete message is observed.
+-- This function is called when both sides of the handshake have finished.
 observer.tls_handshake_complete = function(e)
 end
 

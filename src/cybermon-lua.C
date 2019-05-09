@@ -1702,7 +1702,7 @@ void cybermon_lua::wlan(engine& an,
     pop();
 }
 
-void cybermon_lua::tls(engine& an,
+void cybermon_lua::tls_unknown(engine& an,
 				       const context_ptr cf,
                const std::string& version,
                const uint8_t contentType,
@@ -1711,7 +1711,7 @@ void cybermon_lua::tls(engine& an,
 {
     // Get config.gre_message
     get_global("config");
-    get_field(-1, "tls");
+    get_field(-1, "tls_unknown");
 
     // Build event table on stack.
     create_table(0, 0);
@@ -2163,7 +2163,7 @@ void cybermon_lua::tls_handshake_generic(engine& an,
 {
   // Get config.connection_up
   get_global("config");
-  get_field(-1, "tls_handshake");
+  get_field(-1, "tls_handshake_unknown");
 
   // Build event table on stack.
   create_table(0, 0);

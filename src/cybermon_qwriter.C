@@ -499,15 +499,15 @@ void cybermon_qwriter::wlan(const context_ptr cp,
 	}
 }
 
-void cybermon_qwriter::tls(const context_ptr cp,
+void cybermon_qwriter::tls_unknown(const context_ptr cp,
 					 const std::string& version,
 					 const uint8_t contentType,
 					 const uint16_t length,
 					 const timeval& tv)
 {
 	try {
-		qargs* args = new tls_args(cp, version, contentType, length, tv);
-		q_entry* qentry = new q_entry(qargs::tls, args);
+		qargs* args = new tls_unknown_args(cp, version, contentType, length, tv);
+		q_entry* qentry = new q_entry(qargs::tls_unknown, args);
 		push(qentry);
 	} catch (std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;

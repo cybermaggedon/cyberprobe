@@ -416,9 +416,9 @@ observer.wlan = function(e)
   io.flush()
 end
 
--- This function is called when a tls message is observed.
-observer.tls = function(e)
-  local a = string.format("TLS")
+-- This function is called when an unknown tls message is observed.
+observer.tls_unknown = function(e)
+  local a = string.format("TLS unknown")
   observer.describe(e, a);
   io.write(string.format("  Version      -> %s\n", e.version));
   io.write(string.format("  Content Type -> %u\n", e.content_type));
@@ -516,8 +516,8 @@ observer.tls_server_hello_done = function(e)
 end
 
 -- This function is called when a tls handshake message is observed.
-observer.tls_handshake = function(e)
-  local a = string.format("TLS Handshake Message")
+observer.tls_handshake_unknown = function(e)
+  local a = string.format("TLS Handshake Unknown Message")
   observer.describe(e, a);
   io.write(string.format("  Type    -> %u\n", e.type));
   io.write(string.format("  Length  -> %u\n", e.length));
@@ -582,7 +582,7 @@ observer.tls_handshake_finished = function(e)
   io.flush()
 end
 
--- This function is called when a tls handshake complete message is observed.
+-- This function is called when both sides of the handshake have finished.
 observer.tls_handshake_complete = function(e)
   local a = string.format("TLS Handshake Complete")
   observer.describe(e, a);

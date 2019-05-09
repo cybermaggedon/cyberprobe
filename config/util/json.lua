@@ -458,11 +458,11 @@ module.wlan = function(e)
   submit(obs)
 end
 
--- This function is called when a tls packet is observed and surveyed.
-module.tls = function(e)
+-- This function is called when an unknown tls packet is observed and surveyed.
+module.tls_unknown = function(e)
   local obs = initialise_observation(e)
-  obs["action"] = "tls"
-  obs["tls"] = { version=e.version, content_type=e.content_type, length=e.length}
+  obs["action"] = "tls_unknown"
+  obs["tls_unknown"] = {tls={ version=e.version, content_type=e.content_type, length=e.length}}
 
   submit(obs)
 end
@@ -471,8 +471,8 @@ end
 module.tls_client_hello = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_client_hello"
-  obs["tls"] = { version=e.version, session_id=e.session_id}
-  obs["tls"]["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
+  tls = { version=e.version, session_id=e.session_id}
+  tls["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
 
   cs = {}
   json.util.InitArray(cs)
@@ -487,7 +487,7 @@ module.tls_client_hello = function(e)
     end
     cs[#cs + 1] = val
   end
-  obs["tls"]["cipher_suites"] = cs
+  tls["cipher_suites"] = cs
 
   cm = {}
   json.util.InitArray(cm)
@@ -502,7 +502,7 @@ module.tls_client_hello = function(e)
     end
     cm[#cm + 1] = val
   end
-  obs["tls"]["compression_methods"] = cm
+  tls["compression_methods"] = cm
 
   exts = {}
   json.util.InitArray(exts)
@@ -521,7 +521,8 @@ module.tls_client_hello = function(e)
     end
     exts[#exts + 1] = ext
   end
-  obs["tls"]["extensions"] = exts
+  tls["extensions"] = exts
+  obs["tls_client_hello"] = {tls=tls}
 
 
   submit(obs)
@@ -531,8 +532,8 @@ end
 module.tls_server_hello = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_server_hello"
-  obs["tls"] = { version=e.version, session_id=e.session_id}
-  obs["tls"]["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
+  tls = { version=e.version, session_id=e.session_id}
+  tls["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
 
   -- the id is available too if needed (only used for unassigned currently)
   local cipherName = ""
@@ -541,7 +542,7 @@ module.tls_server_hello = function(e)
   else
     cipherName = e.cipher_suite.name
   end
-  obs["tls"]["cipher_suite"] = cipherName
+  tls["cipher_suite"] = cipherName
 
   -- the id is available in the value too if needed (only used for unassigned currently)
   local compressionName = ""
@@ -550,7 +551,7 @@ module.tls_server_hello = function(e)
   else
     compressionName = e.compression_method.name
   end
-  obs["tls"]["compression_method"] = compressionName
+  tls["compression_method"] = compressionName
 
   exts = {}
   json.util.InitArray(exts)
@@ -569,7 +570,8 @@ module.tls_server_hello = function(e)
     end
     exts[#exts + 1] = ext
   end
-  obs["tls"]["extensions"] = exts
+  tls["extensions"] = exts
+  obs["tls_server_hello"] = {tls=tls}
 
 
   submit(obs)
@@ -579,14 +581,15 @@ end
 module.tls_certificates = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_certificates"
-  obs["tls"] = {}
+  tls = {}
   certs = {}
   json.util.InitArray(exts)
   for key, value in pairs(e.certificates) do
     -- key is just the index
     certs[#certs + 1] = b64(value)
   end
-  obs["tls"]["certificates"] = certs
+  tls["certificates"] = certs
+  obs["tls_certificates"] = {tls=tls}
 
 
   submit(obs)
@@ -596,23 +599,24 @@ end
 module.tls_server_key_exchange = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_server_key_exchange"
-  obs["tls"] = {key_exchange_algorithm=e.key_exchange_algorithm}
+  tls = {key_exchange_algorithm=e.key_exchange_algorithm}
 
   if e.key_exchange_algorithm == "ec-dh" then
-    obs["tls"]["curve_type"] = e.curve_type
-    obs["tls"]["curve_metadata"] = e.curve_metadata
-    obs["tls"]["public_key"] = b64(e.public_key)
-    obs["tls"]["signature_hash_algorithm"] = e.signature_hash_algorithm
-    obs["tls"]["signature_algorithm"] = e.signature_algorithm
-    obs["tls"]["signature_hash"] = e.signature_hash
+    tls["curve_type"] = e.curve_type
+    tls["curve_metadata"] = e.curve_metadata
+    tls["public_key"] = b64(e.public_key)
+    tls["signature_hash_algorithm"] = e.signature_hash_algorithm
+    tls["signature_algorithm"] = e.signature_algorithm
+    tls["signature_hash"] = e.signature_hash
   else
-    obs["tls"]["prime"] = str_to_hex(e.prime)
-    obs["tls"]["generator"] = str_to_hex(e.generator)
-    obs["tls"]["pubkey"] = str_to_hex(e.pubkey)
+    tls["prime"] = str_to_hex(e.prime)
+    tls["generator"] = str_to_hex(e.generator)
+    tls["pubkey"] = str_to_hex(e.pubkey)
     if e.key_exchange_algorithm == "dh-rsa" then
-      obs["tls"]["signature"] = str_to_hex(e.signature)
+      tls["signature"] = str_to_hex(e.signature)
     end
   end
+  obs["tls_server_key_exchange"] = {tls=tls}
 
 
   submit(obs)
@@ -622,17 +626,17 @@ end
 module.tls_server_hello_done = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_server_hello_done"
-  obs["tls"] = {}
+  obs["tls_server_hello_done"] = {tls={}}
 
   submit(obs)
 end
 
--- This function is called when a tls handshake message which isn't explicitly
+-- This function is called when an unknown tls handshake message which isn't explicitly
 -- handled is observed.
-module.tls_handshake = function(e)
+module.tls_handshake_unknown = function(e)
   local obs = initialise_observation(e)
-  obs["action"] = "tls_handshake"
-  obs["tls"] = {type=e.type, length=e.length}
+  obs["action"] = "tls_handshake_unknown"
+  obs["tls_handshake_unknown"] = {tls={type=e.type, length=e.length}}
 
 
   submit(obs)
@@ -642,8 +646,9 @@ end
 module.tls_certificate_request = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_certificate_request"
-  obs["tls"] = {cert_types=e.cert_types, signature_algorithms=e.signature_algorithms,
+  tls = {cert_types=e.cert_types, signature_algorithms=e.signature_algorithms,
     distinguished_names=str_to_hex(e.distinguished_names)}
+  obs["tls_certificate_request"] = {tls=tls}
 
 
   submit(obs)
@@ -653,7 +658,7 @@ end
 module.tls_client_key_exchange = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_client_key_exchange"
-  obs["tls"] = {key=b64(e.key)}
+  obs["tls_client_key_exchange"] = {tls={key=b64(e.key)}}
 
 
   submit(obs)
@@ -663,8 +668,9 @@ end
 module.tls_certificate_verify = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_certificate_verify"
-  obs["tls"] = {signature_algorithm=e.signature_algorithm,
+  tls = {signature_algorithm=e.signature_algorithm,
     signature=e.signature}
+  obs["tls_certificate_verify"] = {tls=tls}
 
 
   submit(obs)
@@ -674,7 +680,7 @@ end
 module.tls_change_cipher_spec = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_change_cipher_spec"
-  obs["tls"] = {value=e.val}
+  obs["tls_change_cipher_spec"] = {tls={value=e.val}}
 
 
   submit(obs)
@@ -684,7 +690,7 @@ end
 module.tls_handshake_finished = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_handshake_finished"
-  obs["tls"] = {message=b64(e.msg)}
+  obs["tls_handshake_finished"] = {tls={message=b64(e.msg)}}
 
 
   submit(obs)
@@ -694,7 +700,7 @@ end
 module.tls_handshake_complete = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_handshake_complete"
-  obs["tls"] = {}
+  obs["tls_handshake_complete"] = {tls={}}
 
 
   submit(obs)
@@ -704,8 +710,9 @@ end
 module.tls_application_data = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_application_data"
-  obs["tls"] = {version=e.version, length=string.len(e.data)}
+  tls = {version=e.version, length=string.len(e.data)}
   -- the binary data is available but is encrypted so not extracting
+  obs["tls_application_data"] = {tls=tls}
 
 
   submit(obs)

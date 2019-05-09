@@ -66,7 +66,7 @@ public:
 	esp,
 	unrecognised_ip_protocol,
 	wlan,
-	tls,
+	tls_unknown,
  	tls_client_hello,
  	tls_server_hello,
   	tls_certificates,
@@ -603,10 +603,10 @@ public:
     timeval time;
 };
 
-class tls_args: public qargs {
+class tls_unknown_args: public qargs {
 
 public:
-    tls_args(const cybermon::context_ptr cp,
+    tls_unknown_args(const cybermon::context_ptr cp,
        const std::string& version, const uint8_t contentType,
        const uint16_t length, const timeval& time) :
 	cptr(cp), version(version), contentType(contentType), length(length), time(time) {
