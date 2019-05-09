@@ -136,6 +136,20 @@ observer.grep_pptp = model.gre_pptp
 observer.esp = model.esp
 observer.unrecognised_ip_protocol = model.unrecognised_ip_protocol
 observer.wlan = model.wlan
+observer.tls = model.tls
+observer.tls_client_hello = model.tls_client_hello
+observer.tls_server_hello = model.tls_server_hello
+observer.tls_certificates = model.tls_certificates
+observer.tls_server_key_exchange = model.tls_server_key_exchange
+observer.tls_server_hello_done = model.tls_server_hello_done
+observer.tls_handshake = model.tls_handshake
+observer.tls_certificate_request = model.tls_certificate_request
+observer.tls_client_key_exchange = model.tls_client_key_exchange
+observer.tls_certificate_verify = model.tls_certificate_verify
+observer.tls_change_cipher_spec = model.tls_change_cipher_spec
+observer.tls_handshake_finished = model.tls_handshake_finished
+observer.tls_handshake_complete = model.tls_handshake_complete
+observer.tls_application_data = model.tls_application_data
 
 -- Initialise submission model.
 model.init(submit)

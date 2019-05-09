@@ -167,6 +167,63 @@ end
 observer.wlan = function(e)
 end
 
+-- This function is called when a tls message is observed.
+observer.tls = function(e)
+end
+
+-- This function is called when a tls client hello message is observed.
+observer.tls_client_hello = function(e)
+end
+
+-- This function is called when a tls server hello message is observed.
+observer.tls_server_hello = function(e)
+end
+
+-- This function is called when a tls certificates message is observed.
+observer.tls_certificates = function(e)
+end
+
+-- This function is called when a tls server key exchange message is observed.
+observer.tls_server_key_exchange = function(e)
+end
+
+-- This function is called when a tls server hello done message is observed.
+observer.tls_server_hello_done = function(e)
+end
+
+-- This function is called when a tls handshake message is observed.
+observer.tls_handshake = function(e)
+end
+
+-- This function is called when a tls certificate request message is observed.
+observer.tls_certificate_request = function(e)
+end
+
+-- This function is called when a tls client_key exchange message is observed.
+observer.tls_client_key_exchange = function(e)
+end
+
+-- This function is called when a tls certificate verify message is observed.
+observer.tls_certificate_verify = function(e)
+end
+
+-- This function is called when a tls change cipher spec message is observed.
+observer.tls_change_cipher_spec = function(e)
+end
+
+-- This function is called when a tls handshake finished message is observed.
+observer.tls_handshake_finished = function(e)
+end
+
+-- This function is called when a tls handshake complete message is observed.
+observer.tls_handshake_complete = function(e)
+end
+
+-- This function is called when a tls application data message is observed.
+observer.tls_application_data = function(e)
+end
+
+
 -- Return the table
 return observer
 

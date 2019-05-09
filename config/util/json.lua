@@ -545,12 +545,12 @@ module.tls_server_hello = function(e)
 
   -- the id is available in the value too if needed (only used for unassigned currently)
   local compressionName = ""
-  if e.compression_methods.name == "Unassigned" then
-    compressionName = e.compression_methods.name .. " - " .. int_to_hex(e.compression_methods.id)
+  if e.compression_method.name == "Unassigned" then
+    compressionName = e.compression_method.name .. " - " .. int_to_hex(e.compression_method.id)
   else
-    compressionName = e.compression_methods.name
+    compressionName = e.compression_method.name
   end
-  obs["tls"]["compression_methods"] = compressionName
+  obs["tls"]["compression_method"] = compressionName
 
   exts = {}
   json.util.InitArray(exts)
