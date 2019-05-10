@@ -43,6 +43,10 @@ PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 250
 PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 250
     2.1.5 <bit-bucket@test.smtp.org>... Recipient ok
 
+PCAP: fe80::5054:ff:fead:3ffd -> ff02::2. Unrecognised IP
+  Next Proto   -> 58
+  Payload Size -> 8
+
 PCAP: 192.168.122.11:54320 -> 149.20.54.225:25. SMTP command DATA
 
 PCAP: 149.20.54.225:25 -> 192.168.122.11:54320. SMTP response 354
@@ -86,6 +90,10 @@ PCAP: 176.9.92.196:123 -> 192.168.122.11:123. NTP Timestamp
     Receive Timestamp   -> 1412975520.070941448
     Transmit Timestamp  -> 1412975520.070966244
     Extension           -> false
+
+PCAP: fe80::5054:ff:fead:3ffd -> ff02::2. Unrecognised IP
+  Next Proto   -> 58
+  Payload Size -> 8
 
 PCAP: 192.168.122.11:123 -> 217.73.16.2:123. NTP Timestamp
     Leap Indicator      -> 0
