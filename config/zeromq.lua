@@ -92,6 +92,11 @@ observer.ftp_response = model.ftp_response
 observer.ntp_timestamp_message = model.ntp_timestamp_message
 observer.ntp_control_message = model.ntp_control_message
 observer.ntp_private_message = model.ntp_private_message
+observer.gre = model.gre
+observer.grep_pptp = model.gre_pptp
+observer.esp = model.esp
+observer.unrecognised_ip_protocol = model.unrecognised_ip_protocol
+observer.wlan = model.wlan
 
 -- Register Redis submission.
 model.init(submit)

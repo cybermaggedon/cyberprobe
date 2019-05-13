@@ -5,11 +5,55 @@
 #include <cybermon/tcp.h>
 #include <cybermon/udp.h>
 #include <cybermon/icmp.h>
+#include <cybermon/gre.h>
+#include <cybermon/esp.h>
 #include <cybermon/manager.h>
 
 using namespace cybermon;
 
 const unsigned int ip4_context::max_frag_list_len = 50;
+
+void ip::handle_nxt_proto(manager& mgr, context_ptr fc, uint8_t protocol, const pdu_slice& sl,
+  uint16_t length, uint8_t header_length)
+{
+    pdu_iter s = sl.start;
+    pdu_iter e = sl.end;
+
+  if (protocol == 6)
+
+    // TCP
+    tcp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                    sl.time, sl.direc));
+
+  else if (protocol == 17)
+
+    // UDP
+    udp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                    sl.time, sl.direc));
+
+  else if (protocol == 1)
+
+    // ICMP
+    icmp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                     sl.time, sl.direc));
+
+  else if (protocol == 47)
+
+    // gre
+     gre::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                      sl.time, sl.direc));
+
+  else if (protocol == 50)
+
+    // gre
+     esp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                      sl.time, sl.direc));
+
+  else {
+    mgr.unrecognised_ip_protocol(fc, protocol, length - header_length,
+    s + header_length, s + length, sl.time);
+  }
+}
 
 void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
@@ -68,6 +112,10 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     // Frag processing if we've already seen frags for the IP ID we're looking 
     // at.
     frag_proc |= (fc->h_list.find(id) != fc->h_list.end());
+
+    // Frag processing if this is the last frag, but the first one we've seen
+    // (otherwise the start of this frame will be interpretted as the next proto header)
+    frag_proc |= (frag_offset != 0 && ((flags & 1) == 0));
 
     // FIXME: Manage the queue size!  Timeout etc!
 
@@ -156,6 +204,12 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	    fragment_list& fl = fc->f_list[id];
 
+	    // check that the current frag is the first, and set the header
+	    if (frag_first == 0)
+	    {
+		    fc->hdrs_list[id].assign(s, s + header_length);
+	    }
+
 	    unsigned long header_size = fc->hdrs_list[id].size();
 
 	    for(std::list<fragment*>::iterator it2 = fl.begin();
@@ -177,8 +231,8 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	    // Now the frag that triggered this re-assembly.
 
-	    // Resize the PDU.
-	    if ((header_size + frag_last) > pdu_size) {
+	    // Resize the PDU - only if this isnt the first
+	    if (frag_first != 0 && (header_size + frag_last) > pdu_size) {
 		pdu_size = header_size + frag_last;
 		pdu.resize(pdu_size);
 	    }
@@ -263,30 +317,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->lock.unlock();
 
     // Complete payload, just process it.
-
-    if (protocol == 6)
-
-	// TCP
-        tcp::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                        sl.time, sl.direc));
-
-    else if (protocol == 17)
-	
-	// UDP
-        udp::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                        sl.time, sl.direc));
-
-    else if (protocol == 1)
-	
-	// ICMP
-        icmp::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                         sl.time, sl.direc));
-
-    else {
-	std::ostringstream buf;
-	buf << "IP protocol " << (int) protocol << " not handled.";
-	throw exception(buf.str());
-    }
+    handle_nxt_proto(mgr, fc, protocol, sl, length, header_length);
 
 }
 
@@ -336,36 +367,7 @@ void ip::process_ip6(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Complete payload, just process it.
-
-    if (protocol == 6)
-
-	// TCP
-	tcp::process(mgr, fc,
-                     pdu_slice(s + header_length, s + header_length + length,
-                               sl.time,
-                               sl.direc));
-
-    else if (protocol == 17)
-	
-	// UDP
-	udp::process(mgr, fc,
-                     pdu_slice(s + header_length, s + header_length + length,
-                               sl.time, sl.direc));
-
-    
-    else if (protocol == 1)
-	
-	// ICMP
-	icmp::process(mgr, fc,
-                      pdu_slice(s + header_length, s + header_length + length,
-                                sl.time, sl.direc));
-
-
-    else {
-	std::ostringstream buf;
-	buf << "IP protocol " << (int) protocol << " not handled.";
-	throw exception(buf.str());
-    }
+    handle_nxt_proto(mgr, fc, protocol, sl, length + header_length, header_length);
 
 }
 

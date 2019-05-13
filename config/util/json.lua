@@ -382,6 +382,70 @@ module.ntp_private_message = function(e)
   submit(obs)
 end
 
+-- This function is called when a gre message is observed.
+module.gre = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "gre"
+  obs["gre"] = { next_proto=e.next_proto, payload=b64(e.payload) }
+
+  if e.key ~= 0 then
+    obs["gre"]["key"] = tostring(e.key)
+  end
+  if e.sequence_number ~= 0 then
+    obs["gre"]["sequence_number"] = tostring(e.sequence_number)
+  end
+  submit(obs)
+end
+
+-- This function is called when a gre message is observed.
+module.gre_pptp = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "gre_pptp"
+  obs["gre_pptp"] = { next_proto=e.next_proto, call_id=e.call_id,
+    payload_length=e.payload_length, payload=b64(e.payload) }
+
+  if e.sequence_number ~= 0 then
+    obs["gre_pptp"]["sequence_number"] = tostring(e.sequence_number)
+  end
+  if e.acknowledgement_number ~= 0 then
+    obs["gre_pptp"]["acknowledgement_number"] = tostring(e.acknowledgement_number)
+  end
+  submit(obs)
+end
+
+-- This function is called when an esp packet is observed.
+module.esp = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "esp"
+  obs["esp"] = { spi=e.spi, sequence_number=e.sequence_number,
+    payload_length=e.payload_length }
+
+  -- the payload is available to be output, but it is encrypted so not a lot of use
+  -- obs["esp"]["payload"] = b64(e.payload)
+
+  submit(obs)
+end
+
+-- This function is called when an ip packet with an unprocessed next protocol is observed.
+module.unrecognised_ip_protocol = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "unrecognised_ip_protocol"
+  obs["unrecognised_ip_protocol"] = { next_proto=e.next_proto, payload_length=e.payload_length,
+    payload=b64(e.payload)}
+
+  submit(obs)
+end
+
+-- This function is called when a 802.11 packet is observed.
+module.wlan = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "802.11"
+  obs["802.11"] = { version=e.version, type=e.type, subtype=e.subtype, flags=e.flags,
+    protected=e.protected, filt_addr=e.filt_addr, frag_num=e.frag_num, seq_num=e.seq_num,
+    duration=e.duration}
+
+  submit(obs)
+end
+
 -- Return the table
 return module
-

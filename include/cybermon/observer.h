@@ -172,9 +172,53 @@ namespace cybermon {
 				     const ntp_private& priv,
 				     const timeval& tv) = 0;
  
+	virtual void gre(const context_ptr cp,
+				     const std::string& nxt_proto,
+ 				     const uint32_t key,
+ 				     const uint32_t seq,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv) = 0;
+
+	virtual void gre_pptp(const context_ptr cp,
+				     const std::string& nxt_proto,
+ 				     const uint16_t payload_length,
+ 				     const uint16_t call_id,
+             const uint32_t sequenceNo,
+             const uint32_t ackNo,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv) = 0;
+
+	virtual void esp(const context_ptr cp,
+             const uint32_t spi,
+             const uint32_t seq,
+             const uint32_t len,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv) = 0;
+
+	virtual void unrecognised_ip_protocol(const context_ptr cp,
+             const uint8_t nxtProto,
+             const uint32_t len,
+ 				     pdu_iter start,
+ 				     pdu_iter end,
+ 				     const timeval& tv) = 0;
+
+	virtual void wlan(const context_ptr cp,
+ 				     const uint8_t version,
+ 				     const uint8_t type,
+ 				     const uint8_t subtype,
+ 				     const uint8_t flags,
+ 				     const bool is_protected,
+ 				     const uint16_t duration,
+ 				     const std::string& filt_addr,
+ 				     const uint8_t frag_num,
+ 				     const uint16_t seq_num,
+ 				     const timeval& tv) = 0;
+
     };
 
 };
 
 #endif
-

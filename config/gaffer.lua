@@ -753,6 +753,31 @@ end
 observer.ntp_private_message = function(e)
 end
 
+-- This function is called when a gre message is observed.
+observer.gre = function(e)
+end
+
+-- This function is called when a grep pptp message is observed.
+observer.grep_pptp = function(e)
+end
+
+-- This function is called when an esp message is observed.
+observer.esp = function(e)
+end
+
+-- This function is called when an unrecognised ip protocol message is observed.
+observer.unrecognised_ip_protocol = function(e)
+  local edges = {}
+  local id = create_basic(edges, e.context, "unrecognised_ip")
+  add_edge_s(edges, id, rdfs .. "label", "unrecognised ip")
+  submit_edges(edges)
+end
+
+-- This function is called when an 802.11 message is observed.
+observer.wlan = function(e)
+end
+
+
 
 -- Initialise
 init()

@@ -1401,7 +1401,303 @@ void cybermon_lua::ntp_private_message(engine& an, const context_ptr f,
 	pop();
 	throw;
     }
-    
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::gre_message(engine& an,
+				       const context_ptr cf,
+				       const std::string& nextProto,
+				       const uint32_t key,
+				       const uint32_t sequenceNo,
+				       pdu_iter payload_start,
+				       pdu_iter payload_end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "gre");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("next_proto");
+    push(nextProto);
+    set_table(-3);
+
+    push("key");
+    push(key);
+    set_table(-3);
+
+    push("sequence_number");
+    push(sequenceNo);
+    set_table(-3);
+
+    push("payload");
+    push(payload_start, payload_end);
+    set_table(-3);
+
+    // config.gre_message(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::gre_pptp_message(engine& an,
+				       const context_ptr cf,
+				       const std::string& nextProto,
+				       const uint16_t payload_length,
+				       const uint16_t call_id,
+				       const uint32_t sequenceNo,
+				       const uint32_t ackNo,
+				       pdu_iter payload_start,
+				       pdu_iter payload_end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "gre_pptp");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("next_proto");
+    push(nextProto);
+    set_table(-3);
+
+    push("call_id");
+    push(call_id);
+    set_table(-3);
+
+    push("sequence_number");
+    push(sequenceNo);
+    set_table(-3);
+
+    push("acknowledgement_number");
+    push(ackNo);
+    set_table(-3);
+
+    push("payload_legnth");
+    push(payload_length);
+    set_table(-3);
+
+    push("payload");
+    push(payload_start, payload_end);
+    set_table(-3);
+
+    // config.gre_message(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::esp(engine& an,
+				       const context_ptr cf,
+				       const uint32_t spi,
+				       const uint32_t sequence,
+				       const uint32_t length,
+				       pdu_iter start,
+				       pdu_iter end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "esp");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("spi");
+    push(spi);
+    set_table(-3);
+
+    push("sequence_number");
+    push(sequence);
+    set_table(-3);
+
+    push("payload_length");
+    push(length);
+    set_table(-3);
+
+    push("payload");
+    push(start, end);
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::unrecognised_ip_protocol(engine& an,
+				       const context_ptr cf,
+				       const uint8_t nxtProto,
+				       const uint32_t len,
+				       pdu_iter start,
+				       pdu_iter end,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "unrecognised_ip_protocol");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("next_proto");
+    push(nxtProto);
+    set_table(-3);
+
+    push("payload_length");
+    push(len);
+    set_table(-3);
+
+    push("payload");
+    push(start, end);
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
+    // Still got 'config' left on stack, it can go.
+    pop();
+}
+
+void cybermon_lua::wlan(engine& an,
+				       const context_ptr cf,
+				       const uint8_t version,
+				       const uint8_t type,
+				       const uint8_t subtype,
+				       const uint8_t flags,
+				       const bool is_protected,
+				       const uint16_t duration,
+				       const std::string& filt_addr,
+				       const uint8_t frag_num,
+				       const uint16_t seq_num,
+				       const timeval& time)
+{
+    // Get config.gre_message
+    get_global("config");
+    get_field(-1, "wlan");
+
+    // Build event table on stack.
+    create_table(0, 0);
+
+    // Set table time.
+    push("time");
+    push(time);
+    set_table(-3);
+
+    // Set table context.
+    push("context");
+    push(cf);
+    set_table(-3);
+
+    push("version");
+    push(version);
+    set_table(-3);
+
+    push("type");
+    push(type);
+    set_table(-3);
+
+    push("subtype");
+    push(subtype);
+    set_table(-3);
+
+    push("flags");
+    push(flags);
+    set_table(-3);
+
+    push("protected");
+    push(is_protected);
+    set_table(-3);
+
+    push("duration");
+    push(duration);
+    set_table(-3);
+
+    push("filt_addr");
+    push(filt_addr);
+    set_table(-3);
+
+    push("frag_num");
+    push(frag_num);
+    set_table(-3);
+
+    push("seq_num");
+    push(seq_num);
+    set_table(-3);
+
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+
     // Still got 'config' left on stack, it can go.
     pop();
 }

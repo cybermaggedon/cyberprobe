@@ -3363,6 +3363,58 @@ end
 observer.ntp_private_message = function(e)
 end
 
+-- This function is called when a GRE message with an unhandled ethertype is observed.
+-- e.context = protocol context
+-- e.next_proto = the ethertype of the next protocol
+-- e.payload = the payload
+-- e.key = the key (default is 0 if it is not present in packet)
+-- e.sequence_number = the sequence number (default is 0 if it is not present in packet)
+observer.gre = function(e)
+end
+
+-- This function is called when a GRE PPTP message with an unhandled ethertype is observed.
+-- e.context = protocol context
+-- e.next_proto = the ethertype of the next protocol
+-- e.call_id = gre call id
+-- e.payload_length = the payload length
+-- e.payload = the payload
+-- e.sequence_number = the sequence number (default is 0 if it is not present in packet)
+-- e.acknowledgement_number = the acknowledgement number (default is 0 if it is not present in packet)
+observer.gtp_pptp = function(e)
+end
+
+-- This function is called when an ESP packet is observed.
+-- e.context = protocol context
+-- e.next_proto = the ethertype of the next protocol
+-- e.spi = gre call id
+-- e.sequence_number = the sequence number
+-- e.payload_length = the payload length
+-- e.payload = the payload
+observer.esp = function(e)
+end
+
+-- This function is called when an IP packet with an unprocessed next protocol is observed.
+-- e.context = protocol context
+-- e.next_proto = the protocol number of the next protocol
+-- e.payload_length = the payload length
+-- e.payload = the payload
+observer.unrecognised_ip_protocol = function(e)
+end
+
+-- This function is called when an 802.11 packet is observed.
+-- e.context = protocol context
+-- e.version = the 802.11 version
+-- e.type = the type of 802.11 data frame
+-- e.subtype = the subtype of 802.11 data frame
+-- e.flags = the flags on the data frame
+-- e.protected = the protected flag
+-- e.filt_addr = the filter MAC address
+-- e.frag_num = the fragmentation number
+-- e.seq_num = the sequence number
+-- e.duration = the duration
+observer.wlan = function(e)
+end
+
 -- Return the table
 return observer
 
@@ -3936,6 +3988,167 @@ the payload.
 
 @end table
 
+@item gre(e)
+Called when a GRE message with an unknown ethertype is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item next_proto
+the ethertype of the next protocol
+
+@item key
+the key, if present. If the key is not present then it will default to 0.
+
+@item sequence_number
+the sequence number, if present. If the sequence number is not present then it
+will default to 0.
+
+@item payload
+the payload
+
+@end table
+
+@item gre_pptp(e)
+Called when a GRE PPTP message with an unknown ethertype is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item next_proto
+the ethertype of the next protocol
+
+@item call_id
+the call id
+
+@item sequence_number
+the sequence number, if present. If the sequence number is not present then it
+will default to 0.
+
+@item acknowledgement_number
+the acknowledgement number, if present. If the acknowledgement number is not
+present then it will default to 0.
+
+@item payload_length
+the payload length
+
+@item payload
+the payload
+
+@end table
+
+@item esp(e)
+Called when an ESP packet is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item spi
+the SPI
+
+@item sequence_number
+the sequence number
+
+@item payload_length
+the payload length
+
+@item payload
+the payload
+
+@end table
+
+@item unrecognised_ip_protocol(e)
+Called when an IP packet with an unhandled next protocol is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item next_proto
+the protocol number of the next protocol
+
+@item payload_length
+the payload length
+
+@item payload
+the payload
+
+@end table
+
+@item wlan(e)
+Called when an 802.11 packet is detected.
+A single parameter is passed, a table containing the following values:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item version
+the 802.11 version
+
+@item type
+the type of the 802.11 dataframe
+
+@item subtype
+the subtype of the 802.11 dataframe
+
+@item flags
+the flags of the 802.11 dataframe
+
+@item protected
+the protected flag of the 802.11 dataframe, indicates if the payload is encrypted
+
+@item duration
+the duration
+
+@item filt_addr
+the filter MAC address
+
+@item frag_num
+the fragmentation number of the dataframe
+
+@item seq_num
+the sequence number of the dataframe
+
+@end table
+
 @end table
 
 @cindex @code{context} object
@@ -4184,8 +4397,8 @@ Records the closing of a stream-orientated connection (currently, only TCP).
 This event is created for all connections whether the protocol is
 recognised or not.
 @item unrecognised_stream
-Records the sending of a PDU on a connection-less transport (currently, only
-UDP) whose protocol has not been recognised.
+Records the sending of a PDU on a data stream transport (currently, only
+TCP) whose protocol has not been recognised.
 @item unrecognised_datagram
 Records the sending of a PDU on a connection-less transport (currently, only
 UDP) whose protocol has not been recognised.
@@ -4227,6 +4440,16 @@ Records the sending of a SIP request.
 Records the sending of a SIP response.
 @item sip_ssl
 Records the presence of SIP SSL data.
+@item gre
+Records the presence of a GRE data frame with an unhandled ethertype.
+@item grep_pptp
+Records the presence of a GRE PPTP data frame with an unhandled ethertype.
+@item esp
+Records the presence of ESP data.
+@item unrecognised_ip_protocol
+Records the sending of a PDU over IP with an unrecognised next protocol.
+@item wlan
+Records the presence of 802.11 data.
 @end table
 
 @item url
@@ -4577,6 +4800,137 @@ A list of strings containing all SMTP RCPT TO field values.
 
 @item body
 The SMTP email body.
+
+@end table
+
+
+@item gre
+Emitted when @code{action} is @code{gre}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item next_proto
+The value of the PROTOCOL TYPE field, a string.
+
+@item key
+The value of the KEY field, a 32 bit number. Defaults to 0 if it is not present
+in the data frame.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number. Defaults to 0 if it is
+not present in the data frame.
+
+@item payload
+The GRE payload
+
+@end table
+
+
+@item gre_pptp
+Emitted when @code{action} is @code{gre_pptp}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item next_proto
+The value of the PROTOCOL TYPE field, a string.
+
+@item call_id
+The value of the CALL ID field, a 16 bit number.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number. Defaults to 0 if it is
+not present in the data frame.
+
+@item acknowledgement_number
+The value of the ACKNOWLEDGEMENT NUMBER field, a 32 bit number. Defaults to 0 if
+it is not present in the data frame.
+
+@item payload_length
+The length of the GRE PPTP payload
+
+@item payload
+The GRE payload
+
+@end table
+
+
+@item esp
+Emitted when @code{action} is @code{esp}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item spi
+The value of the SPI field, a 32 bit number.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number.
+
+@item payload_length
+The length of the ESP payload
+
+@item payload
+NOT CURRENTLY OUTPUT, but couple be enabled in the lua config
+The ESP payload
+
+@end table
+
+
+@item unrecognised_ip_protocol
+Emitted when @code{action} is @code{unrecognised_ip_protocol}. The value is a
+JSON object containing the following fields:
+
+@table @samp
+
+@item next_proto
+The value of the PROTOCOL field in the IP header.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number.
+
+@item payload_length
+The length of the IP payload
+
+@item payload
+The IP payload
+
+@end table
+
+
+@item 802.11
+Emitted when @code{802.11} is @code{unrecognised_ip_protocol}. The value is a
+JSON object containing the following fields:
+
+@table @samp
+
+@item version
+The value of the VERSION field in the header, an 8 bit number.
+
+@item type
+The value of the TYPE field, an 8 bit number.
+
+@item subtype
+The value of the SUBTYPE field, an 8 bit number.
+
+@item flags
+The flags field, an 8 bit number
+
+@item protected
+Indicates if the protected flag is set, a boolean
+
+@item filt_addr
+The MAC address in the FILTER ADDRESS field, a string.
+
+@item frag_num
+The value in the FRAGMENTATION NUMBER field, an 8 bit number.
+
+@item seq_num
+The value in the SEQUENCE NUMBER field, a 16 bit number
+
+@item duration
+The value in the DURATION field, a 16 bit number
 
 @end table
 

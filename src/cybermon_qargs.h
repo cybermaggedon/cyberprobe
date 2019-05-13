@@ -59,7 +59,12 @@ public:
 	dns_message,
 	ntp_timestamp_message,
 	ntp_control_message,
-	ntp_private_message
+	ntp_private_message,
+	gre_message,
+	gre_pptp_message,
+	esp,
+	unrecognised_ip_protocol,
+	wlan
 
     };
 };
@@ -477,6 +482,109 @@ public:
     }
     cybermon::context_ptr cptr;
     const cybermon::ntp_private ntppriv;
+    timeval time;
+};
+
+class gre_args: public qargs {
+
+public:
+    gre_args(const cybermon::context_ptr cp, const std::string& nextProto,
+		   const uint32_t key, const uint32_t seqNo,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), nextProto(nextProto), key(key), sequenceNo(seqNo), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const std::string nextProto;
+    const uint32_t key;
+    const uint32_t sequenceNo;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class gre_pptp_args: public qargs {
+
+public:
+    gre_pptp_args(const cybermon::context_ptr cp, const std::string& nextProto,
+		   const uint16_t len, const uint16_t c_id,
+       const uint32_t seqNo, const uint32_t ackNo,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), nextProto(nextProto), payload_length(len), call_id(c_id), sequenceNo(seqNo), ackNo(ackNo), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const std::string nextProto;
+    const uint16_t payload_length;
+    const uint16_t call_id;
+    const uint32_t sequenceNo;
+    const uint32_t ackNo;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class esp_args: public qargs {
+
+public:
+    esp_args(const cybermon::context_ptr cp,
+       const uint32_t spi, const uint32_t seq, const uint32_t len,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), spi(spi), sequence(seq), length(len), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const uint32_t spi;
+    const uint32_t sequence;
+    const uint32_t length;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class unknown_ip_proto_args: public qargs {
+
+public:
+    unknown_ip_proto_args(const cybermon::context_ptr cp,
+       const uint8_t nxtProto, const uint32_t len,
+       cybermon::pdu_iter s, cybermon::pdu_iter e,
+       const timeval& time) :
+	cptr(cp), nxtProto(nxtProto), length(len), time(time) {
+    pdu.resize(e - s);
+    std::copy(s, e, pdu.begin());
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t nxtProto;
+    const uint32_t length;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class wlan_args: public qargs {
+
+public:
+    wlan_args(const cybermon::context_ptr cp,
+       const uint8_t version, const uint8_t type, const uint8_t subtype,
+       const uint8_t flags, const bool is_protected, const uint16_t duration,
+       const std::string& filt_addr, const uint8_t frag_num, const uint16_t seq_num,
+       const timeval& time) :
+	cptr(cp), version(version), type(type), subtype(subtype), flags(flags),
+  is_protected(is_protected), duration(duration), filt_addr(filt_addr), frag_num(frag_num),
+  seq_num(seq_num), time(time) {
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t version;
+    const uint8_t type;
+    const uint8_t subtype;
+    const uint8_t flags;
+    const bool is_protected;
+    const uint16_t duration;
+    const std::string filt_addr;
+    const uint8_t frag_num;
+    const uint16_t seq_num;
     timeval time;
 };
 

@@ -2,7 +2,10 @@
 #include <cybermon/socket.h>
 #include <cybermon/address.h>
 
+#include "hardware_addr_utils.h"
+
 #include <iomanip>
+#include <arpa/inet.h>
 
 using namespace cybermon;
 
@@ -116,6 +119,33 @@ void address::get(std::string& cls, std::string& address) const
 	cls = "ntp"; address = "";
 	return;
     }
+
+    if (proto == GRE) {
+	cls = "gre"; address = "";
+	return;
+    }
+
+	if (proto == ESP) {
+		cls = "esp"; address = "";
+    if (addr.size() == 4)
+    {
+      const uint32_t* spi = reinterpret_cast<const uint32_t*>(&addr[0]);
+      address = std::to_string(ntohl(*spi));
+    } else if (addr.size() == 0)
+    {
+      address = "";
+    } else
+    {
+      throw std::runtime_error("Invalid address data for esp spi");
+    }
+  	return;
+  }
+
+  if (proto == WLAN) {
+    cls = "802.11";
+    address = hw_addr_utils::to_string(&addr[0]);
+    return;
+  }
 
 
     if (proto == UNRECOGNISED) {

@@ -5,11 +5,13 @@
 .action smtp_command 5
 .action smtp_data 1
 .action smtp_response 7
+.action unrecognised_ip_protocol 2
 .dest.0 ipv4:149.20.54.225 8
 .dest.0 ipv4:176.9.92.196 1
 .dest.0 ipv4:192.168.122.1 4
 .dest.0 ipv4:192.168.122.11 15
 .dest.0 ipv4:217.73.16.2 1
+.dest.0 ipv6:ff02::2 2
 .dest.1 tcp:25 8
 .dest.1 tcp:54320 9
 .dest.1 udp:123 4
@@ -19,7 +21,7 @@
 .dest.2 dns 8
 .dest.2 ntp 4
 .dest.2 smtp 13
-.device PCAP 29
+.device PCAP 31
 .dns_message.answer.0.address 149.20.54.225 1
 .dns_message.answer.0.address 192.168.122.11 1
 .dns_message.answer.0.address 2001:4f8:3:36::225 1
@@ -66,6 +68,7 @@ Hello.  That is all. 1
 .src.0 ipv4:192.168.122.1 4
 .src.0 ipv4:192.168.122.11 14
 .src.0 ipv4:217.73.16.2 1
+.src.0 ipv6:fe80::5054:ff:fead:3ffd 2
 .src.1 tcp:25 9
 .src.1 tcp:54320 8
 .src.1 udp:123 4
@@ -75,3 +78,6 @@ Hello.  That is all. 1
 .src.2 dns 8
 .src.2 ntp 4
 .src.2 smtp 13
+.unrecognised_ip_protocol.next_proto 58 2
+.unrecognised_ip_protocol.payload hQDtOAAAAAA= 2
+.unrecognised_ip_protocol.payload_length 8 2

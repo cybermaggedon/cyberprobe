@@ -407,9 +407,100 @@ void cybermon_qwriter::ntp_private_message(const context_ptr cp,
     }
 
 }
+
+void cybermon_qwriter::gre(const context_ptr cp,
+					 const std::string& nxt_proto,
+					 const uint32_t key,
+					 const uint32_t seq,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+    try {
+	qargs* args = new gre_args(cp, nxt_proto, key, seq, start, end, tv);
+	q_entry* qentry = new q_entry(qargs::gre_message, args);
+	push(qentry);
+    } catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
+void cybermon_qwriter::gre_pptp(const context_ptr cp,
+					 const std::string& nxt_proto,
+					 const uint16_t payload_length,
+					 const uint16_t call_id,
+					 const uint32_t sequenceNo,
+					 const uint32_t ackNo,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+    try {
+	qargs* args = new gre_pptp_args(cp, nxt_proto, payload_length, call_id, sequenceNo, ackNo, start, end, tv);
+	q_entry* qentry = new q_entry(qargs::gre_pptp_message, args);
+	push(qentry);
+    } catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
+void cybermon_qwriter::esp(const context_ptr cp,
+					 const uint32_t spi,
+					 const uint32_t sequence,
+					 const uint32_t length,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+    try {
+	qargs* args = new esp_args(cp, spi, sequence, length, start, end, tv);
+	q_entry* qentry = new q_entry(qargs::esp, args);
+	push(qentry);
+    } catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
+void cybermon_qwriter::unrecognised_ip_protocol(const context_ptr cp,
+					 const uint8_t nxtProto,
+					 const uint32_t len,
+					 pdu_iter start,
+					 pdu_iter end,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new unknown_ip_proto_args(cp, nxtProto, len, start, end, tv);
+		q_entry* qentry = new q_entry(qargs::unrecognised_ip_protocol, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::wlan(const context_ptr cp,
+					 const uint8_t version,
+					 const uint8_t type,
+					 const uint8_t subtype,
+					 const uint8_t flags,
+					 const bool is_protected,
+					 const uint16_t duration,
+					 const std::string& filt_addr,
+					 const uint8_t frag_num,
+					 const uint16_t seq_num,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new wlan_args(cp, version, type, subtype, flags, is_protected,
+					duration, filt_addr, frag_num, seq_num, tv);
+		q_entry* qentry = new q_entry(qargs::wlan, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
     q_entry* qentry = NULL;
     push(qentry);
 }
-
