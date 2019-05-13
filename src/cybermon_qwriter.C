@@ -38,7 +38,7 @@ cybermon_qwriter::cybermon_qwriter(const std::string& path,
 void cybermon_qwriter::connection_up(const context_ptr cp,
 				     const timeval& tv) {
     try {
-	qargs* args = new connection_args(cp, tv);
+	qargs* args = new basic_args(cp, tv);
 	q_entry* qentry = new q_entry(qargs::connection_up, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -49,7 +49,7 @@ void cybermon_qwriter::connection_up(const context_ptr cp,
 void cybermon_qwriter::connection_down(const context_ptr cp,
 				       const timeval& tv) {
     try {
-	qargs* args = new connection_args(cp, tv);
+	qargs* args = new basic_args(cp, tv);
 	q_entry* qentry = new q_entry(qargs::connection_down, args);
 	push(qentry);
     } catch (std::exception& e) {
@@ -493,6 +493,192 @@ void cybermon_qwriter::wlan(const context_ptr cp,
 		qargs* args = new wlan_args(cp, version, type, subtype, flags, is_protected,
 					duration, filt_addr, frag_num, seq_num, tv);
 		q_entry* qentry = new q_entry(qargs::wlan, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_unknown(const context_ptr cp,
+					 const std::string& version,
+					 const uint8_t contentType,
+					 const uint16_t length,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_unknown_args(cp, version, contentType, length, tv);
+		q_entry* qentry = new q_entry(qargs::tls_unknown, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_client_hello(const context_ptr cp,
+					 const tls_handshake_protocol::client_hello_data& data,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_client_hello_args(cp, data, tv);
+		q_entry* qentry = new q_entry(qargs::tls_client_hello, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_server_hello(const context_ptr cp,
+					 const tls_handshake_protocol::server_hello_data& data,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_server_hello_args(cp, data, tv);
+		q_entry* qentry = new q_entry(qargs::tls_server_hello, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_certificates(const context_ptr cp,
+					 const std::vector<std::vector<uint8_t>>& certs,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_certificates_args(cp, certs, tv);
+		q_entry* qentry = new q_entry(qargs::tls_certificates, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_server_key_exchange(const context_ptr cp,
+					 const tls_handshake_protocol::key_exchange_data& data,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_server_key_exchange_args(cp, data, tv);
+		q_entry* qentry = new q_entry(qargs::tls_server_key_exchange, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_server_hello_done(const context_ptr cp,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new basic_args(cp, tv);
+		q_entry* qentry = new q_entry(qargs::tls_server_hello_done, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_handshake_generic(const context_ptr cp,
+					 const uint8_t type,
+					 const uint32_t len,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_handshake_generic_args(cp, type, len, tv);
+		q_entry* qentry = new q_entry(qargs::tls_handshake_generic, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_certificate_request(const context_ptr cp,
+					 const tls_handshake_protocol::certificate_request_data& data,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_certificate_request_args(cp, data, tv);
+		q_entry* qentry = new q_entry(qargs::tls_certificate_request, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_client_key_exchange(const context_ptr cp,
+					 const std::vector<uint8_t>& key,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_client_key_exchange_args(cp, key, tv);
+		q_entry* qentry = new q_entry(qargs::tls_client_key_exchange, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_certificate_verify(const context_ptr cp,
+					 const uint8_t sigHashAlgo,
+					 const uint8_t sigAlgo,
+					 const std::string& sig,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_certificate_verify_args(cp, sigHashAlgo, sigAlgo, sig, tv);
+		q_entry* qentry = new q_entry(qargs::tls_certificate_verify, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_change_cipher_spec(const context_ptr cp,
+					 const uint8_t val,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_change_cipher_spec_args(cp, val, tv);
+		q_entry* qentry = new q_entry(qargs::tls_change_cipher_spec, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_handshake_finished(const context_ptr cp,
+					 const std::vector<uint8_t>& msg,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_handshake_finished_args(cp, msg, tv);
+		q_entry* qentry = new q_entry(qargs::tls_handshake_finished, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_handshake_complete(const context_ptr cp,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new basic_args(cp, tv);
+		q_entry* qentry = new q_entry(qargs::tls_handshake_complete, args);
+		push(qentry);
+	} catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void cybermon_qwriter::tls_application_data(const context_ptr cp,
+					 const std::string& ver,
+					 const std::vector<uint8_t>& data,
+					 const timeval& tv)
+{
+	try {
+		qargs* args = new tls_application_data_args(cp, ver, data, tv);
+		q_entry* qentry = new q_entry(qargs::tls_application_data, args);
 		push(qentry);
 	} catch (std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;

@@ -12,6 +12,7 @@
 #include <cybermon/sip_ssl.h>
 #include <cybermon/smtp.h>
 #include <cybermon/smtp_auth.h>
+#include <cybermon/tls.h>
 
 
 using namespace cybermon;
@@ -37,6 +38,7 @@ void tcp_ports::init_handlers(void)
     //    port_handler[53]  = &dns_over_tcp::process;
     port_handler[110] = &pop3::process;
     port_handler[220] = &imap::process;
+    port_handler[443] = &tls::process;
     port_handler[465] = &smtp_auth::process;
     port_handler[993] = &imap_ssl::process;
     port_handler[995] = &pop3_ssl::process;

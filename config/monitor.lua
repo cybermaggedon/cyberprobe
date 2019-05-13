@@ -7,6 +7,24 @@
 
 local addr = require("util.addresses")
 
+-- hex encoding
+local str_to_hex = function(x)
+  return "0x" .. x:gsub('.', function (c)
+      return string.format('%02X', string.byte(c))
+    end)
+end
+
+local mime = require("mime")
+-- Base64 encoding
+local b64 = function(x)
+  local a, b = mime.b64(x)
+  if (a == nil) then
+    return ""
+  end
+  return a
+end
+
+
 -- This file is a module, so you need to create a table, which will be
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
@@ -397,6 +415,191 @@ observer.wlan = function(e)
   io.write("\n")
   io.flush()
 end
+
+-- This function is called when an unknown tls message is observed.
+observer.tls_unknown = function(e)
+  local a = string.format("TLS unknown")
+  observer.describe(e, a);
+  io.write(string.format("  Version      -> %s\n", e.version));
+  io.write(string.format("  Content Type -> %u\n", e.content_type));
+  io.write(string.format("  Length       -> %u\n", e.length));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls client hello message is observed.
+observer.tls_client_hello = function(e)
+  local a = string.format("TLS Client Hello")
+  observer.describe(e, a);
+  io.write(string.format("  Version             -> %s\n", e.version));
+  io.write(string.format("  Session ID          -> %s\n", e.session_id));
+  io.write("  Random              -> \n");
+  io.write(string.format("    timestamp         -> %u\n", e.random_timestamp));
+  io.write(string.format("    data              -> %s\n", str_to_hex(e.random_data)));
+  io.write("  Cipher suites       -> \n");
+  for key, value in pairs(e.cipher_suites) do
+    io.write(string.format("                      -> %s\n", value.name));
+  end
+  io.write("  Compression Methods -> \n");
+  for key, value in pairs(e.compression_methods) do
+    io.write(string.format("                    -> %s\n", value.name));
+  end
+  io.write("  Extensions        -> \n");
+  for key, value in pairs(e.extensions) do
+    io.write(string.format("  - name            -> %s\n", value.name));
+    io.write(string.format("    length          -> %s\n", value.length));
+    if string.len(value.data) > 0 then
+      io.write(string.format("    data            -> %s\n", str_to_hex(value.data)));
+    end
+  end
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls server hello message is observed.
+observer.tls_server_hello = function(e)
+  local a = string.format("TLS Server Hello")
+  observer.describe(e, a);
+  io.write(string.format("  Version             -> %s\n", e.version));
+  io.write(string.format("  Session ID          -> %s\n", e.session_id));
+  io.write("  Random              -> \n");
+  io.write(string.format("    timestamp         -> %u\n", e.random_timestamp));
+  io.write(string.format("    data              -> %s\n", str_to_hex(e.random_data)));
+  io.write(string.format("  Cipher suite        -> %s\n", e.cipher_suite.name));
+  io.write(string.format("  Compression Method  -> %s\n", e.compression_method.name));
+  io.write("  Extensions          -> \n");
+  for key, value in pairs(e.extensions) do
+    io.write(string.format("    name            -> %s\n", value.name));
+    io.write(string.format("    length          -> %s\n", value.length));
+    if string.len(value.data) > 0 then
+      io.write(string.format("    data            -> %s\n", str_to_hex(value.data)));
+    end
+  end
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls certificates message is observed.
+observer.tls_certificates = function(e)
+  local a = string.format("TLS Certificates")
+  observer.describe(e, a);
+  io.write("  Certificates  -> \n");
+  for key, value in pairs(e.certificates) do
+    io.write(string.format("                -> %s\n", b64(value)));
+  end
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls server key exchange message is observed.
+observer.tls_server_key_exchange = function(e)
+  local a = string.format("TLS Server Key Exchange")
+  observer.describe(e, a);
+  io.write(string.format("  Key Exchange Algorithm   -> %s\n", e.key_exchange_algorithm));
+  if e.key_exchange_algorithm == "ec-dh" then
+    io.write(string.format("  Curve Metadata           -> %s\n", e.curve_metadata));
+    io.write(string.format("  Public Key               -> %s\n", b64(e.public_key)));
+    io.write(string.format("  Signature Hash Algorithm -> %s\n", e.signature_hash_algorithm));
+    io.write(string.format("  Signature Algorithm      -> %s\n", e.signature_algorithm));
+    io.write(string.format("  Signature Hash           -> %s\n", e.signature_hash));
+  end
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls server hello done message is observed.
+observer.tls_server_hello_done = function(e)
+  local a = string.format("TLS Server Hello Done")
+  observer.describe(e, a);
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls handshake message is observed.
+observer.tls_handshake_unknown = function(e)
+  local a = string.format("TLS Handshake Unknown Message")
+  observer.describe(e, a);
+  io.write(string.format("  Type    -> %u\n", e.type));
+  io.write(string.format("  Length  -> %u\n", e.length));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls certificate request message is observed.
+observer.tls_certificate_request = function(e)
+  local a = string.format("TLS Certificate Request")
+  observer.describe(e, a);
+  io.write("  Cert Types            -> \n");
+  for key, value in pairs(e.cert_types) do
+    io.write(string.format("                        -> %s\n", value));
+  end
+  io.write("  Signature Algorithms  -> \n");
+  for key, value in pairs(e.signature_algorithms) do
+    io.write(string.format("    Hash Algorithm      -> %s\n", value.hash_algorithm));
+    io.write(string.format("    Signature Algorithm -> %s\n", value.signature_algorithm));
+  end
+  io.write(string.format("  Distinguished Names  -> %s\n", str_to_hex(e.distinguished_names)));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls client_key exchange message is observed.
+observer.tls_client_key_exchange = function(e)
+  local a = string.format("TLS Client Key Exchange")
+  observer.describe(e, a);
+  io.write(string.format(" Key  -> %s\n", b64(e.key)));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls certificate verify message is observed.
+observer.tls_certificate_verify = function(e)
+  local a = string.format("TLS Certificate Verify")
+  observer.describe(e, a);
+  io.write("  Signature Algorithm   -> \n");
+  io.write(string.format("    Hash Algorithm      -> %s\n", e.signature_algorithm.hash_algorithm));
+  io.write(string.format("    Signature Algorithm -> %s\n", e.signature_algorithm.signature_algorithm));
+  io.write(string.format("  Signature             -> %s\n", e.signature));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls change cipher spec message is observed.
+observer.tls_change_cipher_spec = function(e)
+  local a = string.format("TLS Change Cipher Spec")
+  observer.describe(e, a);
+  io.write(string.format("  Value -> %u\n", e.val));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls handshake finished message is observed.
+observer.tls_handshake_finished = function(e)
+  local a = string.format("TLS Handshake Finished")
+  observer.describe(e, a);
+  io.write(string.format("  Message Length -> %u\n", #e.msg));
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when both sides of the handshake have finished.
+observer.tls_handshake_complete = function(e)
+  local a = string.format("TLS Handshake Complete")
+  observer.describe(e, a);
+  io.write("\n")
+  io.flush()
+end
+
+-- This function is called when a tls application data message is observed.
+observer.tls_application_data = function(e)
+  local a = string.format("TLS Application Data")
+  observer.describe(e, a);
+  io.write(string.format("  Version        -> %s\n", e.version));
+  io.write(string.format("  Message Length -> %u\n", #e.data));
+  io.write("\n")
+  io.flush()
+end
+
 
 -- Return the table
 return observer

@@ -44,6 +44,7 @@ namespace cybermon {
         GRE,
         ESP,
         WLAN,
+        TLS,
 
         // Unknown stuff
         UNRECOGNISED

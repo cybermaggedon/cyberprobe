@@ -66,8 +66,8 @@ void cybermon_qreader::run() {
 	    switch (qentry->calltype) {
 
 	    case qargs::connection_up: {
-		connection_args* connectionargs =
-		    static_cast<connection_args*>(qentry->queueargs);
+		basic_args* connectionargs =
+		    static_cast<basic_args*>(qentry->queueargs);
 		cml.connection_up(qwriter, connectionargs->cptr,
 				  connectionargs->time);
 		delete (qentry);
@@ -75,8 +75,8 @@ void cybermon_qreader::run() {
 		break;
 	    }
 	    case qargs::connection_down: {
-		connection_args* connectionargs =
-		    static_cast<connection_args*>(qentry->queueargs);
+		basic_args* connectionargs =
+		    static_cast<basic_args*>(qentry->queueargs);
 		cml.connection_down(qwriter, connectionargs->cptr, connectionargs->time);
 		delete (qentry);
 		delete (connectionargs);
@@ -442,6 +442,120 @@ void cybermon_qreader::run() {
 			wlanArgs->frag_num, wlanArgs->seq_num, wlanArgs->time);
 		delete (qentry);
 		delete (wlanArgs);
+		break;
+	    }
+	    case qargs::tls_unknown: {
+		tls_unknown_args* tlsArgs =
+		    static_cast<tls_unknown_args*>(qentry->queueargs);
+		cml.tls_unknown(qwriter, tlsArgs->cptr, tlsArgs->version, tlsArgs->contentType, tlsArgs->length,
+			tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_client_hello: {
+		tls_client_hello_args* tlsArgs =
+		    static_cast<tls_client_hello_args*>(qentry->queueargs);
+		cml.tls_client_hello(qwriter, tlsArgs->cptr, tlsArgs->data, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_server_hello: {
+		tls_server_hello_args* tlsArgs =
+		    static_cast<tls_server_hello_args*>(qentry->queueargs);
+		cml.tls_server_hello(qwriter, tlsArgs->cptr, tlsArgs->data, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_certificates: {
+		tls_certificates_args* tlsArgs =
+		    static_cast<tls_certificates_args*>(qentry->queueargs);
+		cml.tls_certificates(qwriter, tlsArgs->cptr, tlsArgs->certs, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_server_key_exchange: {
+		tls_server_key_exchange_args* tlsArgs =
+		    static_cast<tls_server_key_exchange_args*>(qentry->queueargs);
+		cml.tls_server_key_exchange(qwriter, tlsArgs->cptr, tlsArgs->data, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_server_hello_done: {
+		basic_args* tlsArgs =
+		    static_cast<basic_args*>(qentry->queueargs);
+		cml.tls_server_hello_done(qwriter, tlsArgs->cptr, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_handshake_generic: {
+		tls_handshake_generic_args* tlsArgs =
+		    static_cast<tls_handshake_generic_args*>(qentry->queueargs);
+		cml.tls_handshake_generic(qwriter, tlsArgs->cptr, tlsArgs->type, tlsArgs->len, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_certificate_request: {
+		tls_certificate_request_args* tlsArgs =
+		    static_cast<tls_certificate_request_args*>(qentry->queueargs);
+		cml.tls_certificate_request(qwriter, tlsArgs->cptr, tlsArgs->data, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_client_key_exchange: {
+		tls_client_key_exchange_args* tlsArgs =
+		    static_cast<tls_client_key_exchange_args*>(qentry->queueargs);
+		cml.tls_client_key_exchange(qwriter, tlsArgs->cptr, tlsArgs->key, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_certificate_verify: {
+		tls_certificate_verify_args* tlsArgs =
+		    static_cast<tls_certificate_verify_args*>(qentry->queueargs);
+		cml.tls_certificate_verify(qwriter, tlsArgs->cptr, tlsArgs->sigHashAlgo,
+			tlsArgs->sigAlgo, tlsArgs->sig, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_change_cipher_spec: {
+		tls_change_cipher_spec_args* tlsArgs =
+		    static_cast<tls_change_cipher_spec_args*>(qentry->queueargs);
+		cml.tls_change_cipher_spec(qwriter, tlsArgs->cptr, tlsArgs->val, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_handshake_finished: {
+		tls_handshake_finished_args* tlsArgs =
+		    static_cast<tls_handshake_finished_args*>(qentry->queueargs);
+		cml.tls_handshake_finished(qwriter, tlsArgs->cptr, tlsArgs->msg, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_handshake_complete: {
+		basic_args* tlsArgs =
+		    static_cast<basic_args*>(qentry->queueargs);
+		cml.tls_handshake_complete(qwriter, tlsArgs->cptr, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
+		break;
+	    }
+	    case qargs::tls_application_data: {
+		tls_application_data_args* tlsArgs =
+		    static_cast<tls_application_data_args*>(qentry->queueargs);
+		cml.tls_application_data(qwriter, tlsArgs->cptr, tlsArgs->version, tlsArgs->data, tlsArgs->time);
+		delete (qentry);
+		delete (tlsArgs);
 		break;
 	    }
 	    default: {

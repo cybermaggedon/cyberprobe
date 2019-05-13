@@ -14,6 +14,7 @@
 #define CYBERMON_QARGS_H_
 
 #include <cybermon/engine.h>
+#include <cybermon/tls_handshake_protocol.h>
 
 /*
  * args classes for different protocols
@@ -64,15 +65,29 @@ public:
 	gre_pptp_message,
 	esp,
 	unrecognised_ip_protocol,
-	wlan
+	wlan,
+	tls_unknown,
+ 	tls_client_hello,
+ 	tls_server_hello,
+  	tls_certificates,
+  	tls_server_key_exchange,
+  	tls_server_hello_done,
+  	tls_handshake_generic,
+  	tls_certificate_request,
+  	tls_client_key_exchange,
+  	tls_certificate_verify,
+  	tls_change_cipher_spec,
+  	tls_handshake_finished,
+  	tls_handshake_complete,
+  	tls_application_data
 
     };
 };
 
-class connection_args: public qargs {
+class basic_args: public qargs {
 
 public:
-    connection_args(const cybermon::context_ptr cp, const timeval& time) :
+    basic_args(const cybermon::context_ptr cp, const timeval& time) :
 	cptr(cp), time(time) {
     }
     cybermon::context_ptr cptr;
@@ -588,6 +603,171 @@ public:
     timeval time;
 };
 
+class tls_unknown_args: public qargs {
+
+public:
+    tls_unknown_args(const cybermon::context_ptr cp,
+       const std::string& version, const uint8_t contentType,
+       const uint16_t length, const timeval& time) :
+	cptr(cp), version(version), contentType(contentType), length(length), time(time) {
+    }
+    cybermon::context_ptr cptr;
+    const std::string version;
+    const uint8_t contentType;
+    const uint16_t length;
+    cybermon::pdu pdu;
+    timeval time;
+};
+
+class tls_client_hello_args: public qargs {
+
+public:
+    tls_client_hello_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::client_hello_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::client_hello_data data;
+    timeval time;
+};
+
+class tls_server_hello_args: public qargs {
+
+public:
+    tls_server_hello_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::server_hello_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::server_hello_data data;
+    timeval time;
+};
+
+class tls_certificates_args: public qargs {
+
+public:
+    tls_certificates_args(const cybermon::context_ptr cp,
+      const std::vector<std::vector<uint8_t>>& certsArg, const timeval& time)
+      : cptr(cp), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+      certs.reserve(certsArg.size());
+      certs.insert(certs.end(), certsArg.begin(), certsArg.end());
+    }
+    cybermon::context_ptr cptr;
+    std::vector<std::vector<uint8_t>> certs;
+    timeval time;
+};
+
+class tls_server_key_exchange_args: public qargs {
+
+public:
+    tls_server_key_exchange_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::key_exchange_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::key_exchange_data data;
+    timeval time;
+};
+
+class tls_handshake_generic_args: public qargs {
+
+public:
+    tls_handshake_generic_args(const cybermon::context_ptr cp,
+      const uint8_t type, const uint32_t len, const timeval& time)
+      : cptr(cp), type(type), len(len), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t type;
+    const uint32_t len;
+    timeval time;
+};
+
+class tls_certificate_request_args: public qargs {
+
+public:
+    tls_certificate_request_args(const cybermon::context_ptr cp,
+      const cybermon::tls_handshake_protocol::certificate_request_data& data, const timeval& time)
+      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+    {
+    }
+    cybermon::context_ptr cptr;
+    const cybermon::tls_handshake_protocol::certificate_request_data data;
+    timeval time;
+};
+
+class tls_client_key_exchange_args: public qargs {
+
+public:
+    tls_client_key_exchange_args(const cybermon::context_ptr cp,
+      const std::vector<uint8_t>& key, const timeval& time)
+      : cptr(cp), key(key), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const std::vector<uint8_t> key;
+    timeval time;
+};
+
+class tls_certificate_verify_args: public qargs {
+
+public:
+    tls_certificate_verify_args(const cybermon::context_ptr cp,
+      const uint8_t sigHashAlgo, const uint8_t sigAlgo,
+      const std::string& sig, const timeval& time)
+      : cptr(cp), sigHashAlgo(sigHashAlgo), sigAlgo(sigAlgo), sig(sig), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t sigHashAlgo;
+    const uint8_t sigAlgo;
+    const std::string sig;
+    timeval time;
+};
+
+class tls_change_cipher_spec_args: public qargs {
+
+public:
+    tls_change_cipher_spec_args(const cybermon::context_ptr cp,
+      const uint8_t val, const timeval& time)
+      : cptr(cp), val(val), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const uint8_t val;
+    timeval time;
+};
+
+class tls_handshake_finished_args: public qargs {
+
+public:
+    tls_handshake_finished_args(const cybermon::context_ptr cp,
+      const std::vector<uint8_t>& msg, const timeval& time)
+      : cptr(cp), msg(msg), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const std::vector<uint8_t> msg;
+    timeval time;
+};
+
+class tls_application_data_args: public qargs {
+
+public:
+    tls_application_data_args(const cybermon::context_ptr cp, const std::string& ver,
+      const std::vector<uint8_t>& data, const timeval& time)
+      : cptr(cp), version(ver), data(data), time(time)
+    {
+    }
+    cybermon::context_ptr cptr;
+    const std::string version;
+    const std::vector<uint8_t> data;
+    timeval time;
+};
 
 /*q_entry class acting as a medium to store args and add in to queue by cybermon_qwriter
  * and cybermon_qreader pick up it from queue to process by calling

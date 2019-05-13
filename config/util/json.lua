@@ -50,6 +50,17 @@ local b64 = function(x)
   return a
 end
 
+-- hex encoding
+local str_to_hex = function(x)
+  return "0x" .. x:gsub('.', function (c)
+      return string.format('%02X', string.byte(c))
+    end)
+end
+
+local int_to_hex = function(x)
+  return "0x" .. string.format('%x', x)
+end
+
 -- Gets the stack of addresses on the src/dest side of a context.
 local function get_stack(context, addrs, is_src)
 
@@ -443,6 +454,266 @@ module.wlan = function(e)
   obs["802.11"] = { version=e.version, type=e.type, subtype=e.subtype, flags=e.flags,
     protected=e.protected, filt_addr=e.filt_addr, frag_num=e.frag_num, seq_num=e.seq_num,
     duration=e.duration}
+
+  submit(obs)
+end
+
+-- This function is called when an unknown tls packet is observed and surveyed.
+module.tls_unknown = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_unknown"
+  obs["tls_unknown"] = {tls={ version=e.version, content_type=e.content_type, length=e.length}}
+
+  submit(obs)
+end
+
+-- This function is called when a tls client hello packet is observed.
+module.tls_client_hello = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_client_hello"
+  tls = { version=e.version, session_id=e.session_id}
+  tls["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
+
+  cs = {}
+  json.util.InitArray(cs)
+  for key, value in pairs(e.cipher_suites) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    local val = ""
+    if value.name == "Unassigned" then
+      val = value.name .. " - " .. int_to_hex(value.id)
+    else
+      val = value.name
+    end
+    cs[#cs + 1] = val
+  end
+  tls["cipher_suites"] = cs
+
+  cm = {}
+  json.util.InitArray(cm)
+  for key, value in pairs(e.compression_methods) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    local val = ""
+    if value.name == "Unassigned" then
+      val = value.name .. " - " .. int_to_hex(value.id)
+    else
+      val = value.name
+    end
+    cm[#cm + 1] = val
+  end
+  tls["compression_methods"] = cm
+
+  exts = {}
+  json.util.InitArray(exts)
+  for key, value in pairs(e.extensions) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    ext = {}
+    ext["length"] = value.length
+    if string.len(value.data) > 0 then
+      ext["data"] = str_to_hex(value.data)
+    end
+    if value.name == "Unassigned" then
+      ext["name"] = value.name .. " - " .. int_to_hex(value.type)
+    else
+      ext["name"] = value.name
+    end
+    exts[#exts + 1] = ext
+  end
+  tls["extensions"] = exts
+  obs["tls_client_hello"] = {tls=tls}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls client hello packet is observed.
+module.tls_server_hello = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_server_hello"
+  tls = { version=e.version, session_id=e.session_id}
+  tls["random"] = {timestamp=e.random_timestamp, data=str_to_hex(e.random_data)}
+
+  -- the id is available too if needed (only used for unassigned currently)
+  local cipherName = ""
+  if e.cipher_suite.name == "Unassigned" then
+    cipherName = e.cipher_suite.name .. " - " .. int_to_hex(e.cipher_suite.id)
+  else
+    cipherName = e.cipher_suite.name
+  end
+  tls["cipher_suite"] = cipherName
+
+  -- the id is available in the value too if needed (only used for unassigned currently)
+  local compressionName = ""
+  if e.compression_method.name == "Unassigned" then
+    compressionName = e.compression_method.name .. " - " .. int_to_hex(e.compression_method.id)
+  else
+    compressionName = e.compression_method.name
+  end
+  tls["compression_method"] = compressionName
+
+  exts = {}
+  json.util.InitArray(exts)
+  for key, value in pairs(e.extensions) do
+    -- key is just the index
+    -- the id is available in the value too if needed (only used for unassigned currently)
+    ext = {}
+    ext["length"] = value.length
+    if string.len(value.data) > 0 then
+      ext["data"] = str_to_hex(value.data)
+    end
+    if value.name == "Unassigned" then
+      ext["name"] = value.name .. " - " .. int_to_hex(value.type)
+    else
+      ext["name"] = value.name
+    end
+    exts[#exts + 1] = ext
+  end
+  tls["extensions"] = exts
+  obs["tls_server_hello"] = {tls=tls}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls client hello packet is observed.
+module.tls_certificates = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_certificates"
+  tls = {}
+  certs = {}
+  json.util.InitArray(exts)
+  for key, value in pairs(e.certificates) do
+    -- key is just the index
+    certs[#certs + 1] = b64(value)
+  end
+  tls["certificates"] = certs
+  obs["tls_certificates"] = {tls=tls}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls server key exchange packet is observed.
+module.tls_server_key_exchange = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_server_key_exchange"
+  tls = {key_exchange_algorithm=e.key_exchange_algorithm}
+
+  if e.key_exchange_algorithm == "ec-dh" then
+    tls["curve_type"] = e.curve_type
+    tls["curve_metadata"] = e.curve_metadata
+    tls["public_key"] = b64(e.public_key)
+    tls["signature_hash_algorithm"] = e.signature_hash_algorithm
+    tls["signature_algorithm"] = e.signature_algorithm
+    tls["signature_hash"] = e.signature_hash
+  else
+    tls["prime"] = str_to_hex(e.prime)
+    tls["generator"] = str_to_hex(e.generator)
+    tls["pubkey"] = str_to_hex(e.pubkey)
+    if e.key_exchange_algorithm == "dh-rsa" then
+      tls["signature"] = str_to_hex(e.signature)
+    end
+  end
+  obs["tls_server_key_exchange"] = {tls=tls}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls server hello done packet is observed.
+module.tls_server_hello_done = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_server_hello_done"
+  obs["tls_server_hello_done"] = {tls={}}
+
+  submit(obs)
+end
+
+-- This function is called when an unknown tls handshake message which isn't explicitly
+-- handled is observed.
+module.tls_handshake_unknown = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_handshake_unknown"
+  obs["tls_handshake_unknown"] = {tls={type=e.type, length=e.length}}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls certificate request packet is observed.
+module.tls_certificate_request = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_certificate_request"
+  tls = {cert_types=e.cert_types, signature_algorithms=e.signature_algorithms,
+    distinguished_names=str_to_hex(e.distinguished_names)}
+  obs["tls_certificate_request"] = {tls=tls}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls client key exchange is observed.
+module.tls_client_key_exchange = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_client_key_exchange"
+  obs["tls_client_key_exchange"] = {tls={key=b64(e.key)}}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls certificate verify packet is observed.
+module.tls_certificate_verify = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_certificate_verify"
+  tls = {signature_algorithm=e.signature_algorithm,
+    signature=e.signature}
+  obs["tls_certificate_verify"] = {tls=tls}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_change_cipher_spec = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_change_cipher_spec"
+  obs["tls_change_cipher_spec"] = {tls={value=e.val}}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_handshake_finished = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_handshake_finished"
+  obs["tls_handshake_finished"] = {tls={message=b64(e.msg)}}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_handshake_complete = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_handshake_complete"
+  obs["tls_handshake_complete"] = {tls={}}
+
+
+  submit(obs)
+end
+
+-- This function is called when a tls change cipher spec packet is observed.
+module.tls_application_data = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "tls_application_data"
+  tls = {version=e.version, length=string.len(e.data)}
+  -- the binary data is available but is encrypted so not extracting
+  obs["tls_application_data"] = {tls=tls}
+
 
   submit(obs)
 end
