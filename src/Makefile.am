@@ -86,6 +86,8 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/udp.h ../include/cybermon/unrecognised.h	\
 	../include/cybermon/gre.h ../include/cybermon/esp.h \
 	../include/cybermon/802_11.h \
+	../include/cybermon/tls_handshake_protocol.h \
+	../include/cybermon/tls.h \
 	../include/cybermon/xml.h
 
 ACLOCAL_AMFLAGS = -I m4
