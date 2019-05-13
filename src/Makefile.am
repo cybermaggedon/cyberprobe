@@ -44,6 +44,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
 	cybermon_qargs.h cybermon_qwriter.h cybermon_qreader.h \
 	hardware_addr_utils.C gre.C esp.C 802_11.C \
+	hardware_addr_utils.h \
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
 	address_map.h		                \
 	../include/cybermon/base_context.h				\
@@ -81,6 +82,8 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/specification.h ../include/cybermon/tcp.h	\
 	../include/cybermon/thread.h ../include/cybermon/transport.h	\
 	../include/cybermon/udp.h ../include/cybermon/unrecognised.h	\
+	../include/cybermon/gre.h ../include/cybermon/esp.h \
+	../include/cybermon/802_11.h \
 	../include/cybermon/xml.h
 
 ACLOCAL_AMFLAGS = -I m4

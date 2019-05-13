@@ -1,3 +1,7 @@
+PCAP: fe80::5054:ff:fead:3ffd -> ff02::2. Unrecognised IP
+  Next Proto   -> 58
+  Payload Size -> 8
+
 PCAP: 192.168.122.11:50766 -> 192.168.122.1:53. DNS query
     Query: name=ftp.swfwmd.state.fl.us, type=1, class=1
 
@@ -171,6 +175,10 @@ PCAP: 78.47.249.19:123 -> 192.168.122.11:123. NTP Timestamp
     Transmit Timestamp  -> 1412974420.081311703
     Extension           -> false
 
+PCAP: fe80::5054:ff:fead:3ffd -> ff02::2. Unrecognised IP
+  Next Proto   -> 58
+  Payload Size -> 8
+
 PCAP: 192.168.122.11:123 -> 217.73.16.2:123. NTP Timestamp
     Leap Indicator      -> 0
     Version             -> 3
@@ -225,6 +233,10 @@ PCAP: 204.76.241.31:12970 -> 192.168.122.11:38609. Stream data (size is 1361)
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 226
     Directory send OK.
 
+PCAP: fe80::5054:ff:fead:3ffd -> ff02::2. Unrecognised IP
+  Next Proto   -> 58
+  Payload Size -> 8
+
 PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command TYPE I
 
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 200
@@ -249,4 +261,8 @@ PCAP: 192.168.122.11:42945 -> 204.76.241.31:21. FTP command QUIT
 
 PCAP: 204.76.241.31:21 -> 192.168.122.11:42945. FTP response 221
     Goodbye.
+
+PCAP: fe80::5054:ff:fead:3ffd -> ff02::2. Unrecognised IP
+  Next Proto   -> 58
+  Payload Size -> 8
 
