@@ -28,6 +28,7 @@ extern "C" {
 #include <map>
 
 #include "engine.h"
+#include <cybermon/tls_handshake_protocol.h>
 
 namespace cybermon {
 
@@ -205,11 +206,22 @@ namespace cybermon {
 	    lua_pushboolean(lua, b);
 	}
 
+	// // Push a string (defined by iterators).
+	// void push(std::vector<unsigned char>::const_iterator s,
+	// 	  std::vector<unsigned char>::const_iterator e) {
+	//     // FIXME: Lot of copying?
+	//     unsigned char* buf = new unsigned char[e - s];
+	//     std::copy(s, e, buf);
+	//     lua_pushlstring(lua, (char*) buf, e - s);
+	//     delete[] buf;
+	// }
+
 	// Push a string (defined by iterators).
 	template < class Iter >
 	void push(Iter s, Iter e) {
 	    lua_pushlstring(lua, reinterpret_cast<const char*>(&(*s)), e - s);
 	}
+
 
 /*	void push(int size, unsigned char* buf ) {
 	    // FIXME: Lot of copying?
@@ -637,6 +649,79 @@ namespace cybermon {
   			 const uint16_t seq_num,
   			 const timeval& time);
 
+	void tls_unknown(engine& an,
+   			 const context_ptr cf,
+   			 const std::string& version,
+   			 const uint8_t contentType,
+   			 const uint16_t length,
+   			 const timeval& time);
+
+	void tls_client_hello(engine& an,
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::client_hello_data& data,
+   			 const timeval& time);
+
+	void tls_server_hello(engine& an,
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::server_hello_data& data,
+   			 const timeval& time);
+
+	void tls_certificates(engine& an,
+   			 const context_ptr cf,
+   			 const std::vector<std::vector<uint8_t>>& certs,
+   			 const timeval& time);
+
+	void tls_server_key_exchange(engine& an,
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::key_exchange_data& data,
+   			 const timeval& time);
+
+	void tls_server_hello_done(engine& an,
+   			 const context_ptr cf,
+   			 const timeval& time);
+
+	void tls_handshake_generic(engine& an,
+   			 const context_ptr cp,
+   			 const uint8_t type,
+   			 const uint32_t len,
+   			 const timeval& tv);
+
+	void tls_certificate_request(engine& an,
+   			 const context_ptr cf,
+   			 const tls_handshake_protocol::certificate_request_data& data,
+   			 const timeval& time);
+
+	void tls_client_key_exchange(engine& an,
+   			 const context_ptr cp,
+   			 const std::vector<uint8_t>& key,
+   			 const timeval& tv);
+
+	void tls_certificate_verify(engine& an,
+   			 const context_ptr cp,
+   			 const uint8_t sigHashAlgo,
+   			 const uint8_t sigAlgo,
+   			 const std::string& sig,
+   			 const timeval& tv);
+
+	void tls_change_cipher_spec(engine& an,
+   			 const context_ptr cp,
+   			 const uint8_t val,
+   			 const timeval& tv);
+
+	void tls_handshake_finished(engine& an,
+   			 const context_ptr cp,
+   			 const std::vector<uint8_t>& msg,
+   			 const timeval& tv);
+
+	void tls_handshake_complete(engine& an,
+   			 const context_ptr cp,
+   			 const timeval& tv);
+
+	void tls_application_data(engine& an,
+   			 const context_ptr cp,
+   			 const std::string& version,
+   			 const std::vector<uint8_t>& data,
+   			 const timeval& tv);
     };
 
 };

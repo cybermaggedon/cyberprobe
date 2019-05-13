@@ -8,6 +8,8 @@
 #ifndef CYBERMON_EXCEPTION_H
 #define CYBERMON_EXCEPTION_H
 
+#include <stdexcept>
+
 namespace cybermon {
 
     // A cybermon exception
@@ -15,8 +17,7 @@ namespace cybermon {
     public:
         exception(const std::string& m) : std::runtime_error(m) {}
     };
-    
-};
+
+}
 
 #endif
-
