@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 
 std::string cybermon::hw_addr_utils::to_string(const uint8_t* addr)
