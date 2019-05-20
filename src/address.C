@@ -129,8 +129,10 @@ void address::get(std::string& cls, std::string& address) const
 		cls = "esp"; address = "";
     if (addr.size() == 4)
     {
-      const uint32_t* spi = reinterpret_cast<const uint32_t*>(&addr[0]);
-      address = std::to_string(ntohl(*spi));
+	const uint32_t* spi = reinterpret_cast<const uint32_t*>(&addr[0]);
+	std::ostringstream buf;
+	buf << std::dec << ntohl(*spi);
+	address = buf.str();
     } else if (addr.size() == 0)
     {
       address = "";
