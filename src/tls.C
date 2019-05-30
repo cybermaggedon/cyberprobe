@@ -121,6 +121,15 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
             }
             uint16_t length = (hdr->length1 << 8) + hdr->length2;
             extra = length + sizeof(header) - flowContext->buffer.size();
+            if (extra > (pduSlice.end - pduSlice.start)) {
+                // not enough room to fit the extra in
+                flowContext->buffer.reserve(flowContext->buffer.size() + (pduSlice.end - pduSlice.start));
+                flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.end);
+                // no more data in slice to process return
+                flowContext->lock.unlock();
+                return;
+            }
+            // we have  full message, construct the pdu and process it
             flowContext->buffer.resize(length + sizeof(header));
             flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.start + extra);
             pdu_slice msg(flowContext->buffer.begin(),
