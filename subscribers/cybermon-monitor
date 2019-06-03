@@ -19,14 +19,14 @@ def handle(msg, output):
 
     print("Time: %s" % obj["time"])
 
-    if "url" not in obj:
+    if "url" in obj:
         print("URL: %s" % obj["url"])
 
-    if "icmp" not in obj:
+    if "icmp" in obj:
         print("ICMP type: %d" % obj["icmp"]["type"])
         print("ICMP code: %d" % obj["icmp"]["code"])
 
-    if "dns_message" not in obj:
+    if "dns_message" in obj:
         detail = obj["dns_message"]
         if "type" in detail:
             print("Type: %s" % detail["type"])
