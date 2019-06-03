@@ -7,7 +7,9 @@ import cyberprobe.qcomms as q
 import os
  
 db = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-City.mmdb")
+db2 = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-ASN.mmdb")
 geo = geoip2.database.Reader(db)
+geo2 = geoip2.database.Reader(db2)
 
 if len(sys.argv) < 2:
     binding = "cyberprobe"
@@ -21,22 +23,32 @@ else:
 
 def lookup(ip):
 
+    g = None
+    asn = None
+    
     try:
         g = geo.city(ip)
+        asn = geo2.asn(ip)
     except Exception as e:
-        return None
+        pass
 
     locn = {
     }
 
-    if g.city: locn["city"] = g.city.name
-    if g.country.iso_code: locn["iso"] = g.country.iso_code
-    if g.country.name: locn["country"] = g.country.name
-    if g.location.latitude and g.location.longitude: locn["position"] = {
-            "lat": g.location.latitude,
-            "lon": g.location.longitude
-    }
-    if g.postal.code: locn["postcode"] = g.postal.code
+    if g:
+        if g.city and g.city.name:
+            locn["city"] = g.city.name
+        if g.country.iso_code: locn["iso"] = g.country.iso_code
+        if g.country.name: locn["country"] = g.country.name
+        if g.location.latitude and g.location.longitude: locn["position"] = {
+                "lat": g.location.latitude,
+                "lon": g.location.longitude
+        }
+        if g.postal.code: locn["postcode"] = g.postal.code
+
+    if asn:
+        locn["asnum"] = asn.autonomous_system_number
+        locn["asorg"] = asn.autonomous_system_organization
 
     return locn
     
