@@ -59,7 +59,8 @@ class Subscriber:
                                 routing_key=routing_key)
 
     def consume(self, cb):
-            self.channel.basic_consume(cb, queue=self.queue, no_ack=True)
+            self.channel.basic_consume(on_message_callback=cb,
+                                       queue=self.queue, auto_ack=True)
             self.channel.start_consuming()
 
     def connect(self):
