@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+import http.server
+import socketserver
+import json
+
+PORT = 8080
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type','text/plain')
+        self.end_headers()
+        self.wfile.write("Hello World !".encode("utf-8"))
+        return
+    def do_PUT(self):
+        content_len = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_len)
+        print(json.dumps(json.loads(body), indent=4))
+        self.send_response(200)
+        self.send_header('Content-type','text/plain')
+        self.end_headers()
+        self.wfile.write("Hello World !".encode("utf-8"))
+        return
+    def do_POST(self):
+        content_len = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_len)
+        print(json.dumps(json.loads(body), indent=4))
+        self.send_response(200)
+        self.send_header('Content-type','text/plain')
+        self.end_headers()
+        self.wfile.write("Hello World !".encode("utf-8"))
+        return
+
+with socketserver.TCPServer(("", PORT), Handler) as httpd:
+    print("serving at port", PORT)
+    httpd.serve_forever()
+
