@@ -5,11 +5,24 @@ import sys
 import geoip2.database
 import cyberprobe.qcomms as q
 import os
- 
-db = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-City.mmdb")
-db2 = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-ASN.mmdb")
-geo = geoip2.database.Reader(db)
-geo2 = geoip2.database.Reader(db2)
+
+try:
+    db = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-City.mmdb")
+    geo = geoip2.database.Reader(db)
+except Exception as e:
+    print("Exception:", e)
+    print("GeoIP2 city data could not be configured.")
+    print("No city geo will be generated.")
+    geo = None
+
+try:
+    db2 = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-ASN.mmdb")
+    geo2 = geoip2.database.Reader(db2)
+except Exception as e:
+    print("Exception:", e)
+    print("GeoIP2 ASN data could not be configured.")
+    print("No ASN data will be generated.")
+    geo2 = None
 
 if len(sys.argv) < 2:
     binding = "cyberprobe"
@@ -25,12 +38,18 @@ def lookup(ip):
 
     g = None
     asn = None
-    
-    try:
-        g = geo.city(ip)
-        asn = geo2.asn(ip)
-    except Exception as e:
-        pass
+
+    if geo:
+        try:
+            g = geo.city(ip)
+        except:
+            pass
+
+    if geo2:
+        try:
+            asn = geo2.asn(ip)
+        except:
+            pass
 
     locn = {
     }
