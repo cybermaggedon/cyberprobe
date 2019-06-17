@@ -31,8 +31,10 @@ public:
 	init();
     }
 
-    readline(const std::string& name) { 
-	rl_readline_name = name.c_str(); 
+    std::string name;
+
+    readline(const std::string& nm) : name(nm) {
+	rl_readline_name = const_cast<char*>(this->name.c_str());
 	init();
     }
 

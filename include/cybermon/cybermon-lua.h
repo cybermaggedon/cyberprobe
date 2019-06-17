@@ -187,6 +187,13 @@ namespace cybermon {
 	void push(long num) { 
 	    lua_pushinteger(lua, num);
 	}
+	
+	// Push an integer onto the stack.
+	void push(long long num) {
+	    // FIXME: long long is at least 64-bits, whereas ptrdiff_t could
+	    // be 32-bits on a 32-bit system.
+	    lua_pushinteger(lua, num);
+	}
 		
 	// Push an integer onto the stack.
 	void push(unsigned int num) { 
@@ -198,6 +205,11 @@ namespace cybermon {
 	    lua_pushinteger(lua, num);
 	}
 	
+	// Push an integer onto the stack.
+	void push(unsigned long long num) { 
+	    lua_pushinteger(lua, num);
+	}
+		
 	// Push a float onto the stack.
 	void push(double num) { 
 	    lua_pushnumber(lua, num);
