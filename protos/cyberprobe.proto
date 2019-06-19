@@ -1,0 +1,377 @@
+
+syntax = "proto3";
+
+package cyberprobe;
+
+message Query {
+    string name = 1;
+    string type = 2;
+    string class = 3;
+};
+
+message Answer {
+    string name = 1;
+    string type = 2;
+    string class = 3;
+    string address = 4;
+};
+
+message DnsMessage {
+    repeated Query query = 1;
+    repeated Answer answer = 2;
+    string type = 3;
+};
+
+message UnrecognisedDatagram {
+    bytes payload = 1;
+};
+
+message UnrecognisedStream {
+    bytes payload = 1;
+    int64 position = 2;
+};
+
+message Icmp {
+    int32 type = 1;
+    int32 code = 2;
+    bytes payload = 3;
+};
+
+message HttpRequest {
+    string method = 1;
+    map<string, string> header = 2;
+    bytes body = 3;
+};
+
+message HttpResponse {
+    int32 code = 1;
+    string status = 2;
+    map<string, string> header = 3;
+    bytes body = 4;
+};
+
+message SipRequest {
+    string method = 1;
+    string from = 2;
+    string to = 3;
+    bytes payload = 4;
+};
+
+message SipResponse {
+    int32 code = 1;
+    string status = 2;
+    string from = 3;
+    string to = 4;
+    bytes payload = 5;
+};
+
+message SipSsl {
+    bytes payload = 1;
+};
+
+message Imap {
+    bytes payload = 1;
+}
+
+message Pop3 {
+    bytes payload = 1;
+};
+
+message Pop3Ssl {
+    bytes payload = 1;
+};
+
+message Ntp {
+    int32 version = 1;
+    int32 mode = 2;
+};
+
+message FtpCommand {
+    string command = 1;
+};
+
+message FtpResponse {
+    int32 status = 1;
+    repeated string text = 2;
+};
+
+message SmtpCommand {
+    string command = 1;
+};
+
+message SmtpResponse {
+    int32 status = 1;
+    repeated string text = 2;
+};
+
+message SmtpData {
+    string from = 1;
+    repeated string to = 2;
+    bytes body = 3;
+};
+
+message Gre {
+    string next_proto = 1;
+    uint32 key = 2;
+    uint32 sequence_number = 3;
+    bytes payload = 4;
+};
+
+message GrePptp {
+    string next_proto = 1;
+    uint32 call_id = 2;
+    uint32 sequence_number = 3;
+    uint32 acknowledgement_number = 4;
+    bytes payload = 5;
+    uint32 payload_length = 6;
+};
+
+message Esp {
+    uint32 spi = 1;
+    uint32 sequence_number = 2;
+    bytes payload = 3;
+    uint32 payload_length = 4;
+};
+
+message UnrecognisedIpProtocol {
+    uint32 next_proto = 1;
+    uint32 sequence_number = 2;    
+    bytes payload = 3;
+    uint32 payload_length = 4;
+};
+
+message Wlan {
+    uint32 version = 1;
+    uint32 type = 2;
+    uint32 subtype = 3;
+    uint32 flags = 4;
+    bool protected = 5;
+    string filt_addr = 6;
+    uint32 frag_num = 7;
+    uint32 seq_num = 8;
+    uint32 duration = 9;
+};
+
+message TlsUnknown {
+    message Tls {
+	uint32 version = 1;
+	uint32 content_type = 2;
+	uint64 length = 3;
+    };
+    Tls tls = 1;
+};
+
+message TlsClientHello {
+    message Tls {
+	uint32 version = 1;
+	uint64 session_id = 2;
+	message Random {
+	    uint64 timestamp = 1;
+	    bytes data = 2;
+	};
+	Random random = 3;
+	repeated string cipher_suites = 4;
+	repeated string compression_methods = 5;
+	message Extension {
+	    string name = 1;
+	    uint32 length = 2;
+	    bytes data = 3;
+	};
+	repeated Extension extensions = 6;
+    };
+    Tls tls = 1;
+};
+
+message TlsServerHello {
+    message Tls {
+	uint32 version = 1;
+	uint64 session_id = 2;
+	message Random {
+	    uint64 timestamp = 1;
+	    bytes data = 2;
+	};
+	Random random = 3;
+	string cipher_suite = 4;
+	string compression_method = 5;
+	message Extension {
+	    string name = 1;
+	    uint32 length = 2;
+	    bytes data = 3;
+	};
+	repeated Extension extensions = 6;
+    };
+    Tls tls = 1;
+};
+
+message TlsCertificates {
+    message Tls {
+	repeated bytes certificates = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsServerKeyExchange {
+    message Tls {
+	string key_exchange_algorithm = 1;
+	string curve_type_field = 2;
+	map<string, string> curve_metadata = 3;
+	string public_key = 4;
+	string signature_hash_algorithm = 5;
+	string signature_algorithm = 6;
+	string signature_hash = 7;
+    };
+    Tls tls = 1;
+};
+
+message TlsServerHelloDone {
+    message Tls {
+    };
+    Tls tls = 1;
+};
+
+message TlsHandshakeUnknown {
+    message Tls {
+        string type = 1;
+	uint32 length = 2;
+    };
+    Tls tls = 1;
+};
+
+message TlsCertificateRequest {
+    message Tls {
+        repeated string certificate_types = 1;
+	message SignatureAlgorithm {
+	    string hash_algorithm = 1;
+	    string signature_algorithm = 2;
+	};
+	repeated SignatureAlgorithm signature_algorithms = 2;
+	string distinguished_names = 3;
+    };
+    Tls tls = 1;
+};
+
+message TlsClientKeyExchange {
+    message Tls {
+        string key = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsCertificateVerify {
+    message Tls {
+	message SignatureAlgorithm {
+	    string hash_algorithm = 1;
+	    string signature_algorithm = 2;
+	};
+	repeated SignatureAlgorithm signature_algorithms = 2;
+	string signature = 3;
+    };
+    Tls tls = 1;
+};
+
+message TlsChangeCipherSpec {
+    message Tls {
+        string value = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsHandshakeFinished {
+    message Tls {
+        string message = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsHandshakeComplete {
+    message Tls {
+    };
+    Tls tls = 1;
+};
+
+message TlsApplicationData {
+    message Tls {
+	uint32 version = 1;
+	uint64 length = 2;
+    };
+    Tls tls = 1;
+};
+
+message Location {
+    message Location {
+        string city = 1;
+	string iso = 2;
+	string country = 3;
+	float latitude = 4;
+	float longitude = 5;
+    };
+    Location src = 1;
+    Location dest = 2;
+};
+
+message Indicator {
+    string id = 1;
+    string type = 2;
+    string value = 3;
+    string description = 4;
+};
+
+message Event {
+    string id = 1;
+    string device = 2;
+    string network = 3;
+    string origin = 4;
+    string action = 5;
+    string url = 6;
+    repeated string src = 7;
+    repeated string dest = 8;
+    int64 time = 9;
+    DnsMessage dns_message = 10;
+    UnrecognisedDatagram unrecognised_datagram = 11;
+    Icmp icmp = 12;
+    HttpRequest http_request = 13;
+    HttpResponse http_response = 14;
+    SipRequest sip_request = 15;
+    SipResponse sip_response = 16;
+    SipSsl sip_ssl = 17;
+    Imap imap = 18;
+    Pop3 pop3 = 19;
+    Pop3Ssl pop3_ssl = 20;
+    Ntp ntp_timestamp = 21;
+    Ntp ntp_control = 22;
+    Ntp ntp_private = 23;
+    FtpCommand ftp_command = 24;
+    FtpResponse ftp_response = 25;
+    SmtpCommand smtp_command = 26;
+    SmtpResponse smtp_response = 27;
+    SmtpData smtp_data = 28;
+    Gre gre = 29;
+    GrePptp gre_pptp = 30;
+    Esp esp = 31;
+    UnrecognisedIpProtocol unrecognised_ip_protocol = 32;
+    Wlan wlan = 33;
+    TlsUnknown tls_unknown = 34;
+    TlsClientHello tls_client_hello = 35;
+    TlsServerHello tls_server_hello = 36;
+    TlsCertificates tls_certificates = 37;
+    TlsServerKeyExchange tls_server_key_exchange = 38;
+    TlsServerHelloDone tls_server_hello_done = 39;
+    TlsHandshakeUnknown tls_handshake_unknown = 40;
+    TlsCertificateRequest tls_certificate_request = 41;
+    TlsClientKeyExchange tls_client_key_exchange = 42;
+    TlsCertificateVerify tls_certificate_verify = 43;
+    TlsChangeCipherSpec tls_change_cipher_spec = 44;
+    TlsHandshakeFinished tls_handshake_finished = 45;
+    TlsHandshakeComplete tls_handshake_complete = 46;
+    TlsApplicationData tls_application_data = 47;
+    Location location = 48;
+    repeated Indicator indicators = 49;
+}
+
+message Empty {
+}
+
+service Receiver {
+    rpc Send(Observation) returns (Empty) {}
+}
+
