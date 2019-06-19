@@ -17,7 +17,7 @@ cyberprobe_LDADD += -ldag
 endif
 
 cybermon_SOURCES = cybermon.C management.h 
-cybermon_LDADD = libcybermon.la -lssl
+cybermon_LDADD = libcybermon.la -lssl -lgrpc++ -lprotobuf
 
 cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h interface.h \
 	interface.C endpoint.h endpoint.C parameter.h parameter.C \
@@ -114,3 +114,13 @@ AM_CPPFLAGS += $(BOOST_CPPFLAGS) $(LUA_INCLUDE)
 AM_LDFLAGS += $(LDFLAGS_BOOST) $(LUA_LDADD)
 LIBS += $(LIBS_BOOST) $(LUA_LIB)
 
+cyberprobe.pb.cc cyberprobe.pb.h: ../protos/cyberprobe.proto
+	$(PROTOC) --proto_path=$(srcdir)/../protos --cpp_out=$(builddir) $^
+
+dist_noinst_DATA = ../protos/cyberprobe.proto
+
+MOSTLYCLEANFILES = cyberprobe.pb.cc cyberprobe.pb.h
+
+#BUILD_SOURCES = cyberprobe.pb.h
+
+nodist_cybermon_SOURCES = cyberprobe.pb.cc cyberprobe.pb.h

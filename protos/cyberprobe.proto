@@ -341,7 +341,7 @@ message TlsApplicationData {
     Tls tls = 1;
 };
 
-message Location {
+message Locations {
     message Location {
         string city = 1;
 	string iso = 2;
@@ -413,7 +413,7 @@ message Event {
 	TlsApplicationData tls_application_data = 48;
     };
 
-    Location location = 49;
+    Locations location = 49;
     repeated Indicator indicators = 50;
 }
 

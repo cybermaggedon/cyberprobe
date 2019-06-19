@@ -47,6 +47,28 @@ AM_PATH_PYTHON([3.0])
 BOOST_REQUIRE
 BOOST_PROGRAM_OPTIONS
 
+# Protobuf
+PKG_CHECK_MODULES(PROTOBUF, protobuf >= 2.4.0)
+AC_SUBST(PROTOBUF_LIBS)
+AC_SUBST(PROTOBUF_CFLAGS)
+AC_SUBST(PROTOBUF_VERSION)
+
+# ProtoBuf compiler.
+# First, specify with --with-protoc=/path/of/protoc.
+# Or, specify with env variable PROTOC.
+# If neither of the above, find it in the path.
+#AC_MSG_CHECKING([for ProtoBuf compiler protoc])
+AC_ARG_WITH([protoc],
+    [AS_HELP_STRING([--with-protoc=/path/of/protoc],
+        [Location of the protocol buffers compiler protoc. Defaults to looking on path.])],
+    [PROTOC="$withval"],
+    [ AS_IF([test "x${PROTOC}" == "x"],
+        [AC_PATH_PROG([PROTOC], [protoc], [no])])
+    ]
+)
+#AC_MSG_RESULT([${PROTOC}])
+AS_IF([test "${PROTOC}" == "no"], [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found.])])
+
 # Lua
 AX_PROG_LUA([5.1], [], [], [AC_MSG_ERROR([Lua interpreter missing.])])
 AX_LUA_HEADERS([], [AC_MSG_ERROR([Lua headers missing.])])
