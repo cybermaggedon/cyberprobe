@@ -1,6 +1,8 @@
 
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 package cyberprobe;
 
 enum Action {
@@ -367,7 +369,7 @@ message Event {
     string url = 6;
     repeated string src = 7;
     repeated string dest = 8;
-    int64 time = 9;
+    google.protobuf.Timestamp time = 9;
 
     oneof Detail {
 	DnsMessage dns_message = 10;
