@@ -3,6 +3,48 @@ syntax = "proto3";
 
 package cyberprobe;
 
+enum Action {
+    dns_message = 0;
+    unrecognised_datagram = 2;
+    unrecognised_stream = 3;
+    icmp = 4;
+    http_request = 5;
+    http_response = 6;
+    sip_request = 7;
+    sip_response = 8;
+    sip_ssl = 9;
+    imap = 10;
+    pop3 = 11;
+    pop3_ssl = 12;
+    ntp_timestamp = 13;
+    ntp_control = 14;
+    ntp_private = 15;
+    ftp_command = 16;
+    ftp_response = 17;
+    smtp_command = 18;
+    smtp_response = 19;
+    smtp_data = 20;
+    gre = 21;
+    gre_pptp = 22;
+    esp = 23;
+    unrecognised_ip_protocol = 24;
+    wlan = 25;
+    tls_unknown = 26;
+    tls_client_hello = 27;
+    tls_server_hello = 28;
+    tls_certificates = 29;
+    tls_server_key_exchange = 30;
+    tls_server_hello_done = 31;
+    tls_handshake_unknown = 32;
+    tls_certificate_request = 33;
+    tls_client_key_exchange = 34;
+    tls_certificate_verify = 35;
+    tls_change_cipher_spec = 36;
+    tls_handshake_finished = 37;
+    tls_handshake_complete = 38;
+    tls_application_data = 39;
+};
+
 message Query {
     string name = 1;
     string type = 2;
@@ -321,57 +363,58 @@ message Event {
     string device = 2;
     string network = 3;
     string origin = 4;
-    string action = 5;
+    Action action = 5;
     string url = 6;
     repeated string src = 7;
     repeated string dest = 8;
     int64 time = 9;
     DnsMessage dns_message = 10;
     UnrecognisedDatagram unrecognised_datagram = 11;
-    Icmp icmp = 12;
-    HttpRequest http_request = 13;
-    HttpResponse http_response = 14;
-    SipRequest sip_request = 15;
-    SipResponse sip_response = 16;
-    SipSsl sip_ssl = 17;
-    Imap imap = 18;
-    Pop3 pop3 = 19;
-    Pop3Ssl pop3_ssl = 20;
-    Ntp ntp_timestamp = 21;
-    Ntp ntp_control = 22;
-    Ntp ntp_private = 23;
-    FtpCommand ftp_command = 24;
-    FtpResponse ftp_response = 25;
-    SmtpCommand smtp_command = 26;
-    SmtpResponse smtp_response = 27;
-    SmtpData smtp_data = 28;
-    Gre gre = 29;
-    GrePptp gre_pptp = 30;
-    Esp esp = 31;
-    UnrecognisedIpProtocol unrecognised_ip_protocol = 32;
-    Wlan wlan = 33;
-    TlsUnknown tls_unknown = 34;
-    TlsClientHello tls_client_hello = 35;
-    TlsServerHello tls_server_hello = 36;
-    TlsCertificates tls_certificates = 37;
-    TlsServerKeyExchange tls_server_key_exchange = 38;
-    TlsServerHelloDone tls_server_hello_done = 39;
-    TlsHandshakeUnknown tls_handshake_unknown = 40;
-    TlsCertificateRequest tls_certificate_request = 41;
-    TlsClientKeyExchange tls_client_key_exchange = 42;
-    TlsCertificateVerify tls_certificate_verify = 43;
-    TlsChangeCipherSpec tls_change_cipher_spec = 44;
-    TlsHandshakeFinished tls_handshake_finished = 45;
-    TlsHandshakeComplete tls_handshake_complete = 46;
-    TlsApplicationData tls_application_data = 47;
-    Location location = 48;
-    repeated Indicator indicators = 49;
+    UnrecognisedStream unrecognised_stream = 12;
+    Icmp icmp = 13;
+    HttpRequest http_request = 14;
+    HttpResponse http_response = 15;
+    SipRequest sip_request = 16;
+    SipResponse sip_response = 17;
+    SipSsl sip_ssl = 18;
+    Imap imap = 19;
+    Pop3 pop3 = 20;
+    Pop3Ssl pop3_ssl = 21;
+    Ntp ntp_timestamp = 22;
+    Ntp ntp_control = 23;
+    Ntp ntp_private = 24;
+    FtpCommand ftp_command = 25;
+    FtpResponse ftp_response = 26;
+    SmtpCommand smtp_command = 27;
+    SmtpResponse smtp_response = 28;
+    SmtpData smtp_data = 29;
+    Gre gre = 30;
+    GrePptp gre_pptp = 31;
+    Esp esp = 32;
+    UnrecognisedIpProtocol unrecognised_ip_protocol = 33;
+    Wlan wlan = 34;
+    TlsUnknown tls_unknown = 35;
+    TlsClientHello tls_client_hello = 36;
+    TlsServerHello tls_server_hello = 37;
+    TlsCertificates tls_certificates = 38;
+    TlsServerKeyExchange tls_server_key_exchange = 39;
+    TlsServerHelloDone tls_server_hello_done = 40;
+    TlsHandshakeUnknown tls_handshake_unknown = 41;
+    TlsCertificateRequest tls_certificate_request = 42;
+    TlsClientKeyExchange tls_client_key_exchange = 43;
+    TlsCertificateVerify tls_certificate_verify = 44;
+    TlsChangeCipherSpec tls_change_cipher_spec = 45;
+    TlsHandshakeFinished tls_handshake_finished = 46;
+    TlsHandshakeComplete tls_handshake_complete = 47;
+    TlsApplicationData tls_application_data = 48;
+    Location location = 49;
+    repeated Indicator indicators = 50;
 }
 
 message Empty {
 }
 
-service Receiver {
-    rpc Send(Observation) returns (Empty) {}
+service EventStream {
+    rpc Observe(Event) returns (Empty) {}
 }
 
