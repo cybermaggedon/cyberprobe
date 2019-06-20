@@ -251,7 +251,7 @@ void cybermon_qwriter::sip_response(const context_ptr cp,
 void cybermon_qwriter::http_request(const context_ptr cp,
 				    const std::string& method,
 				    const std::string& url,
-				    const observer::http_hdr_t& hdr,
+				    const event::http_hdr_t& hdr,
 				    pdu_iter s, pdu_iter e,
 				    const timeval& tv) {
     try {
@@ -267,7 +267,7 @@ void cybermon_qwriter::http_request(const context_ptr cp,
 void cybermon_qwriter::http_response(const context_ptr cp,
 				     unsigned int code,
 				     const std::string& status,
-				     const observer::http_hdr_t& hdr,
+				     const event::http_hdr_t& hdr,
 				     const std::string& url,
 				     pdu_iter s, pdu_iter e,
 				     const timeval& tv) {

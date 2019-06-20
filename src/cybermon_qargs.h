@@ -13,6 +13,7 @@
 #ifndef CYBERMON_QARGS_H_
 #define CYBERMON_QARGS_H_
 
+#include <cybermon/event.h>
 #include <cybermon/engine.h>
 #include <cybermon/tls_handshake_protocol.h>
 
@@ -333,7 +334,7 @@ class http_request_args: public qargs {
 public:
     http_request_args(const cybermon::context_ptr cp, const std::string& method,
 		      const std::string& url,
-		      const cybermon::observer::http_hdr_t& hdr,
+		      const cybermon::event::http_hdr_t& hdr,
 		      cybermon::pdu_iter s, cybermon::pdu_iter e,
 		      const timeval& time) :
 	cptr(cp), httpmethod(method), httpurl(url), httphdr(hdr),
@@ -344,7 +345,7 @@ public:
     cybermon::context_ptr cptr;
     const std::string httpmethod;
     const std::string httpurl;
-    cybermon::observer::http_hdr_t httphdr;
+  cybermon::event::http_hdr_t httphdr;
     cybermon::pdu pdu;
     timeval time;
 };
@@ -354,7 +355,7 @@ class http_response_args: public qargs {
 public:
     http_response_args(const cybermon::context_ptr cp, unsigned int code,
 		       const std::string& status,
-		       const cybermon::observer::http_hdr_t& hdr,
+		       const cybermon::event::http_hdr_t& hdr,
 		       const std::string& url,
 		       cybermon::pdu_iter s, cybermon::pdu_iter e,
 		       const timeval& time) :
@@ -366,7 +367,7 @@ public:
     cybermon::context_ptr cptr;
     unsigned int httpcode;
     const std::string httpstatus;
-    cybermon::observer::http_hdr_t httphdr;
+    cybermon::event::http_hdr_t httphdr;
     const std::string httpurl;
     cybermon::pdu pdu;
     timeval time;

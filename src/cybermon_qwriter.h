@@ -86,14 +86,14 @@ namespace cybermon {
 	virtual void http_request(const context_ptr cp,
 				  const std::string& method,
 				  const std::string& url,
-				  const observer::http_hdr_t& hdr,
+				  const event::http_hdr_t& hdr,
 				  pdu_iter body_start, pdu_iter body_end,
 				  const pdu_time& tv);
 	
 	virtual void http_response(const context_ptr cp,
 				   unsigned int code,
 				   const std::string& status,
-				   const observer::http_hdr_t& hdr,
+				   const event::http_hdr_t& hdr,
 				   const std::string& url,
 				   pdu_iter body_start, pdu_iter body_end,
 				   const pdu_time& tv);

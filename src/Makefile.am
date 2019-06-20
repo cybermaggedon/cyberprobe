@@ -67,6 +67,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/monitor.h ../include/cybermon/nhis11.h	\
 	../include/cybermon/ntp.h ../include/cybermon/ntp_protocol.h	\
 	../include/cybermon/observer.h					\
+	../include/cybermon/event.h					\
 	../include/cybermon/packet_capture.h				\
 	../include/cybermon/pdu.h ../include/cybermon/pop3.h		\
 	../include/cybermon/pop3_context.h				\

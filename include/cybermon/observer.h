@@ -6,6 +6,7 @@
 #include <cybermon/dns_protocol.h>
 #include <cybermon/ntp_protocol.h>
 #include <cybermon/tls_handshake_protocol.h>
+#include <cybermon/event.h>
 
 #include <vector>
 
@@ -96,15 +97,11 @@ namespace cybermon {
 			       pdu_iter e,
 			       const timeval& tv) = 0;
 
-	typedef
-	    std::map<std::string, std::pair<std::string,std::string> > 
-	    http_hdr_t;
-    
 	// HTTP
 	virtual void http_request(const context_ptr cp,
 				  const std::string& method,
 				  const std::string& url,
-				  const observer::http_hdr_t& hdr,
+				  const cybermon::event::http_hdr_t& hdr,
 				  pdu_iter body_start,
 				  pdu_iter body_end,
 				  const timeval& tv) = 0;
@@ -112,7 +109,7 @@ namespace cybermon {
 	virtual void http_response(const context_ptr cp,
 				   unsigned int code,
 				   const std::string& status,
-				   const http_hdr_t& hdr,
+				   const event::http_hdr_t& hdr,
 				   // URL of object, or "" if not known.
 				   const std::string& url,
 				   pdu_iter body_start,
