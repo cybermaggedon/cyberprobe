@@ -12,28 +12,35 @@
 #include <cybermon/engine.h>
 #include <cybermon_qargs.h>
 #include <cybermon/tls_handshake_protocol.h>
+#include <cybermon/event.h>
 
 #include <queue>
 #include <vector>
 
 namespace cybermon {
 
+    typedef std::shared_ptr<event::event> event_ptr;
+
     class cybermon_qwriter: public engine {
 
       public:
 
+
 	// Constructor
         cybermon_qwriter(const std::string& path,
-			 std::queue<q_entry*>& cybermonq,
+			 std::queue<event_ptr>& cybermonq,
 			 threads::mutex& cqwrlock);
 	// Destructor.
 	virtual ~cybermon_qwriter() {
 	}
 
-	std::queue<q_entry*>& cqueue;
+	std::queue<event_ptr>& cqueue;
 
 	threads::mutex& lock;
 
+	// New API, everything below getting decommissioned.
+	virtual void handle(std::shared_ptr<event::event>);
+	
 	virtual void connection_up(const context_ptr cp,
 				   const pdu_time& tv);
 
@@ -258,7 +265,7 @@ namespace cybermon {
 	// Max size of queue.
 	static const int q_limit = 1000;
 
-	virtual void push(q_entry* e) {
+	virtual void push(std::shared_ptr<event::event> e) {
 	    lock.lock();
 
 	    // Sleep until queue is below the queue limit.

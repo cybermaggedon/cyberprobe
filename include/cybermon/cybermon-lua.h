@@ -26,9 +26,11 @@ extern "C" {
 #include <string>
 #include <stdexcept>
 #include <map>
+#include <memory>
 
 #include "engine.h"
 #include <cybermon/tls_handshake_protocol.h>
+#include <cybermon/event.h>
 
 namespace cybermon {
 
@@ -359,6 +361,17 @@ namespace cybermon {
     // code to elaborate contexts etc.  This seems the best way to do
     // it because, passing context_ptrs around doesn't work - they're
     // shared ptrs, which don't pass through C very well.
+    class event_userdata {
+    public:
+
+	// Context
+	std::shared_ptr<event::event> event;
+
+	// Cybermon bridge.
+	cybermon_lua* cml;
+
+    };
+
     class context_userdata {
     public:
 
@@ -379,7 +392,6 @@ namespace cybermon {
 	// These are 'C' functions which get called from lua.
 	static int context_describe_src(lua_State*);
 	static int context_describe_dest(lua_State*);
-	static int context_get_liid(lua_State*);
 	static int context_get_id(lua_State*);
 	static int context_get_network_info(lua_State*);
 	static int context_get_trigger_info(lua_State*);
@@ -398,7 +410,10 @@ namespace cybermon {
 
 	static int context_get_direction(lua_State*);
 
-	static int context_gc(lua_State*);
+	static int event_gc(lua_State*);
+	static int event_get_device(lua_State*);
+	static int event_get_action(lua_State*);
+	static int event_index(lua_State*);
 
 	// Constructor.
 	cybermon_lua(const std::string& cfg);
@@ -406,12 +421,18 @@ namespace cybermon {
 	using lua_state::push;
 
 	// Push a cybermon context onto the LUA stack as light userdata.
+	void push(event_userdata& ev) {
+	    push_light_userdata(&ev);
+	}
 	void push(context_userdata& c) {
 	    push_light_userdata(&c);
 	}
 
 	// Push a context pointer
 	void push(context_ptr c);
+
+	// Push a event pointer
+	void push(std::shared_ptr<event::event> ev);
 
 	// Push a timestamp value (convert to time).
 	void push(const timeval& time);
@@ -436,6 +457,9 @@ namespace cybermon {
 	void push(const ntp_timestamp&);
 	void push(const ntp_control&);
 	void push(const ntp_private&);
+
+	// Call the config.event function as event(content, event)
+	void event(engine& an, std::shared_ptr<event::event> ev);
 
 	// Call the config.trigger_up function as trigger_up(liid, addr)
 	//void trigger_up(const std::string& liid, const tcpip::address& a);

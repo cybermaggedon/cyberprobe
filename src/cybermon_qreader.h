@@ -12,10 +12,13 @@
 #include <queue>
 #include <cybermon_qargs.h>
 #include <cybermon_qwriter.h>
+#include <cybermon/event.h>
 
 namespace cybermon {
 
     class cybermon_qreader: public threads::thread {
+
+      typedef std::shared_ptr<event::event> eptr;
 
       private:
 	cybermon_lua cml;
@@ -24,7 +27,7 @@ namespace cybermon {
 	// State: true if we're running, false if we've been asked to stop.
 	bool running;
 
-	std::queue<q_entry*>& cqueue;
+      std::queue<eptr>& cqueue;
 
 	threads::mutex& lock;
 
@@ -32,7 +35,7 @@ namespace cybermon {
 
 	// Constructor
 	cybermon_qreader(const std::string& path,
-			 std::queue<q_entry*>& cybermonq,
+			 std::queue<eptr>& cybermonq,
 			 threads::mutex& cqwrlock, cybermon_qwriter cqwriter);
 
 	cybermon_qwriter qwriter;

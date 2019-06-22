@@ -4,6 +4,7 @@
 #include <cybermon/cybermon-lua.h>
 #include <cybermon/forgery.h>
 #include <cybermon/pdu.h>
+#include <cybermon/event.h>
 
 using namespace cybermon;
 
@@ -20,14 +21,20 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     set_global("config");
 
     // Put new meta-table on the stack.
-    new_meta_table("cybermon.context");
+    new_meta_table("cybermon.event");
 
     push("__index");
     push_value(-2);       /* pushes the metatable */
     set_table(-3);  /* metatable.__index = metatable */
-    
+
     std::map<std::string,lua_CFunction> afns;
-    afns["__gc"] = &context_gc;
+    afns["__gc"] = &event_gc;
+    afns["__index"] = &event_index;
+    /*
+
+    afns["get_device"] = &event_get_device;
+    afns["get_action"] = &event_get_action;
+
     afns["get_type"] = &context_get_type;
     afns["get_parent"] = &context_get_parent;
     afns["get_src_addr"] = &context_get_src_addr;
@@ -36,7 +43,6 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     afns["get_id"] = &context_get_id;
     afns["describe_src"] = &context_describe_src;
     afns["describe_dest"] = &context_describe_dest;
-    afns["get_liid"] = &context_get_liid;
     afns["get_context_id"] = &context_get_id;
     afns["get_network_info"] = &context_get_network_info;
     afns["get_trigger_info"] = &context_get_trigger_info;
@@ -45,7 +51,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     afns["forge_tcp_data"] = &context_forge_tcp_data;
     afns["get_creation_time"] = &context_get_creation_time;
     afns["get_direction"] = &context_get_direction;
-
+    */
     register_table(afns);
 
     // Pop meta-table
@@ -53,8 +59,31 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
 
 }
 
+void cybermon_lua::event(engine& an, std::shared_ptr<event::event> ev)
+{
+
+    // Get config.event
+    get_global("config");
+    get_field(-1, "event");
+
+    // Push event on stack
+    push(ev);
+    
+    // config.icmp(event)
+    try {
+	call(1, 0);
+    } catch (std::exception& e) {
+	pop();
+	throw;
+    }
+    
+    // Still got 'config' left on stack, it can go.
+    pop();
+
+}
+
 // Call the config.trigger_up function as trigger_up(event)
-void cybermon_lua::trigger_up(const std::string& liid, const std::string& a,
+void cybermon_lua::trigger_up(const std::string& device, const std::string& a,
 			      const timeval& time)
 {
  
@@ -75,7 +104,7 @@ void cybermon_lua::trigger_up(const std::string& liid, const std::string& a,
 
     // Set table device.
     push("device");
-    push(liid);
+    push(device);
     set_table(-3);
 
     // Set table address
@@ -97,7 +126,7 @@ void cybermon_lua::trigger_up(const std::string& liid, const std::string& a,
 }
 
 // Call the config.trigger_down function as trigger_down(event)
-void cybermon_lua::trigger_down(const std::string& liid,
+void cybermon_lua::trigger_down(const std::string& device,
 				const timeval& time)
 {
 
@@ -115,7 +144,7 @@ void cybermon_lua::trigger_down(const std::string& liid,
 
     // Set table device.
     push("device");
-    push(liid);
+    push(device);
     set_table(-3);
 	
     // config.trigger_down(event)
@@ -2987,7 +3016,24 @@ void cybermon_lua::push(context_ptr cp)
     cd->ctxt = cp;
     cd->cml = this;
 
-    get_meta_table("cybermon.context");
+    get_meta_table("cybermon.event");
+    set_meta_table(-2);
+
+}
+
+void cybermon_lua::push(std::shared_ptr<event::event> ev)
+{
+
+    void* ud = new_userdata(sizeof(event_userdata));
+    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
+
+    // Placement 'new' to initialise the thing.
+    ed = new (ed) event_userdata;
+
+    ed->event = ev;
+    ed->cml = this;
+
+    get_meta_table("cybermon.event");
     set_meta_table(-2);
 
 }
@@ -3021,7 +3067,7 @@ void cybermon_lua::push(const timeval& time)
 int cybermon_lua::context_get_parent(lua_State *lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3041,7 +3087,7 @@ int cybermon_lua::context_get_parent(lua_State *lua)
 int cybermon_lua::context_get_reverse(lua_State *lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3061,7 +3107,7 @@ int cybermon_lua::context_get_reverse(lua_State *lua)
 int cybermon_lua::context_get_id(lua_State *lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3074,14 +3120,56 @@ int cybermon_lua::context_get_id(lua_State *lua)
 
 }
 
-int cybermon_lua::context_gc(lua_State* lua)
+int cybermon_lua::event_index(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
+    luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
+    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
+
+    std::string key;
+    ed->cml->to_string(2, key);
+
+    ed->cml->pop(2);
+
+    // FIXME: Use a map
+    
+    if (key == "get_device") {
+	ed->cml->push_c_function(event_get_device);
+	return 1;
+    }
+
+    if (key == "get_action") {
+	ed->cml->push_c_function(event_get_action);
+	return 1;
+    }
+
+    if (key == "device") {
+	ed->cml->push(ed->event->get_device());
+	return 1;
+    }
+
+    if (key == "action") {
+	ed->cml->push(ed->event->get_action());
+	return 1;
+    }
+
+    // Returrn nil
+    ed->cml->push();
+
+    return 1;
+
+}
+
+int cybermon_lua::event_gc(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
-    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
 
-    cd->ctxt.reset();
+    // FIXME: No idea why this is here.
+    ed->event.reset();
 
-    cd->cml->pop();
+    ed->cml->pop();
 
     return 1;
 }
@@ -3089,7 +3177,7 @@ int cybermon_lua::context_gc(lua_State* lua)
 int cybermon_lua::context_get_src_addr(lua_State *lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3107,7 +3195,7 @@ int cybermon_lua::context_get_src_addr(lua_State *lua)
 int cybermon_lua::context_get_dest_addr(lua_State *lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3125,7 +3213,7 @@ int cybermon_lua::context_get_dest_addr(lua_State *lua)
 int cybermon_lua::context_describe_src(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3143,7 +3231,7 @@ int cybermon_lua::context_describe_src(lua_State* lua)
 int cybermon_lua::context_describe_dest(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3161,7 +3249,7 @@ int cybermon_lua::context_describe_dest(lua_State* lua)
 int cybermon_lua::context_get_type(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3178,7 +3266,7 @@ int cybermon_lua::context_get_type(lua_State* lua)
 int cybermon_lua::context_get_creation_time(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3196,7 +3284,7 @@ int cybermon_lua::context_get_creation_time(lua_State* lua)
 int cybermon_lua::context_get_direction(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3215,19 +3303,33 @@ int cybermon_lua::context_get_direction(lua_State* lua)
 
 }
 
-int cybermon_lua::context_get_liid(lua_State* lua)
+int cybermon_lua::event_get_device(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
-    luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
-    context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
+    luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
+    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
 
-    std::string liid;
-    address trigger_address;
-    engine::get_root_info(cd->ctxt, liid, trigger_address);
+    std::string device = ed->event->get_device();
 
-    cd->cml->pop(1);
-    cd->cml->push(liid);
+    ed->cml->pop(1);
+    ed->cml->push(device);
+
+    return 1;
+
+}
+
+int cybermon_lua::event_get_action(lua_State* lua)
+{
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
+    luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
+    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
+
+    std::string action = ed->event->get_action();
+
+    ed->cml->pop(1);
+    ed->cml->push(action);
 
     return 1;
 
@@ -3236,13 +3338,13 @@ int cybermon_lua::context_get_liid(lua_State* lua)
 int cybermon_lua::context_get_trigger_info(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
-    std::string liid;
+    std::string device;
     address trigger_address;
-    engine::get_root_info(cd->ctxt, liid, trigger_address);
+    engine::get_root_info(cd->ctxt, device, trigger_address);
 
     cd->cml->pop(1);
 
@@ -3262,7 +3364,7 @@ int cybermon_lua::context_get_trigger_info(lua_State* lua)
 int cybermon_lua::context_get_network_info(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3283,7 +3385,7 @@ int cybermon_lua::context_get_network_info(lua_State* lua)
 int cybermon_lua::context_forge_dns_response(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3324,7 +3426,7 @@ int cybermon_lua::context_forge_dns_response(lua_State* lua)
 int cybermon_lua::context_forge_tcp_reset(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 
@@ -3339,7 +3441,7 @@ int cybermon_lua::context_forge_tcp_reset(lua_State* lua)
 int cybermon_lua::context_forge_tcp_data(lua_State* lua)
 {
 
-    void* ud = luaL_checkudata(lua, 1, "cybermon.context");
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`context' expected");
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
 

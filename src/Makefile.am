@@ -38,7 +38,7 @@ lib_LTLIBRARIES = libcybermon.la
 libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	cybermon_qwriter.C cybermon_qreader.C cybermon-lua.C dns_over_tcp.C dns_over_udp.C dns_protocol.C	\
 	engine.C etsi_li.C forgery.C ftp.C http.C icmp.C imap.C		\
-	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C		\
+	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C event.C  \
 	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
 	sip_ssl.C	\
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
@@ -68,6 +68,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/ntp.h ../include/cybermon/ntp_protocol.h	\
 	../include/cybermon/observer.h					\
 	../include/cybermon/event.h					\
+	../include/cybermon/event_implementations.h			\
 	../include/cybermon/packet_capture.h				\
 	../include/cybermon/pdu.h ../include/cybermon/pop3.h		\
 	../include/cybermon/pop3_context.h				\

@@ -9,6 +9,7 @@
 #include <cybermon/event.h>
 
 #include <vector>
+#include <memory>
 
 namespace cybermon {
 
@@ -16,6 +17,9 @@ namespace cybermon {
     // reportable events occur.
     class observer {
     public:
+
+	// New API, everything below getting decommissioned.
+	virtual void handle(std::shared_ptr<event::event>) = 0;
 	
 	// Connection-orientated.
 	virtual void connection_up(const context_ptr cp,

@@ -26,7 +26,7 @@
 using namespace cybermon;
 
 cybermon_qreader::cybermon_qreader(const std::string& path,
-				   std::queue<q_entry*>& cybermonq,
+				   std::queue<eptr>& cybermonq,
 				   threads::mutex& cqwrlock,
 				   cybermon_qwriter cqwriter) :
     cml(path), cqueue(cybermonq), lock(cqwrlock), qwriter(cqwriter) {
@@ -50,18 +50,26 @@ void cybermon_qreader::run() {
 	// At this point we hold the lock.
 
 	// Take next packet off queue.
-	q_entry* qentry = cqueue.front();
+	eptr qentry = cqueue.front();
 	cqueue.pop();
 
-	if (!qentry) {
+	// FIXME: Should be a way to shut down.
+	/*
+	if (!entry) {
 	    running = false;
 	    delete (qentry);
 	    break;
-	}
+	    }*/
 
 	// Got the packet, so the queue can unlock.
 	lock.unlock();
+
+
 	try {
+
+	    cml.event(qwriter, qentry);
+
+	  /*
 
 	    switch (qentry->calltype) {
 
@@ -562,7 +570,7 @@ void cybermon_qreader::run() {
 		std::cerr << "unknown call_type cybermon_qreader default:: "<< std::endl;
 	    }
 	    }
-
+	  */
 	} catch (std::exception& e) {
 
 	    std::cerr << "cybermon_qreader::run Exception: " << e.what()
