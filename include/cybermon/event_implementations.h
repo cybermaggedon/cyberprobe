@@ -15,14 +15,14 @@
 
 namespace cybermon {
 
-    namespace event {    
+    namespace event {
 
 	class trigger_up : public event {
 	public:
 	    std::string device;
-	    std::string address;
+	    const tcpip::address& address;
 	    trigger_up(const std::string& device,
-		       const std::string& address,
+		       const tcpip::address& address,
 		       const timeval& time) :
 		device(device), address(address),
 		event(TRIGGER_UP, time)
@@ -382,11 +382,11 @@ namespace cybermon {
 	class dns_message : public protocol_event {
 	public:
 	    dns_message(const cybermon::context_ptr cp,
-			const cybermon::dns_header hdr,
-			const std::list<cybermon::dns_query> queries,
-			const std::list<cybermon::dns_rr> answers,
-			const std::list<cybermon::dns_rr> authorities,
-			const std::list<cybermon::dns_rr> additional,
+			const cybermon::dns_header& hdr,
+			const std::list<cybermon::dns_query>& queries,
+			const std::list<cybermon::dns_rr>& answers,
+			const std::list<cybermon::dns_rr>& authorities,
+			const std::list<cybermon::dns_rr>& additional,
 			const timeval& time) :
 		hdr(hdr), queries(queries), answers(answers),
 		authorities(authorities), additional(additional),

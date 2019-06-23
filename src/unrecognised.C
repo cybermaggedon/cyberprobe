@@ -58,7 +58,10 @@ void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-        mgr.unrecognised_datagram(fc, sl.start, sl.end, sl.time);
+	auto ev =
+	    std::make_shared<event::unrecognised_datagram>(fc, sl.start, sl.end,
+							   sl.time);
+	mgr.handle(ev);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;

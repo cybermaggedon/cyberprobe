@@ -4,7 +4,7 @@
 #include <cybermon/address.h>
 #include <cybermon/dns_context.h>
 #include <cybermon/flow.h>
-
+#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 
@@ -40,8 +40,11 @@ void dns_over_udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->lock.lock();
 
     try {
-        mgr.dns_message(fc, dec.hdr, dec.queries, dec.answers,
-			dec.authorities, dec.additional, sl.time);
+	auto ev =
+	    std::make_shared<event::dns_message>(fc, dec.hdr, dec.queries,
+						 dec.answers, dec.authorities,
+						 dec.additional, sl.time);
+	mgr.handle(ev);
     } catch (std::exception& e) {
         fc->lock.unlock();
         throw;

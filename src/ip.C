@@ -8,6 +8,7 @@
 #include <cybermon/gre.h>
 #include <cybermon/esp.h>
 #include <cybermon/manager.h>
+#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 
@@ -48,10 +49,15 @@ void ip::handle_nxt_proto(manager& mgr, context_ptr fc, uint8_t protocol, const 
     // gre
      esp::process(mgr, fc, pdu_slice(s + header_length, s + length,
                                       sl.time, sl.direc));
-
+  
   else {
-    mgr.unrecognised_ip_protocol(fc, protocol, length - header_length,
-    s + header_length, s + length, sl.time);
+      auto ev =
+	  std::make_shared<event::unrecognised_ip_protocol>(fc, protocol,
+							    length - header_length,
+							    s + header_length,
+							    s + length,
+							    sl.time);
+      mgr.handle(ev);
   }
 }
 

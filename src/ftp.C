@@ -3,6 +3,7 @@
 #include <cybermon/ftp.h>
 #include <cybermon/manager.h>
 #include <cybermon/ip.h>
+#include <cybermon/event_implementations.h>
 
 #include <iostream>
 #include <ctype.h>
@@ -128,7 +129,9 @@ void ftp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 //		    context_ptr = as;
 		}
 
-		mgr.ftp_command(cp, command, sl.time);
+		auto ev =
+		    std::make_shared<event::ftp_command>(cp, command, sl.time);
+		mgr.handle(ev);
 
 /*
 		mgr.ftp_command(cp, command);
@@ -357,7 +360,10 @@ void ftp_server_parser::parse(context_ptr cp, const pdu_slice& sl,
 	    }
 
 	    if (!cont) {
-		mgr.ftp_response(cp, status, responses, sl.time);
+		auto ev =
+		    std::make_shared<event::ftp_response>(cp, status, responses,
+							  sl.time);
+		mgr.handle(ev);
 		first = true;
 		responses.clear();
 	    }
