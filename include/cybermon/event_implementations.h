@@ -627,6 +627,18 @@ namespace cybermon {
 	    const cybermon::tls_handshake_protocol::server_hello_data data;
 	};
 
+	class tls_server_hello_done : public protocol_event {
+	public:
+	    tls_server_hello_done(const cybermon::context_ptr cp,
+				  const timeval& time) :
+		// copy of data is ok because copy constructor is a deep copy
+		protocol_event(TLS_SERVER_HELLO_DONE, time, cp)
+		{
+		}
+	    virtual ~tls_server_hello_done() {}
+	    cybermon::context_ptr context;
+	};
+
 	class tls_certificates : public protocol_event {
 	public:
 	    tls_certificates(const cybermon::context_ptr cp,
@@ -746,6 +758,17 @@ namespace cybermon {
 	    virtual ~tls_handshake_finished() {}
 	    cybermon::context_ptr context;
 	    const std::vector<uint8_t> msg;
+	};
+
+	class tls_handshake_complete : public protocol_event {
+	public:
+	    tls_handshake_complete(const cybermon::context_ptr cp,
+				   const timeval& time) :
+		protocol_event(TLS_HANDSHAKE_COMPLETE, time, cp)
+		{
+		}
+	    virtual ~tls_handshake_complete() {}
+	    cybermon::context_ptr context;
 	};
 
 	class tls_application_data : public protocol_event {

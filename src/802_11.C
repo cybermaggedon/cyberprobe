@@ -1,4 +1,5 @@
 #include <cybermon/802_11.h>
+#include <cybermon/event_implementations.h>
 
 #include <cybermon/manager.h>
 #include "hardware_addr_utils.h"
@@ -63,7 +64,11 @@ void wlan::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
   flowContext->set_ttl(context::default_ttl);
 
 
-  mgr.wlan(flowContext, version, type, subtype, flags, is_protected, hdr->duration,
-    hw_addr_utils::to_string(hdr->filt), frag_num, seq_num, pduSlice.time);
+  auto ev =
+    std::make_shared<event::wlan>(flowContext, version, type, subtype,
+				  flags, is_protected, hdr->duration,
+				  hw_addr_utils::to_string(hdr->filt),
+				  frag_num, seq_num, pduSlice.time);
+  mgr.handle(ev);
 
 }
