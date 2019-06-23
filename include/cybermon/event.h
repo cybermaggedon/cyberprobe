@@ -75,11 +75,10 @@ namespace cybermon {
 	public:
 	    action_type action;
 	    timeval time;
-	    std::string id;
 	    event() {}
 	    event(const action_type action,
 		  const timeval& time) :
-		action(action), time(time), id(id)
+		action(action), time(time)
 		{
 		}
 	    virtual ~event() {}
