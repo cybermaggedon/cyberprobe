@@ -2,6 +2,7 @@
 #include <cybermon/address.h>
 #include <cybermon/smtp.h>
 #include <cybermon/manager.h>
+#include <cybermon/event_implementations.h>
 
 #include <iostream>
 
@@ -107,7 +108,9 @@ void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 	    if (*s == '\n') {
 
-		mgr.smtp_command(cp, command, sl.time);
+		auto ev =
+		    std::make_shared<event::smtp_command>(cp, command, sl.time);
+		mgr.handle(ev);
 
 		static const boost::regex 
 		    mail_from(" *MAIL +[Ff][Rr][Oo][Mm] *: *<([^ ]+)>",
@@ -177,7 +180,12 @@ void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 		// FIXME: Need to turn the data into something more useful
 		// i.e. RFC822 decode.
-		mgr.smtp_data(cp, from, to, data.begin(), data.end(), sl.time);
+
+		auto ev =
+		    std::make_shared<event::smtp_data>(cp, from, to,
+						       data.begin(),
+						       data.end(), sl.time);
+		mgr.handle(ev);
 
 		from = "";
 		to.clear();
@@ -262,7 +270,10 @@ void smtp_server_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 		    // Do something with the data.
 
-		    mgr.smtp_response(cp, status, texts, sl.time);
+		    auto ev =
+			std::make_shared<event::smtp_response>(cp, status,
+							       texts, sl.time);
+		    mgr.handle(ev);
 
 		    first = true;
 		    texts.clear();

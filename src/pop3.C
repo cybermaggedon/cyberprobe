@@ -4,6 +4,7 @@
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
 #include <cybermon/pop3_context.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -26,6 +27,8 @@ void pop3::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole POP3 message.
-    mgr.pop3(fc, sl.start, sl.end, sl.time);
+    auto ev =
+	std::make_shared<event::pop3>(fc, sl.start, sl.end, sl.time);
+    mgr.handle(ev);
 }
 

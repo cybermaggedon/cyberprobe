@@ -3,6 +3,7 @@
 #include <cybermon/manager.h>
 #include <cybermon/ip.h>
 #include <cybermon/802_11.h>
+#include <cybermon/event_implementations.h>
 
 #include <arpa/inet.h>
 #include <iomanip>
@@ -121,7 +122,10 @@ void gre::process_gre(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, 
   } else if (nxtProtoVal == 0x0800 || nxtProtoVal == 0x86DD) {
     ip::process(mgr, flowContext, pdu_slice(startOfPayload, pduSlice.end, pduSlice.time, pduSlice.direc));
   } else {
-    mgr.gre(flowContext, nxtProto, key, sequenceNo, startOfPayload, pduSlice.end, pduSlice.time);
+    auto ev =
+      std::make_shared<event::gre>(flowContext, nxtProto, key, sequenceNo,
+				   startOfPayload, pduSlice.end, pduSlice.time);
+    mgr.handle(ev);
   }
 
 }
@@ -185,8 +189,13 @@ void gre::process_pptp(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice,
   } else if (nxtProtoVal == 0x0800 || nxtProtoVal == 0x86DD) {
     ip::process(mgr, flowContext, pdu_slice(startOfPayload, pduSlice.end, pduSlice.time, pduSlice.direc));
   } else {
-    mgr.gre_pptp(flowContext, nxtProto, ntohs(pHdr->keyPayloadLength), ntohs(pHdr->keyCallID),
-                 sequenceNo, ackNo, startOfPayload, pduSlice.end, pduSlice.time);
+    auto ev =
+      std::make_shared<event::gre_pptp>(flowContext, nxtProto,
+					ntohs(pHdr->keyPayloadLength),
+					ntohs(pHdr->keyCallID),
+					sequenceNo, ackNo, startOfPayload,
+					pduSlice.end, pduSlice.time);
+    mgr.handle(ev);
   }
 
 

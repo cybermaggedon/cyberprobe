@@ -8,6 +8,7 @@
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
 #include <cybermon/rtp_context.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -30,6 +31,9 @@ void rtp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole RTP message.
-    mgr.rtp(fc, sl.start, sl.end, sl.time);
+    auto ev =
+	std::make_shared<event::rtp>(fc, sl.start, sl.end, sl.time);
+    mgr.handle(ev);
+	
 }
 

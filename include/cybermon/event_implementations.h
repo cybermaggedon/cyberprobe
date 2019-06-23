@@ -58,6 +58,30 @@ namespace cybermon {
 	    int64_t position;
 	};
 
+	class connection_up : public protocol_event {
+	public:
+	    connection_up(const cybermon::context_ptr cp,
+			  const timeval& time) :
+		protocol_event(CONNECTION_UP, time, cp)
+		{
+		}
+	    virtual ~connection_up() {}
+	    cybermon::context_ptr context;
+	    cybermon::pdu pdu;
+	};
+      
+	class connection_down : public protocol_event {
+	public:
+	    connection_down(const cybermon::context_ptr cp,
+			  const timeval& time) :
+		protocol_event(CONNECTION_DOWN, time, cp)
+		{
+		}
+	    virtual ~connection_down() {}
+	    cybermon::context_ptr context;
+	    cybermon::pdu pdu;
+	};
+      
 	class unrecognised_datagram : public protocol_event {
 	public:
 	    unrecognised_datagram(const cybermon::context_ptr cp,
