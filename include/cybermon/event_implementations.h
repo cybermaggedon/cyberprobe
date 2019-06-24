@@ -412,13 +412,13 @@ namespace cybermon {
 			const std::list<cybermon::dns_rr>& authorities,
 			const std::list<cybermon::dns_rr>& additional,
 			const timeval& time) :
-		hdr(hdr), queries(queries), answers(answers),
+		header(header), queries(queries), answers(answers),
 		authorities(authorities), additional(additional),
 		protocol_event(DNS_MESSAGE, time, cp)
 		{}
 	    virtual ~dns_message() {}
 	    cybermon::context_ptr context;
-	    cybermon::dns_header hdr;
+	    cybermon::dns_header header;
 	    std::list<cybermon::dns_query> queries;
 	    std::list<cybermon::dns_rr> answers;
 	    std::list<cybermon::dns_rr> authorities;

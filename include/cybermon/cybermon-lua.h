@@ -332,8 +332,12 @@ namespace cybermon {
 	    return (lua_isnil(lua, pos) == 1);
 	}
 
-	void new_meta_table(const std::string& name) {
-	    luaL_newmetatable(lua, name.c_str());
+        void new_meta_table(const std::string& name) {
+	    int ret = luaL_newmetatable(lua, name.c_str());
+	    if (ret == 0) {
+		pop();
+		throw std::invalid_argument("Meta table already exists.");
+	    }
 	}
 
 	void* new_userdata(int size) {
@@ -390,6 +394,7 @@ namespace cybermon {
     public:
 
 	// These are 'C' functions which get called from lua.
+	static int context_gc(lua_State*);
 	static int context_describe_src(lua_State*);
 	static int context_describe_dest(lua_State*);
 	static int context_get_id(lua_State*);
