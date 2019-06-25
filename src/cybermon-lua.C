@@ -84,34 +84,6 @@ int cybermon_lua::event_index(lua_State* lua)
 
     ed->cml->pop(2);
 
-    // FIXME: Use a map
-    
-    if (key == "device") {
-	ed->cml->push(ed->event->get_device());
-	return 1;
-    }
-
-    if (key == "action") {
-	ed->cml->push(ed->event->get_action());
-	return 1;
-    }
-
-    if (key == "time") {
-	ed->cml->push(ed->event->time);
-	return 1;
-    }
-
-    if (key == "context") {
-	auto eptr = dynamic_cast<event::protocol_event*>(&*(ed->event));
-	if (eptr == 0) {
-	    // Not a protocol event, return nil.
-	    ed->cml->push();
-	    return 1;
-	}
-	ed->cml->push(eptr->context);
-	return 1;
-    }
-
     return ed->event->get_lua_value(*(ed->cml), key);
 
 }
@@ -428,7 +400,6 @@ void cybermon_lua::push(const dns_rr& rr)
     }
 
 }
-
 
 void cybermon_lua::push(const std::list<dns_query>& lst)
 {
@@ -871,38 +842,6 @@ int cybermon_lua::context_get_direction(lua_State* lua)
         cd->cml->push("TO_DEVICE");
     else
         cd->cml->push("NOT_KNOWN");
-
-    return 1;
-
-}
-
-int cybermon_lua::event_get_device(lua_State* lua)
-{
-
-    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
-    luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
-    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
-
-    std::string device = ed->event->get_device();
-
-    ed->cml->pop(1);
-    ed->cml->push(device);
-
-    return 1;
-
-}
-
-int cybermon_lua::event_get_action(lua_State* lua)
-{
-
-    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
-    luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
-    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
-
-    std::string action = ed->event->get_action();
-
-    ed->cml->pop(1);
-    ed->cml->push(action);
 
     return 1;
 
