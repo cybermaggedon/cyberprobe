@@ -112,30 +112,7 @@ int cybermon_lua::event_index(lua_State* lua)
 	return 1;
     }
 
-    event::action_type action = ed->event->action;
-
-    if (action == event::DNS_MESSAGE) {
-	if (key == "header") {
-	    auto eptr = dynamic_cast<event::dns_message*>(&*(ed->event));
-	    ed->cml->push(eptr->header);
-	    return 1;
-	}
-	if (key == "queries") {
-	    auto eptr = dynamic_cast<event::dns_message*>(&*(ed->event));
-	    ed->cml->push(eptr->queries);
-	    return 1;
-	}
- 	if (key == "answers") {
-	    auto eptr = dynamic_cast<event::dns_message*>(&*(ed->event));
-	    ed->cml->push(eptr->answers);
-	    return 1;
-	}
-    }
-
-    // Return nil
-    ed->cml->push();
-
-    return 1;
+    return ed->event->get_lua_value(*(ed->cml), key);
 
 }
 

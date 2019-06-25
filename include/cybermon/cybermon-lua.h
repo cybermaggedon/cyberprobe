@@ -224,6 +224,47 @@ namespace cybermon {
 	    lua_pushlstring(lua, reinterpret_cast<const char*>(&(*s)), e - s);
 	}
 
+	void push(const std::vector<unsigned char>& data) {
+	    push(data.begin(), data.end());
+	}
+
+	void push(const std::map<std::string, std::string>& m) {
+
+	    create_table(0, m.size());
+
+	    // Loop through header
+	    for(std::map<std::string, std::string>::const_iterator it =
+		    m.begin();
+		it != m.end();
+		it++) {
+
+		// Set table row.
+		push(it->first);
+		push(it->second);
+		set_table(-3);
+
+	    }
+
+	}
+
+
+	void push(const std::list<std::string>& lst) {
+
+	    create_table(0, lst.size());
+
+	    int row = 1;
+	    for(std::list<std::string>::const_iterator it = lst.begin();
+		it != lst.end();
+		it++) {
+
+		// Set table row.
+		push(row++);
+		push(*it);
+		set_table(-3);
+
+	    }
+
+	}
 
 /*	void push(int size, unsigned char* buf ) {
 	    // FIXME: Lot of copying?

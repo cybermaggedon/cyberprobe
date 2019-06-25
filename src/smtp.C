@@ -168,6 +168,7 @@ void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 	    data.push_back(*s);
 	    
 	    if (data.size() < exp_terminator.length())
+	      // FIXME: Should s++ here
 		continue;
 
 	    if (std::equal(exp_terminator.begin(), exp_terminator.end(),
@@ -180,7 +181,6 @@ void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 		// FIXME: Need to turn the data into something more useful
 		// i.e. RFC822 decode.
-
 		auto ev =
 		    std::make_shared<event::smtp_data>(cp, from, to,
 						       data.begin(),

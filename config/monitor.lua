@@ -47,10 +47,10 @@ end
 -- Puts out a one-line description of the event.  Parameter action is a
 -- description of the event.
 observer.describe = function(e, action)
-  local liid = e.context:get_liid()
+  local device = e.device
   local s = addr.describe_address(e.context, true)
   local d = addr.describe_address(e.context, false)
-  io.write(string.format("%s: %s -> %s. %s\n", liid, s, d, action))
+  io.write(string.format("%s: %s -> %s. %s\n", device, s, d, action))
 --  io.write(string.format("    Time: %s\n", e.time))
   io.flush()
 end
@@ -598,6 +598,63 @@ observer.tls_application_data = function(e)
   io.write(string.format("  Message Length -> %u\n", #e.data));
   io.write("\n")
   io.flush()
+end
+
+observer.event_handlers = {
+  trigger_up = observer.trigger_up,
+  trigger_down = observer.trigger_down,
+  describe = observer.describe,
+  connection_up = observer.connection_up,
+  connection_down = observer.connection_down,
+  unrecognised_datagram = observer.unrecognised_datagram,
+  unrecognised_stream = observer.unrecognised_stream,
+  icmp = observer.icmp,
+  imap = observer.imap,
+  imap_ssl = observer.imap_ssl,
+  pop3 = observer.pop3,
+  pop3_ssl = observer.pop3_ssl,
+  rtp = observer.rtp,
+  rtp_ssl = observer.rtp_ssl,
+  sip_request = observer.sip_request,
+  sip_response = observer.sip_response,
+  sip_ssl = observer.sip_ssl,
+  smtp_auth = observer.smtp_auth,
+  http_request = observer.http_request,
+  http_response = observer.http_response,
+  smtp_command = observer.smtp_command,
+  smtp_response = observer.smtp_response,
+  smtp_data = observer.smtp_data,
+  dns_message = observer.dns_message,
+  ftp_command = observer.ftp_command,
+  ftp_response = observer.ftp_response,
+  ntp_common = observer.ntp_common,
+  ntp_timestamp_message = observer.ntp_timestamp_message,
+  ntp_control_message = observer.ntp_control_message,
+  ntp_private_message = observer.ntp_private_message,
+  gre = observer.gre,
+  grep_pptp = observer.grep_pptp,
+  esp = observer.esp,
+  unrecognised_ip_protocol = observer.unrecognised_ip_protocol,
+  wlan = observer.wlan,
+  tls_unknown = observer.tls_unknown,
+  tls_client_hello = observer.tls_client_hello,
+  tls_server_hello = observer.tls_server_hello,
+  tls_certificates = observer.tls_certificates,
+  tls_server_key_exchange = observer.tls_server_key_exchange,
+  tls_server_hello_done = observer.tls_server_hello_done,
+  tls_handshake_unknown = observer.tls_handshake_unknown,
+  tls_certificate_request = observer.tls_certificate_request,
+  tls_client_key_exchange = observer.tls_client_key_exchange,
+  tls_certificate_verify = observer.tls_certificate_verify,
+  tls_change_cipher_spec = observer.tls_change_cipher_spec,
+  tls_handshake_finished = observer.tls_handshake_finished,
+  tls_handshake_complete = observer.tls_handshake_complete,
+  tls_application_data = observer.tls_application_data
+}
+
+observer.event = function(e)
+  fn = observer.event_handlers[e.action]
+  fn(e)
 end
 
 

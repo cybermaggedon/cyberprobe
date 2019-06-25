@@ -93,7 +93,7 @@ end
 local initialise_observation = function(e, indicators)
 
   local obs = {}
-  obs["device"] = e.context:get_liid()
+  obs["device"] = e.device
 
   net, src, dest = e.context:get_network_info()
   if not(net == "") then
@@ -141,7 +141,7 @@ end
 module.initialise_observation = initialise_observation
 
 -- This function is called when a trigger events starts collection of an
--- attacker. liid=the trigger ID, addr=trigger address
+-- attacker. device=the trigger ID, addr=trigger address
 module.trigger_up = function(e)
 end
 
@@ -267,9 +267,7 @@ module.dns_message = function(e)
     q[#q + 1] = a
   end
   obs["dns_message"]["answer"] = q
-  
   submit(obs)
-
 end
 
 -- This function is called when an FTP command is observed.
@@ -433,7 +431,6 @@ module.esp = function(e)
 
   -- the payload is available to be output, but it is encrypted so not a lot of use
   -- obs["esp"]["payload"] = b64(e.payload)
-
   submit(obs)
 end
 
@@ -443,7 +440,6 @@ module.unrecognised_ip_protocol = function(e)
   obs["action"] = "unrecognised_ip_protocol"
   obs["unrecognised_ip_protocol"] = { next_proto=e.next_proto, payload_length=e.payload_length,
     payload=b64(e.payload)}
-
   submit(obs)
 end
 
@@ -454,7 +450,6 @@ module.wlan = function(e)
   obs["802.11"] = { version=e.version, type=e.type, subtype=e.subtype, flags=e.flags,
     protected=e.protected, filt_addr=e.filt_addr, frag_num=e.frag_num, seq_num=e.seq_num,
     duration=e.duration}
-
   submit(obs)
 end
 
@@ -463,7 +458,6 @@ module.tls_unknown = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_unknown"
   obs["tls_unknown"] = {tls={ version=e.version, content_type=e.content_type, length=e.length}}
-
   submit(obs)
 end
 
@@ -523,8 +517,6 @@ module.tls_client_hello = function(e)
   end
   tls["extensions"] = exts
   obs["tls_client_hello"] = {tls=tls}
-
-
   submit(obs)
 end
 
@@ -572,8 +564,6 @@ module.tls_server_hello = function(e)
   end
   tls["extensions"] = exts
   obs["tls_server_hello"] = {tls=tls}
-
-
   submit(obs)
 end
 
@@ -590,8 +580,6 @@ module.tls_certificates = function(e)
   end
   tls["certificates"] = certs
   obs["tls_certificates"] = {tls=tls}
-
-
   submit(obs)
 end
 
@@ -617,8 +605,6 @@ module.tls_server_key_exchange = function(e)
     end
   end
   obs["tls_server_key_exchange"] = {tls=tls}
-
-
   submit(obs)
 end
 
@@ -627,7 +613,6 @@ module.tls_server_hello_done = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_server_hello_done"
   obs["tls_server_hello_done"] = {tls={}}
-
   submit(obs)
 end
 
@@ -637,8 +622,6 @@ module.tls_handshake_unknown = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_handshake_unknown"
   obs["tls_handshake_unknown"] = {tls={type=e.type, length=e.length}}
-
-
   submit(obs)
 end
 
@@ -649,8 +632,6 @@ module.tls_certificate_request = function(e)
   tls = {cert_types=e.cert_types, signature_algorithms=e.signature_algorithms,
     distinguished_names=str_to_hex(e.distinguished_names)}
   obs["tls_certificate_request"] = {tls=tls}
-
-
   submit(obs)
 end
 
@@ -659,8 +640,6 @@ module.tls_client_key_exchange = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_client_key_exchange"
   obs["tls_client_key_exchange"] = {tls={key=b64(e.key)}}
-
-
   submit(obs)
 end
 
@@ -671,8 +650,6 @@ module.tls_certificate_verify = function(e)
   tls = {signature_algorithm=e.signature_algorithm,
     signature=e.signature}
   obs["tls_certificate_verify"] = {tls=tls}
-
-
   submit(obs)
 end
 
@@ -681,8 +658,6 @@ module.tls_change_cipher_spec = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_change_cipher_spec"
   obs["tls_change_cipher_spec"] = {tls={value=e.val}}
-
-
   submit(obs)
 end
 
@@ -691,8 +666,6 @@ module.tls_handshake_finished = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_handshake_finished"
   obs["tls_handshake_finished"] = {tls={message=b64(e.msg)}}
-
-
   submit(obs)
 end
 
@@ -701,8 +674,6 @@ module.tls_handshake_complete = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "tls_handshake_complete"
   obs["tls_handshake_complete"] = {tls={}}
-
-
   submit(obs)
 end
 
@@ -713,9 +684,64 @@ module.tls_application_data = function(e)
   tls = {version=e.version, length=string.len(e.data)}
   -- the binary data is available but is encrypted so not extracting
   obs["tls_application_data"] = {tls=tls}
-
-
   submit(obs)
+end
+
+module.event_handlers = {
+  trigger_up = module.trigger_up,
+  trigger_down = module.trigger_down,
+  describe = module.describe,
+  connection_up = module.connection_up,
+  connection_down = module.connection_down,
+  unrecognised_datagram = module.unrecognised_datagram,
+  unrecognised_stream = module.unrecognised_stream,
+  icmp = module.icmp,
+  imap = module.imap,
+  imap_ssl = module.imap_ssl,
+  pop3 = module.pop3,
+  pop3_ssl = module.pop3_ssl,
+  rtp = module.rtp,
+  rtp_ssl = module.rtp_ssl,
+  sip_request = module.sip_request,
+  sip_response = module.sip_response,
+  sip_ssl = module.sip_ssl,
+  smtp_auth = module.smtp_auth,
+  http_request = module.http_request,
+  http_response = module.http_response,
+  smtp_command = module.smtp_command,
+  smtp_response = module.smtp_response,
+  smtp_data = module.smtp_data,
+  dns_message = module.dns_message,
+  ftp_command = module.ftp_command,
+  ftp_response = module.ftp_response,
+  ntp_common = module.ntp_common,
+  ntp_timestamp_message = module.ntp_timestamp_message,
+  ntp_control_message = module.ntp_control_message,
+  ntp_private_message = module.ntp_private_message,
+  gre = module.gre,
+  grep_pptp = module.grep_pptp,
+  esp = module.esp,
+  unrecognised_ip_protocol = module.unrecognised_ip_protocol,
+  wlan = module.wlan,
+  tls_unknown = module.tls_unknown,
+  tls_client_hello = module.tls_client_hello,
+  tls_server_hello = module.tls_server_hello,
+  tls_certificates = module.tls_certificates,
+  tls_server_key_exchange = module.tls_server_key_exchange,
+  tls_server_hello_done = module.tls_server_hello_done,
+  tls_handshake_unknown = module.tls_handshake_unknown,
+  tls_certificate_request = module.tls_certificate_request,
+  tls_client_key_exchange = module.tls_client_key_exchange,
+  tls_certificate_verify = module.tls_certificate_verify,
+  tls_change_cipher_spec = module.tls_change_cipher_spec,
+  tls_handshake_finished = module.tls_handshake_finished,
+  tls_handshake_complete = module.tls_handshake_complete,
+  tls_application_data = module.tls_application_data
+}
+
+module.event = function(e)
+  fn = module.event_handlers[e.action]
+  fn(e)
 end
 
 -- Return the table

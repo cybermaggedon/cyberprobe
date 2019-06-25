@@ -14,6 +14,8 @@
 
 namespace cybermon {
 
+    class cybermon_lua;
+
     namespace event {    
 
 	typedef std::map<std::string, std::pair<std::string,std::string> > 
@@ -86,6 +88,8 @@ namespace cybermon {
 	    virtual std::string& get_action() {
 		return action2string(action);
 	    }
+	    virtual int get_lua_value(cybermon::cybermon_lua&,
+				      const std::string& name);
 	};
 
 	class protocol_event : public event {
