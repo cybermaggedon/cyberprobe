@@ -446,7 +446,7 @@ int tls_client_hello::get_lua_value(cybermon_lua& state, const std::string& key)
 	state.push(data.version);
 	return 1;
     }
-    if (key == "randomTimestamp") {
+    if (key == "random_timestamp") {
 	state.push(data.randomTimestamp);
 	return 1;
     }

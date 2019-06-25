@@ -20,13 +20,15 @@ namespace cybermon {
 	class trigger_up : public event {
 	public:
 	    std::string device;
-	    const tcpip::address& address;
+	    std::string address;
 	    trigger_up(const std::string& device,
-		       const tcpip::address& address,
+		       const tcpip::address& addr,
 		       const timeval& time) :
-		device(device), address(address),
+		device(device),
 		event(TRIGGER_UP, time)
-		{}
+		{
+		    addr.to_string(address);
+		}
 	    virtual ~trigger_up() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    virtual std::string get_device() { return device; }
