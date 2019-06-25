@@ -247,6 +247,11 @@ namespace cybermon {
 
 	}
 
+	void push(const tcpip::address& addr) {
+	    std::string a;
+	    addr.to_string(a);
+	    push(a);
+	}
 
 	void push(const std::list<std::string>& lst) {
 

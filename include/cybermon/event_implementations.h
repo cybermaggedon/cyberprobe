@@ -71,7 +71,6 @@ namespace cybermon {
 	    virtual ~connection_up() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
 	};
       
 	class connection_down : public protocol_event {
@@ -84,7 +83,6 @@ namespace cybermon {
 	    virtual ~connection_down() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
 	};
       
 	class unrecognised_datagram : public protocol_event {
@@ -131,12 +129,13 @@ namespace cybermon {
 		context(cp),
 		protocol_event(IMAP, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~imap() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class imap_ssl : public protocol_event {
@@ -147,12 +146,13 @@ namespace cybermon {
 		context(cp),
 		protocol_event(IMAP_SSL, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~imap_ssl() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class pop3 : public protocol_event {
@@ -162,12 +162,13 @@ namespace cybermon {
 		 const timeval& time) :
 		protocol_event(POP3, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~pop3() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 	
 	class pop3_ssl : public protocol_event {
@@ -178,12 +179,13 @@ namespace cybermon {
 		context(cp),
 		protocol_event(POP3_SSL, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~pop3_ssl() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class rtp : public protocol_event {
@@ -194,12 +196,13 @@ namespace cybermon {
 		context(cp),
 		protocol_event(RTP, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~rtp() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class rtp_ssl: public protocol_event {
@@ -210,12 +213,13 @@ namespace cybermon {
 		context(cp),
 		protocol_event(RTP_SSL, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~rtp_ssl() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class smtp_auth : public protocol_event {
@@ -226,12 +230,13 @@ namespace cybermon {
 		context(cp),
 		protocol_event(SMTP_AUTH, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~smtp_auth() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class sip_ssl : public protocol_event {
@@ -242,12 +247,13 @@ namespace cybermon {
 		context(cp),
 		protocol_event(SIP_SSL, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_ssl() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class sip_request : public protocol_event {
@@ -260,8 +266,8 @@ namespace cybermon {
 		method(method), from(from), to(to),
 		protocol_event(SIP_REQUEST, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_request() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -269,7 +275,7 @@ namespace cybermon {
 	    const std::string method;
 	    const std::string from;
 	    const std::string to;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class sip_response : public protocol_event {
@@ -282,8 +288,8 @@ namespace cybermon {
 		code(code), status(status), from(from), to(to),
 		protocol_event(SIP_RESPONSE, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_response() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -292,7 +298,7 @@ namespace cybermon {
 	    const std::string status;
 	    const std::string from;
 	    const std::string to;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class http_request : public protocol_event {
@@ -496,8 +502,8 @@ namespace cybermon {
 		sequence_no(seq_no),
 		protocol_event(GRE_MESSAGE, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~gre() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -505,7 +511,7 @@ namespace cybermon {
 	    const std::string next_proto;
 	    const uint32_t key;
 	    const uint32_t sequence_no;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class gre_pptp : public protocol_event {
@@ -520,8 +526,8 @@ namespace cybermon {
 		call_id(c_id), sequence_no(seq_no), ack_no(ack_no),
 		protocol_event(GRE_PPTP_MESSAGE, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~gre_pptp() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -531,7 +537,7 @@ namespace cybermon {
 	    const uint16_t call_id;
 	    const uint32_t sequence_no;
 	    const uint32_t ack_no;
-	    cybermon::pdu pdu;
+	    cybermon::pdu payload;
 	};
 
 	class esp : public protocol_event {
@@ -540,19 +546,19 @@ namespace cybermon {
 		const uint32_t spi, const uint32_t seq, const uint32_t len,
 		cybermon::pdu_iter s, cybermon::pdu_iter e,
 		const timeval& time) :
-		spi(spi), sequence(seq), length(len),
+		spi(spi), sequence(seq), payload_length(len),
 		protocol_event(ESP, time, cp)
 		{
-		    pdu.resize(e - s);
-		    std::copy(s, e, pdu.begin());
+		    payload.resize(e - s);
+		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~esp() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
 	    const uint32_t spi;
 	    const uint32_t sequence;
-	    const uint32_t length;
-	    cybermon::pdu pdu;
+	    const uint32_t payload_length;
+	    cybermon::pdu payload;
 	};
 
 	class unrecognised_ip_protocol : public protocol_event {
@@ -621,7 +627,6 @@ namespace cybermon {
 	    const std::string version;
 	    const uint8_t content_type;
 	    const uint16_t length;
-	    cybermon::pdu pdu;
 	};
 
 	class tls_client_hello : public protocol_event {
@@ -651,6 +656,7 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_server_hello() {}
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
 	    cybermon::context_ptr context;
 	    const cybermon::tls_handshake_protocol::server_hello_data data;
 	};
