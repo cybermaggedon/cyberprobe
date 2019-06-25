@@ -167,9 +167,10 @@ void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 	    data.push_back(*s);
 	    
-	    if (data.size() < exp_terminator.length())
-	      // FIXME: Should s++ here
+	    if (data.size() < exp_terminator.length()) {
+		s++;
 		continue;
+	    }
 
 	    if (std::equal(exp_terminator.begin(), exp_terminator.end(),
 			   data.end() - exp_terminator.size())) {

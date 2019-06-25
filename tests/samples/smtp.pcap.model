@@ -45,7 +45,7 @@
 .smtp_command.command MAIL FROM: <malware@malware.com> 1
 .smtp_command.command QUIT 1
 .smtp_command.command RCPT TO: <bit-bucket@test.smtp.org> 1
-.smtp_data.body FFFFFrom: <bunchy@bunchy.org>
+.smtp_data.body From: <bunchy@bunchy.org>
 To: <fred@cats-nest.org>
 Subject: Hello there!!!
 

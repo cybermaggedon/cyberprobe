@@ -431,8 +431,6 @@ int smtp_data::get_lua_value(cybermon_lua& state, const std::string& key)
 	state.push(to);
 	return 1;
     }
-
-    // FIXME: Lua code expects body?
     if (key == "data") {
 	state.push(body);
 	return 1;
