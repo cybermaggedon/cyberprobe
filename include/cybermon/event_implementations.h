@@ -12,6 +12,7 @@
 #include <cybermon/tls_handshake_protocol.h>
 #include <cybermon/ntp_protocol.h>
 #include <cybermon/event.h>
+#include <cybermon/event_json.h>
 
 namespace cybermon {
 
@@ -30,11 +31,15 @@ namespace cybermon {
 		    addr.to_string(address);
 		}
 	    virtual ~trigger_up() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
-	    virtual std::string get_device() { return device; }
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
+	    virtual std::string get_device() const { return device; }
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// trigger_up
+	    }
 	};
 
-	class trigger_down: public event {
+	class trigger_down : public event {
 	public:
 	    std::string device;
 	    trigger_down(const std::string& device, const timeval& time) :
@@ -42,8 +47,12 @@ namespace cybermon {
 		event(TRIGGER_DOWN, time)
 		{}
 	    virtual ~trigger_down() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
-	    virtual std::string get_device() { return device; }
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
+	    virtual std::string get_device() const { return device; }
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// trigger_down
+	    }
 	};
 
 	class unrecognised_stream : public protocol_event {
@@ -58,9 +67,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~unrecognised_stream() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::pdu payload;
 	    int64_t position;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// unrecognised_stream
+	    }
 	};
 
 	class connection_up : public protocol_event {
@@ -71,8 +84,12 @@ namespace cybermon {
 		{
 		}
 	    virtual ~connection_up() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// connection_up
+	    }
 	};
       
 	class connection_down : public protocol_event {
@@ -83,8 +100,12 @@ namespace cybermon {
 		{
 		}
 	    virtual ~connection_down() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// connection_down
+	    }
 	};
       
 	class unrecognised_datagram : public protocol_event {
@@ -98,9 +119,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~unrecognised_datagram() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// unrecognised_datagram
+	    }
 	};
 
 	class icmp : public protocol_event {
@@ -116,11 +141,15 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~icmp() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    unsigned int type;
 	    unsigned int code;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// icmp
+	    }
 	};
 
 	class imap : public protocol_event {
@@ -135,9 +164,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~imap() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// imap
+	    }
 	};
 
 	class imap_ssl : public protocol_event {
@@ -152,9 +185,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~imap_ssl() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// imap_ssl
+	    }
 	};
 
 	class pop3 : public protocol_event {
@@ -168,9 +205,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~pop3() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// pop3
+	    }
 	};
 	
 	class pop3_ssl : public protocol_event {
@@ -185,9 +226,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~pop3_ssl() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// pop3_ssl
+	    }
 	};
 
 	class rtp : public protocol_event {
@@ -202,9 +247,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~rtp() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// rtp
+	    }
 	};
 
 	class rtp_ssl: public protocol_event {
@@ -219,9 +268,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~rtp_ssl() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// rtp_ss
+	    }
 	};
 
 	class smtp_auth : public protocol_event {
@@ -236,9 +289,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~smtp_auth() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// smtp_auth
+	    }
 	};
 
 	class sip_ssl : public protocol_event {
@@ -253,9 +310,13 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_ssl() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// sip_ssl
+	    }
 	};
 
 	class sip_request : public protocol_event {
@@ -272,12 +333,16 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_request() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string method;
 	    const std::string from;
 	    const std::string to;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// sip_request
+	    }
 	};
 
 	class sip_response : public protocol_event {
@@ -294,13 +359,17 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_response() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    unsigned int code;
 	    const std::string status;
 	    const std::string from;
 	    const std::string to;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// sip_response
+	    }
 	};
 
 	class http_request : public protocol_event {
@@ -318,12 +387,16 @@ namespace cybermon {
 		    std::copy(s, e, body.begin());
 		}
 	    virtual ~http_request() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string method;
 	    const std::string url;
 	    http_hdr_t header;
 	    cybermon::pdu body;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// http_request
+	    }
 	};
 
 	class http_response : public protocol_event {
@@ -341,13 +414,17 @@ namespace cybermon {
 		    std::copy(s, e, body.begin());
 		}
 	    virtual ~http_response() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    unsigned int code;
 	    const std::string status;
 	    http_hdr_t header;
 	    const std::string url;
 	    cybermon::pdu body;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// http_response
+	    }
 	};
 
 	class smtp_command : public protocol_event {
@@ -358,9 +435,13 @@ namespace cybermon {
 		protocol_event(SMTP_COMMAND, time, cp)
 		{}
 	    virtual ~smtp_command() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string command;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// smtp_command
+	    }
 	};
 
 	class smtp_response : public protocol_event {
@@ -372,10 +453,14 @@ namespace cybermon {
 		protocol_event(SMTP_RESPONSE, time, cp)
 		{}
 	    virtual ~smtp_response() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    int status;
 	    const std::list<std::string> text;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// smtp_response
+	    }
 	};
 
 	class smtp_data : public protocol_event {
@@ -392,11 +477,15 @@ namespace cybermon {
 		    std::copy(s, e, body.begin());
 		}
 	    virtual ~smtp_data() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string from;
 	    const std::list<std::string> to;
 	    cybermon::pdu body;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// smtp_data
+	    }
 	};
 
 	class ftp_command : public protocol_event {
@@ -408,9 +497,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~ftp_command() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string command;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// ftp_command
+	    }
 	};
 
 	class ftp_response : public protocol_event {
@@ -422,10 +515,14 @@ namespace cybermon {
 		protocol_event(FTP_RESPONSE, time, cp)
 		{}
 	    virtual ~ftp_response() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    int status;
 	    const std::list<std::string> text;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// ftp_response
+	    }
 	};
 
 	class dns_message : public protocol_event {
@@ -442,13 +539,17 @@ namespace cybermon {
 		protocol_event(DNS_MESSAGE, time, cp)
 		{}
 	    virtual ~dns_message() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    cybermon::dns_header header;
 	    std::list<cybermon::dns_query> queries;
 	    std::list<cybermon::dns_rr> answers;
 	    std::list<cybermon::dns_rr> authorities;
 	    std::list<cybermon::dns_rr> additional;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// dns_message
+	    }
 	};
     
 	class ntp_timestamp_message : public protocol_event {
@@ -460,9 +561,13 @@ namespace cybermon {
 		protocol_event(NTP_TIMESTAMP_MESSAGE, time, cp)
 		{}
 	    virtual ~ntp_timestamp_message() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const cybermon::ntp_timestamp ts;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// ntp_timestamp_message
+	    }
 	};
 
 	class ntp_control_message : public protocol_event {
@@ -474,9 +579,13 @@ namespace cybermon {
 		protocol_event(NTP_CONTROL_MESSAGE, time, cp)
 		{}
 	    virtual ~ntp_control_message() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const cybermon::ntp_control ctrl;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// ntp_control_message
+	    }
 	};
 
 	class ntp_private_message : public protocol_event {
@@ -489,9 +598,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~ntp_private_message() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const cybermon::ntp_private priv;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// ntp_private_message
+	    }
 	};
 
 	class gre : public protocol_event {
@@ -508,12 +621,16 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~gre() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string next_proto;
 	    const uint32_t key;
 	    const uint32_t sequence_no;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// gre
+	    }
 	};
 
 	class gre_pptp : public protocol_event {
@@ -532,7 +649,7 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~gre_pptp() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string next_proto;
 	    const uint16_t payload_length;
@@ -540,6 +657,10 @@ namespace cybermon {
 	    const uint32_t sequence_no;
 	    const uint32_t ack_no;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// gre_pptp
+	    }
 	};
 
 	class esp : public protocol_event {
@@ -555,12 +676,16 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~esp() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const uint32_t spi;
 	    const uint32_t sequence;
 	    const uint32_t payload_length;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// esp
+	    }
 	};
 
 	class unrecognised_ip_protocol : public protocol_event {
@@ -577,11 +702,15 @@ namespace cybermon {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~unrecognised_ip_protocol() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const uint8_t next_proto;
 	    const uint32_t payload_length;
 	    cybermon::pdu payload;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// unrecognised_ip_protocol
+	    }
 	};
 
 	class wlan : public protocol_event {
@@ -600,7 +729,7 @@ namespace cybermon {
 		{
 		}
 	    virtual ~wlan() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const uint8_t version;
 	    const uint8_t type;
@@ -611,6 +740,10 @@ namespace cybermon {
 	    const std::string filt_addr;
 	    const uint8_t frag_num;
 	    const uint16_t seq_num;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// wlan
+	    }
 	};
 
 	class tls_unknown : public protocol_event {
@@ -624,11 +757,15 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_unknown() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string version;
 	    const uint8_t content_type;
 	    const uint16_t length;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_unknown
+	    }
 	};
 
 	class tls_client_hello : public protocol_event {
@@ -642,9 +779,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_client_hello() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const cybermon::tls_handshake_protocol::client_hello_data data;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_client_hello
+	    }
 	};
 
 	class tls_server_hello : public protocol_event {
@@ -658,9 +799,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_server_hello() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const cybermon::tls_handshake_protocol::server_hello_data data;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_server_hello
+	    }
 	};
 
 	class tls_server_hello_done : public protocol_event {
@@ -673,6 +818,10 @@ namespace cybermon {
 		}
 	    virtual ~tls_server_hello_done() {}
 	    cybermon::context_ptr context;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_server_hello_done
+	    }
 	};
 
 	class tls_certificates : public protocol_event {
@@ -687,9 +836,13 @@ namespace cybermon {
 		    certs.insert(certs.end(), crt.begin(), crt.end());
 		}
 	    virtual ~tls_certificates() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    std::vector<std::vector<uint8_t>> certs;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_certificates
+	    }
 	};
 
 	class tls_server_key_exchange : public protocol_event {
@@ -703,9 +856,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_server_key_exchange() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const cybermon::tls_handshake_protocol::key_exchange_data data;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_server_key_exchange
+	    }
 	};
 
 	class tls_handshake_generic : public protocol_event {
@@ -718,10 +875,14 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_handshake_generic() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const uint8_t type;
 	    const uint32_t len;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_handshake_generic
+	    }
 	};
 
 	class tls_certificate_request : public protocol_event {
@@ -735,9 +896,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_certificate_request() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const cybermon::tls_handshake_protocol::certificate_request_data data;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_certificate_request
+	    }
 	};
 
 	class tls_client_key_exchange : public protocol_event {
@@ -750,9 +915,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_client_key_exchange() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::vector<uint8_t> key;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_client_key_exchange
+	    }
 	};
 
 	class tls_certificate_verify : public protocol_event {
@@ -768,11 +937,15 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_certificate_verify() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const uint8_t sig_hash_algo;
 	    const uint8_t sig_algo;
 	    const std::string sig;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_certificate_verify
+	    }
 	};
 
 	class tls_change_cipher_spec : public protocol_event {
@@ -784,9 +957,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_change_cipher_spec() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const uint8_t val;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_change_cipher_spec
+	    }
 	};
 
 	class tls_handshake_finished : public protocol_event {
@@ -799,9 +976,13 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_handshake_finished() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::vector<uint8_t> msg;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_handshake_finished
+	    }
 	};
 
 	class tls_handshake_complete : public protocol_event {
@@ -812,8 +993,12 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_handshake_complete() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_handshake_complete
+	    }
 	};
 
 	class tls_application_data : public protocol_event {
@@ -827,10 +1012,14 @@ namespace cybermon {
 		{
 		}
 	    virtual ~tls_application_data() {}
-	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
+	    virtual int get_lua_value(cybermon_lua&, const std::string& name) const;
 	    cybermon::context_ptr context;
 	    const std::string version;
 	    const std::vector<uint8_t> data;
+	    virtual void to_json(std::string& doc) const {
+		jsonify(*this, doc);
+		// tls_application_data
+	    }
 	};
 
     };

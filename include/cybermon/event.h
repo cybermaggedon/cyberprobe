@@ -84,12 +84,15 @@ namespace cybermon {
 		{
 		}
 	    virtual ~event() {}
-	    virtual std::string get_device() = 0;
-	    virtual std::string& get_action() {
+	    virtual std::string get_device() const = 0;
+	    virtual std::string& get_action() const {
 		return action2string(action);
 	    }
 	    virtual int get_lua_value(cybermon::cybermon_lua&,
-				      const std::string& name);
+				      const std::string& name) const;
+	    virtual void to_json(std::string& doc) const {
+		doc == "{}";
+	    }
 	};
 
 	class protocol_event : public event {
@@ -102,7 +105,7 @@ namespace cybermon {
 		}
 	    virtual ~protocol_event() {}
 	    cybermon::context_ptr context;
-	    virtual std::string get_device();
+	    virtual std::string get_device() const;
 	};
 
     };
