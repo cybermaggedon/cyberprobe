@@ -577,7 +577,7 @@ end
 observer.tls_handshake_finished = function(e)
   local a = string.format("TLS Handshake Finished")
   observer.describe(e, a);
-  io.write(string.format("  Message Length -> %u\n", #e.msg));
+  io.write(string.format("  Message Length -> %u\n", #e.message));
   io.write("\n")
   io.flush()
 end
