@@ -876,7 +876,6 @@ namespace cybermon {
 	json jsonify(const tls_server_hello& e) {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
-
 	    json obj = {
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
@@ -899,32 +898,210 @@ namespace cybermon {
 		{ "src", src },
 		{ "dest", dest }
 	    };
-
 	    return obj;
 	}
 
+
 	json jsonify(const tls_certificates& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json certs = json::array();
+	    for(std::vector<std::vector<uint8_t> >::const_iterator it =
+		    e.certs.begin();
+		it != e.certs.end();
+		it++) {
+		certs.push_back(jsonify(*it));
+	    }
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_certificates", {
+			{ "tls", {
+				{ "certificates", certs }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
+	    return obj;
+	}
+
+	using curve_data = tls_handshake_protocol::curve_data;
+	static json jsonify(const std::vector<curve_data>& cd) {
+	    json obj = json::array();
+	    for(std::vector<curve_data>::const_iterator it = cd.begin();
+		it != cd.end();
+		it++) {
+		json c = {
+		    { "name", it->name },
+		    { "value", it->value }
+		};
+		obj.push_back(c);
+	    }
+	    return obj;
+	}
+
+	using key_exchange = tls_handshake_protocol::key_exchange_data ;
+	static json jsonify(const key_exchange& ke) {
+	    if (ke.ecdh) {
+		json obj = {
+		    { "key_exchange_algorithm", "ec-dh" },
+		    { "curve_type", ke.ecdh->curveType },
+		    { "curve_metadata", jsonify(ke.ecdh->curveData) },
+		    { "public_key", jsonify(ke.ecdh->pubKey) },
+		    { "signature_hash_algorithm", ke.ecdh->sigHashAlgo },
+		    { "signature_algorithm", ke.ecdh->sigAlgo },
+		    { "signature_hash",
+		      jsonify(ke.ecdh->hash.begin(), ke.ecdh->hash.end()) }
+		};
+		return obj;
+	    }
+	    if (ke.dhrsa) {
+		json obj = {
+		    { "key_exchange_algorithm", "dh-rsa" },
+		    { "prime",
+		      jsonify(ke.dhanon->p.begin(), ke.dhanon->p.end()) },
+		    { "generator",
+		      jsonify(ke.dhanon->g.begin(), ke.dhanon->g.end()) },
+		    { "pubkey",
+		      jsonify(ke.dhanon->pubKey.begin(),
+			      ke.dhanon->pubKey.end()) },
+		    { "signature",
+		      jsonify(ke.dhrsa->sig.begin(), ke.dhrsa->sig.end()) },
+		};
+		return obj;
+	    }
+	    json obj = {
+		{ "key_exchange_algorithm", "dh-anon" },
+		{ "prime",
+		  jsonify(ke.dhanon->p.begin(), ke.dhanon->p.end())
+		},
+		{ "generator",
+		  jsonify(ke.dhanon->g.begin(), ke.dhanon->g.end())
+		},
+		{ "pubkey",
+		  jsonify(ke.dhanon->pubKey.begin(),
+			  ke.dhanon->pubKey.end())
+		}
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_server_key_exchange& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_server_key_exchange", {
+			{ "tls", jsonify(e.data) }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_server_hello_done& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_server_hello_done", {
+			{ "tls", json::object() }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_handshake_generic& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_handshake_generic", {
+			{ "tls", {
+				{ "type", e.type },
+				{ "length", e.len }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
+	using signature_algorithm = tls_handshake_protocol::signature_algorithm;
+	json jsonify(const signature_algorithm& sa) {
+	    json obj = {
+		{ "hash_algorithm", sa.sigHashAlgo },
+		{ "signature_algorithm", sa.sigAlgo }
+	    };
+	    return obj;
+	}
+
+	using signature_algorithms = std::vector<signature_algorithm>;
+	json jsonify(const signature_algorithms& sa) {
+	    json arr = json::array();
+	    for(signature_algorithms::const_iterator it = sa.begin();
+		it != sa.end();
+		it++) {
+		arr.push_back(jsonify(*it));
+	    }
+	    return arr;
+	}
+
+	json jsonify(const std::vector<std::string>& strs) {
+	    json arr = json::array();
+	    for(std::vector<std::string>::const_iterator it = strs.begin();
+		it != strs.end();
+		it++)
+		arr.push_back(*it);
+	    return arr;
+	}
+
 	json jsonify(const tls_certificate_request& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_certificate_request", {
+			{ "tls", {
+				{ "cert_types",
+				  jsonify(e.data.certTypes) },
+				{ "signature_algorithms",
+				  jsonify(e.data.sigAlgos) },
+				{ "distinguished_names",
+				  jsonify(e.data.distinguishedNames) }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
