@@ -782,73 +782,66 @@ namespace cybermon {
 	    return buf.str();
 	}
 
-	using cipher_suites =
-	    std::vector<cybermon::tls_handshake_protocol::cipher_suite>;
-	json jsonify(cipher_suites suites) {
-		     
-	    json cs = json::array();
+	using cipher_suite = cybermon::tls_handshake_protocol::cipher_suite;
+	json jsonify(const cipher_suite& suite) {
+	    if (suite.name == "Unassigned")
+		return json(suite.name + "-" + int_to_hex(suite.id));
+	    return json(suite.name);
+	}
 
+	using cipher_suites = std::vector<cipher_suite>;
+	json jsonify(const cipher_suites& suites) {
+	    json cs = json::array();
 	    for(cipher_suites::const_iterator it = suites.begin();
 		it != suites.end();
 		it++) {
-
-		std::string val = it->name;
-
-		// FIXME: Should be hex?
-		if (val == "Unassigned")
-		    val = val + "-" + int_to_hex(it->id);
-		cs.push_back(val);
+		cs.push_back(jsonify(*it));
 	    }
-
 	    return cs;
 
 	}
 
-	using compression_methods =
-	    std::vector<cybermon::tls_handshake_protocol::compression_method>;
-	json jsonify(compression_methods methods) {
+	using compression_method =
+	    cybermon::tls_handshake_protocol::compression_method;
+	json jsonify(const compression_method& method) {
+	    if (method.name == "Unassigned")
+		return json(method.name + "-" + int_to_hex(method.id));
+	    return json(method.name);
+	}
+
+	using compression_methods = std::vector<compression_method>;
+	json jsonify(const compression_methods methods) {
 		     
 	    json cm = json::array();
 
 	    for(compression_methods::const_iterator it = methods.begin();
 		it != methods.end();
 		it++) {
-
-		std::string val = it->name;
-
-		// FIXME: Should be hex?
-		if (val == "Unassigned")
-		    val = val + "-" + int_to_hex(it->id);
-		cm.push_back(val);
+		cm.push_back(jsonify(*it));
 	    }
-
 	    return cm;
-
 	}
 
-	using extensions =
-	    std::vector<cybermon::tls_handshake_protocol::extension>;
-	json jsonify(extensions exts) {
-		     
-	    json ex = json::array();
+	using extension = cybermon::tls_handshake_protocol::extension;
+	json jsonify(const extension& ext) {
+	    json obj = {
+		{ "name", ext.name },
+		{ "length", ext.len },
+		{ "type", ext.type },
+		{ "data", jsonify(ext.data) }
+	    };
+	    return obj;
+	}
 
+	using extensions = std::vector<extension>;
+	json jsonify(const extensions& exts) {
+	    json ex = json::array();
 	    for(extensions::const_iterator it = exts.begin();
 		it != exts.end();
 		it++) {
-
-		json obj = {
-		    { "name", it->name },
-		    { "length", it->len },
-		    { "type", it->type },
-		    { "data", jsonify(it->data) }
-		};
-
-		ex.push_back(obj);
-
+		ex.push_back(jsonify(*it));
 	    }
-
 	    return ex;
-
 	}
 
 	json jsonify(const tls_client_hello& e) {
@@ -881,7 +874,32 @@ namespace cybermon {
 	}
 
 	json jsonify(const tls_server_hello& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_server_hello", {
+			{ "version", e.data.version },
+			{ "session_id", e.data.sessionID },
+			{ "random", {
+				{ "random_timestamp", e.data.randomTimestamp },
+				{ "data", jsonify(std::begin(e.data.random),
+						  std::end(e.data.random)) }
+			    }
+			},
+			{ "cipher_suite", jsonify(e.data.cipherSuite) },
+			{ "compression_method",
+			  jsonify(e.data.compressionMethod) },
+			{ "extensions", jsonify(e.data.extensions) }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
+
 	    return obj;
 	}
 
