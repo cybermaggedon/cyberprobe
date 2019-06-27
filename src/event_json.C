@@ -4,6 +4,7 @@
 #include <cybermon/context.h>
 
 #include <string.h>
+#include <string>
 
 #include <json.h>
 #include <base64.h>
@@ -54,6 +55,12 @@ namespace cybermon {
 	json jsonify(const std::vector<unsigned char>& b) {
 	    std::string s = base64_encode(b.begin(), b.end());
 	    return json(s);
+	}
+
+	template<typename iter>
+	json jsonify(iter s, iter e) {
+	    std::string str = base64_encode(s, e);
+	    return json(str);
 	}
 
 	json jsonify(const timeval& time) {
@@ -726,17 +733,150 @@ namespace cybermon {
 	}
 
 	json jsonify(const wlan& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "wlan", {
+			{ "version", e.version },
+			{ "type", e.type },
+			{ "subtype", e.subtype },
+			{ "flags", e.flags },
+			{ "protected", e.is_protected },
+			{ "filt_addr", e.filt_addr },
+			{ "frag_num", e.frag_num },
+			{ "seq_num", e.seq_num },
+			{ "duration", e.duration }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_unknown& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_unknown", {
+			{ "version", e.version },
+			{ "content_type", e.content_type },
+			{ "length", e.length }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
+	} 
+
+	static std::string int_to_hex(int n) {
+	    std::ostringstream buf;
+	    buf << std::hex << n;
+	    return buf.str();
+	}
+
+	using cipher_suites =
+	    std::vector<cybermon::tls_handshake_protocol::cipher_suite>;
+	json jsonify(cipher_suites suites) {
+		     
+	    json cs = json::array();
+
+	    for(cipher_suites::const_iterator it = suites.begin();
+		it != suites.end();
+		it++) {
+
+		std::string val = it->name;
+
+		// FIXME: Should be hex?
+		if (val == "Unassigned")
+		    val = val + "-" + int_to_hex(it->id);
+		cs.push_back(val);
+	    }
+
+	    return cs;
+
+	}
+
+	using compression_methods =
+	    std::vector<cybermon::tls_handshake_protocol::compression_method>;
+	json jsonify(compression_methods methods) {
+		     
+	    json cm = json::array();
+
+	    for(compression_methods::const_iterator it = methods.begin();
+		it != methods.end();
+		it++) {
+
+		std::string val = it->name;
+
+		// FIXME: Should be hex?
+		if (val == "Unassigned")
+		    val = val + "-" + int_to_hex(it->id);
+		cm.push_back(val);
+	    }
+
+	    return cm;
+
+	}
+
+	using extensions =
+	    std::vector<cybermon::tls_handshake_protocol::extension>;
+	json jsonify(extensions exts) {
+		     
+	    json ex = json::array();
+
+	    for(extensions::const_iterator it = exts.begin();
+		it != exts.end();
+		it++) {
+
+		json obj = {
+		    { "name", it->name },
+		    { "length", it->len },
+		    { "type", it->type },
+		    { "data", jsonify(it->data) }
+		};
+
+		ex.push_back(obj);
+
+	    }
+
+	    return ex;
+
 	}
 
 	json jsonify(const tls_client_hello& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_client_hello", {
+			{ "version", e.data.version },
+			{ "session_id", e.data.sessionID },
+			{ "random", {
+				{ "random_timestamp", e.data.randomTimestamp },
+				{ "data", jsonify(std::begin(e.data.random),
+						  std::end(e.data.random)) }
+			    }
+			},
+			{ "cipher_suites", jsonify(e.data.cipherSuites) },
+			{ "compression_methods",
+			  jsonify(e.data.compressionMethods) },
+			{ "extensions", jsonify(e.data.extensions) }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
+
 	    return obj;
 	}
 
