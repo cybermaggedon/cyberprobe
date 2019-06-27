@@ -312,6 +312,22 @@ module.sip_ssl = function(e)
 end
 
 -- This function is called when an IMAP message is observed.
+module.rtp = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "rtp"
+  obs["rtp"] = { payload=b64(e.data) }
+  submit(obs)
+end
+
+-- This function is called when an IMAP message is observed.
+module.rtp_ssl = function(e)
+  local obs = initialise_observation(e)
+  obs["action"] = "rtp_ssl"
+  obs["rtp_ssl"] = { payload=b64(e.data) }
+  submit(obs)
+end
+
+-- This function is called when an IMAP message is observed.
 module.imap = function(e)
   local obs = initialise_observation(e)
   obs["action"] = "imap"

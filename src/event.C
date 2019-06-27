@@ -6,7 +6,9 @@
 
 using namespace cybermon::event;
 
-std::string protocol_event::get_device() {
+uuid_generator cybermon::event::event::gen;
+
+std::string protocol_event::get_device() const {
     std::string device;
     address trigger_address;
     cybermon::engine::get_root_info(context, device, trigger_address);
@@ -86,8 +88,15 @@ int event::get_lua_value(cybermon_lua& state, const std::string& key)
 	return 1;
     }
 
+    if (key == "json") {
+	std::string js;
+	to_json(js);
+	state.push(js);
+	return 1;
+    }
+
     if (key == "context") {
-	auto eptr = dynamic_cast<protocol_event*>(this);
+	auto eptr = dynamic_cast<const protocol_event*>(this);
 	if (eptr == 0) {
 	    // Not a protocol event, return nil.
 	    state.push();
@@ -397,7 +406,8 @@ int smtp_response::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_certificate_request::get_lua_value(cybermon_lua& state, const std::string& key)
+int tls_certificate_request::get_lua_value(cybermon_lua& state,
+					   const std::string& key)
 {
     if (key == "cert_types") {
 	state.create_table(data.certTypes.size(), 0);
@@ -687,7 +697,8 @@ int unrecognised_ip_protocol::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int ntp_private_message::get_lua_value(cybermon_lua& state, const std::string& key)
+int ntp_private_message::get_lua_value(cybermon_lua& state,
+				       const std::string& key)
 {
     if (key == "header") {
 	state.push(priv.m_hdr);
@@ -789,7 +800,8 @@ int smtp_data::get_lua_value(cybermon_lua& state, const std::string& key)
 
 
 
-int tls_client_key_exchange::get_lua_value(cybermon_lua& state, const std::string& key)
+int tls_client_key_exchange::get_lua_value(cybermon_lua& state,
+					   const std::string& key)
 {
     if (key == "key") {
 	state.push(key.begin(), key.end());
@@ -900,7 +912,8 @@ int wlan::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_handshake_finished::get_lua_value(cybermon_lua& state, const std::string& key)
+int tls_handshake_finished::get_lua_value(cybermon_lua& state,
+					  const std::string& key)
 {
     if (key == "message") {
 	state.push(msg);
@@ -938,5 +951,4 @@ int esp::get_lua_value(cybermon_lua& state, const std::string& key)
     }
     return event::get_lua_value(state, key);
 }
-
 

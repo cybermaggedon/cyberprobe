@@ -8,20 +8,13 @@
 -- returned to the calling environment.  It doesn't matter what you call it.
 local observer = {}
 
-local model = require("util.json")
-local json = require("json")
-
 -- The table should contain functions.
 
 -- Call the JSON functions for all observer functions.
-observer.event = model.event
-
-local submit = function(obj)
-  data = json.encode(obj)
+observer.event = function(e)
+  data = e.json
   print(data)
 end
-
-model.init(submit)
 
 -- Return the table
 return observer

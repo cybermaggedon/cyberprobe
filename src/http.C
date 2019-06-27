@@ -57,14 +57,14 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    if (*s == '\n') {
     		state = http_parser::MAYBE_KEY;
     		key = value = "";
-        } else {
-			// This would be a protocol violation, but much more likely to be
-			// a HTTP CONNECT session, but we've missed the CONNECT or 200
-			// response. Assume it is binary data
-			c->lock.unlock();
-			unrecognised::process_unrecognised_stream(mgr, c, sl);
+	    } else {
+		// This would be a protocol violation, but much more likely to be
+		// a HTTP CONNECT session, but we've missed the CONNECT or 200
+		// response. Assume it is binary data
+		c->lock.unlock();
+		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_REQUEST_PROTOCOL_EXP_NL");
-        }
+	    }
 	    break;
 
 	case http_parser::IN_RESPONSE_PROTOCOL:
@@ -93,11 +93,12 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		state = http_parser::MAYBE_KEY;
 		key = value = "";
 	    } else {
-			// This would be a protocol violation, but much more likely to be
-			// a HTTP CONNECT session, but we've missed the CONNECT or 200
-			// response. Assume it is binary data
-			c->lock.unlock();
-			unrecognised::process_unrecognised_stream(mgr, c, sl);
+		// This would be a protocol violation, but much more likely
+		// to be a HTTP CONNECT session, but we've missed the
+		// CONNECT or 200
+		// response. Assume it is binary data
+		c->lock.unlock();
+		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_RESPONSE_STATUS_EXP_NL");
 	    }
 	    break;
@@ -112,9 +113,9 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    break;
 
 	case http_parser::IN_KEY:
-	    if (*s == ':')
+	    if (*s == ':') {
 		state = http_parser::POST_KEY_EXP_SPACE;
-	    else
+	    } else
 		key += *s;
 	    break;
 
@@ -122,11 +123,11 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    if (*s == ' ')
 		state = http_parser::IN_VALUE;
 	    else {
-			// This would be a protocol violation, but much more likely to be
-			// a HTTP CONNECT session, but we've missed the CONNECT or 200
-			// response. Assume it is binary data
-			c->lock.unlock();
-			unrecognised::process_unrecognised_stream(mgr, c, sl);
+		// This would be a protocol violation, but much more likely to be
+		// a HTTP CONNECT session, but we've missed the CONNECT or 200
+		// response. Assume it is binary data
+		c->lock.unlock();
+		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_KEY_EXP_SPACE");
 	    }
 	    break;
