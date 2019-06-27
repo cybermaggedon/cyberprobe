@@ -40,7 +40,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	engine.C etsi_li.C forgery.C ftp.C http.C icmp.C imap.C		\
 	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C event.C  \
 	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
-	sip_ssl.C	event_json.C base64.C base64.h \
+	sip_ssl.C	event_json.C base64.C base64.h json.h \
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
 	cybermon_qargs.h cybermon_qwriter.h cybermon_qreader.h \
 	tls_key_exchange.C \
