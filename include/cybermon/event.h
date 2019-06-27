@@ -89,8 +89,8 @@ namespace cybermon {
 		return action2string(action);
 	    }
 	    virtual int get_lua_value(cybermon::cybermon_lua&,
-				      const std::string& name) const;
-	    virtual void to_json(std::string& doc) const {
+				      const std::string& name);
+	    virtual void to_json(std::string& doc) {
 		doc == "{}";
 	    }
 	};

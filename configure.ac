@@ -67,7 +67,6 @@ AC_MSG_CHECKING([Lua uuid module])
 AS_IF([echo 'if require("uuid") then print("yes") end' | lua -], [],
 	    [AC_MSG_ERROR([Lua uuid module is not installed.])])
 
-AC_CHECK_LIB([json11], [main], [], [AC_MSG_ERROR(Library json11 missing.)])
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
 AC_CHECK_LIB([pcap], [main], [], [AC_MSG_ERROR(Library pcap missing.)])
