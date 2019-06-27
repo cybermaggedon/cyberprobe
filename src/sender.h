@@ -3,7 +3,7 @@
 #define SENDER_H
 
 #include <queue>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <sys/time.h>
 
 #include "management.h"
@@ -14,22 +14,22 @@
 #include <cybermon/pdu.h>
 
 // Shared pointers to TCP/IP address.
-typedef boost::shared_ptr<tcpip::address> address_ptr;
+typedef std::shared_ptr<tcpip::address> address_ptr;
 
 // A packet on the packet queue: LIID plus PDU.
 class qpdu {
   public:
     enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
     timeval tv;                             // Valid for: PDU
-    boost::shared_ptr<std::string> liid;    // Valid for: PDU, TARGET_UP/DOWN
-    boost::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
+    std::shared_ptr<std::string> liid;    // Valid for: PDU, TARGET_UP/DOWN
+    std::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
     address_ptr addr;                       // Valid for: TARGET_UP
     cybermon::direction dir;                // Valid for: PDU, from/to target.
 };
 
 // Queue PDU pointer
-typedef boost::shared_ptr<qpdu> qpdu_ptr;
+typedef std::shared_ptr<qpdu> qpdu_ptr;
 
 // Sender base class.  Provides a queue input into a thread.
 class sender : public threads::thread {
@@ -70,16 +70,16 @@ class sender : public threads::thread {
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
     // Hints about targets coming on/off-stream
-    virtual void target_up(boost::shared_ptr<std::string> l,
-			   boost::shared_ptr<std::string> n,
+    virtual void target_up(std::shared_ptr<std::string> l,
+			   std::shared_ptr<std::string> n,
 			   const tcpip::address& a);
-    virtual void target_down(boost::shared_ptr<std::string> liid,
-			     boost::shared_ptr<std::string> n);
+    virtual void target_down(std::shared_ptr<std::string> liid,
+			     std::shared_ptr<std::string> n);
 
     // Called to push a packet down the sender transport.
     void deliver(timeval tv,
-                 boost::shared_ptr<std::string> liid,
-		 boost::shared_ptr<std::string> n,
+                 std::shared_ptr<std::string> liid,
+		 std::shared_ptr<std::string> n,
                  cybermon::direction dir,
 		 const_iterator& start,
 		 const_iterator& end);

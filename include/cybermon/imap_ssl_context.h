@@ -36,7 +36,7 @@ class imap_ssl_context : public context
         return "imap_ssl";
     }
 
-    typedef boost::shared_ptr<imap_ssl_context> ptr;
+    typedef std::shared_ptr<imap_ssl_context> ptr;
 
     static context_ptr create(manager& m, const flow_address& f, context_ptr par)
     { 
@@ -48,7 +48,7 @@ class imap_ssl_context : public context
     static ptr get_or_create(context_ptr base, const flow_address& f)
     {
         context_ptr cp = context::get_or_create(base, f, imap_ssl_context::create);
-        ptr sp = boost::dynamic_pointer_cast<imap_ssl_context>(cp);
+        ptr sp = std::dynamic_pointer_cast<imap_ssl_context>(cp);
         return sp;
     }
 };

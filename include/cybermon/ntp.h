@@ -37,7 +37,7 @@ namespace cybermon {
 	// Type is "ntp".
 	virtual std::string get_type() { return "ntp"; }
 
-	typedef boost::shared_ptr<ntp_context> ptr;
+	typedef std::shared_ptr<ntp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -49,7 +49,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    ntp_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ntp_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ntp_context>(cp);
 	    return sp;
 	}
 

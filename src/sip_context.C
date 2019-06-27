@@ -1,7 +1,6 @@
 
 #include <cybermon/sip_context.h>
-
-#include <boost/regex.hpp>
+#include <regex>
 
 
 using namespace cybermon;
@@ -27,7 +26,7 @@ context_ptr sip_context::create(manager& m, const flow_address& f, context_ptr p
 // Given a flow address, returns the child context.
 sip_context::ptr sip_context::get_or_create(context_ptr base, const flow_address& f) {
     context_ptr cp = context::get_or_create(base, f, sip_context::create);
-    ptr sp = boost::dynamic_pointer_cast<sip_context>(cp);
+    ptr sp = std::dynamic_pointer_cast<sip_context>(cp);
     return sp;
 }
 
@@ -40,30 +39,32 @@ void sip_context::parse(std::string body) {
     video_port = 0;
 
 
-    boost::match_results<std::string::const_iterator> what;
+    std::match_results<std::string::const_iterator> what;
 
-    static const boost::regex sip_from("From: .*?(<.*>)");
-    if (regex_search(body, what, sip_from, boost::match_any))
+    static const std::regex sip_from("From: .*?(<.*>)");
+    if (regex_search(body, what, sip_from, std::regex_constants::match_any))
     {
         from = what[1];
     }
 
-    static const boost::regex sip_to("To: .*?(<.*>)");
-    if (regex_search(body, what, sip_to, boost::match_any))
+    static const std::regex sip_to("To: .*?(<.*>)");
+    if (regex_search(body, what, sip_to, std::regex_constants::match_any))
     {
         to = what[1];
     }
 
-    static const boost::regex sip_content_audio("m=audio ([0-9]+) RTP");
-    if (regex_search(body, what, sip_content_audio, boost::match_any))
+    static const std::regex sip_content_audio("m=audio ([0-9]+) RTP");
+    if (regex_search(body, what, sip_content_audio,
+		     std::regex_constants::match_any))
     {
         // Convert the port number into an int - nasty!
         std::istringstream buf(what[1]);
         buf >> audio_port;
     }
 
-    static const boost::regex sip_content_video("m=video ([0-9]+) RTP");
-    if (regex_search(body, what, sip_content_video, boost::match_any))
+    static const std::regex sip_content_video("m=video ([0-9]+) RTP");
+    if (regex_search(body, what, sip_content_video,
+		     std::regex_constants::match_any))
     {
         // Convert the port number into an int - nasty!
         std::istringstream buf(what[1]);

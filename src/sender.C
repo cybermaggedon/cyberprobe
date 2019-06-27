@@ -3,8 +3,8 @@
 
 // Called to add packets to the queue.
 void sender::deliver(timeval tv,
-		     boost::shared_ptr<std::string> liid, // LIID
-		     boost::shared_ptr<std::string> network, // Network
+		     std::shared_ptr<std::string> liid, // LIID
+		     std::shared_ptr<std::string> network, // Network
                      cybermon::direction dir, // To/from target.
 		     const_iterator& start,   // Start of packet
 		     const_iterator& end)     // End of packet
@@ -49,8 +49,8 @@ void sender::deliver(timeval tv,
 }
 
 // Called to add packets to the queue.
-void sender::target_up(boost::shared_ptr<std::string> liid,        // LIID
-		       boost::shared_ptr<std::string> network,     // Network
+void sender::target_up(std::shared_ptr<std::string> liid,        // LIID
+		       std::shared_ptr<std::string> network,     // Network
 		       const tcpip::address& addr)                 // Address
 {
 
@@ -103,8 +103,8 @@ void sender::target_up(boost::shared_ptr<std::string> liid,        // LIID
 }
 
 // Called to add packets to the queue.
-void sender::target_down(boost::shared_ptr<std::string> liid,        // LIID
-			 boost::shared_ptr<std::string> network)     // Network
+void sender::target_down(std::shared_ptr<std::string> liid,        // LIID
+			 std::shared_ptr<std::string> network)     // Network
 {
 
     // Get lock.

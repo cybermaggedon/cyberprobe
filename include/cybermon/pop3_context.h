@@ -37,7 +37,7 @@ class pop3_context : public context
         return "pop3";
     }
 
-    typedef boost::shared_ptr<pop3_context> ptr;
+    typedef std::shared_ptr<pop3_context> ptr;
 
     static context_ptr create(manager& m, const flow_address& f, context_ptr par)
     { 
@@ -49,7 +49,7 @@ class pop3_context : public context
     static ptr get_or_create(context_ptr base, const flow_address& f)
     {
         context_ptr cp = context::get_or_create(base, f, pop3_context::create);
-        ptr sp = boost::dynamic_pointer_cast<pop3_context>(cp);
+        ptr sp = std::dynamic_pointer_cast<pop3_context>(cp);
         return sp;
     }
 };

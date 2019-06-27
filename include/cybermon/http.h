@@ -9,7 +9,7 @@
 #define CYBERMON_HTTP_H
 
 #include <stdint.h>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <set>
 
@@ -91,12 +91,12 @@ namespace cybermon {
 	void normalise_url(const std::string& host, const std::string url,
 			   std::string& out) {
 
-	    boost::match_results<std::string::const_iterator> what;
+	    std::match_results<std::string::const_iterator> what;
 
-	    static const boost::regex already_normalised("[a-zA-Z]+:");
+	    static const std::regex already_normalised("[a-zA-Z]+:");
 
 	    if (regex_search(url, what, already_normalised,
-			     boost::match_continuous)) {
+			     std::regex_constants::match_continuous)) {
 		out = url;
 		return;
 	    }
@@ -168,7 +168,7 @@ namespace cybermon {
 	// Type.
 	virtual std::string get_type() { return "http_request"; }
 
-	typedef boost::shared_ptr<http_request_context> ptr;
+	typedef std::shared_ptr<http_request_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {
@@ -180,7 +180,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp =
 		context::get_or_create(base, f, http_request_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<http_request_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<http_request_context>(cp);
 	    return sp;
 	}
 
@@ -205,7 +205,7 @@ namespace cybermon {
 	// Type.
 	virtual std::string get_type() { return "http_response"; }
 
-	typedef boost::shared_ptr<http_response_context> ptr;
+	typedef std::shared_ptr<http_response_context> ptr;
 
     bool streaming;
 
@@ -219,7 +219,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp =
 		context::get_or_create(base, f, http_response_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<http_response_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<http_response_context>(cp);
 	    return sp;
 	}
 

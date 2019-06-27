@@ -81,7 +81,7 @@ namespace cybermon {
 	// Type is "tcp".
 	virtual std::string get_type() { return "tcp"; }
 
-	typedef boost::shared_ptr<tcp_context> ptr;
+	typedef std::shared_ptr<tcp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -93,7 +93,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    tcp_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<tcp_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<tcp_context>(cp);
 	    return sp;
     }
 

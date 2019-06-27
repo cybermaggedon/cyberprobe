@@ -13,7 +13,7 @@
 #include <map>
 #include <list>
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // Defines an endpoint.
 class ep {
@@ -59,8 +59,8 @@ class ep {
 // Results of a match, returned by ipv4_match and ipv6_match.
 class match {
  public:
-    boost::shared_ptr<std::string> liid;
-    boost::shared_ptr<std::string> network;
+    std::shared_ptr<std::string> liid;
+    std::shared_ptr<std::string> network;
 };
 
 // Internal ipv4_match and ipv6_match state.

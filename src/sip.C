@@ -1,8 +1,7 @@
 
 #include <cybermon/sip.h>
 
-#include <boost/regex.hpp>
-
+#include <regex>
 #include <string>
 
 #include <cybermon/address.h>
@@ -38,11 +37,11 @@ void sip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Regex strips the request from the header fields (which follow after the CRLF)
-    static const boost::regex sip_request("^(REGISTER|INVITE|ACK|CANCEL|OPTIONS|BYE|REFER|NOTIFY|MESSAGE|SUBSCRIBE|INFO) "
-                                            "(sips?:[^ ]*) SIP/[0-9]\\.[0-9]\r\n(.*$)", boost::regex::extended);
+    static const std::regex sip_request("^(REGISTER|INVITE|ACK|CANCEL|OPTIONS|BYE|REFER|NOTIFY|MESSAGE|SUBSCRIBE|INFO) "
+                                            "(sips?:[^ ]*) SIP/[0-9]\\.[0-9]\r\n(.*$)", std::regex::extended);
     
     // Regex strips the response from the header fields (which follow after the CRLF)
-    static const boost::regex sip_response("^SIP/[0-9]\\.[0-9] ([0-9]+) ([^\r\n]*)\r\n(.*$)", boost::regex::extended);
+    static const std::regex sip_response("^SIP/[0-9]\\.[0-9] ([0-9]+) ([^\r\n]*)\r\n(.*$)", std::regex::extended);
 
 
     std::string ident_buffer;
@@ -50,9 +49,10 @@ void sip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     // Copy into the ident buffer.
     ident_buffer.insert(ident_buffer.end(), s, e);
 
-    boost::match_results<std::string::const_iterator> what;
+    std::match_results<std::string::const_iterator> what;
 
-    if (regex_search(ident_buffer, what, sip_request, boost::match_continuous))
+    if (regex_search(ident_buffer, what, sip_request,
+		     std::regex_constants::match_continuous))
     {
         // Groups are: 
         // 1. Method
@@ -99,7 +99,8 @@ void sip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	mgr.handle(ev);
         return;
     }
-    else if (regex_search(ident_buffer, what, sip_response, boost::match_continuous))
+    else if (regex_search(ident_buffer, what, sip_response,
+			  std::regex_constants::match_continuous))
     {
         // Groups are: 
         // 1. Code

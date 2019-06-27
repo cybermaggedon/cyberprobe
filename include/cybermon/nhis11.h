@@ -11,7 +11,7 @@
 #include <list>
 #include <queue>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace cybermon {
 
@@ -23,7 +23,7 @@ class sender {
   private:
 
     typedef std::vector<unsigned char> pdu;
-    typedef boost::shared_ptr<pdu> pdu_ptr;
+    typedef std::shared_ptr<pdu> pdu_ptr;
 
     // TCP socket.
     etsi_li::transport s;
@@ -97,13 +97,13 @@ class receiver;
 class connection : public threads::thread {
 
   private:
-    boost::shared_ptr<tcpip::stream_socket> s;
+    std::shared_ptr<tcpip::stream_socket> s;
     monitor& p;
     receiver &r;
     bool running;
 
   public:
-    connection(boost::shared_ptr<tcpip::stream_socket> s, monitor& p,
+    connection(std::shared_ptr<tcpip::stream_socket> s, monitor& p,
 	       receiver& r) : s(s), p(p), r(r) {
 	running = true;
     }
@@ -116,7 +116,7 @@ class receiver : public threads::thread {
 
   private:
     bool running;
-    boost::shared_ptr<tcpip::stream_socket> svr;
+    std::shared_ptr<tcpip::stream_socket> svr;
     monitor& p;
 
     threads::mutex close_me_lock;
@@ -124,11 +124,11 @@ class receiver : public threads::thread {
 
   public:
     receiver(int port, monitor& p) : p(p) {
-	svr = boost::shared_ptr<tcpip::stream_socket>(new tcpip::tcp_socket);
+	svr = std::shared_ptr<tcpip::stream_socket>(new tcpip::tcp_socket);
 	svr->bind(port);
 	running = true;
     }
-    receiver(boost::shared_ptr<tcpip::stream_socket> sock, monitor& p) : p(p) {
+    receiver(std::shared_ptr<tcpip::stream_socket> sock, monitor& p) : p(p) {
 	svr = sock;
 	running = true;
 	

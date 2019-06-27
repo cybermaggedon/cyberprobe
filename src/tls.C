@@ -50,7 +50,7 @@ void tls_context::set_cipher_suite(uint16_t cs)
     context_ptr rev = reverse.lock();
     if (rev) {
         tls_context::ptr revPtr =
-        boost::dynamic_pointer_cast<tls_context>(rev);
+        std::dynamic_pointer_cast<tls_context>(rev);
         revPtr->cipherSuite = cs;
         revPtr->cipherSuiteSet = true;
     }
@@ -68,7 +68,7 @@ bool tls_context::get_cipher_suite(uint16_t& cs)
     context_ptr rev = reverse.lock();
     if (rev) {
         tls_context::ptr revPtr =
-        boost::dynamic_pointer_cast<tls_context>(rev);
+        std::dynamic_pointer_cast<tls_context>(rev);
         if (revPtr->cipherSuiteSet)
         {
             cipherSuiteSet = true;

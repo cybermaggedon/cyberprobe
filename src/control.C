@@ -38,7 +38,7 @@ void service::run()
 	if (activ) {
 
 	    // Accept the connection
-	    boost::shared_ptr<tcpip::stream_socket> cn = svr.accept();
+	    std::shared_ptr<tcpip::stream_socket> cn = svr.accept();
 
 	    // Spawn a connection thread.
 	    connection* c = new connection(cn, d, *this, sp);

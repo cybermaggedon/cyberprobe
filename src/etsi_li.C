@@ -672,7 +672,7 @@ void receiver::run()
 
 	    if (activ) {
 
-		boost::shared_ptr<tcpip::stream_socket> cn;
+		std::shared_ptr<tcpip::stream_socket> cn;
 
 		try {
 		    cn = svr->accept();

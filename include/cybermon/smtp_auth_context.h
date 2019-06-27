@@ -36,7 +36,7 @@ class smtp_auth_context : public context
         return "smtp_auth";
     }
 
-    typedef boost::shared_ptr<smtp_auth_context> ptr;
+    typedef std::shared_ptr<smtp_auth_context> ptr;
 
     static context_ptr create(manager& m, const flow_address& f, context_ptr par)
     { 
@@ -48,7 +48,7 @@ class smtp_auth_context : public context
     static ptr get_or_create(context_ptr base, const flow_address& f)
     {
         context_ptr cp = context::get_or_create(base, f, smtp_auth_context::create);
-        ptr sp = boost::dynamic_pointer_cast<smtp_auth_context>(cp);
+        ptr sp = std::dynamic_pointer_cast<smtp_auth_context>(cp);
         return sp;
     }
 };

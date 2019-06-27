@@ -2,7 +2,7 @@
 #ifndef CYBERMON_BER_H
 #define CYBERMON_BER_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <cybermon/socket.h>
 
@@ -96,7 +96,7 @@ namespace ber {
       public:
 
 	typedef std::vector<unsigned char> pdu;
-	typedef boost::shared_ptr<pdu> pdu_ptr;
+	typedef std::shared_ptr<pdu> pdu_ptr;
 
 	/** The PDU */
 	pdu_ptr data;

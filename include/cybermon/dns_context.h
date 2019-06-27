@@ -39,7 +39,7 @@ class dns_context : public context
     // Type is "dns".
     virtual std::string get_type() { return "dns"; }
 
-    typedef boost::shared_ptr<dns_context> ptr;
+    typedef std::shared_ptr<dns_context> ptr;
 
     static context_ptr create(manager& m, const flow_address& f, 
                   context_ptr par) {
@@ -52,7 +52,7 @@ class dns_context : public context
     {
         context_ptr cp = context::get_or_create(base, f, dns_context::create);
 
-        ptr sp = boost::dynamic_pointer_cast<dns_context>(cp);
+        ptr sp = std::dynamic_pointer_cast<dns_context>(cp);
         return sp;
     }
 

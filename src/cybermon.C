@@ -312,7 +312,7 @@ int main(int argc, char** argv)
 
 	} else if (transport == "tls") {
 
-	    boost::shared_ptr<tcpip::ssl_socket> sock(new tcpip::ssl_socket);
+	    std::shared_ptr<tcpip::ssl_socket> sock(new tcpip::ssl_socket);
 	    sock->bind(port);
 	    sock->use_key_file(key);
 	    sock->use_certificate_file(cert);

@@ -3,8 +3,7 @@
 #define CYBERMON_BASE_CONTEXT_H
 
 #include <exception>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 #include <map>
 
 #include <cybermon/flow.h>
@@ -20,7 +19,7 @@ namespace cybermon {
     class base_context;
 
     // Shared pointer types.
-    typedef boost::shared_ptr<base_context> context_ptr;
+    typedef std::shared_ptr<base_context> context_ptr;
 
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.
@@ -73,11 +72,11 @@ namespace cybermon {
 
 	// Use weak_ptr for the parent link, cause otherwise there's a
 	// shared_ptr cycle.
-	boost::weak_ptr<base_context> parent;
+	std::weak_ptr<base_context> parent;
 
 	// Use weak_ptr for the 'reverse flow' link, cause otherwise there's a
 	// shared_ptr cycle.
-	boost::weak_ptr<base_context> reverse;
+	std::weak_ptr<base_context> reverse;
 
 	// Child contexts.
 	std::map<flow_address,context_ptr> children;

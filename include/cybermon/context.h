@@ -126,8 +126,8 @@ namespace cybermon {
 					 const flow_address& f, 
 					 creator create_fn) {
 
-	    boost::shared_ptr<context> mc = 
-		boost::dynamic_pointer_cast<context>(parent);
+	    std::shared_ptr<context> mc = 
+		std::dynamic_pointer_cast<context>(parent);
 
 	    mc->lock.lock();
 

@@ -19,7 +19,7 @@ namespace cybermon {
 	}
 	virtual std::string get_type() { return "icmp"; }
  
-	typedef boost::shared_ptr<icmp_context> ptr;
+	typedef std::shared_ptr<icmp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -31,7 +31,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    icmp_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<icmp_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<icmp_context>(cp);
 	    return sp;
 	}
 

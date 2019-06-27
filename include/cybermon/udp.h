@@ -40,7 +40,7 @@ namespace cybermon {
 	// Type is "udp".
 	virtual std::string get_type() { return "udp"; }
 
-	typedef boost::shared_ptr<udp_context> ptr;
+	typedef std::shared_ptr<udp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par)
@@ -53,7 +53,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    udp_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<udp_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<udp_context>(cp);
 	    return sp;
 	}
 

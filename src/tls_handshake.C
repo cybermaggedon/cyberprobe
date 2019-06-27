@@ -519,7 +519,7 @@ void tls_handshake::finished(manager& mgr, tls_context::ptr ctx, const pdu_slice
     context_ptr rev = ctx->reverse.lock();
     if (rev)
     {
-        tls_context::ptr revPtr = boost::dynamic_pointer_cast<tls_context>(rev);
+        tls_context::ptr revPtr = std::dynamic_pointer_cast<tls_context>(rev);
         if (revPtr->finished)
         {
 	    auto ev2 =

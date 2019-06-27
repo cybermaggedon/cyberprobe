@@ -743,7 +743,7 @@ void tcpip::raw_socket::connect(const std::string& hostname)
 
 
 /** Accept a connection. */
-boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
+std::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 {
 
     int ns = ::accept(sock, 0, 0);
@@ -824,7 +824,7 @@ boost::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
     ssl_socket* conn = new ssl_socket(ns);
     conn->ssl = ssl2;
 
-    return boost::shared_ptr<stream_socket>(conn);
+    return std::shared_ptr<stream_socket>(conn);
 
 }
 

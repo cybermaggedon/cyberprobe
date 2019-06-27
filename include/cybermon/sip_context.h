@@ -11,7 +11,7 @@
 #include <cybermon/context.h>
 #include <cybermon/manager.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 namespace cybermon
@@ -29,7 +29,7 @@ class sip_context : public context
 
     virtual std::string get_type();
 
-    typedef boost::shared_ptr<sip_context> ptr;
+    typedef std::shared_ptr<sip_context> ptr;
 
     static context_ptr create(manager& m, const flow_address& f, context_ptr par);
 

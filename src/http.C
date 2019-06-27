@@ -476,7 +476,7 @@ void http_parser::complete_request(context_ptr c, const pdu_time& time,
 
     // Stash the URL on a queue in our context structure.
     http_request_context::ptr sp =
-	boost::dynamic_pointer_cast<http_request_context>(c);
+	std::dynamic_pointer_cast<http_request_context>(c);
     sp->urls_requested.push_back(norm);
 
     // if this is a connect message we need to flag it in the context
@@ -504,7 +504,7 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
     // If we have a reverse flow pointer...
     if (rev) {
 	http_request_context::ptr sp_rev =
-	    boost::dynamic_pointer_cast<http_request_context>(rev);
+	    std::dynamic_pointer_cast<http_request_context>(rev);
 
 	// ... then use it to get the URL of this HTTP response.
 	sp_rev->lock.lock();
@@ -524,7 +524,7 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
             sp_rev->streaming = true;
 
             http_response_context::ptr rc =
-                boost::dynamic_pointer_cast<http_response_context>(c);
+                std::dynamic_pointer_cast<http_response_context>(c);
             rc->streaming = true;
         }
     }

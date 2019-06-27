@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <pcap.h>
 #include <iomanip>
+#include <cassert>
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -150,8 +151,8 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled.find(saddr) == md->mangled.end()) {
 
-	    boost::shared_ptr<std::string> liid(new std::string);
-	    boost::shared_ptr<std::string> network(new std::string);
+	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> network(new std::string);
 
 	    expand_template(md->liid, *liid, saddr, *subnet, link);
 	    expand_template(md->network, *network, saddr, *subnet, link);
@@ -188,8 +189,8 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled.find(daddr) == md->mangled.end()) {
 
-	    boost::shared_ptr<std::string> liid(new std::string);
-	    boost::shared_ptr<std::string> network(new std::string);
+	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> network(new std::string);
 
 	    expand_template(md->liid, *liid, daddr, *subnet, link);
 	    expand_template(md->network, *network, daddr, *subnet, link);
@@ -259,8 +260,8 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled6.find(saddr) == md->mangled6.end()) {
 
-	    boost::shared_ptr<std::string> liid(new std::string);
-	    boost::shared_ptr<std::string> network(new std::string);
+	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> network(new std::string);
 
 	    expand_template(md->liid, *liid, saddr, *subnet, link);
 	    expand_template(md->network, *network, saddr, *subnet, link);
@@ -297,8 +298,8 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled6.find(daddr) == md->mangled6.end()) {
 
-	    boost::shared_ptr<std::string> liid(new std::string);
-	    boost::shared_ptr<std::string> network(new std::string);
+	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> network(new std::string);
 
 	    expand_template(md->liid, *liid, daddr, *subnet, link);
 	    expand_template(md->network, *network, daddr, *subnet, link);

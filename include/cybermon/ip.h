@@ -87,7 +87,7 @@ namespace cybermon {
 	// Type is "ip4".
 	virtual std::string get_type() { return "ip4"; }
 
-	typedef boost::shared_ptr<ip4_context> ptr;
+	typedef std::shared_ptr<ip4_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -99,7 +99,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    ip4_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ip4_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ip4_context>(cp);
 	    return sp;
 	}
 
@@ -125,7 +125,7 @@ namespace cybermon {
 	// Type is "ip6".
 	virtual std::string get_type() { return "ip6"; }
 
-	typedef boost::shared_ptr<ip6_context> ptr;
+	typedef std::shared_ptr<ip6_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -137,7 +137,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    ip6_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ip6_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ip6_context>(cp);
 	    return sp;
 	}
 

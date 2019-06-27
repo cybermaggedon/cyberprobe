@@ -1,8 +1,6 @@
 
 #include <cybermon/rtp.h>
 
-#include <boost/regex.hpp>
-
 #include <string>
 
 #include <cybermon/address.h>

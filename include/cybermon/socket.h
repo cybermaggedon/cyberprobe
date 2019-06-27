@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tcpip {
 
@@ -265,7 +265,7 @@ namespace tcpip {
 	/** Read a line of text, LF. CR is discarded. */
 	virtual void readline(std::string& line);
 
-	virtual boost::shared_ptr<stream_socket> accept() = 0;
+	virtual std::shared_ptr<stream_socket> accept() = 0;
 
 	virtual void bind(int port = 0) = 0;
 
@@ -330,14 +330,14 @@ namespace tcpip {
 	}
 
 	/** Accept a connection. */
-	virtual boost::shared_ptr<stream_socket> accept() {
+	virtual std::shared_ptr<stream_socket> accept() {
 	    int ns = ::accept(sock, 0, 0);
 	    if (-1 == ns) {
 		throw std::runtime_error("Socket accept failed");
 	    }
 
 	    tcp_socket* conn = new tcp_socket(ns);
-	    return boost::shared_ptr<stream_socket>(conn);
+	    return std::shared_ptr<stream_socket>(conn);
 
 	}
 
@@ -621,7 +621,7 @@ namespace tcpip {
 	}
 
 	/** Accept a connection. */
-	virtual boost::shared_ptr<stream_socket> accept();
+	virtual std::shared_ptr<stream_socket> accept();
 
 	/** Connection to a remote service */
 	virtual void connect(const std::string& hostname, int port);

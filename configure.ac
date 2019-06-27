@@ -45,7 +45,6 @@ AM_PATH_PYTHON([3.0])
 
 # Check for Boost.
 BOOST_REQUIRE
-BOOST_REGEX([mt])
 BOOST_PROGRAM_OPTIONS
 
 # Lua

@@ -4,6 +4,7 @@
 #include <cybermon/manager.h>
 #include <cybermon/event_implementations.h>
 
+#include <regex>
 #include <iostream>
 
 #include <ctype.h>
@@ -112,34 +113,34 @@ void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 		    std::make_shared<event::smtp_command>(cp, command, sl.time);
 		mgr.handle(ev);
 
-		static const boost::regex 
+		static const std::regex 
 		    mail_from(" *MAIL +[Ff][Rr][Oo][Mm] *: *<([^ ]+)>",
-			      boost::regex::extended);
+			      std::regex::extended);
 
-		static const boost::regex 
+		static const std::regex 
 		    rcpt_to(" *RCPT +[Tt][Oo] *: *<([^ ]+)>",
-			    boost::regex::extended);
+			    std::regex::extended);
 
-		static const boost::regex 
-		    data_cmd(" *DATA *", boost::regex::extended);
+		static const std::regex 
+		    data_cmd(" *DATA *", std::regex::extended);
 
-		static const boost::regex 
-		    rset_cmd(" *RSET *", boost::regex::extended);
+		static const std::regex 
+		    rset_cmd(" *RSET *", std::regex::extended);
 
-		boost::match_results<std::string::const_iterator> what;
+		std::match_results<std::string::const_iterator> what;
 
 		if (regex_search(command, what, mail_from, 
-				 boost::match_continuous)) {
+				 std::regex_constants::match_continuous)) {
 		    from = what[1];
 		}
 
 		if (regex_search(command, what, rcpt_to, 
-				 boost::match_continuous)) {
+				 std::regex_constants::match_continuous)) {
 		    to.push_back(what[1]);
 		}
 
 		if (regex_search(command, what, data_cmd, 
-				 boost::match_continuous)) {
+				 std::regex_constants::match_continuous)) {
 		    state = smtp_client_parser::IN_DATA;
 		    data.clear();
 		    command = "";
@@ -147,7 +148,7 @@ void smtp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 		}
 
 		if (regex_search(command, what, rset_cmd, 
-				 boost::match_continuous)) {
+				 std::regex_constants::match_continuous)) {
 		    state = smtp_client_parser::IN_COMMAND;
 		    data.clear();
 		    command = "";

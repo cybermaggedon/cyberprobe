@@ -35,7 +35,7 @@ need to be called on the etsi_li object are connect and close.
 #include <queue>
 #include <sys/time.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace cybermon {
 
@@ -215,13 +215,13 @@ class receiver;
 class connection : public threads::thread {
 
   private:
-    boost::shared_ptr<tcpip::stream_socket> s;
+    std::shared_ptr<tcpip::stream_socket> s;
     monitor& p;
     receiver &r;
     bool running;
 
   public:
-    connection(boost::shared_ptr<tcpip::stream_socket> s, monitor& p,
+    connection(std::shared_ptr<tcpip::stream_socket> s, monitor& p,
 	       receiver& r) : s(s), p(p), r(r) {
 	running = true;
     }
@@ -236,7 +236,7 @@ class receiver : public threads::thread {
     bool running;
     monitor& p;
 
-    boost::shared_ptr<tcpip::stream_socket> svr;
+    std::shared_ptr<tcpip::stream_socket> svr;
 
     threads::mutex close_me_lock;
     std::queue<connection*> close_mes;
@@ -244,11 +244,11 @@ class receiver : public threads::thread {
   public:
     receiver(int port, monitor& p) : p(p) {
 	running = true;
-	boost::shared_ptr<tcpip::stream_socket> sock(new tcpip::tcp_socket);
+	std::shared_ptr<tcpip::stream_socket> sock(new tcpip::tcp_socket);
 	svr = sock;
 	svr->bind(port);
     }
-    receiver(boost::shared_ptr<tcpip::stream_socket> s, monitor& p) : p(p) {
+    receiver(std::shared_ptr<tcpip::stream_socket> s, monitor& p) : p(p) {
 	running = true;
 	svr = s;
     }

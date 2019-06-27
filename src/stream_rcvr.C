@@ -1,7 +1,7 @@
 
 #include <cybermon/socket.h>
 #include <iostream>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <cybermon/thread.h>
 #include <queue>
 #include <vector>
@@ -13,13 +13,13 @@ class receiver;
 class connection : public threads::thread {
 
   private:
-    boost::shared_ptr<tcpip::stream_socket> s;
+    std::shared_ptr<tcpip::stream_socket> s;
     receiver &r;
     bool running;
     std::ofstream out;
 
   public:
-    connection(boost::shared_ptr<tcpip::stream_socket> s, receiver& r,
+    connection(std::shared_ptr<tcpip::stream_socket> s, receiver& r,
 	       std::string fname) : s(s), r(r) {
 	running = true;
 	std::cout << "Writing to " << fname << std::endl;
@@ -36,7 +36,7 @@ class receiver : public threads::thread {
     std::string base;
     int oneup;
 
-    boost::shared_ptr<tcpip::stream_socket> svr;
+    std::shared_ptr<tcpip::stream_socket> svr;
 
     threads::mutex close_me_lock;
     std::queue<connection*> close_mes;
@@ -44,7 +44,7 @@ class receiver : public threads::thread {
   public:
     receiver(int port, const std::string& base) : base(base) {
 	running = true;
-	boost::shared_ptr<tcpip::stream_socket> sock(new tcpip::tcp_socket);
+	std::shared_ptr<tcpip::stream_socket> sock(new tcpip::tcp_socket);
 	svr = sock;
 	svr->bind(port);
 	oneup = 0;
@@ -69,7 +69,7 @@ void receiver::run()
 
 	    if (activ) {
 
-		boost::shared_ptr<tcpip::stream_socket> cn;
+		std::shared_ptr<tcpip::stream_socket> cn;
 
 		try {
 		    cn = svr->accept();

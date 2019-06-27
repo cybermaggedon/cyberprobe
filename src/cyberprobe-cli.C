@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cybermon/socket.h>
 #include <vector>
-#include <boost/regex.hpp>
+#include <regex>
 #include <iomanip>
 
 std::vector<std::string> commands;
@@ -499,117 +499,117 @@ int client(int argc, char** argv)
 	std::string s;
 	readline::get_line_completing("> ", s, completer);
 
-	static const boost::regex 
-	    help(" *help *$", boost::regex::extended);
+	static const std::regex 
+	    help(" *help *$", std::regex::extended);
 
-	boost::match_results<std::string::const_iterator> what;
+	std::match_results<std::string::const_iterator> what;
 
-	if (regex_search(s, help, boost::match_continuous)) {
+	if (regex_search(s, help, std::regex_constants::match_continuous)) {
 	    cmd_help();
 	    continue;
 	}
 
-	static const boost::regex 
-	    endpoints(" *show +endpoints *$", boost::regex::extended);
+	static const std::regex 
+	    endpoints(" *show +endpoints *$", std::regex::extended);
 
-	if (regex_search(s, endpoints, boost::match_continuous)) {
+	if (regex_search(s, endpoints, std::regex_constants::match_continuous)) {
 	    cmd_endpoints(sock);
 	    continue;
 	}
 
-	static const boost::regex 
-	    targets(" *show +targets *$", boost::regex::extended);
+	static const std::regex 
+	    targets(" *show +targets *$", std::regex::extended);
 
-	if (regex_search(s, targets, boost::match_continuous)) {
+	if (regex_search(s, targets, std::regex_constants::match_continuous)) {
 	    cmd_targets(sock);
 	    continue;
 	}
 
-	static const boost::regex 
-	    interfaces(" *show +interfaces *$", boost::regex::extended);
+	static const std::regex 
+	    interfaces(" *show +interfaces *$", std::regex::extended);
 
-	if (regex_search(s, interfaces, boost::match_continuous)) {
+	if (regex_search(s, interfaces, std::regex_constants::match_continuous)) {
 	    cmd_interfaces(sock);
 	    continue;
 	}
 
-	static const boost::regex 
-	    parameters(" *show +parameters *$", boost::regex::extended);
+	static const std::regex 
+	    parameters(" *show +parameters *$", std::regex::extended);
 
-	if (regex_search(s, parameters, boost::match_continuous)) {
+	if (regex_search(s, parameters, std::regex_constants::match_continuous)) {
 	    cmd_parameters(sock);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    add_interface(" *add +interface +([^ ]+) +([^ ]+) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 
-	if (regex_search(s, what, add_interface, boost::match_continuous)) {
+	if (regex_search(s, what, add_interface, std::regex_constants::match_continuous)) {
 	    cmd_do3(sock, "add_interface", what[1], what[2]);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    remove_interface(" *remove +interface +([^ ]+) +([^ ]+) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 
-	if (regex_search(s, what, remove_interface, boost::match_continuous)) {
+	if (regex_search(s, what, remove_interface, std::regex_constants::match_continuous)) {
 	    cmd_do3(sock, "remove_interface", what[1], what[2]);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    add_target(" *add +target +([^ ]+) +([^ ]+) +([^ ]+) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 
-	if (regex_search(s, what, add_target, boost::match_continuous)) {
+	if (regex_search(s, what, add_target, std::regex_constants::match_continuous)) {
 	    cmd_do4(sock, "add_target", what[1], what[2], what[3]);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    remove_target(" *remove +target +([^ ]+) +([^ ]+) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 	
-	if (regex_search(s, what, remove_target, boost::match_continuous)) {
+	if (regex_search(s, what, remove_target, std::regex_constants::match_continuous)) {
 	    cmd_do3(sock, "remove_target", what[1], what[2]);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    add_parameter(" *add +parameter +([^ ]+) +(.*) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 
-	if (regex_search(s, what, add_parameter, boost::match_continuous)) {
+	if (regex_search(s, what, add_parameter, std::regex_constants::match_continuous)) {
 	    cmd_do3(sock, "add_parameter", what[1], what[2]);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    remove_parameter(" *remove +parameter +([^ ]+) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 	
-	if (regex_search(s, what, remove_parameter, boost::match_continuous)) {
+	if (regex_search(s, what, remove_parameter, std::regex_constants::match_continuous)) {
 	    cmd_do2(sock, "remove_parameter", what[1]);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    add_endpoint(" *add +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 
-	if (regex_search(s, what, add_endpoint, boost::match_continuous)) {
+	if (regex_search(s, what, add_endpoint, std::regex_constants::match_continuous)) {
 	    cmd_do5(sock, "add_endpoint", what[1], what[2], what[3],
 		    what[4]);
 	    continue;
 	}
 
-	static const boost::regex 
+	static const std::regex 
 	    remove_endpoint(" *remove +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
-			  boost::regex::extended);
+			  std::regex::extended);
 	
-	if (regex_search(s, what, remove_endpoint, boost::match_continuous)) {
+	if (regex_search(s, what, remove_endpoint, std::regex_constants::match_continuous)) {
 	    cmd_do5(sock, "remove_endpoint", what[1], what[2], what[3],
 		    what[4]);
 	    continue;

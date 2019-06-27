@@ -36,7 +36,7 @@ class rtp_context : public context
         return "rtp";
     }
 
-    typedef boost::shared_ptr<rtp_context> ptr;
+    typedef std::shared_ptr<rtp_context> ptr;
 
     static context_ptr create(manager& m, const flow_address& f, context_ptr par)
     { 
@@ -48,7 +48,7 @@ class rtp_context : public context
     static ptr get_or_create(context_ptr base, const flow_address& f)
     {
         context_ptr cp = context::get_or_create(base, f, rtp_context::create);
-        ptr sp = boost::dynamic_pointer_cast<rtp_context>(cp);
+        ptr sp = std::dynamic_pointer_cast<rtp_context>(cp);
         return sp;
     }
 };

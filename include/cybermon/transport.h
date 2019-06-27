@@ -12,7 +12,7 @@ LI transport.
 
 #include <cybermon/socket.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace cybermon {
 
@@ -37,7 +37,7 @@ class transport {
     unsigned long cur_pdus;
 
     typedef std::vector<unsigned char> pdu;
-    typedef boost::shared_ptr<pdu> pdu_ptr;
+    typedef std::shared_ptr<pdu> pdu_ptr;
 
     std::deque<pdu_ptr> buffer;
 

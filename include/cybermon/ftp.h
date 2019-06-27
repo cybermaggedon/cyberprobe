@@ -9,7 +9,6 @@
 #define CYBERMON_FTP_H
 
 #include <stdint.h>
-#include <boost/regex.hpp>
 
 #include <set>
 
@@ -109,7 +108,7 @@ namespace cybermon {
 	// Type.
 	virtual std::string get_type() { return "ftp_client"; }
 
-	typedef boost::shared_ptr<ftp_client_context> ptr;
+	typedef std::shared_ptr<ftp_client_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {
@@ -121,7 +120,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, ftp_client_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ftp_client_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ftp_client_context>(cp);
 	    return sp;
 	}
 
@@ -146,7 +145,7 @@ namespace cybermon {
 	// Type.
 	virtual std::string get_type() { return "ftp_server"; }
 
-	typedef boost::shared_ptr<ftp_server_context> ptr;
+	typedef std::shared_ptr<ftp_server_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {
@@ -158,7 +157,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, ftp_server_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ftp_server_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ftp_server_context>(cp);
 	    return sp;
 	}
 

@@ -1,8 +1,7 @@
 
 #include <cybermon/tcp.h>
 
-#include <boost/array.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 #include <set>
 
 #include <cybermon/manager.h>
@@ -251,12 +250,12 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
     pdu_iter s = sl.start;
     pdu_iter e = sl.end;
 
-    static const boost::regex 
+    static const std::regex 
     http_request("(OPTIONS|GET|HEAD|POST|PUT|DELETE|CONNECT|TRACE)"
              " [^ ]* HTTP/1.",
-             boost::regex::extended);
+             std::regex::extended);
 
-    static const boost::regex http_response("HTTP/1\\.");
+    static const std::regex http_response("HTTP/1\\.");
 
     fc->lock.lock();
 
@@ -303,16 +302,16 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
             // Not idented, and we have enough data for an ident attempt.
 
-            boost::match_results<std::string::const_iterator> what;
+            std::match_results<std::string::const_iterator> what;
         
             if (regex_search(fc->ident_buffer, what, http_request, 
-                                 boost::match_continuous))
+			     std::regex_constants::match_continuous))
             {
                 fc->processor = &http::process_request;
                 fc->svc_idented = true;
             }
             else if (regex_search(fc->ident_buffer, what, http_response,
-                                    boost::match_continuous))
+				  std::regex_constants::match_continuous))
             {
                 fc->processor = &http::process_response;
                 fc->svc_idented = true;

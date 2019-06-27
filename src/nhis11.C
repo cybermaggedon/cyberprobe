@@ -106,7 +106,7 @@ void receiver::run()
 	    
 	    if (activ) {
 		
-		boost::shared_ptr<tcpip::stream_socket> cn = svr->accept();
+		std::shared_ptr<tcpip::stream_socket> cn = svr->accept();
 		
 		connection* c = new connection(cn, p, *this);
 		c->start();
