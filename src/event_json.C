@@ -534,7 +534,8 @@ namespace cybermon {
 		type = "response";
 
 	    json q = json::array();;
-	    for(std::list<cybermon::dns_query>::const_iterator it = e.queries.begin();
+	    for(std::list<cybermon::dns_query>::const_iterator it =
+		    e.queries.begin();
 		it != e.queries.end();
 		it++) {
 		json o = {
@@ -546,7 +547,8 @@ namespace cybermon {
 	    }
 
 	    json a = json::array();
-	    for(std::list<cybermon::dns_rr>::const_iterator it2 = e.answers.begin();
+	    for(std::list<cybermon::dns_rr>::const_iterator it2 =
+		    e.answers.begin();
 		it2 != e.answers.end();
 		it2++) {
 
@@ -642,17 +644,65 @@ namespace cybermon {
 	}
 
 	json jsonify(const gre& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "gre", {
+			{ "payload", jsonify(e.payload) },
+			{ "next_proto", e.next_proto },
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
+	    if (e.key != 0)
+		obj["gre"]["key"] = e.key;
+	    if (e.sequence_no != 0)
+		obj["gre"]["sequence_number"] = e.sequence_no;
 	    return obj;
 	}
 
 	json jsonify(const gre_pptp& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "gre_pptp", {
+			{ "payload", jsonify(e.payload) },
+			{ "next_proto", e.next_proto },
+			{ "payload_length", e.payload_length }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
+	    if (e.ack_no != 0)
+		obj["gre_pptp"]["acknowledgement_number"] = e.ack_no;
+	    if (e.sequence_no != 0)
+		obj["gre_pptp"]["sequence_number"] = e.sequence_no;
 	    return obj;
 	}
 
 	json jsonify(const esp& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "esp", {
+			{ "sequence_number", e.sequence },
+			{ "payload_length", e.payload_length }
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
