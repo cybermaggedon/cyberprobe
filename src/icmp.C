@@ -1,6 +1,9 @@
 
+#include <memory>
+
 #include <cybermon/icmp.h>
 #include <cybermon/manager.h>
+#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 
@@ -46,7 +49,10 @@ void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     // Reposition pdu start pointer to the payload
     pdu_iter start_of_payload = s + header_length;
- 
-    mgr.icmp(fc, type, code, start_of_payload, e, sl.time);
+
+    auto ev = std::make_shared<event::icmp>(fc, type, code,
+					    start_of_payload, e, sl.time);
+    mgr.handle(ev);
+
 }
 

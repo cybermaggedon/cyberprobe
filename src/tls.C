@@ -1,6 +1,7 @@
 #include <cybermon/tls.h>
 
 #include <cybermon/unrecognised.h>
+#include <cybermon/event_implementations.h>
 
 #include <tls_handshake.h>
 #include <tls_utils.h>
@@ -240,7 +241,9 @@ void tls::changeCipherSpec(manager& mgr, tls_context::ptr ctx, const pdu_slice& 
 
     ctx->seenChangeCipherSuite = true;
 
-    mgr.tls_change_cipher_spec(ctx, val, pduSlice.time);
+    auto ev =
+      std::make_shared<event::tls_change_cipher_spec>(ctx, val, pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr)
@@ -250,7 +253,10 @@ void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const
 
     uint16_t length = (hdr->length1 << 8) + hdr->length2;
 
-    mgr.tls_unknown(ctx, version, hdr->contentType, length, pduSlice.time);
+    auto ev =
+      std::make_shared<event::tls_unknown>(ctx, version, hdr->contentType,
+					   length, pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls::applicationData(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr)
@@ -268,5 +274,8 @@ void tls::applicationData(manager& mgr, context_ptr ctx, const pdu_slice& pduSli
     }
     std::vector<uint8_t> encMessage(data.start, data.start + length);
 
-    mgr.tls_application_data(ctx, version, encMessage, pduSlice.time);
+    auto ev =
+      std::make_shared<event::tls_application_data>(ctx, version, encMessage,
+						    pduSlice.time);
+    mgr.handle(ev);
 }

@@ -29,6 +29,7 @@ Usage:
 #include <cybermon_qwriter.h>
 #include <cybermon_qreader.h>
 #include <cybermon/pdu.h>
+#include <cybermon/event.h>
 
 // Monitor class, implements the monitor interface to receive data.
 class etsi_monitor : public monitor {
@@ -289,7 +290,9 @@ int main(int argc, char** argv)
     try {
 
 	//queue to store the incoming packets to be processed
-    std::queue<q_entry*>	cqueue;
+
+        typedef std::shared_ptr<cybermon::event::event> eptr;
+	std::queue<eptr> cqueue;
 
     // Input queue: Lock,
     threads::mutex cqwrlock;

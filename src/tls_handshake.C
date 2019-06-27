@@ -5,6 +5,7 @@
 #include <tls_exception.h>
 
 #include <cybermon/tls_handshake_protocol.h>
+#include <cybermon/event_implementations.h>
 #include <tls_key_exchange.h>
 
 #include <arpa/inet.h>
@@ -60,7 +61,11 @@ void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice&
             clientKeyExchange(mgr, ctx, data, len);
             break;
             default:
-            mgr.tls_handshake_generic(ctx, type, len, pduSlice.time);
+		auto ev =
+		    std::make_shared<event::tls_handshake_generic>(ctx, type,
+								   len,
+								   pduSlice.time);
+		mgr.handle(ev);
         }
 
         data = data.skip(len);
@@ -182,7 +187,9 @@ void tls_handshake::clientHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
 
     // send client hello event
     //TODO store relevent info in context
-    mgr.tls_client_hello(ctx, data, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_client_hello>(ctx, data, pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls_handshake::serverHello(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
@@ -249,7 +256,9 @@ void tls_handshake::serverHello(manager& mgr, tls_context::ptr ctx, const pdu_sl
 
     // send client hello event
     //TODO store relevent info in context
-    mgr.tls_server_hello(ctx, data, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_server_hello>(ctx, data, pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls_handshake::processExtensions(const pdu_slice& pduSlice, uint16_t length, std::vector<tls_handshake_protocol::extension>& exts)
@@ -309,7 +318,9 @@ void tls_handshake::certificate(manager& mgr, tls_context::ptr ctx, const pdu_sl
     }
 
     // TODO extract cert info? - openssl?
-    mgr.tls_certificates(ctx, certs, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_certificates>(ctx, certs, pduSlice.time);
+    mgr.handle(ev);
 }
 
 
@@ -334,12 +345,17 @@ void tls_handshake::serverKeyExchange(manager& mgr, tls_context::ptr ctx, const 
         break;
     }
 
-    mgr.tls_server_key_exchange(ctx, data, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_server_key_exchange>(ctx, data,
+							 pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls_handshake::serverHelloDone(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
 {
-    mgr.tls_server_hello_done(ctx, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_server_hello_done>(ctx, pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls_handshake::certificateRequest(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
@@ -420,7 +436,10 @@ void tls_handshake::certificateRequest(manager& mgr, tls_context::ptr ctx, const
     data.distinguishedNames.reserve(distNameLen);
     data.distinguishedNames.insert(data.distinguishedNames.end(), dataPtr, dataPtr + distNameLen);
 
-    mgr.tls_certificate_request(ctx, data, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_certificate_request>(ctx, data,
+							 pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls_handshake::clientKeyExchange(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
@@ -443,7 +462,10 @@ void tls_handshake::clientKeyExchange(manager& mgr, tls_context::ptr ctx, const 
         break;
     }
 
-    mgr.tls_client_key_exchange(ctx, key, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_client_key_exchange>(ctx, key,
+							 pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls_handshake::certificateVerify(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
@@ -475,7 +497,11 @@ void tls_handshake::certificateVerify(manager& mgr, tls_context::ptr ctx, const 
         oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
     }
 
-    mgr.tls_certificate_verify(ctx, sigHashAlgo, sigAlgo, oss.str(), pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_certificate_verify>(ctx, sigHashAlgo,
+							sigAlgo, oss.str(),
+							pduSlice.time);
+    mgr.handle(ev);
 }
 
 void tls_handshake::finished(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length)
@@ -483,7 +509,10 @@ void tls_handshake::finished(manager& mgr, tls_context::ptr ctx, const pdu_slice
     std::vector<uint8_t> encMessage(pduSlice.start, pduSlice.start + length);
 
     // create event on this finished message
-    mgr.tls_handshake_finished(ctx, encMessage, pduSlice.time);
+    auto ev =
+	std::make_shared<event::tls_handshake_finished>(ctx, encMessage,
+							pduSlice.time);
+    mgr.handle(ev);
     ctx->finished = true;
 
     // check if the entire handshake has been finished, (i.e. reverse has finished too)
@@ -493,7 +522,10 @@ void tls_handshake::finished(manager& mgr, tls_context::ptr ctx, const pdu_slice
         tls_context::ptr revPtr = boost::dynamic_pointer_cast<tls_context>(rev);
         if (revPtr->finished)
         {
-            mgr.tls_handshake_complete(ctx, pduSlice.time);
+	    auto ev2 =
+		std::make_shared<event::tls_handshake_complete>(ctx,
+								pduSlice.time);
+	    mgr.handle(ev2);
         }
     }
 }

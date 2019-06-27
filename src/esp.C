@@ -1,6 +1,7 @@
 #include <cybermon/esp.h>
 
 #include <cybermon/manager.h>
+#include <cybermon/event_implementations.h>
 
 #include <arpa/inet.h>
 #include <iomanip>
@@ -63,6 +64,9 @@ void esp::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
   flowContext->set_ttl(context::default_ttl);
 
 
-  mgr.esp(flowContext, spi, seq, len, pduSlice.start, pduSlice.end, pduSlice.time);
+  auto ev =
+    std::make_shared<event::esp>(flowContext, spi, seq, len, pduSlice.start,
+				 pduSlice.end, pduSlice.time);
+  mgr.handle(ev);
 
 }

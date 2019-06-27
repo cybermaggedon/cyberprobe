@@ -1,7 +1,10 @@
 
+#include <memory>
+
 #include <cybermon/unrecognised.h>
 #include <cybermon/manager.h>
 #include <cybermon/tcp.h>
+#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 
@@ -22,7 +25,11 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-        mgr.unrecognised_stream(fc, sl.start, sl.end, sl.time, fc->position);
+	auto ev =
+	    std::make_shared<event::unrecognised_stream>(fc, sl.start, sl.end,
+							 sl.time,
+							 fc->position);
+	mgr.handle(ev);
         fc->position += sl.end - sl.start;
     } catch (std::exception& e) {
 	fc->lock.unlock();
@@ -51,7 +58,10 @@ void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c,
     fc->lock.lock();
 
     try {
-        mgr.unrecognised_datagram(fc, sl.start, sl.end, sl.time);
+	auto ev =
+	    std::make_shared<event::unrecognised_datagram>(fc, sl.start, sl.end,
+							   sl.time);
+	mgr.handle(ev);
     } catch (std::exception& e) {
 	fc->lock.unlock();
 	throw;

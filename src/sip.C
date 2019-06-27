@@ -11,6 +11,7 @@
 #include <cybermon/sip_context.h>
 #include <cybermon/tcp_ports.h>
 #include <cybermon/udp_ports.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -91,7 +92,11 @@ void sip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
         }
 
         // Send message with arguments: method, from & to
-        mgr.sip_request(fc, fc->method, fc->from, fc->to, s, e, sl.time);
+	auto ev =
+	    std::make_shared<event::sip_request>(fc, fc->method,
+						 fc->from, fc->to,
+						 s, e, sl.time);
+	mgr.handle(ev);
         return;
     }
     else if (regex_search(ident_buffer, what, sip_response, boost::match_continuous))
@@ -109,7 +114,11 @@ void sip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
         buf >> codeval;
 
         // Send message with arguments: code, status, from & to
-        mgr.sip_response(fc, codeval, what[2], fc->from, fc->to, s, e, sl.time);
+	auto ev =
+	    std::make_shared<event::sip_response>(fc, codeval, what[2],
+						  fc->from, fc->to,
+						  s, e, sl.time);
+	mgr.handle(ev);
         return;
     }
     else

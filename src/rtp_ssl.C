@@ -4,6 +4,7 @@
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
 #include <cybermon/rtp_context.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -26,6 +27,9 @@ void rtp_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole RTP SSL message.
-    mgr.rtp_ssl(fc, sl.start, sl.end, sl.time);
+    auto ev =
+	std::make_shared<event::rtp_ssl>(fc, sl.start, sl.end, sl.time);
+    mgr.handle(ev);
+
 }
 

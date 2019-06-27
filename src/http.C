@@ -5,6 +5,7 @@
 #include <cybermon/http.h>
 #include <cybermon/manager.h>
 #include <cybermon/unrecognised.h>
+#include <cybermon/event_implementations.h>
 
 #include <ctype.h>
 #include <sstream>
@@ -483,8 +484,11 @@ void http_parser::complete_request(context_ptr c, const pdu_time& time,
     }
 
     // Raise an HTTP request event.
-    mgr.http_request(c, method, norm, header,
-		     body.begin(), body.end(), time);
+    auto ev =
+	std::make_shared<event::http_request>(c, method, norm, header,
+					      body.begin(), body.end(), time);
+    mgr.handle(ev);
+
 }
 
 void http_parser::complete_response(context_ptr c, const pdu_time& time,
@@ -527,7 +531,9 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
 	sp_rev->lock.unlock();
     }
 
-    mgr.http_response(c, codeval, status, header, url,
-		      body.begin(), body.end(), time);
+    auto ev =
+	std::make_shared<event::http_response>(c, codeval, status, header, url,
+					       body.begin(), body.end(), time);
+    mgr.handle(ev);
 
 }

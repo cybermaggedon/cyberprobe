@@ -4,6 +4,7 @@
 #include <cybermon/address.h>
 #include <cybermon/udp.h>
 #include <cybermon/ip.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -33,22 +34,33 @@ void ntp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     fc->lock.lock();
 
+    std::shared_ptr<event::event> ev;
     try 
     {
         switch(pt)
         {
 
             case ntp_decoder::timestamp_packet:
-                mgr.ntp_timestamp_message(fc, dec.get_timestamp_info(),
-					  sl.time);
+		ev =
+		    std::make_shared<event::ntp_timestamp_message>(fc,
+								   dec.get_timestamp_info(),
+								   sl.time);
+		mgr.handle(ev);
                 break;
                 
             case ntp_decoder::control_packet:
-                mgr.ntp_control_message(fc, dec.get_control_info(), sl.time);
+		ev =
+		    std::make_shared<event::ntp_control_message>(fc,
+								 dec.get_control_info(),
+								 sl.time);
+		mgr.handle(ev);
                 break;
                 
             case ntp_decoder::private_packet:
-                mgr.ntp_private_message(fc, dec.get_private_info(), sl.time);
+		ev =
+		    std::make_shared<event::ntp_private_message>(fc,
+								 dec.get_private_info(),
+								 sl.time);
                 break;
                 
             default:

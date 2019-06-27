@@ -18,6 +18,7 @@
 #include <cybermon/pop3_ssl.h>
 #include <cybermon/smtp.h>
 #include <cybermon/smtp_auth.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -87,7 +88,9 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     // This works for either the step2 SYN/ACK or the step3 ACK.
     if ((flags & ACK) && !fc->connected) {
 	fc->connected = true;
-	mgr.connection_up(fc, sl.time);
+	auto ev =
+	    std::make_shared<event::connection_up>(fc, sl.time);
+	mgr.handle(ev);
     }
 
     // This works for the either of the close-down packets containing a FIN.
@@ -95,7 +98,9 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	fc->fin_observed = true;
 	fc->set_ttl(2);
 	fc->lock.unlock();
-	mgr.connection_down(fc, sl.time);
+	auto ev =
+	    std::make_shared<event::connection_down>(fc, sl.time);
+	mgr.handle(ev);
 	return;
     }
 

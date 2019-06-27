@@ -4,6 +4,7 @@
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
 #include <cybermon/imap_ssl_context.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -29,7 +30,9 @@ void imap_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole IMAP SSL message.
-    mgr.imap_ssl(fc, s, e, sl.time);
+    auto ev =
+	std::make_shared<event::imap_ssl>(fc, s, e, sl.time);
+    mgr.handle(ev);
 
 }
 
