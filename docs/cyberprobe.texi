@@ -202,6 +202,13 @@ Cyberprobe releases:
 
 @table @code
 
+@item 2.0
+New simpler Lua API.  Native JSON encoding boosts performance of JSON output
+by 500%.
+
+@item 1.13
+Cybermon decodes for: TLS, GRE, ESP.
+
 @item 1.12.3
 Brought subscribers and docker-compose files up-to-date.
 
@@ -1324,14 +1331,9 @@ OK
 
 In the previous step, you started @command{cybermon} with the
 @file{monitor.lua}
-configuration file. Have a play with a couple of the others. Configuration
-file @file{hexdump.lua} produces little hex dumps of things like HTTP bodies.
+configuration file.  
 
-@cindex @file{hexdump.lua}
-
-@example
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/hexdump.lua
-@end example
+@cindex @file{json.lua}
 
 Configuration file @file{json.lua} causes @command{cybermon} to output the
 events as JSON objects.
@@ -1350,24 +1352,16 @@ in the next step.
 @section Writing your own configuration file
 
 Now, take a copy of the @file{quiet.lua} configuration file, and have a look
-at it. It consists of a bunch of functions written in the LUA language. LUA
+at it. It is a Lua module which defines a minimum of one function,
+@samp{event}, which is called when events occur.  LUA
 is a lightweight scripting langauge which is really good as a configuration
-language. For example, this function is called when a TCP connection is
+language. This function is called when a TCP connection is
 made:
 
-@cindex @code{connection_up}
-@cindex @code{http_response}
+@cindex @code{event}
 
 @example
-observer.connection_up = function(context)
-end
-@end example
-
-And this function is called when an HTTP response is observed:
-
-@example
-observer.http_response = function(context, code, status, header, url,
-                                  body)
+observer.event = function(e)
 end
 @end example
 
@@ -1376,10 +1370,13 @@ key/value pairs from the header. The url parameter contains the full URL of
 the response. The body parameter contains the payload body as an empty
 string. Let's start simple:
 
+@cindex @code{http_response}
+
 @example
-observer.http_response = function(context, code, status, header, url,
-                                  body)
-  print(url)
+observer.event = function(e)
+  if e.action == "http_response" then
+    print(url)
+  end
 end
 @end example
 
@@ -1396,22 +1393,25 @@ visit. Let's tart that up a little more:
 
 @example
 -- This function is called when an HTTP response is observed.
-observer.http_response = function(context, code, status, header, url,
-                                  body)
+observer.event = function(e)
 
-  -- Take first 40 characters of URL
-  local u = url:sub(1,40)
+  if e.action == "http_response" then
 
-  -- Get Content-Type (first 20 characters)
-  local ct
-  ct = ""
-  for key, value in pairs(header) do
-    if key:lower() == "content-type" then
-      ct = value:sub(1,20)
+    -- Take first 40 characters of URL
+    local u = url:sub(1,40)
+
+    -- Get Content-Type (first 20 characters)
+    local ct
+    ct = ""
+    for key, value in pairs(header) do
+      if key:lower() == "content-type" then
+        ct = value:sub(1,20)
+      end
     end
-  end
 
-  io.write(string.format("%-40s %-20s %d\n", u, ct, #body))
+    io.write(string.format("%-40s %-20s %d\n", u, ct, #body))
+
+  end
 
 end
 @end example
@@ -1465,15 +1465,19 @@ which gives access to @command{cybermon} information and the packet forgery
 functions. In this step, we're going to forge a TCP reset on any connections
 which are from or to port 80. Hack the configuration file:
 
+@cindex @code{event}
 @cindex @code{context}
+@cindex @code{connected_up}
 
 @example
-observer.connection_up = function(context)
+observer.event = function(e)
+
+  if e.action == "connected_up" then
 
     -- Get TCP ports.
     local cls, src_addr, dest_addr
-    cls, src_addr = context:get_src_addr()
-    cls, dest_addr = context:get_dest_addr()
+    cls, src_addr = e.context:get_src_addr()
+    cls, dest_addr = e.context:get_dest_addr()
 
     -- check if it is port 80.
     if not((src_addr == "80") or (dest_addr == "80")) then
@@ -1483,7 +1487,9 @@ observer.connection_up = function(context)
 
     -- TCP reset    
     print("Reset on HTTP connection.")
-    context:forge_tcp_reset(context)
+    e.context:forge_tcp_reset(context)
+
+  end
 
 end
 @end example
@@ -1494,7 +1500,7 @@ access to the raw IP socket layer, which is a privileged operation. Start
 that up:
 
 @example
-cybermon -p 10000 -c my.lua
+sudo cybermon -p 10000 -c my.lua
 @end example
 
 Now start web browsing, and you should see a bunch of "Reset on HTTP
@@ -1513,22 +1519,29 @@ Another example is where you know the user community on your network is
 being targeted by phishing emails. Your first step is to try to get the
 phishing emails out of their inboxes, getting your email provider to filter
 the attacks. But a backup attack would be to make sure your users can't get
-to the phisher's web site. The http_request function allows us to reset
+to the phisher's web site. The event function allows us to reset
 requests going to a particular web site.
 
+@cindex @code{event}
+@cindex @code{context}
+@cindex @code{http_request}
+
 @example
--- This function is called when an HTTP request is observed.
-observer.http_request = function(context, method, url, header, body)
+observer.event = function (e)
 
-    if header["Host"] == "example.org" then
+  if e.action == "http_request" then
+
+    if e.header["Host"] == "example.org" then
       print("Reset on HTTP request")
       context:forge_tcp_reset(context)
     end
 
-    if header["Host"] == "www.example.org" then
+    if e.header["Host"] == "www.example.org" then
       print("Reset on HTTP request")
       context:forge_tcp_reset(context)
     end
+
+  end
 
 end
 @end example
@@ -1549,39 +1562,48 @@ example.org has address 93.184.216.119
 The @code{example.org} name has been resolved to a particular IP
 address. Let's hack the DNS request function in @file{my.lua}:
 
+@cindex @code{event}
+@cindex @code{context}
 @cindex @code{dns_message}
 
 @example
 -- This function is called when a DNS message is observed.
-observer.dns_message = function(context, header, queries, answers, auth,
-                                add)
+observer.event = function(e)
 
-  -- Check my assumptions.  Need a DNS query request, with one query,
-  -- name is example.org, type 'A', class 'IN'.
-  if header.qr == 0 and #queries == 1 and
-    queries[1].name == "example.org" and queries[1].type == 1 and
-    queries[1].class == 1 then
+  if e.event == "dns_message" then
 
-    -- Send a fake response
+    -- Check my assumptions.  Need a DNS query request, with one query,
+    -- name is example.org, type 'A', class 'IN'.
+    if e.header.qr == 0 and #e.queries == 1 and
+      e.queries[1].name == "example.org" and e.queries[1].type == 1 and
+      e.queries[1].class == 1 then
 
-    -- Set query/response flag to 'response'
-    header.qr = 1
+      -- Send a fake response
 
-    -- 1 answer
-    answers = @{@}
-    answers[1] = @{@}
-    answers[1].name = "example.org"
-    answers[1].type = 1
-    answers[1].class = 1
-    answers[1].rdaddress = "1.2.3.4"
+      -- Set query/response flag to 'response'
 
-    -- 1 answer
-    header.ancount = 1
+      new_hdr = e.header
+      new_hdr.qr = 1
 
-    io.write("Forging DNS response!\n")
+      new_ans = e.answers
 
-    context:forge_dns_response(context, header, queries, answers,
-                               @{@}, @{@})
+      -- 1 answer
+      new_ans = @{@}
+      new_ans[1] = @{@}
+      new_ans[1].name = "example.org"
+      new_ans[1].type = 1
+      new_ans[1].class = 1
+      new_ans[1].rdaddress = "1.2.3.4"
+
+      -- 1 answer
+      new_hdr.ancount = 1
+
+      io.write("Forging DNS response!\n")
+
+      context:forge_dns_response(context, new_hdr, queries, new_ans,
+                                 @{@}, @{@})
+
+    end
 
   end
 
@@ -3185,339 +3207,9 @@ number of functions:
 @example
 local observer = @{@}
 
--- This function is called when a trigger events starts collection of an
--- attacker.
--- e.device = the trigger device
--- e.addr = trigger address
-observer.trigger_up = function(e)
+-- Called when an event occurs
+observer.event = function(e)
 end
-
--- This function is called when an attacker goes off the air
--- e.device = the trigger device.
-observer.trigger_down = function(e)
-end
-
--- This function is called when a stream-orientated connection is made
--- (e.g. TCP).
--- e.context = protocol context
-observer.connection_up = function(e)
-end
-
--- This function is called when a stream-orientated connection is closed
--- e.context = protocol context
-observer.connection_down = function(e)
-end
-
--- This function is called when a datagram is observed, but the protocol
--- is not recognised.
--- e.context = protocol context
--- e.data = payload
-observer.unrecognised_datagram = function(e)
-end
-
--- This function is called when stream data  is observed, but the
--- protocol is not recognised.
--- e.context = protocol context
--- e.data = payload
--- e.position = stream position
-observer.unrecognised_stream = function(e)
-end
-
--- This function is called when an ICMP message is observed.
--- e.context = protocol context
--- e.type = ICMP type
--- e.code = ICMP code
--- e.data = payload
-observer.icmp = function(e)
-end
-
--- This function is called when an IMAP message is observed.
--- e.context = protocol context
--- e.data = payload
-observer.imap = function(e)
-end
-
--- This function is called when an IMAP SSL message is observed.
--- e.context = protocol context
--- e.data = payload
-observer.imap_ssl = function(e)
-end
-
--- This function is called when a POP3 message is observed.
--- e.context = protocol context
--- e.data = payload
-observer.pop3 = function(e)
-end
-
--- This function is called when a POP3 SSL message is observed.
--- e.context = protocol context
--- e.data = payload
-observer.pop3_ssl = function(e)
-end
-
--- This function is called when an HTTP request is observed.
--- e.context = protocol context
--- e.method = HTTP method
--- e.url = HTTP URL
--- e.header = HTTP header, an associative array
--- e.body = body payload
-observer.http_request = function(e)
-end
-
--- This function is called when an HTTP response is observed.
--- e.context = protocol context
--- e.code = HTTP code
--- e.status = HTTP status
--- e.header = HTTP header, an associative array
--- e.url = HTTP URL
--- e.body = HTTP response body
-observer.http_response = function(e)
-end
-
--- This function is called when a SIP request message is observed.
--- e.context = protocol context
--- e.method = HTTP method
--- e.from = SIP originator address
--- e.to = SIP destination address
--- e.data = SIP payload
-observer.sip_request = function(e)
-end
-
--- This function is called when a SIP response message is observed.
--- e.context = protocol context
--- e.code = SIP response code
--- e.status = SIP response status
--- e.from = SIP originator address
--- e.to = SIP destination address
--- e.data = SIP payload
-observer.sip_response = function(e)
-end
-
--- This function is called when a SIP SSL message is observed.
--- e.context = protocol context
--- e.data = payload
-observer.sip_ssl = function(e)
-end
-
--- This function is called when an SMTP command is observed.
--- e.context = protocol context
--- e.command = SMTP command
-observer.smtp_command = function(e)
-end
-
--- This function is called when an SMTP response is observed.
--- e.context = protocol context
--- e.status = SMTP response status
--- e.text = response text, an array of lines
-observer.smtp_response = function(e)
-end
-
--- This function is called when an SMTP response is observed.
--- e.context = protocol context
--- e.from = SMTP originator addresses, a string
--- e.to = SMTP recipients, an array of strings
-observer.smtp_data = function(e)
-end
-
--- This function is called when a DNS message is observed.
--- e.context = protocol context
--- e.header = DNS header
--- e.queries = DNS queries
--- e.answers = DNS answers
--- e.auth = DNS authentication records
--- e.add = DNS additional records
-observer.dns_message = function(e)
-end
-
--- This function is called when an FTP command is observed.
--- e.context = protocol context
--- e.command = FTP command
-observer.ftp_command = function(e)
-end
-
--- This function is called when an FTP response is observed.
--- e.context = protocol context
--- e.status = FTP response status
--- e.text = response text, an array of lines
-observer.ftp_response = function(e)
-end
-
--- This function is called when an NTP timestamp message is observed.
--- e.context = protocol context
--- e.header = NTP header
--- e.timestamp = NTP timestamp
-observer.ntp_timestamp_message = function(e)
-end
-
--- This function is called when an NTP control message is observed.
--- e.context = protocol context
--- e.header = NTP header
--- e.control = NTP control info
-observer.ntp_control_message = function(e)
-end
-
--- This function is called when an NTP private message is observed.
--- e.context = protocol context
--- e.header = NTP header
--- e.private = NTP private info
-observer.ntp_private_message = function(e)
-end
-
--- This function is called when a GRE message with an unhandled ethertype is observed.
--- e.context = protocol context
--- e.next_proto = the ethertype of the next protocol
--- e.payload = the payload
--- e.key = the key (default is 0 if it is not present in packet)
--- e.sequence_number = the sequence number (default is 0 if it is not present in packet)
-observer.gre = function(e)
-end
-
--- This function is called when a GRE PPTP message with an unhandled ethertype is observed.
--- e.context = protocol context
--- e.next_proto = the ethertype of the next protocol
--- e.call_id = gre call id
--- e.payload_length = the payload length
--- e.payload = the payload
--- e.sequence_number = the sequence number (default is 0 if it is not present in packet)
--- e.acknowledgement_number = the acknowledgement number (default is 0 if it is not present in packet)
-observer.gtp_pptp = function(e)
-end
-
--- This function is called when an ESP packet is observed.
--- e.context = protocol context
--- e.next_proto = the ethertype of the next protocol
--- e.spi = gre call id
--- e.sequence_number = the sequence number
--- e.payload_length = the payload length
--- e.payload = the payload
-observer.esp = function(e)
-end
-
--- This function is called when an IP packet with an unprocessed next protocol is observed.
--- e.context = protocol context
--- e.next_proto = the protocol number of the next protocol
--- e.payload_length = the payload length
--- e.payload = the payload
-observer.unrecognised_ip_protocol = function(e)
-end
-
--- This function is called when an 802.11 packet is observed.
--- e.context = protocol context
--- e.version = the 802.11 version
--- e.type = the type of 802.11 data frame
--- e.subtype = the subtype of 802.11 data frame
--- e.flags = the flags on the data frame
--- e.protected = the protected flag
--- e.filt_addr = the filter MAC address
--- e.frag_num = the fragmentation number
--- e.seq_num = the sequence number
--- e.duration = the duration
-observer.wlan = function(e)
-end
-
--- This function is called when an unknown tls message is observed.
--- e.version = The TLS version of the message
--- e.content_type = the type of TLS message
--- e.length = the length of the message
-observer.tls_unknown = function(e)
-end
-
--- This function is called when a tls client hello message is observed.
--- e.version = the version specified in the client hello
--- e.session_id = the session id, in hex
--- e.random_timestamp = the timestamp in the random field
--- e.random_data = the data in the random field
--- e.cipher_suites = the cipher suites specified in the header in an ordered array
---   of tables containing 'name' and 'id' fields
--- e.compression_methods = the compression methods specified in the header in an
---   ordered array of tables containing 'name' and 'id' fields
--- e.extensions = the extensions specified in the header in an ordered array of
---   tables containing the fields 'name', 'length' and 'data' (if length > 0)
-observer.tls_client_hello = function(e)
-end
-
--- This function is called when a tls server hello message is observed.
--- e.version = the version specified in the server hello
--- e.session_id = the session id, in hex
--- e.random_timestamp = the timestamp in the random field
--- e.random_data = the data in the random field
--- e.cipher_suite = the cipher suite specified in the header in a table containing
---   'name' and 'id' fields
--- e.compression_method = the compression method specified in the header in a
---   table containing 'name' and 'id' fields
--- e.extensions = the extensions specified in the header in an ordered array of
---   tables containing the fields 'name', 'length' and 'data' (if length > 0)
-observer.tls_server_hello = function(e)
-end
-
--- This function is called when a tls certificates message is observed.
--- e.certificates = an ordered array of strings representing the certificate in
---   bytes
-observer.tls_certificates = function(e)
-end
-
--- This function is called when a tls server key exchange message is observed.
--- e.key_exchange_algorithm = string representation of the key exchange algorithm
--- if e.key_exchange_algorithm == "ec-dh"
---   e.curve_metadata = the curve metadata as key value pairs
---   e.public_key = the public key in bytes
---   e.signature_hash_algorithm = the signature hash algorithm field
---   e.signature_algorithm = the signature algorithm field
---   e.signature_hash = the signature hash as a hex string
-observer.tls_server_key_exchange = function(e)
-end
-
--- This function is called when a tls server hello done message is observed.
-observer.tls_server_hello_done = function(e)
-end
-
--- This function is called when an unknown tls handshake message is observed.
--- (unknown meaning not currently handled by the protocol analyser)
--- e.type = the type field
--- e.length = the length of the handshake message
-observer.tls_handshake_unknown = function(e)
-end
-
--- This function is called when a tls certificate request message is observed.
--- e.cert_types = the certificate types in an ordered array or strings
--- e.signature_algorithms = the signature algorithms in an ordered array of tables
---   containing 'hash_algorithm' and 'signature_algorithm' fields
--- e.distinguished_names = the distinguished names field in bytes
-observer.tls_certificate_request = function(e)
-end
-
--- This function is called when a tls client_key exchange message is observed.
--- e.key = the key in bytes
-observer.tls_client_key_exchange = function(e)
-end
-
--- This function is called when a tls certificate verify message is observed.
--- e.signature_algorithm = the signature algorithm used, as a table containing
---   'hash_algorithm' and 'signature_algorithm' fields
--- e.signature = the signature as a hex string
-observer.tls_certificate_verify = function(e)
-end
-
--- This function is called when a tls change cipher spec message is observed.
--- e.val = the value field
-observer.tls_change_cipher_spec = function(e)
-end
-
--- This function is called when a tls handshake finished message is observed.
--- e.msg = the message in bytes
-observer.tls_handshake_finished = function(e)
-end
-
--- This function is called when both sides of the handshake have finished.
-observer.tls_handshake_complete = function(e)
-end
-
--- This function is called when a tls application data message is observed.
--- e.version = the version on the TLS header
--- e.data = the encrypted message data in bytes
-observer.tls_application_data = function(e)
-end
-
 
 -- Return the table
 return observer
@@ -3526,17 +3218,20 @@ return observer
 
 @cindex LUA events
 @cindex @code{cybermon} events
+@cindex @code{action}
 @heading LUA event calls
 
-The configuration file is expected to provide the following functions, which
-are called in response to @command{cybermon} events.
+The configuration file is expected to provide the event function
+which is called with a single argument, an event, in response to
+@command{cybermon} events.  The structure of the event object depends
+on the @code{action} field.
 
 @table @code
 
-@item trigger_up(e)
+@item trigger_up
 
-Called when an attacker is seen coming on-stream.
-A single parameter is passed, a table containing the following values:
+Called when an attacker is seen coming on-stream.  The event contains
+the following fields:
 
 @table @code
 
@@ -3551,9 +3246,9 @@ contains the triggering IP address in string form.
 
 @end table
 
-@item trigger_down(e)
+@item trigger_down
 Called when an attacker is seen going off-stream.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3565,9 +3260,9 @@ describes the device ID
 
 @end table
 
-@item connection_up(e)
+@item connection_up
 Called when a stream-based connection (e.g. TCP) is made.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3581,9 +3276,9 @@ from @command{cybermon}.
 
 @end table
 
-@item connection_down(e)
+@item connection_down
 Similar to @code{connection_up}, called when a connection closes.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3597,9 +3292,9 @@ from @command{cybermon}.
 
 @end table
 
-@item icmp(e)
+@item icmp
 Called when an ICMP message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3619,9 +3314,9 @@ ICMP code value
 
 @end table
 
-@item http_request(e)
+@item http_request
 Called when an HTTP request is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3647,9 +3342,9 @@ HTTP request body, if one exists.
 
 @end table
 
-@item http_response(e)
+@item http_response
 Called when an HTTP response is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3675,10 +3370,11 @@ HTTP response body.
 
 @end table
 
-@item smtp_command(e)
+@item smtp_command
 Called when an SMTP command is observed i.e. a single line message going to
 the server from a client.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
+
 
 @table @code
 
@@ -3695,9 +3391,9 @@ the SMTP command
 
 @end table
 
-@item smtp_response(e)
+@item smtp_response
 Called when an SMTP response is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3717,11 +3413,11 @@ SMTP human-readable response text, an array of strings
 
 @end table
 
-@item smtp_data(e)
+@item smtp_data
 Called when an SMTP payload is observed i.e. the body of text following the
 DATA command. To aid processing, the SMTP protocol processor assembles
 information from other commands.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3744,10 +3440,10 @@ payload.
 
 @end table
 
-@item ftp_command(e)
+@item ftp_command
 Called when an FTP command is observed i.e. a single line message going to
 the server from a client.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3764,10 +3460,10 @@ contains the command string.
 
 @end table
 
-@item ftp_response(e)
+@item ftp_response
 Called when an FTP response is observed. That is, status going from server
 to client following a command.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3790,9 +3486,9 @@ single item in the list.
 
 @end table
 
-@item dns_message(e)
+@item dns_message
 Called when a DNS message is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3821,9 +3517,9 @@ provides additional DNS records
 
 @end table
 
-@item ntp_timestamp_message(e)
+@item ntp_timestamp_message
 Called when a NTP timestamp message is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3843,9 +3539,9 @@ contains the specific timestamp information
 
 @end table
 
-@item ntp_control_message(e)
+@item ntp_control_message
 Called when a NTP control message is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3865,9 +3561,9 @@ specific NTP control information.
 
 @end table
 
-@item ntp_private_message(e)
+@item ntp_private_message
 Called when a NTP control message is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3887,10 +3583,10 @@ specific NTP private information.
 
 @end table
 
-@item unrecognised_datagram(e)
+@item unrecognised_datagram
 Called when a datagram is received using a protocol which isn't
 recognised.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3907,10 +3603,10 @@ the payload.
 
 @end table
 
-@item unrecognised_stream(e)
+@item unrecognised_stream
 Called when connection-orientated data is received using a protocol which
 isn't recognised.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3931,10 +3627,10 @@ connected, and increases with payload size.
 
 @end table
 
-@item imap(e)
+@item imap
 Called when an IMAP message is detected - this is currently a port number
 detection.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3951,10 +3647,10 @@ the payload.
 
 @end table
 
-@item imap_ssl(e)
+@item imap_ssl
 Called when an IMAP SSL message is detected. This is currently a port number
 detection.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3971,10 +3667,10 @@ the payload.
 
 @end table
 
-@item pop3(e)
+@item pop3
 Called when a POP3 message is detected.  This is currently
 a port number detection.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -3991,10 +3687,10 @@ the payload.
 
 @end table
 
-@item pop3_ssl(e)
+@item pop3_ssl
 Called when a POP3 SSL message is detected. This is currently a port number
 detection.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4011,10 +3707,9 @@ the payload.
 
 @end table
 
-@item sip_request(e)
+@item sip_request
 Called when a SIP request is observed.
-
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4041,9 +3736,9 @@ the payload.
 
 @end table
 
-@item sip_response(e)
+@item sip_response
 Called when a SIP request is observed.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4072,10 +3767,10 @@ the payload.
 
 @end table
 
-@item sip_ssl(e)
+@item sip_ssl
 Called when a SIP SSL message is detected. This is currently a port number
 detection.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4092,9 +3787,9 @@ the payload.
 
 @end table
 
-@item gre(e)
+@item gre
 Called when a GRE message with an unknown ethertype is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4121,9 +3816,9 @@ the payload
 
 @end table
 
-@item gre_pptp(e)
+@item gre_pptp
 Called when a GRE PPTP message with an unknown ethertype is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4157,9 +3852,9 @@ the payload
 
 @end table
 
-@item esp(e)
+@item esp
 Called when an ESP packet is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4185,9 +3880,9 @@ the payload
 
 @end table
 
-@item unrecognised_ip_protocol(e)
+@item unrecognised_ip_protocol
 Called when an IP packet with an unhandled next protocol is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4210,9 +3905,9 @@ the payload
 
 @end table
 
-@item wlan(e)
+@item wlan
 Called when an 802.11 packet is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4253,10 +3948,10 @@ the sequence number of the dataframe
 
 @end table
 
-@item tls_unknown(e)
+@item tls_unknown
 Called when an unknown TLS message (i.e. one that isn't covered by further
 handling) is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4284,9 +3979,9 @@ The length of the TLS message.
 
 @end table
 
-@item tls_client_hello(e)
+@item tls_client_hello
 Called when a TLS Client Hello message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4330,9 +4025,9 @@ Each entry is a table with @code{name}, @code{length} and @code{data} fields.
 
 @end table
 
-@item tls_server_hello(e)
+@item tls_server_hello
 Called when a TLS Server Hello message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4374,9 +4069,9 @@ Each entry is a table with @code{name}, @code{length} and @code{data} fields.
 
 @end table
 
-@item tls_server_key_exchange(e)
+@item tls_server_key_exchange
 Called when a TLS Server Key Exchange message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4413,9 +4108,9 @@ The signature hash field. As a hex string
 
 @end table
 
-@item tls_certificates(e)
+@item tls_certificates
 Called when a TLS certificates message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4437,9 +4132,9 @@ an ordered array of certificates, each in bytes.
 
 @end table
 
-@item tls_server_hello_done(e)
+@item tls_server_hello_done
 Called when a TLS Server Hello Done message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4457,9 +4152,9 @@ from @command{cybermon}.
 
 @end table
 
-@item tls_handshake_unknown(e)
+@item tls_handshake_unknown
 Called when a TLS handshake message is detected, that isnt explicitly handled.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4484,9 +4179,9 @@ the length of the handshake message
 
 @end table
 
-@item tls_certificate_request(e)
+@item tls_certificate_request
 Called when a TLS certificate request message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4515,9 +4210,9 @@ the distinguished names field in bytes
 
 @end table
 
-@item tls_client_key_exchange(e)
+@item tls_client_key_exchange
 Called when a TLS client key exchange message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4539,9 +4234,9 @@ the key in bytes
 
 @end table
 
-@item tls_certificate_verify(e)
+@item tls_certificate_verify
 Called when a TLS certificate verify message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4567,9 +4262,9 @@ the signature as a hex string
 
 @end table
 
-@item tls_change_cipher_spec(e)
+@item tls_change_cipher_spec
 Called when a TLS change cipher spec message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4591,9 +4286,9 @@ the value field
 
 @end table
 
-@item tls_handshake_finished(e)
+@item tls_handshake_finished
 Called when a TLS handshake finished message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4615,10 +4310,10 @@ the encrypted message
 
 @end table
 
-@item tls_handshake_complete(e)
+@item tls_handshake_complete
 Called when a TLS handshake has been completely finished - i.e. both sides of the
 communication have sent change_cipher_spec and handshake_finished.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
@@ -4637,9 +4332,9 @@ from @command{cybermon}.
 
 @end table
 
-@item tls_application_data(e)
+@item tls_application_data
 Called when a TLS application data message is detected.
-A single parameter is passed, a table containing the following values:
+The event contains the following fields:
 
 @table @code
 
