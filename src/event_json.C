@@ -1106,32 +1106,131 @@ namespace cybermon {
 	}
 
 	json jsonify(const tls_client_key_exchange& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_client_key_exchange", {
+			{ "tls", {
+				{ "key",
+				  jsonify(e.key) }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_certificate_verify& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_certificate_verify", {
+			{ "tls", {
+				{ "signature_hash_algorithm", e.sig_hash_algo },
+				{ "signature_algorithm", e.sig_algo },
+				{ "signature", e.sig }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_change_cipher_spec& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_change_cipher_spec", {
+			{ "tls", {
+				{ "value", e.val }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_handshake_finished& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_handshake_finished", {
+			{ "tls", {
+				{ "message", jsonify(e.msg) }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_handshake_complete& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_handshake_complete", {
+			{ "tls", {
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_application_data& e) {
-	    json obj;
+	    std::list<std::string> src, dest;
+	    get_addresses(e.context, src, dest);
+
+	    json obj = {
+		{ "action", e.get_action() },
+		{ "device", e.get_device() },
+		{ "time", jsonify(e.time) },
+		{ "tls_application_data", {
+			{ "tls", {
+				{ "version", e.version },
+				{ "length", e.data.size() }
+			    }
+			}
+		    }
+		},
+		{ "src", src },
+		{ "dest", dest }
+	    };
 	    return obj;
 	}
 
