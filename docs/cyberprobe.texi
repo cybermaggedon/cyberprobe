@@ -3223,7 +3223,10 @@ return observer
 
 The configuration file is expected to provide the event function
 which is called with a single argument, an event, in response to
-@command{cybermon} events.  The structure of the event object depends
+@command{cybermon} events.  The event looks like a table, but is a userdata
+object.  While the object fields can be read, they cannot be written.
+
+The structure of the event object depends
 on the @code{action} field.
 
 @table @code
