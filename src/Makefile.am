@@ -48,7 +48,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	hardware_addr_utils.h tls_cipher_suites.h tls_exception.h tls_extensions.h \
 	tls_handshake.h tls_key_exchange.h tls_utils.h \
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
-	address_map.h		                \
+	address_map.h	uuid.h	                \
 	../include/cybermon/base_context.h				\
 	../include/cybermon/context.h					\
 	../include/cybermon/cybermon-lua.h				\

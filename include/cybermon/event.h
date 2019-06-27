@@ -11,6 +11,7 @@
 #include <cybermon/dns_protocol.h>
 #include <cybermon/tls_handshake_protocol.h>
 #include <cybermon/ntp_protocol.h>
+#include <uuid.h>
 
 namespace cybermon {
 
@@ -74,14 +75,17 @@ namespace cybermon {
 	std::string& action2string(action_type a);
 
 	class event {
+	    static uuid_generator gen;
 	public:
+	    std::string id;
 	    action_type action;
 	    timeval time;
-	    event() {}
+	    event() { id = gen.generate().to_string(); }
 	    event(const action_type action,
 		  const timeval& time) :
 		action(action), time(time)
 		{
+		    id = gen.generate().to_string();
 		}
 	    virtual ~event() {}
 	    virtual std::string get_device() const = 0;

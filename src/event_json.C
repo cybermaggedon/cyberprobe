@@ -1,4 +1,6 @@
 
+//FIXME: No ID present!
+
 #include <cybermon/event_implementations.h>
 #include <cybermon/event_json.h>
 #include <cybermon/context.h>
@@ -121,6 +123,7 @@ namespace cybermon {
 	    
 	    json obj  {
 		// FIXME: Annoying.
+		{ "id", e.id },
 		{ "action", "connected_up" },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -137,6 +140,7 @@ namespace cybermon {
     
 	    json obj  {
 		// FIXME: Annoying.
+		{ "id", e.id },
 		{ "action", "connected_down" },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -150,10 +154,11 @@ namespace cybermon {
 	json jsonify(const trigger_up& e) {
 
 	    json obj = {
-		{ "address", e.address },
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) }
+		{ "time", jsonify(e.time) },
+		{ "address", e.address }
 	    };
 
 	    return obj;
@@ -162,6 +167,7 @@ namespace cybermon {
 	json jsonify(const trigger_down& e) {
 
 	    json obj  {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "time", jsonify(e.time) }
 	    };
@@ -175,6 +181,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -195,6 +202,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -212,6 +220,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -231,6 +240,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -245,6 +255,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -259,6 +270,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -273,6 +285,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -287,6 +300,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -301,6 +315,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -315,6 +330,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -332,6 +348,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -350,6 +367,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -364,6 +382,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -381,6 +400,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -398,6 +418,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -416,6 +437,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -440,6 +462,7 @@ namespace cybermon {
 		it++)
 		hdr[it->second.first] = it->second.second;
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -468,6 +491,7 @@ namespace cybermon {
 		it++)
 		hdr[it->second.first] = it->second.second;
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -490,6 +514,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -507,6 +532,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -527,6 +553,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -598,6 +625,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 	    json obj = {
 		// FIXME: Confusing
+		{ "id", e.id },
 		{ "action", "ntp_timestamp" },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -617,6 +645,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 	    json obj = {
 		// FIXME: Confusing
+		{ "id", e.id },
 		{ "action", "ntp_control" },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -636,6 +665,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 	    json obj = {
 		// FIXME: Confusing
+		{ "id", e.id },
 		{ "action", "ntp_private" },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -654,6 +684,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -676,6 +707,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -699,6 +731,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -717,6 +750,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -736,6 +770,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -761,6 +796,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -848,6 +884,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -877,6 +914,7 @@ namespace cybermon {
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -915,6 +953,7 @@ namespace cybermon {
 	    }
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -997,6 +1036,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1015,6 +1055,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1033,6 +1074,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1084,6 +1126,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1110,6 +1153,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1132,6 +1176,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1155,6 +1200,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1176,6 +1222,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1197,6 +1244,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },
@@ -1217,6 +1265,7 @@ namespace cybermon {
 	    get_addresses(e.context, src, dest);
 
 	    json obj = {
+		{ "id", e.id },
 		{ "action", e.get_action() },
 		{ "device", e.get_device() },
 		{ "time", jsonify(e.time) },

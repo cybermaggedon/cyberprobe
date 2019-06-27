@@ -6,6 +6,8 @@
 
 using namespace cybermon::event;
 
+uuid_generator cybermon::event::event::gen;
+
 std::string protocol_event::get_device() const {
     std::string device;
     address trigger_address;
