@@ -748,7 +748,7 @@ namespace cybermon {
 	    tls_certificates(const cybermon::context_ptr cp,
 			     const std::vector<std::vector<uint8_t>>& crt,
 			     const timeval& time) :
-		certs(certs),
+		certs(crt),
 		protocol_event(TLS_CERTIFICATES, time, cp)
 		{
 		    certs.reserve(certs.size());

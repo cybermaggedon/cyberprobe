@@ -10,6 +10,12 @@
 
 
 
+
+
+
+
+
+
                       -> TLS_AES_128_CCM_SHA256
                       -> TLS_AES_128_GCM_SHA256
                       -> TLS_AES_256_GCM_SHA384
@@ -99,8 +105,15 @@
   Compression Methods -> 
   Extensions          -> 
   Extensions        -> 
+  Message Length -> 1287
   Message Length -> 155
+  Message Length -> 250
+  Message Length -> 250
   Message Length -> 27
+  Message Length -> 281
+  Message Length -> 355
+  Message Length -> 4502
+  Message Length -> 69
   Message Length -> 69
   Random              -> 
   Random              -> 
@@ -113,6 +126,13 @@
   Version        -> TLS 1.2
   Version        -> TLS 1.2
   Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
 PCAP: 10.0.2.15:36740 -> 10.100.129.10:53. DNS query
 PCAP: 10.0.2.15:36740 -> 10.100.129.10:53. DNS query
 PCAP: 10.0.2.15:55858 -> 93.184.216.34:443. TLS Application Data
@@ -121,7 +141,13 @@ PCAP: 10.0.2.15:55858 -> 93.184.216.34:443. TLS Change Cipher Spec
 PCAP: 10.0.2.15:55858 -> 93.184.216.34:443. TLS Client Hello
 PCAP: 10.100.129.10:53 -> 10.0.2.15:36740. DNS response
 PCAP: 10.100.129.10:53 -> 10.0.2.15:36740. DNS response
-PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. Stream data (size is 1811)
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
 PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
 PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Change Cipher Spec
 PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Server Hello

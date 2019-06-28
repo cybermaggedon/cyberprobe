@@ -212,7 +212,7 @@ void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
 	}
 
     } catch (std::exception& e) {
-//	std::cerr << "Packet not processed: " << e.what() << std::endl;
+	std::cerr << "Packet not processed: " << e.what() << std::endl;
     }
 
 }

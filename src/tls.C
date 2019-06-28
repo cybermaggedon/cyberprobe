@@ -105,7 +105,6 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
     // wrap all processing in a try catch, and report processing errors as unrecognised
     try
     {
-
         uint16_t extra = 0;
         // see if we are part way through a pdu
         if (! flowContext->buffer.empty())
@@ -131,11 +130,10 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
                 return;
             }
             // we have  full message, construct the pdu and process it
-            flowContext->buffer.resize(length + sizeof(header));
             flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.start + extra);
             pdu_slice msg(flowContext->buffer.begin(),
-            flowContext->buffer.end(),
-            pduSlice.time, pduSlice.direc);
+			  flowContext->buffer.end(),
+			  pduSlice.time, pduSlice.direc);
             processMessage(mgr, flowContext, msg, hdr);
             // we're now done with the buffered PDU, and can process the rest of the slice
             // TODO probably want a max capacity to cap this too so we dont eat loads of memory and
@@ -181,11 +179,16 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
         if (parent && parent->get_type() == "udp")
         {
             unrecognised::process_unrecognised_datagram(mgr, flowContext, pduSlice);
+	    return;
         }
         else
         {
             unrecognised::process_unrecognised_stream(mgr, flowContext, pduSlice);
+	    return;
         }
+    } catch (std::exception& e) {
+	flowContext->lock.unlock();	
+	throw e;
     }
 
     // release lock now we aren't going to update
