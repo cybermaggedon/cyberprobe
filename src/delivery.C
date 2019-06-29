@@ -450,13 +450,13 @@ void delivery::add_interface(const std::string& iface,
 
 #endif
 
-	pcap_dev* p = new pcap_dev(iface, delay, *this);
-	if (filter != "")
-	    p->add_filter(filter);
+            pcap_dev* p = new pcap_dev(iface, delay, *this);
+            if (filter != "")
+                p->add_filter(filter);
 
-	p->start();
+            p->start();
 
-	interfaces[i] = p;
+            interfaces[i] = p;
 
 #ifdef WITH_DAG
 	}
@@ -755,7 +755,7 @@ void delivery::expand_template(const std::string& in,
 		std::ostringstream buf;
 		bool first = true;
 		for(std::vector<unsigned char>::const_iterator it =
-		      link.mac.begin();
+                        link.mac.begin();
 		    it != link.mac.end();
 		    it++) {
 		    if (first)

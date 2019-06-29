@@ -25,7 +25,7 @@ namespace cybermon {
 
     // Type of the header
     typedef
-	std::map<std::string, std::pair<std::string,std::string> > http_hdr_t;
+    std::map<std::string, std::pair<std::string,std::string> > http_hdr_t;
 
     class http_parser {
     public:
@@ -144,26 +144,26 @@ namespace cybermon {
 
     // An HTTP request context.
     class http_request_context : public context, public http_parser {
-      public:
+    public:
 
 	// Constructor.
         http_request_context(manager& m) :
-	context(m), http_parser(REQUEST), streaming_requested(false),
-    streaming(false) {
+            context(m), http_parser(REQUEST), streaming_requested(false),
+            streaming(false) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         http_request_context(manager& m, const flow_address& a,
 			     context_ptr p) :
-	context(m), http_parser(REQUEST), streaming_requested(false),
-    streaming(false) {
+            context(m), http_parser(REQUEST), streaming_requested(false),
+            streaming(false) {
 	    addr = a; parent = p;
 	}
 
 	std::list<std::string> urls_requested;
 
-    bool streaming_requested;
-    bool streaming;
+        bool streaming_requested;
+        bool streaming;
 
 	// Type.
 	virtual std::string get_type() { return "http_request"; }
@@ -188,17 +188,17 @@ namespace cybermon {
 
     // An HTTP response context.
     class http_response_context : public context, public http_parser {
-      public:
+    public:
 
 	// Constructor.
         http_response_context(manager& m) :
-	context(m), http_parser(RESPONSE), streaming(false) {
+            context(m), http_parser(RESPONSE), streaming(false) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         http_response_context(manager& m, const flow_address& a,
 			      context_ptr p) :
-	context(m), http_parser(RESPONSE), streaming(false) {
+            context(m), http_parser(RESPONSE), streaming(false) {
 	    addr = a; parent = p;
 	}
 
@@ -207,7 +207,7 @@ namespace cybermon {
 
 	typedef std::shared_ptr<http_response_context> ptr;
 
-    bool streaming;
+        bool streaming;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {

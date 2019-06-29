@@ -11,8 +11,8 @@
 using namespace xml;
 
 void decoder::start_element_handler(void *user, 
-				 const XML_Char *name, 
-				 const XML_Char **attrs)
+                                    const XML_Char *name, 
+                                    const XML_Char **attrs)
 {
 
     decoder *t = ((decoder *) user);
@@ -35,7 +35,7 @@ void decoder::start_element_handler(void *user,
 }
 
 void decoder::end_element_handler(void *user, 
-				     const XML_Char *name)
+                                  const XML_Char *name)
 {
 
     decoder *t = ((decoder *) user);
@@ -44,8 +44,8 @@ void decoder::end_element_handler(void *user,
 }
 
 void decoder::character_handler(void *user, 
-				   const XML_Char *text, 
-				   int len)
+                                const XML_Char *text, 
+                                int len)
 {
 
     decoder *t = ((decoder *) user);
@@ -76,8 +76,8 @@ void decoder::parse(const unsigned char *data, int len)
 decoder::decoder() 
 {
 
-  //    parser = XML_ParserCreateNS(0, '@');
-  parser = XML_ParserCreate(0);
+    //    parser = XML_ParserCreateNS(0, '@');
+    parser = XML_ParserCreate(0);
     if (parser == 0)
 	throw runtime_error("Failed to create parser");
     XML_SetUserData(parser, this);
@@ -92,9 +92,9 @@ decoder::decoder()
 decoder::~decoder() 
 {
 
-  // FIXME: Why is this here?
-  //	XML_Parse(parser, NULL, 0, 1);
-	XML_ParserFree(parser);
+    // FIXME: Why is this here?
+    //	XML_Parse(parser, NULL, 0, 1);
+    XML_ParserFree(parser);
 
 }
 
@@ -262,12 +262,12 @@ void element::output(std::ostream& out)
 
     /* XML intro */
     out << "<?xml version=\"1.0\" encoding=\"" << hard_charset 
-	   << "\" standalone=\"no\"?>"
-	   << endl;
+        << "\" standalone=\"no\"?>"
+        << endl;
 
     if (style != "")
-      out << "<?xml-stylesheet type=\"text/xsl\" href=\"" << style 
-	  << "\"?>" << endl;
+        out << "<?xml-stylesheet type=\"text/xsl\" href=\"" << style 
+            << "\"?>" << endl;
 
     out << endl;
 
@@ -302,14 +302,14 @@ void element::output(list<element*>& elts, std::ostream& out)
 	    i++) {
 	    out << " " << i->first << "=\"";
 	    for(unsigned int j = 0; j < i->second.size(); j++) {
-	      unsigned char c = i->second[j];
-	      if (c == '<')
-		out << "&lt;";
-	      else if (c == '>')
-		out << "&gt;";
-	      else if (c == '&')
-		out << "&amp;";
-	      else out << c;
+                unsigned char c = i->second[j];
+                if (c == '<')
+                    out << "&lt;";
+                else if (c == '>')
+                    out << "&gt;";
+                else if (c == '&')
+                    out << "&amp;";
+                else out << c;
 	    }
 	    out << "\"";
 	}
@@ -356,7 +356,7 @@ void element::output(list<element*>& elts, std::ostream& out)
     for(list<element>::iterator i = last->children.begin();
 	i != last->children.end();
 	i++) {
-      element& child = *i;
+        element& child = *i;
 	elts.push_back(&child);
 	output(elts, out);
 	elts.pop_back();

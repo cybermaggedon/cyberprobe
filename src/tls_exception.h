@@ -13,10 +13,10 @@
 namespace cybermon {
 
 // A tls processing exception
-class tls_exception : public exception {
-public:
-    tls_exception(const std::string& m) : exception(m) {}
-};
+    class tls_exception : public exception {
+    public:
+        tls_exception(const std::string& m) : exception(m) {}
+    };
 
 }
 

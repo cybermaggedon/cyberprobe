@@ -24,7 +24,7 @@ namespace cybermon {
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.
     class base_context {
-      private:
+    private:
 
 	// Next context ID to hand out.
 	static context_id next_context_id;
@@ -33,7 +33,7 @@ namespace cybermon {
 	// This context's ID.
 	context_id id;
 
-      public:
+    public:
 
 	// Time of creation.
 	struct timeval creation;

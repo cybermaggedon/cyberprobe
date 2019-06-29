@@ -48,11 +48,11 @@ public:
 
     // Constructor.  i=interface name, d=packet consumer.
     dag_dev(const std::string& i, float delay, packet_consumer& d) :
-      deliv(d) {
-	  this->delay = delay;
-	  this->datalink = DLT_EN10MB; // FIXME: Hard-coded?
-	  this->iface = i;
-	  this->running = true;
+        deliv(d) {
+        this->delay = delay;
+        this->datalink = DLT_EN10MB; // FIXME: Hard-coded?
+        this->iface = i;
+        this->running = true;
     }
 
     // Destructor.

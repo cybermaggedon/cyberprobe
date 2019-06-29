@@ -248,8 +248,8 @@ void config_manager::read(const std::string& file,
 		
 		    // Create an endpoint specification.
 		    cybermon::specification* sp = 
-		      new endpoint_spec(hostname, port, type, transport,
-					cert, key, trusted_ca);
+                        new endpoint_spec(hostname, port, type, transport,
+                                          cert, key, trusted_ca);
 		    lst.push_back(sp);
 		    continue;
 

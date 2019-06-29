@@ -10,7 +10,7 @@
 
 // Monitor function, handles packets.
 class monitor {
-  public:
+public:
     virtual ~monitor() {}
 
     // IP packet.

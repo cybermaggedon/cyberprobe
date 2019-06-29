@@ -34,7 +34,7 @@ public:
     typedef std::map<A,T> single_map;
     typedef std::map<unsigned int,single_map> mask_map;
     typedef typename std::map<unsigned int,single_map>::const_reverse_iterator
-	iter;
+    iter;
     mask_map m;
 
 public:

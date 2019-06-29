@@ -32,11 +32,11 @@ namespace threads {
 
     /** Thread class. */
     class thread {
-      private:
+    private:
 
 	/** Pthread id */
 	pthread_t thr;
-      public:
+    public:
 
 	thread() { }
 
@@ -64,7 +64,7 @@ namespace threads {
 		throw std::runtime_error("Couldn't join thread.");
 	}
 
-      private:
+    private:
 
 	/** A boot-strap, bridges pthread and thread::thread API. */
 	static void* do_start(void* arg) {
@@ -73,7 +73,7 @@ namespace threads {
 	    return 0;
 	}
 
-      private:
+    private:
 
     };
 
@@ -81,9 +81,9 @@ namespace threads {
 
     class mutex {
 	friend class condition;
-      private:
+    private:
 	pthread_mutex_t lk;
-      public:
+    public:
 	mutex() { pthread_mutex_init(&lk, 0); }
 	virtual ~mutex() { pthread_mutex_destroy(&lk); }
 	void lock() { pthread_mutex_lock(&lk); }
@@ -91,9 +91,9 @@ namespace threads {
     };
 
     class condition {
-      private:
+    private:
 	pthread_cond_t cond;
-      public:
+    public:
 	condition() { pthread_cond_init(&cond, 0); }
 	virtual ~condition() { pthread_cond_destroy(&cond); }
 	void wait(mutex& m) {

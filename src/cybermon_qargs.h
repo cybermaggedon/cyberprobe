@@ -345,7 +345,7 @@ public:
     cybermon::context_ptr cptr;
     const std::string httpmethod;
     const std::string httpurl;
-  cybermon::event::http_hdr_t httphdr;
+    cybermon::event::http_hdr_t httphdr;
     cybermon::pdu pdu;
     timeval time;
 };
@@ -505,12 +505,12 @@ class gre_args: public qargs {
 
 public:
     gre_args(const cybermon::context_ptr cp, const std::string& nextProto,
-		   const uint32_t key, const uint32_t seqNo,
-       cybermon::pdu_iter s, cybermon::pdu_iter e,
-       const timeval& time) :
+             const uint32_t key, const uint32_t seqNo,
+             cybermon::pdu_iter s, cybermon::pdu_iter e,
+             const timeval& time) :
 	cptr(cp), nextProto(nextProto), key(key), sequenceNo(seqNo), time(time) {
-    pdu.resize(e - s);
-    std::copy(s, e, pdu.begin());
+        pdu.resize(e - s);
+        std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     const std::string nextProto;
@@ -524,13 +524,13 @@ class gre_pptp_args: public qargs {
 
 public:
     gre_pptp_args(const cybermon::context_ptr cp, const std::string& nextProto,
-		   const uint16_t len, const uint16_t c_id,
-       const uint32_t seqNo, const uint32_t ackNo,
-       cybermon::pdu_iter s, cybermon::pdu_iter e,
-       const timeval& time) :
+                  const uint16_t len, const uint16_t c_id,
+                  const uint32_t seqNo, const uint32_t ackNo,
+                  cybermon::pdu_iter s, cybermon::pdu_iter e,
+                  const timeval& time) :
 	cptr(cp), nextProto(nextProto), payload_length(len), call_id(c_id), sequenceNo(seqNo), ackNo(ackNo), time(time) {
-    pdu.resize(e - s);
-    std::copy(s, e, pdu.begin());
+        pdu.resize(e - s);
+        std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     const std::string nextProto;
@@ -546,12 +546,12 @@ class esp_args: public qargs {
 
 public:
     esp_args(const cybermon::context_ptr cp,
-       const uint32_t spi, const uint32_t seq, const uint32_t len,
-       cybermon::pdu_iter s, cybermon::pdu_iter e,
-       const timeval& time) :
+             const uint32_t spi, const uint32_t seq, const uint32_t len,
+             cybermon::pdu_iter s, cybermon::pdu_iter e,
+             const timeval& time) :
 	cptr(cp), spi(spi), sequence(seq), length(len), time(time) {
-    pdu.resize(e - s);
-    std::copy(s, e, pdu.begin());
+        pdu.resize(e - s);
+        std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     const uint32_t spi;
@@ -565,12 +565,12 @@ class unknown_ip_proto_args: public qargs {
 
 public:
     unknown_ip_proto_args(const cybermon::context_ptr cp,
-       const uint8_t nxtProto, const uint32_t len,
-       cybermon::pdu_iter s, cybermon::pdu_iter e,
-       const timeval& time) :
+                          const uint8_t nxtProto, const uint32_t len,
+                          cybermon::pdu_iter s, cybermon::pdu_iter e,
+                          const timeval& time) :
 	cptr(cp), nxtProto(nxtProto), length(len), time(time) {
-    pdu.resize(e - s);
-    std::copy(s, e, pdu.begin());
+        pdu.resize(e - s);
+        std::copy(s, e, pdu.begin());
     }
     cybermon::context_ptr cptr;
     const uint8_t nxtProto;
@@ -583,13 +583,13 @@ class wlan_args: public qargs {
 
 public:
     wlan_args(const cybermon::context_ptr cp,
-       const uint8_t version, const uint8_t type, const uint8_t subtype,
-       const uint8_t flags, const bool is_protected, const uint16_t duration,
-       const std::string& filt_addr, const uint8_t frag_num, const uint16_t seq_num,
-       const timeval& time) :
+              const uint8_t version, const uint8_t type, const uint8_t subtype,
+              const uint8_t flags, const bool is_protected, const uint16_t duration,
+              const std::string& filt_addr, const uint8_t frag_num, const uint16_t seq_num,
+              const timeval& time) :
 	cptr(cp), version(version), type(type), subtype(subtype), flags(flags),
-  is_protected(is_protected), duration(duration), filt_addr(filt_addr), frag_num(frag_num),
-  seq_num(seq_num), time(time) {
+        is_protected(is_protected), duration(duration), filt_addr(filt_addr), frag_num(frag_num),
+        seq_num(seq_num), time(time) {
     }
     cybermon::context_ptr cptr;
     const uint8_t version;
@@ -608,8 +608,8 @@ class tls_unknown_args: public qargs {
 
 public:
     tls_unknown_args(const cybermon::context_ptr cp,
-       const std::string& version, const uint8_t contentType,
-       const uint16_t length, const timeval& time) :
+                     const std::string& version, const uint8_t contentType,
+                     const uint16_t length, const timeval& time) :
 	cptr(cp), version(version), contentType(contentType), length(length), time(time) {
     }
     cybermon::context_ptr cptr;
@@ -624,10 +624,10 @@ class tls_client_hello_args: public qargs {
 
 public:
     tls_client_hello_args(const cybermon::context_ptr cp,
-      const cybermon::tls_handshake_protocol::client_hello_data& data, const timeval& time)
-      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
-    {
-    }
+                          const cybermon::tls_handshake_protocol::client_hello_data& data, const timeval& time)
+        : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+        {
+        }
     cybermon::context_ptr cptr;
     const cybermon::tls_handshake_protocol::client_hello_data data;
     timeval time;
@@ -637,10 +637,10 @@ class tls_server_hello_args: public qargs {
 
 public:
     tls_server_hello_args(const cybermon::context_ptr cp,
-      const cybermon::tls_handshake_protocol::server_hello_data& data, const timeval& time)
-      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
-    {
-    }
+                          const cybermon::tls_handshake_protocol::server_hello_data& data, const timeval& time)
+        : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+        {
+        }
     cybermon::context_ptr cptr;
     const cybermon::tls_handshake_protocol::server_hello_data data;
     timeval time;
@@ -650,12 +650,12 @@ class tls_certificates_args: public qargs {
 
 public:
     tls_certificates_args(const cybermon::context_ptr cp,
-      const std::vector<std::vector<uint8_t>>& certsArg, const timeval& time)
-      : cptr(cp), time(time) // copy of data is ok because copy constructor is a deep copy
-    {
-      certs.reserve(certsArg.size());
-      certs.insert(certs.end(), certsArg.begin(), certsArg.end());
-    }
+                          const std::vector<std::vector<uint8_t>>& certsArg, const timeval& time)
+        : cptr(cp), time(time) // copy of data is ok because copy constructor is a deep copy
+        {
+            certs.reserve(certsArg.size());
+            certs.insert(certs.end(), certsArg.begin(), certsArg.end());
+        }
     cybermon::context_ptr cptr;
     std::vector<std::vector<uint8_t>> certs;
     timeval time;
@@ -665,10 +665,10 @@ class tls_server_key_exchange_args: public qargs {
 
 public:
     tls_server_key_exchange_args(const cybermon::context_ptr cp,
-      const cybermon::tls_handshake_protocol::key_exchange_data& data, const timeval& time)
-      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
-    {
-    }
+                                 const cybermon::tls_handshake_protocol::key_exchange_data& data, const timeval& time)
+        : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+        {
+        }
     cybermon::context_ptr cptr;
     const cybermon::tls_handshake_protocol::key_exchange_data data;
     timeval time;
@@ -678,10 +678,10 @@ class tls_handshake_generic_args: public qargs {
 
 public:
     tls_handshake_generic_args(const cybermon::context_ptr cp,
-      const uint8_t type, const uint32_t len, const timeval& time)
-      : cptr(cp), type(type), len(len), time(time)
-    {
-    }
+                               const uint8_t type, const uint32_t len, const timeval& time)
+        : cptr(cp), type(type), len(len), time(time)
+        {
+        }
     cybermon::context_ptr cptr;
     const uint8_t type;
     const uint32_t len;
@@ -692,10 +692,10 @@ class tls_certificate_request_args: public qargs {
 
 public:
     tls_certificate_request_args(const cybermon::context_ptr cp,
-      const cybermon::tls_handshake_protocol::certificate_request_data& data, const timeval& time)
-      : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
-    {
-    }
+                                 const cybermon::tls_handshake_protocol::certificate_request_data& data, const timeval& time)
+        : cptr(cp), data(data), time(time) // copy of data is ok because copy constructor is a deep copy
+        {
+        }
     cybermon::context_ptr cptr;
     const cybermon::tls_handshake_protocol::certificate_request_data data;
     timeval time;
@@ -705,10 +705,10 @@ class tls_client_key_exchange_args: public qargs {
 
 public:
     tls_client_key_exchange_args(const cybermon::context_ptr cp,
-      const std::vector<uint8_t>& key, const timeval& time)
-      : cptr(cp), key(key), time(time)
-    {
-    }
+                                 const std::vector<uint8_t>& key, const timeval& time)
+        : cptr(cp), key(key), time(time)
+        {
+        }
     cybermon::context_ptr cptr;
     const std::vector<uint8_t> key;
     timeval time;
@@ -718,11 +718,11 @@ class tls_certificate_verify_args: public qargs {
 
 public:
     tls_certificate_verify_args(const cybermon::context_ptr cp,
-      const uint8_t sigHashAlgo, const uint8_t sigAlgo,
-      const std::string& sig, const timeval& time)
-      : cptr(cp), sigHashAlgo(sigHashAlgo), sigAlgo(sigAlgo), sig(sig), time(time)
-    {
-    }
+                                const uint8_t sigHashAlgo, const uint8_t sigAlgo,
+                                const std::string& sig, const timeval& time)
+        : cptr(cp), sigHashAlgo(sigHashAlgo), sigAlgo(sigAlgo), sig(sig), time(time)
+        {
+        }
     cybermon::context_ptr cptr;
     const uint8_t sigHashAlgo;
     const uint8_t sigAlgo;
@@ -734,10 +734,10 @@ class tls_change_cipher_spec_args: public qargs {
 
 public:
     tls_change_cipher_spec_args(const cybermon::context_ptr cp,
-      const uint8_t val, const timeval& time)
-      : cptr(cp), val(val), time(time)
-    {
-    }
+                                const uint8_t val, const timeval& time)
+        : cptr(cp), val(val), time(time)
+        {
+        }
     cybermon::context_ptr cptr;
     const uint8_t val;
     timeval time;
@@ -747,10 +747,10 @@ class tls_handshake_finished_args: public qargs {
 
 public:
     tls_handshake_finished_args(const cybermon::context_ptr cp,
-      const std::vector<uint8_t>& msg, const timeval& time)
-      : cptr(cp), msg(msg), time(time)
-    {
-    }
+                                const std::vector<uint8_t>& msg, const timeval& time)
+        : cptr(cp), msg(msg), time(time)
+        {
+        }
     cybermon::context_ptr cptr;
     const std::vector<uint8_t> msg;
     timeval time;
@@ -760,10 +760,10 @@ class tls_application_data_args: public qargs {
 
 public:
     tls_application_data_args(const cybermon::context_ptr cp, const std::string& ver,
-      const std::vector<uint8_t>& data, const timeval& time)
-      : cptr(cp), version(ver), data(data), time(time)
-    {
-    }
+                              const std::vector<uint8_t>& data, const timeval& time)
+        : cptr(cp), version(ver), data(data), time(time)
+        {
+        }
     cybermon::context_ptr cptr;
     const std::string version;
     const std::vector<uint8_t> data;

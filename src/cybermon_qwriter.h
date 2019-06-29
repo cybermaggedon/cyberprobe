@@ -23,7 +23,7 @@ namespace cybermon {
 
     class cybermon_qwriter: public engine {
 
-      public:
+    public:
 
 
 	// Constructor

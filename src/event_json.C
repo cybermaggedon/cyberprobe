@@ -838,7 +838,7 @@ namespace cybermon {
 	}
 
 	using compression_method =
-	    cybermon::tls_handshake_protocol::compression_method;
+                               cybermon::tls_handshake_protocol::compression_method;
 	json jsonify(const compression_method& method) {
 	    if (method.name == "Unassigned")
 		return json(method.name + "-" + int_to_hex(method.id));

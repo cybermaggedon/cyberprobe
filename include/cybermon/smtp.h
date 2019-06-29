@@ -91,17 +91,17 @@ namespace cybermon {
 
     // An SMTP client context.
     class smtp_client_context : public context, public smtp_client_parser {
-      public:
+    public:
 	
 	// Constructor.
         smtp_client_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         smtp_client_context(manager& m, const flow_address& a, 
 			    context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
@@ -128,17 +128,17 @@ namespace cybermon {
 
     // An SMTP server context.
     class smtp_server_context : public context, public smtp_server_parser {
-      public:
+    public:
 	
 	// Constructor.
         smtp_server_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         smtp_server_context(manager& m, const flow_address& a, 
 			    context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
@@ -165,20 +165,20 @@ namespace cybermon {
 
     class smtp
     {
-        public:
+    public:
 
         // SMTP request processing function.
         static void process(manager&, context_ptr c, const pdu_slice& sl);
 
-        private:
+    private:
 
-	    // SMTP client request processing function.
-	    static void process_client(manager&, context_ptr c,
-				       const pdu_slice& sl);
+        // SMTP client request processing function.
+        static void process_client(manager&, context_ptr c,
+                                   const pdu_slice& sl);
 
-	    // SMTP server response processing function.
-	    static void process_server(manager&, context_ptr c,
-				       const pdu_slice& sl);
+        // SMTP server response processing function.
+        static void process_server(manager&, context_ptr c,
+                                   const pdu_slice& sl);
     };
 
 };

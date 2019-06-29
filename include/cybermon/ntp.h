@@ -22,7 +22,7 @@ namespace cybermon {
 
     // A NTP context.
     class ntp_context : public context {
-      public:
+    public:
 	
 	// Constructor.
         ntp_context(manager& m) : context(m) {
@@ -30,7 +30,7 @@ namespace cybermon {
 
 	// Constructor, describing flow address and parent pointer.
         ntp_context(manager& m, const flow_address& a, context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
@@ -57,7 +57,7 @@ namespace cybermon {
 
     class ntp {
 
-      public:
+    public:
       
 	// NTP processing function.
         static void process(manager&, context_ptr c, const pdu_slice& sl);

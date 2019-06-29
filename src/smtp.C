@@ -16,19 +16,19 @@ using namespace cybermon;
 void smtp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {
     if (c->addr.dest.get_uint16() == 25)
-    {
-        smtp::process_client(mgr, c, sl);
-        return;
-    }
+        {
+            smtp::process_client(mgr, c, sl);
+            return;
+        }
     else if (c->addr.src.get_uint16() == 25)
-    {
-        smtp::process_server(mgr, c, sl);
-        return;
-    }
+        {
+            smtp::process_server(mgr, c, sl);
+            return;
+        }
     else
-    {
-        throw exception("Trying to handle SMTP but neither port number is 25");
-    }
+        {
+            throw exception("Trying to handle SMTP but neither port number is 25");
+        }
 }
 
 // SMTP client processing function.

@@ -13,9 +13,9 @@ namespace cybermon {
     public:
         icmp_context(manager& m) : context(m) {}
         icmp_context(manager& m, const flow_address& a, context_ptr p) : 
-	context(m) {
-        addr = a;
-        parent = p; 
+            context(m) {
+            addr = a;
+            parent = p; 
 	}
 	virtual std::string get_type() { return "icmp"; }
  
@@ -35,7 +35,7 @@ namespace cybermon {
 	    return sp;
 	}
 
-   };
+    };
     
     class icmp {
 

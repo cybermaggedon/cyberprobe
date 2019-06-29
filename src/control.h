@@ -16,7 +16,7 @@ namespace control {
 
     // Management interface specification.
     class spec : public cybermon::specification {
-      public:
+    public:
 
 	// Type is 'control'.
 	virtual std::string get_type() const { return "control"; }
@@ -29,7 +29,7 @@ namespace control {
 	// Constructors.
 	spec() {}
 	spec(unsigned short port, const std::string& username, 
-		     const std::string& password) {
+             const std::string& password) {
 	    this->port = port; this->username = username; 
 	    this->password = password;
 	}
@@ -48,7 +48,7 @@ namespace control {
     // A single connection to the management interface.
     class connection : public threads::thread {
 
-      private:
+    private:
 
 	// Connected socket.
 	std::shared_ptr<tcpip::stream_socket> s;
@@ -101,7 +101,7 @@ namespace control {
 	// Thread body.
 	virtual void run();
 
-      public:
+    public:
 
 	// Constructor.
         connection(std::shared_ptr<tcpip::stream_socket> s, management& d,
@@ -120,7 +120,7 @@ namespace control {
     // Management service.
     class service : public cybermon::resource, public threads::thread {
 
-      private:
+    private:
 	
 	// TCP socket, accepting connections.
 	tcpip::tcp_socket svr;
@@ -145,7 +145,7 @@ namespace control {
 	// Thread body.
 	virtual void run();
 
-      public:
+    public:
 
 	// Constructor.
         service(spec& s, management& d) : sp(s), d(d) {

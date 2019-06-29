@@ -43,33 +43,33 @@ void sip_context::parse(std::string body) {
 
     static const std::regex sip_from("From: .*?(<.*>)");
     if (regex_search(body, what, sip_from, std::regex_constants::match_any))
-    {
-        from = what[1];
-    }
+        {
+            from = what[1];
+        }
 
     static const std::regex sip_to("To: .*?(<.*>)");
     if (regex_search(body, what, sip_to, std::regex_constants::match_any))
-    {
-        to = what[1];
-    }
+        {
+            to = what[1];
+        }
 
     static const std::regex sip_content_audio("m=audio ([0-9]+) RTP");
     if (regex_search(body, what, sip_content_audio,
 		     std::regex_constants::match_any))
-    {
-        // Convert the port number into an int - nasty!
-        std::istringstream buf(what[1]);
-        buf >> audio_port;
-    }
+        {
+            // Convert the port number into an int - nasty!
+            std::istringstream buf(what[1]);
+            buf >> audio_port;
+        }
 
     static const std::regex sip_content_video("m=video ([0-9]+) RTP");
     if (regex_search(body, what, sip_content_video,
 		     std::regex_constants::match_any))
-    {
-        // Convert the port number into an int - nasty!
-        std::istringstream buf(what[1]);
-        buf >> video_port;
-    }
+        {
+            // Convert the port number into an int - nasty!
+            std::istringstream buf(what[1]);
+            buf >> video_port;
+        }
 }
 
 

@@ -16,171 +16,171 @@ LI transport.
 
 namespace cybermon {
 
-namespace etsi_li {
+    namespace etsi_li {
 
 // A buffered transport.  Transmits PDUs, some PDUs are re-transmitted on
 // reconnect.
-class transport {
+        class transport {
 
-  private:
+        private:
 
-    // TCP socket.
-    tcpip::stream_socket* conn;
+            // TCP socket.
+            tcpip::stream_socket* conn;
 
-    // True = the transport is connected.
-    bool cnx;
+            // True = the transport is connected.
+            bool cnx;
 
-    unsigned long cap_bytes;
-    unsigned long cap_pdus;
+            unsigned long cap_bytes;
+            unsigned long cap_pdus;
 
-    unsigned long cur_bytes;
-    unsigned long cur_pdus;
+            unsigned long cur_bytes;
+            unsigned long cur_pdus;
 
-    typedef std::vector<unsigned char> pdu;
-    typedef std::shared_ptr<pdu> pdu_ptr;
+            typedef std::vector<unsigned char> pdu;
+            typedef std::shared_ptr<pdu> pdu_ptr;
 
-    std::deque<pdu_ptr> buffer;
+            std::deque<pdu_ptr> buffer;
 
-  public:
+        public:
 
-    // Constructor.
-    transport() { cnx = false; conn = 0; }
+            // Constructor.
+            transport() { cnx = false; conn = 0; }
 
-    // Destructor.
-    virtual ~transport() {
-	if (conn) {
-	    conn->close();
-	    delete conn;
-	}
-    }
+            // Destructor.
+            virtual ~transport() {
+                if (conn) {
+                    conn->close();
+                    delete conn;
+                }
+            }
 
-    // Returns boolean indicating whether the stream is connected.
-    bool connected() { return cnx; }
+            // Returns boolean indicating whether the stream is connected.
+            bool connected() { return cnx; }
 
-    // Connect to host/port.  Also specifies the LIID for this transport.
-    void connect(const std::string& host, int port) {
+            // Connect to host/port.  Also specifies the LIID for this transport.
+            void connect(const std::string& host, int port) {
 
-	// All exceptions left thrown.
+                // All exceptions left thrown.
 
-	if (conn) {
-	    conn->close();
-	    delete conn;
-	    conn = 0;
-	}
+                if (conn) {
+                    conn->close();
+                    delete conn;
+                    conn = 0;
+                }
 
-	cnx = false;
+                cnx = false;
 
-	tcpip::tcp_socket* sock = new tcpip::tcp_socket();
-	conn = sock;
+                tcpip::tcp_socket* sock = new tcpip::tcp_socket();
+                conn = sock;
 
-	sock->connect(host, port);
-	cnx = true;
+                sock->connect(host, port);
+                cnx = true;
 
-	// Turn off socket linger, so that close-down is quick.
-	sock->set_linger(false, 0);
+                // Turn off socket linger, so that close-down is quick.
+                sock->set_linger(false, 0);
 
-	for(std::deque<pdu_ptr>::iterator it = buffer.begin();
-	    it != buffer.end();
-	    it++) {
+                for(std::deque<pdu_ptr>::iterator it = buffer.begin();
+                    it != buffer.end();
+                    it++) {
 	    
-	    conn->write(**it);
+                    conn->write(**it);
 
-	}
+                }
 
-    }
+            }
 
-    // Connect to host/port.  Also specifies the LIID for this transport.
-    void connect_tls(const std::string& host, int port, const std::string& key,
-		     const std::string& cert, const std::string& ca) {
+            // Connect to host/port.  Also specifies the LIID for this transport.
+            void connect_tls(const std::string& host, int port, const std::string& key,
+                             const std::string& cert, const std::string& ca) {
 
-	// All exceptions left thrown.
+                // All exceptions left thrown.
 
-	if (conn) {
-	    conn->close();
-	    delete conn;
-	    conn = 0;
-	}
+                if (conn) {
+                    conn->close();
+                    delete conn;
+                    conn = 0;
+                }
 
-	cnx = false;
+                cnx = false;
 
-	tcpip::ssl_socket* sock = new tcpip::ssl_socket();
-	conn = sock;
+                tcpip::ssl_socket* sock = new tcpip::ssl_socket();
+                conn = sock;
 	
-	sock->use_key_file(key);
-	sock->use_certificate_file(cert);
-	sock->use_certificate_chain_file(ca);
-	sock->check_private_key();
+                sock->use_key_file(key);
+                sock->use_certificate_file(cert);
+                sock->use_certificate_chain_file(ca);
+                sock->check_private_key();
 
-	sock->connect(host, port);
+                sock->connect(host, port);
 	
-	cnx = true;
+                cnx = true;
 
-	// Set socket linger off, so that close-down is quick.
-	sock->set_linger(false, 0);
+                // Set socket linger off, so that close-down is quick.
+                sock->set_linger(false, 0);
 
-	for(std::deque<pdu_ptr>::iterator it = buffer.begin();
-	    it != buffer.end();
-	    it++) {
+                for(std::deque<pdu_ptr>::iterator it = buffer.begin();
+                    it != buffer.end();
+                    it++) {
 	    
-	    conn->write(**it);
+                    conn->write(**it);
 
-	}
+                }
 
-    }
+            }
 
-    // Close the transport.
-    void close() {
-	if (conn) {
-	    conn->close();
-	    delete conn;
-	    conn = 0;
-	}
-	cnx = false;
-    }
+            // Close the transport.
+            void close() {
+                if (conn) {
+                    conn->close();
+                    delete conn;
+                    conn = 0;
+                }
+                cnx = false;
+            }
 
-    // Send a PDU.
-    int write(pdu_ptr pdu) {
+            // Send a PDU.
+            int write(pdu_ptr pdu) {
 
-	buffer.push_back(pdu);
-	cur_pdus++;
-	cur_bytes += pdu->size();
+                buffer.push_back(pdu);
+                cur_pdus++;
+                cur_bytes += pdu->size();
 	
-	// If removing the front PDU would still leave plenty of stuff in
-	// the buffer...
-	while (!buffer.empty() && 
-	       ((cur_bytes - buffer.front()->size()) > cap_bytes) &&
-	       ((cur_pdus - 1) > cap_pdus)) {
+                // If removing the front PDU would still leave plenty of stuff in
+                // the buffer...
+                while (!buffer.empty() && 
+                       ((cur_bytes - buffer.front()->size()) > cap_bytes) &&
+                       ((cur_pdus - 1) > cap_pdus)) {
 
-	    // ...then delete that item.
+                    // ...then delete that item.
 
-	    cur_pdus--;
-	    cur_bytes -= buffer.front()->size();
-	    buffer.pop_front();
+                    cur_pdus--;
+                    cur_bytes -= buffer.front()->size();
+                    buffer.pop_front();
 	    
-	}
+                }
 
-	// May except.
-	int ret = conn->write(*pdu);
+                // May except.
+                int ret = conn->write(*pdu);
 
-	if (ret < 0)
-	    throw std::runtime_error("Didn't transmit PDU");
+                if (ret < 0)
+                    throw std::runtime_error("Didn't transmit PDU");
 	
-	if ((unsigned int)ret != pdu->size())
-	    throw std::runtime_error("Didn't transmit PDU");
+                if ((unsigned int)ret != pdu->size())
+                    throw std::runtime_error("Didn't transmit PDU");
 
-	return ret;
+                return ret;
 	
-    }
+            }
 
-    // Configure buffering.
-    void set_buffer(unsigned long bytes, unsigned long pdus) {
-	cap_bytes = bytes;
-	cap_pdus = pdus;
-    }
+            // Configure buffering.
+            void set_buffer(unsigned long bytes, unsigned long pdus) {
+                cap_bytes = bytes;
+                cap_pdus = pdus;
+            }
 
-};
+        };
 
-};
+    };
 
 };
 

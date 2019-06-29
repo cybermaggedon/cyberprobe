@@ -90,7 +90,7 @@ namespace cybermon {
 	class connection_down : public protocol_event {
 	public:
 	    connection_down(const cybermon::context_ptr cp,
-			  const timeval& time) :
+                            const timeval& time) :
 		protocol_event(CONNECTION_DOWN, time, cp)
 		{
 		}

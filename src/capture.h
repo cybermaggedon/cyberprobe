@@ -15,7 +15,7 @@
 #include <queue>
 
 class capture_dev : public threads::thread {
-  public:
+public:
     virtual ~capture_dev() {}
     virtual void stop() = 0;
 };

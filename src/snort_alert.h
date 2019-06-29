@@ -16,7 +16,7 @@
 // Specification for a snort alerter.
 class snort_alerter_spec : public cybermon::specification {
 
- public:
+public:
 
     // Type is 'snort_alerter'.
     virtual std::string get_type() const { return "snort_alerter"; }
@@ -47,7 +47,7 @@ class snort_alerter_spec : public cybermon::specification {
 // IP addresses.
 class snort_alerter : public threads::thread, public cybermon::resource {
 
-  private:
+private:
 
     // Specification.
     snort_alerter_spec& spec;
@@ -58,7 +58,7 @@ class snort_alerter : public threads::thread, public cybermon::resource {
     // Deliver engine, we mess with the targeting on this.
     delivery& deliv;
 
-  public:
+public:
 
     // Constructor.
     snort_alerter(snort_alerter_spec& spec,

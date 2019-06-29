@@ -209,13 +209,13 @@ void cybermon_lua::push(const ntp_control& ctrl)
     
     push("type");
     if(ctrl.m_is_response)
-    {
-        push("response");
-    }
+        {
+            push("response");
+        }
     else
-    {
-        push("request");
-    }
+        {
+            push("request");
+        }
     set_table(-3);
     
     push("error");
@@ -903,11 +903,11 @@ int cybermon_lua::context_forge_dns_response(lua_State* lua)
 
     // FIXME: Fails for some reason?!  I don't understand the API prob'ly.
 /*
-    luaL_checktype(lua, 2, LUA_TTABLE); // Header
-    luaL_checktype(lua, 3, LUA_TTABLE); // Queries
-    luaL_checktype(lua, 4, LUA_TTABLE); // Answers
-    luaL_checktype(lua, 5, LUA_TTABLE); // Authorities
-    luaL_checktype(lua, 6, LUA_TTABLE); // Additional
+  luaL_checktype(lua, 2, LUA_TTABLE); // Header
+  luaL_checktype(lua, 3, LUA_TTABLE); // Queries
+  luaL_checktype(lua, 4, LUA_TTABLE); // Answers
+  luaL_checktype(lua, 5, LUA_TTABLE); // Authorities
+  luaL_checktype(lua, 6, LUA_TTABLE); // Additional
 */
 
     dns_header hdr;

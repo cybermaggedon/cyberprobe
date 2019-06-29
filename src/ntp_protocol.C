@@ -7,7 +7,7 @@
 using namespace cybermon;
 
 ntp_decoder::ntp_decoder(pdu_iter s, pdu_iter e)
-  : m_start(s), m_end(e), m_ptr(s)
+    : m_start(s), m_end(e), m_ptr(s)
 {
 }
 	
@@ -18,7 +18,7 @@ ntp_decoder::packet_type ntp_decoder::parse()
     const uint8_t mode = m_ptr[0] & 0x07;
    
     switch(mode)
-    {
+        {
         case 0x06:
             pt = parse_control();
             break;
@@ -28,7 +28,7 @@ ntp_decoder::packet_type ntp_decoder::parse()
         default:
             pt = parse_timestamp();
             break;
-    }
+        }
     
     return pt;
 }
@@ -53,9 +53,9 @@ ntp_decoder::packet_type ntp_decoder::parse_timestamp()
     // need at least 48 bytes
     const size_t min_timestamp_length = 48;
     if (remaining() < min_timestamp_length)
-    {
-        return unknown_packet;
-    }
+        {
+            return unknown_packet;
+        }
     
     parse_hdr(m_timestamp.m_hdr);
     m_timestamp.m_stratum = *m_ptr++;
@@ -77,9 +77,9 @@ ntp_decoder::packet_type ntp_decoder::parse_control()
 {
     const size_t min_ctrl_length = 12;
     if (remaining() < min_ctrl_length)
-    {
-        return unknown_packet;
-    }
+        {
+            return unknown_packet;
+        }
     
     parse_hdr(m_control.m_hdr);
     
@@ -98,9 +98,9 @@ ntp_decoder::packet_type ntp_decoder::parse_control()
     const size_t max_data_length = 468;
     if(m_control.m_data_count > max_data_length ||
        remaining() < m_control.m_data_count)
-    {
-        return unknown_packet;
-    }
+        {
+            return unknown_packet;
+        }
     m_ptr += m_control.m_data_count;
     m_control.m_has_authentication = remaining();
    
@@ -111,9 +111,9 @@ ntp_decoder::packet_type ntp_decoder::parse_private()
 {
     const size_t min_priv_length = 5;
     if (remaining() < min_priv_length)
-    {
-        return unknown_packet;
-    }
+        {
+            return unknown_packet;
+        }
     
     parse_hdr(m_private.m_hdr);
     m_private.m_auth_flag = m_ptr[0] & 0x80;
@@ -134,7 +134,7 @@ void ntp_decoder::parse_hdr(ntp_hdr& hdr)
 
 size_t ntp_decoder::remaining()
 {
-   return m_end - m_ptr;
+    return m_end - m_ptr;
 }
 
 uint16_t ntp_decoder::get_uint16()
@@ -169,20 +169,20 @@ double ntp_decoder::ntp_ts()
 
     unsigned int secs = get_uint32();
     if(secs)
-    {
-        // this calculation must me done using unsigned types
-        // to get dates > 2038 to work according to RFC2030
-        const unsigned int ntp_base_time = 2208988800;
-        secs -= ntp_base_time;
-        ntp_time = (double)secs;
-    }
+        {
+            // this calculation must me done using unsigned types
+            // to get dates > 2038 to work according to RFC2030
+            const unsigned int ntp_base_time = 2208988800;
+            secs -= ntp_base_time;
+            ntp_time = (double)secs;
+        }
 
     unsigned int nsecs = get_uint32();
     if(nsecs)
-    {
-        const long units = 0x100000000;
-        ntp_time += ((double)(nsecs) / units);
-    }
+        {
+            const long units = 0x100000000;
+            ntp_time += ((double)(nsecs) / units);
+        }
     
     return ntp_time;
 }

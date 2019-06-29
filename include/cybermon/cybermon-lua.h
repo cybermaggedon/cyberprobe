@@ -272,12 +272,12 @@ namespace cybermon {
 	}
 
 /*	void push(int size, unsigned char* buf ) {
-	    // FIXME: Lot of copying?
-	    //unsigned char* buf = new unsigned char[e - s];
-	    //std::copy(s, e, buf);
-	    lua_pushlstring(lua, (char*) buf, size);
-	    delete[] buf;
-	}*/
+// FIXME: Lot of copying?
+//unsigned char* buf = new unsigned char[e - s];
+//std::copy(s, e, buf);
+lua_pushlstring(lua, (char*) buf, size);
+delete[] buf;
+}*/
 
 	// Call a function.  args = number of arguments on the stack
 	// res = number of return values.
@@ -513,7 +513,7 @@ namespace cybermon {
 	void event(engine& an, std::shared_ptr<event::event> ev);
 
 	typedef std::map<std::string,std::pair<std::string,std::string> > 
-	    http_header;
+        http_header;
 
     };
 

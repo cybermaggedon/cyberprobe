@@ -91,17 +91,17 @@ namespace cybermon {
 
     // An FTP client context.
     class ftp_client_context : public context, public ftp_client_parser {
-      public:
+    public:
 	
 	// Constructor.
         ftp_client_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         ftp_client_context(manager& m, const flow_address& a, 
-			    context_ptr p) : 
-	context(m) { 
+                           context_ptr p) : 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
@@ -128,17 +128,17 @@ namespace cybermon {
 
     // An FTP server context.
     class ftp_server_context : public context, public ftp_server_parser {
-      public:
+    public:
 	
 	// Constructor.
         ftp_server_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         ftp_server_context(manager& m, const flow_address& a, 
-			    context_ptr p) : 
-	context(m) { 
+                           context_ptr p) : 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
@@ -166,12 +166,12 @@ namespace cybermon {
     class ftp
     {
 
-        public:
+    public:
 
         // FTP request processing function.
 	static void process(manager&, context_ptr c, const pdu_slice& s);
 
-        private:
+    private:
 
         // FTP client request processing function.
         static void process_client(manager&, context_ptr c,

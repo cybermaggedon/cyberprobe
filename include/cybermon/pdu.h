@@ -15,7 +15,7 @@ namespace cybermon {
     typedef enum { FROM_TARGET, TO_TARGET, NOT_KNOWN } direction;
     
     class pdu_slice {
-      public:
+    public:
 	pdu_slice(pdu_iter start, pdu_iter end, const struct timeval& tv,
                   direction d = NOT_KNOWN) {
 	    this->start = start;

@@ -72,14 +72,14 @@ namespace cybermon {
 	static const unsigned int max_frag_list_len;
 	std::deque<fragment> frags;
 
-      public:
+    public:
 
 	// Constructor.
         ip4_context(manager& m) : context(m) {}
 
 	// Constructor, specifying flow address and parent.
         ip4_context(manager& m, const flow_address& a, context_ptr par) : 
-	context(m) { 
+            context(m) { 
 	    parent = par;
 	    addr = a; 
 	}
@@ -110,14 +110,14 @@ namespace cybermon {
 
 	friend class ip;
 
-      public:
+    public:
 
 	// Constructor.
         ip6_context(manager& m) : context(m) {}
 
 	// Constructor, specifying flow address and parent.
         ip6_context(manager& m, const flow_address& a, context_ptr par) : 
-	context(m) { 
+            context(m) { 
 	    parent = par;
 	    addr = a; 
 	}
@@ -146,7 +146,7 @@ namespace cybermon {
     // Processing
     class ip {
 
-      public:
+    public:
 	
 	// Calculate IP header cksum
 	static uint16_t calculate_cksum(pdu_iter s, 

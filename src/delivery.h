@@ -20,7 +20,7 @@ class ep {
 
     std::string key;
 
-  public:
+public:
     std::string hostname;	// Hostname
     unsigned int port;		// Port number.
     std::string type;		// Type, one of: etsi, nhis.
@@ -58,7 +58,7 @@ class ep {
 
 // Results of a match, returned by ipv4_match and ipv6_match.
 class match {
- public:
+public:
     std::shared_ptr<std::string> liid;
     std::shared_ptr<std::string> network;
 };
@@ -66,7 +66,7 @@ class match {
 // Internal ipv4_match and ipv6_match state.
 class match_state {
 
- public:
+public:
 
     match_state(const std::string& l, const std::string& n) :
         liid(l), network(n) {}
@@ -84,7 +84,7 @@ class match_state {
 
 // Defines an interface.
 class intf {
-  public:
+public:
     std::string interface;
     std::string filter;
     float delay;
@@ -110,7 +110,7 @@ class intf {
 
 // Information extracted from the link layer.
 class link_info {
-  public:
+public:
     link_info() : vlan(0), ipv(0) {}
     std::vector<unsigned char> mac;
     uint16_t vlan;
@@ -126,7 +126,7 @@ class link_info {
 // Note an IP address can only can be mapped to a single LIID.
 
 class delivery : public parameters, public management, public packet_consumer {
-  private:
+private:
 
     // Lock for senders and targets maps.
     //threads::mutex lock;
@@ -182,7 +182,7 @@ class delivery : public parameters, public management, public packet_consumer {
 				const tcpip::address& subnet,
 				const link_info& link);
 
-  public:
+public:
 
     // Modifies interface capture
     virtual void add_interface(const std::string& iface,

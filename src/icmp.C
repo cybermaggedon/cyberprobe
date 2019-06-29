@@ -16,9 +16,9 @@ void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     pdu_iter e = sl.end;
 
     if ((e - s) < header_length)
-    {
-        throw exception("Header too small for ICMP header");
-    }
+        {
+            throw exception("Header too small for ICMP header");
+        }
 
     std::vector<unsigned char> empty;
     address src, dest;

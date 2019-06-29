@@ -17,13 +17,13 @@
 namespace cybermon
 {
 
-class dns_over_udp
-{
+    class dns_over_udp
+    {
     public:
 
-    // DNS over UDP processing function.
-  static void process(manager&, context_ptr c, const pdu_slice& s);
-};
+        // DNS over UDP processing function.
+        static void process(manager&, context_ptr c, const pdu_slice& s);
+    };
 
 }; // End namespace
 

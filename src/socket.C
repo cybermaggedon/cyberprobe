@@ -641,7 +641,7 @@ void tcpip::unix_socket::connect(const std::string& path)
     strcpy(address.sun_path, path.c_str());
 
     int ret = ::bind(sock, reinterpret_cast<struct sockaddr *>(&address),
-		   sizeof(address));
+                     sizeof(address));
     if (ret < 0)
 	throw std::runtime_error("Socket bind failed");
 
@@ -854,7 +854,7 @@ tcpip::ssl_socket::ssl_socket() {
 
     context = SSL_CTX_new(TLSv1_2_method());
     if (context == 0)
-       throw std::runtime_error("Couldn't initialise SSL context.");
+        throw std::runtime_error("Couldn't initialise SSL context.");
 
 #ifdef SSL_CTX_set_ecdh_auto
     // Required when ECDH was not automatically used
@@ -931,7 +931,7 @@ tcpip::ssl_socket::ssl_socket(int s) {
 
     context = SSL_CTX_new(TLSv1_2_method());
     if (context == 0)
-       throw std::runtime_error("Couldn't initialise SSL context.");
+        throw std::runtime_error("Couldn't initialise SSL context.");
 
 #ifdef SSL_CTX_set_ecdh_auto
     // Required when ECDH was not automatically used
@@ -941,7 +941,7 @@ tcpip::ssl_socket::ssl_socket(int s) {
 
     ssl = SSL_new(context);
     if (ssl == 0)
-       throw std::runtime_error("Couldn't initialise SSL.");
+        throw std::runtime_error("Couldn't initialise SSL.");
 
     sock = s;
 	    

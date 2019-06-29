@@ -25,9 +25,9 @@ namespace tcpip {
 
     // Legacy?
     class ip_address {
-      private:
+    private:
 	uint32_t a;
-      public:
+    public:
 	void get(uint32_t& addr) { addr = a; }
 	void get(std::string& addr) {
 	    std::ostringstream buf;
@@ -45,7 +45,7 @@ namespace tcpip {
 
     // IP address base class.
     class address {
-      public:
+    public:
         virtual ~address() {}
 
 	enum {ipv4, ipv6 } universe;
@@ -61,7 +61,7 @@ namespace tcpip {
 
     /** IPv4 address */
     class ip4_address : public address {
-      public:
+    public:
 	ip4_address() {
 	    addr.resize(4);
 	    universe = ipv4;
@@ -130,7 +130,7 @@ namespace tcpip {
 
     /** IPv6 address */
     class ip6_address : public address {
-      public:
+    public:
 	ip6_address() {
 	    addr.resize(16);
 	    universe = ipv6;
@@ -193,7 +193,7 @@ namespace tcpip {
 
     /** A socket. Abstract class for all socketry. */
     class socket {
-      public:
+    public:
       
 	/** Destructor */
 	virtual ~socket() {}
@@ -259,7 +259,7 @@ namespace tcpip {
     };
 
     class stream_socket : public socket {
-      public:
+    public:
 	virtual ~stream_socket() {}
 
 	/** Read a line of text, LF. CR is discarded. */
@@ -279,12 +279,12 @@ namespace tcpip {
 
     /** A TCP socket. */
     class tcp_socket : public stream_socket {
-      private:
+    private:
 	static const int buflen = 8192;
 	int bufstart;
 	int bufsize;
 	char buf[buflen];
-      public:
+    public:
 	int sock;
 
 	/** Bind to port */
@@ -371,14 +371,14 @@ namespace tcpip {
 
     /** A UDP socket. */
     class udp_socket : public socket {
-      public:
+    public:
 	int sock;
-      private:
+    private:
 
 	/** Socket port number. */
 	int port;
 
-      public:
+    public:
 
 	/** Bind to port */
 	virtual void bind(int port = 0);
@@ -433,14 +433,14 @@ namespace tcpip {
 
     /** A UNIX socket (datagram mode). */
     class unix_socket : public socket {
-      public:
+    public:
 	int sock;
-      private:
+    private:
 
 	/** Socket port number. */
 	int port;
 
-      public:
+    public:
 
 	/** Bind to port */
 	virtual void bind(const std::string& name);
@@ -496,14 +496,14 @@ namespace tcpip {
 
     /** A raw IP socket (HDRINCL mode). */
     class raw_socket : public socket {
-      public:
+    public:
 	int sock;
-      private:
+    private:
 
 	/** Socket port number. */
 	int port;
 
-      public:
+    public:
 
 	/** Create a UNIX socket. */
 	raw_socket() { 
@@ -557,14 +557,14 @@ namespace tcpip {
 
     /** An SSL/TLS socket. */
     class ssl_socket : public stream_socket {
-      private:
+    private:
 	static const int buflen = 8192;
 	int bufstart;
 	int bufsize;
 	char buf[buflen];
-      public:
+    public:
 	int sock;
-      private:
+    private:
 
 	/** Socket port number. */
 	int port;
@@ -574,7 +574,7 @@ namespace tcpip {
 
 	static bool ssl_init;
 
-      public:
+    public:
 
 	/** Provide certificate. */
 	void use_certificate_file(const std::string& f);
@@ -659,11 +659,11 @@ namespace tcpip {
 
 	static void set_nonblock(int fd) {
 
-	  int flags = fcntl(fd, F_GETFL, 0);
-	  if (flags == -1) throw std::runtime_error("fcntl fail");
-	  flags |= O_NONBLOCK;
-	  int ret = fcntl(fd, F_SETFL, flags);
-	  if (ret < 0) throw std::runtime_error("fcntl fail");
+            int flags = fcntl(fd, F_GETFL, 0);
+            if (flags == -1) throw std::runtime_error("fcntl fail");
+            flags |= O_NONBLOCK;
+            int ret = fcntl(fd, F_SETFL, flags);
+            if (ret < 0) throw std::runtime_error("fcntl fail");
 
 	}
 

@@ -552,7 +552,7 @@ int client(int argc, char** argv)
 
 	static const std::regex 
 	    remove_interface(" *remove +interface +([^ ]+) +([^ ]+) *$", 
-			  std::regex::extended);
+                             std::regex::extended);
 
 	if (regex_search(s, what, remove_interface, std::regex_constants::match_continuous)) {
 	    cmd_do3(sock, "remove_interface", what[1], what[2]);
@@ -561,7 +561,7 @@ int client(int argc, char** argv)
 
 	static const std::regex 
 	    add_target(" *add +target +([^ ]+) +([^ ]+) +([^ ]+) *$", 
-			  std::regex::extended);
+                       std::regex::extended);
 
 	if (regex_search(s, what, add_target, std::regex_constants::match_continuous)) {
 	    cmd_do4(sock, "add_target", what[1], what[2], what[3]);
@@ -588,7 +588,7 @@ int client(int argc, char** argv)
 
 	static const std::regex 
 	    remove_parameter(" *remove +parameter +([^ ]+) *$", 
-			  std::regex::extended);
+                             std::regex::extended);
 	
 	if (regex_search(s, what, remove_parameter, std::regex_constants::match_continuous)) {
 	    cmd_do2(sock, "remove_parameter", what[1]);
@@ -597,7 +597,7 @@ int client(int argc, char** argv)
 
 	static const std::regex 
 	    add_endpoint(" *add +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
-			  std::regex::extended);
+                         std::regex::extended);
 
 	if (regex_search(s, what, add_endpoint, std::regex_constants::match_continuous)) {
 	    cmd_do5(sock, "add_endpoint", what[1], what[2], what[3],
@@ -607,7 +607,7 @@ int client(int argc, char** argv)
 
 	static const std::regex 
 	    remove_endpoint(" *remove +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
-			  std::regex::extended);
+                            std::regex::extended);
 	
 	if (regex_search(s, what, remove_endpoint, std::regex_constants::match_continuous)) {
 	    cmd_do5(sock, "remove_endpoint", what[1], what[2], what[3],

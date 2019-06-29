@@ -18,7 +18,7 @@ typedef std::shared_ptr<tcpip::address> address_ptr;
 
 // A packet on the packet queue: LIID plus PDU.
 class qpdu {
-  public:
+public:
     enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
     timeval tv;                             // Valid for: PDU
     std::shared_ptr<std::string> liid;    // Valid for: PDU, TARGET_UP/DOWN
@@ -33,7 +33,7 @@ typedef std::shared_ptr<qpdu> qpdu_ptr;
 
 // Sender base class.  Provides a queue input into a thread.
 class sender : public threads::thread {
-  protected:
+protected:
 
     // Input queue: Lock, condition variable, max size and the actual
     // queue.
@@ -47,7 +47,7 @@ class sender : public threads::thread {
 
     parameters& global_pars;
 
-  public:
+public:
 
     // Constructor.
     sender(parameters& p) : global_pars(p) {
@@ -97,7 +97,7 @@ class sender : public threads::thread {
 // This is a thread: You should create, called 'connect', call 'start' to
 // spawn the thread, then call 'deliver' when you have packets to transmit.
 class nhis11_sender : public sender {
-  private:
+private:
 
     // NHIS 1.1 transport.
     std::map<std::string,cybermon::nhis11::sender> transport;
@@ -110,14 +110,14 @@ class nhis11_sender : public sender {
     // Params
     std::map<std::string, std::string> params;
 
-  public:
+public:
 
     // Constructor.
     nhis11_sender(const std::string& h, unsigned short p,
 		  const std::string& transp,
 		  const std::map<std::string, std::string>& params,
 		  parameters& globals) :
-    sender(globals), h(h), p(p), params(params) {
+        sender(globals), h(h), p(p), params(params) {
 	if (transp == "tls")
 	    tls = true;
 	else if (transp == "tcp")
@@ -154,7 +154,7 @@ class nhis11_sender : public sender {
 // This is a thread: You should create, called 'connect', call 'start' to
 // spawn the thread, then call 'deliver' when you have packets to transmit.
 class etsi_li_sender : public sender {
-  private:
+private:
 
     typedef cybermon::etsi_li::sender e_sender;
     typedef cybermon::etsi_li::mux e_mux;
@@ -193,35 +193,35 @@ class etsi_li_sender : public sender {
     // Initialise some configuration
     void initialise() { }
 
-  public:
+public:
 
     // Constructor.
     etsi_li_sender(const std::string& h, unsigned int short p,
                    const std::string& transp,
 		   const std::map<std::string, std::string>& params,
 		   parameters& globals) :
-    sender(globals), h(h), p(p), params(params), cur_connect(0)
-    {
+        sender(globals), h(h), p(p), params(params), cur_connect(0)
+        {
 
-	// Get value of etsi-streams parameter, default is 12.
-	std::string par = globals.get_parameter("etsi-streams", "12");
-	std::istringstream buf(par);
+            // Get value of etsi-streams parameter, default is 12.
+            std::string par = globals.get_parameter("etsi-streams", "12");
+            std::istringstream buf(par);
 
-	num_connects = 0;
-	buf >> num_connects;
-	if (num_connects <= 0)
-	    throw std::runtime_error("Couldn't parse etsi-streams value: " +
-				     par);
+            num_connects = 0;
+            buf >> num_connects;
+            if (num_connects <= 0)
+                throw std::runtime_error("Couldn't parse etsi-streams value: " +
+                                         par);
 
-	transports = new e_sender[num_connects];
-	if (transp == "tls")
-	    tls = true;
-	else if (transp == "tcp")
-	    tls = false;
-	else
-	    throw std::runtime_error("Transport " + transp + " not known.");
-	initialise();
-    }
+            transports = new e_sender[num_connects];
+            if (transp == "tls")
+                tls = true;
+            else if (transp == "tcp")
+                tls = false;
+            else
+                throw std::runtime_error("Transport " + transp + " not known.");
+            initialise();
+        }
 
     // PDU handler
     virtual void handle(qpdu_ptr);

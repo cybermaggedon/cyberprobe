@@ -1,9 +1,9 @@
 
 /****************************************************************************
 
-****************************************************************************
-*** OVERVIEW
-****************************************************************************
+ ****************************************************************************
+ *** OVERVIEW
+ ****************************************************************************
 
 Simple monitor.  Takes ETSI streams from cyberprobe, and reports on various
 occurances.
@@ -294,20 +294,20 @@ int main(int argc, char** argv)
         typedef std::shared_ptr<cybermon::event::event> eptr;
 	std::queue<eptr> cqueue;
 
-    // Input queue: Lock,
-    threads::mutex cqwrlock;
+        // Input queue: Lock,
+        threads::mutex cqwrlock;
 
-    //creating cybermon_qwriter and cybermon_qreader
-    cybermon::cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
-    cybermon::cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
+        //creating cybermon_qwriter and cybermon_qreader
+        cybermon::cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
+        cybermon::cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
 
-    //starting qreader and then qwriter
-    cqr.start();
-    cqw.start();
+        //starting qreader and then qwriter
+        cqr.start();
+        cqw.start();
 
 	if (pcap_file != "") {
 
-		pcap_input pin(pcap_file, cqw);
+            pcap_input pin(pcap_file, cqw);
 	    pin.run();
 
 	} else if (transport == "tls") {
@@ -334,7 +334,7 @@ int main(int argc, char** argv)
 
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-		etsi_monitor m(cqw);
+            etsi_monitor m(cqw);
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(port, m);
 	    r.start();

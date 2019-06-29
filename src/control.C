@@ -88,28 +88,28 @@ void connection::tokenise(const std::string& line,
 			  std::vector<std::string>& tok)
 {
 
-	std::string left = line;
+    std::string left = line;
 
-	tok.clear();
+    tok.clear();
 
-	while (!left.empty()) {
+    while (!left.empty()) {
 
-		left.erase(0, left.find_first_not_of(" \t"));
+        left.erase(0, left.find_first_not_of(" \t"));
 	
-		int pos = left.find_first_of(" \t");
-		if (pos != -1) {
+        int pos = left.find_first_of(" \t");
+        if (pos != -1) {
 
-			tok.push_back(left.substr(0, pos));
-			left.erase(0, pos+1);
+            tok.push_back(left.substr(0, pos));
+            left.erase(0, pos+1);
 
-		} else if (!left.empty()) {
+        } else if (!left.empty()) {
 
-			tok.push_back(left);
-			left.clear();
+            tok.push_back(left);
+            left.clear();
 
-		}
+        }
 
-	}
+    }
 
 }
 

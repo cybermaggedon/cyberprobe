@@ -30,8 +30,8 @@ tls_context::tls_context(manager& mngr) : context(mngr)
 }
 
 tls_context::tls_context(manager& mngr,
-    const flow_address& fAddr,
-    context_ptr ctxPtr)
+                         const flow_address& fAddr,
+                         context_ptr ctxPtr)
     : context(mngr), cipherSuite(0xFFFF), cipherSuiteSet(false), seenChangeCipherSuite(false)
 {
     addr = fAddr;
@@ -50,7 +50,7 @@ void tls_context::set_cipher_suite(uint16_t cs)
     context_ptr rev = reverse.lock();
     if (rev) {
         tls_context::ptr revPtr =
-        std::dynamic_pointer_cast<tls_context>(rev);
+            std::dynamic_pointer_cast<tls_context>(rev);
         revPtr->cipherSuite = cs;
         revPtr->cipherSuiteSet = true;
     }
@@ -59,23 +59,23 @@ void tls_context::set_cipher_suite(uint16_t cs)
 bool tls_context::get_cipher_suite(uint16_t& cs)
 {
     if (cipherSuiteSet)
-    {
-        cs = cipherSuite;
-        return true;
-    }
+        {
+            cs = cipherSuite;
+            return true;
+        }
 
     // haven't got it in this context, try the reverse.
     context_ptr rev = reverse.lock();
     if (rev) {
         tls_context::ptr revPtr =
-        std::dynamic_pointer_cast<tls_context>(rev);
+            std::dynamic_pointer_cast<tls_context>(rev);
         if (revPtr->cipherSuiteSet)
-        {
-            cipherSuiteSet = true;
-            cipherSuite = revPtr->cipherSuite;
-            cs = cipherSuite;
-            return true;
-        }
+            {
+                cipherSuiteSet = true;
+                cipherSuite = revPtr->cipherSuite;
+                cs = cipherSuite;
+                return true;
+            }
     }
 
     // unable to get the cipherSuite
@@ -104,89 +104,89 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
 
     // wrap all processing in a try catch, and report processing errors as unrecognised
     try
-    {
-        uint16_t extra = 0;
-        // see if we are part way through a pdu
-        if (! flowContext->buffer.empty())
         {
-            // construct new pdu of correct length
-            pdu_slice newSlice(flowContext->buffer.begin(),
-            flowContext->buffer.end(),
-            pduSlice.time, pduSlice.direc);
-            const header* hdr = verifyHeader(newSlice);
-            if (!hdr)
-            {
-                // TODO handle header on boundry
-                throw tls_exception("Invalid TLS Header");
-            }
-            uint16_t length = (hdr->length1 << 8) + hdr->length2;
-            extra = length + sizeof(header) - flowContext->buffer.size();
-            if (extra > (pduSlice.end - pduSlice.start)) {
-                // not enough room to fit the extra in
-                flowContext->buffer.reserve(flowContext->buffer.size() + (pduSlice.end - pduSlice.start));
-                flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.end);
-                // no more data in slice to process return
-                flowContext->lock.unlock();
-                return;
-            }
-            // we have  full message, construct the pdu and process it
-            flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.start + extra);
-            pdu_slice msg(flowContext->buffer.begin(),
-			  flowContext->buffer.end(),
-			  pduSlice.time, pduSlice.direc);
-            processMessage(mgr, flowContext, msg, hdr);
-            // we're now done with the buffered PDU, and can process the rest of the slice
-            // TODO probably want a max capacity to cap this too so we dont eat loads of memory and
-            // never free it.
-            flowContext->buffer.resize(0);
-        }
+            uint16_t extra = 0;
+            // see if we are part way through a pdu
+            if (! flowContext->buffer.empty())
+                {
+                    // construct new pdu of correct length
+                    pdu_slice newSlice(flowContext->buffer.begin(),
+                                       flowContext->buffer.end(),
+                                       pduSlice.time, pduSlice.direc);
+                    const header* hdr = verifyHeader(newSlice);
+                    if (!hdr)
+                        {
+                            // TODO handle header on boundry
+                            throw tls_exception("Invalid TLS Header");
+                        }
+                    uint16_t length = (hdr->length1 << 8) + hdr->length2;
+                    extra = length + sizeof(header) - flowContext->buffer.size();
+                    if (extra > (pduSlice.end - pduSlice.start)) {
+                        // not enough room to fit the extra in
+                        flowContext->buffer.reserve(flowContext->buffer.size() + (pduSlice.end - pduSlice.start));
+                        flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.end);
+                        // no more data in slice to process return
+                        flowContext->lock.unlock();
+                        return;
+                    }
+                    // we have  full message, construct the pdu and process it
+                    flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.start + extra);
+                    pdu_slice msg(flowContext->buffer.begin(),
+                                  flowContext->buffer.end(),
+                                  pduSlice.time, pduSlice.direc);
+                    processMessage(mgr, flowContext, msg, hdr);
+                    // we're now done with the buffered PDU, and can process the rest of the slice
+                    // TODO probably want a max capacity to cap this too so we dont eat loads of memory and
+                    // never free it.
+                    flowContext->buffer.resize(0);
+                }
 
-        // loop through the pdu processing all messages
-        pdu_slice restOfSlice = pduSlice.skip(extra);
-        while (restOfSlice.start < restOfSlice.end)
-        {
-            const header* hdr = verifyHeader(restOfSlice);
-            if (!hdr)
-            {
-                // TODO handle header on boundry
-                throw tls_exception("Invalid TLS Header");
-            }
-            uint16_t length = (hdr->length1 << 8) + hdr->length2 + sizeof(header);
-            if (length > (restOfSlice.end - restOfSlice.start))
-            {
-                // have half a tls message, save into the buffer
-                flowContext->buffer.reserve(length);
-                flowContext->buffer.insert(flowContext->buffer.end(), restOfSlice.start, restOfSlice.end);
-                // exit the while loop, we've done as much as we can with this PDU
-                break;
-            }
+            // loop through the pdu processing all messages
+            pdu_slice restOfSlice = pduSlice.skip(extra);
+            while (restOfSlice.start < restOfSlice.end)
+                {
+                    const header* hdr = verifyHeader(restOfSlice);
+                    if (!hdr)
+                        {
+                            // TODO handle header on boundry
+                            throw tls_exception("Invalid TLS Header");
+                        }
+                    uint16_t length = (hdr->length1 << 8) + hdr->length2 + sizeof(header);
+                    if (length > (restOfSlice.end - restOfSlice.start))
+                        {
+                            // have half a tls message, save into the buffer
+                            flowContext->buffer.reserve(length);
+                            flowContext->buffer.insert(flowContext->buffer.end(), restOfSlice.start, restOfSlice.end);
+                            // exit the while loop, we've done as much as we can with this PDU
+                            break;
+                        }
 
-            // we have a full message to process
-            pdu_slice msg(restOfSlice.start,restOfSlice.end,
-                restOfSlice.time, restOfSlice.direc);
-                processMessage(mgr, flowContext, msg, hdr);
-                restOfSlice = restOfSlice.skip(length);
+                    // we have a full message to process
+                    pdu_slice msg(restOfSlice.start,restOfSlice.end,
+                                  restOfSlice.time, restOfSlice.direc);
+                    processMessage(mgr, flowContext, msg, hdr);
+                    restOfSlice = restOfSlice.skip(length);
+                }
         }
-    }
     catch (tls_exception& e)
-    {
-        // there has been an issue with the TLS processing. Just report as unrecognised
-        // (tls will still be in the context, so it can be identified)
+        {
+            // there has been an issue with the TLS processing. Just report as unrecognised
+            // (tls will still be in the context, so it can be identified)
 
-        flowContext->lock.unlock();
-        // find if the we're using tcp or udp and create an appropriate event
-        context_ptr parent = flowContext->parent.lock();
-        if (parent && parent->get_type() == "udp")
-        {
-            unrecognised::process_unrecognised_datagram(mgr, flowContext, pduSlice);
-	    return;
-        }
-        else
-        {
-            unrecognised::process_unrecognised_stream(mgr, flowContext, pduSlice);
-	    return;
-        }
-    } catch (std::exception& e) {
+            flowContext->lock.unlock();
+            // find if the we're using tcp or udp and create an appropriate event
+            context_ptr parent = flowContext->parent.lock();
+            if (parent && parent->get_type() == "udp")
+                {
+                    unrecognised::process_unrecognised_datagram(mgr, flowContext, pduSlice);
+                    return;
+                }
+            else
+                {
+                    unrecognised::process_unrecognised_stream(mgr, flowContext, pduSlice);
+                    return;
+                }
+        } catch (std::exception& e) {
 	flowContext->lock.unlock();	
 	throw e;
     }
@@ -200,16 +200,16 @@ const tls::header* tls::verifyHeader(const pdu_slice& pduSlice)
 
     // check enough bytes for the header
     if ((pduSlice.end - pduSlice.start) < sizeof(header))
-    {
-        return nullptr;
-    }
+        {
+            return nullptr;
+        }
 
     // verify this looks like a TLS header
     const header* hdr = reinterpret_cast<const header*>(&pduSlice.start[0]);
     if (std::find(CT_START, CT_END, hdr->contentType) == CT_END)
-    {
-        return nullptr;
-    }
+        {
+            return nullptr;
+        }
 
     if (hdr->majorVersion != 3 || hdr->minorVersion > 4) {
         return nullptr;
@@ -222,16 +222,16 @@ void tls::processMessage(manager& mgr, tls_context::ptr ctx, const pdu_slice& pd
 {
     // already know it is TLS header dont need to recheck
     switch (hdr->contentType) {
-        case 20:
+    case 20:
         changeCipherSpec(mgr, ctx, pduSlice);
         break;
-        case 22: // handshake
+    case 22: // handshake
         tls_handshake::process(mgr, ctx, pduSlice, hdr);
         break;
-        case 23:
+    case 23:
         applicationData(mgr, ctx, pduSlice, hdr);
         break;
-        default: // catch all - just survey
+    default: // catch all - just survey
         survey(mgr, ctx, pduSlice, hdr);
         break;
     }
@@ -245,7 +245,7 @@ void tls::changeCipherSpec(manager& mgr, tls_context::ptr ctx, const pdu_slice& 
     ctx->seenChangeCipherSuite = true;
 
     auto ev =
-      std::make_shared<event::tls_change_cipher_spec>(ctx, val, pduSlice.time);
+        std::make_shared<event::tls_change_cipher_spec>(ctx, val, pduSlice.time);
     mgr.handle(ev);
 }
 
@@ -257,8 +257,8 @@ void tls::survey(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const
     uint16_t length = (hdr->length1 << 8) + hdr->length2;
 
     auto ev =
-      std::make_shared<event::tls_unknown>(ctx, version, hdr->contentType,
-					   length, pduSlice.time);
+        std::make_shared<event::tls_unknown>(ctx, version, hdr->contentType,
+                                             length, pduSlice.time);
     mgr.handle(ev);
 }
 
@@ -272,13 +272,13 @@ void tls::applicationData(manager& mgr, context_ptr ctx, const pdu_slice& pduSli
     pdu_slice data = pduSlice.skip(sizeof(tls::header));
 
     if (length > (data.end - data.start ))
-    {
-        throw tls_exception("TLS Application Data: not enough space for data");
-    }
+        {
+            throw tls_exception("TLS Application Data: not enough space for data");
+        }
     std::vector<uint8_t> encMessage(data.start, data.start + length);
 
     auto ev =
-      std::make_shared<event::tls_application_data>(ctx, version, encMessage,
-						    pduSlice.time);
+        std::make_shared<event::tls_application_data>(ctx, version, encMessage,
+                                                      pduSlice.time);
     mgr.handle(ev);
 }

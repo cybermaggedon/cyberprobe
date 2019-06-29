@@ -19,16 +19,16 @@ void dns_over_tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     // The message is prefixed with a two byte length field which
     // gives the message length, excluding the two byte length field.
     if ((e - s) < 2)
-    {
-        return;
-    }
+        {
+            return;
+        }
 
     uint16_t message_length = (s[0] << 8) + s[1];
 
     if (message_length < 12)
-    {
-        throw exception("Invalid DNS header length");
-    }
+        {
+            throw exception("Invalid DNS header length");
+        }
 
     // According to the RFC there should be a 2 byte message prefix which needs
     // to be stepped over before processing the DNS message. But in situations
@@ -39,22 +39,22 @@ void dns_over_tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     // either stepping over two or one bytes as necessary.
 
     if (message_length == ((e - s) - 2))
-    {
-        // Step over the 2 byte prefix
-        s+=2;
-    }
-    else 
-    {
-        // redefine the message length as the value from just the first byte.
-        // This may not work in all situations but it is a hack after all!
-        message_length = s[0];
-
-        if (message_length == ((e - s) - 1))
         {
-            // Step over 1 byte of prefix
-            s+=1;
+            // Step over the 2 byte prefix
+            s+=2;
         }
-    }
+    else 
+        {
+            // redefine the message length as the value from just the first byte.
+            // This may not work in all situations but it is a hack after all!
+            message_length = s[0];
+
+            if (message_length == ((e - s) - 1))
+                {
+                    // Step over 1 byte of prefix
+                    s+=1;
+                }
+        }
 
     // Parse DNS.
     dns_decoder dec(s, e);
@@ -76,18 +76,18 @@ void dns_over_tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->lock.lock();
 
     try
-    {
-	auto ev =
-	    std::make_shared<event::dns_message>(fc, dec.hdr, dec.queries,
-						 dec.answers, dec.authorities,
-						 dec.additional, sl.time);
-	mgr.handle(ev);
-    }
+        {
+            auto ev =
+                std::make_shared<event::dns_message>(fc, dec.hdr, dec.queries,
+                                                     dec.answers, dec.authorities,
+                                                     dec.additional, sl.time);
+            mgr.handle(ev);
+        }
     catch (std::exception& e)
-    {
+        {
 	    fc->lock.unlock();
 	    throw;
-    }
+        }
 
     fc->lock.unlock();
 }

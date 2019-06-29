@@ -12,13 +12,13 @@ class receiver;
 
 class connection : public threads::thread {
 
-  private:
+private:
     std::shared_ptr<tcpip::stream_socket> s;
     receiver &r;
     bool running;
     std::ofstream out;
 
-  public:
+public:
     connection(std::shared_ptr<tcpip::stream_socket> s, receiver& r,
 	       std::string fname) : s(s), r(r) {
 	running = true;
@@ -31,7 +31,7 @@ class connection : public threads::thread {
 
 class receiver : public threads::thread {
 
-  private:
+private:
     bool running;
     std::string base;
     int oneup;
@@ -41,7 +41,7 @@ class receiver : public threads::thread {
     threads::mutex close_me_lock;
     std::queue<connection*> close_mes;
 
-  public:
+public:
     receiver(int port, const std::string& base,
 	     const std::string& key, const std::string& cert,
 	     const std::string& ca) : base(base) {

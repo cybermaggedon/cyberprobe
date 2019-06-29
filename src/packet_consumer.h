@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 class packet_consumer {
-  public:
+public:
     virtual ~packet_consumer() {}
 
     // Allows caller to provide an IP packet for delivery.

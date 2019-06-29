@@ -64,7 +64,7 @@ public:
     }
 
     typedef
-	bool (*generator_fn)(const std::string& partial, std::string& match);
+    bool (*generator_fn)(const std::string& partial, std::string& match);
 
     static generator_fn generator;
 

@@ -9,16 +9,16 @@
 
 namespace {
 
-std::string extract_hex_string(cybermon::pdu_iter start, cybermon::pdu_iter end)
-{
-    std::ostringstream oss;
-    oss << "0x";
-    for (cybermon::pdu_iter iter=start;
-        iter != end;
-        ++iter)
-        {
-            oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
-        }
+    std::string extract_hex_string(cybermon::pdu_iter start, cybermon::pdu_iter end)
+    {
+        std::ostringstream oss;
+        oss << "0x";
+        for (cybermon::pdu_iter iter=start;
+             iter != end;
+             ++iter)
+            {
+                oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
+            }
         return oss.str();
     }
 }
@@ -34,7 +34,7 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
     dataLeft -= 1;
 
     switch (md->curveType)
-    {
+        {
         case 1:
         {
             // following code should decode the curvetype based upon the RFC, but no data to test with,
@@ -104,13 +104,13 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
             NamedCurve nc;
 
             if ((curve < 26 && curve != 0) || curve == 0xFF01 || curve == 0xFF02)
-            {
-                nc = static_cast<NamedCurve>(curve);
-            }
+                {
+                    nc = static_cast<NamedCurve>(curve);
+                }
             else
-            {
-                nc = NamedCurve::reserved;
-            }
+                {
+                    nc = NamedCurve::reserved;
+                }
             md->curveData.emplace_back("name", to_string(nc));
             break;
         }
@@ -119,16 +119,16 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
             return;
             break;
         }
-    }
+        }
 
     uint8_t pointLen = *dataPtr;
     dataPtr += 1;
     dataLeft -= 1;
 
     if (pointLen > dataLeft)
-    {
-        throw tls_exception("TLS ECDH Error - Not enough room for public key point");
-    }
+        {
+            throw tls_exception("TLS ECDH Error - Not enough room for public key point");
+        }
 
     md->pubKey.reserve(pointLen);
     md->pubKey.insert(md->pubKey.end(), dataPtr, dataPtr + pointLen);
@@ -152,11 +152,11 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
 
     std::ostringstream oss;
     for (pdu_iter iter=dataPtr;
-        iter != dataPtr+hashLen;
-        ++iter)
-    {
-        oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
-    }
+         iter != dataPtr+hashLen;
+         ++iter)
+        {
+            oss << std::setw(2) << std::setfill('0') << std::hex  << static_cast<const uint16_t>(*iter);
+        }
     md->hash = oss.str();
     dataPtr += hashLen;
     dataLeft -= hashLen;
@@ -173,9 +173,9 @@ void cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t
     dataLeft -= 1;
 
     if (pointLen > dataLeft)
-    {
-        throw tls_exception("TLS ECDH Error - Not enough room for public key point");
-    }
+        {
+            throw tls_exception("TLS ECDH Error - Not enough room for public key point");
+        }
 
     key.reserve(pointLen);
     key.insert(key.end(), dataPtr, dataPtr + pointLen);
@@ -184,91 +184,91 @@ void cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t
 
 std::string cybermon::tls_key_exchange::to_string(const NamedCurve nc) {
     switch (nc)
-    {
+        {
         case sect163k1:
-        return "sect163k1";
-        break;
+            return "sect163k1";
+            break;
         case sect163r1:
-        return "sect163r1";
-        break;
+            return "sect163r1";
+            break;
         case sect163r2:
-        return "sect163r2";
-        break;
+            return "sect163r2";
+            break;
         case sect193r1:
-        return "sect193r1";
-        break;
+            return "sect193r1";
+            break;
         case sect193r2:
-        return "sect193r2";
-        break;
+            return "sect193r2";
+            break;
         case sect233k1:
-        return "sect233k1";
-        break;
+            return "sect233k1";
+            break;
         case sect233r1:
-        return "sect233r1";
-        break;
+            return "sect233r1";
+            break;
         case sect239k1:
-        return "sect239k1";
-        break;
+            return "sect239k1";
+            break;
         case sect283k1:
-        return "sect283k1";
-        break;
+            return "sect283k1";
+            break;
         case sect283r1:
-        return "sect283r1";
-        break;
+            return "sect283r1";
+            break;
         case sect409k1:
-        return "sect409k1";
-        break;
+            return "sect409k1";
+            break;
         case sect409r1:
-        return "sect409r1";
-        break;
+            return "sect409r1";
+            break;
         case sect571k1:
-        return "sect571k1";
-        break;
+            return "sect571k1";
+            break;
         case sect571r1:
-        return "sect571r1";
-        break;
+            return "sect571r1";
+            break;
         case secp160k1:
-        return "secp160k1";
-        break;
+            return "secp160k1";
+            break;
         case secp160r1:
-        return "secp160r1";
-        break;
+            return "secp160r1";
+            break;
         case secp160r2:
-        return "secp160r2";
-        break;
+            return "secp160r2";
+            break;
         case secp192k1:
-        return "secp192k1";
-        break;
+            return "secp192k1";
+            break;
         case secp192r1:
-        return "secp192r1";
-        break;
+            return "secp192r1";
+            break;
         case secp224k1:
-        return "secp224k1";
-        break;
+            return "secp224k1";
+            break;
         case secp224r1:
-        return "secp224r1";
-        break;
+            return "secp224r1";
+            break;
         case secp256k1:
-        return "secp256k1";
-        break;
+            return "secp256k1";
+            break;
         case secp256r1:
-        return "secp256r1";
-        break;
+            return "secp256r1";
+            break;
         case secp384r1:
-        return "secp384r1";
-        break;
+            return "secp384r1";
+            break;
         case secp521r1:
-        return "secp521r1";
-        break;
+            return "secp521r1";
+            break;
         case arbitrary_explicit_prime_curves:
-        return "arbitrary_explicit_prime_curves";
-        break;
+            return "arbitrary_explicit_prime_curves";
+            break;
         case arbitrary_explicit_char2_curves:
-        return "arbitrary_explicit_char2_curves";
-        break;
+            return "arbitrary_explicit_char2_curves";
+            break;
         case reserved:
-        return "reserved";
-        break;
-    }
+            return "reserved";
+            break;
+        }
     return "reserved";
 }

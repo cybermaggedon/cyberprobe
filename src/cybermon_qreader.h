@@ -18,20 +18,20 @@ namespace cybermon {
 
     class cybermon_qreader: public threads::thread {
 
-      typedef std::shared_ptr<event::event> eptr;
+        typedef std::shared_ptr<event::event> eptr;
 
-      private:
+    private:
 	cybermon_lua cml;
 
-      protected:
+    protected:
 	// State: true if we're running, false if we've been asked to stop.
 	bool running;
 
-      std::queue<eptr>& cqueue;
+        std::queue<eptr>& cqueue;
 
 	threads::mutex& lock;
 
-      public:
+    public:
 
 	// Constructor
 	cybermon_qreader(const std::string& path,
