@@ -37,20 +37,13 @@ void dns_over_udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     dns_context::ptr fc = dns_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
-    try {
-	auto ev =
-	    std::make_shared<event::dns_message>(fc, dec.hdr, dec.queries,
-						 dec.answers, dec.authorities,
-						 dec.additional, sl.time);
-	mgr.handle(ev);
-    } catch (std::exception& e) {
-        fc->lock.unlock();
-        throw;
-    }
-
-    fc->lock.unlock();
+    auto ev =
+	std::make_shared<event::dns_message>(fc, dec.hdr, dec.queries,
+					     dec.answers, dec.authorities,
+					     dec.additional, sl.time);
+    mgr.handle(ev);
 
 #ifdef DEBUG
     std::cerr << "-- DNS ------" << std::endl;

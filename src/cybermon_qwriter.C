@@ -33,7 +33,7 @@ using namespace cybermon;
 
 cybermon_qwriter::cybermon_qwriter(const std::string& path,
 				   std::queue<event_ptr>& cybermonq,
-				   threads::mutex& cqwrlock) :
+				   std::mutex& cqwrlock) :
     cqueue(cybermonq), lock(cqwrlock) {
 }
 

@@ -3,6 +3,7 @@
 #include "management.h"
 
 #include <vector>
+#include <mutex>
 
 using namespace control;
 
@@ -11,9 +12,8 @@ void service::close_me(connection* c)
 {
 
     // Just puts the connection on a list to clear up.
-    close_me_lock.lock();
+    std::lock_guard<std::mutex> lock(close_me_mutex);
     close_mes.push(c);
-    close_me_lock.unlock();
 
 }
 
@@ -48,7 +48,8 @@ void service::run()
 	}
 
 	// Tidy up any connections which need clearing up.
-	close_me_lock.lock();
+	std::lock_guard<std::mutex> lock(close_me_mutex);
+
 	while (!close_mes.empty()) {
 
 	    // Wait for thread to close.
@@ -60,7 +61,6 @@ void service::run()
 
 	    close_mes.pop();
 	}
-	close_me_lock.unlock();
 
     }
 

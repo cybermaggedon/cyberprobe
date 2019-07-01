@@ -41,11 +41,9 @@ void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
     // Do something with the Rest Of Header (roh)?
- 
-    fc->lock.unlock();
 
     // Reposition pdu start pointer to the payload
     pdu_iter start_of_payload = s + header_length;

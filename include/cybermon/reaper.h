@@ -5,8 +5,8 @@
 #include <map>
 #include <set>
 #include <list>
-
-#include <cybermon/thread.h>
+#include <thread>
+#include <mutex>
 
 class reapable;
 
@@ -40,18 +40,20 @@ public:
 
 };
 
-class reaper : public threads::thread, public watcher {
+class reaper : public watcher {
 private:
     
-    threads::mutex lock;
+    std::mutex mutex;
 
     std::map<reapable*,unsigned long> reap_map;
     std::set< std::pair<unsigned long,reapable*> > reap_list;
 
-    threads::mutex self_lock; // Lock for self_reaped
+    std::mutex self_mutex; // Lock for self_reaped
     std::list<reapable*> self_list;
 
     bool running;
+
+    std::thread* thr;
 
 public:
     void run();
@@ -59,9 +61,8 @@ public:
     reaper() { running = true; }
 
     virtual void self_reaped(reapable& r) {
-	self_lock.lock();
+	std::lock_guard<std::mutex> lock(self_mutex);
 	self_list.push_back(&r);
-	self_lock.unlock();
     }
 
     virtual ~reaper() {}
@@ -74,7 +75,7 @@ public:
     virtual void set_ttl(reapable& r, unsigned long ttl) {
 	reapable* rp = &r;
 
-	lock.lock();
+	std::lock_guard<std::mutex> lock(mutex);
 
 	if (reap_map.find(rp) != reap_map.end()) {
 	    unsigned long cur_reap = reap_map[rp];
@@ -86,15 +87,13 @@ public:
 	reap_map[rp] = new_reap;
 	reap_list.insert(std::pair<unsigned long,reapable*>(new_reap, rp));
 
-	lock.unlock();
-
     }
 
     virtual void unset_ttl(reapable& r) {
 
 	reapable* rp = &r;
 
-	lock.lock();
+	std::lock_guard<std::mutex> lock(mutex);
 
 	if (reap_map.find(rp) != reap_map.end()) {
 	    unsigned long cur_reap = reap_map[rp];
@@ -102,12 +101,22 @@ public:
 	    reap_map.erase(rp);
 	}
 
-	lock.unlock();
-
     }
 
-    void stop() { running = false; }
+    void stop() {
+	running = false;
+	join();
+    }
 
+    virtual void start() {
+	thr = new std::thread(&reaper::run, this);
+    }
+
+    virtual void join() {
+	if (thr)
+	    thr->join();
+    }
+    
 };
 
 #endif

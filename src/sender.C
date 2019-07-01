@@ -1,6 +1,9 @@
 
 #include "sender.h"
 
+#include <condition_variable>
+#include <mutex>
+
 // Called to add packets to the queue.
 void sender::deliver(timeval tv,
 		     std::shared_ptr<std::string> liid, // LIID
@@ -11,7 +14,7 @@ void sender::deliver(timeval tv,
 {
 
     // Get lock.
-    lock.lock();
+    std::unique_lock<std::mutex> lock(mutex);
 
     // Wait until there's space on the queue.
     while (running && (packets.size() > max_packets)) {
@@ -41,10 +44,7 @@ void sender::deliver(timeval tv,
     packets.push(p);
 
     // Wake up the sender's run method.
-    cond.signal();
-
-    // Done with the lock.
-    lock.unlock();
+    cond.notify_one();
 
 }
 
@@ -55,7 +55,7 @@ void sender::target_up(std::shared_ptr<std::string> liid,        // LIID
 {
 
     // Get lock.
-    lock.lock();
+    std::unique_lock<std::mutex> lock(mutex);
 
     // Wait until there's space on the queue.
     while (running && (packets.size() > max_packets)) {
@@ -95,10 +95,7 @@ void sender::target_up(std::shared_ptr<std::string> liid,        // LIID
     packets.push(p);
 
     // Wake up the sender's run method.
-    cond.signal();
-
-    // Done with the lock.
-    lock.unlock();
+    cond.notify_one();
 
 }
 
@@ -108,7 +105,7 @@ void sender::target_down(std::shared_ptr<std::string> liid,        // LIID
 {
 
     // Get lock.
-    lock.lock();
+    std::unique_lock<std::mutex> lock(mutex);
 
     // Wait until there's space on the queue.
     while (running && (packets.size() > max_packets)) {
@@ -135,10 +132,7 @@ void sender::target_down(std::shared_ptr<std::string> liid,        // LIID
     packets.push(q);
 
     // Wake up the sender's run method.
-    cond.signal();
-
-    // Done with the lock.
-    lock.unlock();
+    cond.notify_one();
 
 }
 
@@ -147,7 +141,7 @@ void sender::run()
 {
 
     // Get the lock.
-    lock.lock();
+    std::unique_lock<std::mutex> lock(mutex);
 
     // Loop until finished.
     while (running) {
@@ -192,9 +186,6 @@ void sender::run()
 	cond.wait(lock);
 
     }
-
-    // We're done, but holding the lock.  Give it up!
-    lock.unlock();
 
 }
 

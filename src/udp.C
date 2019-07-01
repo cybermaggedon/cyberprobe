@@ -46,32 +46,30 @@ void udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     // Attempt to identify from the port number and
     // call the appropriate handler if there is one
-    if (udp_ports::has_port_handler(src_port) || udp_ports::has_port_handler(dst_port))
-        {
-            fc->lock.lock();
+    if (udp_ports::has_port_handler(src_port) ||
+	udp_ports::has_port_handler(dst_port)) {
 
-            // Unfortunately now need to repeat the check
-            // to determine port number has the associated handler
-            if (udp_ports::has_port_handler(src_port))
-                {
-                    fc->processor = udp_ports::get_port_handler(src_port);
-                }
-            else
-                {
-                    fc->processor = udp_ports::get_port_handler(dst_port);
-                }
+	std::unique_lock<std::mutex> lock(fc->mutex);
 
-            fc->lock.unlock();
+	// Unfortunately now need to repeat the check
+	// to determine port number has the associated handler
+	if (udp_ports::has_port_handler(src_port))
+	    {
+		fc->processor = udp_ports::get_port_handler(src_port);
+	    }
+	else
+	    {
+		fc->processor = udp_ports::get_port_handler(dst_port);
+	    }
 
-            pdu_slice sl2(start_of_next_protocol, e, sl.time, sl.direc);
-            (*fc->processor)(mgr, fc, sl2);
-            return;
-        }
-    else
-        {
-            pdu_slice sl2(start_of_next_protocol, e, sl.time, sl.direc);
-            unrecognised::process_unrecognised_datagram(mgr, fc, sl2);
-        }
+	pdu_slice sl2(start_of_next_protocol, e, sl.time, sl.direc);
+	lock.unlock();
+	(*fc->processor)(mgr, fc, sl2);
+	return;
+    } else {
+	pdu_slice sl2(start_of_next_protocol, e, sl.time, sl.direc);
+	unrecognised::process_unrecognised_datagram(mgr, fc, sl2);
+    }
 }
 
 

@@ -23,9 +23,9 @@
 #ifndef CYBERMON_RESOURCE_H
 #define CYBERMON_RESOURCE_H
 
-#include <cybermon/thread.h>
 #include <cybermon/specification.h>
 
+#include <mutex>
 #include <string>
 #include <list>
 #include <map>
@@ -71,7 +71,7 @@ namespace cybermon {
         std::map<std::string, specification*> specs;
 
         // A lock governing multi-threaded access to the above.
-        threads::mutex lock;
+        std::mutex lock;
 
         // Implement a set of resource changes, starting and stopping resources
         // to meet the new specification list.

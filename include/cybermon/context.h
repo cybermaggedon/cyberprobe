@@ -82,26 +82,25 @@ namespace cybermon {
 	// Given a flow address, returns the child context.
 	context_ptr get_child(const flow_address& f) {
 
-	    lock.lock();
+	    std::lock_guard<std::mutex> lock(mutex);
 
 	    context_ptr c;
 	    
 	    if (children.find(f) != children.end())
 		c = children[f];
 
-	    lock.unlock();
-	    
 	    return c;
 
 	}
 
 	// Adds a child context.
 	void add_child(const flow_address& f, context_ptr c) {
-	    lock.lock();
+
+	    std::lock_guard<std::mutex> lock(mutex);
+
 	    if (children.find(f) != children.end())
 		throw exception("That context already exists.");
 	    children[f] = c;
-	    lock.unlock();
 	}
 
 	// Destructor.
@@ -129,7 +128,7 @@ namespace cybermon {
 	    std::shared_ptr<context> mc = 
 		std::dynamic_pointer_cast<context>(parent);
 
-	    mc->lock.lock();
+	    std::lock_guard<std::mutex> lock(mc->mutex);
 
 	    context_ptr ch;
 
@@ -190,8 +189,6 @@ namespace cybermon {
 		}
 
 	    }
-
-	    mc->lock.unlock();
 
 	    return ch;
 	    

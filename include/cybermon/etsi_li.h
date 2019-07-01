@@ -24,7 +24,6 @@ need to be called on the etsi_li object are connect and close.
 
 #include <cybermon/socket.h>
 #include <cybermon/ber.h>
-#include <cybermon/thread.h>
 #include <cybermon/monitor.h>
 #include <cybermon/transport.h>
 #include <cybermon/pdu.h>
@@ -33,9 +32,11 @@ need to be called on the etsi_li object are connect and close.
 #include <string>
 #include <map>
 #include <queue>
-#include <sys/time.h>
-
+#include <mutex>
 #include <memory>
+#include <thread>
+
+#include <sys/time.h>
 
 namespace cybermon {
 
@@ -212,13 +213,15 @@ namespace cybermon {
         class receiver;
 
 // ETSI LI receiver implementation
-        class connection : public threads::thread {
+        class connection {
 
         private:
             std::shared_ptr<tcpip::stream_socket> s;
             monitor& p;
             receiver &r;
             bool running;
+
+	    std::thread* thr;
 
         public:
             connection(std::shared_ptr<tcpip::stream_socket> s, monitor& p,
@@ -227,10 +230,25 @@ namespace cybermon {
             }
             virtual ~connection() {}
             virtual void run();
+
+	    // Boot thread.
+	    void start() {
+		thr = new std::thread(&connection::run, this);
+	    }
+
+	    virtual void join() {
+		if (thr)
+		    thr->join();
+	    }
+
+	    virtual void stop() {
+		running = false;
+		join();
+	    }
         };
 
 // ETSI LI server.
-        class receiver : public threads::thread {
+        class receiver {
 
         private:
             bool running;
@@ -238,8 +256,10 @@ namespace cybermon {
 
             std::shared_ptr<tcpip::stream_socket> svr;
 
-            threads::mutex close_me_lock;
+            std::mutex close_me_mutex;
             std::queue<connection*> close_mes;
+
+	    std::thread* thr;
 
         public:
             receiver(int port, monitor& p) : p(p) {
@@ -247,15 +267,32 @@ namespace cybermon {
                 std::shared_ptr<tcpip::stream_socket> sock(new tcpip::tcp_socket);
                 svr = sock;
                 svr->bind(port);
+		thr = nullptr;
             }
             receiver(std::shared_ptr<tcpip::stream_socket> s, monitor& p) : p(p) {
                 running = true;
                 svr = s;
+		thr = nullptr;
             }
 
             virtual ~receiver() {}
             virtual void run();
             virtual void close_me(connection* c);
+
+	    // Boot thread.
+	    void start() {
+		thr = new std::thread(&receiver::run, this);
+	    }
+
+	    virtual void join() {
+		if (thr)
+		    thr->join();
+	    }
+
+	    virtual void stop() {
+		running = false;
+		join();
+	    }
 
         };
 

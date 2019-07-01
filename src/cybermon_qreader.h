@@ -8,7 +8,6 @@
 #ifndef CYBERMON_QREADER_H_
 #define CYBERMON_QREADER_H_
 
-#include <cybermon/thread.h>
 #include <queue>
 #include <cybermon_qargs.h>
 #include <cybermon_qwriter.h>
@@ -16,12 +15,13 @@
 
 namespace cybermon {
 
-    class cybermon_qreader: public threads::thread {
+    class cybermon_qreader {
 
         typedef std::shared_ptr<event::event> eptr;
 
     private:
 	cybermon_lua cml;
+	std::thread* thr;
 
     protected:
 	// State: true if we're running, false if we've been asked to stop.
@@ -29,22 +29,36 @@ namespace cybermon {
 
         std::queue<eptr>& cqueue;
 
-	threads::mutex& lock;
+	std::mutex& mutex;
 
     public:
 
 	// Constructor
 	cybermon_qreader(const std::string& path,
 			 std::queue<eptr>& cybermonq,
-			 threads::mutex& cqwrlock, cybermon_qwriter cqwriter);
+			 std::mutex& cqwrlock, cybermon_qwriter& cqwriter);
 
-	cybermon_qwriter qwriter;
+	cybermon_qwriter& qwriter;
 
 	// Thread body.
 	virtual void run();
 
 	// Destructor.
 	virtual ~cybermon_qreader() {
+	    delete thr;
+	}
+
+	virtual void stop() {
+	    running = false;
+	    join();
+	}
+
+	virtual void join() {
+	    if (thr) thr->join();
+	}
+
+	virtual void start() {
+	    thr = new std::thread(&cybermon_qreader::run, this);
 	}
 
     };

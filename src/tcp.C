@@ -69,7 +69,7 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    fc->lock.lock();
+    std::unique_lock<std::mutex> lock(fc->mutex);
 
     // Store the last ack.
     if (flags & ACK) {
@@ -80,7 +80,6 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     if (flags & SYN) {
 	fc->syn_observed = true;
 	fc->seq_expected = seq + 1;
-	fc->lock.unlock();
 	return;
     }
 
@@ -96,7 +95,6 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     if ((flags & (FIN|RST)) && !fc->fin_observed) {
 	fc->fin_observed = true;
 	fc->set_ttl(2);
-	fc->lock.unlock();
 	auto ev =
 	    std::make_shared<event::connection_down>(fc, sl.time);
 	mgr.handle(ev);
@@ -108,7 +106,6 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     if (fc->syn_observed == false) {
 	// FIXME: Do something more useful.  Should at least event on the
 	// data.
-	fc->lock.unlock();
 	return;
     }
 
@@ -118,7 +115,6 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     // Zero length payload, we can just move on.  Done all the flag handling.
     if (payload_length == 0) {
-	fc->lock.unlock();
 	return;
     }
 
@@ -139,9 +135,9 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	// If there's data, process the data.
 	if (payload_length > 0) {
-	    fc->lock.unlock();
+	    lock.unlock();
 	    post_process(mgr, fc, sl.skip(header_length));
-	    fc->lock.lock();
+	    lock.lock();
 	}
 
     } else {
@@ -213,7 +209,7 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    // We already compared (>=) those two values above, this must be
 	    // positive or zero.
 
-	    fc->lock.unlock();
+	    lock.unlock();
 
 	    pdu_slice sl2(fc->segments.begin()->segment.begin() + unwanted,
                           fc->segments.begin()->segment.end(),
@@ -221,7 +217,7 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	    post_process(mgr, fc, sl2);
 
-	    fc->lock.lock();
+	    lock.lock();
 
 	    fc->seq_expected = fc->segments.begin()->last;
 
@@ -238,8 +234,6 @@ void tcp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 	break;
 
     }
-
-    fc->lock.unlock();
     
 }
 
@@ -257,89 +251,81 @@ void tcp::post_process(manager& mgr, tcp_context::ptr fc,
 
     static const std::regex http_response("HTTP/1\\.");
 
-    fc->lock.lock();
+    std::unique_lock<std::mutex> lock(fc->mutex);
 
-    if (!fc->svc_idented)
-        {
-            uint16_t src = fc->addr.src.get_uint16();
-            uint16_t dest = fc->addr.dest.get_uint16();
+    if (!fc->svc_idented) {
 
-            // Attempt to identify from the port number and
-            // call the appropriate handler if there is one
-            if (tcp_ports::has_port_handler(src) || tcp_ports::has_port_handler(dest))
-                {
-                    // Unfortunately now need to repeat the check
-                    // to determine port number has the associated handler
-                    if (tcp_ports::has_port_handler(src))
-                        {
-                            fc->processor = tcp_ports::get_port_handler(src);
-                        }
-                    else
-                        {
-                            fc->processor = tcp_ports::get_port_handler(dest);
-                        }
+	uint16_t src = fc->addr.src.get_uint16();
+	uint16_t dest = fc->addr.dest.get_uint16();
 
-                    fc->svc_idented = true;
+	// Attempt to identify from the port number and
+	// call the appropriate handler if there is one
+	if (tcp_ports::has_port_handler(src) || tcp_ports::has_port_handler(dest))
+	    {
+		// Unfortunately now need to repeat the check
+		// to determine port number has the associated handler
+		if (tcp_ports::has_port_handler(src))
+		    {
+			fc->processor = tcp_ports::get_port_handler(src);
+		    } else {
+			fc->processor = tcp_ports::get_port_handler(dest);
+		    }
 
-                    fc->lock.unlock();
+		fc->svc_idented = true;
 
-                    (*fc->processor)(mgr, fc, sl);
-                    return;
-                }
-            else
-                {
-                    // Ident by studing the data.
+		lock.unlock();
 
-                    // Copy into the ident buffer.
-                    fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
+		(*fc->processor)(mgr, fc, sl);
+		return;
+	    }
+	else
+	    {
+		// Ident by studing the data.
 
-                    // If not enough to run an ident, bail out.
-                    if (fc->ident_buffer.size() < fc->ident_buffer_max)
-                        {
-                            fc->lock.unlock();
-                            return;
-                        }
+		// Copy into the ident buffer.
+		fc->ident_buffer.insert(fc->ident_buffer.end(), s, e);
 
-                    // Not idented, and we have enough data for an ident attempt.
+		// If not enough to run an ident, bail out.
+		if (fc->ident_buffer.size() < fc->ident_buffer_max) {
+			return;
+		    }
 
-                    std::match_results<std::string::const_iterator> what;
+		// Not idented, and we have enough data for an ident attempt.
+
+		std::match_results<std::string::const_iterator> what;
         
-                    if (regex_search(fc->ident_buffer, what, http_request, 
-                                     std::regex_constants::match_continuous))
-                        {
-                            fc->processor = &http::process_request;
-                            fc->svc_idented = true;
-                        }
-                    else if (regex_search(fc->ident_buffer, what, http_response,
-                                          std::regex_constants::match_continuous))
-                        {
-                            fc->processor = &http::process_response;
-                            fc->svc_idented = true;
-                        }
-                    else
-                        {    
-                            // Default.
-                            fc->processor = &unrecognised::process_unrecognised_stream;
-                            fc->svc_idented = true;
-                        }
-                }
+		if (regex_search(fc->ident_buffer, what, http_request, 
+				 std::regex_constants::match_continuous)) {
+		    fc->processor = &http::process_request;
+		    fc->svc_idented = true;
+		} else
+		    if (regex_search(fc->ident_buffer, what, http_response,
+				     std::regex_constants::match_continuous)) {
+			fc->processor = &http::process_response;
+			fc->svc_idented = true;
+		    } else {    
+			// Default.
+			fc->processor = &unrecognised::process_unrecognised_stream;
+			fc->svc_idented = true;
+		    }
+	    }
     
-            // Good, we're idented now.
+	// Good, we're idented now.
 
-            fc->lock.unlock();
+	// Just need to process what's in the buffer.
 
-            // Just need to process what's in the buffer.
+	pdu p;
+	p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
 
-            pdu p;
-            p.assign(fc->ident_buffer.begin(), fc->ident_buffer.end());
+	lock.unlock();
 
-            (*fc->processor)(mgr, fc, pdu_slice(p.begin(), p.end(), sl.time,
-                                                sl.direc));
-            return;
-        }
+	(*fc->processor)(mgr, fc, pdu_slice(p.begin(), p.end(), sl.time,
+					    sl.direc));
+	return;
+    }
+
+    lock.unlock();
     
-    fc->lock.unlock();
- 
     // Process the data using the defined processing function.
     (*fc->processor)(mgr, fc, sl);
     return;

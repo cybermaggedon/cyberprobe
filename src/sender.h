@@ -7,11 +7,14 @@
 #include <sys/time.h>
 
 #include "management.h"
-#include <cybermon/thread.h>
 #include <cybermon/nhis11.h>
 #include <cybermon/etsi_li.h>
 #include "parameters.h"
 #include <cybermon/pdu.h>
+
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 
 // Shared pointers to TCP/IP address.
 typedef std::shared_ptr<tcpip::address> address_ptr;
@@ -32,13 +35,13 @@ public:
 typedef std::shared_ptr<qpdu> qpdu_ptr;
 
 // Sender base class.  Provides a queue input into a thread.
-class sender : public threads::thread {
+class sender {
 protected:
 
     // Input queue: Lock, condition variable, max size and the actual
     // queue.
-    threads::mutex lock;
-    threads::condition cond;
+    std::mutex mutex;
+    std::condition_variable cond;
     static const unsigned int max_packets = 1024;
     std::queue<qpdu_ptr> packets;
 
@@ -47,11 +50,18 @@ protected:
 
     parameters& global_pars;
 
+    std::thread* thr;
+
 public:
 
     // Constructor.
     sender(parameters& p) : global_pars(p) {
 	running = true;
+	thr = 0;
+    }
+
+    virtual void start() {
+	thr = new std::thread(&sender::run, this);
     }
 
     // Thread body.
@@ -64,7 +74,7 @@ public:
     virtual void get_info(sender_info& info) = 0;
 
     // Destructor.
-    virtual ~sender() {}
+    virtual ~sender() { delete thr; }
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
@@ -87,7 +97,14 @@ public:
     // Called to stop the thread.
     virtual void stop() {
 	running = false;
-	cond.signal();
+
+	std::unique_lock<std::mutex> lk(mutex);
+	cond.notify_all();
+    }
+
+    virtual void join() {
+	if (thr)
+	    thr->join();
     }
 
 };

@@ -100,7 +100,7 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
     flowContext->set_ttl(context::default_ttl);
 
     // lock for buffer access
-    flowContext->lock.lock();
+    std::lock_guard<std::mutex> lock(flowContext->mutex);
 
     // wrap all processing in a try catch, and report processing errors as unrecognised
     try
@@ -126,7 +126,6 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
                         flowContext->buffer.reserve(flowContext->buffer.size() + (pduSlice.end - pduSlice.start));
                         flowContext->buffer.insert(flowContext->buffer.end(), pduSlice.start, pduSlice.end);
                         // no more data in slice to process return
-                        flowContext->lock.unlock();
                         return;
                     }
                     // we have  full message, construct the pdu and process it
@@ -173,7 +172,6 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
             // there has been an issue with the TLS processing. Just report as unrecognised
             // (tls will still be in the context, so it can be identified)
 
-            flowContext->lock.unlock();
             // find if the we're using tcp or udp and create an appropriate event
             context_ptr parent = flowContext->parent.lock();
             if (parent && parent->get_type() == "udp")
@@ -187,12 +185,9 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
                     return;
                 }
         } catch (std::exception& e) {
-	flowContext->lock.unlock();	
 	throw e;
     }
 
-    // release lock now we aren't going to update
-    flowContext->lock.unlock();
 }
 
 const tls::header* tls::verifyHeader(const pdu_slice& pduSlice)

@@ -29,14 +29,14 @@ namespace cybermon {
 	// Constructor
         cybermon_qwriter(const std::string& path,
 			 std::queue<event_ptr>& cybermonq,
-			 threads::mutex& cqwrlock);
+			 std::mutex& cqwrlock);
 	// Destructor.
 	virtual ~cybermon_qwriter() {
 	}
 
 	std::queue<event_ptr>& cqueue;
 
-	threads::mutex& lock;
+	std::mutex& lock;
 
 	virtual void handle(std::shared_ptr<event::event>);
 

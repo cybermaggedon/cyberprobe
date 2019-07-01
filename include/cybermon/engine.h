@@ -14,7 +14,6 @@
 #include <list>
 #include <map>
 
-#include "thread.h"
 #include "pdu.h"
 #include "context.h"
 
@@ -34,7 +33,7 @@ namespace cybermon {
     private:
 
 	// Lock for all state.
-	threads::mutex lock;
+	std::mutex lock;
 
 	// Child contexts.
 	typedef std::pair<std::string,std::string> root_id;

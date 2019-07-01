@@ -3,15 +3,15 @@
 #define CYBERMON_NHIS11_H
 
 #include <cybermon/socket.h>
-#include <cybermon/thread.h>
 #include <cybermon/monitor.h>
 #include <cybermon/transport.h>
 
 #include <vector>
 #include <list>
 #include <queue>
-
 #include <memory>
+#include <mutex>
+#include <thread>
 
 namespace cybermon {
 
@@ -94,33 +94,55 @@ namespace cybermon {
         class receiver;
 
 // NHIS 1.1 receiver implementation
-        class connection : public threads::thread {
+        class connection {
 
         private:
             std::shared_ptr<tcpip::stream_socket> s;
             monitor& p;
             receiver &r;
             bool running;
+	    std::thread* thr;
 
         public:
             connection(std::shared_ptr<tcpip::stream_socket> s, monitor& p,
                        receiver& r) : s(s), p(p), r(r) {
                 running = true;
+		thr = nullptr;
             }
-            virtual ~connection() {}
+            virtual ~connection() {
+		delete thr;
+	    }
+	    
             virtual void run();
+
+	    // Boot thread.
+	    void start() {
+		if (thr) {
+		    delete thr;
+		    thr = 0;
+		}
+		thr = new std::thread(&connection::run, this);
+	    }
+
+	    void join() {
+		if (thr)
+		    thr->join();
+	    }
+
         };
 
 // NHIS 1.1 server.
-        class receiver : public threads::thread {
+        class receiver {
 
         private:
             bool running;
             std::shared_ptr<tcpip::stream_socket> svr;
             monitor& p;
 
-            threads::mutex close_me_lock;
+            std::mutex close_me_mutex;
             std::queue<connection*> close_mes;
+
+	    std::thread* thr;
 
         public:
             receiver(int port, monitor& p) : p(p) {
@@ -131,11 +153,26 @@ namespace cybermon {
             receiver(std::shared_ptr<tcpip::stream_socket> sock, monitor& p) : p(p) {
                 svr = sock;
                 running = true;
+		thr = nullptr;
 	
             }
             virtual ~receiver() {}
             virtual void run();
             virtual void close_me(connection* c);
+
+	    virtual void start() {
+		thr = new std::thread(&receiver::run, this);
+	    }
+
+	    virtual void stop() {
+		running = false;
+		join();
+	    }
+
+	    virtual void join() {
+		if (thr)
+		    thr->join();
+	    }
     
         };
 

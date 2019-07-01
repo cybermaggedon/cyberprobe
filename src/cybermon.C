@@ -295,7 +295,7 @@ int main(int argc, char** argv)
 	std::queue<eptr> cqueue;
 
         // Input queue: Lock,
-        threads::mutex cqwrlock;
+        std::mutex cqwrlock;
 
         //creating cybermon_qwriter and cybermon_qreader
         cybermon::cybermon_qwriter cqw(config_file, cqueue, cqwrlock);

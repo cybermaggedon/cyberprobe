@@ -56,15 +56,6 @@ AX_LUA_LIBS([], [AC_MSG_ERROR([Lua library missing.])])
 AC_MSG_CHECKING([Lua socket module])
 AS_IF([echo 'if require("socket") then print("yes") end' | lua -], [],
 	    [AC_MSG_ERROR([Lua socket module is not installed.])])
-AC_MSG_CHECKING([Lua json.encode module])
-AS_IF([echo 'if require("json.encode") then print("yes") end' | lua -], [],
-	    [AC_MSG_ERROR([Lua json.encode module is not installed.])])
-AC_MSG_CHECKING([Lua sha1 module])
-AS_IF([echo 'if require("sha1") then print("yes") end' | lua -], [],
-	    [AC_MSG_ERROR([Lua sha1 module is not installed.])])
-AC_MSG_CHECKING([Lua uuid module])
-AS_IF([echo 'if require("uuid") then print("yes") end' | lua -], [],
-	    [AC_MSG_ERROR([Lua uuid module is not installed.])])
 
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])

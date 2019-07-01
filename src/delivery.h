@@ -14,6 +14,7 @@
 #include <list>
 #include <algorithm>
 #include <memory>
+#include <mutex>
 
 // Defines an endpoint.
 class ep {
@@ -128,25 +129,22 @@ public:
 class delivery : public parameters, public management, public packet_consumer {
 private:
 
-    // Lock for senders and targets maps.
-    //threads::mutex lock;
-
     // Targets : an IP address to LIID mapping.
-    threads::mutex targets_lock;
+    std::mutex targets_lock;
 
     address_map<tcpip::ip4_address, match_state> targets;
     address_map<tcpip::ip6_address, match_state> targets6;
 
     // Endpoints
-    threads::mutex senders_lock;
+    std::mutex senders_lock;
     std::map<ep, sender*> senders;
 
     // Interfaces
-    threads::mutex interfaces_lock;
+    std::mutex interfaces_lock;
     std::map<intf, capture_dev*> interfaces;
 
     // Parameters and lock
-    threads::mutex parameters_lock;
+    std::mutex parameters_lock;
     std::map<std::string, std::string> parameters;
 
     // Short-hand

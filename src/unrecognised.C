@@ -22,21 +22,14 @@ void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c,
     unrecognised_stream_context::ptr fc = 
 	unrecognised_stream_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
-    try {
-	auto ev =
-	    std::make_shared<event::unrecognised_stream>(fc, sl.start, sl.end,
-							 sl.time,
-							 fc->position);
-	mgr.handle(ev);
-        fc->position += sl.end - sl.start;
-    } catch (std::exception& e) {
-	fc->lock.unlock();
-	throw;
-    }
-
-    fc->lock.unlock();
+    auto ev =
+	std::make_shared<event::unrecognised_stream>(fc, sl.start, sl.end,
+						     sl.time,
+						     fc->position);
+    mgr.handle(ev);
+    fc->position += sl.end - sl.start;
 
 }
 
@@ -55,19 +48,12 @@ void unrecognised::process_unrecognised_datagram(manager& mgr, context_ptr c,
     unrecognised_datagram_context::ptr fc = 
 	unrecognised_datagram_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
-    try {
-	auto ev =
-	    std::make_shared<event::unrecognised_datagram>(fc, sl.start, sl.end,
-							   sl.time);
-	mgr.handle(ev);
-    } catch (std::exception& e) {
-	fc->lock.unlock();
-	throw;
-    }
-
-    fc->lock.unlock();
+    auto ev =
+	std::make_shared<event::unrecognised_datagram>(fc, sl.start, sl.end,
+						       sl.time);
+    mgr.handle(ev);
 
 }
 

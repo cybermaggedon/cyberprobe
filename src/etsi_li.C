@@ -686,14 +686,13 @@ void receiver::run()
 
 	    }
 
-	    close_me_lock.lock();
+	    std::lock_guard<std::mutex> lock(close_me_mutex);
 
 	    while (!close_mes.empty()) {
 		close_mes.front()->join();
 		delete close_mes.front();
 		close_mes.pop();
 	    }
-	    close_me_lock.unlock();
 
 	}
 
@@ -946,8 +945,7 @@ void connection::run()
 
 void receiver::close_me(connection* c)
 {
-    close_me_lock.lock();
+    std::lock_guard<std::mutex> lock(close_me_mutex);
     close_mes.push(c);
-    close_me_lock.unlock();
 }
 

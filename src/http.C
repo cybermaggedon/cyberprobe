@@ -61,7 +61,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		// This would be a protocol violation, but much more likely to be
 		// a HTTP CONNECT session, but we've missed the CONNECT or 200
 		// response. Assume it is binary data
-		c->lock.unlock();
 		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_REQUEST_PROTOCOL_EXP_NL");
 	    }
@@ -97,7 +96,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		// to be a HTTP CONNECT session, but we've missed the
 		// CONNECT or 200
 		// response. Assume it is binary data
-		c->lock.unlock();
 		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_RESPONSE_STATUS_EXP_NL");
 	    }
@@ -126,7 +124,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		// This would be a protocol violation, but much more likely to be
 		// a HTTP CONNECT session, but we've missed the CONNECT or 200
 		// response. Assume it is binary data
-		c->lock.unlock();
 		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_KEY_EXP_SPACE");
 	    }
@@ -158,7 +155,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
                 // This would be a protocol violation, but much more likely to be
                 // a HTTP CONNECT session, but we've missed the CONNECT or 200
                 // response. Assume it is binary data
-                c->lock.unlock();
                 unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_VALUE_EXP_NL");
             }
@@ -230,7 +226,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
                 // This would be a protocol violation, but much more likely to be
                 // a HTTP CONNECT session, but we've missed the CONNECT or 200
                 // response. Assume it is binary data
-                c->lock.unlock();
                 unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_HEADER_EXP_NL");
             }
@@ -322,7 +317,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
                 // This would be a protocol violation, but much more likely to be
                 // a HTTP CONNECT session, but we've missed the CONNECT or 200
                 // response. Assume it is binary data
-                c->lock.unlock();
                 unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_CHUNK_LENGTH_EXP_NL");
 	    }
@@ -415,16 +409,8 @@ void http::process_request(manager& mgr, context_ptr c,
         unrecognised::process_unrecognised_stream(mgr, fc, sl);
     } else {
         // process HTTP packet
-        fc->lock.lock();
-
-        try {
-            fc->parse(fc, sl, mgr);
-        } catch (std::exception& e) {
-            fc->lock.unlock();
-            throw;
-        }
-
-        fc->lock.unlock();
+	std::lock_guard<std::mutex> lock(fc->mutex);
+	fc->parse(fc, sl, mgr);
     }
 
 }
@@ -448,16 +434,8 @@ void http::process_response(manager& mgr, context_ptr c,
         unrecognised::process_unrecognised_stream(mgr, c, sl);
     } else {
         // process HTTP packet
-        fc->lock.lock();
-
-        try {
-            fc->parse(fc, sl, mgr);
-        } catch (std::exception& e) {
-            fc->lock.unlock();
-            throw;
-        }
-
-        fc->lock.unlock();
+	std::lock_guard<std::mutex> lock(fc->mutex);
+	fc->parse(fc, sl, mgr);
     }
 
 }
@@ -507,7 +485,7 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
 	    std::dynamic_pointer_cast<http_request_context>(rev);
 
 	// ... then use it to get the URL of this HTTP response.
-	sp_rev->lock.lock();
+	std::lock_guard<std::mutex> lock(sp_rev->mutex);
 
 	// If list is not empty, get the URL on the URL queue to be the
 	// URL of this payload.
@@ -529,7 +507,6 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
             }
         }
 
-	sp_rev->lock.unlock();
     }
 
     auto ev =

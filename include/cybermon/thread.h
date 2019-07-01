@@ -25,7 +25,9 @@
 #define CYBERMON_THREAD_H
 
 #include <stdexcept>
-#include <pthread.h>
+#include <thread>
+
+#error This is not in use any more.
 
 /** Thread namespace */
 namespace threads {
@@ -34,15 +36,18 @@ namespace threads {
     class thread {
     private:
 
-	/** Pthread id */
-	pthread_t thr;
+	std::thread* thr;
+	
     public:
 
-	thread() { }
+	thread() { thr = 0; }
 
 	/** Destructor does nothing - you should pthread_join to reap the 
 	    thread before destroying. */
-	virtual ~thread() { }
+	virtual ~thread() {
+	    delete thr;
+	    thr = 0;
+	}
 
 	/** Thread body.  Over-ride to make the thread useful. */
 	virtual void run() {
@@ -50,25 +55,18 @@ namespace threads {
 
 	/** Start execution of the thread body in a separate thread. */
 	void start() {
-	    int ret = pthread_create(&thr, 0, &do_start, 
-				     static_cast<void*>(this));
-	    if (ret < 0)
-		throw std::runtime_error("Couldn't start thread.");
-
+	    thr = new std::thread(&do_start, this);
 	}
 
 	/** If running, wait for thread execution to stop. */
 	void join() {
-	    int ret = pthread_join(thr, 0);
-	    if (ret < 0)
-		throw std::runtime_error("Couldn't join thread.");
+	    thr->join();
 	}
 
     private:
 
 	/** A boot-strap, bridges pthread and thread::thread API. */
-	static void* do_start(void* arg) {
-	    thread* t = static_cast<thread*>(arg);
+	static void* do_start(thread* t) {
 	    t->run();
 	    return 0;
 	}

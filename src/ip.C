@@ -110,7 +110,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    fc->lock.lock();
+    std::unique_lock<std::mutex> lock(fc->mutex);
 
     // Frag processing if the more_frags option is set.
     bool frag_proc = (flags & 1);
@@ -274,7 +274,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    fc->hdrs_list.erase(id);
 
 	    // Need to unlock, because the re-entrant call will take the lock.
-	    fc->lock.unlock();
+	    lock.unlock();
 
 	    // We now have a complete IP packet!  Process it.
 	    ip::process_ip4(mgr, c,
@@ -314,13 +314,11 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	}
 
-	fc->lock.unlock();
-
 	return;
 
     }
 
-    fc->lock.unlock();
+    lock.unlock();
 
     // Complete payload, just process it.
     handle_nxt_proto(mgr, fc, protocol, sl, length, header_length);

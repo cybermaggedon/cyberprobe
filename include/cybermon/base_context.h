@@ -5,9 +5,9 @@
 #include <exception>
 #include <memory>
 #include <map>
+#include <mutex>
 
 #include <cybermon/flow.h>
-#include <cybermon/thread.h>
 #include <cybermon/exception.h>
 
 namespace cybermon {
@@ -68,7 +68,7 @@ namespace cybermon {
 	}
 
 	// Lock for all context state.
-	threads::mutex lock;
+	std::mutex mutex;
 
 	// Use weak_ptr for the parent link, cause otherwise there's a
 	// shared_ptr cycle.
@@ -97,21 +97,19 @@ namespace cybermon {
 
 	// Given a flow address, returns the child context.
 	context_ptr get_child(const flow_address& f) {
-	    lock.lock();
+	    std::lock_guard<std::mutex> lock(mutex);
 	    context_ptr c;
 	    if (children.find(f) != children.end())
 		c = children[f];
-	    lock.unlock();
 	    return c;
 	}
 
 	// Adds a child context.
 	void add_child(const flow_address& f, context_ptr c) {
-	    lock.lock();
+	    std::lock_guard<std::mutex> lock(mutex);
 	    if (children.find(f) != children.end())
 		throw exception("That context already exists.");
 	    children[f] = c;
-	    lock.unlock();
 	}
 
 	// Destructor.

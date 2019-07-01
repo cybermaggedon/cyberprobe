@@ -44,16 +44,9 @@ void smtp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     smtp_client_context::ptr fc = smtp_client_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
-    try {
-	fc->parse(fc, sl, mgr);
-    } catch (std::exception& e) {
-	fc->lock.unlock();
-	throw;
-    }
-
-    fc->lock.unlock();
+    fc->parse(fc, sl, mgr);
 
 }
 
@@ -70,17 +63,9 @@ void smtp::process_server(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     smtp_server_context::ptr fc = smtp_server_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
-    try {
-	fc->parse(fc, sl, mgr);
-    } catch (std::exception& e) {
-	std::cerr << e.what() << std::endl;
-	fc->lock.unlock();
-	throw;
-    }
-
-    fc->lock.unlock();
+    fc->parse(fc, sl, mgr);
 
 }
 

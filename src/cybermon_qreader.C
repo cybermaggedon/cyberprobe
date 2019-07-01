@@ -27,27 +27,30 @@ using namespace cybermon;
 
 cybermon_qreader::cybermon_qreader(const std::string& path,
 				   std::queue<eptr>& cybermonq,
-				   threads::mutex& cqwrlock,
-				   cybermon_qwriter cqwriter) :
-    cml(path), cqueue(cybermonq), lock(cqwrlock), qwriter(cqwriter) {
+				   std::mutex& cqwrlock,
+				   cybermon_qwriter& cqwriter) :
+    cml(path), cqueue(cybermonq), mutex(cqwrlock), qwriter(cqwriter) {
     running = true;
+    thr = nullptr;
 }
 
 // cybermon_qreader thread body - gets PDUs off the queue, and calls the cybermon lua handler.
 void cybermon_qreader::run() {
 
+    std::unique_lock<std::mutex> lock(mutex);
+
     // Loop until finished.
     while (running) {
 
+	// At this point we hold the lock.
+
 	//observed with out this sleep the containers consuming cpu
 	if (cqueue.size() == 0) {
+	    lock.unlock();
 	    usleep(1000);
+	    lock.lock();
 	    continue;
 	}
-
-	// Get the lock.
-	lock.lock();
-	// At this point we hold the lock.
 
 	// Take next packet off queue.
 	eptr qentry = cqueue.front();
@@ -63,7 +66,6 @@ void cybermon_qreader::run() {
 	// Got the packet, so the queue can unlock.
 	lock.unlock();
 
-
 	try {
 	    cml.event(qwriter, qentry);
 	} catch (std::exception& e) {
@@ -71,6 +73,9 @@ void cybermon_qreader::run() {
 	    std::cerr << "cybermon_qreader::run Exception: " << e.what()
 		      << std::endl;
 	}
+
+	// Get the lock.
+	lock.lock();
 
     }
 

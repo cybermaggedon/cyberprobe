@@ -9,15 +9,17 @@ NHIS 1.1 test receiver.  Usage:
 
 #include <cybermon/monitor.h>
 #include <cybermon/nhis11.h>
-#include <cybermon/thread.h>
 #include <cybermon/packet_capture.h>
+
+#include <thread>
+#include <mutex>
 
 #include <getopt.h>
 
 class output : public monitor {
 private:
     pcap_writer& p;
-    threads::mutex lock;
+    std::mutex lock;
 public:
     output(pcap_writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
