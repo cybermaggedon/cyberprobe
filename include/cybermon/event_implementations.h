@@ -25,8 +25,8 @@ namespace cybermon {
 	    trigger_up(const std::string& device,
 		       const tcpip::address& addr,
 		       const timeval& time) :
-		device(device),
-		event(TRIGGER_UP, time)
+		event(TRIGGER_UP, time),
+		device(device)
 		{
 		    addr.to_string(address);
 		}
@@ -42,8 +42,8 @@ namespace cybermon {
 	public:
 	    std::string device;
 	    trigger_down(const std::string& device, const timeval& time) :
-		device(device),
-		event(TRIGGER_DOWN, time)
+		event(TRIGGER_DOWN, time),
+		device(device)
 		{}
 	    virtual ~trigger_down() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -58,8 +58,8 @@ namespace cybermon {
 	    unrecognised_stream(const cybermon::context_ptr cp,
 				cybermon::pdu_iter s, cybermon::pdu_iter e,
 				const timeval& time, int64_t posn) :
-		position(posn),
-		protocol_event(UNRECOGNISED_STREAM, time, cp)
+		protocol_event(UNRECOGNISED_STREAM, time, cp),
+		position(posn)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -125,8 +125,8 @@ namespace cybermon {
 		 unsigned int code,
 		 cybermon::pdu_iter s, cybermon::pdu_iter e,
 		 const timeval& time) :
-		type(type), code(code),
-		protocol_event(ICMP, time, cp)
+		protocol_event(ICMP, time, cp),
+		type(type), code(code)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -292,8 +292,8 @@ namespace cybermon {
 			const std::string& from, const std::string& to,
 			cybermon::pdu_iter s, cybermon::pdu_iter e,
 			const timeval& time) :
-		method(method), from(from), to(to),
-		protocol_event(SIP_REQUEST, time, cp)
+		protocol_event(SIP_REQUEST, time, cp),
+		method(method), from(from), to(to)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -316,8 +316,8 @@ namespace cybermon {
 			 const std::string& to,
 			 cybermon::pdu_iter s, cybermon::pdu_iter e,
 			 const timeval& time) :
-		code(code), status(status), from(from), to(to),
-		protocol_event(SIP_RESPONSE, time, cp)
+		protocol_event(SIP_RESPONSE, time, cp),
+		code(code), status(status), from(from), to(to)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -342,8 +342,8 @@ namespace cybermon {
 			 const http_hdr_t& hdr,
 			 cybermon::pdu_iter s, cybermon::pdu_iter e,
 			 const timeval& time) :
-		method(method), url(url), header(hdr),
-		protocol_event(HTTP_REQUEST, time, cp)
+		protocol_event(HTTP_REQUEST, time, cp),
+		method(method), url(url), header(hdr)
 		{
 		    body.resize(e - s);
 		    std::copy(s, e, body.begin());
@@ -367,8 +367,8 @@ namespace cybermon {
 			  const std::string& url,
 			  cybermon::pdu_iter s, cybermon::pdu_iter e,
 			  const timeval& time) :
-		code(code), status(status), header(hdr), url(url),
-		protocol_event(HTTP_RESPONSE, time, cp)
+		protocol_event(HTTP_RESPONSE, time, cp),
+		code(code), status(status), header(hdr), url(url)
 		{
 		    body.resize(e - s);
 		    std::copy(s, e, body.begin());
@@ -389,8 +389,8 @@ namespace cybermon {
 	public:
 	    smtp_command(const cybermon::context_ptr cp,
 			 const std::string& command, const timeval& time) :
-		command(command),
-		protocol_event(SMTP_COMMAND, time, cp)
+		protocol_event(SMTP_COMMAND, time, cp),
+		command(command)
 		{}
 	    virtual ~smtp_command() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -405,8 +405,8 @@ namespace cybermon {
 	    smtp_response(const cybermon::context_ptr cp, int status,
 			  const std::list<std::string>& text,
 			  const timeval& time) :
-		status(status), text(text),
-		protocol_event(SMTP_RESPONSE, time, cp)
+		protocol_event(SMTP_RESPONSE, time, cp),
+		status(status), text(text)
 		{}
 	    virtual ~smtp_response() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -424,8 +424,8 @@ namespace cybermon {
 		      std::vector<unsigned char>::const_iterator s,
 		      std::vector<unsigned char>::const_iterator e,
 		      const timeval& time) :
-		from(from), to(to), 
-		protocol_event(SMTP_DATA, time, cp)
+		protocol_event(SMTP_DATA, time, cp),
+		from(from), to(to)
 		{
 		    body.resize(e - s);
 		    std::copy(s, e, body.begin());
@@ -444,8 +444,8 @@ namespace cybermon {
 	public:
 	    ftp_command(const cybermon::context_ptr cp,
 			const std::string& command, const timeval& time) :
-		command(command),
-		protocol_event(FTP_COMMAND, time, cp)
+		protocol_event(FTP_COMMAND, time, cp),
+		command(command)
 		{
 		}
 	    virtual ~ftp_command() {}
@@ -461,8 +461,8 @@ namespace cybermon {
 	    ftp_response(const cybermon::context_ptr cp, int status,
 			 const std::list<std::string>& text,
 			 const timeval& time) :
-		status(status), text(text),
-		protocol_event(FTP_RESPONSE, time, cp)
+		protocol_event(FTP_RESPONSE, time, cp),
+		status(status), text(text)
 		{}
 	    virtual ~ftp_response() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -482,9 +482,9 @@ namespace cybermon {
 			const std::list<cybermon::dns_rr>& authorities,
 			const std::list<cybermon::dns_rr>& additional,
 			const timeval& time) :
+		protocol_event(DNS_MESSAGE, time, cp),
 		header(hdr), queries(queries), answers(answers),
-		authorities(authorities), additional(additional),
-		protocol_event(DNS_MESSAGE, time, cp)
+		authorities(authorities), additional(additional)
 		{}
 	    virtual ~dns_message() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -503,8 +503,8 @@ namespace cybermon {
 	    ntp_timestamp_message(const cybermon::context_ptr cp,
 				  const cybermon::ntp_timestamp& ts,
 				  const timeval& time) :
-		ts(ts),
-		protocol_event(NTP_TIMESTAMP_MESSAGE, time, cp)
+		protocol_event(NTP_TIMESTAMP_MESSAGE, time, cp),
+		ts(ts)
 		{}
 	    virtual ~ntp_timestamp_message() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -519,8 +519,8 @@ namespace cybermon {
 	    ntp_control_message(const cybermon::context_ptr cp,
 				const cybermon::ntp_control& ctrl,
 				const timeval& time) :
-		ctrl(ctrl),
-		protocol_event(NTP_CONTROL_MESSAGE, time, cp)
+		protocol_event(NTP_CONTROL_MESSAGE, time, cp),
+		ctrl(ctrl)
 		{}
 	    virtual ~ntp_control_message() {}
 	    virtual int get_lua_value(cybermon_lua&, const std::string& name);
@@ -535,8 +535,8 @@ namespace cybermon {
 	    ntp_private_message(const cybermon::context_ptr cp,
 				const cybermon::ntp_private& priv,
 				const timeval& time) :
-		priv(priv),
-		protocol_event(NTP_PRIVATE_MESSAGE, time, cp)
+		protocol_event(NTP_PRIVATE_MESSAGE, time, cp),
+		priv(priv)
 		{
 		}
 	    virtual ~ntp_private_message() {}
@@ -553,9 +553,9 @@ namespace cybermon {
 		const uint32_t key, const uint32_t seq_no,
 		cybermon::pdu_iter s, cybermon::pdu_iter e,
 		const timeval& time) :
+		protocol_event(GRE_MESSAGE, time, cp),
 		next_proto(next_proto), key(key),
-		sequence_no(seq_no),
-		protocol_event(GRE_MESSAGE, time, cp)
+		sequence_no(seq_no)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -579,9 +579,9 @@ namespace cybermon {
 		     const uint32_t seq_no, const uint32_t ack_no,
 		     cybermon::pdu_iter s, cybermon::pdu_iter e,
 		     const timeval& time) :
+		protocol_event(GRE_PPTP_MESSAGE, time, cp),
 		next_proto(next_proto), payload_length(len),
-		call_id(c_id), sequence_no(seq_no), ack_no(ack_no),
-		protocol_event(GRE_PPTP_MESSAGE, time, cp)
+		call_id(c_id), sequence_no(seq_no), ack_no(ack_no)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -605,8 +605,8 @@ namespace cybermon {
 		const uint32_t spi, const uint32_t seq, const uint32_t len,
 		cybermon::pdu_iter s, cybermon::pdu_iter e,
 		const timeval& time) :
-		spi(spi), sequence(seq), payload_length(len),
-		protocol_event(ESP, time, cp)
+		protocol_event(ESP, time, cp),
+		spi(spi), sequence(seq), payload_length(len)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -629,8 +629,8 @@ namespace cybermon {
 				     const uint32_t len,
 				     cybermon::pdu_iter s, cybermon::pdu_iter e,
 				     const timeval& time) :
-		next_proto(next_proto), payload_length(len),
-		protocol_event(UNRECOGNISED_IP_PROTOCOL, time, cp)
+		protocol_event(UNRECOGNISED_IP_PROTOCOL, time, cp),
+		next_proto(next_proto), payload_length(len)
 		{
 		    payload.resize(e - s);
 		    std::copy(s, e, payload.begin());
@@ -653,11 +653,11 @@ namespace cybermon {
 		 const bool is_protected, const uint16_t duration,
 		 const std::string& filt_addr, const uint8_t frag_num,
 		 const uint16_t seq_num, const timeval& time) :
+		protocol_event(WLAN, time, cp),
 		version(version), type(type), subtype(subtype),
 		flags(flags), is_protected(is_protected), duration(duration),
 		filt_addr(filt_addr), frag_num(frag_num),
-		seq_num(seq_num),
-		protocol_event(WLAN, time, cp)
+		seq_num(seq_num)
 		{
 		}
 	    virtual ~wlan() {}
@@ -681,9 +681,9 @@ namespace cybermon {
 	    tls_unknown(const cybermon::context_ptr cp,
 			const std::string& version, const uint8_t content_type,
 			const uint16_t length, const timeval& time) :
+		protocol_event(TLS_UNKNOWN, time, cp),
 		version(version), content_type(content_type),
-		length(length),
-		protocol_event(TLS_UNKNOWN, time, cp)
+		length(length)
 		{
 		}
 	    virtual ~tls_unknown() {}
@@ -701,8 +701,8 @@ namespace cybermon {
 	    tls_client_hello(const cybermon::context_ptr cp,
 			     const cybermon::tls_handshake_protocol::client_hello_data& data,
 			     const timeval& time) :
-		data(data),
-		protocol_event(TLS_CLIENT_HELLO, time, cp)
+		protocol_event(TLS_CLIENT_HELLO, time, cp),
+		data(data)
 		{
 		}
 	    virtual ~tls_client_hello() {}
@@ -718,8 +718,8 @@ namespace cybermon {
 	    tls_server_hello(const cybermon::context_ptr cp,
 			     const cybermon::tls_handshake_protocol::server_hello_data& data,
 			     const timeval& time) :
-		data(data),
-		protocol_event(TLS_SERVER_HELLO, time, cp)
+		protocol_event(TLS_SERVER_HELLO, time, cp),
+		data(data)
 		{
 		}
 	    virtual ~tls_server_hello() {}
@@ -748,8 +748,8 @@ namespace cybermon {
 	    tls_certificates(const cybermon::context_ptr cp,
 			     const std::vector<std::vector<uint8_t>>& crt,
 			     const timeval& time) :
-		certs(crt),
-		protocol_event(TLS_CERTIFICATES, time, cp)
+		protocol_event(TLS_CERTIFICATES, time, cp),
+		certs(crt)
 		{
 		    certs.reserve(certs.size());
 		    certs.insert(certs.end(), crt.begin(), crt.end());
@@ -767,8 +767,8 @@ namespace cybermon {
 	    tls_server_key_exchange(const cybermon::context_ptr cp,
 				    const cybermon::tls_handshake_protocol::key_exchange_data& data,
 				    const timeval& time) :
-		data(data),
-		protocol_event(TLS_SERVER_KEY_EXCHANGE, time, cp)
+		protocol_event(TLS_SERVER_KEY_EXCHANGE, time, cp),
+		data(data)
 		{
 		}
 	    virtual ~tls_server_key_exchange() {}
@@ -784,8 +784,8 @@ namespace cybermon {
 	    tls_handshake_generic(const cybermon::context_ptr cp,
 				  const uint8_t type, const uint32_t len,
 				  const timeval& time) :
-		type(type), len(len),
-		protocol_event(TLS_HANDSHAKE_GENERIC, time, cp)
+		protocol_event(TLS_HANDSHAKE_GENERIC, time, cp),
+		type(type), len(len)
 		{
 		}
 	    virtual ~tls_handshake_generic() {}
@@ -802,8 +802,8 @@ namespace cybermon {
 	    tls_certificate_request(const cybermon::context_ptr cp,
 				    const cybermon::tls_handshake_protocol::certificate_request_data& data,
 				    const timeval& time) :
-		data(data),
-		protocol_event(TLS_CERTIFICATE_REQUEST, time, cp)
+		protocol_event(TLS_CERTIFICATE_REQUEST, time, cp),
+		data(data)
 		{
 		}
 	    virtual ~tls_certificate_request() {}
@@ -819,8 +819,8 @@ namespace cybermon {
 	    tls_client_key_exchange(const cybermon::context_ptr cp,
 				    const std::vector<uint8_t>& key,
 				    const timeval& time) :
-		key(key),
-		protocol_event(TLS_CLIENT_KEY_EXCHANGE, time, cp)
+		protocol_event(TLS_CLIENT_KEY_EXCHANGE, time, cp),
+		key(key)
 		{
 		}
 	    virtual ~tls_client_key_exchange() {}
@@ -838,9 +838,9 @@ namespace cybermon {
 				   const uint8_t sig_algo,
 				   const std::string& sig,
 				   const timeval& time) :
+		protocol_event(TLS_CERTIFICATE_VERIFY, time, cp),
 		sig_hash_algo(sig_hash_algo),
-		sig_algo(sig_algo), sig(sig),
-		protocol_event(TLS_CERTIFICATE_VERIFY, time, cp)
+		sig_algo(sig_algo), sig(sig)
 		{
 		}
 	    virtual ~tls_certificate_verify() {}
@@ -857,8 +857,8 @@ namespace cybermon {
 	public:
 	    tls_change_cipher_spec(const cybermon::context_ptr cp,
 				   const uint8_t val, const timeval& time) :
-		val(val),
-		protocol_event(TLS_CHANGE_CIPHER_SPEC, time, cp)
+		protocol_event(TLS_CHANGE_CIPHER_SPEC, time, cp),
+		val(val)
 		{
 		}
 	    virtual ~tls_change_cipher_spec() {}
@@ -874,8 +874,8 @@ namespace cybermon {
 	    tls_handshake_finished(const cybermon::context_ptr cp,
 				   const std::vector<uint8_t>& msg,
 				   const timeval& time) :
-		msg(msg),
-		protocol_event(TLS_HANDSHAKE_FINISHED, time, cp)
+		protocol_event(TLS_HANDSHAKE_FINISHED, time, cp),
+		msg(msg)
 		{
 		}
 	    virtual ~tls_handshake_finished() {}
@@ -906,8 +906,8 @@ namespace cybermon {
 				 const std::string& ver,
 				 const std::vector<uint8_t>& data,
 				 const timeval& time) :
-		version(ver), data(data),
-		protocol_event(TLS_APPLICATION_DATA, time, cp)
+		protocol_event(TLS_APPLICATION_DATA, time, cp),
+		version(ver), data(data)
 		{
 		}
 	    virtual ~tls_application_data() {}

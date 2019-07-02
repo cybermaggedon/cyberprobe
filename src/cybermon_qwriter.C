@@ -49,8 +49,6 @@ void cybermon_qwriter::handle(std::shared_ptr<event::event> ev)
 //to signal cybermon_qreader to stop
 void cybermon_qwriter::close() {
 
-    timeval tv;
-
     // Put null pointer on queue to indicate end of stream.
     push(std::shared_ptr<cybermon::event::event>(0));
 
