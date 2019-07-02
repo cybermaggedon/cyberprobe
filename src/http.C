@@ -61,7 +61,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		// This would be a protocol violation, but much more likely to be
 		// a HTTP CONNECT session, but we've missed the CONNECT or 200
 		// response. Assume it is binary data
-		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_REQUEST_PROTOCOL_EXP_NL");
 	    }
 	    break;
@@ -96,7 +95,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		// to be a HTTP CONNECT session, but we've missed the
 		// CONNECT or 200
 		// response. Assume it is binary data
-		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_RESPONSE_STATUS_EXP_NL");
 	    }
 	    break;
@@ -124,7 +122,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		// This would be a protocol violation, but much more likely to be
 		// a HTTP CONNECT session, but we've missed the CONNECT or 200
 		// response. Assume it is binary data
-		unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_KEY_EXP_SPACE");
 	    }
 	    break;
@@ -155,7 +152,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
                 // This would be a protocol violation, but much more likely to be
                 // a HTTP CONNECT session, but we've missed the CONNECT or 200
                 // response. Assume it is binary data
-                unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_VALUE_EXP_NL");
             }
             break;
@@ -226,7 +222,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
                 // This would be a protocol violation, but much more likely to be
                 // a HTTP CONNECT session, but we've missed the CONNECT or 200
                 // response. Assume it is binary data
-                unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_HEADER_EXP_NL");
             }
             break;
@@ -317,7 +312,6 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
                 // This would be a protocol violation, but much more likely to be
                 // a HTTP CONNECT session, but we've missed the CONNECT or 200
                 // response. Assume it is binary data
-                unrecognised::process_unrecognised_stream(mgr, c, sl);
                 throw exception("HTTP protocol violation! POST_CHUNK_LENGTH_EXP_NL");
 	    }
 	    break;
@@ -409,8 +403,12 @@ void http::process_request(manager& mgr, context_ptr c,
         unrecognised::process_unrecognised_stream(mgr, fc, sl);
     } else {
         // process HTTP packet
-	std::lock_guard<std::mutex> lock(fc->mutex);
-	fc->parse(fc, sl, mgr);
+	try {
+	    std::lock_guard<std::mutex> lock(fc->mutex);
+	    fc->parse(fc, sl, mgr);
+	} catch (cybermon::exception& e) {
+	    unrecognised::process_unrecognised_stream(mgr, fc, sl);
+	}
     }
 
 }
@@ -434,8 +432,12 @@ void http::process_response(manager& mgr, context_ptr c,
         unrecognised::process_unrecognised_stream(mgr, c, sl);
     } else {
         // process HTTP packet
-	std::lock_guard<std::mutex> lock(fc->mutex);
-	fc->parse(fc, sl, mgr);
+	try {
+	    std::lock_guard<std::mutex> lock(fc->mutex);
+	    fc->parse(fc, sl, mgr);
+	} catch (cybermon::exception& e) {
+	    unrecognised::process_unrecognised_stream(mgr, fc, sl);
+	}
     }
 
 }
