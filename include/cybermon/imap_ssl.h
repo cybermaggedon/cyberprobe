@@ -16,13 +16,13 @@
 namespace cybermon
 {
     
-class imap_ssl
-{
+    class imap_ssl
+    {
     public:
 
-    // IMAP_SSL processing.
-    static void process(manager& mgr, context_ptr c, const pdu_slice& s);
-};
+        // IMAP_SSL processing.
+        static void process(manager& mgr, context_ptr c, const pdu_slice& s);
+    };
 
 }; // End namespace
 

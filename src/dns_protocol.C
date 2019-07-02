@@ -31,9 +31,9 @@ using namespace cybermon;
 pdu_iter& dns_decoder::validate_iter(pdu_iter& pos, pdu_iter e)
 {
     if (pos >= e)
-    {
-	throw std::runtime_error("Invalid DNS body");
-    }
+        {
+            throw std::runtime_error("Invalid DNS body");
+        }
     return pos;
 }
 

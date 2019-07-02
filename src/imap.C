@@ -4,7 +4,7 @@
 #include <cybermon/address.h>
 #include <cybermon/flow.h>
 #include <cybermon/imap_context.h>
-
+#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 
@@ -29,7 +29,9 @@ void imap::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole IMAP message.
-    mgr.imap(fc, s, e, sl.time);
+    auto ev =
+	std::make_shared<event::imap>(fc, s, e, sl.time);
+    mgr.handle(ev);
 
 }
 

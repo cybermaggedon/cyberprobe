@@ -9,14 +9,13 @@
 #define SNORT_ALERT_H
 
 #include <cybermon/resource.h>
-#include <cybermon/thread.h>
 
 #include "delivery.h"
 
 // Specification for a snort alerter.
 class snort_alerter_spec : public cybermon::specification {
 
- public:
+public:
 
     // Type is 'snort_alerter'.
     virtual std::string get_type() const { return "snort_alerter"; }
@@ -45,9 +44,9 @@ class snort_alerter_spec : public cybermon::specification {
 
 // Snort alerter, receives snort alerts and enables targeting on alerted
 // IP addresses.
-class snort_alerter : public threads::thread, public cybermon::resource {
+class snort_alerter : public cybermon::resource {
 
-  private:
+private:
 
     // Specification.
     snort_alerter_spec& spec;
@@ -58,7 +57,9 @@ class snort_alerter : public threads::thread, public cybermon::resource {
     // Deliver engine, we mess with the targeting on this.
     delivery& deliv;
 
-  public:
+    std::thread* thr;
+
+public:
 
     // Constructor.
     snort_alerter(snort_alerter_spec& spec,
@@ -67,24 +68,32 @@ class snort_alerter : public threads::thread, public cybermon::resource {
     }
 
     // Destructor
-    virtual ~snort_alerter() {}
+    virtual ~snort_alerter() {
+	delete thr;
+    }
 
     // Thread body.
-    void run();
+    virtual void run();
 
     // Thread start.
-    void start() {
-	threads::thread::start();
+    virtual void start() {
+
+	thr = new std::thread(&snort_alerter::run, this);
+
 	std::cerr << "Start snort alerter on " << spec.path << std::endl;
     }
 
     // Thread stop.
-    void stop() {
+    virtual void stop() {
 	running = false;
 	join();
 	std::cerr << "Stopped snort alerter." << std::endl;
     }
 
+    virtual void join() {
+	thr->join();
+    }
+    
 };
 
 #endif

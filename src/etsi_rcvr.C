@@ -9,13 +9,12 @@ ETSI LI test receiver.  Usage:
 
 #include <cybermon/monitor.h>
 #include <cybermon/etsi_li.h>
-#include <cybermon/thread.h>
 #include <cybermon/packet_capture.h>
 
 class output : public monitor {
 private:
     pcap_writer& p;
-    threads::mutex lock;
+    std::mutex mutex;
 public:
     output(pcap_writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
@@ -23,9 +22,8 @@ public:
 			    const std::vector<unsigned char>::iterator& s,
 			    const std::vector<unsigned char>::iterator& e,
 			    const timeval& tv, cybermon::direction d) {
-	lock.lock();
+	std::lock_guard<std::mutex> lock(mutex);
 	p.write(s, e);
-	lock.unlock();
     }
 
     void target_up(const std::string& liid,

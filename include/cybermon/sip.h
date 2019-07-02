@@ -16,11 +16,11 @@
 namespace cybermon
 {
     
-class sip
-{
-  public:
-    static void process(manager& mgr, context_ptr c, const pdu_slice& sl);
-};
+    class sip
+    {
+    public:
+        static void process(manager& mgr, context_ptr c, const pdu_slice& sl);
+    };
 
 }; // End namespace
 

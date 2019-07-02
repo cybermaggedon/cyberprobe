@@ -16,32 +16,32 @@
 namespace cybermon
 {
 
-class udp_ports
-{
+    class udp_ports
+    {
 
-private:
+    private:
 
-    typedef void (*fn)(manager& mgr, context_ptr fc, const pdu_slice& sl);
+        typedef void (*fn)(manager& mgr, context_ptr fc, const pdu_slice& sl);
 
-    static fn port_handler[65535];
+        static fn port_handler[65535];
 
-    static bool handlers_initialised;
+        static bool handlers_initialised;
 
-public:
+    public:
 
-    static void init_handlers(void);
+        static void init_handlers(void);
 
-    static bool is_handlers_init(void);
+        static bool is_handlers_init(void);
 
-    static void add_port_handler(uint16_t port, fn function);
+        static void add_port_handler(uint16_t port, fn function);
 
-    static void remove_port_handler(uint16_t port);
+        static void remove_port_handler(uint16_t port);
 
-    static bool has_port_handler(uint16_t port);
+        static bool has_port_handler(uint16_t port);
 
-    static fn get_port_handler(uint16_t port);
+        static fn get_port_handler(uint16_t port);
 
-}; // End class
+    }; // End class
 
 }; // End namespace
 

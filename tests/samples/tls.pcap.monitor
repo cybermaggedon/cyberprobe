@@ -1,0 +1,153 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                      -> TLS_AES_128_CCM_SHA256
+                      -> TLS_AES_128_GCM_SHA256
+                      -> TLS_AES_256_GCM_SHA384
+                      -> TLS_CHACHA20_POLY1305_SHA256
+                      -> TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+                      -> TLS_DHE_RSA_WITH_AES_128_CCM
+                      -> TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+                      -> TLS_DHE_RSA_WITH_AES_256_CCM
+                      -> TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+                      -> TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_CCM
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_CCM
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+                      -> TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+                      -> TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+                      -> TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+                      -> TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                      -> TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                      -> TLS_RSA_WITH_AES_128_CBC_SHA
+                      -> TLS_RSA_WITH_AES_128_CCM
+                      -> TLS_RSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_RSA_WITH_AES_256_CBC_SHA
+                      -> TLS_RSA_WITH_AES_256_CCM
+                      -> TLS_RSA_WITH_AES_256_GCM_SHA384
+                    -> NULL
+    Answer: name=example.org, type=1, class=1 -> 93.184.216.34
+    Answer: name=example.org, type=28, class=1 -> 2606:2800:220:1:248:1893:25c8:1946
+    Query: name=example.org, type=1, class=1
+    Query: name=example.org, type=1, class=1
+    Query: name=example.org, type=28, class=1
+    Query: name=example.org, type=28, class=1
+    data              -> 0x3E5C5EEB17E116A445AB4F05904F582B6E63C91C008298B80515E500
+    data              -> 0x8BF58C92B8EBB92669CDCFEBEBD6A992CE88EF536198FCD81C646B00
+    data            -> 0x00
+    data            -> 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    data            -> 0x000E00000B6578616D706C652E6F7267
+    data            -> 0x0012001700180019001D01000101010201030104
+    data            -> 0x001700410475967813CE7C6624BA638BAF5AEA793AF579DA752AD28F8E0AC1EA1E61224777772283BB98B4A97389D41625320B08A9E48EFB5E3C7F926FDBB000BF305E16C9
+    data            -> 0x001E040108090804040308070501080A080505030601080B0806060302010203
+    data            -> 0x006900170041047224337B3CB808AE41F800D50CE5ADCDFAFEA4E9A2A8B0468FD490C8CA9C322627B91311FE91A5D42C57CEDD676E4EBFAA2B0B3AAAC737645061A4889299F517001D0020814A720D87D6AAAE9DD2D9B1CFB0723BD8E39CFBC6F735BC76F2A19462A45556
+    data            -> 0x0100
+    data            -> 0x0100000000
+    data            -> 0x020100
+    data            -> 0x0304
+    data            -> 0x080304030303020301
+    data            -> 0x4001
+    length          -> 0
+    length          -> 0
+    length          -> 1
+    length          -> 107
+    length          -> 16
+    length          -> 160
+    length          -> 2
+    length          -> 2
+    length          -> 2
+    length          -> 20
+    length          -> 3
+    length          -> 32
+    length          -> 5
+    length          -> 69
+    length          -> 9
+    name            -> key_share
+    name            -> supported_versions
+    timestamp         -> 3088223533
+    timestamp         -> 4118536190
+  - name            -> ec_point_formats
+  - name            -> key_share
+  - name            -> padding
+  - name            -> post_handshake_auth
+  - name            -> psk_key_exchange_modes
+  - name            -> record_size_limit
+  - name            -> renegotiation_info
+  - name            -> server_name
+  - name            -> session_ticket
+  - name            -> signature_algorithms
+  - name            -> status_request
+  - name            -> supported_groups
+  - name            -> supported_versions
+  Cipher suite        -> TLS_AES_256_GCM_SHA384
+  Cipher suites       -> 
+  Compression Method  -> NULL
+  Compression Methods -> 
+  Extensions          -> 
+  Extensions        -> 
+  Message Length -> 1287
+  Message Length -> 155
+  Message Length -> 250
+  Message Length -> 250
+  Message Length -> 27
+  Message Length -> 281
+  Message Length -> 355
+  Message Length -> 4502
+  Message Length -> 69
+  Message Length -> 69
+  Random              -> 
+  Random              -> 
+  Session ID          -> 
+  Session ID          -> 
+  Value -> 1
+  Value -> 1
+  Version             -> TLS 1.2
+  Version             -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+PCAP: 10.0.2.15:36740 -> 10.100.129.10:53. DNS query
+PCAP: 10.0.2.15:36740 -> 10.100.129.10:53. DNS query
+PCAP: 10.0.2.15:55858 -> 93.184.216.34:443. TLS Application Data
+PCAP: 10.0.2.15:55858 -> 93.184.216.34:443. TLS Application Data
+PCAP: 10.0.2.15:55858 -> 93.184.216.34:443. TLS Change Cipher Spec
+PCAP: 10.0.2.15:55858 -> 93.184.216.34:443. TLS Client Hello
+PCAP: 10.100.129.10:53 -> 10.0.2.15:36740. DNS response
+PCAP: 10.100.129.10:53 -> 10.0.2.15:36740. DNS response
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Application Data
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Change Cipher Spec
+PCAP: 93.184.216.34:443 -> 10.0.2.15:55858. TLS Server Hello

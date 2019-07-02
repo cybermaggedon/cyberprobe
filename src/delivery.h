@@ -13,14 +13,15 @@
 #include <map>
 #include <list>
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
+#include <memory>
+#include <mutex>
 
 // Defines an endpoint.
 class ep {
 
     std::string key;
 
-  public:
+public:
     std::string hostname;	// Hostname
     unsigned int port;		// Port number.
     std::string type;		// Type, one of: etsi, nhis.
@@ -58,15 +59,15 @@ class ep {
 
 // Results of a match, returned by ipv4_match and ipv6_match.
 class match {
- public:
-    boost::shared_ptr<std::string> liid;
-    boost::shared_ptr<std::string> network;
+public:
+    std::shared_ptr<std::string> liid;
+    std::shared_ptr<std::string> network;
 };
 
 // Internal ipv4_match and ipv6_match state.
 class match_state {
 
- public:
+public:
 
     match_state(const std::string& l, const std::string& n) :
         liid(l), network(n) {}
@@ -84,7 +85,7 @@ class match_state {
 
 // Defines an interface.
 class intf {
-  public:
+public:
     std::string interface;
     std::string filter;
     float delay;
@@ -110,7 +111,7 @@ class intf {
 
 // Information extracted from the link layer.
 class link_info {
-  public:
+public:
     link_info() : vlan(0), ipv(0) {}
     std::vector<unsigned char> mac;
     uint16_t vlan;
@@ -126,27 +127,24 @@ class link_info {
 // Note an IP address can only can be mapped to a single LIID.
 
 class delivery : public parameters, public management, public packet_consumer {
-  private:
-
-    // Lock for senders and targets maps.
-    //threads::mutex lock;
+private:
 
     // Targets : an IP address to LIID mapping.
-    threads::mutex targets_lock;
+    std::mutex targets_lock;
 
     address_map<tcpip::ip4_address, match_state> targets;
     address_map<tcpip::ip6_address, match_state> targets6;
 
     // Endpoints
-    threads::mutex senders_lock;
+    std::mutex senders_lock;
     std::map<ep, sender*> senders;
 
     // Interfaces
-    threads::mutex interfaces_lock;
+    std::mutex interfaces_lock;
     std::map<intf, capture_dev*> interfaces;
 
     // Parameters and lock
-    threads::mutex parameters_lock;
+    std::mutex parameters_lock;
     std::map<std::string, std::string> parameters;
 
     // Short-hand
@@ -182,7 +180,7 @@ class delivery : public parameters, public management, public packet_consumer {
 				const tcpip::address& subnet,
 				const link_info& link);
 
-  public:
+public:
 
     // Modifies interface capture
     virtual void add_interface(const std::string& iface,

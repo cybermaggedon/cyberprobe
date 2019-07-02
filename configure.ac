@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([cyberprobe], [1.13.5], [https://github.com/cybermaggedon/cyberprobe])
+AC_INIT([cyberprobe], [2.0.0], [https://github.com/cybermaggedon/cyberprobe])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
@@ -45,7 +45,6 @@ AM_PATH_PYTHON([3.0])
 
 # Check for Boost.
 BOOST_REQUIRE
-BOOST_REGEX([mt])
 BOOST_PROGRAM_OPTIONS
 
 # Lua
@@ -57,15 +56,6 @@ AX_LUA_LIBS([], [AC_MSG_ERROR([Lua library missing.])])
 AC_MSG_CHECKING([Lua socket module])
 AS_IF([echo 'if require("socket") then print("yes") end' | lua -], [],
 	    [AC_MSG_ERROR([Lua socket module is not installed.])])
-AC_MSG_CHECKING([Lua json.encode module])
-AS_IF([echo 'if require("json.encode") then print("yes") end' | lua -], [],
-	    [AC_MSG_ERROR([Lua json.encode module is not installed.])])
-AC_MSG_CHECKING([Lua sha1 module])
-AS_IF([echo 'if require("sha1") then print("yes") end' | lua -], [],
-	    [AC_MSG_ERROR([Lua sha1 module is not installed.])])
-AC_MSG_CHECKING([Lua uuid module])
-AS_IF([echo 'if require("uuid") then print("yes") end' | lua -], [],
-	    [AC_MSG_ERROR([Lua uuid module is not installed.])])
 
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])

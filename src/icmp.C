@@ -1,6 +1,9 @@
 
+#include <memory>
+
 #include <cybermon/icmp.h>
 #include <cybermon/manager.h>
+#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 
@@ -13,9 +16,9 @@ void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     pdu_iter e = sl.end;
 
     if ((e - s) < header_length)
-    {
-        throw exception("Header too small for ICMP header");
-    }
+        {
+            throw exception("Header too small for ICMP header");
+        }
 
     std::vector<unsigned char> empty;
     address src, dest;
@@ -38,15 +41,16 @@ void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
     // Do something with the Rest Of Header (roh)?
- 
-    fc->lock.unlock();
 
     // Reposition pdu start pointer to the payload
     pdu_iter start_of_payload = s + header_length;
- 
-    mgr.icmp(fc, type, code, start_of_payload, e, sl.time);
+
+    auto ev = std::make_shared<event::icmp>(fc, type, code,
+					    start_of_payload, e, sl.time);
+    mgr.handle(ev);
+
 }
 

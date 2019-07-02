@@ -3,7 +3,9 @@
 #include <cybermon/ftp.h>
 #include <cybermon/manager.h>
 #include <cybermon/ip.h>
+#include <cybermon/event_implementations.h>
 
+#include <regex>
 #include <iostream>
 #include <ctype.h>
 
@@ -37,16 +39,9 @@ void ftp::process_client(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     ftp_client_context::ptr fc = ftp_client_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
-    try {
-	fc->parse(fc, sl, mgr);
-    } catch (std::exception& e) {
-	fc->lock.unlock();
-	throw;
-    }
-
-    fc->lock.unlock();
+    fc->parse(fc, sl, mgr);
 
 }
 
@@ -63,17 +58,9 @@ void ftp::process_server(manager& mgr, context_ptr c, const pdu_slice& sl)
 
     ftp_server_context::ptr fc = ftp_server_context::get_or_create(c, f);
 
-    fc->lock.lock();
+    std::lock_guard<std::mutex> lock(fc->mutex);
 
-    try {
-	fc->parse(fc, sl, mgr);
-    } catch (std::exception& e) {
-	std::cerr << e.what() << std::endl;
-	fc->lock.unlock();
-	throw;
-    }
-
-    fc->lock.unlock();
+    fc->parse(fc, sl, mgr);
 
 }
 
@@ -102,80 +89,82 @@ void ftp_client_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 	    if (*s == '\n') {
 
-		static const boost::regex 
-		    user_cmd(" *USER +(.*)$", boost::regex::extended);
+		static const std::regex 
+		    user_cmd(" *USER +(.*)$", std::regex::extended);
 		    
-		static const boost::regex 
-		    pass_cmd(" *PASS +(.*)$", boost::regex::extended);
+		static const std::regex 
+		    pass_cmd(" *PASS +(.*)$", std::regex::extended);
 
-		static const boost::regex 
+		static const std::regex 
 		    retr_cmd(" *RETR +(.*)$",
-			     boost::regex::extended);
+			     std::regex::extended);
 		    
-		boost::match_results<std::string::const_iterator> what;
+		std::match_results<std::string::const_iterator> what;
 
 		if (regex_search(command, what, user_cmd, 
-				 boost::match_continuous)) {
+				 std::regex_constants::match_continuous)) {
 //		    std::cerr << "User: " << what[1] << std::endl;
 
 		} else if (regex_search(command, what, pass_cmd, 
-				 boost::match_continuous)) {
+                                        std::regex_constants::match_continuous)) {
 //		    std::cerr << "Password: " << what[1] << std::endl;
 
 		} else if (regex_search(command, what, retr_cmd, 
-				 boost::match_continuous)) {
+                                        std::regex_constants::match_continuous)) {
 //		    std::cerr << "Retrieve: " << what[1] << std::endl;
 //		    context_ptr = as;
 		}
 
-		mgr.ftp_command(cp, command, sl.time);
+		auto ev =
+		    std::make_shared<event::ftp_command>(cp, command, sl.time);
+		mgr.handle(ev);
 
 /*
-		mgr.ftp_command(cp, command);
+  mgr.ftp_command(cp, command);
 
-		static const boost::regex 
-		    mail_from(" *MAIL +[Ff][Rr][Oo][Mm] *: *<([^ ]+)>",
-			      boost::regex::extended);
+  static const std::regex 
+  mail_from(" *MAIL +[Ff][Rr][Oo][Mm] *: *<([^ ]+)>",
+  std::regex::extended);
 
-		static const boost::regex 
-		    rcpt_to(" *RCPT +[Tt][Oo] *: *<([^ ]+)>",
-			    boost::regex::extended);
+  static const std::regex 
+  rcpt_to(" *RCPT +[Tt][Oo] *: *<([^ ]+)>",
+  std::regex::extended);
 
-		static const boost::regex 
-		    data_cmd(" *DATA *", boost::regex::extended);
+  static const std::regex 
+  data_cmd(" *DATA *", std::regex::extended);
 
-		static const boost::regex 
-		    rset_cmd(" *RSET *", boost::regex::extended);
+  static const std::regex 
+  rset_cmd(" *RSET *", std::regex::extended);
 
-		boost::match_results<std::string::const_iterator> what;
+  std::match_results<std::string::const_iterator> what;
 
-		if (regex_search(command, what, mail_from, 
-				 boost::match_continuous)) {
-		    from = what[1];
-		}
+  if (regex_search(command, what, mail_from, 
+  std::regex_constants::match_continuous)) {
+  from = what[1];
+  }
 
-		if (regex_search(command, what, rcpt_to, 
-				 boost::match_continuous)) {
-		    to.push_back(what[1]);
-		}
+  if (regex_search(command, what, rcpt_to, 
+  std::regex_constants::match_continuous)) {
+  to.push_back(what[1]);
+  }
 
-		if (regex_search(command, what, data_cmd, 
-				 boost::match_continuous)) {
-		    state = ftp_client_parser::IN_DATA;
-		    data.clear();
-		    command = "";
-		    break;
-		}
+  if (regex_search(command, what, data_cmd, 
+  std::regex_constants::match_continuous)) {
+  state = ftp_client_parser::IN_DATA;
+  data.clear();
+  command = "";
+  break;
+  }
 
-		if (regex_search(command, what, rset_cmd, 
-				 boost::match_continuous)) {
-		    state = ftp_client_parser::IN_COMMAND;
-		    data.clear();
-		    command = "";
-		    from = "";
-		    to.clear();
-		    break;
-		}
+  if (regex_search(command, what, rset_cmd, 
+  std::regex_constants::match_continuous)) {
+  state = ftp_client_parser::IN_COMMAND;
+  data.clear();
+  command = "";
+  from = "";
+  to.clear();
+  break;
+  }
 
 */
 		
@@ -312,52 +301,55 @@ void ftp_server_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 	    responses.push_back(response);
 
-	    static const boost::regex 
+	    static const std::regex 
 		passive_cmd("Entering Passive Mode \\(([0-9]+,[0-9]+,[0-9]+"
 			    ",[0-9]+,[0-9]+,[0-9]+)\\)",
-			    boost::regex::extended);
+			    std::regex::extended);
 	    
 	    {
-	    boost::match_results<std::string::const_iterator> what;
+                std::match_results<std::string::const_iterator> what;
 	    
-	    if (regex_search(responses.front(), what, passive_cmd, 
-			     boost::match_continuous)) {
+                if (regex_search(responses.front(), what, passive_cmd, 
+                                 std::regex_constants::match_continuous)) {
 
-		std::istringstream buf(what[1]);
+                    std::istringstream buf(what[1]);
 		
-		unsigned int h1, h2, h3, h4, p1, p2;
+                    unsigned int h1, h2, h3, h4, p1, p2;
 		
-		buf >> std::dec;
-		buf >> h1; buf.get();
-		buf >> h2; buf.get();
-		buf >> h3; buf.get();
-		buf >> h4; buf.get();
-		buf >> p1; buf.get();
-		buf >> p2;
+                    buf >> std::dec;
+                    buf >> h1; buf.get();
+                    buf >> h2; buf.get();
+                    buf >> h3; buf.get();
+                    buf >> h4; buf.get();
+                    buf >> p1; buf.get();
+                    buf >> p2;
 		
-		passive_net.addr.clear();
-		passive_net.addr.push_back(h1);
-		passive_net.addr.push_back(h2);
-		passive_net.addr.push_back(h3);
-		passive_net.addr.push_back(h4);
-		passive_net.proto = IP4;
-		passive_net.layer = NETWORK;
+                    passive_net.addr.clear();
+                    passive_net.addr.push_back(h1);
+                    passive_net.addr.push_back(h2);
+                    passive_net.addr.push_back(h3);
+                    passive_net.addr.push_back(h4);
+                    passive_net.proto = IP4;
+                    passive_net.layer = NETWORK;
 		    
-		passive_port.addr.clear();
-		passive_port.addr.push_back(p1);
-		passive_port.addr.push_back(p2);
-		passive_port.proto = TCP;
-		passive_net.layer = TRANSPORT;
+                    passive_port.addr.clear();
+                    passive_port.addr.push_back(p1);
+                    passive_port.addr.push_back(p2);
+                    passive_port.proto = TCP;
+                    passive_net.layer = TRANSPORT;
 
 //		std::cerr << "Passive..." << std::endl;
 //		std::cerr << "IP: " << passive_net.to_ip_string() << std::endl;
 //		std::cerr << "Port: " << passive_port.get_uint16() << std::endl;
 		
-	    }
+                }
 	    }
 
 	    if (!cont) {
-		mgr.ftp_response(cp, status, responses, sl.time);
+		auto ev =
+		    std::make_shared<event::ftp_response>(cp, status, responses,
+							  sl.time);
+		mgr.handle(ev);
 		first = true;
 		responses.clear();
 	    }
@@ -375,14 +367,14 @@ void ftp_server_parser::parse(context_ptr cp, const pdu_slice& sl,
 		
 		if (!cont) {
 
-		    static const boost::regex 
+		    static const std::regex 
 			passive_cmd("Entering Passive Mode \\(([0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+)\\)",
-				    boost::regex::extended);
+				    std::regex::extended);
 		    
-		    boost::match_results<std::string::const_iterator> what;
+		    std::match_results<std::string::const_iterator> what;
 
 		    if (regex_search(response, what, passive_cmd, 
-				     boost::match_continuous)) {
+				     std::regex_constants::match_continuous)) {
 
 			std::istringstream buf(what[1]);
 			
@@ -519,34 +511,34 @@ void ftp_server_parser::parse(context_ptr cp, const pdu_slice& sl,
 
 
 
-		if (!cont) {
+            if (!cont) {
 
 //		    mgr.ftp_response(cp, status, texts);
 
-		    first = true;
-		    responses.clear();
+                first = true;
+                responses.clear();
 		    
-		}
+            }
 
-		status_str = "";
-		response = "";
+            status_str = "";
+            response = "";
 
-		state = ftp_server_parser::EXP_FOLLOWUP_LINE;
-		break;
-	    }
+            state = ftp_server_parser::EXP_FOLLOWUP_LINE;
+            break;
+        }
 
-	    throw exception("FTP server protocol violation");
+        throw exception("FTP server protocol violation");
 
 #endif
 
-	default:
-	    throw exception("An FTP server parsing state not implemented!");
-
-	}
-
-	s++;
+    default:
+        throw exception("An FTP server parsing state not implemented!");
 
     }
+
+    s++;
+
+}
 
 }
 

@@ -26,9 +26,11 @@ extern "C" {
 #include <string>
 #include <stdexcept>
 #include <map>
+#include <memory>
 
 #include "engine.h"
 #include <cybermon/tls_handshake_protocol.h>
+#include <cybermon/event.h>
 
 namespace cybermon {
 
@@ -222,14 +224,60 @@ namespace cybermon {
 	    lua_pushlstring(lua, reinterpret_cast<const char*>(&(*s)), e - s);
 	}
 
+	void push(const std::vector<unsigned char>& data) {
+	    push(data.begin(), data.end());
+	}
+
+	void push(const std::map<std::string, std::string>& m) {
+
+	    create_table(0, m.size());
+
+	    // Loop through header
+	    for(std::map<std::string, std::string>::const_iterator it =
+		    m.begin();
+		it != m.end();
+		it++) {
+
+		// Set table row.
+		push(it->first);
+		push(it->second);
+		set_table(-3);
+
+	    }
+
+	}
+
+	void push(const tcpip::address& addr) {
+	    std::string a;
+	    addr.to_string(a);
+	    push(a);
+	}
+
+	void push(const std::list<std::string>& lst) {
+
+	    create_table(0, lst.size());
+
+	    int row = 1;
+	    for(std::list<std::string>::const_iterator it = lst.begin();
+		it != lst.end();
+		it++) {
+
+		// Set table row.
+		push(row++);
+		push(*it);
+		set_table(-3);
+
+	    }
+
+	}
 
 /*	void push(int size, unsigned char* buf ) {
-	    // FIXME: Lot of copying?
-	    //unsigned char* buf = new unsigned char[e - s];
-	    //std::copy(s, e, buf);
-	    lua_pushlstring(lua, (char*) buf, size);
-	    delete[] buf;
-	}*/
+// FIXME: Lot of copying?
+//unsigned char* buf = new unsigned char[e - s];
+//std::copy(s, e, buf);
+lua_pushlstring(lua, (char*) buf, size);
+delete[] buf;
+}*/
 
 	// Call a function.  args = number of arguments on the stack
 	// res = number of return values.
@@ -330,8 +378,12 @@ namespace cybermon {
 	    return (lua_isnil(lua, pos) == 1);
 	}
 
-	void new_meta_table(const std::string& name) {
-	    luaL_newmetatable(lua, name.c_str());
+        void new_meta_table(const std::string& name) {
+	    int ret = luaL_newmetatable(lua, name.c_str());
+	    if (ret == 0) {
+		pop();
+		throw std::invalid_argument("Meta table already exists.");
+	    }
 	}
 
 	void* new_userdata(int size) {
@@ -359,6 +411,17 @@ namespace cybermon {
     // code to elaborate contexts etc.  This seems the best way to do
     // it because, passing context_ptrs around doesn't work - they're
     // shared ptrs, which don't pass through C very well.
+    class event_userdata {
+    public:
+
+	// Context
+	std::shared_ptr<event::event> event;
+
+	// Cybermon bridge.
+	cybermon_lua* cml;
+
+    };
+
     class context_userdata {
     public:
 
@@ -377,9 +440,9 @@ namespace cybermon {
     public:
 
 	// These are 'C' functions which get called from lua.
+	static int context_gc(lua_State*);
 	static int context_describe_src(lua_State*);
 	static int context_describe_dest(lua_State*);
-	static int context_get_liid(lua_State*);
 	static int context_get_id(lua_State*);
 	static int context_get_network_info(lua_State*);
 	static int context_get_trigger_info(lua_State*);
@@ -398,7 +461,10 @@ namespace cybermon {
 
 	static int context_get_direction(lua_State*);
 
-	static int context_gc(lua_State*);
+	static int event_gc(lua_State*);
+	static int event_get_device(lua_State*);
+	static int event_get_action(lua_State*);
+	static int event_index(lua_State*);
 
 	// Constructor.
 	cybermon_lua(const std::string& cfg);
@@ -406,12 +472,18 @@ namespace cybermon {
 	using lua_state::push;
 
 	// Push a cybermon context onto the LUA stack as light userdata.
+	void push(event_userdata& ev) {
+	    push_light_userdata(&ev);
+	}
 	void push(context_userdata& c) {
 	    push_light_userdata(&c);
 	}
 
 	// Push a context pointer
 	void push(context_ptr c);
+
+	// Push a event pointer
+	void push(std::shared_ptr<event::event> ev);
 
 	// Push a timestamp value (convert to time).
 	void push(const timeval& time);
@@ -437,291 +509,12 @@ namespace cybermon {
 	void push(const ntp_control&);
 	void push(const ntp_private&);
 
-	// Call the config.trigger_up function as trigger_up(liid, addr)
-	//void trigger_up(const std::string& liid, const tcpip::address& a);
-	void trigger_up(const std::string& liid, const std::string& a,
-			const timeval& time);
-
-	// Call the config.trigger_down function as trigger_down(liid)
-	void trigger_down(const std::string& liid, const timeval& time);
-
-	void connection_up(engine& an, context_ptr f, const timeval& time);
-
-	void connection_down(engine& an, const context_ptr f,
-			     const timeval& time);
-
-	// Calls the config.data function as data(context, data).
-	// The 'context' variable passed to LUA is a light userdata pointer,
-	// allowing calling back into the C++ code.  The value is only valid
-	// in LUA space for the duration of this call.
-	void unrecognised_stream(engine& an, const context_ptr f, 
-				 pdu_iter s, pdu_iter e,
-				 const timeval& time, int64_t posn);
-
-	void unrecognised_datagram(engine& an, const context_ptr f, 
-				   pdu_iter s, pdu_iter e, const timeval& time);
-
-	void icmp(engine& an, const context_ptr f,
-		  unsigned int type,
-		  unsigned int code,
-		  pdu_iter s,
-		  pdu_iter e,
-		  const timeval& time);
-
-	void imap(engine& an,
-		  const context_ptr f,
-		  pdu_iter s,
-		  pdu_iter e,
-		  const timeval& time);
-
-	void imap_ssl(engine& an,
-		      const context_ptr f,
-		      pdu_iter s,
-		      pdu_iter e,
-		      const timeval& time);
-	
-	void pop3(engine& an,
-		  const context_ptr f,
-		  pdu_iter s,
-		  pdu_iter e,
-		  const timeval& time);
-	
-	void pop3_ssl(engine& an,
-		      const context_ptr f,
-		      pdu_iter s,
-		      pdu_iter e,
-		      const timeval& time);
-	
-	void rtp(engine& an,
-		 const context_ptr f,
-		 pdu_iter s,
-		 pdu_iter e,
-		 const timeval& time);
-	
-	void rtp_ssl(engine& an,
-		     const context_ptr f,
-		     pdu_iter s,
-		     pdu_iter e,
-		     const timeval& time);
-	
-	void sip_request(engine& an,
-			 const context_ptr f,
-			 const std::string& method,
-			 const std::string& from,
-			 const std::string& to,
-			 pdu_iter s,
-			 pdu_iter e,
-			 const timeval& time);
-	
-	void sip_response(engine& an,
-			  const context_ptr f,
-			  unsigned int code,
-			  const std::string& status,
-			  const std::string& from,
-			  const std::string& to,
-			  pdu_iter s,
-			  pdu_iter e,
-			  const timeval& time);
-	
-	void sip_ssl(engine& an,
-		     const context_ptr f,
-		     pdu_iter s,
-		     pdu_iter e,
-		     const timeval& time);
-	
-	void smtp_auth(engine& an,
-		       const context_ptr f,
-		       pdu_iter s,
-		       pdu_iter e,
-		       const timeval& time);
+	// Call the config.event function as event(content, event)
+	void event(engine& an, std::shared_ptr<event::event> ev);
 
 	typedef std::map<std::string,std::pair<std::string,std::string> > 
-	    http_header;
+        http_header;
 
-	void http_request(engine& an, const context_ptr cf,
-			  const std::string& method,
-			  const std::string& url,
-			  const http_header& hdr,
-			  pdu_iter body_start,
-			  pdu_iter body_end,
-			  const timeval& time);
-    
-	void http_response(engine& an, const context_ptr cf,
-			   unsigned int code,
-			   const std::string& status,
-			   const http_header& hdr,
-			   const std::string& url,
-			   pdu_iter body_start,
-			   pdu_iter body_end,
-			   const timeval& time);
-
-	void smtp_command(engine& an, const context_ptr cf,
-			  const std::string& command,
-			  const timeval& time);
-
-	void smtp_response(engine& an, const context_ptr cf,
-			   int status,
-			   const std::list<std::string>& text,
-			   const timeval& time);
-
-	void smtp_data(engine& an, const context_ptr cf,
-		       const std::string& from,
-		       const std::list<std::string>& to,
-		       pdu_iter s,
-		       pdu_iter e,
-		       const timeval& time);
-
-	void ftp_command(engine& an, const context_ptr cf,
-			 const std::string& command,
-			 const timeval& time);
-
-	void ftp_response(engine& an, const context_ptr cf,
-			  int status,
-			  const std::list<std::string>& responses,
-			  const timeval& time);
-
-	void dns_message(engine& an,
-			 const context_ptr cf,
-			 const dns_header& hdr, 
-			 const std::list<dns_query> queries,
-			 const std::list<dns_rr> answers,
-			 const std::list<dns_rr> authorities,
-			 const std::list<dns_rr> additional,
-			 const timeval& time);
-
-	void ntp_timestamp_message(engine& an, const context_ptr cf,
-				   const ntp_timestamp& ts,
-				   const timeval& time);
-			                  
-	void ntp_control_message(engine& an, const context_ptr cf,
-				 const ntp_control& ctrl, const timeval& time);
-			                 
-	void ntp_private_message(engine& an, const context_ptr cf,
-				 const ntp_private& priv, const timeval& time);
-	
-	void gre_message(engine& an,
-  			 const context_ptr cf,
-         const std::string& nextProto,
-         const uint32_t key,
-         const uint32_t sequenceNo,
-         pdu_iter payload_start,
-         pdu_iter payload_end,
-         const timeval& time);
-
-	void gre_pptp_message(engine& an,
-  			 const context_ptr cf,
-         const std::string& nextProto,
-         const uint16_t payload_length,
-         const uint16_t call_id,
-         const uint32_t sequenceNo,
-         const uint32_t ackNo,
-         pdu_iter payload_start,
-         pdu_iter payload_end,
-         const timeval& time);
-
-	void esp(engine& an,
-  			 const context_ptr cf,
-  			 const uint32_t spi,
-  			 const uint32_t sequence,
-  			 const uint32_t length,
-  			 pdu_iter start,
-  			 pdu_iter end,
-  			 const timeval& time);
-
-	void unrecognised_ip_protocol(engine& an,
-  			 const context_ptr cf,
-  			 const uint8_t nxtProto,
-  			 const uint32_t len,
-  			 pdu_iter start,
-  			 pdu_iter end,
-  			 const timeval& time);
-
-	void wlan(engine& an,
-  			 const context_ptr cf,
-  			 const uint8_t version,
-  			 const uint8_t type,
-  			 const uint8_t subtype,
-  			 const uint8_t flags,
-  			 const bool is_protected,
-  			 const uint16_t duration,
-  			 const std::string& filt_addr,
-  			 const uint8_t frag_num,
-  			 const uint16_t seq_num,
-  			 const timeval& time);
-
-	void tls_unknown(engine& an,
-   			 const context_ptr cf,
-   			 const std::string& version,
-   			 const uint8_t contentType,
-   			 const uint16_t length,
-   			 const timeval& time);
-
-	void tls_client_hello(engine& an,
-   			 const context_ptr cf,
-   			 const tls_handshake_protocol::client_hello_data& data,
-   			 const timeval& time);
-
-	void tls_server_hello(engine& an,
-   			 const context_ptr cf,
-   			 const tls_handshake_protocol::server_hello_data& data,
-   			 const timeval& time);
-
-	void tls_certificates(engine& an,
-   			 const context_ptr cf,
-   			 const std::vector<std::vector<uint8_t>>& certs,
-   			 const timeval& time);
-
-	void tls_server_key_exchange(engine& an,
-   			 const context_ptr cf,
-   			 const tls_handshake_protocol::key_exchange_data& data,
-   			 const timeval& time);
-
-	void tls_server_hello_done(engine& an,
-   			 const context_ptr cf,
-   			 const timeval& time);
-
-	void tls_handshake_generic(engine& an,
-   			 const context_ptr cp,
-   			 const uint8_t type,
-   			 const uint32_t len,
-   			 const timeval& tv);
-
-	void tls_certificate_request(engine& an,
-   			 const context_ptr cf,
-   			 const tls_handshake_protocol::certificate_request_data& data,
-   			 const timeval& time);
-
-	void tls_client_key_exchange(engine& an,
-   			 const context_ptr cp,
-   			 const std::vector<uint8_t>& key,
-   			 const timeval& tv);
-
-	void tls_certificate_verify(engine& an,
-   			 const context_ptr cp,
-   			 const uint8_t sigHashAlgo,
-   			 const uint8_t sigAlgo,
-   			 const std::string& sig,
-   			 const timeval& tv);
-
-	void tls_change_cipher_spec(engine& an,
-   			 const context_ptr cp,
-   			 const uint8_t val,
-   			 const timeval& tv);
-
-	void tls_handshake_finished(engine& an,
-   			 const context_ptr cp,
-   			 const std::vector<uint8_t>& msg,
-   			 const timeval& tv);
-
-	void tls_handshake_complete(engine& an,
-   			 const context_ptr cp,
-   			 const timeval& tv);
-
-	void tls_application_data(engine& an,
-   			 const context_ptr cp,
-   			 const std::string& version,
-   			 const std::vector<uint8_t>& data,
-   			 const timeval& tv);
     };
 
 };

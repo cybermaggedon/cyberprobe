@@ -672,7 +672,7 @@ void receiver::run()
 
 	    if (activ) {
 
-		boost::shared_ptr<tcpip::stream_socket> cn;
+		std::shared_ptr<tcpip::stream_socket> cn;
 
 		try {
 		    cn = svr->accept();
@@ -686,14 +686,13 @@ void receiver::run()
 
 	    }
 
-	    close_me_lock.lock();
+	    std::lock_guard<std::mutex> lock(close_me_mutex);
 
 	    while (!close_mes.empty()) {
 		close_mes.front()->join();
 		delete close_mes.front();
 		close_mes.pop();
 	    }
-	    close_me_lock.unlock();
 
 	}
 
@@ -887,14 +886,14 @@ void connection::run()
 			    // Process IRI here.
 
 /*
-			    std::cerr << "IRI type = " << iritype << std::endl;
-			    std::cerr << "AET = " << accesseventtype
-				      << std::endl;
-			    std::cerr << "Liid = " << liid << std::endl;;
-			    std::cerr << "Addr vec size = "
-				      << ip_addr.size()
-				      << std::endl;
-			    std::cerr << std::endl;
+  std::cerr << "IRI type = " << iritype << std::endl;
+  std::cerr << "AET = " << accesseventtype
+  << std::endl;
+  std::cerr << "Liid = " << liid << std::endl;;
+  std::cerr << "Addr vec size = "
+  << ip_addr.size()
+  << std::endl;
+  std::cerr << std::endl;
 */
 
 			    if (iritype == 1 && accesseventtype == 1 &&
@@ -946,8 +945,7 @@ void connection::run()
 
 void receiver::close_me(connection* c)
 {
-    close_me_lock.lock();
+    std::lock_guard<std::mutex> lock(close_me_mutex);
     close_mes.push(c);
-    close_me_lock.unlock();
 }
 

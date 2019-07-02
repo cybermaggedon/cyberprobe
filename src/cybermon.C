@@ -1,9 +1,9 @@
 
 /****************************************************************************
 
-****************************************************************************
-*** OVERVIEW
-****************************************************************************
+ ****************************************************************************
+ *** OVERVIEW
+ ****************************************************************************
 
 Simple monitor.  Takes ETSI streams from cyberprobe, and reports on various
 occurances.
@@ -29,6 +29,7 @@ Usage:
 #include <cybermon_qwriter.h>
 #include <cybermon_qreader.h>
 #include <cybermon/pdu.h>
+#include <cybermon/event.h>
 
 // Monitor class, implements the monitor interface to receive data.
 class etsi_monitor : public monitor {
@@ -289,27 +290,29 @@ int main(int argc, char** argv)
     try {
 
 	//queue to store the incoming packets to be processed
-    std::queue<q_entry*>	cqueue;
 
-    // Input queue: Lock,
-    threads::mutex cqwrlock;
+        typedef std::shared_ptr<cybermon::event::event> eptr;
+	std::queue<eptr> cqueue;
 
-    //creating cybermon_qwriter and cybermon_qreader
-    cybermon::cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
-    cybermon::cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
+        // Input queue: Lock,
+        std::mutex cqwrlock;
 
-    //starting qreader and then qwriter
-    cqr.start();
-    cqw.start();
+        //creating cybermon_qwriter and cybermon_qreader
+        cybermon::cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
+        cybermon::cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
+
+        //starting qreader and then qwriter
+        cqr.start();
+        cqw.start();
 
 	if (pcap_file != "") {
 
-		pcap_input pin(pcap_file, cqw);
+            pcap_input pin(pcap_file, cqw);
 	    pin.run();
 
 	} else if (transport == "tls") {
 
-	    boost::shared_ptr<tcpip::ssl_socket> sock(new tcpip::ssl_socket);
+	    std::shared_ptr<tcpip::ssl_socket> sock(new tcpip::ssl_socket);
 	    sock->bind(port);
 	    sock->use_key_file(key);
 	    sock->use_certificate_file(cert);
@@ -331,7 +334,7 @@ int main(int argc, char** argv)
 
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-		etsi_monitor m(cqw);
+            etsi_monitor m(cqw);
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(port, m);
 	    r.start();

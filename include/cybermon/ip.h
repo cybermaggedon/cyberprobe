@@ -72,14 +72,14 @@ namespace cybermon {
 	static const unsigned int max_frag_list_len;
 	std::deque<fragment> frags;
 
-      public:
+    public:
 
 	// Constructor.
         ip4_context(manager& m) : context(m) {}
 
 	// Constructor, specifying flow address and parent.
         ip4_context(manager& m, const flow_address& a, context_ptr par) : 
-	context(m) { 
+            context(m) { 
 	    parent = par;
 	    addr = a; 
 	}
@@ -87,7 +87,7 @@ namespace cybermon {
 	// Type is "ip4".
 	virtual std::string get_type() { return "ip4"; }
 
-	typedef boost::shared_ptr<ip4_context> ptr;
+	typedef std::shared_ptr<ip4_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -99,7 +99,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    ip4_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ip4_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ip4_context>(cp);
 	    return sp;
 	}
 
@@ -110,14 +110,14 @@ namespace cybermon {
 
 	friend class ip;
 
-      public:
+    public:
 
 	// Constructor.
         ip6_context(manager& m) : context(m) {}
 
 	// Constructor, specifying flow address and parent.
         ip6_context(manager& m, const flow_address& a, context_ptr par) : 
-	context(m) { 
+            context(m) { 
 	    parent = par;
 	    addr = a; 
 	}
@@ -125,7 +125,7 @@ namespace cybermon {
 	// Type is "ip6".
 	virtual std::string get_type() { return "ip6"; }
 
-	typedef boost::shared_ptr<ip6_context> ptr;
+	typedef std::shared_ptr<ip6_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -137,7 +137,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    ip6_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ip6_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ip6_context>(cp);
 	    return sp;
 	}
 
@@ -146,7 +146,7 @@ namespace cybermon {
     // Processing
     class ip {
 
-      public:
+    public:
 	
 	// Calculate IP header cksum
 	static uint16_t calculate_cksum(pdu_iter s, 

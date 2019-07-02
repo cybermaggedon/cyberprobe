@@ -25,16 +25,16 @@ extern "C" {
 // file reader too, if needed.
 class pcap_capture {
 
- protected:
+protected:
     // PCAP handle.
     pcap_t* p;
 
- private:
+private:
 
     // Packet filter state.
     struct bpf_program fltr;
 
- protected:
+protected:
 
     // Internal PCAP call-back.
     static void handler(unsigned char* usr, const struct pcap_pkthdr *h,
@@ -45,7 +45,7 @@ class pcap_capture {
 
     bool running;
 
-  public:
+public:
 
     // Constructor.
     pcap_capture() { p = 0; running = true; }
@@ -76,45 +76,45 @@ class pcap_capture {
     // This is the method which gets called when a packet is received.
     // The user should implement this method.
     virtual void handle(timeval tv, unsigned long len, unsigned long captured,
-		const unsigned char* bytes) = 0;
+                        const unsigned char* bytes) = 0;
 
     // Invokes packet processing on this capture handle, channelling received
     // packets through the 'handle' method.  Keeps processing forever or
     // until the 'stop' method is called.
     virtual void run() {
 
-      struct pollfd pfd;
-      pfd.fd = pcap_get_selectable_fd(p);
-      pfd.events = POLLIN | POLLPRI;
+        struct pollfd pfd;
+        pfd.fd = pcap_get_selectable_fd(p);
+        pfd.events = POLLIN | POLLPRI;
 
-      while (running) {
+        while (running) {
 
-	  int ret = ::poll(&pfd, 1, 500);
-	  if (ret < 0)
-	      throw std::runtime_error("Poll failed");
+            int ret = ::poll(&pfd, 1, 500);
+            if (ret < 0)
+                throw std::runtime_error("Poll failed");
 
-	  if (pfd.revents) {
+            if (pfd.revents) {
 
-	      struct pcap_pkthdr* hdr;
-	      const unsigned char* data;
+                struct pcap_pkthdr* hdr;
+                const unsigned char* data;
 
-	      int retval = pcap_next_ex(p, &hdr, &data);
+                int retval = pcap_next_ex(p, &hdr, &data);
 
-	      // Got a packet.
-	      if (retval == 1)
-		  handler((unsigned char*) this, hdr, data);
+                // Got a packet.
+                if (retval == 1)
+                    handler((unsigned char*) this, hdr, data);
 
-	      // End of savefile.
-	      if (retval == -2)
-		  break;
+                // End of savefile.
+                if (retval == -2)
+                    break;
 
-	      // Error
-	      if (retval == -1)
-		  throw std::runtime_error("PCAP failure");
+                // Error
+                if (retval == -1)
+                    throw std::runtime_error("PCAP failure");
 
-	  }
+            }
 
-      }
+        }
 
 
     }
@@ -129,7 +129,7 @@ class pcap_capture {
 // Packet capture interface for a network interface.
 class pcap_interface : public pcap_capture {
 
-  public:
+public:
 
     // Constructor.  'iface' is the interface name e.g. eth0
     // snaplen = maximum packet size to capture.
@@ -163,7 +163,7 @@ class pcap_interface : public pcap_capture {
 // File reader
 class pcap_reader : public pcap_capture {
 
-  public:
+public:
 
     // Constructor.  'iface' is the interface name e.g. eth0
     // snaplen = maximum packet size to capture.
@@ -182,10 +182,10 @@ class pcap_reader : public pcap_capture {
 
 // Class, writes PCAP files.
 class pcap_writer {
-  private:
+private:
     pcap_t* p;
     pcap_dumper_t* dumper;
-  public:
+public:
     pcap_writer(const std::string& file = "-") {
 	p = pcap_open_dead(DLT_RAW, 65535);
 	if (p == 0)

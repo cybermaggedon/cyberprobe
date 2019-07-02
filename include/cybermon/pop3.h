@@ -16,12 +16,12 @@
 namespace cybermon
 {
     
-class pop3
-{
-  public:
-    // POP3 processing.
-    static void process(manager& mgr, context_ptr c, const pdu_slice& sl);
-};
+    class pop3
+    {
+    public:
+        // POP3 processing.
+        static void process(manager& mgr, context_ptr c, const pdu_slice& sl);
+    };
 
 }; // End namespace
 

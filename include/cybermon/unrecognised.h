@@ -27,14 +27,14 @@ namespace cybermon {
 	
 	// Constructor.
         unrecognised_stream_context(manager& m) : 
-	context(m) {
+            context(m) {
             position = 0;
 	}
 
 	// Constructor, describing flow address and parent pointer.
         unrecognised_stream_context(manager& m, const flow_address& a, 
 				    context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p;
             position = 0;
 	}
@@ -42,7 +42,7 @@ namespace cybermon {
 	// Type.
 	virtual std::string get_type() { return "unrecognised_stream"; }
 
-	typedef boost::shared_ptr<unrecognised_stream_context> ptr;
+	typedef std::shared_ptr<unrecognised_stream_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -57,7 +57,7 @@ namespace cybermon {
 		context::get_or_create(base, f, 
 				       unrecognised_stream_context::create);
 	    ptr sp = 
-		boost::dynamic_pointer_cast<unrecognised_stream_context>(cp);
+		std::dynamic_pointer_cast<unrecognised_stream_context>(cp);
 	    return sp;
 	}
 
@@ -65,24 +65,24 @@ namespace cybermon {
 
     // An unrecoginsed datagram
     class unrecognised_datagram_context : public context {
-      public:
+    public:
 	
 	// Constructor.
         unrecognised_datagram_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         unrecognised_datagram_context(manager& m, const flow_address& a, 
 				      context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
 	// Type.
 	virtual std::string get_type() { return "unrecognised_datagram"; }
 
-	typedef boost::shared_ptr<unrecognised_datagram_context> ptr;
+	typedef std::shared_ptr<unrecognised_datagram_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -97,7 +97,7 @@ namespace cybermon {
 		context::get_or_create(base, f, 
 				       unrecognised_datagram_context::create);
 	    ptr sp = 
-		boost::dynamic_pointer_cast<unrecognised_datagram_context>(cp);
+		std::dynamic_pointer_cast<unrecognised_datagram_context>(cp);
 	    return sp;
 	}
 

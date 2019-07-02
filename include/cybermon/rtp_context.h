@@ -15,43 +15,43 @@
 namespace cybermon
 {
     
-class rtp_context : public context
-{
-  public:
-
-    // Constructor.
-    rtp_context(manager& m) : context(m) {}
-
-    // Constructor, when specifying flow address and parent context.
-    rtp_context(manager& m, const flow_address& a, context_ptr p)
-        : context(m)
-    { 
-        addr = a;
-        parent = p; 
-    }
-
-    // Type is "rtp".
-    virtual std::string get_type()
+    class rtp_context : public context
     {
-        return "rtp";
-    }
+    public:
 
-    typedef boost::shared_ptr<rtp_context> ptr;
+        // Constructor.
+        rtp_context(manager& m) : context(m) {}
 
-    static context_ptr create(manager& m, const flow_address& f, context_ptr par)
-    { 
-        context_ptr cp = context_ptr(new rtp_context(m, f, par));
-        return cp;
-    }
+        // Constructor, when specifying flow address and parent context.
+        rtp_context(manager& m, const flow_address& a, context_ptr p)
+            : context(m)
+            { 
+                addr = a;
+                parent = p; 
+            }
 
-    // Given a flow address, returns the child context.
-    static ptr get_or_create(context_ptr base, const flow_address& f)
-    {
-        context_ptr cp = context::get_or_create(base, f, rtp_context::create);
-        ptr sp = boost::dynamic_pointer_cast<rtp_context>(cp);
-        return sp;
-    }
-};
+        // Type is "rtp".
+        virtual std::string get_type()
+            {
+                return "rtp";
+            }
+
+        typedef std::shared_ptr<rtp_context> ptr;
+
+        static context_ptr create(manager& m, const flow_address& f, context_ptr par)
+            { 
+                context_ptr cp = context_ptr(new rtp_context(m, f, par));
+                return cp;
+            }
+
+        // Given a flow address, returns the child context.
+        static ptr get_or_create(context_ptr base, const flow_address& f)
+            {
+                context_ptr cp = context::get_or_create(base, f, rtp_context::create);
+                ptr sp = std::dynamic_pointer_cast<rtp_context>(cp);
+                return sp;
+            }
+    };
 
 }; // End namespace
 

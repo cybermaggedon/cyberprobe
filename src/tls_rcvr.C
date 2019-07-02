@@ -1,25 +1,30 @@
 
 #include <cybermon/socket.h>
+
 #include <iostream>
-#include <boost/shared_ptr.hpp>
-#include <cybermon/thread.h>
+#include <memory>
 #include <queue>
 #include <vector>
 #include <fstream>
+#include <thread>
+#include <mutex>
+
 #include <stdlib.h>
 
 class receiver;
 
-class connection : public threads::thread {
+class connection {
 
-  private:
-    boost::shared_ptr<tcpip::stream_socket> s;
+private:
+    std::shared_ptr<tcpip::stream_socket> s;
     receiver &r;
     bool running;
     std::ofstream out;
 
-  public:
-    connection(boost::shared_ptr<tcpip::stream_socket> s, receiver& r,
+    std::thread* thr;
+
+public:
+    connection(std::shared_ptr<tcpip::stream_socket> s, receiver& r,
 	       std::string fname) : s(s), r(r) {
 	running = true;
 	std::cout << "Writing to " << fname << std::endl;
@@ -27,21 +32,38 @@ class connection : public threads::thread {
     }
     virtual ~connection() {}
     virtual void run();
+
+    virtual void start() {
+	thr = new std::thread(&connection::run, this);
+    }
+    
+    virtual void stop() {
+	running = false;
+	join();
+    }
+    
+    virtual void join() {
+	if (thr)
+	    thr->join();
+    }
+
 };
 
-class receiver : public threads::thread {
+class receiver {
 
-  private:
+private:
     bool running;
     std::string base;
     int oneup;
 
-    boost::shared_ptr<tcpip::stream_socket> svr;
+    std::shared_ptr<tcpip::stream_socket> svr;
 
-    threads::mutex close_me_lock;
+    std::mutex close_me_mutex;
     std::queue<connection*> close_mes;
 
-  public:
+    std::thread* thr;
+
+public:
     receiver(int port, const std::string& base,
 	     const std::string& key, const std::string& cert,
 	     const std::string& ca) : base(base) {
@@ -50,7 +72,7 @@ class receiver : public threads::thread {
 	ssl->use_key_file(key);
 	ssl->use_certificate_file(cert);
 	ssl->use_certificate_chain_file(ca);
-	boost::shared_ptr<tcpip::stream_socket> sock(ssl);
+	std::shared_ptr<tcpip::stream_socket> sock(ssl);
 	svr = sock;
 	svr->bind(port);
 	oneup = 0;
@@ -59,6 +81,20 @@ class receiver : public threads::thread {
     virtual ~receiver() {}
     virtual void run();
     virtual void close_me(connection* c);
+
+    virtual void start() {
+	thr = new std::thread(&receiver::run, this);
+    }
+    
+    virtual void stop() {
+	running = false;
+	join();
+    }
+
+    virtual void join() {
+	if (thr)
+	    thr->join();
+    }
     
 };
 
@@ -75,7 +111,7 @@ void receiver::run()
 
 	    if (activ) {
 
-		boost::shared_ptr<tcpip::stream_socket> cn;
+		std::shared_ptr<tcpip::stream_socket> cn;
 
 		try {
 		    cn = svr->accept();
@@ -92,14 +128,13 @@ void receiver::run()
 
 	    }
 
-	    close_me_lock.lock();
+	    std::lock_guard<std::mutex> lock(close_me_mutex);
 
 	    while (!close_mes.empty()) {
 		close_mes.front()->join();
 		delete close_mes.front();
 		close_mes.pop();
 	    }
-	    close_me_lock.unlock();
 
 	}
 
@@ -142,9 +177,8 @@ void connection::run()
 
 void receiver::close_me(connection* c)
 {
-    close_me_lock.lock();
+    std::lock_guard<std::mutex> lock(close_me_mutex);
     close_mes.push(c);
-    close_me_lock.unlock();
 }
 
 

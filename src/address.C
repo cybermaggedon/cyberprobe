@@ -61,38 +61,38 @@ void address::get(std::string& cls, std::string& address) const
     }
 
     if (proto == IMAP) {
-    cls = "imap"; address = "";
-    return;
+        cls = "imap"; address = "";
+        return;
     }
 
     if (proto == IMAP_SSL) {
-    cls = "imap_ssl"; address = "";
-    return;
+        cls = "imap_ssl"; address = "";
+        return;
     }
 
     if (proto == POP3) {
-    cls = "pop3"; address = "";
-    return;
+        cls = "pop3"; address = "";
+        return;
     }
 
     if (proto == POP3_SSL) {
-    cls = "pop3_ssl"; address = "";
-    return;
+        cls = "pop3_ssl"; address = "";
+        return;
     }
 
     if (proto == SIP) {
-    cls = "sip"; address = "";
-    return;
+        cls = "sip"; address = "";
+        return;
     }
 
     if (proto == SIP_SSL) {
-    cls = "sip_ssl"; address = "";
-    return;
+        cls = "sip_ssl"; address = "";
+        return;
     }
 
     if (proto == SMTP_AUTH) {
-    cls = "smtp_auth"; address = "";
-    return;
+        cls = "smtp_auth"; address = "";
+        return;
     }
 
     if (proto == HTTP) {
@@ -101,8 +101,8 @@ void address::get(std::string& cls, std::string& address) const
     }
 
     if (proto == DNS) {
-    cls = "dns"; address = "";
-    return;
+        cls = "dns"; address = "";
+        return;
     }
 
     if (proto == SMTP) {
@@ -125,35 +125,35 @@ void address::get(std::string& cls, std::string& address) const
 	return;
     }
 
-	if (proto == ESP) {
-		cls = "esp"; address = "";
-    if (addr.size() == 4)
-    {
-	const uint32_t* spi = reinterpret_cast<const uint32_t*>(&addr[0]);
-	std::ostringstream buf;
-	buf << std::dec << ntohl(*spi);
-	address = buf.str();
-    } else if (addr.size() == 0)
-    {
-      address = "";
-    } else
-    {
-      throw std::runtime_error("Invalid address data for esp spi");
-    }
+    if (proto == ESP) {
+        cls = "esp"; address = "";
+        if (addr.size() == 4)
+            {
+                const uint32_t* spi = reinterpret_cast<const uint32_t*>(&addr[0]);
+                std::ostringstream buf;
+                buf << std::dec << ntohl(*spi);
+                address = buf.str();
+            } else if (addr.size() == 0)
+            {
+                address = "";
+            } else
+            {
+                throw std::runtime_error("Invalid address data for esp spi");
+            }
   	return;
-  }
+    }
 
-  if (proto == WLAN) {
-    cls = "802.11";
-    address = hw_addr_utils::to_string(&addr[0]);
-    return;
-  }
+    if (proto == WLAN) {
+        cls = "802.11";
+        address = hw_addr_utils::to_string(&addr[0]);
+        return;
+    }
 
     if (proto == TLS) {
  	cls = "tls";
  	address = "";
  	return;
-     }
+    }
      
 
     if (proto == UNRECOGNISED) {
@@ -217,8 +217,8 @@ void address::describe(std::ostream& out) const
     }
 
     if (proto == DNS) {
-    out << "DNS";
-    return;
+        out << "DNS";
+        return;
     }
 
     if (proto == SMTP) {

@@ -8,7 +8,7 @@
 #include <cybermon/socket.h>
 
 class interface_info {
-  public:
+public:
     std::string interface;
     std::string filter;
     float delay;
@@ -16,7 +16,7 @@ class interface_info {
 
 // Sender status
 class sender_info {
-  public:
+public:
     std::string hostname;
     unsigned short port;
     std::string type;
@@ -25,7 +25,7 @@ class sender_info {
 
 class management {
 
-  public:
+public:
     virtual ~management() {}
 
     // Modifies interface capture
@@ -52,10 +52,10 @@ class management {
 
     // Fetch current target list.
     virtual void 
-	get_targets(std::map<int, 
-		    std::map<tcpip::ip4_address, std::string> >& t4,
-		    std::map<int,
-		    std::map<tcpip::ip6_address, std::string> >& t6) = 0;
+    get_targets(std::map<int, 
+                std::map<tcpip::ip4_address, std::string> >& t4,
+                std::map<int,
+                std::map<tcpip::ip6_address, std::string> >& t6) = 0;
 
     // Adds an endpoint
     virtual void add_endpoint(const std::string& host, unsigned int port,
@@ -68,14 +68,14 @@ class management {
 				 const std::string& type,
 				 const std::string& transp,
 				 const std::map<std::string, std::string>& p)
-      = 0;
+    = 0;
 
     // Fetch current target list.
     virtual void get_endpoints(std::list<sender_info>& info) = 0;
 
     // Add parameter.
     virtual void add_parameter(const std::string& key, const std::string& val)
-	= 0;
+    = 0;
 
     // Remove parameter.
     virtual void remove_parameter(const std::string& key) = 0;

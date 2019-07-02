@@ -16,13 +16,13 @@
 namespace cybermon
 {
     
-class pop3_ssl
-{
+    class pop3_ssl
+    {
     public:
 
-    // POP3_SSL processing.
-    static void process(manager& mgr, context_ptr c, const pdu_slice& sl);
-};
+        // POP3_SSL processing.
+        static void process(manager& mgr, context_ptr c, const pdu_slice& sl);
+    };
 
 }; // End namespace
 

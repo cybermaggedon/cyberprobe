@@ -96,9 +96,9 @@ void dag_dev::run()
 
     ret = dag_start_stream(fd, 0);
     if (ret < 0) {
-      std::cerr << "dag_start_stream failed." << std::endl;
-      perror("dag_start_stream");
-      exit(0);
+        std::cerr << "dag_start_stream failed." << std::endl;
+        perror("dag_start_stream");
+        exit(0);
     }
 
     // 50ms max wait
@@ -198,8 +198,8 @@ void dag_dev::run()
 		break;
 
 	    // Packet ready to go.
-		deliv.receive_packet(now, delay_line.front().packet, datalink);
-		delay_line.pop();
+            deliv.receive_packet(now, delay_line.front().packet, datalink);
+            delay_line.pop();
 
 	}
 

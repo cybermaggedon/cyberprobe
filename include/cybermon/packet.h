@@ -9,7 +9,7 @@
 
 // Virtual packet handling interface
 class packet_processor {
-  public:
+public:
 
     // IP packet.
     virtual void operator()(const std::string& liid,

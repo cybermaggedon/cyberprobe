@@ -14,7 +14,6 @@
 #include <list>
 #include <map>
 
-#include "thread.h"
 #include "pdu.h"
 #include "context.h"
 
@@ -22,6 +21,9 @@
 #include "reaper.h"
 #include "observer.h"
 #include "manager.h"
+
+#include <cybermon/event.h>
+#include <cybermon/event_implementations.h>
 
 namespace cybermon {
     
@@ -31,7 +33,7 @@ namespace cybermon {
     private:
 
 	// Lock for all state.
-	threads::mutex lock;
+	std::mutex lock;
 
 	// Child contexts.
 	typedef std::pair<std::string,std::string> root_id;
@@ -67,33 +69,37 @@ namespace cybermon {
 	    process(c, s);
 	}
 
+	// FIXME: Should address be shared_ptr?
+	
 	// Called when attacker is detected.
-	void target_up(const std::string& liid,
+	void target_up(const std::string& device,
 		       const std::string& network,
 		       const tcpip::address& addr,
 		       const struct timeval& tv) {
 
-	    // Get the root context for this LIID.
-	    context_ptr c = get_root_context(liid, network);
+	    // Get the root context for this device.
+	    context_ptr c = get_root_context(device, network);
 
 	    // Record the known address.
 	    root_context& rc = dynamic_cast<root_context&>(*c);
 	    rc.set_trigger_address(addr);
 
 	    // This is a reportable event.
-	    trigger_up(liid, addr, tv);
+	    auto eptr = std::make_shared<event::trigger_up>(device, addr, tv);
+	    handle(eptr);
 
 	}
 
 	// Called when attacker goes off the air.
-	void target_down(const std::string& liid,
+	void target_down(const std::string& device,
 			 const std::string& network,
 			 const struct timeval& tv) {
 
-	  close_root_context(liid, network);
+	    close_root_context(device, network);
 
 	    // This is a reportable event.
-	    trigger_down(liid, tv);
+	    auto eptr = std::make_shared<event::trigger_down>(device, tv);
+	    handle(eptr);
 
 	}
 

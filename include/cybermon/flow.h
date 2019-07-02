@@ -7,7 +7,7 @@
 namespace cybermon {
 
     class flow_address {
-      public:
+    public:
 	address src;
 	address dest;
         direction direc;

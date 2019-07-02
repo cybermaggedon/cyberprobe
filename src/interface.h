@@ -32,10 +32,10 @@ public:
 
     // Hash is <interface>:<filter>:<delay>
     virtual std::string get_hash() const { 
-      std::ostringstream buf;
-      buf << ifa << ":" << filter << ":" << delay;
-      return buf.str();
-}
+        std::ostringstream buf;
+        buf << ifa << ":" << filter << ":" << delay;
+        return buf.str();
+    }
 
 };
 

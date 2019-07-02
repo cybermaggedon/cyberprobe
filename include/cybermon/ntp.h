@@ -22,7 +22,7 @@ namespace cybermon {
 
     // A NTP context.
     class ntp_context : public context {
-      public:
+    public:
 	
 	// Constructor.
         ntp_context(manager& m) : context(m) {
@@ -30,14 +30,14 @@ namespace cybermon {
 
 	// Constructor, describing flow address and parent pointer.
         ntp_context(manager& m, const flow_address& a, context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
 	// Type is "ntp".
 	virtual std::string get_type() { return "ntp"; }
 
-	typedef boost::shared_ptr<ntp_context> ptr;
+	typedef std::shared_ptr<ntp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -49,7 +49,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    ntp_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ntp_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ntp_context>(cp);
 	    return sp;
 	}
 
@@ -57,7 +57,7 @@ namespace cybermon {
 
     class ntp {
 
-      public:
+    public:
       
 	// NTP processing function.
         static void process(manager&, context_ptr c, const pdu_slice& sl);

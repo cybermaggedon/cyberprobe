@@ -33,7 +33,7 @@ namespace cybermon {
     
     // A TCP context.
     class tcp_context : public context {
-      public:
+    public:
 
 	// This deals with stream synchronisation and tear-down (the SYN/FIN
 	// stuff).
@@ -61,8 +61,8 @@ namespace cybermon {
 	
 
 	// Constructor, describing flow address and parent pointer.
-      tcp_context(manager& m, const flow_address& a, context_ptr p)
-	  : context(m) { 
+        tcp_context(manager& m, const flow_address& a, context_ptr p)
+            : context(m) { 
 	    addr = a;
 	    parent = p; 
 	    syn_observed = false;
@@ -81,7 +81,7 @@ namespace cybermon {
 	// Type is "tcp".
 	virtual std::string get_type() { return "tcp"; }
 
-	typedef boost::shared_ptr<tcp_context> ptr;
+	typedef std::shared_ptr<tcp_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f, 
 				  context_ptr par) {
@@ -93,15 +93,15 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = context::get_or_create(base, f, 
 						    tcp_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<tcp_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<tcp_context>(cp);
 	    return sp;
-    }
+        }
 
     };
 
     class tcp {
 
-      public:
+    public:
 
 	// 1's complement checksum
 	static void checksum(pdu_iter s, pdu_iter e, uint16_t& sum);

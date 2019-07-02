@@ -23,14 +23,14 @@ namespace cybermon {
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.
     class context : public base_context, public reapable {
-      private:
+    private:
 
-      protected:
+    protected:
 
 	// Watcher, tidies things up when they get old.
 	manager& mgr;
 
-      public:
+    public:
 
 	manager& get_manager() { return mgr; }
 
@@ -43,7 +43,7 @@ namespace cybermon {
 
 	// Constructor, initialises parent pointer.
         context(manager& m, context_ptr parent) : 
-	base_context(parent), reapable(m), mgr(m) { 
+            base_context(parent), reapable(m), mgr(m) { 
 	}
 
 #ifdef BROKEN
@@ -53,55 +53,54 @@ namespace cybermon {
 
 	context_ptr locate_other_endpoint(const std::list<flow_address>& ad,
 					  int parents)
-	{
-	    if (parents == 0)
-		throw exception("Parents must be > 0");
+            {
+                if (parents == 0)
+                    throw exception("Parents must be > 0");
 
-	    context_ptr par_cp = get_parent();
-	    if (!par_cp)
-		throw exception("Parent is null");
+                context_ptr par_cp = get_parent();
+                if (!par_cp)
+                    throw exception("Parent is null");
 
-	    for(int i = 1; i < parents; i++) {
-		context_ptr parent_cp = get_parent();
-		if (!par_cp)
-		    throw exception("Parent is null");
-	    }
+                for(int i = 1; i < parents; i++) {
+                    context_ptr parent_cp = get_parent();
+                    if (!par_cp)
+                        throw exception("Parent is null");
+                }
 
-	    context_ptr cp = par_cp;
+                context_ptr cp = par_cp;
 
-	    for(std::list<flow_address>::const_iterator it = ad.begin();
-		it != ad.end();
-		it++) {
-		cp = cp->
-	    }
+                for(std::list<flow_address>::const_iterator it = ad.begin();
+                    it != ad.end();
+                    it++) {
+                    cp = cp->
+                        }
 
-	}
+            }
 
 #endif
 
 	// Given a flow address, returns the child context.
 	context_ptr get_child(const flow_address& f) {
 
-	    lock.lock();
+	    std::lock_guard<std::mutex> lock(mutex);
 
 	    context_ptr c;
 	    
 	    if (children.find(f) != children.end())
 		c = children[f];
 
-	    lock.unlock();
-	    
 	    return c;
 
 	}
 
 	// Adds a child context.
 	void add_child(const flow_address& f, context_ptr c) {
-	    lock.lock();
+
+	    std::lock_guard<std::mutex> lock(mutex);
+
 	    if (children.find(f) != children.end())
 		throw exception("That context already exists.");
 	    children[f] = c;
-	    lock.unlock();
 	}
 
 	// Destructor.
@@ -126,10 +125,10 @@ namespace cybermon {
 					 const flow_address& f, 
 					 creator create_fn) {
 
-	    boost::shared_ptr<context> mc = 
-		boost::dynamic_pointer_cast<context>(parent);
+	    std::shared_ptr<context> mc = 
+		std::dynamic_pointer_cast<context>(parent);
 
-	    mc->lock.lock();
+	    std::lock_guard<std::mutex> lock(mc->mutex);
 
 	    context_ptr ch;
 
@@ -191,8 +190,6 @@ namespace cybermon {
 
 	    }
 
-	    mc->lock.unlock();
-
 	    return ch;
 	    
 	}
@@ -217,14 +214,14 @@ namespace cybermon {
 	// Address which caused acquisition of this data.
 	address trigger_address;
 
-      public:
+    public:
 	/* static context_ptr create(const std::string& liid) { */
 	/*     root_context* c = new root_context(); */
 	/*     c->liid = liid; */
 	/*     return context_ptr(c); */
 	/* } */
         root_context(manager& m) : 
-	context(m) {
+            context(m) {
 	    addr.src.layer = ROOT;
 	    addr.dest.layer = ROOT;
 	}

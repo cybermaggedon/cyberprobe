@@ -64,7 +64,7 @@ namespace cybermon {
 
     // Address class, represents all kinds of addresses.
     class address {
-      public:
+    public:
 
 	// The protocol's purpose.
 	purpose layer;
@@ -127,8 +127,8 @@ namespace cybermon {
 	// Equality operator.
 	bool operator==(const address& a) const {
 	    return layer == a.layer &&
-	    proto == a.proto &&
-	    addr == a.addr;
+                proto == a.proto &&
+                addr == a.addr;
 	}
 
 	// Get the 'value' of the address in different formats.

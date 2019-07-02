@@ -1,0 +1,202 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                      -> TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+                      -> TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
+                      -> TLS_DHE_RSA_WITH_AES_128_CCM
+                      -> TLS_DHE_RSA_WITH_AES_128_CCM_8
+                      -> TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+                      -> TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
+                      -> TLS_DHE_RSA_WITH_AES_256_CCM
+                      -> TLS_DHE_RSA_WITH_AES_256_CCM_8
+                      -> TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+                      -> TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
+                      -> TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256
+                      -> TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
+                      -> TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256
+                      -> TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_CCM
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8
+                      -> TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_CCM
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8
+                      -> TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+                      -> TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256
+                      -> TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384
+                      -> TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+                      -> TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+                      -> TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+                      -> TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+                      -> TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+                      -> TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                      -> TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256
+                      -> TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384
+                      -> TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                      -> TLS_EMPTY_RENEGOTIATION_INFO_SCSV
+                      -> TLS_RSA_WITH_AES_128_CBC_SHA
+                      -> TLS_RSA_WITH_AES_128_CBC_SHA256
+                      -> TLS_RSA_WITH_AES_128_CCM
+                      -> TLS_RSA_WITH_AES_128_CCM_8
+                      -> TLS_RSA_WITH_AES_128_GCM_SHA256
+                      -> TLS_RSA_WITH_AES_256_CBC_SHA
+                      -> TLS_RSA_WITH_AES_256_CBC_SHA256
+                      -> TLS_RSA_WITH_AES_256_CCM
+                      -> TLS_RSA_WITH_AES_256_CCM_8
+                      -> TLS_RSA_WITH_AES_256_GCM_SHA384
+                      -> TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
+                      -> TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256
+                      -> TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
+                      -> TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256
+                    -> NULL
+    Answer: name=example.org, type=1, class=1 -> 93.184.216.34
+    Answer: name=example.org, type=28, class=1 -> 2606:2800:220:1:248:1893:25c8:1946
+    Query: name=example.org, type=1, class=1
+    Query: name=example.org, type=1, class=1
+    Query: name=example.org, type=28, class=1
+    Query: name=example.org, type=28, class=1
+    data              -> 0x308997431C9FAA615DA653B4424FDAB07FA634BDCFADF327CE040900
+    data              -> 0x60AA33C20ED8B8A1151F40913E0498F9F16AA68C444F574E47524400
+    data            -> 0x00
+    data            -> 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    data            -> 0x0003026832
+    data            -> 0x0008001D001700190018
+    data            -> 0x000C02683208687474702F312E31
+    data            -> 0x000E00000B6578616D706C652E6F7267
+    data            -> 0x001E060106020603050105020503040104020403030103020303020102020203
+    data            -> 0x03000102
+    data            -> 0x03000102
+    length          -> 0
+    length          -> 0
+    length          -> 0
+    length          -> 0
+    length          -> 0
+    length          -> 1
+    length          -> 10
+    length          -> 14
+    length          -> 16
+    length          -> 251
+    length          -> 32
+    length          -> 4
+    length          -> 4
+    length          -> 5
+    name            -> application_layer_protocol_negotiation
+    name            -> ec_point_formats
+    name            -> extended_master_secret
+    name            -> renegotiation_info
+    name            -> server_name
+    timestamp         -> 577140300
+    timestamp         -> 623256118
+  - name            -> Unassigned
+  - name            -> application_layer_protocol_negotiation
+  - name            -> ec_point_formats
+  - name            -> encrypt_then_mac
+  - name            -> extended_master_secret
+  - name            -> padding
+  - name            -> server_name
+  - name            -> signature_algorithms
+  - name            -> supported_groups
+  Certificates  -> 
+  Cipher suite        -> TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+  Cipher suites       -> 
+  Compression Method  -> NULL
+  Compression Methods -> 
+  Content Type -> 21
+  Content Type -> 21
+  Extensions          -> 
+  Extensions        -> 
+  Key Exchange Algorithm   -> nil
+  Length       -> 26
+  Length       -> 26
+  Message Length -> 1294
+  Message Length -> 201
+  Message Length -> 33
+  Message Length -> 33
+  Message Length -> 33
+  Message Length -> 37
+  Message Length -> 37
+  Message Length -> 40
+  Message Length -> 40
+  Message Length -> 48
+  Message Length -> 51
+  Message Length -> 61
+  Message Length -> 63
+  Random              -> 
+  Random              -> 
+  Session ID          -> 
+  Session ID          -> f2506ccdafdee3e76b6181d12fbf6c5b3007eca36ce9b5cae949cb48cac3d0e8
+  Value -> 1
+  Value -> 1
+  Version             -> TLS 1.2
+  Version             -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version        -> TLS 1.2
+  Version      -> TLS 1.2
+  Version      -> TLS 1.2
+ Key  -> a2V5
+PCAP: 172.17.0.2:33697 -> 192.168.65.1:53. DNS query
+PCAP: 172.17.0.2:33697 -> 192.168.65.1:53. DNS query
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Application Data
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Application Data
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Application Data
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Application Data
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Application Data
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Change Cipher Spec
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Client Hello
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Client Key Exchange
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS Handshake Finished
+PCAP: 172.17.0.2:43258 -> 93.184.216.34:443. TLS unknown
+PCAP: 192.168.65.1:53 -> 172.17.0.2:33697. DNS response
+PCAP: 192.168.65.1:53 -> 172.17.0.2:33697. DNS response
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Application Data
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Application Data
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Application Data
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Application Data
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Application Data
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Application Data
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Certificates
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Change Cipher Spec
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Handshake Complete
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Handshake Finished
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Server Hello
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Server Hello Done
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS Server Key Exchange
+PCAP: 93.184.216.34:443 -> 172.17.0.2:43258. TLS unknown

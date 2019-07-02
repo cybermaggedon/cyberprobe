@@ -9,15 +9,17 @@
 #define CAPTURE_H
 
 #include <cybermon/packet_capture.h>
-#include <cybermon/thread.h>
 #include <packet_consumer.h>
 
 #include <queue>
+#include <thread>
 
-class capture_dev : public threads::thread {
-  public:
+class capture_dev {
+public:
     virtual ~capture_dev() {}
     virtual void stop() = 0;
+    virtual void start() = 0;
+    virtual void join() = 0;
 };
 
 // Packet capture.  Captures on an interface, and then submits captured
@@ -48,6 +50,8 @@ private:
     // Delay converted to timeval form.
     struct timeval delay_val;
 
+    std::thread* thr;
+
 public:
 
     // Thread body.
@@ -58,10 +62,14 @@ public:
 	pcap_interface(i), deliv(d) {
 	datalink = pcap_datalink(p);
 	this->delay = delay;
+	thr = 0;
     }
 
     // Destructor.
-    virtual ~pcap_dev() {}
+    virtual ~pcap_dev() {
+	// FIXME: Wait for it to stop?
+	delete thr;
+    }
 
     // Packet handler.
     virtual void handle(timeval tv, unsigned long len, unsigned long captured,
@@ -69,6 +77,16 @@ public:
 
     virtual void stop() {
 	pcap_interface::stop();
+	running = false;
+    }
+
+    virtual void join() {
+	if (thr)
+	    thr->join();
+    }
+    
+    virtual void start() {
+	thr = new std::thread(&pcap_dev::run, this);
     }
 
 };

@@ -24,14 +24,14 @@ namespace xml {
 
     /* Functor class, accepts find events. */
     class find_event_receiver {
-      public:
+    public:
 	virtual void operator()(element&) {}
         virtual ~find_event_receiver() {}
     };
 
     /* An element. */
     class element {
-      public:
+    public:
 
 	/** Whether to transmit this element as CDATA */
 	bool cdata;
@@ -59,11 +59,11 @@ namespace xml {
 	    children.push_back(e);
 	    return children.back();
 
-	  /*
-	    children.push_back(element());
-	    children.back().name = name;
-	    return children.back();
-	  */
+            /*
+              children.push_back(element());
+              children.back().name = name;
+              return children.back();
+            */
 	}
 
 	element& add_cdata(const std::string& name) {
@@ -127,17 +127,17 @@ namespace xml {
       delete dec;
     
 
-     */
+    */
     class decoder {
 
-      private:
+    private:
 
 	std::string text;
 	XML_Parser parser;
 
 	stack<element*> elements;
 	
-      public:
+    public:
 
 	/* Constructor */
 	decoder();

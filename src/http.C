@@ -5,6 +5,7 @@
 #include <cybermon/http.h>
 #include <cybermon/manager.h>
 #include <cybermon/unrecognised.h>
+#include <cybermon/event_implementations.h>
 
 #include <ctype.h>
 #include <sstream>
@@ -56,14 +57,12 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    if (*s == '\n') {
     		state = http_parser::MAYBE_KEY;
     		key = value = "";
-        } else {
-			// This would be a protocol violation, but much more likely to be
-			// a HTTP CONNECT session, but we've missed the CONNECT or 200
-			// response. Assume it is binary data
-			c->lock.unlock();
-			unrecognised::process_unrecognised_stream(mgr, c, sl);
+	    } else {
+		// This would be a protocol violation, but much more likely to be
+		// a HTTP CONNECT session, but we've missed the CONNECT or 200
+		// response. Assume it is binary data
                 throw exception("HTTP protocol violation! POST_REQUEST_PROTOCOL_EXP_NL");
-        }
+	    }
 	    break;
 
 	case http_parser::IN_RESPONSE_PROTOCOL:
@@ -92,11 +91,10 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		state = http_parser::MAYBE_KEY;
 		key = value = "";
 	    } else {
-			// This would be a protocol violation, but much more likely to be
-			// a HTTP CONNECT session, but we've missed the CONNECT or 200
-			// response. Assume it is binary data
-			c->lock.unlock();
-			unrecognised::process_unrecognised_stream(mgr, c, sl);
+		// This would be a protocol violation, but much more likely
+		// to be a HTTP CONNECT session, but we've missed the
+		// CONNECT or 200
+		// response. Assume it is binary data
                 throw exception("HTTP protocol violation! POST_RESPONSE_STATUS_EXP_NL");
 	    }
 	    break;
@@ -111,9 +109,9 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    break;
 
 	case http_parser::IN_KEY:
-	    if (*s == ':')
+	    if (*s == ':') {
 		state = http_parser::POST_KEY_EXP_SPACE;
-	    else
+	    } else
 		key += *s;
 	    break;
 
@@ -121,11 +119,9 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    if (*s == ' ')
 		state = http_parser::IN_VALUE;
 	    else {
-			// This would be a protocol violation, but much more likely to be
-			// a HTTP CONNECT session, but we've missed the CONNECT or 200
-			// response. Assume it is binary data
-			c->lock.unlock();
-			unrecognised::process_unrecognised_stream(mgr, c, sl);
+		// This would be a protocol violation, but much more likely to be
+		// a HTTP CONNECT session, but we've missed the CONNECT or 200
+		// response. Assume it is binary data
                 throw exception("HTTP protocol violation! POST_KEY_EXP_SPACE");
 	    }
 	    break;
@@ -133,106 +129,102 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	case http_parser::IN_VALUE:
 	    if (*s == '\r') {
 
-		 std::string lowerc;
-		 std::transform(key.begin(), key.end(), back_inserter(lowerc),
-				::tolower);
+                std::string lowerc;
+                std::transform(key.begin(), key.end(), back_inserter(lowerc),
+                               ::tolower);
 
-		 header[lowerc] =
-		     std::pair<std::string,std::string>(key, value);
+                header[lowerc] =
+                    std::pair<std::string,std::string>(key, value);
 
-		 key = "";
-		 value = "";
+                key = "";
+                value = "";
 
-		 state = http_parser::POST_VALUE_EXP_NL;
-	     } else
-		 value += *s;
-	     break;
+                state = http_parser::POST_VALUE_EXP_NL;
+            } else
+                value += *s;
+            break;
 
-	 case http_parser::POST_VALUE_EXP_NL:
-	     if (*s == '\n') {
-		 state = http_parser::MAYBE_KEY;
-		 key = value = "";
-	     } else {
- 			// This would be a protocol violation, but much more likely to be
- 			// a HTTP CONNECT session, but we've missed the CONNECT or 200
- 			// response. Assume it is binary data
- 			c->lock.unlock();
- 			unrecognised::process_unrecognised_stream(mgr, c, sl);
+        case http_parser::POST_VALUE_EXP_NL:
+            if (*s == '\n') {
+                state = http_parser::MAYBE_KEY;
+                key = value = "";
+            } else {
+                // This would be a protocol violation, but much more likely to be
+                // a HTTP CONNECT session, but we've missed the CONNECT or 200
+                // response. Assume it is binary data
                 throw exception("HTTP protocol violation! POST_VALUE_EXP_NL");
-	     }
-	     break;
+            }
+            break;
 
-	 case http_parser::POST_HEADER_EXP_NL:
-	     if (*s == '\n') {
+        case http_parser::POST_HEADER_EXP_NL:
+            if (*s == '\n') {
 
 #ifdef USEFUL_DEBUG_I_GUESS
-		 std::cerr << "code = " << code << std::endl;
-		 std::cerr << "status = " << status << std::endl;
-		 std::cerr << "Proto = " << protocol << std::endl;
+                std::cerr << "code = " << code << std::endl;
+                std::cerr << "status = " << status << std::endl;
+                std::cerr << "Proto = " << protocol << std::endl;
 #endif
 
-		 std::istringstream buf(code);
-		 buf >> codeval;
+                std::istringstream buf(code);
+                buf >> codeval;
 
-		 state = http_parser::IN_BODY;
+                state = http_parser::IN_BODY;
 
-		 if (header.find("content-type") == header.end()) {
-		     // No body.
+                if (header.find("content-type") == header.end()) {
+                    // No body.
 
-		     if (variant == REQUEST)
-		         complete_request(c, sl.time, mgr);
-		     else
-			 complete_response(c, sl.time, mgr);
+                    if (variant == REQUEST)
+                        complete_request(c, sl.time, mgr);
+                    else
+                        complete_response(c, sl.time, mgr);
 
-		     if (variant == REQUEST)
-			 state = http_parser::IN_REQUEST_METHOD;
-		     else
-			 state = http_parser::IN_RESPONSE_PROTOCOL;
+                    if (variant == REQUEST)
+                        state = http_parser::IN_REQUEST_METHOD;
+                    else
+                        state = http_parser::IN_RESPONSE_PROTOCOL;
 
-		     reset_transaction();
+                    reset_transaction();
 
-		 } else if ((header.find("transfer-encoding") !=
-			     header.end()) &&
-			    (header["transfer-encoding"].second == "chunked")) {
-		     chunk_length = "";
-		     state = http_parser::IN_CHUNK_LENGTH;
-		 } else if (header.find("content-length") != header.end()) {
+                } else if ((header.find("transfer-encoding") !=
+                            header.end()) &&
+                           (header["transfer-encoding"].second == "chunked")) {
+                    chunk_length = "";
+                    state = http_parser::IN_CHUNK_LENGTH;
+                } else if (header.find("content-length") != header.end()) {
 
-		     std::istringstream b2(header["content-length"].second);
-		     b2 >> std::dec >> content_remaining;
+                    std::istringstream b2(header["content-length"].second);
+                    b2 >> std::dec >> content_remaining;
 
-		     // Deal with zero-length payload case.  Transaction stops
-		     // here.
-		     if (content_remaining == 0) {
-			 if (variant == REQUEST)
-			     complete_request(c, sl.time, mgr);
-			 else
-			     complete_response(c, sl.time, mgr);
-			 reset_transaction();
+                    // Deal with zero-length payload case.  Transaction stops
+                    // here.
+                    if (content_remaining == 0) {
+                        if (variant == REQUEST)
+                            complete_request(c, sl.time, mgr);
+                        else
+                            complete_response(c, sl.time, mgr);
+                        reset_transaction();
 
-			 // Start of next transaction.
-			 if (variant == REQUEST)
-			     state = http_parser::IN_REQUEST_METHOD;
-			 else
-			     state = http_parser::IN_RESPONSE_PROTOCOL;
+                        // Start of next transaction.
+                        if (variant == REQUEST)
+                            state = http_parser::IN_REQUEST_METHOD;
+                        else
+                            state = http_parser::IN_RESPONSE_PROTOCOL;
 
-		     } else {
-			 state = http_parser::COUNTING_DATA;
-		     }
+                    } else {
+                        state = http_parser::COUNTING_DATA;
+                    }
 
-		 } else
-		     // This state just looks for newline.
-		     state = http_parser::IN_BODY;
+                } else
+                    // This state just looks for newline.
+                    state = http_parser::IN_BODY;
 
-         } else {
- 			// This would be a protocol violation, but much more likely to be
- 			// a HTTP CONNECT session, but we've missed the CONNECT or 200
- 			// response. Assume it is binary data
- 			c->lock.unlock();
- 			unrecognised::process_unrecognised_stream(mgr, c, sl);
+            } else {
+                // This would be a protocol violation, but much more likely to be
+                // a HTTP CONNECT session, but we've missed the CONNECT or 200
+                // response. Assume it is binary data
                 throw exception("HTTP protocol violation! POST_HEADER_EXP_NL");
-	     }
-	     break;
+            }
+            break;
 
 	case http_parser::PRE_CHUNK_LENGTH:
 	    // Skip CRLF
@@ -242,9 +234,9 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 	    }
 	    break;
 
-	 case http_parser::IN_BODY:
-	     if (*s == '\r')
-		 state = http_parser::IN_BODY_AFTER_CR;
+        case http_parser::IN_BODY:
+            if (*s == '\r')
+                state = http_parser::IN_BODY_AFTER_CR;
 	    else
 		body.push_back(*s);
 	    break;
@@ -316,12 +308,10 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 
 		    state = http_parser::COUNTING_CHUNK_DATA;
 
-		} else {
-			// This would be a protocol violation, but much more likely to be
-			// a HTTP CONNECT session, but we've missed the CONNECT or 200
-			// response. Assume it is binary data
-			c->lock.unlock();
-			unrecognised::process_unrecognised_stream(mgr, c, sl);
+            } else {
+                // This would be a protocol violation, but much more likely to be
+                // a HTTP CONNECT session, but we've missed the CONNECT or 200
+                // response. Assume it is binary data
                 throw exception("HTTP protocol violation! POST_CHUNK_LENGTH_EXP_NL");
 	    }
 	    break;
@@ -363,21 +353,21 @@ void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
 		break;
 
 /*
-		std::istringstream buf(code);
-		buf >> codeval;
+  std::istringstream buf(code);
+  buf >> codeval;
 
-		if (variant == REQUEST)
-		    complete_request(c, sl.time, mgr);
-		else
-		    complete_response(c, sl.time, mgr);
+  if (variant == REQUEST)
+  complete_request(c, sl.time, mgr);
+  else
+  complete_response(c, sl.time, mgr);
 
-		reset_transaction();
+  reset_transaction();
 
-		// Start of next transaction.
-		if (variant == REQUEST)
-		    state = http_parser::IN_REQUEST_METHOD;
-		else
-		    state = http_parser::IN_RESPONSE_PROTOCOL;
+  // Start of next transaction.
+  if (variant == REQUEST)
+  state = http_parser::IN_REQUEST_METHOD;
+  else
+  state = http_parser::IN_RESPONSE_PROTOCOL;
 */
 
 	    }
@@ -413,16 +403,12 @@ void http::process_request(manager& mgr, context_ptr c,
         unrecognised::process_unrecognised_stream(mgr, fc, sl);
     } else {
         // process HTTP packet
-        fc->lock.lock();
-
-        try {
-    	fc->parse(fc, sl, mgr);
-        } catch (std::exception& e) {
-    	fc->lock.unlock();
-    	throw;
-        }
-
-        fc->lock.unlock();
+	try {
+	    std::lock_guard<std::mutex> lock(fc->mutex);
+	    fc->parse(fc, sl, mgr);
+	} catch (cybermon::exception& e) {
+	    unrecognised::process_unrecognised_stream(mgr, fc, sl);
+	}
     }
 
 }
@@ -443,19 +429,15 @@ void http::process_response(manager& mgr, context_ptr c,
 
     // if this session is streaming just send unrecognised_stream
     if (fc->streaming) {
-       unrecognised::process_unrecognised_stream(mgr, c, sl);
+        unrecognised::process_unrecognised_stream(mgr, c, sl);
     } else {
         // process HTTP packet
-        fc->lock.lock();
-
-        try {
-    	fc->parse(fc, sl, mgr);
-        } catch (std::exception& e) {
-    	fc->lock.unlock();
-    	throw;
-        }
-
-        fc->lock.unlock();
+	try {
+	    std::lock_guard<std::mutex> lock(fc->mutex);
+	    fc->parse(fc, sl, mgr);
+	} catch (cybermon::exception& e) {
+	    unrecognised::process_unrecognised_stream(mgr, fc, sl);
+	}
     }
 
 }
@@ -474,7 +456,7 @@ void http_parser::complete_request(context_ptr c, const pdu_time& time,
 
     // Stash the URL on a queue in our context structure.
     http_request_context::ptr sp =
-	boost::dynamic_pointer_cast<http_request_context>(c);
+	std::dynamic_pointer_cast<http_request_context>(c);
     sp->urls_requested.push_back(norm);
 
     // if this is a connect message we need to flag it in the context
@@ -483,8 +465,11 @@ void http_parser::complete_request(context_ptr c, const pdu_time& time,
     }
 
     // Raise an HTTP request event.
-    mgr.http_request(c, method, norm, header,
-		     body.begin(), body.end(), time);
+    auto ev =
+	std::make_shared<event::http_request>(c, method, norm, header,
+					      body.begin(), body.end(), time);
+    mgr.handle(ev);
+
 }
 
 void http_parser::complete_response(context_ptr c, const pdu_time& time,
@@ -499,10 +484,10 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
     // If we have a reverse flow pointer...
     if (rev) {
 	http_request_context::ptr sp_rev =
-	    boost::dynamic_pointer_cast<http_request_context>(rev);
+	    std::dynamic_pointer_cast<http_request_context>(rev);
 
 	// ... then use it to get the URL of this HTTP response.
-	sp_rev->lock.lock();
+	std::lock_guard<std::mutex> lock(sp_rev->mutex);
 
 	// If list is not empty, get the URL on the URL queue to be the
 	// URL of this payload.
@@ -511,23 +496,24 @@ void http_parser::complete_response(context_ptr c, const pdu_time& time,
 	    sp_rev->urls_requested.pop_front();
 	}
 
-    // check if the request was to start streaming
-    if (sp_rev->streaming_requested) {
-        sp_rev->streaming_requested = false;
-        // any 2XX code is valid
-        if (code[0] == '2') {
-            sp_rev->streaming = true;
+        // check if the request was to start streaming
+        if (sp_rev->streaming_requested) {
+            sp_rev->streaming_requested = false;
+            // any 2XX code is valid
+            if (code[0] == '2') {
+                sp_rev->streaming = true;
 
-            http_response_context::ptr rc =
-                boost::dynamic_pointer_cast<http_response_context>(c);
-            rc->streaming = true;
+                http_response_context::ptr rc =
+                    std::dynamic_pointer_cast<http_response_context>(c);
+                rc->streaming = true;
+            }
         }
+
     }
 
-	sp_rev->lock.unlock();
-    }
-
-    mgr.http_response(c, codeval, status, header, url,
-		      body.begin(), body.end(), time);
+    auto ev =
+	std::make_shared<event::http_response>(c, codeval, status, header, url,
+					       body.begin(), body.end(), time);
+    mgr.handle(ev);
 
 }

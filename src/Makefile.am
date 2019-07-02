@@ -38,9 +38,9 @@ lib_LTLIBRARIES = libcybermon.la
 libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	cybermon_qwriter.C cybermon_qreader.C cybermon-lua.C dns_over_tcp.C dns_over_udp.C dns_protocol.C	\
 	engine.C etsi_li.C forgery.C ftp.C http.C icmp.C imap.C		\
-	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C		\
+	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C event.C  \
 	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
-	sip_ssl.C	\
+	sip_ssl.C	event_json.C base64.C base64.h json.h \
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
 	cybermon_qargs.h cybermon_qwriter.h cybermon_qreader.h \
 	tls_key_exchange.C \
@@ -48,7 +48,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	hardware_addr_utils.h tls_cipher_suites.h tls_exception.h tls_extensions.h \
 	tls_handshake.h tls_key_exchange.h tls_utils.h \
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
-	address_map.h		                \
+	address_map.h	uuid.h	                \
 	../include/cybermon/base_context.h				\
 	../include/cybermon/context.h					\
 	../include/cybermon/cybermon-lua.h				\
@@ -67,6 +67,9 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/monitor.h ../include/cybermon/nhis11.h	\
 	../include/cybermon/ntp.h ../include/cybermon/ntp_protocol.h	\
 	../include/cybermon/observer.h					\
+	../include/cybermon/event.h					\
+	../include/cybermon/event_implementations.h			\
+	../include/cybermon/event_json.h  \
 	../include/cybermon/packet_capture.h				\
 	../include/cybermon/pdu.h ../include/cybermon/pop3.h		\
 	../include/cybermon/pop3_context.h				\
@@ -82,7 +85,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/smtp_auth_context.h				\
 	../include/cybermon/socket.h					\
 	../include/cybermon/specification.h ../include/cybermon/tcp.h	\
-	../include/cybermon/thread.h ../include/cybermon/transport.h	\
+	../include/cybermon/transport.h	\
 	../include/cybermon/udp.h ../include/cybermon/unrecognised.h	\
 	../include/cybermon/gre.h ../include/cybermon/esp.h \
 	../include/cybermon/802_11.h \

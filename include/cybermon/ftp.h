@@ -9,7 +9,6 @@
 #define CYBERMON_FTP_H
 
 #include <stdint.h>
-#include <boost/regex.hpp>
 
 #include <set>
 
@@ -92,24 +91,24 @@ namespace cybermon {
 
     // An FTP client context.
     class ftp_client_context : public context, public ftp_client_parser {
-      public:
+    public:
 	
 	// Constructor.
         ftp_client_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         ftp_client_context(manager& m, const flow_address& a, 
-			    context_ptr p) : 
-	context(m) { 
+                           context_ptr p) : 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
 	// Type.
 	virtual std::string get_type() { return "ftp_client"; }
 
-	typedef boost::shared_ptr<ftp_client_context> ptr;
+	typedef std::shared_ptr<ftp_client_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {
@@ -121,7 +120,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, ftp_client_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ftp_client_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ftp_client_context>(cp);
 	    return sp;
 	}
 
@@ -129,24 +128,24 @@ namespace cybermon {
 
     // An FTP server context.
     class ftp_server_context : public context, public ftp_server_parser {
-      public:
+    public:
 	
 	// Constructor.
         ftp_server_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         ftp_server_context(manager& m, const flow_address& a, 
-			    context_ptr p) : 
-	context(m) { 
+                           context_ptr p) : 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
 	// Type.
 	virtual std::string get_type() { return "ftp_server"; }
 
-	typedef boost::shared_ptr<ftp_server_context> ptr;
+	typedef std::shared_ptr<ftp_server_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {
@@ -158,7 +157,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, ftp_server_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<ftp_server_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<ftp_server_context>(cp);
 	    return sp;
 	}
 
@@ -167,12 +166,12 @@ namespace cybermon {
     class ftp
     {
 
-        public:
+    public:
 
         // FTP request processing function.
 	static void process(manager&, context_ptr c, const pdu_slice& s);
 
-        private:
+    private:
 
         // FTP client request processing function.
         static void process_client(manager&, context_ptr c,

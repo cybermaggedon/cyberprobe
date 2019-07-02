@@ -8,51 +8,57 @@
 #include <cybermon/gre.h>
 #include <cybermon/esp.h>
 #include <cybermon/manager.h>
+#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 
 const unsigned int ip4_context::max_frag_list_len = 50;
 
 void ip::handle_nxt_proto(manager& mgr, context_ptr fc, uint8_t protocol, const pdu_slice& sl,
-  uint16_t length, uint8_t header_length)
+                          uint16_t length, uint8_t header_length)
 {
     pdu_iter s = sl.start;
     pdu_iter e = sl.end;
 
-  if (protocol == 6)
+    if (protocol == 6)
 
-    // TCP
-    tcp::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                    sl.time, sl.direc));
+        // TCP
+        tcp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                        sl.time, sl.direc));
 
-  else if (protocol == 17)
+    else if (protocol == 17)
 
-    // UDP
-    udp::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                    sl.time, sl.direc));
+        // UDP
+        udp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                        sl.time, sl.direc));
 
-  else if (protocol == 1)
+    else if (protocol == 1)
 
-    // ICMP
-    icmp::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                     sl.time, sl.direc));
+        // ICMP
+        icmp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                         sl.time, sl.direc));
 
-  else if (protocol == 47)
+    else if (protocol == 47)
 
-    // gre
-     gre::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                      sl.time, sl.direc));
+        // gre
+        gre::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                        sl.time, sl.direc));
 
-  else if (protocol == 50)
+    else if (protocol == 50)
 
-    // gre
-     esp::process(mgr, fc, pdu_slice(s + header_length, s + length,
-                                      sl.time, sl.direc));
-
-  else {
-    mgr.unrecognised_ip_protocol(fc, protocol, length - header_length,
-    s + header_length, s + length, sl.time);
-  }
+        // gre
+        esp::process(mgr, fc, pdu_slice(s + header_length, s + length,
+                                        sl.time, sl.direc));
+  
+    else {
+        auto ev =
+            std::make_shared<event::unrecognised_ip_protocol>(fc, protocol,
+                                                              length - header_length,
+                                                              s + header_length,
+                                                              s + length,
+                                                              sl.time);
+        mgr.handle(ev);
+    }
 }
 
 void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
@@ -104,7 +110,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
     // 120 seconds.
     fc->set_ttl(context::default_ttl);
 
-    fc->lock.lock();
+    std::unique_lock<std::mutex> lock(fc->mutex);
 
     // Frag processing if the more_frags option is set.
     bool frag_proc = (flags & 1);
@@ -206,9 +212,9 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	    // check that the current frag is the first, and set the header
 	    if (frag_first == 0)
-	    {
+                {
 		    fc->hdrs_list[id].assign(s, s + header_length);
-	    }
+                }
 
 	    unsigned long header_size = fc->hdrs_list[id].size();
 
@@ -268,7 +274,7 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 	    fc->hdrs_list.erase(id);
 
 	    // Need to unlock, because the re-entrant call will take the lock.
-	    fc->lock.unlock();
+	    lock.unlock();
 
 	    // We now have a complete IP packet!  Process it.
 	    ip::process_ip4(mgr, c,
@@ -308,13 +314,11 @@ void ip::process_ip4(manager& mgr, context_ptr c, const pdu_slice& sl)
 
 	}
 
-	fc->lock.unlock();
-
 	return;
 
     }
 
-    fc->lock.unlock();
+    lock.unlock();
 
     // Complete payload, just process it.
     handle_nxt_proto(mgr, fc, protocol, sl, length, header_length);

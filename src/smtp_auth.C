@@ -5,6 +5,7 @@
 #include <cybermon/flow.h>
 #include <cybermon/manager.h>
 #include <cybermon/smtp_auth_context.h>
+#include <cybermon/event_implementations.h>
 
 
 using namespace cybermon;
@@ -27,6 +28,8 @@ void smtp_auth::process(manager& mgr, context_ptr c, const pdu_slice& sl)
     fc->set_ttl(context::default_ttl);
 
     // Pass whole SMTP_AUTH message.
-    mgr.smtp_auth(fc, sl.start, sl.end, sl.time);
+    auto ev =
+	std::make_shared<event::smtp_auth>(fc, sl.start, sl.end, sl.time);
+    mgr.handle(ev);
 }
 

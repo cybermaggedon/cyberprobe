@@ -167,9 +167,9 @@ void snort_alerter::run()
 		for(std::vector<unsigned char>::iterator it = src->addr.begin();
 		    it != src->addr.end();
 		    it++) {
-		  fallb.width(2);
-		  fallb.fill('0');
-		  fallb << std::hex << (int) *it;
+                    fallb.width(2);
+                    fallb.fill('0');
+                    fallb << std::hex << (int) *it;
 		}
 
 		std::string liid = deliv.get_parameter(buf.str(), fallb.str());

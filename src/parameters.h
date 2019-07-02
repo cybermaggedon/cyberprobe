@@ -6,7 +6,7 @@
 
 // Interface to an class which knows about parameters.
 class parameters {
-  public:
+public:
     virtual ~parameters() {}
 
     // Get the value of a parameter.  If parameter is not known, the

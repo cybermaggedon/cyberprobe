@@ -25,14 +25,14 @@ void forgery::forge_dns_response(context_ptr cp,
 	throw exception("Only know how to forge DNS over UDP");
 
     udp_context::ptr uc = 
-	boost::dynamic_pointer_cast<udp_context>(tmp);
+	std::dynamic_pointer_cast<udp_context>(tmp);
 
     tmp = uc->parent.lock();
     if (tmp->get_type() != "ip4")
 	throw exception("Only know how to forge DNS over IPv4");
 
     ip4_context::ptr ic = 
-	boost::dynamic_pointer_cast<ip4_context>(tmp);
+	std::dynamic_pointer_cast<ip4_context>(tmp);
 
     unsigned short src_port = uc->addr.src.get_uint16();
     unsigned short dest_port = uc->addr.dest.get_uint16();
@@ -71,11 +71,11 @@ void forgery::forge_tcp_data(context_ptr cp, pdu_iter s, pdu_iter e)
     while (1)  {
 
 	if (tmp->get_type() == "tcp") {
-	    tcp_ptr = boost::dynamic_pointer_cast<tcp_context>(tmp);
+	    tcp_ptr = std::dynamic_pointer_cast<tcp_context>(tmp);
 	}
 
 	if (tmp->get_type() == "ip4") {
-	    ip4_ptr = boost::dynamic_pointer_cast<ip4_context>(tmp);
+	    ip4_ptr = std::dynamic_pointer_cast<ip4_context>(tmp);
 	}
 
 	tmp = tmp->parent.lock();
@@ -127,11 +127,11 @@ void forgery::forge_tcp_reset(context_ptr cp)
     while (1)  {
 
 	if (tmp->get_type() == "tcp") {
-	    tcp_ptr = boost::dynamic_pointer_cast<tcp_context>(tmp);
+	    tcp_ptr = std::dynamic_pointer_cast<tcp_context>(tmp);
 	}
 
 	if (tmp->get_type() == "ip4") {
-	    ip4_ptr = boost::dynamic_pointer_cast<ip4_context>(tmp);
+	    ip4_ptr = std::dynamic_pointer_cast<ip4_context>(tmp);
 	}
 
 	tmp = tmp->parent.lock();

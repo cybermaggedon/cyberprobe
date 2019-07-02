@@ -21,9 +21,9 @@ void udp_ports::init_handlers(void)
 {
     // Initialize all elements to null first
     for(uint16_t x = 0; x < 65535; x++)
-    {
-        port_handler[x] = NULL;
-    }
+        {
+            port_handler[x] = NULL;
+        }
 
     // Now assign specific handlers
     port_handler[53]  = &dns_over_udp::process;
@@ -45,14 +45,14 @@ bool udp_ports::is_handlers_init(void)
 void udp_ports::add_port_handler(uint16_t port, fn function)
 {
     if (port_handler[port] == NULL)
-    {
-        port_handler[port] = function;
-    }
+        {
+            port_handler[port] = function;
+        }
     else
-    {
+        {
 // Temporarily comment out until ports can be removed
 //        throw exception("Handler already assigned to UDP port");
-    }
+        }
 }
 
 void udp_ports::remove_port_handler(uint16_t port)
@@ -63,9 +63,9 @@ void udp_ports::remove_port_handler(uint16_t port)
 bool udp_ports::has_port_handler(uint16_t port)
 {
     if (port_handler[port] != NULL)
-    {
-        return true;
-    }
+        {
+            return true;
+        }
 
     return false;
 }

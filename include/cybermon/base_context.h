@@ -3,12 +3,11 @@
 #define CYBERMON_BASE_CONTEXT_H
 
 #include <exception>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 #include <map>
+#include <mutex>
 
 #include <cybermon/flow.h>
-#include <cybermon/thread.h>
 #include <cybermon/exception.h>
 
 namespace cybermon {
@@ -20,12 +19,12 @@ namespace cybermon {
     class base_context;
 
     // Shared pointer types.
-    typedef boost::shared_ptr<base_context> context_ptr;
+    typedef std::shared_ptr<base_context> context_ptr;
 
     // Context class, describes the state around a 'flow' of data between
     // two endpoints at a particular network layer.
     class base_context {
-      private:
+    private:
 
 	// Next context ID to hand out.
 	static context_id next_context_id;
@@ -34,7 +33,7 @@ namespace cybermon {
 	// This context's ID.
 	context_id id;
 
-      public:
+    public:
 
 	// Time of creation.
 	struct timeval creation;
@@ -69,15 +68,15 @@ namespace cybermon {
 	}
 
 	// Lock for all context state.
-	threads::mutex lock;
+	std::mutex mutex;
 
 	// Use weak_ptr for the parent link, cause otherwise there's a
 	// shared_ptr cycle.
-	boost::weak_ptr<base_context> parent;
+	std::weak_ptr<base_context> parent;
 
 	// Use weak_ptr for the 'reverse flow' link, cause otherwise there's a
 	// shared_ptr cycle.
-	boost::weak_ptr<base_context> reverse;
+	std::weak_ptr<base_context> reverse;
 
 	// Child contexts.
 	std::map<flow_address,context_ptr> children;
@@ -98,21 +97,19 @@ namespace cybermon {
 
 	// Given a flow address, returns the child context.
 	context_ptr get_child(const flow_address& f) {
-	    lock.lock();
+	    std::lock_guard<std::mutex> lock(mutex);
 	    context_ptr c;
 	    if (children.find(f) != children.end())
 		c = children[f];
-	    lock.unlock();
 	    return c;
 	}
 
 	// Adds a child context.
 	void add_child(const flow_address& f, context_ptr c) {
-	    lock.lock();
+	    std::lock_guard<std::mutex> lock(mutex);
 	    if (children.find(f) != children.end())
 		throw exception("That context already exists.");
 	    children[f] = c;
-	    lock.unlock();
 	}
 
 	// Destructor.

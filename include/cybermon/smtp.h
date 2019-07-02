@@ -9,7 +9,6 @@
 #define CYBERMON_SMTP_H
 
 #include <stdint.h>
-#include <boost/regex.hpp>
 
 #include <set>
 
@@ -92,24 +91,24 @@ namespace cybermon {
 
     // An SMTP client context.
     class smtp_client_context : public context, public smtp_client_parser {
-      public:
+    public:
 	
 	// Constructor.
         smtp_client_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         smtp_client_context(manager& m, const flow_address& a, 
 			    context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
 	// Type.
 	virtual std::string get_type() { return "smtp_client"; }
 
-	typedef boost::shared_ptr<smtp_client_context> ptr;
+	typedef std::shared_ptr<smtp_client_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {
@@ -121,7 +120,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, smtp_client_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<smtp_client_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<smtp_client_context>(cp);
 	    return sp;
 	}
 
@@ -129,24 +128,24 @@ namespace cybermon {
 
     // An SMTP server context.
     class smtp_server_context : public context, public smtp_server_parser {
-      public:
+    public:
 	
 	// Constructor.
         smtp_server_context(manager& m) : 
-	context(m) {
+            context(m) {
 	}
 
 	// Constructor, describing flow address and parent pointer.
         smtp_server_context(manager& m, const flow_address& a, 
 			    context_ptr p) : 
-	context(m) { 
+            context(m) { 
 	    addr = a; parent = p; 
 	}
 
 	// Type.
 	virtual std::string get_type() { return "smtp_server"; }
 
-	typedef boost::shared_ptr<smtp_server_context> ptr;
+	typedef std::shared_ptr<smtp_server_context> ptr;
 
 	static context_ptr create(manager& m, const flow_address& f,
 				  context_ptr par) {
@@ -158,7 +157,7 @@ namespace cybermon {
 	static ptr get_or_create(context_ptr base, const flow_address& f) {
 	    context_ptr cp = 
 		context::get_or_create(base, f, smtp_server_context::create);
-	    ptr sp = boost::dynamic_pointer_cast<smtp_server_context>(cp);
+	    ptr sp = std::dynamic_pointer_cast<smtp_server_context>(cp);
 	    return sp;
 	}
 
@@ -166,20 +165,20 @@ namespace cybermon {
 
     class smtp
     {
-        public:
+    public:
 
         // SMTP request processing function.
         static void process(manager&, context_ptr c, const pdu_slice& sl);
 
-        private:
+    private:
 
-	    // SMTP client request processing function.
-	    static void process_client(manager&, context_ptr c,
-				       const pdu_slice& sl);
+        // SMTP client request processing function.
+        static void process_client(manager&, context_ptr c,
+                                   const pdu_slice& sl);
 
-	    // SMTP server response processing function.
-	    static void process_server(manager&, context_ptr c,
-				       const pdu_slice& sl);
+        // SMTP server response processing function.
+        static void process_server(manager&, context_ptr c,
+                                   const pdu_slice& sl);
     };
 
 };

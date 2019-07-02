@@ -3,42 +3,45 @@
 #define SENDER_H
 
 #include <queue>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <sys/time.h>
 
 #include "management.h"
-#include <cybermon/thread.h>
 #include <cybermon/nhis11.h>
 #include <cybermon/etsi_li.h>
 #include "parameters.h"
 #include <cybermon/pdu.h>
 
+#include <mutex>
+#include <condition_variable>
+#include <thread>
+
 // Shared pointers to TCP/IP address.
-typedef boost::shared_ptr<tcpip::address> address_ptr;
+typedef std::shared_ptr<tcpip::address> address_ptr;
 
 // A packet on the packet queue: LIID plus PDU.
 class qpdu {
-  public:
+public:
     enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
     timeval tv;                             // Valid for: PDU
-    boost::shared_ptr<std::string> liid;    // Valid for: PDU, TARGET_UP/DOWN
-    boost::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
+    std::shared_ptr<std::string> liid;    // Valid for: PDU, TARGET_UP/DOWN
+    std::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
     address_ptr addr;                       // Valid for: TARGET_UP
     cybermon::direction dir;                // Valid for: PDU, from/to target.
 };
 
 // Queue PDU pointer
-typedef boost::shared_ptr<qpdu> qpdu_ptr;
+typedef std::shared_ptr<qpdu> qpdu_ptr;
 
 // Sender base class.  Provides a queue input into a thread.
-class sender : public threads::thread {
-  protected:
+class sender {
+protected:
 
     // Input queue: Lock, condition variable, max size and the actual
     // queue.
-    threads::mutex lock;
-    threads::condition cond;
+    std::mutex mutex;
+    std::condition_variable cond;
     static const unsigned int max_packets = 1024;
     std::queue<qpdu_ptr> packets;
 
@@ -47,11 +50,18 @@ class sender : public threads::thread {
 
     parameters& global_pars;
 
-  public:
+    std::thread* thr;
+
+public:
 
     // Constructor.
     sender(parameters& p) : global_pars(p) {
 	running = true;
+	thr = 0;
+    }
+
+    virtual void start() {
+	thr = new std::thread(&sender::run, this);
     }
 
     // Thread body.
@@ -64,22 +74,22 @@ class sender : public threads::thread {
     virtual void get_info(sender_info& info) = 0;
 
     // Destructor.
-    virtual ~sender() {}
+    virtual ~sender() { delete thr; }
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
 
     // Hints about targets coming on/off-stream
-    virtual void target_up(boost::shared_ptr<std::string> l,
-			   boost::shared_ptr<std::string> n,
+    virtual void target_up(std::shared_ptr<std::string> l,
+			   std::shared_ptr<std::string> n,
 			   const tcpip::address& a);
-    virtual void target_down(boost::shared_ptr<std::string> liid,
-			     boost::shared_ptr<std::string> n);
+    virtual void target_down(std::shared_ptr<std::string> liid,
+			     std::shared_ptr<std::string> n);
 
     // Called to push a packet down the sender transport.
     void deliver(timeval tv,
-                 boost::shared_ptr<std::string> liid,
-		 boost::shared_ptr<std::string> n,
+                 std::shared_ptr<std::string> liid,
+		 std::shared_ptr<std::string> n,
                  cybermon::direction dir,
 		 const_iterator& start,
 		 const_iterator& end);
@@ -87,7 +97,14 @@ class sender : public threads::thread {
     // Called to stop the thread.
     virtual void stop() {
 	running = false;
-	cond.signal();
+
+	std::unique_lock<std::mutex> lk(mutex);
+	cond.notify_all();
+    }
+
+    virtual void join() {
+	if (thr)
+	    thr->join();
     }
 
 };
@@ -97,7 +114,7 @@ class sender : public threads::thread {
 // This is a thread: You should create, called 'connect', call 'start' to
 // spawn the thread, then call 'deliver' when you have packets to transmit.
 class nhis11_sender : public sender {
-  private:
+private:
 
     // NHIS 1.1 transport.
     std::map<std::string,cybermon::nhis11::sender> transport;
@@ -110,14 +127,14 @@ class nhis11_sender : public sender {
     // Params
     std::map<std::string, std::string> params;
 
-  public:
+public:
 
     // Constructor.
     nhis11_sender(const std::string& h, unsigned short p,
 		  const std::string& transp,
 		  const std::map<std::string, std::string>& params,
 		  parameters& globals) :
-    sender(globals), h(h), p(p), params(params) {
+        sender(globals), h(h), p(p), params(params) {
 	if (transp == "tls")
 	    tls = true;
 	else if (transp == "tcp")
@@ -154,7 +171,7 @@ class nhis11_sender : public sender {
 // This is a thread: You should create, called 'connect', call 'start' to
 // spawn the thread, then call 'deliver' when you have packets to transmit.
 class etsi_li_sender : public sender {
-  private:
+private:
 
     typedef cybermon::etsi_li::sender e_sender;
     typedef cybermon::etsi_li::mux e_mux;
@@ -193,35 +210,35 @@ class etsi_li_sender : public sender {
     // Initialise some configuration
     void initialise() { }
 
-  public:
+public:
 
     // Constructor.
     etsi_li_sender(const std::string& h, unsigned int short p,
                    const std::string& transp,
 		   const std::map<std::string, std::string>& params,
 		   parameters& globals) :
-    sender(globals), h(h), p(p), params(params), cur_connect(0)
-    {
+        sender(globals), h(h), p(p), params(params), cur_connect(0)
+        {
 
-	// Get value of etsi-streams parameter, default is 12.
-	std::string par = globals.get_parameter("etsi-streams", "12");
-	std::istringstream buf(par);
+            // Get value of etsi-streams parameter, default is 12.
+            std::string par = globals.get_parameter("etsi-streams", "12");
+            std::istringstream buf(par);
 
-	num_connects = 0;
-	buf >> num_connects;
-	if (num_connects <= 0)
-	    throw std::runtime_error("Couldn't parse etsi-streams value: " +
-				     par);
+            num_connects = 0;
+            buf >> num_connects;
+            if (num_connects <= 0)
+                throw std::runtime_error("Couldn't parse etsi-streams value: " +
+                                         par);
 
-	transports = new e_sender[num_connects];
-	if (transp == "tls")
-	    tls = true;
-	else if (transp == "tcp")
-	    tls = false;
-	else
-	    throw std::runtime_error("Transport " + transp + " not known.");
-	initialise();
-    }
+            transports = new e_sender[num_connects];
+            if (transp == "tls")
+                tls = true;
+            else if (transp == "tcp")
+                tls = false;
+            else
+                throw std::runtime_error("Transport " + transp + " not known.");
+            initialise();
+        }
 
     // PDU handler
     virtual void handle(qpdu_ptr);
