@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([cyberprobe], [2.0.1], [https://github.com/cybermaggedon/cyberprobe])
+AC_INIT([cyberprobe], [2.0.2], [https://github.com/cybermaggedon/cyberprobe])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
@@ -53,9 +53,9 @@ AX_LUA_HEADERS([], [AC_MSG_ERROR([Lua headers missing.])])
 AX_LUA_LIBS([], [AC_MSG_ERROR([Lua library missing.])])
 
 # Check for some Lua modules.
-AC_MSG_CHECKING([Lua socket module])
-AS_IF([echo 'if require("socket") then print("yes") end' | lua -], [],
-	    [AC_MSG_ERROR([Lua socket module is not installed.])])
+# AC_MSG_CHECKING([Lua socket module])
+# AS_IF([echo 'if require("socket") then print("yes") end' | lua -], [],
+# 	    [AC_MSG_ERROR([Lua socket module is not installed.])])
 
 AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
