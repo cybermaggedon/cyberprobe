@@ -3,10 +3,8 @@ Maintainer: Cyber MacGeddon <cybermaggedon@gmail.com>
 Section: uknown
 Priority: optional
 Standards-Version: 3.9.2
-Build-Depends: lua5.2, python2.7,  
-  mime-support, libboost-dev, python-minimal, libexpat1,
-  liblua5.2-dev, mawk, libpcap0.8, python2.7-minimal,
-  libc6, libreadline7
+Build-Depends: lua5.2, mime-support, libboost-program-options1.62.0,
+   python3-minimal, libexpat1, liblua5.2, mawk, libpcap0.8, libc6, libreadline7
 Homepage: https://cybermaggedon.github.io/cyberprobe-docs/
 
 Package: cyberprobe
