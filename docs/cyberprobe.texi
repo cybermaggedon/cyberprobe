@@ -201,6 +201,9 @@ tutorial.
 Cyberprobe releases:
 
 @table @code
+@item 2.0.5
+Added VXLAN support to cybermon.  This allows cybermon to receive the
+VXLAN protocol which is e.g. used by AWS Traffic Mirroring.
 
 @item 2.0
 New simpler Lua API.  Native JSON encoding boosts performance of JSON output
@@ -3132,7 +3135,7 @@ provides.  Synposes:
 @example
 cybermon [--help] [--transport TRANSPORT] [--port PORT] [--key KEY]
         [--certificate CERT] [--trusted-ca CHAIN] [--pcap PCAP_FILE]
-        [--config CONFIG]
+        [--config CONFIG] [--vxlan VXLAN-PORT]
 @end example
 
 @itemize @bullet
@@ -3172,6 +3175,12 @@ is a Lua configuration file, which specifies the action @command{cybermon}
 should take when certain events are observed.  See
 @ref{@command{cybermon} configuration}.
 
+@item
+@var{VXLAN-PORT}
+is a UDP port number.  This describes a port number to listen on for
+VXLAN protocol.  This scenario is used to receive traffic-mirrored data
+on AWS.
+
 @end itemize
 
 @comment ----------------------------------------------------------------------
@@ -3187,7 +3196,7 @@ which you can specify. The tool is very much a work in progress - it has
 limited protocol decode capability at the moment, but there's enough there
 to demonstrate the idea.  Usage
 
-Usage is: @code{cybermon <port-number> <config-file>}
+Usage is: @code{cybermon -p <port-number> -c <config-file>}
 
 You specify a port number to receive data on, and a configuration file
 written in Lua. Lua is a simple but powerful scripting language. Here's an
@@ -3209,6 +3218,7 @@ local observer = @{@}
 
 -- Called when an event occurs
 observer.event = function(e)
+  print(e.action)
 end
 
 -- Return the table
@@ -4329,10 +4339,6 @@ be used with the functions described below to access further information
 from @command{cybermon}.
 
 @item tls
-@table @code
-
-@end table
-
 @end table
 
 @item tls_application_data
