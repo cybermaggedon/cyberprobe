@@ -16,7 +16,7 @@ NHIS 1.1 test receiver.  Usage:
 
 #include <getopt.h>
 
-class output : public monitor {
+class output : public cybermon::monitor {
 private:
     pcap_writer& p;
     std::mutex lock;

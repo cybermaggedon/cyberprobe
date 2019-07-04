@@ -11,7 +11,7 @@ ETSI LI test receiver.  Usage:
 #include <cybermon/etsi_li.h>
 #include <cybermon/packet_capture.h>
 
-class output : public monitor {
+class output : public cybermon::monitor {
 private:
     pcap_writer& p;
     std::mutex mutex;

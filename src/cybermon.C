@@ -30,9 +30,10 @@ Usage:
 #include <cybermon_qreader.h>
 #include <cybermon/pdu.h>
 #include <cybermon/event.h>
+#include <cybermon/vxlan.h>
 
 // Monitor class, implements the monitor interface to receive data.
-class etsi_monitor : public monitor {
+class monitor : public cybermon::monitor {
 private:
 
     // Analysis engine
@@ -44,7 +45,7 @@ public:
     typedef std::vector<unsigned char>::iterator iter;
 
     // Constructor.
-    etsi_monitor(cybermon::engine& an) : an(an) {}
+    monitor(cybermon::engine& an) : an(an) {}
 
     // Called when a PDU is received.
     virtual void operator()(const std::string& liid,
@@ -66,7 +67,7 @@ public:
 };
 
 // Called when attacker is discovered.
-void etsi_monitor::target_up(const std::string& liid,
+void monitor::target_up(const std::string& liid,
 			     const std::string& network,
 			     const tcpip::address& addr,
 			     const struct timeval& tv)
@@ -75,7 +76,7 @@ void etsi_monitor::target_up(const std::string& liid,
 }
 
 // Called when attacker is discovered.
-void etsi_monitor::target_down(const std::string& liid,
+void monitor::target_down(const std::string& liid,
 			       const std::string& network,
 			       const struct timeval& tv)
 {
@@ -83,7 +84,7 @@ void etsi_monitor::target_down(const std::string& liid,
 }
 
 // Called when a PDU is received.
-void etsi_monitor::operator()(const std::string& liid,
+void monitor::operator()(const std::string& liid,
 			      const std::string& network,
 			      const iter& s, const iter& e,
 			      const struct timeval& tv, cybermon::direction d)
@@ -224,6 +225,7 @@ int main(int argc, char** argv)
 
     std::string key, cert, chain;
     unsigned int port = 0;
+    unsigned int vxlan_port = 0;
     std::string pcap_file, config_file;
     std::string transport;
 
@@ -239,6 +241,8 @@ int main(int argc, char** argv)
 	("trusted-ca,T", po::value<std::string>(&chain), "server trusted CAs")
 	("port,p", po::value<unsigned int>(&port), "port number to listen on")
 	("pcap,f", po::value<std::string>(&pcap_file), "PCAP file to read")
+	("vxlan,V", po::value<unsigned int>(&vxlan_port),
+         "VXLAN port to listen on")
 	("config,c", po::value<std::string>(&config_file),
 	 "LUA configuration file");
 
@@ -252,7 +256,7 @@ int main(int argc, char** argv)
 	if (config_file == "")
 	    throw std::runtime_error("Configuration file must be specified.");
 
-	if (pcap_file == "" && port == 0)
+	if (pcap_file == "" && port == 0 && vxlan_port == 0)
 	    throw std::runtime_error("Must specify a PCAP file or a port.");
 
 	if (pcap_file != "" && port != 0)
@@ -310,6 +314,14 @@ int main(int argc, char** argv)
             pcap_input pin(pcap_file, cqw);
 	    pin.run();
 
+        } else if (vxlan_port != 0) {
+
+            monitor m(cqw);
+
+            cybermon::vxlan::receiver r(vxlan_port, m);
+            r.start();
+            r.join();
+
 	} else if (transport == "tls") {
 
 	    std::shared_ptr<tcpip::ssl_socket> sock(new tcpip::ssl_socket);
@@ -321,7 +333,7 @@ int main(int argc, char** argv)
 
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-	    etsi_monitor m(cqw);
+	    monitor m(cqw);
 
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(sock, m);
@@ -334,7 +346,7 @@ int main(int argc, char** argv)
 
 	    // Create the monitor instance, receives ETSI events, and processes
 	    // data.
-            etsi_monitor m(cqw);
+            monitor m(cqw);
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(port, m);
 	    r.start();
