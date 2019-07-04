@@ -195,8 +195,8 @@ public:
 	    throw std::runtime_error("pcap_dump_open_dead failed.");
     }
 
-    void write(const std::vector<unsigned char>::iterator& begin,
-	       const std::vector<unsigned char>::iterator& end) {
+    void write(std::vector<unsigned char>::const_iterator begin,
+	       std::vector<unsigned char>::const_iterator end) {
 
 	struct pcap_pkthdr h;
 

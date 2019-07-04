@@ -19,8 +19,8 @@ public:
     output(pcap_writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
-			    const std::vector<unsigned char>::iterator& s,
-			    const std::vector<unsigned char>::iterator& e,
+			    std::vector<unsigned char>::const_iterator s,
+			    std::vector<unsigned char>::const_iterator e,
 			    const timeval& tv, cybermon::direction d) {
 	std::lock_guard<std::mutex> lock(mutex);
 	p.write(s, e);

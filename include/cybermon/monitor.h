@@ -18,8 +18,8 @@ namespace cybermon {
         // IP packet.
         virtual void operator()(const std::string& liid,
                                 const std::string& network,
-                                const std::vector<unsigned char>::iterator&,
-                                const std::vector<unsigned char>::iterator&,
+                                std::vector<unsigned char>::const_iterator,
+                                std::vector<unsigned char>::const_iterator,
                                 const struct timeval& tv,
                                 cybermon::direction dir) = 0;
         

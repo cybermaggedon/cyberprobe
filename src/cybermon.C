@@ -42,7 +42,7 @@ private:
 public:
 
     // Short-hand for vector iterator.
-    typedef std::vector<unsigned char>::iterator iter;
+    typedef std::vector<unsigned char>::const_iterator iter;
 
     // Constructor.
     monitor(cybermon::engine& an) : an(an) {}
@@ -50,7 +50,7 @@ public:
     // Called when a PDU is received.
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
-			    const iter& s, const iter& e,
+			    iter s, iter e,
 			    const struct timeval& tv, cybermon::direction d);
 
     // Called when attacker is discovered.
@@ -85,9 +85,9 @@ void monitor::target_down(const std::string& liid,
 
 // Called when a PDU is received.
 void monitor::operator()(const std::string& liid,
-			      const std::string& network,
-			      const iter& s, const iter& e,
-			      const struct timeval& tv, cybermon::direction d)
+                         const std::string& network,
+                         iter s, iter e,
+                         const struct timeval& tv, cybermon::direction d)
 {
 
     try {
