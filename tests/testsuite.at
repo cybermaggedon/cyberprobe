@@ -111,13 +111,13 @@ sort < $abs_srcdir/samples/ipv6-smtp.pcap.monitor > output2
 AT_CHECK([diff output1 output2],,[])
 AT_CLEANUP
 
-AT_SETUP([tls.pcap])
-cat $abs_srcdir/samples/tls.pcap | \
-    $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
-    sort > output1
-sort < $abs_srcdir/samples/tls.pcap.monitor > output2
-AT_CHECK([diff output1 output2],,[])
-AT_CLEANUP
+# AT_SETUP([tls.pcap])
+# cat $abs_srcdir/samples/tls.pcap | \
+#     $abs_top_builddir/src/cybermon -f - -c $abs_top_srcdir/config/monitor.lua | \
+#     sort > output1
+# sort < $abs_srcdir/samples/tls.pcap.monitor > output2
+# AT_CHECK([diff output1 output2],,[])
+# AT_CLEANUP
 
 # AT_SETUP([tls-with-cert.pcap])
 # cat $abs_srcdir/samples/tls-with-cert.pcap | \
