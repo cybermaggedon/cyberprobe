@@ -10,8 +10,6 @@ using namespace cybermon::vxlan;
 void receiver::run()
 {
 
-    std::cerr << "VXLAN mon running..." << std::endl;
-
     try {
 
 	while (running) {
