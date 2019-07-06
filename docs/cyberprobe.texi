@@ -373,6 +373,11 @@ See @ref{A containerised processing system}.
 
 @heading Debian / Ubuntu repository
 
+@cindex Debian
+@cindex Ubuntu
+@cindex @command{dpkg}
+@cindex @command{apt-get}
+
 We use GoCD to build the software, and regularly release packages
 in DEB and RPM form.  Installing from the repository is the easiest way to
 install if you're not using containers.
@@ -431,6 +436,9 @@ apt-get install cyberprobe
 
 @heading Fedora
 
+@cindex Fedora
+@cindex @command{dnf}
+
 To install using DNF, create file
 @file{/etc/yum.repos.d/cyberprobe.repo}:
 
@@ -455,6 +463,9 @@ We use this signing key:
 @end example
 
 @heading Amazon Linux
+
+@cindex Amazon Linux
+@cindex @command{yum}
 
 To install using Yum create file
 @file{/etc/yum.repos.d/cyberprobe.repo}:
