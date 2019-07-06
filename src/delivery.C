@@ -15,6 +15,8 @@
 #include "dag_capture.h"
 #endif
 
+#include <vxlan_capture.h>
+
 // This method studies the packet data, and PCAP datalink attribute, and:
 // - Returns the IP version (4 or 6).
 // - Alters the start iterator to point at the start of the IP packet.
@@ -450,13 +452,27 @@ void delivery::add_interface(const std::string& iface,
 
 #endif
 
-            pcap_dev* p = new pcap_dev(iface, delay, *this);
-            if (filter != "")
-                p->add_filter(filter);
+            if (iface.substr(0, 6) == "vxlan:") {
 
-            p->start();
+                unsigned short port = std::stoi(iface.substr(6));
 
-            interfaces[i] = p;
+                vxlan_capture* p = new vxlan_capture(port, delay, *this);
+                if (filter != "")
+                    p->add_filter(filter);
+                p->start();
+                interfaces[i] = p;
+
+            } else {
+
+                pcap_dev* p = new pcap_dev(iface, delay, *this);
+                if (filter != "")
+                    p->add_filter(filter);
+
+                p->start();
+
+                interfaces[i] = p;
+
+            }
 
 #ifdef WITH_DAG
 	}

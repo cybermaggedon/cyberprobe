@@ -87,9 +87,10 @@ FIXME: Architecture diagram needs an update.
 * Overview::
 * Obtaining the software::
 * Quick start tutorial::
-* Running cyberprobe/cybermon::
+* Running cyberprobe/cybermon at boot time::
 * The pub/sub infrastructure::
 * A containerised processing system::
+* Integrating with AWS Traffic Mirroring::
 * Endace DAG::
 * Reference::
 * Architecture::
@@ -372,6 +373,11 @@ See @ref{A containerised processing system}.
 
 @heading Debian / Ubuntu repository
 
+@cindex Debian
+@cindex Ubuntu
+@cindex @command{dpkg}
+@cindex @command{apt-get}
+
 We use GoCD to build the software, and regularly release packages
 in DEB and RPM form.  Installing from the repository is the easiest way to
 install if you're not using containers.
@@ -428,9 +434,12 @@ apt-get update
 apt-get install cyberprobe
 @end example
 
-@heading Centos / Fedora
+@heading Fedora
 
-To install using Yum or DNF, create file
+@cindex Fedora
+@cindex @command{dnf}
+
+To install using DNF, create file
 @file{/etc/yum.repos.d/cyberprobe.repo}:
 
 @example
@@ -448,7 +457,29 @@ and then:
 dnf install cyberprobe
 @end example
 
-Or, for Centos 7:
+We use this signing key:
+@example
+@include signing.texi
+@end example
+
+@heading Amazon Linux
+
+@cindex Amazon Linux
+@cindex @command{yum}
+
+To install using Yum create file
+@file{/etc/yum.repos.d/cyberprobe.repo}:
+
+@example
+[cyberprobe]
+name=Cyberprobe
+baseurl=https://cybermaggedon.github.io/cyberprobe-release/amazon/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://cybermaggedon.github.io/cyberprobe-release/cyberprobe.asc
+@end example
+
+and then:
 
 @example
 yum install cyberprobe
@@ -2000,8 +2031,8 @@ you found the experience.
 
 @comment ----------------------------------------------------------------------
 
-@node Running cyberprobe/cybermon
-@chapter Running cyberprobe/cybermon
+@node Running cyberprobe/cybermon at boot time
+@chapter Running cyberprobe/cybermon at boot time
 
 The @command{cyberprobe} and @command{cybermon} utilities are used as a pair
 to analyse network data.  The @command{cyberprobe} component is used to
@@ -2433,6 +2464,55 @@ wget -q -O- http://www.example.org/
 
 @comment ----------------------------------------------------------------------
 
+@node Integrating with AWS Traffic Mirroring
+@chapter Integrating with AWS Traffic Mirroring
+
+
+@cindex AWS Traffic Mirroring
+@cindex VXLAN
+
+@heading Overview
+
+AWS allows you to mirror network traversing a network interface (ENI)
+to another ENI, essentially providing the equivalent of an Ethernet tap
+in a data centre.  Traffic Mirroring allows you to select network interfaces
+or NLBs for traffic mirroring.  Filters can be applied to select the subset
+of traffic which will be mirrored, and a target interface allows you to specify
+an ENI or load-balancer to receive the data.  Data is delivered in VXLAN
+format, essentially, Ethernet frames wrapped in an 8-byte header.  These frames
+are delivered over UDP to port 4789.
+
+@heading Cyberprobe implementation
+
+Cyberprobe provides two ways to integrate with AWS Traffic Mirroring:
+
+@itemize @bullet
+
+@item
+@command{cyberprobe} implements VXLAN reception.  If an interface is defined
+whose
+name has a @code{vxlan:PORT} form, then a VXLAN receiver is started on the
+specified UDP port number.  For AWS traffic mirroring, delivery is on port
+4789, so the interface name @code{vxlan:4789} would be used.
+
+@item
+@command{cybermon} implements VXLAN reception with the @code{-V} option
+allowing a port to be specified.  Events produced form a VXLAN feed have
+the device ID set to the string @samp{VNI} plus the VNI identifier in
+decimal.
+
+@end itemize
+
+Using VXLAN support in @command{cyberprobe} provides more flexibility, as
+this allows delay line and filter commands to be used.  Also, IP addresses
+can be mapped to device IDs.
+
+Using VXLAN support in @command{cybermon} means that @command{cyberprobe}
+does not need to be used, and provides for a simpler architecture.
+
+
+@comment ----------------------------------------------------------------------
+
 @node Endace DAG
 @chapter Endace DAG
 
@@ -2657,12 +2737,16 @@ a management interface on the specified port. The @code{port},
 @code{username} and @code{password} attributes must be specified. See
 @ref{Management interface} for how to communicate with that interface.
 
+@cindex VXLAN
+@cindex AWS Traffic Mirroring
 The @code{interfaces} block defines a set of interfaces to sniff. The
 @code{name} attribute is mandatory, the @code{filter} element is optional,
 and if specified should describe a BPF (Berkley Packet Filter)
 expression. The @code{delay} element can be used to specify, in seconds, the
 duration to wait before packets are processed. The delay is specified as a
-floating point decimal.
+floating point decimal.  If the interface name is of the form
+@command{vxlan:PORT} then a VXLAN receiver is run in the specified port
+number for reception of e.g. AWS Traffic Mirroring.
 
 The @code{targets} block defines IP address to match. The
 @code{address} attribute defines the IP address with optional mask used for
@@ -3125,6 +3209,8 @@ although this is not present as a prompt or in the protocol dialogue.
 @section @command{cybermon} invocation
 
 @cindex @command{cybermon}, invocation
+@cindex VXLAN
+@cindex AWS Traffic Mirroring
 
 @command{cybermon} is a configurable network packet stream analyser.  It is
 designed to receive packets from cyberprobe, analyse them and generate

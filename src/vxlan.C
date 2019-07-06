@@ -10,8 +10,6 @@ using namespace cybermon::vxlan;
 void receiver::run()
 {
 
-    std::cerr << "VXLAN mon running..." << std::endl;
-
     try {
 
 	while (running) {
@@ -40,7 +38,7 @@ void receiver::run()
                         buffer[5] << 16 |
                         buffer[4] << 8;
 
-                std::string device = "VXLAN" + std::to_string(vxlan_id);
+                std::string device = "VNI" + std::to_string(vxlan_id);
                 
                 std::vector<unsigned char>::const_iterator p = buffer.begin();
                 std::vector<unsigned char>::const_iterator end = buffer.end();

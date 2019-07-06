@@ -16,4 +16,4 @@ cybermoninc_HEADERS = cybermon/address.h cybermon/base_context.h	\
 	cybermon/tcp.h cybermon/transport.h		\
 	cybermon/udp.h cybermon/unrecognised.h cybermon/xml.h		\
 	cybermon/serial.h cybermon/udp_ports.h cybermon/tcp_ports.h     \
-	cybermon/vxlan.h
+	cybermon/vxlan.h cybermon/eth_header.h
