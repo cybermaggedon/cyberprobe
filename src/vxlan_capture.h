@@ -55,6 +55,11 @@ public:
         this->datalink = DLT_EN10MB; // FIXME: Hard-coded?
         this->port = port;
         this->running = true;
+
+        uint64_t delay_usec = delay * 1000000;
+        delay_val.tv_usec = delay_usec % 1000000;
+        delay_val.tv_sec = delay_usec / 1000000;
+
     }
 
     // Destructor.
