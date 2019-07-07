@@ -130,21 +130,21 @@ class delivery : public parameters, public management, public packet_consumer {
 private:
 
     // Targets : an IP address to LIID mapping.
-    std::mutex targets_lock;
+    std::mutex targets_mutex;
 
     address_map<tcpip::ip4_address, match_state> targets;
     address_map<tcpip::ip6_address, match_state> targets6;
 
     // Endpoints
-    std::mutex senders_lock;
+    std::mutex senders_mutex;
     std::map<ep, sender*> senders;
 
     // Interfaces
-    std::mutex interfaces_lock;
+    std::mutex interfaces_mutex;
     std::map<intf, capture_dev*> interfaces;
 
     // Parameters and lock
-    std::mutex parameters_lock;
+    std::mutex parameters_mutex;
     std::map<std::string, std::string> parameters;
 
     // Short-hand
@@ -199,13 +199,11 @@ public:
     std::string get_parameter(const std::string& key,
 			      const std::string& dflt) {
 
-	parameters_lock.lock();
+        std::lock_guard<std::mutex> lock(parameters_mutex);
 	if (parameters.find(key) != parameters.end()) {
 	    std::string ret = parameters[key];
-	    parameters_lock.unlock();
 	    return ret;
 	} else {
-	    parameters_lock.unlock();
 	    return dflt;
 	}
 
@@ -258,23 +256,20 @@ public:
 
     // Add a parameter
     virtual void add_parameter(const std::string& key, const std::string& val) {
-	parameters_lock.lock();
+        std::lock_guard<std::mutex> lock(parameters_mutex);
 	parameters[key] = val;
-	parameters_lock.unlock();
     }
 
     // Remove a parameter
     virtual void remove_parameter(const std::string& key) {
-	parameters_lock.lock();
+        std::lock_guard<std::mutex> lock(parameters_mutex);
 	parameters.erase(key);
-	parameters_lock.unlock();
     }
 
     // Get all parameters.
     virtual void get_parameters(std::map<std::string,std::string>& params) {
-	parameters_lock.lock();
+        std::lock_guard<std::mutex> lock(parameters_mutex);
 	params = parameters;
-	parameters_lock.unlock();
     }
 
 
