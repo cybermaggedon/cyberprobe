@@ -137,7 +137,7 @@ bool delivery::ipv4_match(const_iterator& start,
     daddr.addr.assign(start + 16, start + 20);
 
     // Get the target map lock.
-    targets_lock.lock();
+    std::lock_guard<std::mutex> lock(targets_mutex);
 
     bool is_hit;
     match_state* md = 0;
@@ -160,13 +160,12 @@ bool delivery::ipv4_match(const_iterator& start,
 	    expand_template(md->network, *network, saddr, *subnet, link);
 
 	    // Tell all senders, target up.
-	    senders_lock.lock();
+            std::lock_guard<std::mutex> lock(senders_mutex);
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
 		it->second->target_up(liid, network, saddr);
 	    }
-	    senders_lock.unlock();
 
 	    md->mangled[saddr].liid = liid;
 	    md->mangled[saddr].network = network;
@@ -175,7 +174,6 @@ bool delivery::ipv4_match(const_iterator& start,
 
 	m = &(md->mangled.find(saddr)->second);
 	hit = saddr;
-	targets_lock.unlock();
         dir = cybermon::FROM_TARGET;
 	return true;
 
@@ -198,13 +196,12 @@ bool delivery::ipv4_match(const_iterator& start,
 	    expand_template(md->network, *network, daddr, *subnet, link);
 
 	    // Tell all senders, target up.
-	    senders_lock.lock();
+            std::lock_guard<std::mutex> lock(senders_mutex);
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
 		it->second->target_up(liid, network, daddr);
 	    }
-	    senders_lock.unlock();
 
 	    md->mangled[daddr].liid = liid;
 	    md->mangled[daddr].network = network;
@@ -213,13 +210,11 @@ bool delivery::ipv4_match(const_iterator& start,
 
 	m = &(md->mangled.find(daddr)->second);
 	hit = daddr;
-	targets_lock.unlock();
         dir = cybermon::TO_TARGET;
 	return true;
 
     }
 
-    targets_lock.unlock();
     return false;
 
 }
@@ -246,7 +241,7 @@ bool delivery::ipv6_match(const_iterator& start,
     daddr.addr.assign(start + 24, start + 40);
 
     // Get the target map lock.
-    targets_lock.lock();
+    std::lock_guard<std::mutex> lock(targets_mutex);
 
     bool is_hit;
     match_state* md = 0;
@@ -269,13 +264,12 @@ bool delivery::ipv6_match(const_iterator& start,
 	    expand_template(md->network, *network, saddr, *subnet, link);
 
 	    // Tell all senders, target up.
-	    senders_lock.lock();
+            std::lock_guard<std::mutex> lock(senders_mutex);
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
 		it->second->target_up(liid, network, saddr);
 	    }
-	    senders_lock.unlock();
 
 	    md->mangled6[saddr].liid = liid;
 	    md->mangled6[saddr].network = network;
@@ -284,7 +278,6 @@ bool delivery::ipv6_match(const_iterator& start,
 
 	m = &(md->mangled6.find(saddr)->second);
 	hit = saddr;
-	targets_lock.unlock();
         dir = cybermon::FROM_TARGET;
 	return true;
 
@@ -307,13 +300,12 @@ bool delivery::ipv6_match(const_iterator& start,
 	    expand_template(md->network, *network, daddr, *subnet, link);
 
 	    // Tell all senders, target up.
-	    senders_lock.lock();
+            std::lock_guard<std::mutex> lock(senders_mutex);
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
 		it->second->target_up(liid, network, daddr);
 	    }
-	    senders_lock.unlock();
 
 	    md->mangled6[daddr].liid = liid;
 	    md->mangled6[daddr].network = network;
@@ -322,13 +314,11 @@ bool delivery::ipv6_match(const_iterator& start,
 
 	m = &(md->mangled6.find(daddr)->second);
 	hit = daddr;
-	targets_lock.unlock();
         dir = cybermon::TO_TARGET;
 	return true;
 
     }
 
-    targets_lock.unlock();
     return false;
 
 }
@@ -370,7 +360,7 @@ void delivery::receive_packet(timeval tv,
 	assert(m != 0);
 
 	// Get the senders list lock.
-	senders_lock.lock();
+        std::lock_guard<std::mutex> lock(senders_mutex);
 
 	// Now invoke destinations, and send packet to destinations.
 	for(std::map<ep,sender*>::iterator it = senders.begin();
@@ -378,9 +368,6 @@ void delivery::receive_packet(timeval tv,
 	    it++) {
 	    it->second->deliver(tv, m->liid, m->network, dir, start, end);
 	}
-
-	// Unlock, we're done.
-	senders_lock.unlock();
 
     }
 
@@ -401,7 +388,7 @@ void delivery::receive_packet(timeval tv,
 	assert(m != 0);
 
 	// Get the senders list lock.
-	senders_lock.lock();
+        std::lock_guard<std::mutex> lock(senders_mutex);
 
 	// Now invoke destinations, and send packet to destinations.
 	for(std::map<ep,sender*>::iterator it = senders.begin();
@@ -409,9 +396,6 @@ void delivery::receive_packet(timeval tv,
 	    it++) {
 	    it->second->deliver(tv, m->liid, m->network, dir, start, end);
 	}
-
-	// Unlock, we're done.
-	senders_lock.unlock();
 
     }
 
@@ -423,7 +407,7 @@ void delivery::add_interface(const std::string& iface,
 			     float delay)
 {
 
-    interfaces_lock.lock();
+    std::lock_guard<std::mutex> lock(interfaces_mutex);
 
     intf i;
     i.interface = iface;
@@ -479,11 +463,8 @@ void delivery::add_interface(const std::string& iface,
 #endif
 
     } catch (std::exception& e) {
-	interfaces_lock.unlock();
 	throw;
     }
-
-    interfaces_lock.unlock();
 
 }
 
@@ -493,7 +474,7 @@ void delivery::remove_interface(const std::string& iface,
 				float delay)
 {
 
-    interfaces_lock.lock();
+    std::lock_guard<std::mutex> lock(interfaces_mutex);
 
     intf i;
     i.interface = iface;
@@ -506,8 +487,6 @@ void delivery::remove_interface(const std::string& iface,
 	interfaces.erase(i);
     }
 
-    interfaces_lock.unlock();
-
 }
 
 void delivery::get_interfaces(std::list<interface_info>& ii)
@@ -515,7 +494,7 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 
     ii.clear();
 
-    interfaces_lock.lock();
+    std::lock_guard<std::mutex> lock(interfaces_mutex);
 
     for(std::map<intf,capture_dev*>::iterator it = interfaces.begin();
 	it != interfaces.end();
@@ -527,8 +506,6 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 	ii.push_back(inf);
     }
 
-    interfaces_lock.unlock();
-
 }
 
 // Modifies the target map to include a mapping from address to target.
@@ -538,7 +515,7 @@ void delivery::add_target(const tcpip::address& addr,
 			  const std::string& network)
 {
 
-    targets_lock.lock();
+    std::lock_guard<std::mutex> lock(targets_mutex);
 
     if (addr.universe == addr.ipv4) {
 	const tcpip::ip4_address& a =
@@ -550,15 +527,13 @@ void delivery::add_target(const tcpip::address& addr,
 	targets6.insert(a, mask, match_state(liid, network));
     }
 
-    targets_lock.unlock();
-
 }
 
 // Removes a target mapping.
 void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 {
 
-    targets_lock.lock();
+    std::lock_guard<std::mutex> lock(targets_mutex);
 
     std::string liid;
 
@@ -573,7 +548,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	if (hit) {
 
 	    // Tell all senders, target down.
-	    senders_lock.lock();
+            std::lock_guard<std::mutex> lock(senders_mutex);
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
@@ -595,7 +570,6 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 		}
 
 	    }
-	    senders_lock.unlock();
 
 	}
 	
@@ -612,7 +586,8 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	if (hit) {
 
 	    // Tell all senders, target down.
-	    senders_lock.lock();
+            std::lock_guard<std::mutex> lock(senders_mutex);
+
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
@@ -634,15 +609,12 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 		}
 
 	    }
-	    senders_lock.unlock();
 
 	}
 	
 	targets6.remove(a, mask);
 
     }
-
-    targets_lock.unlock();
 
 }
 
@@ -666,7 +638,7 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
 			    const std::map<std::string, std::string>& params)
 {
 
-    senders_lock.lock();
+    std::lock_guard<std::mutex> lock(senders_mutex);
 
     ep e(host, port, type, transport, params);
 
@@ -683,14 +655,12 @@ void delivery::add_endpoint(const std::string& host, unsigned int port,
     } else if (type == "etsi") {
 	s = new etsi_li_sender(host, port, transport, params, *this);
     } else {
-	senders_lock.unlock();
 	throw std::runtime_error("Endpoint type not known.");
     }
 
     s->start();
     senders[e] = s;
 
-    senders_lock.unlock();
 }
 
 // Removes an endpoint
@@ -700,7 +670,7 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 			       const std::map<std::string, std::string>& params)
 {
 
-    senders_lock.lock();
+    std::lock_guard<std::mutex> lock(senders_mutex);
 
     ep e(host, port, type, transport, params);
 
@@ -710,15 +680,13 @@ void delivery::remove_endpoint(const std::string& host, unsigned int port,
 	senders.erase(e);
     }
 
-    senders_lock.unlock();
-
 }
 
 // Fetch current target list.
 void delivery::get_endpoints(std::list<sender_info>& info)
 {
 
-    senders_lock.lock();
+    std::lock_guard<std::mutex> lock(senders_mutex);
 
     info.clear();
     for(std::map<ep,sender*>::iterator it = senders.begin();
@@ -728,8 +696,6 @@ void delivery::get_endpoints(std::list<sender_info>& info)
 	it->second->get_info(inf);
 	info.push_back(inf);
     }
-
-    senders_lock.unlock();
 
 }
 
