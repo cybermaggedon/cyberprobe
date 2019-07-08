@@ -48,7 +48,14 @@ protected:
 public:
 
     delayline_dev(packet_consumer& deliv, float delay, int datalink) :
-        deliv(deliv), delay(delay), datalink(datalink) {}
+        deliv(deliv), delay(delay), datalink(datalink) {
+
+        // Calculate delay in form of a timeval.
+        uint64_t delay_usec = delay * 1000000;
+        delay_val.tv_usec = delay_usec % 1000000;
+        delay_val.tv_sec = delay_usec / 1000000;
+
+    }
 
     virtual ~delayline_dev() {}
         
