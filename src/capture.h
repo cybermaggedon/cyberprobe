@@ -47,8 +47,8 @@ protected:
 
 public:
 
-    delayline_dev(packet_consumer& deliv, int datalink) :
-        deliv(deliv), datalink(datalink) {}
+    delayline_dev(packet_consumer& deliv, float delay, int datalink) :
+        deliv(deliv), delay(delay), datalink(datalink) {}
 
     virtual ~delayline_dev() {}
         
@@ -94,8 +94,7 @@ public:
 
     // Constructor.  i=interface name, d=packet consumer.
     pcap_dev(const std::string& i, float delay, packet_consumer& d) :
-	pcap_interface(i), delayline_dev(d, pcap_datalink(p)) {
-	this->delay = delay;
+	pcap_interface(i), delayline_dev(d, delay, pcap_datalink(p)) {
 	thr = 0;
     }
 

@@ -7,7 +7,8 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	sender.h delivery.h capture.h \
 	configuration.h control.h snort_alert.h target.h \
 	parameters.h packet_consumer.h interface.h \
-	endpoint.h parameter.h
+	endpoint.h parameter.h \
+	vxlan_capture.h vxlan_capture.C
 cyberprobe_LDADD = libcybermon.la -lssl
 
 if WITH_DAG
@@ -47,7 +48,6 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C tls_handshake.C tls_utils.C \
 	hardware_addr_utils.h tls_cipher_suites.h tls_exception.h tls_extensions.h \
 	tls_handshake.h tls_key_exchange.h tls_utils.h \
-	vxlan_capture.h vxlan_capture.C \
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
 	address_map.h	uuid.h	                \
 	../include/cybermon/base_context.h				\
