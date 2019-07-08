@@ -7,44 +7,6 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-// Packet handler.
-void vxlan_capture::handle(const timeval& tv, 
-                           std::vector<unsigned char>::const_iterator s,
-                           std::vector<unsigned char>::const_iterator e)
-{
-
-    // FIXME: Copied from capture.C
-    // FIXME: Delay line should go in the capture_dev class.
-
-    // Bypass the delay line stuff if there's no delay.
-    if (delay == 0.0) {
-
-	// Convert into a vector.
-	std::vector<unsigned char> packet;
-	packet.assign(s, e);
-
-	// Submit to the delivery engine.
-	deliv.receive_packet(tv, packet, datalink);
-
-    } else {
-
-	// Put a new packet on the delay line.
-	delay_line.push(delayed_packet());
-
-	// Get time now.
-	struct timeval now;
-	gettimeofday(&now, 0);
-
-	// Set packet exit time.
-	timeradd(&now, &delay_val, &(delay_line.back().exit_time));
-
-	// Put packet data on queue.
-	delay_line.back().packet.assign(s, e);
-
-    }
-
-}
-
 // Capture device, main thread body.
 void vxlan_capture::run()
 {
@@ -121,32 +83,14 @@ void vxlan_capture::run()
 		// No filter in place, or filter hits.
                 timeval tv = {0};
 
-		handle(tv, s, e);
+		handle(tv, e - s, &s[0]);
 
 	    }
 
 	}
 
 	// Maybe clear some delay line.
-	// FIXME: Copied from capture.C
-
-	// Get time
-	struct timeval now;
-	gettimeofday(&now, 0);
-
-	while (!(delay_line.empty())) {
-
-	    if (delay_line.front().exit_time.tv_sec > now.tv_sec) break;
-
-	    if ((delay_line.front().exit_time.tv_sec == now.tv_sec) &&
-		(delay_line.front().exit_time.tv_usec > now.tv_usec))
-		break;
-
-	    // Packet ready to go.
-            deliv.receive_packet(now, delay_line.front().packet, datalink);
-            delay_line.pop();
-
-	}
+        service_delayline();
 
     }
 

@@ -115,14 +115,12 @@ public:
 	count = 0;
     }
 
-    virtual void handle(timeval tv, unsigned long len, unsigned long captured,
-			const unsigned char* f);
+    virtual void handle(timeval tv, unsigned long len, const unsigned char* f);
 
 };
 
 
-void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
-			const unsigned char* f)
+void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 {
 
     int datalink = pcap_datalink(p);
@@ -138,7 +136,7 @@ void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
 	    if (f[12] == 0x08 && f[13] == 0) {
 
 		std::vector<unsigned char> v;
-		v.assign(f + 14, f + captured);
+		v.assign(f + 14, f + len);
 
 		// FIXME: Hard-coded?!
 		std::string liid = "PCAP";
@@ -152,7 +150,7 @@ void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
 	    if (f[12] == 0x86 && f[13] == 0xdd) {
 
 		std::vector<unsigned char> v;
-		v.assign(f + 14, f + captured);
+		v.assign(f + 14, f + len);
 
 		// FIXME: Hard-coded?!
 		std::string liid = "PCAP";
@@ -169,7 +167,7 @@ void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
 		if (f[16] == 0x08 && f[17] == 0) {
 
 		    std::vector<unsigned char> v;
-		    v.assign(f + 18, f + captured);
+		    v.assign(f + 18, f + len);
 
 		    // FIXME: Hard-coded?!
 		    std::string liid = "PCAP";
@@ -183,7 +181,7 @@ void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
 		if (f[16] == 0x86 && f[17] == 0xdd) {
 
 		    std::vector<unsigned char> v;
-		    v.assign(f + 18, f + captured);
+		    v.assign(f + 18, f + len);
 
 		    // FIXME: Hard-coded?!
 		    std::string liid = "PCAP";
@@ -200,7 +198,7 @@ void pcap_input::handle(timeval tv, unsigned long len, unsigned long captured,
 	if (datalink == DLT_RAW) {
 
 	    std::vector<unsigned char> v;
-	    v.assign(f, f + captured);
+	    v.assign(f, f + len);
 
 	    // FIXME: Hard-coded?!
 	    std::string liid = "PCAP";

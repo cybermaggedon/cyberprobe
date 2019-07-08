@@ -6,42 +6,6 @@
 #include <dagapi.h>
 #include <arpa/inet.h>
 
-// Packet handler.
-void dag_dev::handle(timeval tv, unsigned long len, unsigned long captured,
-		     const unsigned char* payload)
-{
-
-    // FIXME: Copied from capture.C
-
-    // Bypass the delay line stuff if there's no delay.
-    if (delay == 0.0) {
-
-	// Convert into a vector.
-	std::vector<unsigned char> packet;
-	packet.assign(payload, payload + captured);
-
-	// Submit to the delivery engine.
-	deliv.receive_packet(tv, packet, datalink);
-
-    } else {
-
-	// Put a new packet on the delay line.
-	delay_line.push(delayed_packet());
-
-	// Get time now.
-	struct timeval now;
-	gettimeofday(&now, 0);
-
-	// Set packet exit time.
-	timeradd(&now, &delay_val, &(delay_line.back().exit_time));
-
-	// Put packet data on queue.
-	delay_line.back().packet.assign(payload, payload + captured);
-
-    }
-
-}
-
 // Capture device, main thread body.
 void dag_dev::run()
 {
@@ -173,7 +137,7 @@ void dag_dev::run()
 
 		// No filter in place, or filter hits.
                 timeval tv = {0};
-		handle(tv, len - pos, len - pos, bottom + pos);
+		handle(tv, len - pos, bottom + pos);
 
 	    }
 
@@ -185,23 +149,7 @@ void dag_dev::run()
 	// Maybe clear some delay line.
 	// FIXME: Copied from capture.C
 
-	// Get time
-	struct timeval now;
-	gettimeofday(&now, 0);
-
-	while (!(delay_line.empty())) {
-
-	    if (delay_line.front().exit_time.tv_sec > now.tv_sec) break;
-
-	    if ((delay_line.front().exit_time.tv_sec == now.tv_sec) &&
-		(delay_line.front().exit_time.tv_usec > now.tv_usec))
-		break;
-
-	    // Packet ready to go.
-            deliv.receive_packet(now, delay_line.front().packet, datalink);
-            delay_line.pop();
-
-	}
+        service_delayline();
 
     }
 

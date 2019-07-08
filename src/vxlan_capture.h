@@ -10,32 +10,10 @@
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class vxlan_capture : public capture_dev {
+class vxlan_capture : public delayline_dev {
 private:
 
-    struct delayed_packet {
-	std::vector<unsigned char> packet;
-	struct timeval exit_time;
-    };
-
     unsigned short port;
-
-    std::queue<delayed_packet> delay_line;
-
-    // Handle to the deliver engine.
-    packet_consumer& deliv;
-
-    // Seconds of delay
-    float delay;
-
-    // Delay converted to timeval form.
-    struct timeval delay_val;
-
-    // PCAP's datalink enumerator - describes the type of layer 2 wrapping
-    // on the IP packet.
-    int datalink;
-
-    // Set to false to stop.
     bool running;
 
     // Packet filter.
@@ -50,25 +28,13 @@ public:
 
     // Constructor.  i=interface name, d=packet consumer.
     vxlan_capture(unsigned short port, float delay, packet_consumer& d) :
-        deliv(d) {
-        this->delay = delay;
-        this->datalink = DLT_EN10MB; // FIXME: Hard-coded?
+        delayline_dev(d, delay, DLT_EN10MB) {
         this->port = port;
         this->running = true;
-
-        uint64_t delay_usec = delay * 1000000;
-        delay_val.tv_usec = delay_usec % 1000000;
-        delay_val.tv_sec = delay_usec / 1000000;
-
     }
 
     // Destructor.
     virtual ~vxlan_capture() {}
-
-    // Packet handler.
-    void handle(const timeval& tv, 
-                std::vector<unsigned char>::const_iterator s,
-                std::vector<unsigned char>::const_iterator e);
 
     virtual void stop() {
 	running = false;
