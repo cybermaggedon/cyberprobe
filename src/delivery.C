@@ -432,35 +432,33 @@ void delivery::add_interface(const std::string& iface,
 	    p->start();
 	    interfaces[i] = p;
 
-	} else {
+            return;
 
-#endif
-
-            if (iface.substr(0, 6) == "vxlan:") {
-
-                unsigned short port = std::stoi(iface.substr(6));
-
-                vxlan_capture* p = new vxlan_capture(port, delay, *this);
-                if (filter != "")
-                    p->add_filter(filter);
-                p->start();
-                interfaces[i] = p;
-
-            } else {
-
-                pcap_dev* p = new pcap_dev(iface, delay, *this);
-                if (filter != "")
-                    p->add_filter(filter);
-
-                p->start();
-
-                interfaces[i] = p;
-
-            }
-
-#ifdef WITH_DAG
 	}
+
 #endif
+
+        if (iface.substr(0, 6) == "vxlan:") {
+
+            unsigned short port = std::stoi(iface.substr(6));
+
+            vxlan_capture* p = new vxlan_capture(port, delay, *this);
+            if (filter != "")
+                p->add_filter(filter);
+            p->start();
+            interfaces[i] = p;
+
+            return;
+
+        }
+
+        pcap_dev* p = new pcap_dev(iface, delay, *this);
+        if (filter != "")
+            p->add_filter(filter);
+        
+        p->start();
+        
+        interfaces[i] = p;
 
     } catch (std::exception& e) {
 	throw;

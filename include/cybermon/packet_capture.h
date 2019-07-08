@@ -40,7 +40,7 @@ protected:
     static void handler(unsigned char* usr, const struct pcap_pkthdr *h,
 			const unsigned char* bytes) {
 	pcap_capture* c = reinterpret_cast<pcap_capture*>(usr);
-	c->handle(h->ts, h->len, h->caplen, bytes);
+	c->handle(h->ts, h->caplen, bytes);
     }
 
     bool running;
@@ -75,7 +75,7 @@ public:
 
     // This is the method which gets called when a packet is received.
     // The user should implement this method.
-    virtual void handle(timeval tv, unsigned long len, unsigned long captured,
+    virtual void handle(timeval tv, unsigned long len,
                         const unsigned char* bytes) = 0;
 
     // Invokes packet processing on this capture handle, channelling received
