@@ -83,32 +83,14 @@ void vxlan_capture::run()
 		// No filter in place, or filter hits.
                 timeval tv = {0};
 
-		handle(tv, e - s, &e[0]);
+		handle(tv, e - s, &s[0]);
 
 	    }
 
 	}
 
 	// Maybe clear some delay line.
-	// FIXME: Copied from capture.C
-
-	// Get time
-	struct timeval now;
-	gettimeofday(&now, 0);
-
-	while (!(delay_line.empty())) {
-
-	    if (delay_line.front().exit_time.tv_sec > now.tv_sec) break;
-
-	    if ((delay_line.front().exit_time.tv_sec == now.tv_sec) &&
-		(delay_line.front().exit_time.tv_usec > now.tv_usec))
-		break;
-
-	    // Packet ready to go.
-            deliv.receive_packet(now, delay_line.front().packet, datalink);
-            delay_line.pop();
-
-	}
+        service_delayline();
 
     }
 
