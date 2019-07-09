@@ -109,10 +109,25 @@ private:
     cybermon::engine& e;
     int count;
 
+    std::thread* thr;
+
 public:
     pcap_input(const std::string& f, cybermon::engine& e) :
 	pcap_reader(f), e(e) {
 	count = 0;
+    }
+
+    virtual void stop() {
+	pcap_reader::stop();
+    }
+
+    virtual void join() {
+	if (thr)
+	    thr->join();
+    }
+    
+    virtual void start() {
+	thr = new std::thread(&pcap_input::run, this);
     }
 
     virtual void handle(timeval tv, unsigned long len, const unsigned char* f);
@@ -226,6 +241,7 @@ int main(int argc, char** argv)
     unsigned int vxlan_port = 0;
     std::string pcap_file, config_file;
     std::string transport;
+    float time_limit = -1;
 
     po::options_description desc("Supported options");
     desc.add_options()
@@ -241,6 +257,8 @@ int main(int argc, char** argv)
 	("pcap,f", po::value<std::string>(&pcap_file), "PCAP file to read")
 	("vxlan,V", po::value<unsigned int>(&vxlan_port),
          "VXLAN port to listen on")
+        ("time-limit,L", po::value<float>(&time_limit),
+         "Describes a time limit (seconds) after which to stop.")
 	("config,c", po::value<std::string>(&config_file),
 	 "LUA configuration file");
 
@@ -310,14 +328,31 @@ int main(int argc, char** argv)
 	if (pcap_file != "") {
 
             pcap_input pin(pcap_file, cqw);
-	    pin.run();
+
+            pin.start();
+
+            if (time_limit > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(
+                                                long(time_limit * 1000)));
+                pin.stop();
+            }
+
+            pin.join();
 
         } else if (vxlan_port != 0) {
 
             monitor m(cqw);
 
             cybermon::vxlan::receiver r(vxlan_port, m);
+
             r.start();
+
+            if (time_limit > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(
+                                                long(time_limit * 1000)));
+                r.stop();
+            }
+
             r.join();
 
 	} else if (transport == "tls") {
@@ -337,7 +372,12 @@ int main(int argc, char** argv)
 	    cybermon::etsi_li::receiver r(sock, m);
 	    r.start();
 
-	    // Wait forever.
+            if (time_limit > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(
+                                                long(time_limit * 1000)));
+                r.stop();
+            }
+
 	    r.join();
 
 	} else {
@@ -349,7 +389,12 @@ int main(int argc, char** argv)
 	    cybermon::etsi_li::receiver r(port, m);
 	    r.start();
 
-	    // Wait forever.
+            if (time_limit > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(
+                                                long(time_limit * 1000)));
+                r.stop();
+            }
+
 	    r.join();
 
 	}

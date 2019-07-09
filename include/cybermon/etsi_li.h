@@ -243,7 +243,6 @@ namespace cybermon {
 
 	    virtual void stop() {
 		running = false;
-		join();
 	    }
         };
 
@@ -291,7 +290,6 @@ namespace cybermon {
 
 	    virtual void stop() {
 		running = false;
-		join();
 	    }
 
         };
