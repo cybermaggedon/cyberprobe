@@ -14,7 +14,7 @@ void receiver::run()
 
 	while (running) {
 
-	    bool activ = svr->poll(1.0);
+	    bool activ = svr->poll(0.5);
 
 	    if (activ) {
 
@@ -93,7 +93,6 @@ void receiver::run()
             }
 
         }
-
 
     } catch (std::exception& e) {
 	std::cerr << e.what() << std::endl;

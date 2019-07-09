@@ -60,7 +60,6 @@ namespace cybermon {
 
 	    virtual void stop() {
 		running = false;
-		join();
 	    }
 
         };
