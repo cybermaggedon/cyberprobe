@@ -11,34 +11,6 @@
 void vxlan_capture::run()
 {
 
-    struct bpf_program fltr;
-
-    // Only used for filtering.
-    pcap_t *p = pcap_open_dead(datalink, 65535);
-    if (p == 0) {
-	std::cerr << "pcap_open_dead failed" << std::endl;
-	return;
-    }
-
-    bool apply_filter = false;
-
-    if (filter != "") {
-
-	// Compile the expression.
-	int ret = pcap_compile(p, &fltr, (char*) filter.c_str(), 1, 0);
-	if (ret < 0) {
-
-	    std::cerr << "Filter expression compilation failed" << std::endl;
-	    std::cerr << pcap_geterr(p) << std::endl;
-	    pcap_close(p);
-	    return;
-
-	}
-
-	apply_filter = true;
-
-    }
-
     // Start UDP service
     tcpip::udp_socket recv;
     recv.bind(port);
@@ -71,18 +43,11 @@ void vxlan_capture::run()
             std::vector<unsigned char>::const_iterator s = buffer.begin() + 8;
             std::vector<unsigned char>::const_iterator e = buffer.end();
 
-	    // Construct PCAP header for filter
-	    struct pcap_pkthdr hdr;
-	    hdr.caplen = e - s;
-	    hdr.len = e - s;
+	    // filter check
+            if (apply_filter(s, e)) {
 
-	    // Maybe apply filter
-	    if (apply_filter == false ||
-		pcap_offline_filter(&fltr, &hdr, &*s) != 0) {
-
-		// No filter in place, or filter hits.
+                // Filter hits.
                 timeval tv = {0};
-
 		handle(tv, e - s, &s[0]);
 
 	    }
@@ -93,12 +58,6 @@ void vxlan_capture::run()
         service_delayline();
 
     }
-
-    if (filter != "") {
-	pcap_freecode(&fltr);
-    }
-
-    if (p) pcap_close(p);
 
 }
 

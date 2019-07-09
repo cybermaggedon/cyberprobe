@@ -10,14 +10,11 @@
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class vxlan_capture : public delayline_dev {
+class vxlan_capture : public filtering_dev {
 private:
 
     unsigned short port;
     bool running;
-
-    // Packet filter.
-    std::string filter;
 
     std::thread* thr;
 
@@ -28,7 +25,7 @@ public:
 
     // Constructor.  i=interface name, d=packet consumer.
     vxlan_capture(unsigned short port, float delay, packet_consumer& d) :
-        delayline_dev(d, delay, DLT_EN10MB) {
+        filtering_dev(d, delay, DLT_EN10MB) {
         this->port = port;
         this->running = true;
     }
@@ -38,10 +35,6 @@ public:
 
     virtual void stop() {
 	running = false;
-    }
-
-    void add_filter(const std::string& spec) {
-	filter = spec;
     }
 
     virtual void join() {
