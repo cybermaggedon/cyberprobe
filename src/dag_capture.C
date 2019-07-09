@@ -14,34 +14,6 @@ void dag_dev::run()
 
     uint64_t window = 16 * 1024 * 1024;
 
-    struct bpf_program fltr;
-
-    // Only used for filtering.
-    pcap_t *p = pcap_open_dead(datalink, 65535);
-    if (p == 0) {
-	std::cerr << "pcap_open_dead failed" << std::endl;
-	return;
-    }
-
-    bool apply_filter = false;
-
-    if (filter != "") {
-
-	// Compile the expression.
-	int ret = pcap_compile(p, &fltr, (char*) filter.c_str(), 1, 0);
-	if (ret < 0) {
-
-	    std::cerr << "Filter expression compilation failed" << std::endl;
-	    std::cerr << pcap_geterr(p) << std::endl;
-	    pcap_close(p);
-	    return;
-
-	}
-
-	apply_filter = true;
-
-    }
-
     std::string dev_file = "/dev/" + iface;
 
     int fd = dag_open((char*) dev_file.c_str());
@@ -126,14 +98,7 @@ void dag_dev::run()
 	    if (type == 3) pos += 4;
 	    if (type == 16) pos += 2;
 
-	    // Construct PCAP header for filter
-	    struct pcap_pkthdr hdr;
-	    hdr.caplen = len - pos;
-	    hdr.len = len - pos;
-
-	    // Maybe apply filter
-	    if (apply_filter == false ||
-		pcap_offline_filter(&fltr, &hdr, bottom + pos) != 0) {
+            if (apply_filter(bottom + pos, bottom + len)) {
 
 		// No filter in place, or filter hits.
                 timeval tv = {0};
@@ -152,12 +117,6 @@ void dag_dev::run()
         service_delayline();
 
     }
-
-    if (filter != "") {
-	pcap_freecode(&fltr);
-    }
-
-    if (p) pcap_close(p);
 
     dag_stop_stream(fd, 0);
     dag_detach_stream(fd, 0);

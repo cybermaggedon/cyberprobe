@@ -20,6 +20,7 @@ public:
     virtual void stop() = 0;
     virtual void start() = 0;
     virtual void join() = 0;
+
 };
 
 class delayline_dev : public capture_dev {
@@ -84,7 +85,96 @@ public:
 
     }
 
+};
 
+class filtering_dev : public delayline_dev {
+
+private:
+    struct bpf_program fltr;
+    pcap_t* p;
+    bool filtering;
+
+public:
+
+    filtering_dev(packet_consumer& deliv, float delay, int datalink) :
+        delayline_dev(deliv, delay, datalink) {
+
+        // Only used for filtering.
+        p = pcap_open_dead(datalink, 65535);
+        if (p == 0) {
+            std::cerr << "pcap_open_dead failed" << std::endl;
+            return;
+        }
+
+        filtering = false;
+
+    }
+
+    virtual ~filtering_dev() {
+
+        if (filtering) {
+            pcap_freecode(&fltr);
+        }
+
+        if (p) pcap_close(p);
+
+    }
+
+    virtual void add_filter(const std::string& spec) {
+        //FIXME: Do something.
+
+	// Compile the expression.
+	int ret = pcap_compile(p, &fltr, (char*) spec.c_str(), 1, 0);
+
+	if (ret < 0) {
+	    std::cerr << "Filter expression compilation failed" << std::endl;
+	    throw std::runtime_error(std::string("Filter expression failed: ") +
+                                     pcap_geterr(p));
+	    pcap_close(p);
+	    return;
+
+	}
+
+	filtering = true;
+
+    }
+
+    template<class C>
+    bool apply_filter(C s, C e) {
+
+        // Construct PCAP header for filter
+        struct pcap_pkthdr hdr;
+        hdr.caplen = e - s;
+        hdr.len = e - s;
+
+        if (!filtering) return true;
+
+        // Maybe apply filter
+        if (pcap_offline_filter(&fltr, &hdr, &*s) != 0)
+            return true;
+
+        return false;
+
+    }
+/*
+    bool apply_filter(std::vector<unsigned char>::const_iterator s,
+                      std::vector<unsigned char>::const_iterator e) {
+
+        // Construct PCAP header for filter
+        struct pcap_pkthdr hdr;
+        hdr.caplen = e - s;
+        hdr.len = e - s;
+
+        if (!filtering) return true;
+
+        // Maybe apply filter
+        if (pcap_offline_filter(&fltr, &hdr, &*s) != 0)
+            return true;
+
+        return false;
+
+    }
+*/
 };
 
 // Packet capture.  Captures on an interface, and then submits captured

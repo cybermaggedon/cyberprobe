@@ -10,16 +10,13 @@
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class dag_dev : public delayline_dev {
+class dag_dev : public filtering_dev {
 private:
 
     std::string iface;
 
     // Set to false to stop.
     bool running;
-
-    // Packet filter.
-    std::string filter;
 
     std::thread* thr;
 
@@ -30,7 +27,7 @@ public:
 
     // Constructor.  i=interface name, d=packet consumer.
     dag_dev(const std::string& i, float delay, packet_consumer& d) :
-        delayline_dev(d, delay, DLT_EN10MB) {
+        filtering_dev(d, delay, DLT_EN10MB) {
         this->iface = i;
         this->running = true;
     }
@@ -40,10 +37,6 @@ public:
 
     virtual void stop() {
 	running = false;
-    }
-
-    void add_filter(const std::string& spec) {
-	filter = spec;
     }
 
     virtual void join() {
