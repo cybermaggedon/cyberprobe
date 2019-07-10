@@ -100,7 +100,7 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
     flowContext->set_ttl(context::default_ttl);
 
     // lock for buffer access
-    std::lock_guard<std::mutex> lock(flowContext->mutex);
+    std::unique_lock<std::mutex> lock(flowContext->mutex);
 
     // wrap all processing in a try catch, and report processing errors as unrecognised
     try
@@ -174,6 +174,10 @@ void tls::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
 
             // find if the we're using tcp or udp and create an appropriate event
             context_ptr parent = flowContext->parent.lock();
+
+            // Going to get locked in these next calls.
+            lock.unlock();
+
             if (parent && parent->get_type() == "udp")
                 {
                     unrecognised::process_unrecognised_datagram(mgr, flowContext, pduSlice);
