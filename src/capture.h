@@ -34,12 +34,12 @@ protected:
 	struct timeval exit_time;
     };
 
+    // Seconds of delay
+    float delay;
+
     // PCAP's datalink enumerator - describes the type of layer 2 wrapping
     // on the IP packet.
     int datalink;
-
-    // Seconds of delay
-    float delay;
 
     // Delay converted to timeval form.
     struct timeval delay_val;
@@ -121,7 +121,6 @@ public:
     }
 
     virtual void add_filter(const std::string& spec) {
-        //FIXME: Do something.
 
 	// Compile the expression.
 	int ret = pcap_compile(p, &fltr, (char*) spec.c_str(), 1, 0);
@@ -156,25 +155,7 @@ public:
         return false;
 
     }
-/*
-    bool apply_filter(std::vector<unsigned char>::const_iterator s,
-                      std::vector<unsigned char>::const_iterator e) {
 
-        // Construct PCAP header for filter
-        struct pcap_pkthdr hdr;
-        hdr.caplen = e - s;
-        hdr.len = e - s;
-
-        if (!filtering) return true;
-
-        // Maybe apply filter
-        if (pcap_offline_filter(&fltr, &hdr, &*s) != 0)
-            return true;
-
-        return false;
-
-    }
-*/
 };
 
 // Packet capture.  Captures on an interface, and then submits captured
@@ -197,7 +178,6 @@ public:
 
     // Destructor.
     virtual ~pcap_dev() {
-	// FIXME: Wait for it to stop?
 	delete thr;
     }
 

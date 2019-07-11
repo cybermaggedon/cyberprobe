@@ -14,11 +14,11 @@ using namespace cybermon;
 
 const unsigned int ip4_context::max_frag_list_len = 50;
 
-void ip::handle_nxt_proto(manager& mgr, context_ptr fc, uint8_t protocol, const pdu_slice& sl,
-                          uint16_t length, uint8_t header_length)
+void ip::handle_nxt_proto(manager& mgr, context_ptr fc, uint8_t protocol,
+                          const pdu_slice& sl, uint16_t length,
+                          uint8_t header_length)
 {
     pdu_iter s = sl.start;
-    pdu_iter e = sl.end;
 
     if (protocol == 6)
 
@@ -51,6 +51,7 @@ void ip::handle_nxt_proto(manager& mgr, context_ptr fc, uint8_t protocol, const 
                                         sl.time, sl.direc));
   
     else {
+        // FIXME: Unknown-datagram would be fine here.
         auto ev =
             std::make_shared<event::unrecognised_ip_protocol>(fc, protocol,
                                                               length - header_length,

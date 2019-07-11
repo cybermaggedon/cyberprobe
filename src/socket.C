@@ -453,8 +453,6 @@ int tcpip::tcp_socket::read(char* buffer, int len)
     int needed = len;
     int got = 0;
 
-    time_t then = time(0);
-	    
     while (needed > 0) {
 
 	if (bufsize == 0) {
@@ -852,7 +850,7 @@ tcpip::ssl_socket::ssl_socket() {
 	ssl_init = true;
     }
 
-    context = SSL_CTX_new(TLSv1_2_method());
+    context = SSL_CTX_new(TLS_method());
     if (context == 0)
         throw std::runtime_error("Couldn't initialise SSL context.");
 
@@ -929,7 +927,7 @@ tcpip::ssl_socket::ssl_socket(int s) {
 	ssl_init = true;
     }
 
-    context = SSL_CTX_new(TLSv1_2_method());
+    context = SSL_CTX_new(TLS_method());
     if (context == 0)
         throw std::runtime_error("Couldn't initialise SSL context.");
 

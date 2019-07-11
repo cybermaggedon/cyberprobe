@@ -7,6 +7,8 @@
 #include <arpa/inet.h>
 #include <sstream>
 
+#ifdef NOT_USED
+
 namespace {
 
     std::string extract_hex_string(cybermon::pdu_iter start, cybermon::pdu_iter end)
@@ -22,7 +24,7 @@ namespace {
         return oss.str();
     }
 }
-
+#endif
 
 void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md)
 {

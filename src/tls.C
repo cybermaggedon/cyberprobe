@@ -198,7 +198,8 @@ const tls::header* tls::verifyHeader(const pdu_slice& pduSlice)
 {
 
     // check enough bytes for the header
-    if ((pduSlice.end - pduSlice.start) < sizeof(header))
+    unsigned long length = pduSlice.end - pduSlice.start;
+    if (length < sizeof(header))
         {
             return nullptr;
         }

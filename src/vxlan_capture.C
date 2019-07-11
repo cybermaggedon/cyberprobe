@@ -34,10 +34,6 @@ void vxlan_capture::run()
             //   Reserved: 24 bits
             //   VNI: 24 bits
             //   Reserved: 8 bits
-            
-            uint32_t vxlan_id = 0;
-
-            unsigned int vlan_id;
 
             // Start from the end of VXLAN header.
             std::vector<unsigned char>::const_iterator s = buffer.begin() + 8;

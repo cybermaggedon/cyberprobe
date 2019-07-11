@@ -560,8 +560,8 @@ namespace cybermon
         };
 
         static KeyExchangeAlgorithm lookup_key_exchange_algorithm(uint16_t id) {
-            uint8_t id0 = (id & 0xFF00) >> 8;
-            uint8_t id1 = id & 0xFF;
+//            uint8_t id0 = (id & 0xFF00) >> 8;
+//            uint8_t id1 = id & 0xFF;
 
             if ((id > 0xC000 && id < 0xC01A) ||
                 (id > 0xC022 && id < 0xC03C) ||

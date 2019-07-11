@@ -266,7 +266,7 @@ void tls_handshake::processExtensions(const pdu_slice& pduSlice, uint16_t length
     uint16_t dataLeft = length;
     pdu_iter dataPtr = pduSlice.start;
 
-    uint16_t extsLen = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
+//    uint16_t extsLen = ntohs(*reinterpret_cast<const uint16_t*>(&dataPtr[0]));
     dataLeft -= 2;
     dataPtr += 2;
 
@@ -342,6 +342,8 @@ void tls_handshake::serverKeyExchange(manager& mgr, tls_context::ptr ctx, const 
         case cipher::KeyExchangeAlgorithm::ec_dh:
             data.ecdh = std::make_shared<tls_handshake_protocol::ecdh_data>();
             tls_key_exchange::server_ecdh(pduSlice, length, data.ecdh);
+            break;
+        default:
             break;
         }
 
@@ -459,6 +461,8 @@ void tls_handshake::clientKeyExchange(manager& mgr, tls_context::ptr ctx, const 
         {
         case cipher::KeyExchangeAlgorithm::ec_dh:
             tls_key_exchange::client_ecdh(pduSlice, length, key);
+            break;
+        default:
             break;
         }
 
