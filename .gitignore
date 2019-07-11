@@ -3,6 +3,8 @@
 *.swp
 *.pyc
 *~
+config.guess
+config.sub
 Makefile
 Makefile.bak
 src/cybermon
