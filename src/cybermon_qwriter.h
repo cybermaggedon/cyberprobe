@@ -10,7 +10,6 @@
 
 #include <cybermon/cybermon-lua.h>
 #include <cybermon/engine.h>
-#include <cybermon_qargs.h>
 #include <cybermon/tls_handshake_protocol.h>
 #include <cybermon/event.h>
 

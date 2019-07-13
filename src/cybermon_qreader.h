@@ -9,7 +9,6 @@
 #define CYBERMON_QREADER_H_
 
 #include <queue>
-#include <cybermon_qargs.h>
 #include <cybermon_qwriter.h>
 #include <cybermon/event.h>
 

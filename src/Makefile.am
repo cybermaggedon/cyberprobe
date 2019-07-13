@@ -43,7 +43,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
 	sip_ssl.C	event_json.C base64.C base64.h json.h \
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
-	cybermon_qargs.h cybermon_qwriter.h cybermon_qreader.h \
+	cybermon_qwriter.h cybermon_qreader.h \
 	tls_key_exchange.C vxlan.C \
 	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C tls_handshake.C tls_utils.C \
 	hardware_addr_utils.h tls_cipher_suites.h tls_exception.h tls_extensions.h \
