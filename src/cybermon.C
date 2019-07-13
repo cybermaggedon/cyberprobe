@@ -228,7 +228,7 @@ int main(int argc, char** argv)
     unsigned int vxlan_port = 0;
     std::string pcap_file, config_file;
     std::string transport;
-    std::string device = "PCAP";
+    std::string device;
     float time_limit = -1;
 
     po::options_description desc("Supported options");
@@ -248,7 +248,9 @@ int main(int argc, char** argv)
         ("time-limit,L", po::value<float>(&time_limit),
          "Describes a time limit (seconds) after which to stop.")
 	("config,c", po::value<std::string>(&config_file),
-	 "LUA configuration file");
+	 "LUA configuration file")
+        ("device,d", po::value<std::string>(&device),
+         "Device ID to use for PCAP file");
 
     po::variables_map vm;
     try {
@@ -294,6 +296,8 @@ int main(int argc, char** argv)
 	std::cerr << desc << std::endl;
 	return 1;
     }
+
+    if (device == "") device = "PCAP";
 
     try {
 
