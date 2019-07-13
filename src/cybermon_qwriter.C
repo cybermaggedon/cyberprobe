@@ -11,22 +11,9 @@
 ****************************************************************************/
 
 #include <cybermon_qwriter.h>
-
-#include <iostream>
-#include <iomanip>
-#include <map>
 #include <memory>
-
-#include <boost/program_options.hpp>
-
-#include <cybermon/engine.h>
-#include <cybermon/monitor.h>
-#include <cybermon/etsi_li.h>
-#include <cybermon/packet_capture.h>
-#include <cybermon/context.h>
-#include <cybermon/cybermon-lua.h>
+#include <thread>
 #include <cybermon/event.h>
-#include <cybermon/event_implementations.h>
 
 using namespace cybermon;
 

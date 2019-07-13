@@ -11,16 +11,7 @@
 ****************************************************************************/
 
 #include <cybermon_qreader.h>
-#include <iostream>
-#include <iomanip>
-#include <map>
-#include <stdint.h>
-
-#include <boost/program_options.hpp>
-
-#include <cybermon/engine.h>
-#include <cybermon/context.h>
-#include <cybermon/cybermon-lua.h>
+#include <thread>
 
 using namespace cybermon;
 
