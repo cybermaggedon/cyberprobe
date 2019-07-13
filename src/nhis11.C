@@ -172,7 +172,8 @@ void connection::run()
 
 	    struct timeval tv;
 	    gettimeofday(&tv, 0);
-	    p(liid, "", pdu.begin(), pdu.end(), tv, cybermon::NOT_KNOWN);
+	    p(liid, "",
+              pdu_slice(pdu.begin(), pdu.end(), tv, cybermon::NOT_KNOWN));
 
 	}
 	

@@ -20,6 +20,7 @@ Usage:
 
 #include <boost/program_options.hpp>
 
+#include <cybermon/event_queue.h>
 #include <cybermon/engine.h>
 #include <cybermon/monitor.h>
 #include <cybermon/etsi_li.h>
@@ -32,77 +33,79 @@ Usage:
 #include <cybermon/event.h>
 #include <cybermon/vxlan.h>
 
-// Monitor class, implements the monitor interface to receive data.
-class monitor : public cybermon::monitor {
+class lua_engine : cybermon::event::observer {
+private:
+    std::thread* thr;
+
+public:
+    cybermon::engine& m;
+    cybermon::event::queue& q;
+    cybermon::cybermon_lua cml;
+    
+    lua_engine(cybermon::engine& m,
+               cybermon::event::queue& q,
+               const std::string& config) :
+        m(m), q(q), cml(config) {}
+
+    virtual ~lua_engine() {}
+
+    virtual void run() {
+        q.run(*this);
+    }
+
+    virtual void handle(std::shared_ptr<cybermon::event::event> e) {
+        cml.event(m, e);
+    }
+
+    virtual void stop() {
+        // Put null pointer on queue to indicate end of stream.
+        q.stop();
+    }
+    
+    virtual void join() {
+        if (thr) thr->join();
+    }
+    
+    virtual void start() {
+        thr = new std::thread(&lua_engine::run, this);
+    }
+    
+};
+
+class protocol_engine : public cybermon::engine {
 private:
 
     // Analysis engine
-    cybermon::engine& an;
+    cybermon::event::queue& q;
 
 public:
 
-    // Short-hand for vector iterator.
+    // Constructor.
+    protocol_engine(cybermon::event::queue& q) : q(q) {}
+
+    virtual void handle(std::shared_ptr<cybermon::event::event> e) {
+        q.push(e);
+    }
+
     typedef std::vector<unsigned char>::const_iterator iter;
 
-    // Constructor.
-    monitor(cybermon::engine& an) : an(an) {}
-
+    using cybermon::engine::target_up;
+    using cybermon::engine::target_down;
+    
     // Called when a PDU is received.
     virtual void operator()(const std::string& device,
 			    const std::string& network,
-			    iter s, iter e,
-			    const struct timeval& tv, cybermon::direction d);
-
-    // Called when attacker is discovered.
-    void target_up(const std::string& device,
-		   const std::string& network,
-		   const tcpip::address& addr,
-		   const struct timeval& tv);
-
-    // Called when attacker is disconnected.
-    void target_down(const std::string& device,
-		     const std::string& network,
-		     const struct timeval& tv);
-
-};
-
-// Called when attacker is discovered.
-void monitor::target_up(const std::string& device,
-			     const std::string& network,
-			     const tcpip::address& addr,
-			     const struct timeval& tv)
-{
-    an.target_up(device, network, addr, tv);
-}
-
-// Called when attacker is discovered.
-void monitor::target_down(const std::string& device,
-			       const std::string& network,
-			       const struct timeval& tv)
-{
-    an.target_down(device, network, tv);
-}
-
-// Called when a PDU is received.
-void monitor::operator()(const std::string& device,
-                         const std::string& network,
-                         iter s, iter e,
-                         const struct timeval& tv, cybermon::direction d)
-{
-
-    try {
-
-	// Process the PDU
-        an.process(device, network, cybermon::pdu_slice(s, e, tv, d));
-
-    } catch (std::exception& e) {
-
-	// Processing failure event.
-	std::cerr << "Packet failed: " << e.what() << std::endl;
-
+                            cybermon::pdu_slice p) {
+        try {
+            // Process the PDU
+            cybermon::engine::process(device, network, p);
+        } catch (std::exception& e) {
+            // Processing failure event.
+            std::cerr << "Packet failed: " << e.what() << std::endl;
+        }
     }
 
-}
+};
 
 class pcap_input : public pcap_reader {
 private:
@@ -299,27 +302,19 @@ int main(int argc, char** argv)
 
     try {
 
-	//queue to store the incoming packets to be processed
+	// queue to store the incoming packets to be processed
+        cybermon::event::queue queue;
 
-        typedef std::shared_ptr<cybermon::event::event> eptr;
-	std::queue<eptr> cqueue;
+        protocol_engine pe(queue);
+        lua_engine le(pe, queue, config_file);
 
-        // Input queue: Lock,
-        std::mutex cqwrlock;
-
-        //creating cybermon_qwriter and cybermon_qreader
-        cybermon::cybermon_qwriter cqw(config_file, cqueue, cqwrlock);
-        cybermon::cybermon_qreader cqr(config_file, cqueue, cqwrlock, cqw);
-
-        //starting qreader and then qwriter
-        cqr.start();
-        cqw.start();
+        le.start();
 
 	if (pcap_file != "") {
 
             if (device == "") device = "PCAP";
 
-            pcap_input pin(pcap_file, cqw, device);
+            pcap_input pin(pcap_file, pe, device);
 
             pin.start();
 
@@ -333,9 +328,7 @@ int main(int argc, char** argv)
 
         } else if (vxlan_port != 0) {
 
-            monitor m(cqw);
-
-            cybermon::vxlan::receiver r(vxlan_port, m);
+            cybermon::vxlan::receiver r(vxlan_port, pe);
 
             // Over-ride VNI??? device for VXLAN if device was specified
             // on command line.
@@ -361,12 +354,8 @@ int main(int argc, char** argv)
 	    sock->use_certificate_chain_file(chain);
 	    sock->check_private_key();
 
-	    // Create the monitor instance, receives ETSI events, and processes
-	    // data.
-	    monitor m(cqw);
-
 	    // Start an ETSI receiver.
-	    cybermon::etsi_li::receiver r(sock, m);
+	    cybermon::etsi_li::receiver r(sock, pe);
 	    r.start();
 
             if (time_limit > 0) {
@@ -379,11 +368,8 @@ int main(int argc, char** argv)
 
 	} else {
 
-	    // Create the monitor instance, receives ETSI events, and processes
-	    // data.
-            monitor m(cqw);
 	    // Start an ETSI receiver.
-	    cybermon::etsi_li::receiver r(port, m);
+	    cybermon::etsi_li::receiver r(port, pe);
 	    r.start();
 
             if (time_limit > 0) {
@@ -396,11 +382,8 @@ int main(int argc, char** argv)
 
 	}
 
-	// here
-	//writer close to flag reader to stop
-	//join reader
-	cqw.close();
-	cqr.join();
+        le.stop();
+        le.join();
 
     } catch (std::exception& e) {
 

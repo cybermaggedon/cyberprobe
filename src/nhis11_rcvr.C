@@ -10,6 +10,7 @@ NHIS 1.1 test receiver.  Usage:
 #include <cybermon/monitor.h>
 #include <cybermon/nhis11.h>
 #include <cybermon/packet_capture.h>
+#include <cybermon/pdu.h>
 
 #include <thread>
 #include <mutex>
@@ -19,17 +20,14 @@ NHIS 1.1 test receiver.  Usage:
 class output : public cybermon::monitor {
 private:
     pcap_writer& p;
-    std::mutex lock;
+    std::mutex mutex;
 public:
     output(pcap_writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
-			    std::vector<unsigned char>::const_iterator s,
-			    std::vector<unsigned char>::const_iterator e,
-			    const timeval& tv, cybermon::direction d) {
-	lock.lock();
-	p.write(s, e);
-	lock.unlock();
+                            cybermon::pdu_slice s) {
+        std::lock_guard<std::mutex> lock(mutex);
+	p.write(s.start, s.end);
     }
 
     // These events aren't trigger by NHIS 1.1.
