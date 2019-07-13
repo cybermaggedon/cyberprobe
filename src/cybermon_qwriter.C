@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 #include <cybermon_qwriter.h>
-#include <cybermon_qargs.h>
 
 #include <iostream>
 #include <iomanip>
