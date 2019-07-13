@@ -20,14 +20,16 @@ namespace cybermon {
         // VXLAN server.
         class receiver {
 
-          private:
+        private:
             bool running;
             monitor& mon;
             
             std::shared_ptr<tcpip::udp_socket> svr;
 	    std::thread* thr;
 
-          public:
+        public:
+
+            std::string device;
 
             receiver(int port, monitor& mon) : mon(mon) {
                 running = true;

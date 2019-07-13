@@ -297,8 +297,6 @@ int main(int argc, char** argv)
 	return 1;
     }
 
-    if (device == "") device = "PCAP";
-
     try {
 
 	//queue to store the incoming packets to be processed
@@ -319,6 +317,8 @@ int main(int argc, char** argv)
 
 	if (pcap_file != "") {
 
+            if (device == "") device = "PCAP";
+
             pcap_input pin(pcap_file, cqw, device);
 
             pin.start();
@@ -336,6 +336,11 @@ int main(int argc, char** argv)
             monitor m(cqw);
 
             cybermon::vxlan::receiver r(vxlan_port, m);
+
+            // Over-ride VNI??? device for VXLAN if device was specified
+            // on command line.
+            if (device != "")
+                r.device = device;
 
             r.start();
 
