@@ -962,7 +962,7 @@ discovered that with the ifconfig command earlier? Instead of
 
 @example
 <targets>
-  <target address="192.168.1.80" liid="123456"/>
+  <target address="192.168.1.80" device="123456"/>
 </targets>
 @end example
 
@@ -1197,7 +1197,7 @@ seconds from identification. While you're in the configuration file, you can
 remove the static IP address target line. Find this line and delete it:
 
 @example
-<target address="192.168.1.80" liid="123456"/>
+<target address="192.168.1.80" device="123456"/>
 @end example
 
 @command{cyberprobe} should respond:
@@ -2653,25 +2653,25 @@ Sample configuration:
 
   <!-- Statically targeted addresses. -->
   <targets>
-    <target address="192.168.1.1" liid="123456"/>
-    <target address="192.168.1.2" liid="123981"/>
-    <target address="10.2.0.0/16" liid="9123780"/>
-    <target address="10.1.1.1" liid="9123780"/>
-    <target address="10.1.1.1" liid="9123780"/>
-    <target address="10.1.1.0" liid="591875"/>
-    <target address="10.1.1.2" liid="492895"/>
-    <target address="10.1.1.3" liid="591875"/>
-    <target address="10.1.1.4" liid="591875"/>
-    <target address="10.1.1.5" liid="591875"/>
-    <target address="10.1.1.6" liid="591875"/>
-    <target address="10.1.1.7" liid="591875"/>
-    <target address="10.1.1.8" liid="591875"/>
-    <target address="10.1.1.9" liid="591875"/>
-    <target address="10.1.1.10" liid="591875"/>
+    <target address="192.168.1.1" device="123456"/>
+    <target address="192.168.1.2" device="123981"/>
+    <target address="10.2.0.0/16" device="9123780"/>
+    <target address="10.1.1.1" device="9123780"/>
+    <target address="10.1.1.1" device="9123780"/>
+    <target address="10.1.1.0" device="591875"/>
+    <target address="10.1.1.2" device="492895"/>
+    <target address="10.1.1.3" device="591875"/>
+    <target address="10.1.1.4" device="591875"/>
+    <target address="10.1.1.5" device="591875"/>
+    <target address="10.1.1.6" device="591875"/>
+    <target address="10.1.1.7" device="591875"/>
+    <target address="10.1.1.8" device="591875"/>
+    <target address="10.1.1.9" device="591875"/>
+    <target address="10.1.1.10" device="591875"/>
     <target address="aaaa:bbbb:cccc:dddd::4:5:6"
-      class="ipv6" liid="983898"/>
+      class="ipv6" device="983898"/>
     <target address="aaaa:bbbb:cccc::/48"
-      class="ipv6" liid="983800"/>
+      class="ipv6" device="983800"/>
   </targets>
 
   <!-- Endpoints for delivery of collected packets. -->
@@ -2710,16 +2710,16 @@ Sample configuration:
     <parameter key="interception_point" value="abcd1234"/>
 
     <!-- Username values used in IPIRI connection.  Key form is
-         "username." plus the LIID -->
+         "username." plus the device -->
     <parameter key="username.123456" value="user01@@example.org"/>
     <parameter key="username.123981" value="user02@@example.org"/>
     <parameter key="username.981235" value="user03@@example.org"/>
 
-    <!-- Parameters in this form are used select the LIID which is used
+    <!-- Parameters in this form are used select the device ID which is used
          when packets are collected on Snort alerts.  Basically, this
-         maps the Snort signature ID to a LIID. -->
-    <parameter key="snort.1.liid" value="SNORT1"/>
-    <parameter key="snort.2.liid" value="SNORT2"/>
+         maps the Snort signature ID to a device ID. -->
+    <parameter key="snort.1.device" value="SNORT1"/>
+    <parameter key="snort.2.device" value="SNORT2"/>
 
    </parameters>
 
@@ -2756,7 +2756,7 @@ address which will be used for matching.  For instance, if
 makes this a class-B address match.  That is, any address in the
 @code{192.168.0.0}-@code{192.168.255.255} range will match.
 If no mask is specified, then this is an exact match against a single address.
-The @code{liid} attribute defines the LIID which will be applied
+The @code{device} attribute defines the deivce ID which will be applied
 if this
 particular IP address is detected.
 
@@ -2769,13 +2769,14 @@ The address must be an IP address, and
 not a hostname. The address can be an IPv6 address if the @code{class}
 attribute is included, and set to @code{ipv6}.
 
-LIIDs can occur in multiple places in the target block, allowing multiple IP
-addresses to match to the same LIID, but the same IP address/mask specifier
+Device IDs can occur in multiple places in the target block, allowing
+multiple IP
+addresses to match to the same device ID, but the same IP address/mask specifier
 should only occur once in the target block.
 
 If subnetwork ranges overlap, the longest prefix match applies.
 
-The @code{liid} and @code{network} can contain template constructs:
+The @code{device} and @code{network} can contain template constructs:
 
 @table @samp
 
@@ -2822,7 +2823,7 @@ and a @code{value} attribute. The parameter values for @code{country},
 describe values which are used in the @code{PSHeader} and @code{IRI}
 constructs. The parameters with prefix @code{username.} describe values for
 the @code{username} values in the IPIRI construct in ETSI LI. The @code{key}
-value is the literal @code{username.} suffixed with the LIID. If such an
+value is the literal @code{username.} suffixed with the device ID. If such an
 entry is present, it is used for the @code{username}. All parameters are
 optional, meaningless defaults (e.g. unknown) will be used if not specified.
 The @code{etsi-streams} parameter specifies the number of TCP streams which
@@ -2925,10 +2926,10 @@ Parameter key.
 Parameter value.
 @end table
 
-@item add target LIID PROTOCOL ADDRESS
+@item add target DEVICE PROTOCOL ADDRESS
 Adds an address target for packet capture.
 @table @samp
-@item LIID
+@item DEVICE
 LIID / device identifier.
 @item PROTOCOL
 Address protocol, one of @samp{ip4} or @samp{ip6}.
@@ -2985,6 +2986,7 @@ Displays a table showing targets.
 @cindex ETSI TS 102 232-1
 @cindex TS 102 232-1
 @cindex LIID
+@cindex Device ID
 
 @command{cyberprobe} supports packet output in one of two output formats,
 which are both LI formats. LI formats were chosen as they set good, open
@@ -3025,9 +3027,9 @@ The bluffers guide to decoding goes...
 
 @item
 The first 32 bytes after TCP connection are a header. Ignore the first 4
-bytes, the latter 28 bytes are the LIID, represented as an ASCII
-string. Unused bytes following the LIID are set to zero to pad out to 32
-bytes.
+bytes, the latter 28 bytes are the LIID / device ID, represented as an ASCII
+string. Unused bytes following the LIID / device ID are set to zero to pad out
+to 32 bytes.
 
 @item
 Once the start header is sent, the following data consists of IP packets
@@ -3037,7 +3039,7 @@ you the length of the IP packet.
 
 @item
 The IP packets are transmitted until the TCP connection closes.  A separate
-TCP connection is used for each LIID.
+TCP connection is used for each LIID / device ID.
 
 @end itemize
 
@@ -3118,18 +3120,18 @@ transport is one of: @code{tcp} @code{tls}.
 @item endpoints
 Lists endpoints, format is @code{host:port:type:description}.
 
-@item add_target <liid> <class> <address>
-@itemx add_target <liid> <class> <address>/<mask>
+@item add_target <device> <class> <address>
+@itemx add_target <device> <class> <address>/<mask>
 Adds a new targeted IP address.
 where class is one of: @code{ipv4} @code{ipv6}
 
-@item remove_target <liid> <class> <address>
-@itemx remove_target <liid> <class> <address>/<mask>
+@item remove_target <device> <class> <address>
+@itemx remove_target <device> <class> <address>/<mask>
 Removes a previously targeted IP address.
 where class is one of: @code{ipv4} @code{ipv6}
 
 @item targets
-Lists targets, format is @code{liid:class:address/mask}.  The mask
+Lists targets, format is @code{device:class:address/mask}.  The mask
 value is always present, even when no mask was present when the target
 was added.
 
@@ -4504,7 +4506,7 @@ addresses.
 Returns a human readable description of the protocol stack using source
 addresses.
 
-@item context:get_liid()
+@item context:get_device()
 Returns the trigger ID associated with a "target".
 
 @item context:get_network_info()
@@ -6311,7 +6313,7 @@ Here is an example of a JSON payload which is emitted for a DNS request:
   "observation": @{
     "type": "query",
     "answers": @{@},
-    "liid": "123456",
+    "device": "123456",
     "dest": @{
       "udp": ["53"],
       "dns": [""],
@@ -6371,9 +6373,10 @@ Literal @samp{.}
 Literal @samp{Z}
 @end itemize
 e.g. @code{20141018T175059.366Z}.
-@item observation.liid
+@item observation.device
 @cindex LIID
-A string containing the targeted LIID.
+@cindex Device ID
+A string containing the targeted LIID / device ID.
 
 @item observation.action
 Describes the type of a Cyberprobe observation.  See @ref{Actions}

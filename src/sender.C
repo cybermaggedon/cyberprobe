@@ -6,7 +6,7 @@
 
 // Called to add packets to the queue.
 void sender::deliver(timeval tv,
-		     std::shared_ptr<std::string> liid, // LIID
+		     std::shared_ptr<std::string> device, // Device
 		     std::shared_ptr<std::string> network, // Network
                      cybermon::direction dir, // To/from target.
 		     const_iterator& start,   // Start of packet
@@ -38,7 +38,7 @@ void sender::deliver(timeval tv,
     p->msg_type = qpdu::PDU;
     p->pdu.assign(start, end);
     p->tv = tv;
-    p->liid = liid;
+    p->device = device;
     p->network = network;
     p->dir = dir;
     packets.push(p);
@@ -49,9 +49,9 @@ void sender::deliver(timeval tv,
 }
 
 // Called to add packets to the queue.
-void sender::target_up(std::shared_ptr<std::string> liid,        // LIID
+void sender::target_up(std::shared_ptr<std::string> device,      // Device
 		       std::shared_ptr<std::string> network,     // Network
-		       const tcpip::address& addr)                 // Address
+		       const tcpip::address& addr)               // Address
 {
 
     // Get lock.
@@ -89,7 +89,7 @@ void sender::target_up(std::shared_ptr<std::string> liid,        // LIID
     // Put a packet on the queue.
     qpdu_ptr p = qpdu_ptr(new qpdu());
     p->msg_type = qpdu::TARGET_UP;
-    p->liid = liid;
+    p->device = device;
     p->network = network;
     p->addr = np;
     packets.push(p);
@@ -100,7 +100,7 @@ void sender::target_up(std::shared_ptr<std::string> liid,        // LIID
 }
 
 // Called to add packets to the queue.
-void sender::target_down(std::shared_ptr<std::string> liid,        // LIID
+void sender::target_down(std::shared_ptr<std::string> device,      // Device
 			 std::shared_ptr<std::string> network)     // Network
 {
 
@@ -127,7 +127,7 @@ void sender::target_down(std::shared_ptr<std::string> liid,        // LIID
     // Put a packet on the queue.
     qpdu_ptr q = qpdu_ptr(new qpdu());
     q->msg_type = qpdu::TARGET_DOWN;
-    q->liid = liid;
+    q->device = device;
     q->network = network;
     packets.push(q);
 
@@ -194,7 +194,7 @@ void nhis11_sender::handle(qpdu_ptr next)
 {
 
     // Short-hand.
-    const std::string& liid = *(next->liid);
+    const std::string& device = *(next->device);
 
     // Network is ignored, not used for NHIS.
 
@@ -209,21 +209,21 @@ void nhis11_sender::handle(qpdu_ptr next)
 
 	// Loop forever until we're connected.
 	while (running &&
-	       (transport.find(liid) == transport.end())) {
+	       (transport.find(device) == transport.end())) {
 	    try {
 		if (tls)
-		    transport[liid].connect_tls(h, p, liid,
+		    transport[device].connect_tls(h, p, device,
 						params["key"],
 						params["certificate"],
 						params["chain"]);
 		else
-		    transport[liid].connect(h, p, liid);
+		    transport[device].connect(h, p, device);
 		std::cerr << "NHIS 1.1 connection to "
-			  << h << ":" << p << " for LIID "
-			  << liid << " established." << std::endl;
+			  << h << ":" << p << " for device "
+			  << device << " established." << std::endl;
 	    } catch (...) {
 		// If fail, just for a sec, before the retry.
-		transport.erase(liid);
+		transport.erase(device);
 		::sleep(1);
 	    }
 	}
@@ -236,17 +236,17 @@ void nhis11_sender::handle(qpdu_ptr next)
 	//   reconnect.
 	try {
 
-	    transport[liid].send(next->pdu);
+	    transport[device].send(next->pdu);
 
 	    // Only break out of the loop on success.
 	    break;
 
 	} catch (...) {
-	    std::cerr << "NHIS 1.1 connection for LIID " << liid
+	    std::cerr << "NHIS 1.1 connection for device " << device
 		      << " failed." << std::endl;
 	    std::cerr << "Will reconnect..." << std::endl;
-	    transport[liid].close();
-	    transport.erase(liid);
+	    transport[device].close();
+	    transport.erase(device);
 	    ::sleep(1);
 	}
 
@@ -259,7 +259,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 {
 
     // Short-hand.
-    const std::string& liid = *(next->liid);
+    const std::string& device = *(next->device);
     const std::string& network = *(next->network);
     const std::vector<unsigned char>& pdu = next->pdu;
     const address_ptr addr = next->addr;
@@ -267,19 +267,19 @@ void etsi_li_sender::handle(qpdu_ptr next)
     // Loop until successful delivery.
     while (running) {
 
-	// If we haven't handled the LIID before, map to a new
+	// If we haven't handled the device before, map to a new
 	// transport / mux
-	if (muxes.find(liid) == muxes.end()) {
+	if (muxes.find(device) == muxes.end()) {
 
 	    // Get next transport in the round robin
 	    e_sender& transport = transports[cur_connect];
 
-	    // Map LIID to the transport
-	    std::pair<std::string,e_sender&> tp(liid, transport);
+	    // Map device to the transport
+	    std::pair<std::string,e_sender&> tp(device, transport);
 	    transport_map.insert(tp);
 
-	    // Map LIID to mux
-	    std::pair<std::string,e_mux> mp(liid,
+	    // Map device to mux
+	    std::pair<std::string,e_mux> mp(device,
 					    e_mux(transports[cur_connect]));
 	    muxes.insert(mp);
 
@@ -290,8 +290,8 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	}
 
 	// Get transport and mux.  Guaranteed to be allocated at this point.
-	e_sender& transport = transport_map.find(liid)->second;
-	e_mux& mux = muxes.find(liid)->second;
+	e_sender& transport = transport_map.find(device)->second;
+	e_mux& mux = muxes.find(device)->second;
 
 	// Loop forever until we're connected.
 	while (running && !transport.connected()) {
@@ -340,10 +340,10 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	    // Describe the target connection.
 	    try {
 
-		username = global_pars.get_parameter("username." + liid, "");
+		username = global_pars.get_parameter("username." + device, "");
 
 		// Send connect IRI stuff.
-		mux.target_connect(liid, *next->addr,
+		mux.target_connect(device, *next->addr,
 				   oper, country, net_elt,
 				   int_pt, username);
 
@@ -369,7 +369,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	    try {
 
 		// Deliver packet.
-		mux.target_ip(next->tv, liid, pdu, oper, country, net_elt,
+		mux.target_ip(next->tv, device, pdu, oper, country, net_elt,
 			      int_pt, next->dir);
 
 		// Only break out of the loop on success.
@@ -392,7 +392,7 @@ void etsi_li_sender::handle(qpdu_ptr next)
 	    try {
 
 		// Send disconnect IRI stuff.
-		mux.target_disconnect(liid, oper, country, net_elt,
+		mux.target_disconnect(device, oper, country, net_elt,
 				      int_pt);
 
 		// All done, break out of the 'while' loop.

@@ -98,12 +98,12 @@ public:
 class trigger_up_args: public qargs {
 
 public:
-    trigger_up_args(const std::string& liid, const std::string& a,
+    trigger_up_args(const std::string& device, const std::string& a,
 		    const timeval& time
 	) :
-	trupliid(liid), trupaddr(a), time(time) {
+	trupdevice(device), trupaddr(a), time(time) {
     }
-    std::string trupliid;
+    std::string trupdevice;
     const std::string trupaddr;
     timeval time;
 };
@@ -111,10 +111,10 @@ public:
 class trigger_down_args: public qargs {
 
 public:
-    trigger_down_args(const std::string& liid, const timeval& time) :
-	trdownliid(liid), time(time) {
+    trigger_down_args(const std::string& device, const timeval& time) :
+	trdowndevice(device), time(time) {
     }
-    std::string trdownliid;
+    std::string trdowndevice;
     timeval time;
 };
 

@@ -198,7 +198,7 @@ namespace cybermon {
 
     // 'Root' context.  Root of a protocol stack, describes why that protocol
     // stack exists.  Basically reason for acquiring the data, indicated by
-    // the LIID.
+    // the device ID.
     class root_context : public context {
     private:
 
@@ -206,7 +206,7 @@ namespace cybermon {
 	// the engine class.
 	
 	// LIID.
-	std::string liid;
+	std::string device;
 
 	// NEID = network name.
 	std::string network;
@@ -215,11 +215,7 @@ namespace cybermon {
 	address trigger_address;
 
     public:
-	/* static context_ptr create(const std::string& liid) { */
-	/*     root_context* c = new root_context(); */
-	/*     c->liid = liid; */
-	/*     return context_ptr(c); */
-	/* } */
+
         root_context(manager& m) : 
             context(m) {
 	    addr.src.layer = ROOT;
@@ -240,12 +236,12 @@ namespace cybermon {
 
 	address& get_trigger_address() { return trigger_address; }
 
-	std::string& get_liid() {
-	    return liid;
+	std::string& get_device() {
+	    return device;
 	}
 
-	void set_liid(const std::string& l) {
-	    liid = l;
+	void set_device(const std::string& d) {
+	    device = d;
 	}
 
 	std::string& get_network() {

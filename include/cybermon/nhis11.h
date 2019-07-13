@@ -17,7 +17,7 @@ namespace cybermon {
 
     namespace nhis11 {
 
-// A simple NHIS 1.1 transport implementation.
+        // A simple NHIS 1.1 transport implementation.
         class sender {
 
         private:
@@ -42,7 +42,8 @@ namespace cybermon {
             // The CID of this connection.
             unsigned long cid;
 
-            // Static, the CID which will be assigned to the next NHIS 1.1 connection.
+            // Static, the CID which will be assigned to the next NHIS 1.1
+            // connection.
             static unsigned long next_cid;
 
             // True = the NHIS 1.1 transport is connected.
@@ -59,8 +60,10 @@ namespace cybermon {
             // Returns boolean indicating whether the stream is connected.
             bool connected() { return cnx; }
 
-            // Connect to host/port.  Also specifies the LIID for this transport.
-            void connect(const std::string& host, int port, const std::string& liid) {
+            // Connect to host/port.  Also specifies the LIID for this
+            // transport.
+            void connect(const std::string& host, int port,
+                         const std::string& liid) {
                 seq = 0;
                 cid = next_cid++;
                 s.connect(host, port);

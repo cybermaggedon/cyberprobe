@@ -5,20 +5,20 @@
 
 using namespace cybermon;
 
-context_ptr engine::get_root_context(const std::string& liid,
+context_ptr engine::get_root_context(const std::string& device,
 				     const std::string& network)
 {
     lock.lock();
 
     context_ptr c;
 
-    root_id id(liid, network);
+    root_id id(device, network);
     
     if (contexts.find(id) == contexts.end()) {
 	c = context_ptr(new root_context(*this));
 	
 	root_context* rp = dynamic_cast<root_context*>(c.get());
-	rp->set_liid(liid);
+	rp->set_device(device);
 	rp->set_network(network);
 	contexts[id] = c;
     } else
@@ -29,11 +29,11 @@ context_ptr engine::get_root_context(const std::string& liid,
     return c;
 }
 
-void engine::close_root_context(const std::string& liid,
+void engine::close_root_context(const std::string& device,
 				const std::string& network)
 {
     lock.lock();
-    root_id id(liid, network);
+    root_id id(device, network);
     contexts.erase(id);
     lock.unlock();
 }
@@ -86,7 +86,7 @@ void engine::describe_dest(context_ptr p, std::ostream& out)
 
 }
 
-void engine::get_root_info(context_ptr p, std::string& liid, address& a)
+void engine::get_root_info(context_ptr p, std::string& device, address& a)
 {
 
     while (p) {
@@ -96,7 +96,7 @@ void engine::get_root_info(context_ptr p, std::string& liid, address& a)
 	    root_context& rc = 
 		dynamic_cast<root_context&>(*p);
 	    
-	    liid = rc.get_liid();
+	    device = rc.get_device();
 	    a = rc.get_trigger_address();
 
 	}

@@ -76,14 +76,23 @@ void config_manager::read(const std::string& file,
 		it != t_elt.children.end();
 		it++) {
 
-		// For each target element, get the liid, address and optional
+		// For each target element, get the device, address and optional
 		// class attributes.
 		if (it->name == "target") {
-		    
-		    // Bail if liid or address aren't specified.
-		    if (it->attributes.find("liid") == it->attributes.end()) {
+
+                    std::string device;
+
+                    // Get device attributes
+		    if (it->attributes.find("device") != it->attributes.end())
+                        device = it->attributes["device"];
+                    
+                    // Can be called liid as well.
+                    if (it->attributes.find("liid") != it->attributes.end())
+                        device = it->attributes["liid"];
+
+                    if (device == "") {
 			std::cerr
-			    << "target element without 'liid' attribute, "
+			    << "target element without 'device' attribute, "
 			    << "ignored"
 			    << std::endl;
 			continue;
@@ -99,7 +108,6 @@ void config_manager::read(const std::string& file,
 		    }
 
 		    std::string ip = it->attributes["address"];
-		    std::string liid = it->attributes["liid"];
 		    std::string cs = it->attributes["class"];
 		    std::string network = it->attributes["network"];
 
@@ -122,7 +130,7 @@ void config_manager::read(const std::string& file,
 			
 			// Create target specification.
 			target_spec* sp = new target_spec;
-			sp->set_ipv4(liid, network, addr, mask);
+			sp->set_ipv4(device, network, addr, mask);
 			lst.push_back(sp);
 			
 		    } else {
@@ -144,7 +152,7 @@ void config_manager::read(const std::string& file,
 			
 			// Create target specfication.
 			target_spec* sp = new target_spec;
-			sp->set_ipv6(liid, network, addr, mask);
+			sp->set_ipv6(device, network, addr, mask);
 			lst.push_back(sp);
 			
 		    }

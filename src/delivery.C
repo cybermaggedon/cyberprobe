@@ -116,7 +116,8 @@ void delivery::identify_link(const_iterator& start,
 }
 
 // Study an IPv4 packet, and work out if the addresses match a target
-// address.  Returns true for a match, and 'liid' returns the target LIID.
+// address.  Returns true for a match, and 'device' returns the target
+// device ID.
 bool delivery::ipv4_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
@@ -126,7 +127,7 @@ bool delivery::ipv4_match(const_iterator& start,
 {
 
     // FIXME: What if it matches on more than one address?!
-    // FIXME: Should be tagged with more than one LIID?
+    // FIXME: Should be tagged with more than one device ID?
 
     // Too small to be an IP packet?
     if (end - start < 20) return false;
@@ -153,10 +154,10 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled.find(saddr) == md->mangled.end()) {
 
-	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> device(new std::string);
 	    std::shared_ptr<std::string> network(new std::string);
 
-	    expand_template(md->liid, *liid, saddr, *subnet, link);
+	    expand_template(md->device, *device, saddr, *subnet, link);
 	    expand_template(md->network, *network, saddr, *subnet, link);
 
 	    // Tell all senders, target up.
@@ -164,10 +165,10 @@ bool delivery::ipv4_match(const_iterator& start,
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(liid, network, saddr);
+		it->second->target_up(device, network, saddr);
 	    }
 
-	    md->mangled[saddr].liid = liid;
+	    md->mangled[saddr].device = device;
 	    md->mangled[saddr].network = network;
 
 	}
@@ -189,10 +190,10 @@ bool delivery::ipv4_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled.find(daddr) == md->mangled.end()) {
 
-	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> device(new std::string);
 	    std::shared_ptr<std::string> network(new std::string);
 
-	    expand_template(md->liid, *liid, daddr, *subnet, link);
+	    expand_template(md->device, *device, daddr, *subnet, link);
 	    expand_template(md->network, *network, daddr, *subnet, link);
 
 	    // Tell all senders, target up.
@@ -200,10 +201,10 @@ bool delivery::ipv4_match(const_iterator& start,
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(liid, network, daddr);
+		it->second->target_up(device, network, daddr);
 	    }
 
-	    md->mangled[daddr].liid = liid;
+	    md->mangled[daddr].device = device;
 	    md->mangled[daddr].network = network;
 
 	}
@@ -220,7 +221,7 @@ bool delivery::ipv4_match(const_iterator& start,
 }
 
 // Study an IPv6 packet, and work out if the addresses match a target
-// address.  Returns true for a match, and 'liid' returns the target LIID.
+// address.  Returns true for a match, and 'device' returns the target device.
 bool delivery::ipv6_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
@@ -230,7 +231,7 @@ bool delivery::ipv6_match(const_iterator& start,
 {
 
     // FIXME: What if it matches on more than one address?!
-    // FIXME: Should be tagged with more than one LIID?
+    // FIXME: Should be tagged with more than one device?
 
     // Too small to be an IPv6 packet?
     if (end - start < 40) return false;
@@ -257,10 +258,10 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled6.find(saddr) == md->mangled6.end()) {
 
-	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> device(new std::string);
 	    std::shared_ptr<std::string> network(new std::string);
 
-	    expand_template(md->liid, *liid, saddr, *subnet, link);
+	    expand_template(md->device, *device, saddr, *subnet, link);
 	    expand_template(md->network, *network, saddr, *subnet, link);
 
 	    // Tell all senders, target up.
@@ -268,10 +269,10 @@ bool delivery::ipv6_match(const_iterator& start,
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(liid, network, saddr);
+		it->second->target_up(device, network, saddr);
 	    }
 
-	    md->mangled6[saddr].liid = liid;
+	    md->mangled6[saddr].device = device;
 	    md->mangled6[saddr].network = network;
 
 	}
@@ -293,10 +294,10 @@ bool delivery::ipv6_match(const_iterator& start,
 	// Cache manipulation
 	if (md->mangled6.find(daddr) == md->mangled6.end()) {
 
-	    std::shared_ptr<std::string> liid(new std::string);
+	    std::shared_ptr<std::string> device(new std::string);
 	    std::shared_ptr<std::string> network(new std::string);
 
-	    expand_template(md->liid, *liid, daddr, *subnet, link);
+	    expand_template(md->device, *device, daddr, *subnet, link);
 	    expand_template(md->network, *network, daddr, *subnet, link);
 
 	    // Tell all senders, target up.
@@ -304,10 +305,10 @@ bool delivery::ipv6_match(const_iterator& start,
 	    for(std::map<ep,sender*>::iterator it = senders.begin();
 		it != senders.end();
 		it++) {
-		it->second->target_up(liid, network, daddr);
+		it->second->target_up(device, network, daddr);
 	    }
 
-	    md->mangled6[daddr].liid = liid;
+	    md->mangled6[daddr].device = device;
 	    md->mangled6[daddr].network = network;
 
 	}
@@ -366,7 +367,7 @@ void delivery::receive_packet(timeval tv,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(tv, m->liid, m->network, dir, start, end);
+	    it->second->deliver(tv, m->device, m->network, dir, start, end);
 	}
 
     }
@@ -394,7 +395,7 @@ void delivery::receive_packet(timeval tv,
 	for(std::map<ep,sender*>::iterator it = senders.begin();
 	    it != senders.end();
 	    it++) {
-	    it->second->deliver(tv, m->liid, m->network, dir, start, end);
+	    it->second->deliver(tv, m->device, m->network, dir, start, end);
 	}
 
     }
@@ -509,7 +510,7 @@ void delivery::get_interfaces(std::list<interface_info>& ii)
 // Modifies the target map to include a mapping from address to target.
 void delivery::add_target(const tcpip::address& addr,
 			  unsigned int mask,
-			  const std::string& liid,
+			  const std::string& device,
 			  const std::string& network)
 {
 
@@ -518,11 +519,11 @@ void delivery::add_target(const tcpip::address& addr,
     if (addr.universe == addr.ipv4) {
 	const tcpip::ip4_address& a =
 	    reinterpret_cast<const tcpip::ip4_address&>(addr);
-	targets.insert(a, mask, match_state(liid, network));
+	targets.insert(a, mask, match_state(device, network));
     } else {
 	const tcpip::ip6_address& a =
 	    reinterpret_cast<const tcpip::ip6_address&>(addr);
-	targets6.insert(a, mask, match_state(liid, network));
+	targets6.insert(a, mask, match_state(device, network));
     }
 
 }
@@ -533,7 +534,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 
     std::lock_guard<std::mutex> lock(targets_mutex);
 
-    std::string liid;
+    std::string device;
 
     if (addr.universe == addr.ipv4) {
 
@@ -555,7 +556,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 			ms->mangled.begin();
 		    it2 != ms->mangled.end();
 		    it2++) {
-		    it->second->target_down(it2->second.liid,
+		    it->second->target_down(it2->second.device,
 					    it2->second.network);
 		}
 
@@ -563,7 +564,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 			ms->mangled6.begin();
 		    it2 != ms->mangled6.end();
 		    it2++) {
-		    it->second->target_down(it2->second.liid,
+		    it->second->target_down(it2->second.device,
 					    it2->second.network);
 		}
 
@@ -594,7 +595,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 			ms->mangled.begin();
 		    it2 != ms->mangled.end();
 		    it2++) {
-		    it->second->target_down(it2->second.liid,
+		    it->second->target_down(it2->second.device,
 					    it2->second.network);
 		}
 
@@ -602,7 +603,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 			ms->mangled6.begin();
 		    it2 != ms->mangled6.end();
 		    it2++) {
-		    it->second->target_down(it2->second.liid,
+		    it->second->target_down(it2->second.device,
 					    it2->second.network);
 		}
 

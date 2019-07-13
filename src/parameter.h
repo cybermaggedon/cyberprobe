@@ -19,7 +19,7 @@ public:
     // Type is 'target'.
     virtual std::string get_type() const { return "parameter"; }
 
-    // LIID.
+    // key/val pair
     std::string key;
     std::string val;
 
