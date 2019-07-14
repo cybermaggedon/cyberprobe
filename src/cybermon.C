@@ -27,8 +27,6 @@ Usage:
 #include <cybermon/packet_capture.h>
 #include <cybermon/context.h>
 #include <cybermon/cybermon-lua.h>
-#include <cybermon_qwriter.h>
-#include <cybermon_qreader.h>
 #include <cybermon/pdu.h>
 #include <cybermon/event.h>
 #include <cybermon/vxlan.h>

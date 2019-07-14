@@ -37,16 +37,18 @@ tls_rcvr_LDADD = libcybermon.la -lssl
 lib_LTLIBRARIES = libcybermon.la
 
 libcybermon_la_SOURCES = address.C base_context.C ber.C			\
-	cybermon_qwriter.C cybermon_qreader.C cybermon-lua.C dns_over_tcp.C dns_over_udp.C dns_protocol.C	\
+	cybermon-lua.C dns_over_tcp.C dns_over_udp.C dns_protocol.C	\
 	engine.C etsi_li.C forgery.C ftp.C http.C icmp.C imap.C		\
 	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C event.C  \
 	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
 	sip_ssl.C	event_json.C base64.C base64.h json.h \
-	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C unrecognised.C		\
-	cybermon_qwriter.h cybermon_qreader.h \
+	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C \
+	unrecognised.C \
 	tls_key_exchange.C vxlan.C \
-	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C tls_handshake.C tls_utils.C \
-	hardware_addr_utils.h tls_cipher_suites.h tls_exception.h tls_extensions.h \
+	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C tls_handshake.C \
+	tls_utils.C \
+	hardware_addr_utils.h tls_cipher_suites.h tls_exception.h \
+	tls_extensions.h \
 	tls_handshake.h tls_key_exchange.h tls_utils.h \
 	../include/cybermon/address.h ../include/cybermon/ber.h		\
 	address_map.h	uuid.h	                \
