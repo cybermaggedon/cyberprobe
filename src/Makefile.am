@@ -95,7 +95,8 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/tls_handshake_protocol.h \
 	../include/cybermon/tls.h \
 	../include/cybermon/vxlan.h \
-	../include/cybermon/xml.h
+	../include/cybermon/xml.h \
+	../include/cybermon/event_queue.h
 
 ACLOCAL_AMFLAGS = -I m4
 
