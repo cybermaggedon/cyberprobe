@@ -60,7 +60,7 @@ public:
 // Results of a match, returned by ipv4_match and ipv6_match.
 class match {
 public:
-    std::shared_ptr<std::string> liid;
+    std::shared_ptr<std::string> device;
     std::shared_ptr<std::string> network;
 };
 
@@ -69,12 +69,12 @@ class match_state {
 
 public:
 
-    match_state(const std::string& l, const std::string& n) :
-        liid(l), network(n) {}
+    match_state(const std::string& d, const std::string& n) :
+        device(d), network(n) {}
     match_state() {}
     
     // On a match, these values are the input to 'mangling'.
-    std::string liid;
+    std::string device;
     std::string network;
 
     // Caching hits for templated values - the output of 'mangling'.
@@ -121,15 +121,15 @@ public:
 // Delivery manager class.  You feed it IP packets, and it works out what to
 // do with the IP packets.  The 'delivery' class owns the NHIS connections
 // to the recipient endpoints, and also a target map, which maps IP addresses
-// to LIIDs.  IP packets are only delivered if they contain an address which
-// hits in the target map.
+// to device IDs.  IP packets are only delivered if they contain an address
+// which hits in the target map.
 //
-// Note an IP address can only can be mapped to a single LIID.
+// Note an IP address can only can be mapped to a single device.
 
 class delivery : public parameters, public management, public packet_consumer {
 private:
 
-    // Targets : an IP address to LIID mapping.
+    // Targets : an IP address to device ID mapping.
     std::mutex targets_mutex;
 
     address_map<tcpip::ip4_address, match_state> targets;
@@ -157,7 +157,7 @@ private:
 		       int linktype,		   /* PCAP linktype */
 		       link_info& link);
 
-    // IPv4 header to LIID
+    // IPv4 header to device ID
     bool ipv4_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
@@ -165,7 +165,7 @@ private:
                     cybermon::direction& direc,
 		    const link_info&);
 
-    // IPv6 header to LIID
+    // IPv6 header to device ID
     bool ipv6_match(const_iterator& start,	   /* Start of packet */
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
@@ -173,7 +173,7 @@ private:
                     cybermon::direction& direc,
 		    const link_info&);
 
-    // Expand liid/network template
+    // Expand device/network template
     static void expand_template(const std::string& in,
 				std::string& out,
 				const tcpip::address& addr,
@@ -224,7 +224,7 @@ public:
     // Modifies the target map to include a mapping from address to target.
     void add_target(const tcpip::address& addr,
 		    unsigned int mask,
-		    const std::string& liid,
+		    const std::string& device,
 		    const std::string& network);
 
     // Removes a target mapping.

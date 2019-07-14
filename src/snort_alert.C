@@ -160,7 +160,7 @@ void snort_alerter::run()
 			  << std::endl;
 
 		std::ostringstream buf;
-		buf << "snort." << sid << ".liid";
+		buf << "snort." << sid << ".device";
 
 		std::ostringstream fallb;
 		fallb << "SNORT";
@@ -172,10 +172,10 @@ void snort_alerter::run()
                     fallb << std::hex << (int) *it;
 		}
 
-		std::string liid = deliv.get_parameter(buf.str(), fallb.str());
+		std::string device = deliv.get_parameter(buf.str(), fallb.str());
 
 		// FIXME: Can't control network parameter.
-		deliv.add_target(*src, mask, liid, "");
+		deliv.add_target(*src, mask, device, "");
 
 	    }
 

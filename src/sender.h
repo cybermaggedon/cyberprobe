@@ -19,12 +19,12 @@
 // Shared pointers to TCP/IP address.
 typedef std::shared_ptr<tcpip::address> address_ptr;
 
-// A packet on the packet queue: LIID plus PDU.
+// A packet on the packet queue: Device plus PDU.
 class qpdu {
 public:
     enum { PDU, TARGET_UP, TARGET_DOWN } msg_type;
     timeval tv;                             // Valid for: PDU
-    std::shared_ptr<std::string> liid;    // Valid for: PDU, TARGET_UP/DOWN
+    std::shared_ptr<std::string> device;    // Valid for: PDU, TARGET_UP/DOWN
     std::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
     address_ptr addr;                       // Valid for: TARGET_UP
@@ -83,12 +83,12 @@ public:
     virtual void target_up(std::shared_ptr<std::string> l,
 			   std::shared_ptr<std::string> n,
 			   const tcpip::address& a);
-    virtual void target_down(std::shared_ptr<std::string> liid,
+    virtual void target_down(std::shared_ptr<std::string> device,
 			     std::shared_ptr<std::string> n);
 
     // Called to push a packet down the sender transport.
     void deliver(timeval tv,
-                 std::shared_ptr<std::string> liid,
+                 std::shared_ptr<std::string> device,
 		 std::shared_ptr<std::string> n,
                  cybermon::direction dir,
 		 const_iterator& start,
@@ -184,7 +184,7 @@ private:
     // Transports
     e_sender* transports;
 
-    // Map of LIID to transport.
+    // Map of device/LIID to transport.
     std::map<std::string,e_sender&> transport_map;
 
     // Multiplexes
@@ -204,7 +204,7 @@ private:
     bool tls;			
 
     // Map, records if appropriate IRI BEGIN messages have been sent
-    // to introduce this LIID.
+    // to introduce this device / LIID.
     std::map<std::string, bool> setup;
 
     // Initialise some configuration

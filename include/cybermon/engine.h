@@ -52,20 +52,20 @@ namespace cybermon {
 	// Destructor.
 	virtual ~engine() {}
 
-	// Get the root context for a particular LIID.
-	context_ptr get_root_context(const std::string& liid,
+	// Get the root context for a particular device ID.
+	context_ptr get_root_context(const std::string& device,
 				     const std::string& network);
 
 	// Close an unwanted root context.
-	void close_root_context(const std::string& liid,
+	void close_root_context(const std::string& device,
 				const std::string& network);
 
-	// Process a packet belong to a LIID.  'liid' describes the context,
-	// 's' and 'e' are iterators pointing at the start and end of packet
-	// data to process.
-	void process(const std::string& liid, const std::string& network,
+	// Process a packet belong to a device.  'device' describes the
+        // context, 's' and 'e' are iterators pointing at the start and end
+        // of packet data to process.
+	void process(const std::string& device, const std::string& network,
                      const pdu_slice& s) {
-	    context_ptr c = get_root_context(liid, network);
+	    context_ptr c = get_root_context(device, network);
 	    process(c, s);
 	}
 
@@ -113,10 +113,10 @@ namespace cybermon {
 	    }
 	}
 
-	// Given a context, locates the root context, and returns the liid and
-	// target address.
+	// Given a context, locates the root context, and returns the device
+        // and target address.
 	static void get_root_info(context_ptr p,
-				  std::string& liid,
+				  std::string& device,
 				  address& ta);
 	
 	// Given a context, locates the network context in the stack, and

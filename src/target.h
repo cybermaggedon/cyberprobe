@@ -10,15 +10,15 @@
 
 #include <cybermon/resource.h>
 
-// A target specification: Maps an IP address to a LIID.
+// A target specification: Maps an IP address to a device ID.
 class target_spec : public cybermon::specification {
 public:
 
     // Type is 'target'.
     virtual std::string get_type() const { return "target"; }
 
-    // LIID.
-    std::string liid;
+    // Device
+    std::string device;
 
     // Network
     std::string network;
@@ -36,26 +36,26 @@ public:
     target_spec() { universe = IPv4; }
 
     // Set IPv4 address match.
-    void set_ipv4(const std::string& liid, const std::string& network,
+    void set_ipv4(const std::string& device, const std::string& network,
 		  const tcpip::ip4_address& addr,
 		  unsigned int mask = 32) {
 	this->network = network;
-	this->liid = liid; this->addr = addr; universe = IPv4; 
+	this->device = device; this->addr = addr; universe = IPv4; 
 	this->mask = mask;
     }
 
     // Set IPv6 address match.
-    void set_ipv6(const std::string& liid,
+    void set_ipv6(const std::string& device,
 		  const std::string& network,
 		  const tcpip::ip6_address& addr,
 		  unsigned int mask = 128) {
-	this->liid = liid;
+	this->device = device;
 	this->network = network;
 	this->addr6 = addr; universe = IPv6;
 	this->mask = mask;
     }
 
-    // Hash is form ipaddr:liid.
+    // Hash is form ipaddr:device.
     virtual std::string get_hash() const { 
 	std::ostringstream buf;
 	
@@ -66,7 +66,7 @@ public:
 
 	buf << ":" << network;
 
-	buf << ":" << liid;
+	buf << ":" << device;
 
 	buf << ":" << mask;
 
@@ -97,16 +97,16 @@ public:
 
 	std::string txt;
 	if (spec.universe == target_spec::IPv4) {
-	    deliv.add_target(spec.addr, spec.mask, spec.liid, spec.network);
+	    deliv.add_target(spec.addr, spec.mask, spec.device, spec.network);
 	    spec.addr.to_string(txt);
 	} else {
-	    deliv.add_target(spec.addr6, spec.mask, spec.liid, spec.network);
+	    deliv.add_target(spec.addr6, spec.mask, spec.device, spec.network);
 	    spec.addr6.to_string(txt);
 	}
 
 	std::cerr << "Added target " << txt << "/" << spec.mask
 		  << " -> " 
-		  << spec.liid << "." << std::endl;
+		  << spec.device << "." << std::endl;
 
     }
 
@@ -124,7 +124,7 @@ public:
 
 	std::cerr << "Removed target " << txt << "/" << spec.mask
 		  << " -> " 
-		  << spec.liid << "." << std::endl;
+		  << spec.device << "." << std::endl;
     }
 
 };

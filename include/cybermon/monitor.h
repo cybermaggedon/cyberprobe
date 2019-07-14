@@ -16,7 +16,7 @@ namespace cybermon {
         virtual ~monitor() {}
         
         // IP packet.
-        virtual void operator()(const std::string& liid,
+        virtual void operator()(const std::string& device,
                                 const std::string& network,
                                 std::vector<unsigned char>::const_iterator,
                                 std::vector<unsigned char>::const_iterator,
@@ -24,13 +24,13 @@ namespace cybermon {
                                 cybermon::direction dir) = 0;
         
         // Gets called if initiator's connection is seen.
-        virtual void target_up(const std::string& liid,
+        virtual void target_up(const std::string& device,
                                const std::string& network,
                                const tcpip::address& addr,
                                const struct timeval& tv) = 0;
         
         // Gets called if initiator's disconnection is seen.
-        virtual void target_down(const std::string& liid,
+        virtual void target_down(const std::string& device,
                                  const std::string& network,
                                  const struct timeval& tv) = 0;
 

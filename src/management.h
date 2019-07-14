@@ -43,7 +43,7 @@ public:
     // Modifies the target map to include a mapping from address to target.
     virtual void add_target(const tcpip::address& addr, 
 			    unsigned int mask,
-			    const std::string& liid,
+			    const std::string& device,
 			    const std::string& network) = 0;
 
     // Removes a target mapping.

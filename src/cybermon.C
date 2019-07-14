@@ -48,43 +48,43 @@ public:
     monitor(cybermon::engine& an) : an(an) {}
 
     // Called when a PDU is received.
-    virtual void operator()(const std::string& liid,
+    virtual void operator()(const std::string& device,
 			    const std::string& network,
 			    iter s, iter e,
 			    const struct timeval& tv, cybermon::direction d);
 
     // Called when attacker is discovered.
-    void target_up(const std::string& liid,
+    void target_up(const std::string& device,
 		   const std::string& network,
 		   const tcpip::address& addr,
 		   const struct timeval& tv);
 
     // Called when attacker is disconnected.
-    void target_down(const std::string& liid,
+    void target_down(const std::string& device,
 		     const std::string& network,
 		     const struct timeval& tv);
 
 };
 
 // Called when attacker is discovered.
-void monitor::target_up(const std::string& liid,
+void monitor::target_up(const std::string& device,
 			     const std::string& network,
 			     const tcpip::address& addr,
 			     const struct timeval& tv)
 {
-    an.target_up(liid, network, addr, tv);
+    an.target_up(device, network, addr, tv);
 }
 
 // Called when attacker is discovered.
-void monitor::target_down(const std::string& liid,
+void monitor::target_down(const std::string& device,
 			       const std::string& network,
 			       const struct timeval& tv)
 {
-    an.target_down(liid, network, tv);
+    an.target_down(device, network, tv);
 }
 
 // Called when a PDU is received.
-void monitor::operator()(const std::string& liid,
+void monitor::operator()(const std::string& device,
                          const std::string& network,
                          iter s, iter e,
                          const struct timeval& tv, cybermon::direction d)
@@ -93,7 +93,7 @@ void monitor::operator()(const std::string& liid,
     try {
 
 	// Process the PDU
-        an.process(liid, network, cybermon::pdu_slice(s, e, tv, d));
+        an.process(device, network, cybermon::pdu_slice(s, e, tv, d));
 
     } catch (std::exception& e) {
 
@@ -108,12 +108,14 @@ class pcap_input : public pcap_reader {
 private:
     cybermon::engine& e;
     int count;
+    std::string device;
 
     std::thread* thr;
 
 public:
-    pcap_input(const std::string& f, cybermon::engine& e) :
-	pcap_reader(f), e(e) {
+    pcap_input(const std::string& f, cybermon::engine& e,
+               const std::string& device) :
+	pcap_reader(f), e(e), device(device) {
 	count = 0;
     }
 
@@ -153,10 +155,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		std::vector<unsigned char> v;
 		v.assign(f + 14, f + len);
 
-		// FIXME: Hard-coded?!
-		std::string liid = "PCAP";
-
-		e.process(liid, "",
+		e.process(device, "",
 			  cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	    }
@@ -167,10 +166,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		std::vector<unsigned char> v;
 		v.assign(f + 14, f + len);
 
-		// FIXME: Hard-coded?!
-		std::string liid = "PCAP";
-
-		e.process(liid, "",
+		e.process(device, "",
 			  cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	    }
@@ -184,10 +180,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		    std::vector<unsigned char> v;
 		    v.assign(f + 18, f + len);
 
-		    // FIXME: Hard-coded?!
-		    std::string liid = "PCAP";
-
-		    e.process(liid, "",
+		    e.process(device, "",
 			      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 		}
@@ -198,10 +191,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		    std::vector<unsigned char> v;
 		    v.assign(f + 18, f + len);
 
-		    // FIXME: Hard-coded?!
-		    std::string liid = "PCAP";
-
-		    e.process(liid, "",
+		    e.process(device, "",
 			      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 		}
@@ -215,12 +205,9 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 	    std::vector<unsigned char> v;
 	    v.assign(f, f + len);
 
-	    // FIXME: Hard-coded?!
-	    std::string liid = "PCAP";
-
 	    std::string str( v.begin(), v.end() );
 
-	    e.process(liid, "",
+	    e.process(device, "",
 		      cybermon::pdu_slice(v.begin(), v.end(), tv));
 
 	}
@@ -241,6 +228,7 @@ int main(int argc, char** argv)
     unsigned int vxlan_port = 0;
     std::string pcap_file, config_file;
     std::string transport;
+    std::string device = "PCAP";
     float time_limit = -1;
 
     po::options_description desc("Supported options");
@@ -327,7 +315,7 @@ int main(int argc, char** argv)
 
 	if (pcap_file != "") {
 
-            pcap_input pin(pcap_file, cqw);
+            pcap_input pin(pcap_file, cqw, device);
 
             pin.start();
 
