@@ -228,7 +228,7 @@ int main(int argc, char** argv)
     unsigned int vxlan_port = 0;
     std::string pcap_file, config_file;
     std::string transport;
-    std::string device = "PCAP";
+    std::string device;
     float time_limit = -1;
 
     po::options_description desc("Supported options");
@@ -248,7 +248,9 @@ int main(int argc, char** argv)
         ("time-limit,L", po::value<float>(&time_limit),
          "Describes a time limit (seconds) after which to stop.")
 	("config,c", po::value<std::string>(&config_file),
-	 "LUA configuration file");
+	 "LUA configuration file")
+        ("device,d", po::value<std::string>(&device),
+         "Device ID to use for PCAP file");
 
     po::variables_map vm;
     try {
@@ -315,6 +317,8 @@ int main(int argc, char** argv)
 
 	if (pcap_file != "") {
 
+            if (device == "") device = "PCAP";
+
             pcap_input pin(pcap_file, cqw, device);
 
             pin.start();
@@ -332,6 +336,11 @@ int main(int argc, char** argv)
             monitor m(cqw);
 
             cybermon::vxlan::receiver r(vxlan_port, m);
+
+            // Over-ride VNI??? device for VXLAN if device was specified
+            // on command line.
+            if (device != "")
+                r.device = device;
 
             r.start();
 

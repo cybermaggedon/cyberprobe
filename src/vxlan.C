@@ -38,8 +38,6 @@ void receiver::run()
                         buffer[5] << 16 |
                         buffer[4] << 8;
 
-                std::string device = "VNI" + std::to_string(vxlan_id);
-                
                 std::vector<unsigned char>::const_iterator p = buffer.begin();
                 std::vector<unsigned char>::const_iterator end = buffer.end();
 
@@ -88,7 +86,13 @@ void receiver::run()
                 timeval tv;
                 gettimeofday(&tv, 0);
 
-                mon(device, "", p, buffer.end(), tv, NOT_KNOWN);
+
+                if (device == "") {
+                    std::string vni_device;
+                    vni_device = "VNI" + std::to_string(vxlan_id);
+                    mon(vni_device, "", p, buffer.end(), tv, NOT_KNOWN);
+                } else
+                    mon(device, "", p, buffer.end(), tv, NOT_KNOWN);
             
             }
 
