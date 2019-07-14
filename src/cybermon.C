@@ -333,11 +333,6 @@ int main(int argc, char** argv)
             if (device != "")
                 r.device = device;
 
-            // Over-ride VNI??? device for VXLAN if device was specified
-            // on command line.
-            if (device != "")
-                r.device = device;
-
             r.start();
 
             if (time_limit > 0) {
