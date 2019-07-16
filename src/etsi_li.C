@@ -830,7 +830,8 @@ void connection::run()
 
 			packet_p.decode_vector(pkt);
 
-			p(liid, network, pkt.begin(), pkt.end(), tv, dir);
+			p(liid, network,
+                          pdu_slice(pkt.begin(), pkt.end(), tv, dir));
 
 		    }
 

@@ -14,22 +14,20 @@
 #include <list>
 #include <map>
 
-#include "pdu.h"
-#include "context.h"
-
-#include "socket.h"
-#include "reaper.h"
-#include "observer.h"
-#include "manager.h"
-
+#include <cybermon/pdu.h>
+#include <cybermon/context.h>
+#include <cybermon/socket.h>
+#include <cybermon/reaper.h>
+#include <cybermon/manager.h>
 #include <cybermon/event.h>
+#include <cybermon/monitor.h>
 #include <cybermon/event_implementations.h>
 
 namespace cybermon {
     
     // Packet analysis engine.  Designed to be sub-classed, caller should
     // implement the 'observer' interface.
-    class engine : public manager {
+    class engine : public manager, public monitor {
     private:
 
 	// Lock for all state.
@@ -44,6 +42,24 @@ namespace cybermon {
 	// data to process.
 	void process(context_ptr c, const pdu_slice& s);
 
+	// Close an unwanted root context.
+	void close_root_context(const std::string& device,
+				const std::string& network);
+
+	// Get the root context for a particular device ID.
+	context_ptr get_root_context(const std::string& device,
+				     const std::string& network);
+
+	// Utility function, given a context, iterates up through the parent
+	// pointers, returning a list of contexts (including 'p').
+	static void get_context_stack(context_ptr p, 
+				      std::list<context_ptr>& l) {
+	    while (p) {
+		l.push_front(p);
+		p = p->parent.lock();
+	    }
+	}
+        
     public:
 
 	// Constructor.
@@ -51,14 +67,6 @@ namespace cybermon {
 
 	// Destructor.
 	virtual ~engine() {}
-
-	// Get the root context for a particular device ID.
-	context_ptr get_root_context(const std::string& device,
-				     const std::string& network);
-
-	// Close an unwanted root context.
-	void close_root_context(const std::string& device,
-				const std::string& network);
 
 	// Process a packet belong to a device.  'device' describes the
         // context, 's' and 'e' are iterators pointing at the start and end
@@ -103,15 +111,6 @@ namespace cybermon {
 
 	}
 
-	// Utility function, given a context, iterates up through the parent
-	// pointers, returning a list of contexts (including 'p').
-	static void get_context_stack(context_ptr p, 
-				      std::list<context_ptr>& l) {
-	    while (p) {
-		l.push_front(p);
-		p = p->parent.lock();
-	    }
-	}
 
 	// Given a context, locates the root context, and returns the device
         // and target address.

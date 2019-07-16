@@ -90,9 +90,11 @@ void receiver::run()
                 if (device == "") {
                     std::string vni_device;
                     vni_device = "VNI" + std::to_string(vxlan_id);
-                    mon(vni_device, "", p, buffer.end(), tv, NOT_KNOWN);
+                    mon(vni_device, "",
+                        pdu_slice(p, buffer.end(), tv, NOT_KNOWN));
                 } else
-                    mon(device, "", p, buffer.end(), tv, NOT_KNOWN);
+                    mon(device, "",
+                        pdu_slice(p, buffer.end(), tv, NOT_KNOWN));
             
             }
 

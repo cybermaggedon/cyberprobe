@@ -19,11 +19,9 @@ public:
     output(pcap_writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
-			    std::vector<unsigned char>::const_iterator s,
-			    std::vector<unsigned char>::const_iterator e,
-			    const timeval& tv, cybermon::direction d) {
+                            cybermon::pdu_slice s) {
 	std::lock_guard<std::mutex> lock(mutex);
-	p.write(s, e);
+	p.write(s.start, s.end);
     }
 
     void target_up(const std::string& liid,

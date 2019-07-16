@@ -18,10 +18,7 @@ namespace cybermon {
         // IP packet.
         virtual void operator()(const std::string& device,
                                 const std::string& network,
-                                std::vector<unsigned char>::const_iterator,
-                                std::vector<unsigned char>::const_iterator,
-                                const struct timeval& tv,
-                                cybermon::direction dir) = 0;
+                                pdu_slice) = 0;
         
         // Gets called if initiator's connection is seen.
         virtual void target_up(const std::string& device,
