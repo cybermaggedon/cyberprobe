@@ -270,8 +270,9 @@ void config_manager::read(const std::string& file,
 
         for(json::iterator it = parameters_j.begin(); it != parameters_j.end();
             it++) {
-            parameter_spec* sp = new parameter_spec();
-            it->get_to(*sp);
+            parameter_spec* sp =
+                new parameter_spec(it.key(),
+                                   it.value().get<std::string>());
             lst.push_back(sp);
         }        
 
