@@ -220,7 +220,7 @@ void config_manager::read(const std::string& file,
 	std::string data;
 	get_file(file, data);
 
-	// Parse XML
+	// Parse config file
         auto config = json::parse(data);
 
 	/////////////////////////////////////////////////////////////

@@ -3,7 +3,7 @@ bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli \
 	stream-rcvr tls-rcvr
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
-	delivery.C xml.C capture.C configuration.C control.C snort_alert.C \
+	delivery.C capture.C configuration.C control.C snort_alert.C \
 	sender.h delivery.h capture.h \
 	configuration.h control.h snort_alert.h target.h \
 	parameters.h packet_consumer.h interface.h \
@@ -95,7 +95,6 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/tls_handshake_protocol.h \
 	../include/cybermon/tls.h \
 	../include/cybermon/vxlan.h \
-	../include/cybermon/xml.h \
 	../include/cybermon/event_queue.h
 
 ACLOCAL_AMFLAGS = -I m4

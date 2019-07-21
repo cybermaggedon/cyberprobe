@@ -57,7 +57,6 @@ AX_LUA_LIBS([], [AC_MSG_ERROR([Lua library missing.])])
 # AS_IF([echo 'if require("socket") then print("yes") end' | lua -], [],
 # 	    [AC_MSG_ERROR([Lua socket module is not installed.])])
 
-AC_CHECK_LIB([expat], [main], [], [AC_MSG_ERROR(Library expat missing.)])
 AC_CHECK_LIB([ncurses], [main], [], [AC_MSG_ERROR(Library ncurses missing.)])
 AC_CHECK_LIB([pcap], [main], [], [AC_MSG_ERROR(Library pcap missing.)])
 AC_SEARCH_LIBS([pcap_create], [pcap],

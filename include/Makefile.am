@@ -14,7 +14,7 @@ cybermoninc_HEADERS = cybermon/address.h cybermon/base_context.h	\
 	cybermon/protocol.h cybermon/reaper.h cybermon/resource.h	\
 	cybermon/smtp.h cybermon/socket.h cybermon/specification.h	\
 	cybermon/tcp.h cybermon/transport.h		\
-	cybermon/udp.h cybermon/unrecognised.h cybermon/xml.h		\
+	cybermon/udp.h cybermon/unrecognised.h \
 	cybermon/serial.h cybermon/udp_ports.h cybermon/tcp_ports.h     \
 	cybermon/vxlan.h cybermon/eth_header.h cybermon/event.h \
 	cybermon/event_implementations.h cybermon/event_queue.h
