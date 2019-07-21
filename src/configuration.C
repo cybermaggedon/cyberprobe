@@ -1,12 +1,105 @@
 
 #include "configuration.h"
-#include <cybermon/xml.h>
 #include "interface.h"
 #include "target.h"
 #include "endpoint.h"
 #include "parameter.h"
 #include "snort_alert.h"
 #include "control.h"
+#include "json.h"
+
+using json = nlohmann::json;
+
+void to_json(json& j, const iface_spec& s) {
+    j = json{{"interface", s.ifa}, {"filter", s.filter},
+             {"delay", s.delay}};
+}
+
+void from_json(const json& j, iface_spec& s) {
+    j.at("interface").get_to(s.ifa);
+    try {
+        j.at("filter").get_to(s.filter);
+    } catch (...) {
+        s.filter = "";
+    }
+    try {
+        j.at("delay").get_to(s.delay);
+    } catch (...) {
+        s.delay = 0.0;
+    }
+}
+
+void to_json(json& j, const target_spec& s) {
+    std::string addr;
+    std::string cls;
+    if (s.universe == s.IPv6) {
+        s.addr6.to_string(addr);
+        if (s.mask != 128)
+            addr += "/" + std::to_string(s.mask);
+        cls = "ipv6";
+    } else if (s.universe == s.IPv4) {
+        s.addr.to_string(addr);
+        if (s.mask != 32)
+            addr += "/" + std::to_string(s.mask);
+        cls = "ipv4";
+    } else
+        throw std::runtime_error("Address not IPv6 or IPv4");
+    j = json{{"device", s.device},
+             {"network", s.network},
+             {"address", addr}, {"class", cls}
+    };
+}
+
+void from_json(const json& j, target_spec& s) {
+
+    j.at("device").get_to(s.device);
+
+    try {
+        j.at("network").get_to(s.network);
+    } catch (...) {
+        s.network = "";
+    }
+
+    std::string cls;
+    try {
+        j.at("class").get_to(cls);
+    } catch (...) {
+        cls = "ipv4";
+    }
+
+    if (cls != "ipv4" && cls != "ipv6")
+        throw std::runtime_error("Class must be ipv4 or ipv6");
+
+    std::string address;
+    j.at("address").get_to(address);
+
+    int mask;
+
+    int pos = address.find("/");
+    std::string mstr = address.substr(pos + 1);
+    if (pos != -1) {
+        s.mask = std::stoi(mstr);
+        address = address.substr(0, pos);
+    } else if (cls == "ipv4")
+        s.mask = 32;
+    else // IPv6 case
+        s.mask = 128;
+
+    if (cls == "ipv4") {
+
+        // Convert string to an IPv4 address.
+        tcpip::ip4_address addr;
+        s.addr.from_string(address);
+
+    } else {
+
+        // Convert string to an IPv6 address.
+        tcpip::ip6_address addr;
+        s.addr6.from_string(address);
+
+    }
+			
+}
 
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
@@ -16,57 +109,40 @@ void config_manager::read(const std::string& file,
     try {
 
 	// Read the file.
+        // FIXME: json class supports deserialisation from stream.
 	std::string data;
 	get_file(file, data);
 
 	// Parse XML
-	xml::decoder dec;
-	dec.parse(data);
+        auto config = json::parse(data);
 
 	/////////////////////////////////////////////////////////////
 	// Scan the interfaces block.
 	/////////////////////////////////////////////////////////////
 
-	xml::element& i_elt = dec.root.locate("interfaces");
-
-	for(std::list<xml::element>::iterator it = i_elt.children.begin();
-	    it != i_elt.children.end();
-	    it++) {
-
-	    // For each interface element get the name attribute.
-	    if (it->name == "interface") {
-		
-		if (it->attributes.find("name") != it->attributes.end()) {
-		    
-		    // Create an interface specification for each element.
-		    iface_spec* sp = new iface_spec(it->attributes["name"]);
-
-		    // Get the filter attribute, if exists.
-		    if (it->attributes.find("filter") != it->attributes.end())
-			sp->filter = it->attributes["filter"];
-
-		    // Get the delay attribute, if exists.
-		    if (it->attributes.find("delay") != it->attributes.end()) {
-			// Scan port string into a float.
-			std::istringstream buf(it->attributes["delay"]);
-			buf >> sp->delay;
-		    }
-
-		    lst.push_back(sp);
-
-		} else {
-		    std::cerr
-			<< "interface element without 'name' attribute, ignored"
-			<< std::endl;
-		}
-
-	    }
-
-	}
-
+        auto interfaces_j = config["interfaces"];
+/*
+        for(json::iterator it = interfaces_j.begin(); it != interfaces_j.end();
+            it++) {
+            iface_spec* sp = new iface_spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }
+*/
 	/////////////////////////////////////////////////////////////
 	// Scan the targets block.
 	/////////////////////////////////////////////////////////////
+
+        auto targets_j = config["targets"];
+
+        for(json::iterator it = targets_j.begin(); it != targets_j.end();
+            it++) {
+            target_spec* sp = new target_spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }
+        
+#ifdef BROKEN
 
 	try {
 
@@ -385,6 +461,8 @@ void config_manager::read(const std::string& file,
 	    // Silently ignore.
 
 	}
+
+#endif
 
     } catch (std::exception& e) {
 	    
