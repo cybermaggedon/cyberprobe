@@ -24,14 +24,14 @@ public:
     std::string val;
 
     // Constructors.
+    parameter_spec() {}
+
     parameter_spec(const std::string& key, const std::string& val) { 
 	this->key = key; this->val = val;
     }
 
     // Hash is form key=val
-    virtual std::string get_hash() const { 
-	return key + "=" + val;
-    }
+    virtual std::string get_hash() const;
 
 };
 
