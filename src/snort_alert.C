@@ -11,6 +11,8 @@
 #include <cybermon/socket.h>
 #include "snort_alert.h"
 
+namespace snort_alert {
+
 ////////////////////////////////////////////////////////////////////////////
 //
 // The following stuff describes Snort alert format.
@@ -78,9 +80,9 @@ void snort_alerter::run()
     // Bind the socket to its pathname
 
     try {
-	sock.bind(spec.path);
+	sock.bind(sp.path);
     } catch (...) {
-	std::cerr << "Couldn't bind snort alert to path " << spec.path
+	std::cerr << "Couldn't bind snort alert to path " << sp.path
 		  << std::endl;
 	return;
     }
@@ -180,7 +182,7 @@ void snort_alerter::run()
 	    }
 
 	    // Update timeout management structures.
-	    long to = time(0) + spec.duration;
+	    long to = time(0) + sp.duration;
 	    timeout_events.push_back(to);
 	    if (src->universe == src->ipv4)
 		timeout4[src4] = to;
@@ -290,4 +292,6 @@ void snort_alerter::run()
     }
 
 }
+
+};
 

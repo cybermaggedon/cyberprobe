@@ -13,8 +13,10 @@
 
 #include "management.h"
 
+namespace control {
+
     // Management interface specification.
-    class control_spec : public cybermon::specification {
+    class spec : public cybermon::specification {
     public:
 
 	// Type is 'control'.
@@ -26,8 +28,8 @@
 	std::string password;
 
 	// Constructors.
-	control_spec() {}
-	control_spec(unsigned short port, const std::string& username, 
+	spec() {}
+	spec(unsigned short port, const std::string& username, 
              const std::string& password) {
 	    this->port = port; this->username = username; 
 	    this->password = password;
@@ -42,8 +44,6 @@
 
     };
     
-namespace control {
-
     class service;
 
     // A single connection to the management interface.
@@ -64,7 +64,7 @@ namespace control {
 	service& svc;
 
 	// Resource specification.
-	control_spec& sp;
+	spec& sp;
 	
 	// True = A successful authentication.
 	bool auth;
@@ -108,7 +108,7 @@ namespace control {
 
 	// Constructor.
         connection(std::shared_ptr<tcpip::stream_socket> s, management& d,
-		   service& svc, control_spec& sp) :
+		   service& svc, spec& sp) :
             s(s), d(d), svc(svc), sp(sp) {
 	    running = true;
 	    auth = false;
@@ -145,7 +145,7 @@ namespace control {
 	tcpip::tcp_socket svr;
 
 	// Resource specification.
-	control_spec& sp;
+	spec& sp;
 
 	// Thing which implements the management commands.
 	management& d;
@@ -169,7 +169,7 @@ namespace control {
 	virtual void run();
 
 	// Constructor.
-        service(control_spec& s, management& d) : sp(s), d(d) {
+        service(spec& s, management& d) : sp(s), d(d) {
             running = true;
 	    thr = 0;
         }

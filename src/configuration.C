@@ -142,7 +142,6 @@ std::string endpoint_spec::get_hash() const {
     // which means that 'target up' messages will be sent on targets
     // configured in the config file.
     
-    std::ostringstream buf;
     json j = *this;
     return " " + j.dump();
 
@@ -170,23 +169,44 @@ std::string parameter_spec::get_hash() const {
     // which means that 'target up' messages will be sent on targets
     // configured in the config file.
 
-    std::ostringstream buf;
     json j = *this;
     return "   " + j.dump();
 
 }
 
-void to_json(json& j, const control_spec& s) {
-    j = json{{"port", s.port},
-             {"username", s.username},
-             {"password", s.password}};
-}
+namespace control {
 
-void from_json(const json& j, control_spec& s) {
-    j.at("port").get_to(s.port);
-    j.at("username").get_to(s.username);
-    j.at("password").get_to(s.password);
-}
+    void to_json(json& j, const spec& s) {
+        j = json{{"port", s.port},
+                 {"username", s.username},
+                 {"password", s.password}};
+    }
+    
+    void from_json(const json& j, spec& s) {
+        j.at("port").get_to(s.port);
+        j.at("username").get_to(s.username);
+        j.at("password").get_to(s.password);
+    }
+
+};
+
+namespace snort_alert {
+
+    void to_json(json& j, const spec& s) {
+        j = json{{"path", s.path}, {"duration", s.duration}};
+    }
+
+    void from_json(const json& j, spec& s) {
+        j.at("path").get_to(s.path);
+        j.at("duration").get_to(s.duration);
+    }
+
+    std::string spec::get_hash() const { 
+        json j = *this;
+        return " " + j.dump();            
+    }
+
+};
 
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
@@ -256,83 +276,31 @@ void config_manager::read(const std::string& file,
         }        
 
 	/////////////////////////////////////////////////////////////
-	// Scan the parameters block.
+	// Scan the controls block.
 	/////////////////////////////////////////////////////////////
 
         auto control_j = config["controls"];
 
         for(json::iterator it = control_j.begin(); it != control_j.end();
             it++) {
-            control_spec* sp = new control_spec();
+            control::spec* sp = new control::spec();
             it->get_to(*sp);
             lst.push_back(sp);
         }        
-
-#ifdef BROKEN
-
-	/////////////////////////////////////////////////////////////
-	// Control parameters.
-	/////////////////////////////////////////////////////////////
-
-	try {
-
-	    xml::element& s_elt = dec.root.locate("control");
-	    
-	    if (s_elt.attributes.find("port") != s_elt.attributes.end() &&
-		s_elt.attributes.find("username") != s_elt.attributes.end() &&
-		s_elt.attributes.find("password") != s_elt.attributes.end()) {
-
-		std::istringstream buf(s_elt.attributes["port"]);
-		int port;
-		buf >> port;
-		std::string username = s_elt.attributes["username"];
-		std::string password = s_elt.attributes["password"];
-
-		// Create alerter
-		control::spec* sp = 
-		    new control::spec(port, username, password);
-
-		lst.push_back(sp);
-
-	    }
-
-	} catch (std::exception& e) {
-
-	    // Silently ignore.
-
-	}
 
 	/////////////////////////////////////////////////////////////
 	// Scan the snort alert receiver
 	/////////////////////////////////////////////////////////////
 
-	try {
+        auto snort_alerter_j = config["snort-alerters"];
 
-	    xml::element& s_elt = dec.root.locate("snort_alert");
-	    
-	    if (s_elt.attributes.find("socket") != s_elt.attributes.end() &&
-		s_elt.attributes.find("duration") != s_elt.attributes.end()) {
-
-		std::string socket = s_elt.attributes["socket"];
-		std::istringstream buf(s_elt.attributes["duration"]);
-		int duration;
-		buf >> duration;
-
-		// Create alerter
-		snort_alerter_spec* sp = 
-		    new snort_alerter_spec(socket, duration);
-
-		lst.push_back(sp);
-
-	    }
-
-	} catch (std::exception& e) {
-
-	    // Silently ignore.
-
-	}
-
-#endif
+        for(json::iterator it = snort_alerter_j.begin();
+            it != snort_alerter_j.end();
+            it++) {
+            snort_alert::spec* sp = new snort_alert::spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }        
 
     } catch (std::exception& e) {
 	    
@@ -373,13 +341,13 @@ cybermon::resource* config_manager::create(cybermon::specification& spec)
 
     // Snort alerter.
     if (spec.get_type() == "snort_alerter") {
-	snort_alerter_spec& s = dynamic_cast<snort_alerter_spec&>(spec);
-	return new snort_alerter(s, deliv);
+        snort_alert::spec& s = dynamic_cast<snort_alert::spec&>(spec);
+	return new snort_alert::snort_alerter(s, deliv);
     }
 
     // Control.
     if (spec.get_type() == "control") {
-	control_spec& s = dynamic_cast<control_spec&>(spec);
+        control::spec& s = dynamic_cast<control::spec&>(spec);
 	return new control::service(s, deliv);
     }
 
