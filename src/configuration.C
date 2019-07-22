@@ -90,12 +90,16 @@ void from_json(const json& j, target_spec& s) {
         // Convert string to an IPv4 address.
         tcpip::ip4_address addr;
         s.addr.from_string(address);
-
+        std::cout << "IPv4 addr:" << address << std::endl;
+        s.universe = s.IPv4;
+        
     } else {
 
         // Convert string to an IPv6 address.
         tcpip::ip6_address addr;
         s.addr6.from_string(address);
+        std::cout << "IPv6 addr:" << address << std::endl;
+        s.universe = s.IPv6;
 
     }
 			
