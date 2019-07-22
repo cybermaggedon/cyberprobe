@@ -199,9 +199,14 @@ tutorial.
 @cindex Version history
 @heading Revision history
 
-Cyberprobe releases:
+Cyberprobe release highlights:
 
 @table @code
+
+@item 2.2.0
+Changed cyberprobe configuration file to use JSON instead of XML.
+JSON is easier to integrate with automated processes.
+
 @item 2.0.5
 Added VXLAN support to cybermon.  This allows cybermon to receive the
 VXLAN protocol which is e.g. used by AWS Traffic Mirroring.
@@ -254,107 +259,6 @@ information.
 
 @item 1.0
 Lua invocation mechanism has been replaced by a thread-safe queue function.
-
-@item 0.99
-Elliptic curve support in TLS, if supported in OpenSSL.
-
-@item 0.95
-Fixed cyberprobe to cybermon transport dropout.
-
-@item 0.94
-Reworked the JSON model, to make different protocol attributes more clearly
-defined.
-
-@item 0.93
-DNS over TCP, and simple port-based detection for IMAP, SMTP auth, SIP.
-
-@item 0.92
-Changed DNS and ICMP type field in JSON, DNS class and type are presented
-as strings.
-
-@item 0.91
-Redis integration using @code{redis.lua} configuration file.
-
-@item 0.90
-NTP handling, DNS output format changed, robustness fixes in TCP handling.
-
-@item 0.83
-Point release, minor fixes.
-
-@item 0.80
-Added optional TLS support for packet streams to cyberprobe and cybermon.
-This change refactors the cybermon command line interface.  See documentation
-for new command line options.
-
-@item 0.79
-Socket closure fix.
-
-@item 0.76
-Make UUIDs unique.
-
-@item 0.74
-Cassanda subscriber support.
-
-@item 0.71
-Fixes.
-
-@item 0.70
-Added ZeroMQ pub/sub support, with subscribers for ElasticSearch, Gaffer,
-Google BigQuery.
-
-@item 0.63
-ElasticSearch integration brought up to latest ES verison.
-Cybermon Gaffer integration work completed to point of release.
-
-@item 0.62
-Source-code updated to work with latest dependencies, operating systems and
-compiler versions.  Early Gaffer integration.
-
-@item 0.61
-Fixed HTTP crashing problem in cybermon.
-
-@item 0.60
-IP address matching now permits specification of a mask.
-Documentation improved, regression suite added, a few unit tests starting to
-form.  
-
-@item 0.55
-Packages released for Debian, Fedora and Centos, documentation
-re-worked into info and man formats.
-
-@item 0.50
-ElasticSearch integration improved to get a much tighter integration with
-Kibana for a network dashboard. Also bug-fixes for memory management / lock
-problems.
-
-@item 0.40
-Now includes prototype STIX support: A TAXII server allows distrubution of
-threat information, and a TAXII client can read indicator information and
-store in a way that cybermon can use.
-
-@item 0.30
-The build process now uses the GNU toolset. It detects the LUA interface and
-can compile against LUA 5.1 and 5.2. Successfully compiled on a MacBook!
-
-@item 0.25
-Added SMTP and FTP capability. Also added a primitive mechanism to visualise
-network observations.
-
-@item 0.20
-HTTP and DNS protocol capability. TCP reset and DNS packet forgery
-added. Major overhaul of the LUA language interface.
-
-@item 0.12
-Cybermon utility is configurable using LUA.
-
-@item 0.11
-Added basic cybermon utility.
-
-@item 0.10
-Added management interface.
-
-@item 0.9
-First release on SourceForge.
 
 @end table
 

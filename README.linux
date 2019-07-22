@@ -7,7 +7,6 @@ sudo apt install -y automake autoconf
 sudo apt install -y libpcap-dev libboost-dev libboost-regex-dev
 sudo apt install -y libboost-program-options-dev
 sudo apt install -y g++
-sudo apt install -y libexpat-dev
 sudo apt install -y libncurses-dev libreadline-dev
 sudo apt install -y lua-filesystem lua-json lua-md5 lua-socket
 sudo apt install -y texinfo texlive
@@ -37,7 +36,7 @@ Fedora
 
 sudo dnf install -y git autoconf automake
 sudo dnf install -y libpcap-devel boost-devel gcc-c++
-sudo dnf install -y expat-devel lua-devel 
+sudo dnf install -y lua-devel 
 sudo dnf install -y ncurses-devel readline-devel 
 sudo dnf install -y lua-filesystem lua-json lua-md5 lua-socket
 sudo dnf install -y texinfo texlive texinfo-tex
@@ -64,7 +63,7 @@ Centos 7, RHEL7
 
 sudo yum install -y git autoconf automake
 sudo yum install -y libpcap-devel boost-devel gcc-c++
-sudo yum install -y expat-devel lua-devel 
+sudo yum install -y lua-devel 
 sudo yum install -y ncurses-devel readline-devel 
 sudo yum install -y lua-filesystem lua-json lua-md5 lua-socket
 sudo yum install -y texinfo texlive texinfo-tex
