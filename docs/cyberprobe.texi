@@ -865,12 +865,8 @@ following contents:
 @example
 @{
     "interfaces": [
-        @{
-            "interface": "eth0"
-        @}
-    ],
-    "targets": [],
-    "endpoints: []
+        @{ "interface": "eth0" @}
+    ]
 @}
 @end example
 
@@ -952,13 +948,17 @@ discovered that with the ifconfig command earlier? Instead of
 @code{192.168.1.80} use the IP address of your workstation.
 
 @example
+@{
+    "interfaces": [
+        @{ "interface": "eth0" @}
+    ],
     "targets": [
         @{
             "address": "192.168.1.80",
             "device": "123456"
         @}
-    ],
-</targets>
+    ]
+@}
 @end example
 
 If successful, you should see new output from @command{cyberprobe}:
@@ -1006,6 +1006,16 @@ packets to a local service on port 10000:
 @cindex @command{cyberprobe}, endpoint
 
 @example
+@{
+    "interfaces": [
+        @{ "interface": "eth0" @}
+    ],
+    "targets": [
+        @{
+            "address": "192.168.1.80",
+            "device": "123456"
+        @}
+    ],
     "endpoints": [
         @{
             "hostname": "localhost",
@@ -1014,7 +1024,7 @@ packets to a local service on port 10000:
             "type": "etsi"
         @}
     ]
-</endpoints>
+@}
 @end example
 
 If that worked, you should see @command{cyberprobe} start the endpoint:
@@ -1078,7 +1088,32 @@ after the @code{<configuration>} line:
 @cindex Authentication
 
 @example
-<control port="8888" username="admin" password="mypassword"/>
+@{
+    "interfaces": [
+        @{ "interface": "eth0" @}
+    ],
+    "targets": [
+        @{
+            "address": "192.168.1.80",
+            "device": "123456"
+        @}
+    ],
+    "endpoints": [
+        @{
+            "hostname": "localhost",
+            "port": 10000,
+            "transport": "tcp",
+            "type": "etsi"
+        @}
+    ],
+    "controls": [
+        @{
+            "port": 8888,
+            "username": "admin",
+            "password": "mypassword"
+        @}
+    ]
+@}
 @end example
 
 That declares that a management service needs to be run on port 8888. The
@@ -1092,6 +1127,8 @@ Starting control on port 8888
 That's good! Now need to connect and interrogate the targets list: I use
 telnet to connect, the auth command to authenticate, and the target command
 to see a list of commands.
+
+NOTE!  This has all been reworked, so the docs are wrong.
 
 @example
 $ telnet localhost 8888
@@ -1185,19 +1222,34 @@ classtype:misc-activity;sid:200; rev:1;)
 @end example
 
 @command{cyberprobe} itself needs to be configured to receive Snort
-alerts. You do that by adding some configuration, just after the
-<configuration> line:
+alerts. You do that by adding a block to the configuration file at the top
+level:
 
 @example
-<snort_alert socket="/var/log/snort/snort_alert" duration="60"/>
+@{
+    ...
+    "snort-alerters": [
+        @{
+            "path": "/var/log/snort/snort_alert",
+            "duration": 60
+        @}
+    ]
+    ...
+@}
 @end example
 
 That says, Snort alerts will result in dynamic collection of data for 60
 seconds from identification. While you're in the configuration file, you can
-remove the static IP address target line. Find this line and delete it:
+remove the static IP address target line. Make sure the targets block is empty
+or removed from the configuration:
 
 @example
-<target address="192.168.1.80" device="123456"/>
+@{
+...
+    "targets": [],
+...
+@}
+
 @end example
 
 @command{cyberprobe} should respond:
@@ -1260,9 +1312,11 @@ processed once that delay expires. You can configure a delay, by putting the
 delay attribute in an interface specfication. e.g.
 
 @example
-<interfaces>
-  <interface name="eth0" delay="0.2"/>
-</interfaces>
+...
+    "interfaces": [
+        @{ "interface": "eth0", "delay": 0.2 @}
+    ]
+...
 @end example
 
 0.2 second should be plenty enough. You should be able to see this delay in
@@ -2529,9 +2583,11 @@ in the @file{cyberprobe.cfg} file using the prefix @samp{dag} plus the
 card number e.g.
 
 @example
-  <interfaces>
-    <interface name="dag0"/>
-  </interfaces>
+    ...
+    "interfaces": [
+        @{ "interface": "dag0" @}
+    ]
+    ...
 @end example
 
 To use DAG devices, you need to load DAG firmware, and set all
