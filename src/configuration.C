@@ -10,32 +10,36 @@
 
 using json = nlohmann::json;
 
-void to_json(json& j, const parameter_spec& s) {
-    j = json{{"key", s.key},
-             {"value", s.val}};
-}
+namespace parameter {
 
-void from_json(const json& j, parameter_spec& s) {
-    j.at("key").get_to(s.key);
-    j.at("value").get_to(s.val);
-}
-
-std::string parameter_spec::get_hash() const {
-
-    // See that space before the hash?  It means that endpoint
-    // hashes are "less than" other hashes, which means they are at the
-    // front of the set.  This means endpoints are started before
-    // targets.
+    void to_json(json& j, const spec& s) {
+        j = json{{"key", s.key},
+                 {"value", s.val}};
+    }
     
-    // The end result of that, is that we know endpoints will be
-    // configured before targets are added to the delivery engine,
-    // which means that 'target up' messages will be sent on targets
-    // configured in the config file.
+    void from_json(const json& j, spec& s) {
+        j.at("key").get_to(s.key);
+        j.at("value").get_to(s.val);
+    }
 
-    json j = *this;
-    return "   " + j.dump();
+    std::string spec::get_hash() const {
 
-}
+        // See that space before the hash?  It means that endpoint
+        // hashes are "less than" other hashes, which means they are at the
+        // front of the set.  This means endpoints are started before
+        // targets.
+        
+        // The end result of that, is that we know endpoints will be
+        // configured before targets are added to the delivery engine,
+        // which means that 'target up' messages will be sent on targets
+        // configured in the config file.
+
+        json j = *this;
+        return "   " + j.dump();
+
+    }
+
+};
 
 namespace snort_alert {
 
@@ -117,8 +121,8 @@ void config_manager::read(const std::string& file,
 
         for(json::iterator it = parameters_j.begin(); it != parameters_j.end();
             it++) {
-            parameter_spec* sp =
-                new parameter_spec(it.key(),
+            parameter::spec* sp =
+                new parameter::spec(it.key(),
                                    it.value().get<std::string>());
             lst.push_back(sp);
         }        
@@ -183,8 +187,8 @@ cybermon::resource* config_manager::create(cybermon::specification& spec)
 
     // Parameter.
     if (spec.get_type() == "parameter") {
-	parameter_spec& s = dynamic_cast<parameter_spec&>(spec);
-	return new parameter(s, deliv);
+        parameter::spec& s = dynamic_cast<parameter::spec&>(spec);
+	return new parameter::parameter(s, deliv);
     }
 
     // Snort alerter.
