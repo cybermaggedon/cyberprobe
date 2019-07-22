@@ -1539,7 +1539,11 @@ means, we're monitoring network data, but we'll miss the original attack
 which triggered a Snort alert.
 
 @example
-<interface name="eth0" delay="0.0"/>
+    ...
+    "interfaces": [
+        @{ "interface": "eth0", "delay": 0.0 @}
+    ],
+    ...        
 @end example
 
 Once you have this code working, you might be able to mess with the delay
