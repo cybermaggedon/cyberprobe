@@ -8,7 +8,14 @@
 #ifndef TARGET_H
 #define TARGET_H
 
+#include <cybermon/socket.h>
+#include <cybermon/specification.h>
 #include <cybermon/resource.h>
+
+#include "delivery.h"
+#include "json.h"
+
+using json = nlohmann::json;
 
 namespace target {
 
@@ -132,6 +139,10 @@ namespace target {
         }
 
     };
+
+    void to_json(json& j, const spec& s);
+
+    void from_json(const json& j, spec& s);
 
 };
 
