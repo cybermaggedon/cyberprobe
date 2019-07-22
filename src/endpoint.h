@@ -8,7 +8,17 @@
 #ifndef ENDPOINT_H
 #define ENDPOINT_H
 
+#include <string>
+
+#include <cybermon/specification.h>
+#include <cybermon/resource.h>
+
+#include "delivery.h"
+#include "json.h"
+
 namespace endpoint {
+
+    using json = nlohmann::json;
 
     // An endpoint, describes where to send stuff.
     class spec : public cybermon::specification {
@@ -99,6 +109,10 @@ namespace endpoint {
         }
 
     };
+
+    void to_json(json& j, const spec& s);
+
+    void from_json(const json& j, spec& s);
 
 };
 

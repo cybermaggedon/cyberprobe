@@ -17,9 +17,9 @@
 
 #include <string>
 
-using json = nlohmann::json;
-
 namespace interface {
+
+    using json = nlohmann::json;
 
     // An interface specification
     class spec : public cybermon::specification {

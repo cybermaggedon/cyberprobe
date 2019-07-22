@@ -10,56 +10,6 @@
 
 using json = nlohmann::json;
 
-namespace endpoint {
-
-    void to_json(json& j, const spec& s) {
-        j = json{{"hostname", s.hostname},
-                 {"port", s.port},
-                 {"type", s.type},
-                 {"transport", s.transport}
-        };
-        if (s.transport == "tls") {
-            j["certificate"] = s.certificate_file;
-            j["key"] = s.key_file;
-            j["trusted-ca"] = s.trusted_ca_file;
-        };
-    }
-
-    void from_json(const json& j, spec& s) {
-        j.at("hostname").get_to(s.hostname);
-        j.at("port").get_to(s.port);
-        j.at("type").get_to(s.type);
-        try {
-            j.at("transport").get_to(s.transport);
-        } catch (...) {
-            s.transport = "tcp";
-        }
-        if (s.transport == "tls") {
-            j.at("certificate").get_to(s.certificate_file);
-            j.at("key").get_to(s.key_file);
-            j.at("trusted-ca").get_to(s.trusted_ca_file);
-        }
-    }
-
-    std::string spec::get_hash() const {
-
-        // See that space before the hash?  It means that endpoint
-        // hashes are "less than" other hashes, which means they are at the
-        // front of the set.  This means endpoints are started before
-        // targets.
-        
-        // The end result of that, is that we know endpoints will be
-        // configured before targets are added to the delivery engine,
-        // which means that 'target up' messages will be sent on targets
-        // configured in the config file.
-        
-        json j = *this;
-        return " " + j.dump();
-        
-    }
-
-};
-
 void to_json(json& j, const parameter_spec& s) {
     j = json{{"key", s.key},
              {"value", s.val}};
@@ -86,22 +36,6 @@ std::string parameter_spec::get_hash() const {
     return "   " + j.dump();
 
 }
-
-namespace control {
-
-    void to_json(json& j, const spec& s) {
-        j = json{{"port", s.port},
-                 {"username", s.username},
-                 {"password", s.password}};
-    }
-    
-    void from_json(const json& j, spec& s) {
-        j.at("port").get_to(s.port);
-        j.at("username").get_to(s.username);
-        j.at("password").get_to(s.password);
-    }
-
-};
 
 namespace snort_alert {
 

@@ -4,7 +4,7 @@ bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli \
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C capture.C configuration.C control.C snort_alert.C \
-	sender.h delivery.h capture.h \
+	sender.h delivery.h capture.h endpoint.C \
 	configuration.h control.h snort_alert.h target.h target.C \
 	parameters.h packet_consumer.h interface.h interface.C \
 	endpoint.h parameter.h \

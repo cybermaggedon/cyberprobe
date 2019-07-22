@@ -15,9 +15,9 @@
 #include "delivery.h"
 #include "json.h"
 
-using json = nlohmann::json;
-
 namespace target {
+
+    using json = nlohmann::json;
 
     // A target specification: Maps an IP address to a device ID.
     class spec : public cybermon::specification {

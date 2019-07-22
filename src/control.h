@@ -12,9 +12,12 @@
 #include <cybermon/resource.h>
 
 #include "management.h"
+#include "json.h"
 
 namespace control {
-
+    
+    using json = nlohmann::json;
+    
     // Management interface specification.
     class spec : public cybermon::specification {
     public:
@@ -202,6 +205,10 @@ namespace control {
 	virtual void close_me(connection* c);
     
     };
+
+    void to_json(json& j, const spec& s);
+    
+    void from_json(const json& j, spec& s);
 
 };
 
