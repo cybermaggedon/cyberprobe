@@ -12,9 +12,12 @@
 #include <cybermon/resource.h>
 
 #include "management.h"
+#include "json.h"
 
 namespace control {
-
+    
+    using json = nlohmann::json;
+    
     // Management interface specification.
     class spec : public cybermon::specification {
     public:
@@ -23,7 +26,7 @@ namespace control {
 	virtual std::string get_type() const { return "control"; }
 
 	// Endpoint parameters.
-	unsigned short port;
+	int port;
 	std::string username;
 	std::string password;
 
@@ -108,7 +111,8 @@ namespace control {
 
 	// Constructor.
         connection(std::shared_ptr<tcpip::stream_socket> s, management& d,
-		   service& svc, spec& sp) : s(s), d(d), svc(svc), sp(sp) {
+		   service& svc, spec& sp) :
+            s(s), d(d), svc(svc), sp(sp) {
 	    running = true;
 	    auth = false;
 	    thr = 0;
@@ -201,6 +205,10 @@ namespace control {
 	virtual void close_me(connection* c);
     
     };
+
+    void to_json(json& j, const spec& s);
+    
+    void from_json(const json& j, spec& s);
 
 };
 

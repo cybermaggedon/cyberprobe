@@ -8,74 +8,87 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <cybermon/specification.h>
+#include <cybermon/resource.h>
+#include <delivery.h>
+
 #include "capture.h"
+#include "json.h"
 
-// An interface specification
-class iface_spec : public cybermon::specification {
-public:
+#include <string>
 
-    // Type is 'iface'
-    virtual std::string get_type() const { return "iface"; }
+namespace interface {
 
-    // Interface name e.g. eth0
-    std::string ifa;
+    using json = nlohmann::json;
 
-    // Capture filter.
-    std::string filter;
+    // An interface specification
+    class spec : public cybermon::specification {
+    public:
 
-    // Delay
-    float delay;
+        // Type is 'iface'
+        virtual std::string get_type() const { return "iface"; }
 
-    // Constructors.
-    iface_spec() {}
-    iface_spec(const std::string& ifa) { this->ifa = ifa; delay = 0.0; }
+        // Interface name e.g. eth0
+        std::string ifa;
 
-    // Hash is <interface>:<filter>:<delay>
-    virtual std::string get_hash() const { 
-        std::ostringstream buf;
-        buf << ifa << ":" << filter << ":" << delay;
-        return buf.str();
-    }
+        // Capture filter.
+        std::string filter;
 
-};
+        // Delay
+        float delay;
 
-// An interface resources, basically wraps the 'cap' class in a thread
-// which can started and stopped.
-class iface : public cybermon::resource {
-private:
+        // Constructors.
+        spec() {}
+        spec(const std::string& ifa) { this->ifa = ifa; delay = 0.0; }
 
-    // Specification.
-    const iface_spec& spec;
+        // Hash is <interface>:<filter>:<delay>
+        virtual std::string get_hash() const;
 
-    // Reference to the delivery engine.
-    delivery& deliv;
+    };
 
-public:
+    // An interface resources, basically wraps the 'cap' class in a thread
+    // which can started and stopped.
+    class iface : public cybermon::resource {
+    private:
 
-    // Constructor.
-    iface(const iface_spec& spec, delivery& d) : 
-	spec(spec), deliv(d) {}
+        // Specification.
+        const spec& sp;
 
-    // Start method.
-    virtual void start() { 
+        // Reference to the delivery engine.
+        delivery& deliv;
 
-	deliv.add_interface(spec.ifa, spec.filter, spec.delay);
+    public:
 
-	std::cerr << "Capture on interface " << spec.ifa << " started."
-		  << std::endl;
-	if (spec.filter != "")
-	    std::cerr << "  filter: " << spec.filter << std::endl;
-	if (spec.delay != 0.0)
-	    std::cerr << "  delay: " << spec.delay << std::endl;
+        // Constructor.
+        iface(const spec& sp, delivery& d) : 
+            sp(sp), deliv(d) {}
 
-    }
+        // Start method.
+        virtual void start() { 
 
-    // Stop method.
-    virtual void stop() { 
-	deliv.remove_interface(spec.ifa, spec.filter, spec.delay);
-	std::cerr << "Capture on interface " << spec.ifa << " stopped."
-		  << std::endl;
-    }
+            deliv.add_interface(sp.ifa, sp.filter, sp.delay);
+
+            std::cerr << "Capture on interface " << sp.ifa << " started."
+                      << std::endl;
+            if (sp.filter != "")
+                std::cerr << "  filter: " << sp.filter << std::endl;
+            if (sp.delay != 0.0)
+                std::cerr << "  delay: " << sp.delay << std::endl;
+
+        }
+
+        // Stop method.
+        virtual void stop() { 
+            deliv.remove_interface(sp.ifa, sp.filter, sp.delay);
+            std::cerr << "Capture on interface " << sp.ifa << " stopped."
+                      << std::endl;
+        }
+
+    };
+
+    void to_json(json& j, const spec& s);
+
+    void from_json(const json& j, spec& s);
 
 };
 

@@ -12,88 +12,88 @@
 
 #include "delivery.h"
 
-// Specification for a snort alerter.
-class snort_alerter_spec : public cybermon::specification {
+namespace snort_alert {
 
-public:
+    // Specification for a snort alerter.
+    class spec : public cybermon::specification {
 
-    // Type is 'snort_alerter'.
-    virtual std::string get_type() const { return "snort_alerter"; }
+    public:
 
-    // Pathname of socket.
-    std::string path;
+        // Type is 'snort_alerter'.
+        virtual std::string get_type() const { return "snort_alerter"; }
 
-    // Duration for tips to stay active.
-    int duration;
+        // Pathname of socket.
+        std::string path;
 
-    // Constructors.
-    snort_alerter_spec() {}
+        // Duration for tips to stay active.
+        int duration;
 
-    snort_alerter_spec(const std::string& path, int duration) {
-	this->path = path; this->duration = duration;
-    }
+        // Constructors.
+        spec() {}
 
-    // Hash is path:duration
-    virtual std::string get_hash() const { 
-	std::ostringstream buf;
-	buf << path << ":" << duration;
-	return buf.str();
-    }
+        spec(const std::string& path, int duration) {
+            this->path = path; this->duration = duration;
+        }
 
-};
+        // Hash is path:duration
+        virtual std::string get_hash() const;
 
-// Snort alerter, receives snort alerts and enables targeting on alerted
-// IP addresses.
-class snort_alerter : public cybermon::resource {
+    };
 
-private:
+    // Snort alerter, receives snort alerts and enables targeting on alerted
+    // IP addresses.
+    class snort_alerter : public cybermon::resource {
 
-    // Specification.
-    snort_alerter_spec& spec;
+    private:
 
-    // True = running.
-    bool running;
+        // Specification.
+        spec& sp;
 
-    // Deliver engine, we mess with the targeting on this.
-    delivery& deliv;
+        // True = running.
+        bool running;
 
-    std::thread* thr;
+        // Deliver engine, we mess with the targeting on this.
+        delivery& deliv;
 
-public:
+        std::thread* thr;
 
-    // Constructor.
-    snort_alerter(snort_alerter_spec& spec,
-		  delivery& deliv) : spec(spec), deliv(deliv) {
-	running = true; 
-    }
+    public:
 
-    // Destructor
-    virtual ~snort_alerter() {
-	delete thr;
-    }
+        // Constructor.
+        snort_alerter(spec& sp,
+                      delivery& deliv) : sp(sp), deliv(deliv) {
+            running = true; 
+        }
 
-    // Thread body.
-    virtual void run();
+        // Destructor
+        virtual ~snort_alerter() {
+            delete thr;
+        }
 
-    // Thread start.
-    virtual void start() {
+        // Thread body.
+        virtual void run();
 
-	thr = new std::thread(&snort_alerter::run, this);
+        // Thread start.
+        virtual void start() {
 
-	std::cerr << "Start snort alerter on " << spec.path << std::endl;
-    }
+            thr = new std::thread(&snort_alerter::run, this);
 
-    // Thread stop.
-    virtual void stop() {
-	running = false;
-	join();
-	std::cerr << "Stopped snort alerter." << std::endl;
-    }
+            std::cerr << "Start snort alerter on " << sp.path << std::endl;
+        }
 
-    virtual void join() {
-	thr->join();
-    }
+        // Thread stop.
+        virtual void stop() {
+            running = false;
+            join();
+            std::cerr << "Stopped snort alerter." << std::endl;
+        }
+
+        virtual void join() {
+            thr->join();
+        }
     
+    };
+
 };
 
 #endif

@@ -11,59 +11,70 @@
 #include <cybermon/resource.h>
 
 #include "delivery.h"
+#include "json.h"
 
-// A paramter, represents a key/val pair.
-class parameter_spec : public cybermon::specification {
-public:
+namespace parameter {
 
-    // Type is 'target'.
-    virtual std::string get_type() const { return "parameter"; }
+    using json = nlohmann::json;
 
-    // key/val pair
-    std::string key;
-    std::string val;
+    // A paramter, represents a key/val pair.
+    class spec : public cybermon::specification {
+    public:
 
-    // Constructors.
-    parameter_spec(const std::string& key, const std::string& val) { 
-	this->key = key; this->val = val;
-    }
+        // Type is 'target'.
+        virtual std::string get_type() const { return "parameter"; }
 
-    // Hash is form key=val
-    virtual std::string get_hash() const { 
-	return key + "=" + val;
-    }
+        // key/val pair
+        std::string key;
+        std::string val;
 
-};
+        // Constructors.
+        spec() {}
 
-// Parameter resource.  Just instantiated as changes to the delivery engine.
-class parameter : public cybermon::resource {
-private:
+        spec(const std::string& key, const std::string& val) { 
+            this->key = key; this->val = val;
+        }
 
-    // Spec.
-    const parameter_spec& spec;
+        // Hash is form key=val
+        virtual std::string get_hash() const;
 
-    // Delivery engine reference.
-    delivery& deliv;
+    };
 
-public:
+    // Parameter resource.  Just instantiated as changes to the delivery engine.
+    class parameter : public cybermon::resource {
+    private:
 
-    // Constructor.
-    parameter(const parameter_spec& spec, delivery& d) : 
-	spec(spec), deliv(d) { }
+        // Spec.
+        const spec& sp;
 
-    // Start method, change the delivery engine mapping.
-    virtual void start() { 
-	deliv.add_parameter(spec.key, spec.val);
-	std::cerr << "Added parameter " << spec.key << "=" << spec.val 
-		  << std::endl;
-    }
+        // Delivery engine reference.
+        delivery& deliv;
 
-    // Stop method, remove the mapping.
-    virtual void stop() { 
-	deliv.remove_parameter(spec.key);
-	std::cerr << "Removed parameter " << spec.key << "=" << spec.val 
-		  << std::endl;
-    }
+    public:
+
+        // Constructor.
+        parameter(const spec& sp, delivery& d) : 
+            sp(sp), deliv(d) { }
+
+        // Start method, change the delivery engine mapping.
+        virtual void start() { 
+            deliv.add_parameter(sp.key, sp.val);
+            std::cerr << "Added parameter " << sp.key << "=" << sp.val 
+                      << std::endl;
+        }
+
+        // Stop method, remove the mapping.
+        virtual void stop() { 
+            deliv.remove_parameter(sp.key);
+            std::cerr << "Removed parameter " << sp.key << "=" << sp.val 
+                      << std::endl;
+        }
+
+    };
+
+    void to_json(json& j, const spec& s);
+
+    void from_json(const json& j, spec& s);
 
 };
 

@@ -1,12 +1,63 @@
 
 #include "configuration.h"
-#include <cybermon/xml.h>
 #include "interface.h"
 #include "target.h"
 #include "endpoint.h"
 #include "parameter.h"
 #include "snort_alert.h"
 #include "control.h"
+#include "json.h"
+
+using json = nlohmann::json;
+
+namespace parameter {
+
+    void to_json(json& j, const spec& s) {
+        j = json{{"key", s.key},
+                 {"value", s.val}};
+    }
+    
+    void from_json(const json& j, spec& s) {
+        j.at("key").get_to(s.key);
+        j.at("value").get_to(s.val);
+    }
+
+    std::string spec::get_hash() const {
+
+        // See that space before the hash?  It means that endpoint
+        // hashes are "less than" other hashes, which means they are at the
+        // front of the set.  This means endpoints are started before
+        // targets.
+        
+        // The end result of that, is that we know endpoints will be
+        // configured before targets are added to the delivery engine,
+        // which means that 'target up' messages will be sent on targets
+        // configured in the config file.
+
+        json j = *this;
+        return "   " + j.dump();
+
+    }
+
+};
+
+namespace snort_alert {
+
+    void to_json(json& j, const spec& s) {
+        j = json{{"path", s.path}, {"duration", s.duration}};
+    }
+
+    void from_json(const json& j, spec& s) {
+        j.at("path").get_to(s.path);
+        j.at("duration").get_to(s.duration);
+    }
+
+    std::string spec::get_hash() const { 
+        json j = *this;
+        return " " + j.dump();            
+    }
+
+};
 
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
@@ -16,375 +67,92 @@ void config_manager::read(const std::string& file,
     try {
 
 	// Read the file.
+        // FIXME: json class supports deserialisation from stream.
 	std::string data;
 	get_file(file, data);
 
-	// Parse XML
-	xml::decoder dec;
-	dec.parse(data);
+	// Parse config file
+        auto config = json::parse(data);
 
 	/////////////////////////////////////////////////////////////
 	// Scan the interfaces block.
 	/////////////////////////////////////////////////////////////
 
-	xml::element& i_elt = dec.root.locate("interfaces");
+        auto interfaces_j = config["interfaces"];
 
-	for(std::list<xml::element>::iterator it = i_elt.children.begin();
-	    it != i_elt.children.end();
-	    it++) {
-
-	    // For each interface element get the name attribute.
-	    if (it->name == "interface") {
-		
-		if (it->attributes.find("name") != it->attributes.end()) {
-		    
-		    // Create an interface specification for each element.
-		    iface_spec* sp = new iface_spec(it->attributes["name"]);
-
-		    // Get the filter attribute, if exists.
-		    if (it->attributes.find("filter") != it->attributes.end())
-			sp->filter = it->attributes["filter"];
-
-		    // Get the delay attribute, if exists.
-		    if (it->attributes.find("delay") != it->attributes.end()) {
-			// Scan port string into a float.
-			std::istringstream buf(it->attributes["delay"]);
-			buf >> sp->delay;
-		    }
-
-		    lst.push_back(sp);
-
-		} else {
-		    std::cerr
-			<< "interface element without 'name' attribute, ignored"
-			<< std::endl;
-		}
-
-	    }
-
-	}
+        for(json::iterator it = interfaces_j.begin(); it != interfaces_j.end();
+            it++) {
+            interface::spec* sp = new interface::spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }
 
 	/////////////////////////////////////////////////////////////
 	// Scan the targets block.
 	/////////////////////////////////////////////////////////////
 
-	try {
+        auto targets_j = config["targets"];
 
-	    xml::element& t_elt = dec.root.locate("targets");
-
-	    for(std::list<xml::element>::iterator it = t_elt.children.begin();
-		it != t_elt.children.end();
-		it++) {
-
-		// For each target element, get the device, address and optional
-		// class attributes.
-		if (it->name == "target") {
-
-                    std::string device;
-
-                    // Get device attributes
-		    if (it->attributes.find("device") != it->attributes.end())
-                        device = it->attributes["device"];
-                    
-                    // Can be called liid as well.
-                    if (it->attributes.find("liid") != it->attributes.end())
-                        device = it->attributes["liid"];
-
-                    if (device == "") {
-			std::cerr
-			    << "target element without 'device' attribute, "
-			    << "ignored"
-			    << std::endl;
-			continue;
-		    }
-		    
-		    if (it->attributes.find("address") ==
-			it->attributes.end()) {
-			std::cerr
-			    << "target element without 'address' attribute, "
-			    << "ignored"
-			    << std::endl;
-			continue;
-		    }
-
-		    std::string ip = it->attributes["address"];
-		    std::string cs = it->attributes["class"];
-		    std::string network = it->attributes["network"];
-
-		    if (cs != "ipv6") {
-			
-			// IPv4 case
-			int mask = 32;
-
-			int pos = ip.find("/");
-			if (pos != -1) {
-			    std::string m = ip.substr(pos + 1);
-			    std::istringstream buf(m);
-			    buf >> mask;
-			    ip = ip.substr(0, pos);
-			}
-
-			// Convert string to an IPv4 address.
-			tcpip::ip4_address addr;
-			addr.from_string(ip);
-			
-			// Create target specification.
-			target_spec* sp = new target_spec;
-			sp->set_ipv4(device, network, addr, mask);
-			lst.push_back(sp);
-			
-		    } else {
-			
-			// IPv6 case
-			int mask = 128;
-
-			int pos = ip.find("/");
-			if (pos != -1) {
-			    std::string m = ip.substr(pos + 1);
-			    std::istringstream buf(m);
-			    buf >> mask;
-			    ip = ip.substr(0, pos);
-			}
-
-			// Convert string to an IPv6 address.
-			tcpip::ip6_address addr;
-			addr.from_string(ip);
-			
-			// Create target specfication.
-			target_spec* sp = new target_spec;
-			sp->set_ipv6(device, network, addr, mask);
-			lst.push_back(sp);
-			
-		    }
-
-		    continue;
-
-		}
-
-	    }
-
-	} catch (std::exception& e) {
-	    
-	    std::cerr << "Error parsing targets: " << e.what() << std::endl;
-
-	}
+        for(json::iterator it = targets_j.begin(); it != targets_j.end();
+            it++) {
+            target::spec* sp = new target::spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }
 
 	/////////////////////////////////////////////////////////////
 	// Scan the endpoints block.
 	/////////////////////////////////////////////////////////////
 
-	try {
+        auto endpoints_j = config["endpoints"];
 
-	    xml::element& e_elt = dec.root.locate("endpoints");
-
-	    for(std::list<xml::element>::iterator it = e_elt.children.begin();
-		it != e_elt.children.end();
-		it++) {
-		
-		// For each endpoint attribute, get hostname, port and type
-		// attributes.
-		if (it->name == "endpoint") {
-		    
-		    // All these attributes are mandatory.
-		    if (it->attributes.find("hostname") ==
-			it->attributes.end()) {
-			std::cerr
-			    << "endpoint element without 'hostname' attribute, "
-			    << "ignored"
-			    << std::endl;
-			continue;
-		    }
-		    if (it->attributes.find("port") == it->attributes.end()) {
-			std::cerr
-			    << "endpoint element without 'port' attribute, "
-			    << "ignored"
-			    << std::endl;
-			continue;
-		    }
-		    if (it->attributes.find("type") == it->attributes.end()) {
-			std::cerr
-			    << "endpoint element without 'type' attribute, "
-			    << "ignored"
-			    << std::endl;
-			continue;
-		    }
-
-		    // Get the attributes.
-		    std::string hostname = it->attributes["hostname"];
-		    std::string type = it->attributes["type"];
-		    std::string transport = it->attributes["transport"];
-
-		    // Transport defaults to TCP.
-		    if (transport == "") transport = "tcp";
-
-		    if (transport == "tls") {
-			if (it->attributes.find("certificate") ==
-			    it->attributes.end()) {
-			    std::cerr
-				<< "TLS endpoint element without 'certficate' "
-				<< "attributed, ignored"
-				<< std::endl;
-			    continue;
-			}
-			if (it->attributes.find("key") ==
-			    it->attributes.end()) {
-			    std::cerr
-				<< "TLS endpoint element without 'key' "
-				<< "attributed, ignored"
-				<< std::endl;
-			    continue;
-			}
-			if (it->attributes.find("trusted-ca") ==
-			    it->attributes.end()) {
-			    std::cerr
-				<< "TLS endpoint element without 'trusted-ca' "
-				<< "attributed, ignored"
-				<< std::endl;
-			    continue;
-			}
-		    }
-
-		    // Optional attributes
-		    std::string cert = it->attributes["certificate"];
-		    std::string key = it->attributes["key"];
-		    std::string trusted_ca = it->attributes["trusted-ca"];
-
-		    // Scan port string into an integer.
-		    std::istringstream buf(it->attributes["port"]);
-		    int port;
-		    buf >> port;
-		
-		    // Create an endpoint specification.
-		    cybermon::specification* sp = 
-                        new endpoint_spec(hostname, port, type, transport,
-                                          cert, key, trusted_ca);
-		    lst.push_back(sp);
-		    continue;
-
-		}
-		
-	    }
-
-	} catch (std::exception& e) {
-
-	    std::cerr << "Error parsing endpoints: " << e.what() << std::endl;
-
-	}
+        for(json::iterator it = endpoints_j.begin(); it != endpoints_j.end();
+            it++) {
+            endpoint::spec* sp = new endpoint::spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }
 
 	/////////////////////////////////////////////////////////////
 	// Scan the parameters block.
 	/////////////////////////////////////////////////////////////
 
-	try {
+        auto parameters_j = config["parameters"];
 
-	    xml::element& p_elt = dec.root.locate("parameters");
-	    
-	    for(std::list<xml::element>::iterator it = p_elt.children.begin();
-		it != p_elt.children.end();
-		it++) {
-		
-		// For each parameter element, get key and value attributes.
-		// attributes.
-		if (it->name == "parameter") {
-		    
-		    // Both attributes are mandatory.
-		    if (it->attributes.find("key") == it->attributes.end()) {
-			std::cerr
-			    << "parameter element without 'key' attribute, "
-			    << "ignored"
-			    << std::endl;
-			continue;
-		    }
-		    if (it->attributes.find("value") == it->attributes.end()) {
-			std::cerr
-			    << "parameter element without 'vakue' attribute, "
-			    << "ignored"
-			    << std::endl;
-			continue;
-		    }
-		    
-		    // Get attributes.
-		    std::string key = it->attributes["key"];
-		    std::string val = it->attributes["value"];
-		    
-		    // Create and return a specfication.
-		    cybermon::specification* sp = new parameter_spec(key, val);
-		    lst.push_back(sp);
-		    
-		    continue;
-
-		}
-
-	    }
-	    
-	} catch (std::exception& e) {
-
-//	    std::cerr << "Error parsing parameters: " << e.what() << std::endl;
-	    // Silently ignore.
-
-	}
+        for(json::iterator it = parameters_j.begin(); it != parameters_j.end();
+            it++) {
+            parameter::spec* sp =
+                new parameter::spec(it.key(),
+                                   it.value().get<std::string>());
+            lst.push_back(sp);
+        }        
 
 	/////////////////////////////////////////////////////////////
-	// Control parameters.
+	// Scan the controls block.
 	/////////////////////////////////////////////////////////////
 
-	try {
+        auto control_j = config["controls"];
 
-	    xml::element& s_elt = dec.root.locate("control");
-	    
-	    if (s_elt.attributes.find("port") != s_elt.attributes.end() &&
-		s_elt.attributes.find("username") != s_elt.attributes.end() &&
-		s_elt.attributes.find("password") != s_elt.attributes.end()) {
-
-		std::istringstream buf(s_elt.attributes["port"]);
-		int port;
-		buf >> port;
-		std::string username = s_elt.attributes["username"];
-		std::string password = s_elt.attributes["password"];
-
-		// Create alerter
-		control::spec* sp = 
-		    new control::spec(port, username, password);
-
-		lst.push_back(sp);
-
-	    }
-
-	} catch (std::exception& e) {
-
-	    // Silently ignore.
-
-	}
+        for(json::iterator it = control_j.begin(); it != control_j.end();
+            it++) {
+            control::spec* sp = new control::spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }        
 
 	/////////////////////////////////////////////////////////////
 	// Scan the snort alert receiver
 	/////////////////////////////////////////////////////////////
 
-	try {
+        auto snort_alerter_j = config["snort-alerters"];
 
-	    xml::element& s_elt = dec.root.locate("snort_alert");
-	    
-	    if (s_elt.attributes.find("socket") != s_elt.attributes.end() &&
-		s_elt.attributes.find("duration") != s_elt.attributes.end()) {
-
-		std::string socket = s_elt.attributes["socket"];
-		std::istringstream buf(s_elt.attributes["duration"]);
-		int duration;
-		buf >> duration;
-
-		// Create alerter
-		snort_alerter_spec* sp = 
-		    new snort_alerter_spec(socket, duration);
-
-		lst.push_back(sp);
-
-	    }
-
-	} catch (std::exception& e) {
-
-	    // Silently ignore.
-
-	}
+        for(json::iterator it = snort_alerter_j.begin();
+            it != snort_alerter_j.end();
+            it++) {
+            snort_alert::spec* sp = new snort_alert::spec();
+            it->get_to(*sp);
+            lst.push_back(sp);
+        }        
 
     } catch (std::exception& e) {
 	    
@@ -401,37 +169,37 @@ cybermon::resource* config_manager::create(cybermon::specification& spec)
     
     // Interface.
     if (spec.get_type() == "iface") {
-	iface_spec& s = dynamic_cast<iface_spec&>(spec);
-	return new iface(s, deliv);
+        interface::spec& s = dynamic_cast<interface::spec&>(spec);
+	return new interface::iface(s, deliv);
     }
 
     // Target.
     if (spec.get_type() == "target") {
-	target_spec& s = dynamic_cast<target_spec&>(spec);
-	return new target(s, deliv);
+        target::spec& s = dynamic_cast<target::spec&>(spec);
+	return new target::target(s, deliv);
     }
 
     // Endpoint.
     if (spec.get_type() == "endpoint") {
-	endpoint_spec& s = dynamic_cast<endpoint_spec&>(spec);
-	return new endpoint(s, deliv);
+        endpoint::spec& s = dynamic_cast<endpoint::spec&>(spec);
+	return new endpoint::endpoint(s, deliv);
     }
 
     // Parameter.
     if (spec.get_type() == "parameter") {
-	parameter_spec& s = dynamic_cast<parameter_spec&>(spec);
-	return new parameter(s, deliv);
+        parameter::spec& s = dynamic_cast<parameter::spec&>(spec);
+	return new parameter::parameter(s, deliv);
     }
 
     // Snort alerter.
     if (spec.get_type() == "snort_alerter") {
-	snort_alerter_spec& s = dynamic_cast<snort_alerter_spec&>(spec);
-	return new snort_alerter(s, deliv);
+        snort_alert::spec& s = dynamic_cast<snort_alert::spec&>(spec);
+	return new snort_alert::snort_alerter(s, deliv);
     }
 
     // Control.
     if (spec.get_type() == "control") {
-	control::spec& s = dynamic_cast<control::spec&>(spec);
+        control::spec& s = dynamic_cast<control::spec&>(spec);
 	return new control::service(s, deliv);
     }
 
