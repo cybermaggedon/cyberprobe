@@ -10,146 +10,135 @@
 
 using json = nlohmann::json;
 
-void to_json(json& j, const iface_spec& s) {
-    j = json{{"interface", s.ifa}, {"filter", s.filter},
-             {"delay", s.delay}};
-}
+namespace target {
 
-void from_json(const json& j, iface_spec& s) {
-    j.at("interface").get_to(s.ifa);
-    try {
-        j.at("filter").get_to(s.filter);
-    } catch (...) {
-        s.filter = "";
-    }
-    try {
-        j.at("delay").get_to(s.delay);
-    } catch (...) {
-        s.delay = 0.0;
-    }
-}
-
-void to_json(json& j, const target_spec& s) {
-    std::string addr;
-    std::string cls;
-    if (s.universe == s.IPv6) {
-        s.addr6.to_string(addr);
-        if (s.mask != 128)
-            addr += "/" + std::to_string(s.mask);
-        cls = "ipv6";
-    } else if (s.universe == s.IPv4) {
-        s.addr.to_string(addr);
-        if (s.mask != 32)
-            addr += "/" + std::to_string(s.mask);
-        cls = "ipv4";
-    } else
+    void to_json(json& j, const spec& s) {
+        std::string addr;
+        std::string cls;
+        if (s.universe == s.IPv6) {
+            s.addr6.to_string(addr);
+            if (s.mask != 128)
+                addr += "/" + std::to_string(s.mask);
+            cls = "ipv6";
+        } else if (s.universe == s.IPv4) {
+            s.addr.to_string(addr);
+            if (s.mask != 32)
+                addr += "/" + std::to_string(s.mask);
+            cls = "ipv4";
+        } else
         throw std::runtime_error("Address not IPv6 or IPv4");
-    j = json{{"device", s.device},
-             {"network", s.network},
-             {"address", addr}, {"class", cls}
-    };
-}
-
-void from_json(const json& j, target_spec& s) {
-
-    j.at("device").get_to(s.device);
-
-    try {
-        j.at("network").get_to(s.network);
-    } catch (...) {
-        s.network = "";
+        j = json{{"device", s.device},
+                 {"network", s.network},
+                 {"address", addr}, {"class", cls}
+        };
     }
 
-    std::string cls;
-    try {
-        j.at("class").get_to(cls);
-    } catch (...) {
-        cls = "ipv4";
-    }
-
-    if (cls != "ipv4" && cls != "ipv6")
-        throw std::runtime_error("Class must be ipv4 or ipv6");
-
-    std::string address;
-    j.at("address").get_to(address);
-
-    int mask;
-
-    int pos = address.find("/");
-    std::string mstr = address.substr(pos + 1);
-    if (pos != -1) {
-        s.mask = std::stoi(mstr);
-        address = address.substr(0, pos);
-    } else if (cls == "ipv4")
-        s.mask = 32;
-    else // IPv6 case
-        s.mask = 128;
-
-    if (cls == "ipv4") {
-
-        // Convert string to an IPv4 address.
-        tcpip::ip4_address addr;
-        s.addr.from_string(address);
-        std::cout << "IPv4 addr:" << address << std::endl;
-        s.universe = s.IPv4;
+    void from_json(const json& j, spec& s) {
         
-    } else {
+        j.at("device").get_to(s.device);
+        
+        try {
+            j.at("network").get_to(s.network);
+        } catch (...) {
+            s.network = "";
+        }
+        
+        std::string cls;
+        try {
+            j.at("class").get_to(cls);
+        } catch (...) {
+            cls = "ipv4";
+        }
+        
+        if (cls != "ipv4" && cls != "ipv6")
+            throw std::runtime_error("Class must be ipv4 or ipv6");
+        
+        std::string address;
+        j.at("address").get_to(address);
+        
+        int mask;
+        
+        int pos = address.find("/");
+        std::string mstr = address.substr(pos + 1);
+        if (pos != -1) {
+            s.mask = std::stoi(mstr);
+            address = address.substr(0, pos);
+        } else if (cls == "ipv4")
+            s.mask = 32;
+        else // IPv6 case
+            s.mask = 128;
+        
+        if (cls == "ipv4") {
+            
+            // Convert string to an IPv4 address.
+            tcpip::ip4_address addr;
+            s.addr.from_string(address);
+            std::cout << "IPv4 addr:" << address << std::endl;
+            s.universe = s.IPv4;
+            
+        } else {
+            
+            // Convert string to an IPv6 address.
+            tcpip::ip6_address addr;
+            s.addr6.from_string(address);
+            std::cout << "IPv6 addr:" << address << std::endl;
+            s.universe = s.IPv6;
 
-        // Convert string to an IPv6 address.
-        tcpip::ip6_address addr;
-        s.addr6.from_string(address);
-        std::cout << "IPv6 addr:" << address << std::endl;
-        s.universe = s.IPv6;
-
+        }
+	
     }
-			
-}
 
-void to_json(json& j, const endpoint_spec& s) {
-    j = json{{"hostname", s.hostname},
-             {"port", s.port},
-             {"type", s.type},
-             {"transport", s.transport}
-    };
-    if (s.transport == "tls") {
-        j["certificate"] = s.certificate_file;
-        j["key"] = s.key_file;
-        j["trusted-ca"] = s.trusted_ca_file;
-    };
-}
+};
 
-void from_json(const json& j, endpoint_spec& s) {
-    j.at("hostname").get_to(s.hostname);
-    j.at("port").get_to(s.port);
-    j.at("type").get_to(s.type);
-    try {
-        j.at("transport").get_to(s.transport);
-    } catch (...) {
-        s.transport = "tcp";
+namespace endpoint {
+
+    void to_json(json& j, const spec& s) {
+        j = json{{"hostname", s.hostname},
+                 {"port", s.port},
+                 {"type", s.type},
+                 {"transport", s.transport}
+        };
+        if (s.transport == "tls") {
+            j["certificate"] = s.certificate_file;
+            j["key"] = s.key_file;
+            j["trusted-ca"] = s.trusted_ca_file;
+        };
     }
-    if (s.transport == "tls") {
-        j.at("certificate").get_to(s.certificate_file);
-        j.at("key").get_to(s.key_file);
-        j.at("trusted-ca").get_to(s.trusted_ca_file);
+
+    void from_json(const json& j, spec& s) {
+        j.at("hostname").get_to(s.hostname);
+        j.at("port").get_to(s.port);
+        j.at("type").get_to(s.type);
+        try {
+            j.at("transport").get_to(s.transport);
+        } catch (...) {
+            s.transport = "tcp";
+        }
+        if (s.transport == "tls") {
+            j.at("certificate").get_to(s.certificate_file);
+            j.at("key").get_to(s.key_file);
+            j.at("trusted-ca").get_to(s.trusted_ca_file);
+        }
     }
-}
 
-std::string endpoint_spec::get_hash() const {
+    std::string spec::get_hash() const {
 
-    // See that space before the hash?  It means that endpoint
-    // hashes are "less than" other hashes, which means they are at the
-    // front of the set.  This means endpoints are started before
-    // targets.
-    
-    // The end result of that, is that we know endpoints will be
-    // configured before targets are added to the delivery engine,
-    // which means that 'target up' messages will be sent on targets
-    // configured in the config file.
-    
-    json j = *this;
-    return " " + j.dump();
+        // See that space before the hash?  It means that endpoint
+        // hashes are "less than" other hashes, which means they are at the
+        // front of the set.  This means endpoints are started before
+        // targets.
+        
+        // The end result of that, is that we know endpoints will be
+        // configured before targets are added to the delivery engine,
+        // which means that 'target up' messages will be sent on targets
+        // configured in the config file.
+        
+        json j = *this;
+        return " " + j.dump();
+        
+    }
 
-}
+};
 
 void to_json(json& j, const parameter_spec& s) {
     j = json{{"key", s.key},
@@ -235,7 +224,7 @@ void config_manager::read(const std::string& file,
 
         for(json::iterator it = interfaces_j.begin(); it != interfaces_j.end();
             it++) {
-            iface_spec* sp = new iface_spec();
+            interface::spec* sp = new interface::spec();
             it->get_to(*sp);
             lst.push_back(sp);
         }
@@ -248,7 +237,7 @@ void config_manager::read(const std::string& file,
 
         for(json::iterator it = targets_j.begin(); it != targets_j.end();
             it++) {
-            target_spec* sp = new target_spec();
+            target::spec* sp = new target::spec();
             it->get_to(*sp);
             lst.push_back(sp);
         }
@@ -261,7 +250,7 @@ void config_manager::read(const std::string& file,
 
         for(json::iterator it = endpoints_j.begin(); it != endpoints_j.end();
             it++) {
-            endpoint_spec* sp = new endpoint_spec();
+            endpoint::spec* sp = new endpoint::spec();
             it->get_to(*sp);
             lst.push_back(sp);
         }
@@ -322,20 +311,20 @@ cybermon::resource* config_manager::create(cybermon::specification& spec)
     
     // Interface.
     if (spec.get_type() == "iface") {
-	iface_spec& s = dynamic_cast<iface_spec&>(spec);
-	return new iface(s, deliv);
+        interface::spec& s = dynamic_cast<interface::spec&>(spec);
+	return new interface::iface(s, deliv);
     }
 
     // Target.
     if (spec.get_type() == "target") {
-	target_spec& s = dynamic_cast<target_spec&>(spec);
-	return new target(s, deliv);
+        target::spec& s = dynamic_cast<target::spec&>(spec);
+	return new target::target(s, deliv);
     }
 
     // Endpoint.
     if (spec.get_type() == "endpoint") {
-	endpoint_spec& s = dynamic_cast<endpoint_spec&>(spec);
-	return new endpoint(s, deliv);
+        endpoint::spec& s = dynamic_cast<endpoint::spec&>(spec);
+	return new endpoint::endpoint(s, deliv);
     }
 
     // Parameter.

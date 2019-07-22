@@ -6,7 +6,7 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C capture.C configuration.C control.C snort_alert.C \
 	sender.h delivery.h capture.h \
 	configuration.h control.h snort_alert.h target.h \
-	parameters.h packet_consumer.h interface.h \
+	parameters.h packet_consumer.h interface.h interface.C \
 	endpoint.h parameter.h \
 	vxlan_capture.h vxlan_capture.C
 cyberprobe_LDADD = libcybermon.la -lssl
