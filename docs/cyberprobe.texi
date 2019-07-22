@@ -666,9 +666,6 @@ GCC C++ compiler and development support.
 @code{libpcap}.
 
 @item
-Expat (XML parser).
-
-@item
 @code{tcpdump} - not needed to build the software, but we use it in the
 tutorial.
 
@@ -854,7 +851,7 @@ a particular IP address to this workstation, so that it won't change.
 
 @heading Starting cyberprobe with a configuration file
 
-The source code contains a file @file{config.xml} which is a good template
+The source code contains a file @file{config.json} which is a good template
 for any configuration you're going to build. However, for the purpose of
 this discussion, let's start from scratch. In order to do anything useful,
 there are three essential elements to a cyberprobe configuration file:
@@ -862,25 +859,19 @@ interfaces, targets and endpoints. The system won't do anything useful
 without those three configuration elements defined. Let's start with a very
 simple configuration.
 
-Using your favourite text editor, create a text file, say @file{c.xml} with the
+Using your favourite text editor, create a text file, say @file{c.cfg} with the
 following contents:
 
 @example
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<configuration>
-
-  <interfaces>
-    <interface name="eth0"/>
-  </interfaces>
-
-  <targets>
-  </targets>
-
-  <endpoints>
-  </endpoints>
-
-</configuration>
+@{
+    "interfaces": [
+        @{
+            "interface": "eth0"
+        @}
+    ],
+    "targets": [],
+    "endpoints: []
+@}
 @end example
 
 Note: You should replace the @code{eth0} string with the name of your
@@ -895,7 +886,7 @@ locate the place where you compiled the code, and run @command{cyberprobe}
 giving it the name of the configuration file you just created:
 
 @example
-cyberprobe c.xml
+cyberprobe c.cfg
 @end example
 
 If everything goes to plan, you should see the following output:
@@ -929,10 +920,10 @@ and delete the query (@samp{?}) prefix in the first line, so that it looks like
 this:
 
 @example
-<xml version="1.0" encoding="ISO-8859-1"?>
+FIXME @{
 @end example
 
-You've now broken the configuration file. It's not valid XML any more, so
+You've now broken the configuration file. It's not valid JSON any more, so
 the parsing fails. You should see this output from @command{cyberprobe}:
 
 @example
@@ -942,8 +933,8 @@ Capture on interface eth0 stopped.
 If you repair the damage to the configuration file, everything will start
 working again. The lesson here is: If you find that @command{cyberprobe}
 won't recognise any resources, it's likely that your configuration file is
-invalid. The utility @command{xmlwf}x can be useful to check that an XML
-configuration file is valid, if you're not getting the results you expect.
+invalid. Use a JSON parser to check that the file is valid
+if you're not getting the results you expect.
 
 @cindex Target
 @cindex @command{cyberprobe}, target
@@ -961,8 +952,12 @@ discovered that with the ifconfig command earlier? Instead of
 @code{192.168.1.80} use the IP address of your workstation.
 
 @example
-<targets>
-  <target address="192.168.1.80" device="123456"/>
+    "targets": [
+        @{
+            "address": "192.168.1.80",
+            "device": "123456"
+        @}
+    ],
 </targets>
 @end example
 
@@ -1011,9 +1006,14 @@ packets to a local service on port 10000:
 @cindex @command{cyberprobe}, endpoint
 
 @example
-<endpoints>
-  <endpoint hostname="localhost" port="10000"
-      transport="tcp" type="etsi"/>
+    "endpoints": [
+        @{
+            "hostname": "localhost",
+            "port": 10000,
+            "transport": "tcp",
+            "type": "etsi"
+        @}
+    ]
 </endpoints>
 @end example
 
@@ -2592,7 +2592,7 @@ cyberprobe @var{configuration-file}
 @itemize @bullet
 
 @item
-@var{configuration-file} is the name of an XML configuration file. 
+@var{configuration-file} is the name of a JSON configuration file. 
 See @ref{@command{cyberprobe} configuration}.
 
 @end itemize
@@ -2631,105 +2631,67 @@ immediately actioned.
 Sample configuration:
 
 @example
-<?xml version="1.0" encoding="ISO-8859-1"?>
+@{
+    "interfaces": [
+        @{
+            "interface": "eth0",
+            "filter": "not port 10001 and not port 10002",
+            "delay": 0.5
+        @},
+        @{
+            "interface": "eth1"
+        @}
+    ],
+    "targets": [
+        @{ "address": "192.168.1.1", "device": "sam-iphone" @},
+        @{ "address": "192.168.1.2", "device": "fred-android" @},
+        @{ "address": "10.2.0.0/16", "device": "lisa-mac" @},
+        @{ "address": "10.1.1.0", "device": "suzie-mac" @},
+        @{ "address": "10.1.1.2", "device": "suzie-android" @},
+        @{ "address": "10.1.1.3", "device": "suzie-iphone" @},
+        @{ "address": "10.1.1.4", "device": "imogen-pc" @},
+        @{ "address": "10.1.1.5", "device": "imogen-pc" @},
+        @{ "address": "10.1.1.6", "device": "imogen-pc" @},
+        @{ "address": "10.1.1.7", "device": "imogen-ipad" @},
+        @{ "address": "10.1.1.8", "device": "imogen-android" @},
+        @{ "address": "10.1.1.9", "device": "imogen-android" @},
+        @{ "address": "10.1.1.10", "device": "will-tablet" @},
+        @{ "address": "aaaa:bbbb:cccc:dddd::4:5:6", "class": "ipv6",
+          "device": "sam-pc" @},
+        @{ "address": "aaaa:bbbb:cccc::/48", class: "ipv6",
+          "device": "sam-pc" @}
+    ],
 
-<configuration>
-
-  <!-- Start a control interface on port 8888. -->
-  <control port="8888" username="admin" password="horse_battery_staple">
-
-  <!-- Set of interfaces to use for collection. -->
-  <interfaces>
-
-    <!-- filter element is optional.  Can be used to make sure you don't
-         sniff the outbound streams. -->
-    <interface name="eth0" filter="not port 10001 and not port 10002"/>
-
-    <-- The delay attribute can be used to specify a delay before
-           packets are processed.  In seconds. --> 
-    <interface name="eth1" delay="0.5"/>
-
-  </interfaces>
-
-  <!-- Statically targeted addresses. -->
-  <targets>
-    <target address="192.168.1.1" device="123456"/>
-    <target address="192.168.1.2" device="123981"/>
-    <target address="10.2.0.0/16" device="9123780"/>
-    <target address="10.1.1.1" device="9123780"/>
-    <target address="10.1.1.1" device="9123780"/>
-    <target address="10.1.1.0" device="591875"/>
-    <target address="10.1.1.2" device="492895"/>
-    <target address="10.1.1.3" device="591875"/>
-    <target address="10.1.1.4" device="591875"/>
-    <target address="10.1.1.5" device="591875"/>
-    <target address="10.1.1.6" device="591875"/>
-    <target address="10.1.1.7" device="591875"/>
-    <target address="10.1.1.8" device="591875"/>
-    <target address="10.1.1.9" device="591875"/>
-    <target address="10.1.1.10" device="591875"/>
-    <target address="aaaa:bbbb:cccc:dddd::4:5:6"
-      class="ipv6" device="983898"/>
-    <target address="aaaa:bbbb:cccc::/48"
-      class="ipv6" device="983800"/>
-  </targets>
-
-  <!-- Endpoints for delivery of collected packets. -->
-  <endpoints>
-
-    <!-- Send collected packets to monitor1:10001 in NHIS 1.1
-         stream. -->
-    <endpoint hostname="monitor1" port="10001"
-              transport="tcp" type="nhis1.1"/>
-
-    <!-- Send collected packets to monitor2:10002 in ETSI LI
-         stream. -->
-    <endpoint hostname="monitor2" port="10002"
-              transport="tcp" type="etsi"/>
-
-  </endpoints>
-
-  <!-- Set of parameters, primarily used to configure the metadata in
-       ETSI LI metadata. -->
-  <parameters>
-
-    <!-- Value used for deliveryCountryCode and authorizationCountryCode
-         in LI PS PDU. Should be 2-character string. -->
-    <parameter key="country" value="DE"/>
-
-    <!-- Value used for operatorIdentifier in LI PS PDU. A string up to
-         16 characters. -->
-    <parameter key="operator" value="Cyber"/>
-
-    <!-- Value used for networkElementIdentifier in LI PS PDU. String up
-         to 16 characters in length. -->
-    <parameter key="network_element" value="10.8.2.4"/>
-
-    <!-- Value used for interceptionPointID in LI PS PDU. String up
-         to 8 characters in length. -->
-    <parameter key="interception_point" value="abcd1234"/>
-
-    <!-- Username values used in IPIRI connection.  Key form is
-         "username." plus the device -->
-    <parameter key="username.123456" value="user01@@example.org"/>
-    <parameter key="username.123981" value="user02@@example.org"/>
-    <parameter key="username.981235" value="user03@@example.org"/>
-
-    <!-- Parameters in this form are used select the device ID which is used
-         when packets are collected on Snort alerts.  Basically, this
-         maps the Snort signature ID to a device ID. -->
-    <parameter key="snort.1.device" value="SNORT1"/>
-    <parameter key="snort.2.device" value="SNORT2"/>
-
-   </parameters>
-
-   <!-- Optional element.  Listens for Snort alerts, and dynamically
-        targets addresses for 60 seconds. -->
-   <!--
-   <snort_alert socket="/var/log/snort/snort_alert" duration="60"/>
-   -->
-
-</configuration>
+    "endpoints": [
+        @{
+            "hostname": "monitor1",
+            "port": 10001,
+            "type": "nhis1.1"
+        @},
+        @{
+            "hostname": "monitor2",
+            "port": 10002,
+            "type": "etsi"
+        @}
+    ],
+    "parameters": @{
+        "country": "DE",
+        "operator": "Cyber",
+        "network_element": "10.8.2.4",
+        "interception_point": "abcd1234",
+        "username.123456": "user01@@example.org",
+        "username.123981": "user02@@example.org",
+        "username.981235": "user03@@example.org",
+        "snort.1.liid": "SNORT1",
+        "snort.2.liid": "SNORT2"
+    @},
+    "snort-alerters": [
+        @{
+            "duration": 30,
+            "path": "/tmp/alert"
+        @}
+    ]
+@}
 @end example
 
 The @code{control} element is optional, if it exists, @command{cyberprobe} runs
