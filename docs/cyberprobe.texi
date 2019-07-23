@@ -1028,37 +1028,50 @@ authentication details are provided too. You should see this output from
 Starting control on port 8888
 @end example
 
-That's good! Now need to connect and interrogate the targets list: I use
-telnet to connect, the auth command to authenticate, and the target command
-to see a list of commands.
+@cindex @command{cyberprobe-cli}
 
-NOTE!  This has all been reworked, so the docs are wrong.
-
+Good! Now need to connect and interrogate the targets list.  The API
+is a simple text protocol with requests and responses encoded in JSON.
+The @command{cyberprobe-cli} command gives you an interactive CLI
+interface.
 @example
-$ telnet localhost 8888
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-auth admin mypassword
-200 Authenticated.
-targets
-201 Targets list follows.
-25
-123456:ipv4:192.168.1.80/32
+cyberprobe-cli localhost 8888
 @end example
 
-I can use the help command to see the full list of commands permitted. There
-are commands for changing the address target list:
+You are then prompted for a username and password:
+@example
+$ cyberprobe-cli  localhost 8888
+Connected.  You must authenticate.
+User: admin
+Password: **********
+> 
+@end example
+
+Press @code{TAB} to see command auto-completion.
 
 @example
-targets
-201 Targets list follows.
-25
-123456:ipv4:192.168.1.80
-remove_target ipv4 192.168.1.80
-200 Removed target.
-add_target 654321 ipv4 192.168.0.0/16
-200 Added target.
+> show endpoints 
+Hostname                                Port    Type      
+--------                                ----    ----      
+localhost                               9000    etsi      
+localhost                               9001    etsi      
+localhost                               9002    nhis1.1   
+> add target my-machine4 ipv6 fe80:5551:4024:8196:8175::/40 dark-net
+> show targets
+Device              Class   Address                       Mask    
+----                -----   -------                       ----    
+my-machine          ipv4    0.0.0.0                       /0       
+my-machine2         ipv4    10.0.0.0                      /8       
+my-machine4         ipv6    fe80:5551:4000::              /40      
+my-machine3         ipv6    fe80:4124:5696::              /48      
+> remove target my-machine4 ipv6 fe80:5551:4024:8196:8175::/40 dark-net
+> add interface vxlan:8124 0.5 not port 9000
+> show interfaces 
+Interface           Delay   Filter                                            
+---------           -----   ------                                            
+vxlan:4789          0.5     not port 10001 and not port 10002                 
+vxlan:4790          0.3                                                       
+vxlan:8124          0.5     not port 9000                                     
 @end example
 
 The interface isn't pretty, but you get the idea. You can change almost
@@ -1073,16 +1086,7 @@ Note also that you may get some weird results if you use the configuration
 file AND the control interface to manage the same resources, so you probably
 don't want to do that.
 
-@cindex @command{cyberprobe-cli}
-
-The @command{cyberprobe-cli} command can be used to access the
-management interface but provides a (slightly) nicer @code{readline}
-interface, and has auto-completion.  Usage is of the form
-@example
-cyberprobe-cli @var{host} @var{port}
-@end example
-Once you're in, you can type help to get help, or press TAB for auto-completion
-of commands.
+See @ref{@command{cyberprobe-cli} invocation}.
 
 @comment ----------------------------------------------------------------------
 
@@ -2762,6 +2766,7 @@ resource.
 @node @command{cyberprobe-cli} invocation
 @section @command{cyberprobe-cli} invocation
 
+@anchor{cyberprobe-cli}
 @cindex @command{cyberprobe-cli}, invocation
 @cindex Management client
 
@@ -2815,7 +2820,7 @@ The following commands are supported by @command{cyberprobe-cli}:
 
 @table @samp
 
-@item add endpoint HOST PORT TYPE TRANSPORT
+@item add endpoint HOST PORT TYPE [TRANSPORT [KEY CERT CA]]
 Adds a delivery endpoint.
 @table @samp
 @item HOST
@@ -2826,12 +2831,19 @@ Specifies TCP port to deliver to.
 Can be one of @samp{nhis} or @samp{etsi} for delivery protocol.
 @item TRANSPORT
 Can be one of @samp{tcp} or @samp{tls} for TCP or TLS transports.
+Defaults to @samp{tcp}.
+@item KEY
+Filename of a key file in PEM format if @samp{tls} is specified.
+@item CERT
+Filename of an X.509 file in PEM format if @samp{tls} is specified.
+@item TRANSPORT
+Filename of trusted CA certs in PEM format if @samp{tls} is specified.
 @end table
 
 Note: It is not possible to specify the appropriate transport paramters for
 TLS delivery using the management interface currently.
 
-@item add interface INTERFACE DELAY [FILTER]
+@item add interface INTERFACE [DELAY [FILTER]]
 Adds an interface for packet sniffing.
 @table @samp
 @item INTERFACE
@@ -2856,25 +2868,23 @@ Parameter value.
 Adds an address target for packet capture.
 @table @samp
 @item DEVICE
-LIID / device identifier.
+Device identifier.
 @item PROTOCOL
-Address protocol, one of @samp{ip4} or @samp{ip6}.
+Address protocol, one of @samp{ipv4} or @samp{ipv6}.
 @item ADDRESS
 Address value, in IPv4 or IPv6 format, according to the PROTOCOL value.
+Optionally can have a @samp{/mask} suffic.
 @end table
-
-@item help
-Displays help (not implemented).
 
 @item quit
 Causes the client to close the connection and terminate.
 
-@item remove endpoint HOST PORT TYPE TRANSPORT
+@item remove endpoint HOST PORT TYPE [TRANSPORT [KEY CERT CHAIN]]
 Removes an endpoint added through the @samp{add endpoint} command.
-The HOST, PORT TYPE and TRANSPORT values are the same as for
+The HOST, PORT TYPE and TRANSPORT, ... values are the same as for
 @samp{add endpoint}.
 
-@item remove interface INTERFACE DELAY [FILTER]
+@item remove interface INTERFACE [DELAY [FILTER]]
 Removes an interface added through the @samp{add interface} command.
 The INTERFACE, DELAY and FILTER values are the same as for @samp{add interface}.
 
@@ -2882,7 +2892,7 @@ The INTERFACE, DELAY and FILTER values are the same as for @samp{add interface}.
 Removes a paramter added through the @samp{add parameter} command.
 The KEY and VALUE values are the same as for @samp{remove parameter}.
 
-@item remove target PROTOCOL ADDRESS
+@item remove target DEVICE PROTOCOL ADDRESS
 Removes a target added through the @samp{remove target} command.
 The PROTOCOL and ADDRESS values are the same as for @samp{add target}.
 
@@ -3005,131 +3015,409 @@ interfaces.
 The configuration file specifies a port number, and username and password
 for the interface.
 
-The interface is intended to be used programmatically, but it is usable
-using a basic telnet. It is a command-response interface, similar in style
-to SMTP.
+The interface is intended to be used programmatically.  It is a request/response
+interface.
 
-@heading Commands
+Note that the protocol is in clear, so should not be used across a hostile
+network.
 
-Commands are sent, one at a time, as a string terminated by a newline. The
-following commands are supported:
+@heading Request structure
+
+Each request is a JSON object encoded on a single line terminated with
+@samp{NEWLINE}.  Each request is required to have an @code{action} field
+which describes the action to take.  One action is special: @code{auth};
+other actions cannot be used until authentication has taken place.
+
+Example request:
+@example
+@{"action":"auth","password":"admin","username":"horse-battery-staple"@}
+@end example
+
+@heading Response structure
+
+Each response is preceded by a base-10 encoded human-readable byte length
+terminated by @samp{NEWLINE} after which the response is sent.  Response
+is a JSON payload.  The @code{status} field contains a numeric response
+code, statuses in the range 200-299 indicate success.
+The @code{message} field contains a human-readable response string,
+which will be an error message in the error case.
+
+Other fields depend on the request.
+
+@heading Actions
+
+Here is the list of supported actions.  JSON has been pretty-printed to
+aid understanding.
+
+
+The
+following values of the @code{action} field are supported:
 
 @table @code
 
-@item auth <user> <password>
-Used on initial connection to authenticate.
+@item auth
+Must be accompanied by valid @code{username} and @code{password} fields in
+order to authenticate.  The response contains @code{status} and
+@code{message} fields.
 
-@item help
-Shows help
+Example request:
+@example
+@{
+  "action":"auth",
+  "password":"admin",
+  "username":"horse-battery-staple"
+@}
+@end example
 
-@item add_interface <iface> <delay> [<filter>]
+Example response:
+@example
+@{"message":"Authenticated.","status":200@}
+@end example
+
+@item add-interface
 Starts packet capture from an interface.
+Request should have an interface field containing an interface
+specification.
 
-@item remove_interface <iface> <delay> [<filter>]
+Example request:
+@example
+@{
+  "action": "add-interface",
+  "interface": @{
+    "delay": 0.5,
+    "filter": "not port 9876",
+    "interface": "vxlan:9876"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Interface added.","status":200@}
+@end example
+
+@item remove-interface
 Removes a previously enabled packet capture.
 
-@item interfaces
+Example request:
+@example
+@{
+  "action": "remove-interface",
+  "interface": @{
+    "delay": 0.5,
+    "filter": "not port 9876",
+    "interface": "vxlan:9876"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Interface removed.","status":200@}
+@end example
+
+@item get-interfaces
 Lists all interfaces, output is format @code{iface:delay:filter}.
 
-@item add_endpoint <host> <port> <type> <transport>
+Example request:
+@example
+@{
+  "action": "get-interfaces"
+@}
+@end example
+
+Example response:
+@example
+@{
+  "interfaces": [
+    @{
+      "delay": 0.5,
+      "filter": "not port 10001 and not port 10002",
+      "interface": "vxlan:4789"
+    @},
+    @{
+      "delay": 0.3
+      "filter": "",
+      "interface": "vxlan:4790"
+    @},
+    @{
+      "delay": 0.5,
+      "filter": "not port 9876",
+      "interface": "vxlan:9876"
+    @}
+  ],
+  "message": "Interfaces list.",
+  "status": 201
+@}
+@end example
+
+@item add-endpoint
 Adds an endpoint to delivery data to.
-where type is one of: @code{etsi} @code{nhis1.1} and
-transport is one of: @code{tcp} @code{tls}.
-Note that it is not currently possible to specify the configuration required to
-get a TLS connection to work. (FIXME).
 
-@item remove_endpoint <host> <port> <type> <transport>
+Example request:
+@example
+@{
+  "action": "add-endpoint",
+  "endpoint": @{
+    "certificate": "cert.crt",
+    "hostname": "receiver",
+    "key": "key.pem",
+    "port": 10000,
+    "transport": "tls",
+    "trusted-ca": "ca.crt",
+    "type": "etsi"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Endpoint added.","status":200@}
+@end example
+
+@item remove-endpoint
 Removes a previously enabled endpoint.
-where type is one of: @code{etsi} @code{nhis1.1} and
-transport is one of: @code{tcp} @code{tls}.
 
-@item endpoints
-Lists endpoints, format is @code{host:port:type:description}.
+Example request:
+@example
+@{
+  "action": "remove-endpoint",
+  "endpoint": @{
+    "certificate": "cert.crt",
+    "hostname": "receiver",
+    "key": "key.pem",
+    "port": 10000,
+    "transport": "tls",
+    "trusted-ca": "ca.crt",
+    "type": "etsi"
+  @}
+@}
+@end example
 
-@item add_target <device> <class> <address>
-@itemx add_target <device> <class> <address>/<mask>
+Example response:
+@example
+@{"message":"Endpoint removed.","status":200@}
+@end example
+
+@item get-endpoints
+Gets the endpoint list.
+
+Example request:
+@example
+@{"action":"get-endpoints"@}
+@end example
+
+Example response:
+@example
+@{
+  "endpoints": [
+    @{
+      "hostname": "localhost",
+      "port": 9000,
+      "transport": "tcp",
+      "type": "etsi"
+    @},
+    @{
+      "hostname": "localhost",
+      "port": 9002,
+      "transport": "tcp",
+      "type": "nhis1.1"
+    @},
+    @{
+      "certificate": "cert.crt",
+      "hostname": "receiver",
+      "key": "key.pem",
+      "port": 10000,
+      "transport": "tls",
+      "trusted-ca": "ca.crt",
+      "type": "etsi"
+    @}
+  ],
+  "message": "Endpoints list.",
+  "status": 201
+@}
+@end example
+
+@item add-target
 Adds a new targeted IP address.
-where class is one of: @code{ipv4} @code{ipv6}
 
-@item remove_target <device> <class> <address>
-@itemx remove_target <device> <class> <address>/<mask>
+Example requests:
+@example
+@{
+  "action": "add-target",
+  "target": @{
+    "address": "1.2.3.0/24",
+    "class": "ipv4",
+    "device": "my-machine4",
+    "network": "my-network"
+  @}
+@}
+@end example
+
+@example
+@{
+  "action": "add-target",
+  "target": @{
+    "address": "fe80:e015:e897::/24",
+    "class": "ipv6",
+    "device": "my-machine4",
+    "network": ""
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Target added.","status":200@}
+@end example
+
+@item remove-target
 Removes a previously targeted IP address.
-where class is one of: @code{ipv4} @code{ipv6}
 
-@item targets
-Lists targets, format is @code{device:class:address/mask}.  The mask
-value is always present, even when no mask was present when the target
-was added.
+Example requests:
+@example
+@{
+  "action": "remove-target",
+  "target": @{
+    "address": "1.2.3.0/24",
+    "class": "ipv4",
+    "device": "my-machine4",
+    "network": "my-network"
+  @}
+@}
+@end example
 
-@item add_parameter <key> <val>
+@example
+@{
+  "action": "remove-target",
+  "target": @{
+    "address": "fe80:e015:e897::/24",
+    "class": "ipv6",
+    "device": "my-machine4",
+    "network": ""
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Target removed.","status":200@}
+@end example
+
+
+@item get-targets
+Lists targets
+
+Example request:
+@example
+@{"action":"get-targets"@}
+@end example
+
+Example response:
+@example
+@{
+  "message": "Target list.",
+  "status": 201,
+  "targets": [
+    @{
+      "address": "10.0.0.0/8",
+      "class": "ipv4",
+      "device": "my-machine2",
+      "network": ""
+    @},
+    @{
+      "address": "1.2.3.0/24",
+      "class": "ipv4",
+      "device": "my-machine4",
+      "network": "my-network"
+    @},
+    @{
+      "address": "fe80:4124:5696::/48",
+      "class": "ipv6",
+      "device": "my-machine3",
+      "network": ""
+    @}
+  ]
+@}
+@end example
+
+@item add-parameter
 Adds a new parameter, or changes a parameter value.
 
-@item remove_target <key>
+Example request:
+@example
+@{
+  "action": "add-parameter",
+  "parameter": @{
+    "key": "key",
+    "value": "value"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Parameter added.","status":200@}
+@end example
+
+@item remove-parameter
 Removes a parameter value.
 
-@item parameters
-Lists parameters, format is @code{key:value}.
+Example request:
+@example
+@{
+  "action": "remove-parameter",
+  "parameter": @{
+    "key": "key",
+    "value": "value"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Parameter removed.","status":200@}
+@end example
+
+@item get-parameters
+Lists parameters.
+
+Example request:
+@example
+@{"action":"get-parameters"@}
+@end example
+
+@example
+@{
+  "message": "Parameters list.",
+  "parameters": [
+    @{
+      "key": "asd",
+      "value": "def"
+    @},
+    @{
+      "key": "bunchy",
+      "value": "loss"
+    @},
+    @{
+      "key": "key",
+      "value": "value"
+    @}
+  ],
+  "status": 201
+@}
+@end example
 
 @end table
 
-In response to a command, one of the following responses may occur:
-
-@itemize
-
-@item
-An OK response, which is a @code{200} status code and message. e.g.
-@code{200 Endpoint added.}
-
-@item
-An error message, which is also a status code and message. e.g.
-@code{301 Command not known.}
-
-@end itemize
+@heading Status codes
 
 Error codes always start with 3 or 5. A 3xx error code results from
 something which is your fault e.g. procedural or syntactic violation, 5xx
 error codes result from errors internal to the system. This is still
 probably your fault :) e.g. specifying an interface which doesn't exist.
 
-A response with a body, which is a 201 status code and message. This is
-followed by a single line containing a response size in bytes, followed by
-the response itself. e.g.
-
-@example
-201 Interfaces list follows.
-8
-eth0:1:
-@end example
-
-@heading Example session
-
-For clarity, commands sent to the server are highlighted with @samp{>>}
-although this is not present as a prompt or in the protocol dialogue.
-
-@example
->>  interfaces
-    330 Authenticate before continuing.
->>  auth user password
-    200 Authenticated.
->>  interfaces
-    201 Interfaces list follows.
-    8
-    p4p1:1:
->>  remove_interface p4p1 1
-    200 Removed interface.
->>  add_interface p4p1 8
-    200 Added interface.
->>  add_target 123456 ipv4 1.2.3.4
-    200 Added target.
->>  targets
-    201 Targets list follows.
-    65
-    123456:ipv4:1.2.3.4/32
-    123456:ipv4:192.168.1.80/32
-    123456:ipv6:aaaa:bbbb:cccc:dddd::4:5:6/128
->>  quit
-    200 Tra, then.
-@end example
+A 2xx means you didn't do anything wrong, and the command worked.
 
 @comment ----------------------------------------------------------------------
 

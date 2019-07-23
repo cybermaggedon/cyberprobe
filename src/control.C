@@ -108,7 +108,7 @@ namespace control {
         s->write(std::to_string(e.size()) + "\n");
         s->write(e);
 
-        std::cerr << "Reply: " << status << " " << msg << std::endl;
+        std::cerr << "Reply: " << e << std::endl;
 
     }
 
@@ -124,7 +124,7 @@ namespace control {
         s->write(std::to_string(e.size()) + "\n");
         s->write(e);
 
-        std::cerr << "Reply: " << status << " " << msg << std::endl;
+        std::cerr << "Reply: " << e << std::endl;
 
     }
 
