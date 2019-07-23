@@ -55,31 +55,31 @@ namespace endpoint {
 
         bool operator<(const spec& i) const {
 
-            if (i.hostname < i.hostname)
+            if (hostname < i.hostname)
                 return true;
             else if (hostname > i.hostname) return false;
 
-            if (i.port < i.port)
+            if (port < i.port)
                 return true;
             else if (port > i.port) return false;
 
-            if (i.type < i.type)
+            if (type < i.type)
                 return true;
             else if (type > i.type) return false;
 
-            if (i.transport < i.transport)
+            if (transport < i.transport)
                 return true;
             else if (transport > i.transport) return false;
 
-            if (i.certificate_file < i.certificate_file)
+            if (certificate_file < i.certificate_file)
                 return true;
             else if (certificate_file > i.certificate_file) return false;
 
-            if (i.key_file < i.key_file)
+            if (key_file < i.key_file)
                 return true;
             else if (key_file > i.key_file) return false;
 
-            if (i.trusted_ca_file < i.trusted_ca_file)
+            if (trusted_ca_file < i.trusted_ca_file)
                 return true;
 
             return false;

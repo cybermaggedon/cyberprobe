@@ -13,6 +13,20 @@
 
 namespace snort_alert {
 
+    void to_json(json& j, const spec& s) {
+        j = json{{"path", s.path}, {"duration", s.duration}};
+    }
+
+    void from_json(const json& j, spec& s) {
+        j.at("path").get_to(s.path);
+        j.at("duration").get_to(s.duration);
+    }
+
+    std::string spec::get_hash() const { 
+        json j = *this;
+        return " " + j.dump();            
+    }
+
 ////////////////////////////////////////////////////////////////////////////
 //
 // The following stuff describes Snort alert format.

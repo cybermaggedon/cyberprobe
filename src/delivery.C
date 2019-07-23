@@ -677,8 +677,9 @@ void delivery::get_endpoints(std::list<endpoint::spec>& info)
 
     info.clear();
 
-    for(auto it = senders.begin(); it != senders.end(); it++)
+    for(auto it = senders.begin(); it != senders.end(); it++) {
         info.push_back(it->first);
+    }
 
 }
 

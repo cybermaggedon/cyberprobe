@@ -7,9 +7,15 @@
 #include <regex>
 #include <iomanip>
 
+#include "interface.h"
+#include "endpoint.h"
+#include "target.h"
+#include "parameter.h"
+
 #include "json.h"
 
 using json = nlohmann::json;
+auto match_cont = std::regex_constants::match_continuous;
 
 std::vector<std::string> commands;
 std::vector<std::string> add_commands;
@@ -19,39 +25,6 @@ std::vector<std::string> classes;
 
 std::vector<std::string>::iterator table_pos;
 std::vector<std::string>::iterator table_end;
-
-std::string get_status(const std::string& line)
-{
-    int pos = line.find(" ");
-    if (pos != -1)
-	return line.substr(0, pos);
-    else
-	return "";
-}
-
-bool cmd_data(tcpip::tcp_socket& sock, const std::string& cmd, 
-	      std::string& result) 
-{
-
-    sock.write(cmd + "\n");
-
-    std::string line;
-    sock.readline(line);
-    if (get_status(line) != "201") {
-	std::cout << line << std::endl;
-	return false;
-    }
-    
-    sock.readline(line);
-    std::istringstream buf(line);
-    int len;
-    buf >> std::dec >> len;
-
-    sock.read(result, len);
-
-    return true;
-
-}
 
 void cmd_json(tcpip::tcp_socket& sock,
               const json& req, json& res)
@@ -101,47 +74,305 @@ bool cmd_auth(tcpip::tcp_socket& sock,
 
 }
         
-void cmd_do(tcpip::tcp_socket& s, const std::string& cmd)
+bool cmd_add_interface(tcpip::tcp_socket& sock,
+                       const std::string& ifa,
+                       const std::string& delay,
+                       const std::string& filter)
 {
 
-    s.write(cmd + "\n");
+    try {
 
-    std::string line;
-    s.readline(line);
+        interface::spec sp;
+        sp.ifa = ifa;
+        if (delay != "")
+            sp.delay = std::stof(delay);
+        else
+            sp.delay = 0.0;
+        sp.filter = filter;
+        
+        json req = {
+            {"action", "add-interface"},
+            {"interface", sp}
+        };
 
-    if (get_status(line) != "200")
-	std::cerr << line << std::endl;
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
+}
+ 
+bool cmd_remove_interface(tcpip::tcp_socket& sock,
+                       const std::string& ifa,
+                       const std::string& delay,
+                       const std::string& filter)
+{
+
+    try {
+
+        interface::spec sp;
+        sp.ifa = ifa;
+        if (delay != "")
+            sp.delay = std::stof(delay);
+        else
+            sp.delay = 0.0;
+        sp.filter = filter;
+        
+        json req = {
+            {"action", "remove-interface"},
+            {"interface", sp}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
+}
+     
+bool cmd_add_target(tcpip::tcp_socket& sock,
+                    const std::string& device,
+                    const std::string& cls,
+                    const std::string& addr,
+                    const std::string& network)
+{
+
+    try {
+
+        target::spec sp;
+
+        sp.device = device;
+
+        std::string address;
+
+        int pos = addr.find("/");
+        if (pos != -1) {
+            sp.mask = std::stoi(addr.substr(pos + 1));
+            address = addr.substr(0, pos);
+        } else if (cls == "ipv6") {
+            address = addr;
+            sp.mask = 128;
+        } else {
+            address = addr;
+            sp.mask = 32;
+        }
+
+        if (cls == "ipv6") {
+            sp.universe = sp.IPv6;
+            sp.addr6.from_string(address);
+        } else {
+            sp.universe = sp.IPv4;
+            sp.addr.from_string(address);
+        }
+
+        sp.network = network;
+        
+        json req = {
+            {"action", "add-target"},
+            {"target", sp}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
+}
+bool cmd_remove_target(tcpip::tcp_socket& sock,
+                       const std::string& device,
+                       const std::string& cls,
+                       const std::string& addr,
+                       const std::string& network)
+{
+
+    try {
+
+        target::spec sp;
+
+        sp.device = device;
+
+        std::string address;
+
+        int pos = addr.find("/");
+        if (pos != -1) {
+            sp.mask = std::stoi(addr.substr(pos + 1));
+            address = addr.substr(0, pos);
+        } else if (cls == "ipv6") {
+            address = addr;
+            sp.mask = 128;
+        } else {
+            address = addr;
+            sp.mask = 32;
+        }
+
+        if (cls == "ipv6") {
+            sp.universe = sp.IPv6;
+            sp.addr6.from_string(address);
+        } else {
+            sp.universe = sp.IPv4;
+            sp.addr.from_string(address);
+        }
+
+        sp.network = network;
+        
+        json req = {
+            {"action", "remove-target"},
+            {"target", sp}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
 
 }
 
-void cmd_do2(tcpip::tcp_socket& s, const std::string& c1, 
-	     const std::string& c2)
+bool cmd_add_parameter(tcpip::tcp_socket& sock,
+                        const std::string& k,
+                        const std::string& v)
 {
-    std::string cmd = c1 + " " + c2;
-    cmd_do(s, cmd);
+
+    try {
+
+        parameter::spec sp;
+        sp.key = k;
+        sp.val = v;
+        
+        json req = {
+            {"action", "add-parameter"},
+            {"parameter", sp}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
+}
+  
+bool cmd_remove_parameter(tcpip::tcp_socket& sock,
+                          const std::string& k)
+{
+
+    try {
+
+        parameter::spec sp;
+        sp.key = k;
+        
+        json req = {
+            {"action", "remove-parameter"},
+            {"parameter", sp}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
+}
+  
+bool cmd_add_endpoint(tcpip::tcp_socket& sock,
+                      const std::string& hostname,
+                      const std::string& port,
+                      const std::string& type,
+                      const std::string& transport,
+                      const std::string& key,
+                      const std::string& cert,
+                      const std::string& ca)
+{
+
+    try {
+
+        endpoint::spec sp;
+        sp.hostname = hostname;
+        sp.port = std::stoi(port);
+        sp.type = type;
+        sp.transport = transport;
+        sp.key_file = key;
+        sp.certificate_file = cert;
+        sp.trusted_ca_file = ca;
+
+        if (sp.transport == "")
+            sp.transport = "tcp";
+
+        json req = {
+            {"action", "add-endpoint"},
+            {"endpoint", sp}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
 }
 
-void cmd_do3(tcpip::tcp_socket& s, const std::string& c1, 
-	     const std::string& c2, const std::string& c3)
+bool cmd_remove_endpoint(tcpip::tcp_socket& sock,
+                      const std::string& hostname,
+                      const std::string& port,
+                      const std::string& type,
+                      const std::string& transport,
+                      const std::string& key,
+                      const std::string& cert,
+                      const std::string& ca)
 {
-    std::string cmd = c1 + " " + c2 + " " + c3;
-    cmd_do(s, cmd);
-}
 
-void cmd_do4(tcpip::tcp_socket& s, const std::string& c1, 
-	     const std::string& c2, const std::string& c3, 
-	     const std::string& c4)
-{
-    std::string cmd = c1 + " " + c2 + " " + c3 + " " + c4;
-    cmd_do(s, cmd);
-}
+    try {
 
-void cmd_do5(tcpip::tcp_socket& s, const std::string& c1, 
-	     const std::string& c2, const std::string& c3, 
-	     const std::string& c4, const std::string& c5)
-{
-    std::string cmd = c1 + " " + c2 + " " + c3 + " " + c4 + " " + c5;
-    cmd_do(s, cmd);
+        endpoint::spec sp;
+        sp.hostname = hostname;
+        sp.port = std::stoi(port);
+        sp.type = type;
+        sp.transport = transport;
+        sp.key_file = key;
+        sp.certificate_file = cert;
+        sp.trusted_ca_file = ca;
+
+        if (sp.transport == "")
+            sp.transport = "tcp";
+
+        json req = {
+            {"action", "remove-endpoint"},
+            {"endpoint", sp}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+        return true;
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+
 }
 
 void cmd_help()
@@ -152,49 +383,43 @@ void cmd_help()
 void cmd_endpoints(tcpip::tcp_socket& sock) 
 {
 
-    std::string result;
+    json req = {
+        { "action", "get-endpoints" }
+    };
 
-    cmd_data(sock, "endpoints", result);
+    json res;
 
-    std::cout.setf(std::ios::left);
+    try {
 
-    std::cout << std::setw(40) << "Hostname"
-	      << std::setw(8) << "Port"
-	      << std::setw(10) << "Type"
-	      << std::endl;
+        cmd_json(sock, req, res);
+
+        std::list<endpoint::spec> es;
+        res["endpoints"].get_to(es);
+
+        std::cout.setf(std::ios::left);
+
+        std::cout << std::setw(40) << "Hostname"
+                  << std::setw(8) << "Port"
+                  << std::setw(10) << "Type"
+                  << std::endl;
     
-    std::cout << std::setw(40) << "--------"
-	      << std::setw(8) << "----"
-	      << std::setw(10) << "----"
-	      << std::endl;
-    
-    while (1) {
+        std::cout << std::setw(40) << "--------"
+                  << std::setw(8) << "----"
+                  << std::setw(10) << "----"
+                  << std::endl;
+        
+        for(auto it = es.begin(); it != es.end(); it++) {
 
-	int pos = result.find(":");
-	if (pos == -1) break;
-	std::string hostname = result.substr(0, pos);
-	result = result.substr(pos + 1);
+            std::cout << std::setw(40) << it->hostname
+                      << std::setw(8) << it->port
+                      << std::setw(10) << it->type
+                      << std::endl;
 
-	pos = result.find(":");
-	if (pos == -1) break;
-	std::string port = result.substr(0, pos);
-	result = result.substr(pos + 1);
+        }
 
-	pos = result.find(":");
-	if (pos == -1) break;
-	std::string type = result.substr(0, pos);
-	result = result.substr(pos + 1);
-
-	pos = result.find("\n");
-	if (pos == -1) break;
-	std::string desc = result.substr(0, pos);
-	result = result.substr(pos + 1);
-
-	std::cout << std::setw(40) << hostname
-		  << std::setw(8) << port
-		  << std::setw(10) << type
-		  << std::endl;
-
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return;
     }
     
 }
@@ -202,45 +427,59 @@ void cmd_endpoints(tcpip::tcp_socket& sock)
 void cmd_targets(tcpip::tcp_socket& sock) 
 {
 
-    std::string result;
-    cmd_data(sock, "targets", result);
+    json req = {
+        { "action", "get-targets" }
+    };
 
-    std::cout.setf(std::ios::left);
+    json res;
 
-    std::cout << std::setw(20) << "LIID"
-	      << std::setw(8) << "Class"
-	      << std::setw(30) << "Address"
-	      << std::endl;
+    try {
+
+        cmd_json(sock, req, res);
+
+        std::list<target::spec> ts;
+        res["targets"].get_to(ts);
+
+        std::cout.setf(std::ios::left);
+
+        std::cout << std::setw(20) << "Device"
+                  << std::setw(8) << "Class"
+                  << std::setw(30) << "Address"
+                  << std::setw(8) << "Mask"
+                  << std::endl;
+        
+        std::cout << std::setw(20) << "----"
+                  << std::setw(8) << "-----"
+                  << std::setw(30) << "-------"
+                  << std::setw(8) << "----"
+                  << std::endl;
     
-    std::cout << std::setw(20) << "----"
-	      << std::setw(8) << "-----"
-	      << std::setw(30) << "-------"
-	      << std::endl;
-    
-    while (1) {
+        for(auto it = ts.begin(); it != ts.end(); it++) {
 
-	int pos = result.find(":");
-	if (pos == -1) break;
-	std::string liid = result.substr(0, pos);
-	result = result.substr(pos + 1);
+            std::string cls =
+                (it->universe == it->IPv6) ?
+                "ipv6" : "ipv4";
 
-	pos = result.find(":");
-	if (pos == -1) break;
-	std::string cls = result.substr(0, pos);
-	result = result.substr(pos + 1);
+            std::string addr;
+            if (it->universe == it->IPv6)
+                it->addr6.to_string(addr);
+            else
+                it->addr.to_string(addr);
+            
+            std::cout << std::setw(20) << it->device
+                      << std::setw(8) << cls
+                      << std::setw(30) << addr
+                      << "/"
+                      << std::setw(8) << it->mask
+                      << std::endl;
+            
+        }
 
-	pos = result.find("\n");
-	if (pos == -1) break;
-	std::string addr = result.substr(0, pos);
-	result = result.substr(pos + 1);
-
-	std::cout << std::setw(20) << liid
-		  << std::setw(8) << cls
-		  << std::setw(30) << addr
-		  << std::endl;
-
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return;
     }
-    
+      
 }
 
 void cmd_interfaces(tcpip::tcp_socket& sock) 
@@ -253,7 +492,11 @@ void cmd_interfaces(tcpip::tcp_socket& sock)
     json res;
 
     try {
+
         cmd_json(sock, req, res);
+
+        std::list<interface::spec> ifs;
+        res["interfaces"].get_to(ifs);
 
         std::cout.setf(std::ios::left);
 
@@ -267,12 +510,11 @@ void cmd_interfaces(tcpip::tcp_socket& sock)
                   << std::setw(50) << "------"
                   << std::endl;
     
-        for(auto it = res["interfaces"].begin();
-            it != res["interfaces"].end(); it++) {
+        for(auto it = ifs.begin(); it != ifs.end(); it++) {
 
-            std::cout << std::setw(20) << (*it)["interface"].get<std::string>()
-                      << std::setw(8) << (*it)["delay"].get<double>()
-                      << std::setw(50) << (*it)["filter"].get<std::string>()
+            std::cout << std::setw(20) << it->ifa
+                      << std::setw(8) << it->delay
+                      << std::setw(50) << it->filter
                       << std::endl;
 
         }
@@ -287,35 +529,40 @@ void cmd_interfaces(tcpip::tcp_socket& sock)
 void cmd_parameters(tcpip::tcp_socket& sock) 
 {
 
-    std::string result;
-    cmd_data(sock, "parameters", result);
+    json req = {
+        { "action", "get-parameters" }
+    };
 
-    std::cout.setf(std::ios::left);
+    json res;
 
-    std::cout << std::setw(30) << "Key"
-	      << std::setw(45) << "Value"
-	      << std::endl;
-    
-    std::cout << std::setw(30) << "---"
-	      << std::setw(45) << "-----"
-	      << std::endl;
-    
-    while (1) {
+    try {
 
-	int pos = result.find(":");
-	if (pos == -1) break;
-	std::string key = result.substr(0, pos);
-	result = result.substr(pos + 1);
+        cmd_json(sock, req, res);
 
-	pos = result.find("\n");
-	if (pos == -1) break;
-	std::string value = result.substr(0, pos);
-	result = result.substr(pos + 1);
+        std::list<parameter::spec> ps;
+        res["parameters"].get_to(ps);
 
-	std::cout << std::setw(30) << key
-		  << std::setw(45) << value
-		  << std::endl;
+        std::cout.setf(std::ios::left);
 
+        std::cout << std::setw(30) << "Key"
+                  << std::setw(45) << "Value"
+                  << std::endl;
+        
+        std::cout << std::setw(30) << "---"
+                  << std::setw(45) << "-----"
+                  << std::endl;
+        
+        for(auto it = ps.begin(); it != ps.end(); it++) {
+
+            std::cout << std::setw(30) << it->key
+                      << std::setw(45) << it->val
+                      << std::endl;
+
+        }
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return;
     }
   
 }
@@ -395,7 +642,7 @@ void completer(const std::vector<std::string>& tokens,
     if ((cur_token > 1) && 
 	(tokens[0] == "add") && (tokens[1] == "endpoint")) {
 	std::cerr << std::endl << "  Usage:" << std::endl;
-	std::cerr << "    add endpoint <host> <port> <type>" 
+	std::cerr << "    add endpoint <host> <port> <type> [<transport> [<key> <cert> <ca>]]" 
 		  << std::endl;
 	readline::completion_over();
 	readline::force_display_update();
@@ -423,7 +670,7 @@ void completer(const std::vector<std::string>& tokens,
     if ((cur_token > 1) &&
 	(tokens[0] == "add") && (tokens[1] == "target")) {
 	std::cerr << std::endl << "  Usage:" << std::endl;
-	std::cerr << "    add target <liid> [ipv4|ipv6] <address>" 
+	std::cerr << "    add target <device> [ipv4|ipv6] <address> [<network>]" 
 		  << std::endl;
 	readline::completion_over();
 	readline::force_display_update();
@@ -532,8 +779,6 @@ int client(int argc, char** argv)
 
     }
 
-    std::cerr << "HERE" << std::endl;
-
     while (1) {
 
 	std::string s;
@@ -544,7 +789,7 @@ int client(int argc, char** argv)
 
 	std::match_results<std::string::const_iterator> what;
 
-	if (regex_search(s, help, std::regex_constants::match_continuous)) {
+	if (regex_search(s, help, match_cont)) {
 	    cmd_help();
 	    continue;
 	}
@@ -552,7 +797,7 @@ int client(int argc, char** argv)
 	static const std::regex 
 	    endpoints(" *show +endpoints *$", std::regex::extended);
 
-	if (regex_search(s, endpoints, std::regex_constants::match_continuous)) {
+	if (regex_search(s, endpoints, match_cont)) {
 	    cmd_endpoints(sock);
 	    continue;
 	}
@@ -560,7 +805,7 @@ int client(int argc, char** argv)
 	static const std::regex 
 	    targets(" *show +targets *$", std::regex::extended);
 
-	if (regex_search(s, targets, std::regex_constants::match_continuous)) {
+	if (regex_search(s, targets, match_cont)) {
 	    cmd_targets(sock);
 	    continue;
 	}
@@ -568,7 +813,7 @@ int client(int argc, char** argv)
 	static const std::regex 
 	    interfaces(" *show +interfaces *$", std::regex::extended);
 
-	if (regex_search(s, interfaces, std::regex_constants::match_continuous)) {
+	if (regex_search(s, interfaces, match_cont)) {
 	    cmd_interfaces(sock);
 	    continue;
 	}
@@ -576,44 +821,45 @@ int client(int argc, char** argv)
 	static const std::regex 
 	    parameters(" *show +parameters *$", std::regex::extended);
 
-	if (regex_search(s, parameters, std::regex_constants::match_continuous)) {
+	if (regex_search(s, parameters, match_cont)) {
 	    cmd_parameters(sock);
 	    continue;
 	}
 
 	static const std::regex 
-	    add_interface(" *add +interface +([^ ]+) +([^ ]+) *$", 
+	    add_interface(" *add +interface +([^ ]+) *([^ ]+)? *(.*)?$", 
 			  std::regex::extended);
 
-	if (regex_search(s, what, add_interface, std::regex_constants::match_continuous)) {
-	    cmd_do3(sock, "add_interface", what[1], what[2]);
+	if (regex_search(s, what, add_interface, match_cont)) {
+	    cmd_add_interface(sock, what[1], what[2], what[3]);
 	    continue;
 	}
 
 	static const std::regex 
-	    remove_interface(" *remove +interface +([^ ]+) +([^ ]+) *$", 
+	    remove_interface(" *remove +interface +([^ ]+) *([^ ]+)? *(.*)?$", 
                              std::regex::extended);
 
-	if (regex_search(s, what, remove_interface, std::regex_constants::match_continuous)) {
-	    cmd_do3(sock, "remove_interface", what[1], what[2]);
+	if (regex_search(s, what, remove_interface,
+                         match_cont)) {
+	    cmd_remove_interface(sock, what[1], what[2], what[3]);
 	    continue;
 	}
 
 	static const std::regex 
-	    add_target(" *add +target +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+	    add_target(" *add +target +([^ ]+) +([^ ]+) +([^ ]+) *([^ ]+)? *$", 
                        std::regex::extended);
 
-	if (regex_search(s, what, add_target, std::regex_constants::match_continuous)) {
-	    cmd_do4(sock, "add_target", what[1], what[2], what[3]);
+	if (regex_search(s, what, add_target, match_cont)) {
+	    cmd_add_target(sock, what[1], what[2], what[3], what[4]);
 	    continue;
 	}
 
 	static const std::regex 
-	    remove_target(" *remove +target +([^ ]+) +([^ ]+) *$", 
+	    remove_target(" *remove +target +([^ ]+) +([^ ]+) +([^ ]+) *([^ ]+)? *$", 
 			  std::regex::extended);
 	
-	if (regex_search(s, what, remove_target, std::regex_constants::match_continuous)) {
-	    cmd_do3(sock, "remove_target", what[1], what[2]);
+	if (regex_search(s, what, remove_target, match_cont)) {
+	    cmd_remove_target(sock, what[1], what[2], what[3], what[4]);
 	    continue;
 	}
 
@@ -621,8 +867,8 @@ int client(int argc, char** argv)
 	    add_parameter(" *add +parameter +([^ ]+) +(.*) *$", 
 			  std::regex::extended);
 
-	if (regex_search(s, what, add_parameter, std::regex_constants::match_continuous)) {
-	    cmd_do3(sock, "add_parameter", what[1], what[2]);
+	if (regex_search(s, what, add_parameter, match_cont)) {
+	    cmd_add_parameter(sock, what[1], what[2]);
 	    continue;
 	}
 
@@ -630,28 +876,28 @@ int client(int argc, char** argv)
 	    remove_parameter(" *remove +parameter +([^ ]+) *$", 
                              std::regex::extended);
 	
-	if (regex_search(s, what, remove_parameter, std::regex_constants::match_continuous)) {
-	    cmd_do2(sock, "remove_parameter", what[1]);
+	if (regex_search(s, what, remove_parameter, match_cont)) {
+	    cmd_remove_parameter(sock, what[1]);
 	    continue;
 	}
 
 	static const std::regex 
-	    add_endpoint(" *add +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+	    add_endpoint(" *add +endpoint +([^ ]+) +([^ ]+) +([^ ]+) *([^ ]+)? *([^ ]+)? *([^ ]+)? *([^ ]+)? *$", 
                          std::regex::extended);
 
-	if (regex_search(s, what, add_endpoint, std::regex_constants::match_continuous)) {
-	    cmd_do5(sock, "add_endpoint", what[1], what[2], what[3],
-		    what[4]);
+	if (regex_search(s, what, add_endpoint, match_cont)) {
+	    cmd_add_endpoint(sock, what[1], what[2], what[3], what[4],
+                             what[5], what[6], what[7]);
 	    continue;
 	}
 
 	static const std::regex 
-	    remove_endpoint(" *remove +endpoint +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) *$", 
+	    remove_endpoint(" *remove +endpoint +([^ ]+) +([^ ]+) +([^ ]+) *([^ ]+)? *([^ ]+)? *([^ ]+)? *([^ ]+)? *$", 
                             std::regex::extended);
 	
-	if (regex_search(s, what, remove_endpoint, std::regex_constants::match_continuous)) {
-	    cmd_do5(sock, "remove_endpoint", what[1], what[2], what[3],
-		    what[4]);
+	if (regex_search(s, what, remove_endpoint, match_cont)) {
+	    cmd_remove_endpoint(sock, what[1], what[2], what[3], what[4],
+                                what[5], what[6], what[7]);
 	    continue;
 	}
 

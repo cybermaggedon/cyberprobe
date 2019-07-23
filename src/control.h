@@ -77,20 +77,15 @@ namespace control {
 	void cmd_targets();
 	void cmd_interfaces();
 	void cmd_parameters();
-	void cmd_add_interface(const std::vector<std::string>& lst);
-	void cmd_remove_interface(const std::vector<std::string>& lst);
-	void cmd_add_target(const std::vector<std::string>& lst);
-	void cmd_remove_target(const std::vector<std::string>& lst);
-	void cmd_add_endpoint(const std::vector<std::string>& lst);
-	void cmd_remove_endpoint(const std::vector<std::string>& lst);
-	void cmd_help();
+	void cmd_add_interface(const json& j);
+	void cmd_remove_interface(const json& j);
+	void cmd_add_target(const json& j);
+	void cmd_remove_target(const json& j);
+	void cmd_add_endpoint(const json& j);
+	void cmd_remove_endpoint(const json& j);
 	void cmd_auth(const json& j);
-	void cmd_add_parameter(const std::vector<std::string>& lst);
-	void cmd_remove_parameter(const std::vector<std::string>& lst);
-
-	// Command line tokenisation.
-	static void tokenise(const std::string& line, 
-			     std::vector<std::string>& tok);
+	void cmd_add_parameter(const json& j);
+	void cmd_remove_parameter(const json& j);
 
 	// OK response.
 	void ok(int status, const std::string& msg);
@@ -99,8 +94,6 @@ namespace control {
 	void error(int status, const std::string& msg);
 
 	// Response with payload.
-	void response(int status, const std::string& msg,
-		      const std::string& response);
         void response(const json& j);
 
 	// Thread body.
