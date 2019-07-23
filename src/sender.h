@@ -70,9 +70,6 @@ public:
     // Handler - called to handle the next PDU on the queue.
     virtual void handle(qpdu_ptr) = 0;
 
-    // Return information about the sender for the management interface.
-    virtual void get_info(sender_info& info) = 0;
-
     // Destructor.
     virtual ~sender() { delete thr; }
 
@@ -151,18 +148,6 @@ public:
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
-
-    // Return information about the sender for the management interface.
-    virtual void get_info(sender_info& info) {
-	info.hostname = h;
-	info.port = p;
-	info.type = "nhis1.1";
-
-	std::ostringstream buf;
-	buf << "NHIS 1.1 endpoint on " << h << ":" << p;
-	info.description = buf.str();
-
-    }
 
 };
 
@@ -252,18 +237,6 @@ public:
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
-
-    // Return information about the sender for the management interface.
-    virtual void get_info(sender_info& info) {
-	info.hostname = h;
-	info.port = p;
-	info.type = "etsi";
-
-	std::ostringstream buf;
-	buf << "ETSI LI endpoint on " << h << ":" << p;
-	info.description = buf.str();
-
-    }
 
 };
 

@@ -8,6 +8,11 @@
 #include "capture.h"
 #include "packet_consumer.h"
 #include "address_map.h"
+#include "interface.h"
+#include "endpoint.h"
+#include "target.h"
+#include "parameter.h"
+
 #include <cybermon/pdu.h>
 
 #include <map>
@@ -83,32 +88,6 @@ public:
 
 };
 
-// Defines an interface.
-class intf {
-public:
-    std::string interface;
-    std::string filter;
-    float delay;
-
-    bool operator<(const intf& i) const {
-
-	if (interface < i.interface)
-	    return true;
-	else if (interface > i.interface) return false;
-
-	if (filter < i.filter)
-	    return true;
-	else if (filter > i.filter) return false;
-
-	if (delay < i.delay)
-	    return true;
-	else
-	    return false;
-
-    }
-
-};
-
 // Information extracted from the link layer.
 class link_info {
 public:
@@ -137,11 +116,11 @@ private:
 
     // Endpoints
     std::mutex senders_mutex;
-    std::map<ep, sender*> senders;
+    std::map<endpoint::spec, sender*> senders;
 
     // Interfaces
     std::mutex interfaces_mutex;
-    std::map<intf, capture_dev*> interfaces;
+    std::map<interface::spec, capture_dev*> interfaces;
 
     // Parameters and lock
     std::mutex parameters_mutex;
@@ -183,17 +162,13 @@ private:
 public:
 
     // Modifies interface capture
-    virtual void add_interface(const std::string& iface,
-			       const std::string& filter,
-			       float delay);
+    virtual void add_interface(const interface::spec& sp);
 
     // Modifies interface capture
-    virtual void remove_interface(const std::string& iface,
-				  const std::string& filter,
-				  float delay);
+    virtual void remove_interface(const interface::spec& sp);
 
     // Returns the interfaces list.
-    virtual void get_interfaces(std::list<interface_info>& ii);
+    virtual void get_interfaces(std::list<interface::spec>& ii);
 
     // Fetch a parameter.
     std::string get_parameter(const std::string& key,
@@ -222,54 +197,42 @@ public:
 				int datalink);
 
     // Modifies the target map to include a mapping from address to target.
-    void add_target(const tcpip::address& addr,
-		    unsigned int mask,
-		    const std::string& device,
-		    const std::string& network);
+    void add_target(const target::spec& sp);
 
     // Removes a target mapping.
-    void remove_target(const tcpip::address& addr,
-		       unsigned int mask);
+    void remove_target(const target::spec& sp);
 
     // Fetch current target list.
-    virtual void get_targets(std::map<int,
-			     std::map<tcpip::ip4_address, std::string> >& t4,
-			     std::map<int,
-			     std::map<tcpip::ip6_address, std::string> >& t6);
+    virtual void get_targets(std::list<target::spec>& sp);
 
     // Adds an endpoint
-    virtual void add_endpoint(const std::string& host,
-			      unsigned int port,
-			      const std::string& type,
-			      const std::string& transp,
-			      const std::map<std::string, std::string>& params);
+    virtual void add_endpoint(const endpoint::spec& sp);
 
     // Removes an endpoint
-    virtual void remove_endpoint(const std::string& host,
-				 unsigned int port,
-				 const std::string& type,
-				 const std::string& transp,
-				 const std::map<std::string, std::string>& p);
+    virtual void remove_endpoint(const endpoint::spec& sp);
 
     // Fetch current target list.
-    virtual void get_endpoints(std::list<sender_info>& info);
+    virtual void get_endpoints(std::list<endpoint::spec>& info);
 
     // Add a parameter
-    virtual void add_parameter(const std::string& key, const std::string& val) {
+    virtual void add_parameter(const parameter::spec& sp) {
         std::lock_guard<std::mutex> lock(parameters_mutex);
-	parameters[key] = val;
+	parameters[sp.key] = sp.val;
     }
 
     // Remove a parameter
-    virtual void remove_parameter(const std::string& key) {
+    virtual void remove_parameter(const parameter::spec& sp) {
         std::lock_guard<std::mutex> lock(parameters_mutex);
-	parameters.erase(key);
+	parameters.erase(sp.key);
     }
 
     // Get all parameters.
-    virtual void get_parameters(std::map<std::string,std::string>& params) {
+    virtual void get_parameters(std::list<parameter::spec>& params) {
+        params.clear();
         std::lock_guard<std::mutex> lock(parameters_mutex);
-	params = parameters;
+        for(auto it = parameters.begin(); it != parameters.end(); it++) {
+            params.push_back(parameter::spec(it->first, it->second));
+        }
     }
 
 

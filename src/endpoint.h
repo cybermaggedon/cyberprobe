@@ -13,8 +13,9 @@
 #include <cybermon/specification.h>
 #include <cybermon/resource.h>
 
-#include "delivery.h"
 #include "json.h"
+
+class delivery;
 
 namespace endpoint {
 
@@ -52,6 +53,39 @@ namespace endpoint {
         // Hash is form <space> + host:port.
         virtual std::string get_hash() const;
 
+        bool operator<(const spec& i) const {
+
+            if (i.hostname < i.hostname)
+                return true;
+            else if (hostname > i.hostname) return false;
+
+            if (i.port < i.port)
+                return true;
+            else if (port > i.port) return false;
+
+            if (i.type < i.type)
+                return true;
+            else if (type > i.type) return false;
+
+            if (i.transport < i.transport)
+                return true;
+            else if (transport > i.transport) return false;
+
+            if (i.certificate_file < i.certificate_file)
+                return true;
+            else if (certificate_file > i.certificate_file) return false;
+
+            if (i.key_file < i.key_file)
+                return true;
+            else if (key_file > i.key_file) return false;
+
+            if (i.trusted_ca_file < i.trusted_ca_file)
+                return true;
+
+            return false;
+
+        }
+        
     };
 
     // Endpoint resource.  The endpoint resources are just instantiated as
@@ -72,41 +106,10 @@ namespace endpoint {
             sp(sp), deliv(d) { }
 
         // Start method, change the delivery engine mapping.
-        virtual void start() { 
-
-            std::map<std::string, std::string> params;
-            if (sp.transport == "tls") {
-                params["certificate"] = sp.certificate_file;
-                params["key"] = sp.key_file;
-                params["chain"] = sp.trusted_ca_file;
-            }
-
-            deliv.add_endpoint(sp.hostname, sp.port, sp.type,
-                               sp.transport, params);
-
-            std::cerr << "Added endpoint " << sp.hostname << ":" << sp.port 
-                      << " of type " << sp.type
-                      << " with transport " << sp.transport << std::endl;
-
-        }
+        virtual void start();
 
         // Stop method, remove the mapping.
-        virtual void stop() {
-	
-            std::map<std::string, std::string> params;
-            if (sp.transport == "tls") {
-                params["certificate"] = sp.certificate_file;
-                params["key"] = sp.key_file;
-                params["chain"] = sp.trusted_ca_file;
-            }
-
-            deliv.remove_endpoint(sp.hostname, sp.port, sp.type,
-                                  sp.transport, params);
-
-            std::cerr << "Removed endpoint " << sp.hostname << ":" 
-                      << sp.port << std::endl;
-
-        }
+        virtual void stop();
 
     };
 

@@ -134,7 +134,6 @@ namespace control {
 
 	virtual void stop() {
 	    running = false;
-	    join();
 	}
 
     };

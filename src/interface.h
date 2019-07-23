@@ -10,12 +10,13 @@
 
 #include <cybermon/specification.h>
 #include <cybermon/resource.h>
-#include <delivery.h>
 
 #include "capture.h"
 #include "json.h"
 
 #include <string>
+
+class delivery;
 
 namespace interface {
 
@@ -44,6 +45,23 @@ namespace interface {
         // Hash is <interface>:<filter>:<delay>
         virtual std::string get_hash() const;
 
+        bool operator<(const spec& i) const {
+
+            if (ifa < i.ifa)
+                return true;
+            else if (ifa > i.ifa) return false;
+
+            if (filter < i.filter)
+                return true;
+            else if (filter > i.filter) return false;
+
+            if (delay < i.delay)
+                return true;
+
+            return false;
+
+        }
+        
     };
 
     // An interface resources, basically wraps the 'cap' class in a thread
@@ -64,25 +82,10 @@ namespace interface {
             sp(sp), deliv(d) {}
 
         // Start method.
-        virtual void start() { 
-
-            deliv.add_interface(sp.ifa, sp.filter, sp.delay);
-
-            std::cerr << "Capture on interface " << sp.ifa << " started."
-                      << std::endl;
-            if (sp.filter != "")
-                std::cerr << "  filter: " << sp.filter << std::endl;
-            if (sp.delay != 0.0)
-                std::cerr << "  delay: " << sp.delay << std::endl;
-
-        }
+        virtual void start();
 
         // Stop method.
-        virtual void stop() { 
-            deliv.remove_interface(sp.ifa, sp.filter, sp.delay);
-            std::cerr << "Capture on interface " << sp.ifa << " stopped."
-                      << std::endl;
-        }
+        virtual void stop();
 
     };
 

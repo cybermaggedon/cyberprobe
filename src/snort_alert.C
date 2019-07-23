@@ -129,12 +129,14 @@ void snort_alerter::run()
 
 	    unsigned int mask;
 
+            bool ipv4 = false;
+
 	    // IP version.
 	    if ((ip_hdr[0] & 0xf0) == 0x40) {
 
 		// IPv4 case.
 		src4.addr.assign(ip_hdr + 12, ip_hdr + 16);
-		src = &src4;
+                ipv4 = true;
 		targeting = (timeout4.find(src4) != timeout4.end());
 		// Just targeting single IP address, so use full mask.
 		mask = 32;	
@@ -143,7 +145,7 @@ void snort_alerter::run()
 
 		// IPv6 case.
 		src6.addr.assign(ip_hdr + 8, ip_hdr + 24);
-		src = &src6;
+                ipv4 = false;
 		targeting = (timeout6.find(src6) != timeout6.end());
 		// Just targeting single IP address, so use full mask.
 		mask = 128;
@@ -174,10 +176,22 @@ void snort_alerter::run()
                     fallb << std::hex << (int) *it;
 		}
 
-		std::string device = deliv.get_parameter(buf.str(), fallb.str());
+		std::string device = deliv.get_parameter(buf.str(),
+                                                         fallb.str());
 
 		// FIXME: Can't control network parameter.
-		deliv.add_target(*src, mask, device, "");
+                target::spec sp;
+                if (ipv4) {
+                    sp.addr = src4;
+                    sp.universe = sp.IPv4;
+                } else {
+                    sp.addr6 = src6;
+                    sp.universe = sp.IPv6;
+                }
+                sp.mask = mask;
+                sp.device = device;
+                sp.network = "";
+		deliv.add_target(sp);
 
 	    }
 
@@ -217,9 +231,13 @@ void snort_alerter::run()
 			      << std::endl;
 
 		    // IPv4 address, use full address mask.
-		    deliv.remove_target(it->first, 32);
+                    target::spec sp;
+                    sp.addr = it->first;
+                    sp.universe = sp.IPv4;
+                    sp.mask = 32;
+		    deliv.remove_target(sp);
 
-		    std::map<tcpip::ip4_address, long>::iterator nxt = it;
+		    auto nxt = it;
 		    nxt++;
 		    timeout4.erase(it);
 		    it = nxt;
@@ -244,9 +262,14 @@ void snort_alerter::run()
 			      << std::endl;
 
 		    // IPv6 address, use full address mask.
-		    deliv.remove_target(it->first, 128);
+                    target::spec sp;
+                    sp.addr6 = it->first;
+                    sp.universe = sp.IPv6;
+                    sp.mask = 128;
 
-		    std::map<tcpip::ip6_address, long>::iterator nxt = it;
+		    deliv.remove_target(sp);
+
+		    auto nxt = it;
 		    nxt++;
 		    timeout6.erase(it);
 		    it = nxt;
@@ -272,7 +295,11 @@ void snort_alerter::run()
 		  << std::endl;
 
 	// Currently only targeting single addresses, use full address mask.
-	deliv.remove_target(it->first, 32);
+        target::spec sp;
+        sp.addr = it->first;
+        sp.universe = sp.IPv4;
+        sp.mask = 32;
+	deliv.remove_target(sp);
 
     }
 
@@ -287,7 +314,11 @@ void snort_alerter::run()
 		  << std::endl;
 
 	// Currently only targeting single addresses, use full address mask.
-	deliv.remove_target(it->first, 128);
+        target::spec sp;
+        sp.addr6 = it->first;
+        sp.universe = sp.IPv6;
+        sp.mask = 128;
+	deliv.remove_target(sp);
 
     }
 

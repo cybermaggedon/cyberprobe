@@ -1,6 +1,8 @@
 
 #include "control.h"
 #include "management.h"
+#include "json.h"
+#include "parameter.h"
 
 #include <vector>
 #include <mutex>
@@ -152,6 +154,7 @@ namespace control {
             << resp.size() << "\n";
         s->write(buf.str());
         s->write(resp);
+        s->write("\n");
         std::cerr << "Reply: " << status << " " << msg << std::endl;
     }
 
@@ -159,19 +162,11 @@ namespace control {
     void connection::cmd_endpoints()
     {
 
-        std::list<sender_info> si;
+        std::list<endpoint::spec> si;
         d.get_endpoints(si);
-    
-        std::ostringstream buf;
-    
-        for(std::list<sender_info>::iterator it = si.begin();
-            it != si.end();
-            it++) {
-            buf << it->hostname << ":" << it->port << ":" 
-                << it->type << ":" << it->description << "\n";
-        }
 
-        response(201, "Endpoints list follows.", buf.str());
+        json j(si);
+        response(201, "Endpoints list follows.", j.dump());
 
     }
 
@@ -179,7 +174,7 @@ namespace control {
     void connection::cmd_interfaces()
     {
 
-        std::list<interface_info> ii;
+        std::list<interface::spec> ii;
     
         try {
             d.get_interfaces(ii);
@@ -188,16 +183,8 @@ namespace control {
             return;
         }
 
-        std::ostringstream buf;
-    
-        for(std::list<interface_info>::iterator it = ii.begin();
-            it != ii.end();
-            it++) {
-            buf << it->interface << ":" << it->delay << ":" 
-                << it->filter << "\n";
-        }
-    
-        response(201, "Interfaces list follows.", buf.str());
+        json j(ii);
+        response(201, "Interfaces list follows,", j.dump());
 
     }
 
@@ -205,19 +192,12 @@ namespace control {
     void connection::cmd_parameters()
     {
 
-        std::map<std::string,std::string> p;
+        std::list<parameter::spec> p;
     
         d.get_parameters(p);
 
-        std::ostringstream buf;
-    
-        for(std::map<std::string,std::string>::iterator it = p.begin();
-            it != p.end();
-            it++) {
-            buf << it->first << ":" << it->second << "\n";
-        }
-    
-        response(201, "Paramter list follows.", buf.str());
+        json j(p);
+        response(201, "Paramter list follows.", j.dump());
 
     }
 
@@ -225,47 +205,12 @@ namespace control {
     void connection::cmd_targets()
     {
 
-        std::map<int, std::map<tcpip::ip4_address, std::string> > t4;
-        std::map<int, std::map<tcpip::ip6_address, std::string> > t6;
+        std::list<target::spec> lst;
 		    
-        d.get_targets(t4, t6);
+        d.get_targets(lst);
 
-        std::ostringstream buf;
-
-        for(std::map<int, std::map< tcpip::ip4_address, std::string> >::iterator it
-                = t4.begin();
-            it != t4.end();
-            it++) {
-
-            for(std::map<tcpip::ip4_address, std::string>::iterator it2
-                    = it->second.begin();
-                it2 != it->second.end();
-                it2++) {
-
-                buf << it2->second << ":" << "ipv4" << ":" 
-                    << it2->first << "/" << it->first << "\n";
-
-            }
-        }
-    
-        for(std::map<int, std::map<tcpip::ip6_address, std::string> >::iterator it
-                = t6.begin();
-            it != t6.end();
-            it++) {
-	
-            for(std::map<tcpip::ip6_address, std::string>::iterator it2
-                    = it->second.begin();
-                it2 != it->second.end();
-                it2++) {
-
-                buf << it2->second << ":" << "ipv6" << ":" 
-                    << it2->first << "/" << it->first << "\n";
-
-            }
-
-        }
-    
-        response(201, "Targets list follows.", buf.str());
+        json j(lst);
+        response(201, "Targets list follows,", j.dump());
 
     }
 
@@ -288,7 +233,11 @@ namespace control {
             filter = lst[3];
     
         try {
-            d.add_interface(iface, filter, delay);
+            interface::spec sp;
+            sp.ifa = iface;
+            sp.filter = filter;
+            sp.delay = delay;
+            d.add_interface(sp);
             ok(200, "Added interface.");
         } catch (...) {
             error(500, "Failed to add interface.");
@@ -315,7 +264,12 @@ namespace control {
             filter = lst[3];
     
         try {
-            d.remove_interface(iface, filter, delay);
+         interface::spec sp;
+            sp.ifa = iface;
+            sp.filter = filter;
+            sp.delay = delay;
+            d.add_interface(sp);
+            d.remove_interface(sp);
             ok(200, "Removed interface.");
         } catch (...) {
             error(500, "Failed to remove interface.");
@@ -333,7 +287,7 @@ namespace control {
             return;
         }
 
-        std::string liid = lst[1];
+        std::string device = lst[1];
         std::string cls = lst[2];
 
         if (cls == "ipv4") {
@@ -345,7 +299,13 @@ namespace control {
                 tcpip::ip4_address::parse(lst[3], a4, mask);
 
                 // FIXME: Can't control network parameter.
-                d.add_target(a4, mask, liid, "");
+                target::spec sp;
+                sp.addr = a4;
+                sp.mask = mask;
+                sp.universe = sp.IPv4;
+                sp.device = device;
+                sp.network = "";
+                d.add_target(sp);
 
             } catch (...) {
                 error(302, "Failed to parse address.");
@@ -363,8 +323,16 @@ namespace control {
                 unsigned int mask;
                 tcpip::ip6_address a6;
                 tcpip::ip6_address::parse(lst[3], a6, mask);
+
                 // FIXME: Can't control network parameter.
-                d.add_target(a6, mask, liid, "");
+                target::spec sp;
+                sp.addr6 = a6;
+                sp.mask = mask;
+                sp.universe = sp.IPv4;
+                sp.device = device;
+                sp.network = "";
+                d.add_target(sp);
+
             } catch (...) {
                 error(302, "Failed to parse address.");
                 return;
@@ -396,7 +364,15 @@ namespace control {
                 unsigned int mask;
                 tcpip::ip4_address a4;
                 tcpip::ip4_address::parse(lst[2], a4, mask);
-                d.remove_target(a4, mask);
+
+                // FIXME: Using the spec seems kludgy?  It's not completely
+                // filled out.
+                target::spec sp;
+                sp.addr = a4;
+                sp.mask = mask;
+                sp.universe = sp.IPv4;
+
+                d.remove_target(sp);
             } catch (...) {
                 error(302, "Failed to parse address.");
                 return;
@@ -410,10 +386,20 @@ namespace control {
         if (cls == "ipv6") {
 	
             try {
+
                 unsigned int mask;
                 tcpip::ip6_address a6;
                 tcpip::ip6_address::parse(lst[2], a6, mask);
-                d.remove_target(a6, mask);
+
+                // FIXME: Using the spec seems kludgy?  It's not completely
+                // filled out.
+                target::spec sp;
+                sp.addr6 = a6;
+                sp.mask = mask;
+                sp.universe = sp.IPv6;
+
+                d.remove_target(sp);
+
             } catch (...) {
                 error(302, "Failed to parse address.");
                 return;
@@ -447,8 +433,12 @@ namespace control {
         try {
 
             // FIXME: Allow parameters to be added.
-            std::map<std::string, std::string> params;
-            d.add_endpoint(host, port, type, transport, params);
+            endpoint::spec ep;
+            ep.hostname = host;
+            ep.port = port;
+            ep.type = type;
+            ep.transport = transport;
+            d.add_endpoint(ep);
             ok(200, "Added endpoint.");
         } catch (...) {
             error(500, "Failed to add endpoint.");
@@ -474,8 +464,12 @@ namespace control {
     
         try {
             // FIXME: Allow parameters to be added.
-            std::map<std::string, std::string> params;
-            d.remove_endpoint(host, port, type, transport, params);
+            endpoint::spec ep;
+            ep.hostname = host;
+            ep.port = port;
+            ep.type = type;
+            ep.transport = transport;
+            d.remove_endpoint(ep);
             ok(200, "Removed endpoint.");
         } catch (...) {
             error(500, "Failed to remove endpoint.");
@@ -497,7 +491,8 @@ namespace control {
         std::string val = lst[2];
     
         try {
-            d.add_parameter(key, val);
+            parameter::spec sp(key, val);
+            d.add_parameter(sp);
             ok(200, "Added parameter.");
         } catch (...) {
             error(500, "Failed to add parameter.");
@@ -517,7 +512,10 @@ namespace control {
         std::string key = lst[1];
     
         try {
-            d.remove_parameter(key);
+            // FIXME: Looks ugly?
+            parameter::spec sp;
+            sp.key = key;
+            d.remove_parameter(sp);
             ok(200, "Removed parameter.");
         } catch (...) {
             error(500, "Failed to remove parameter.");
@@ -528,6 +526,7 @@ namespace control {
     // 'auth' command.
     void connection::cmd_auth(const std::vector<std::string>& lst)
     {
+
         if (lst.size() != 3) {
             error(301, "Usage: auth <user> <password>");
             return;
@@ -624,9 +623,30 @@ namespace control {
 
                     std::cerr << "Command: " << line << std::endl;
 
-                    // Tokenise.
-                    std::vector<std::string> lst;
-                    tokenise(line, lst);
+                    json j;
+                    try {
+                        j = json::parse(line);
+                    } catch (...) {
+                        error(301, "Could not parse JSON");
+                        continue;
+                    }
+
+                    if (j["action"].is_null()) {
+                        error(301, "Must specify 'action'");
+                        continue;
+                    }
+
+                    if (j["action"] == "help") {
+                        error(305, "Help not implemented.");
+                        continue;
+                    }
+
+                    if (j["action"] == "auth") {
+                        cmd_auth(j);
+                        continue;
+                    }
+
+#ifdef ASDASD
 
                     if (lst.empty()) {
                         ok(200, "Nothing to do.");
@@ -713,7 +733,9 @@ namespace control {
                     if (lst.front() == "remove_parameter") {
                         cmd_remove_parameter(lst);
                         continue;
-                    } 
+                    }
+
+#endif
 
                     error(301, "Command not known.");
 

@@ -1,9 +1,11 @@
 
 #include <cybermon/specification.h>
 #include <cybermon/resource.h>
+#include <cybermon/socket.h>
 
 #include "target.h"
 #include "json.h"
+#include "delivery.h"
 
 using json = nlohmann::json;
 
@@ -49,7 +51,7 @@ namespace target {
         
         if (cls != "ipv4" && cls != "ipv6")
             throw std::runtime_error("Class must be ipv4 or ipv6");
-        
+
         std::string address;
         j.at("address").get_to(address);
         
@@ -66,14 +68,12 @@ namespace target {
             s.mask = 128;
         
         if (cls == "ipv4") {
-            
             // Convert string to an IPv4 address.
             tcpip::ip4_address addr;
             s.addr.from_string(address);
             s.universe = s.IPv4;
             
         } else {
-            
             // Convert string to an IPv6 address.
             tcpip::ip6_address addr;
             s.addr6.from_string(address);
@@ -81,6 +81,40 @@ namespace target {
 
         }
 	
+    }
+
+        // Start method, change the delivery engine mapping.
+    void target::start() { 
+
+        std::string txt;
+
+        deliv.add_target(sp);
+        if (sp.universe == spec::IPv4)
+            sp.addr.to_string(txt);
+        else
+            sp.addr6.to_string(txt);
+        
+        std::cerr << "Added target " << txt << "/" << sp.mask
+                  << " -> " 
+                  << sp.device << "." << std::endl;
+        
+    }
+
+    void target::stop() { 
+
+        std::string txt;
+
+        if (sp.universe == spec::IPv4)
+            sp.addr.to_string(txt);
+        else
+            sp.addr6.to_string(txt);
+
+        deliv.remove_target(sp);
+        
+        std::cerr << "Removed target " << txt << "/" << sp.mask
+                  << " -> " 
+                  << sp.device << "." << std::endl;
+
     }
 
 };

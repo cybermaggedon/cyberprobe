@@ -7,6 +7,10 @@
 #include <regex>
 #include <iomanip>
 
+#include "json.h"
+
+using json = nlohmann::json;
+
 std::vector<std::string> commands;
 std::vector<std::string> add_commands;
 std::vector<std::string> remove_commands;
@@ -48,7 +52,53 @@ bool cmd_data(tcpip::tcp_socket& sock, const std::string& cmd,
     return true;
 
 }
-    
+
+void cmd_json(tcpip::tcp_socket& sock,
+              const json& req, json& res)
+{
+
+    sock.write(req.dump() + "\n");
+
+    std::string line;
+    sock.readline(line);
+    int len = std::stoi(line);
+    sock.read(line, len);
+    res = json::parse(line);
+
+    if (res["status"].is_null())
+        throw std::runtime_error("No 'status' field");
+
+    int status = std::stoi(res["status"].get<std::string>());
+
+    if (status < 200 || status >= 300) {
+        if (res["error"].is_null())
+            throw std::runtime_error("Error status, but no 'error' field");
+        throw std::runtime_error(res["error"]);
+    }
+
+}
+
+void cmd_auth(tcpip::tcp_socket& sock,
+              const std::string& username,
+              const std::string& password)
+{
+
+    try {
+
+        json req = {
+            {"username", username},
+            {"password", password}
+        };
+
+        json res;
+        cmd_json(sock, req, res);
+
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+
+}
+        
 void cmd_do(tcpip::tcp_socket& s, const std::string& cmd)
 {
 
@@ -194,9 +244,14 @@ void cmd_targets(tcpip::tcp_socket& sock)
 void cmd_interfaces(tcpip::tcp_socket& sock) 
 {
 
-    std::string result;
-    cmd_data(sock, "interfaces", result);
+    json req = {
+        { "action", "get-interfaces" }
+    };
 
+    json res;
+    cmd_json(sock, req, res);
+
+#ifdef ASD
     std::cout.setf(std::ios::left);
 
     std::cout << std::setw(20) << "Interface"
@@ -232,7 +287,9 @@ void cmd_interfaces(tcpip::tcp_socket& sock)
 		  << std::endl;
 
     }
-    
+
+#endif
+      
 }
 
 void cmd_parameters(tcpip::tcp_socket& sock) 
@@ -268,7 +325,7 @@ void cmd_parameters(tcpip::tcp_socket& sock)
 		  << std::endl;
 
     }
-    
+  
 }
 
 bool generator(const std::string& partial, std::string& match) 

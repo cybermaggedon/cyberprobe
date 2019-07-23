@@ -10,8 +10,9 @@
 
 #include <cybermon/resource.h>
 
-#include "delivery.h"
 #include "json.h"
+
+class delivery;
 
 namespace parameter {
 
@@ -57,18 +58,10 @@ namespace parameter {
             sp(sp), deliv(d) { }
 
         // Start method, change the delivery engine mapping.
-        virtual void start() { 
-            deliv.add_parameter(sp.key, sp.val);
-            std::cerr << "Added parameter " << sp.key << "=" << sp.val 
-                      << std::endl;
-        }
+        virtual void start();
 
         // Stop method, remove the mapping.
-        virtual void stop() { 
-            deliv.remove_parameter(sp.key);
-            std::cerr << "Removed parameter " << sp.key << "=" << sp.val 
-                      << std::endl;
-        }
+        virtual void stop();
 
     };
 

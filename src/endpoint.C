@@ -3,6 +3,7 @@
 
 #include "endpoint.h"
 #include "json.h"
+#include "delivery.h"
 
 namespace endpoint {
 
@@ -50,6 +51,25 @@ namespace endpoint {
         json j = *this;
         return " " + j.dump();
         
+    }
+
+    void endpoint::start() { 
+
+        deliv.add_endpoint(sp);
+
+        std::cerr << "Added endpoint " << sp.hostname << ":" << sp.port 
+                  << " of type " << sp.type
+                  << " with transport " << sp.transport << std::endl;
+
+    }
+
+    void endpoint::stop() {
+	
+        deliv.remove_endpoint(sp);
+
+        std::cerr << "Removed endpoint " << sp.hostname << ":" 
+                  << sp.port << std::endl;
+
     }
 
 };

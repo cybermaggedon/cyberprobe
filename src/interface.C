@@ -1,6 +1,7 @@
 
 #include "interface.h"
 #include "json.h"
+#include "delivery.h"
 
 using json = nlohmann::json;
 
@@ -30,6 +31,25 @@ namespace interface {
         return j.dump();
     }
 
+    void iface::start() {
+
+        deliv.add_interface(sp);
+
+        std::cerr << "Capture on interface " << sp.ifa << " started."
+                  << std::endl;
+        if (sp.filter != "")
+            std::cerr << "  filter: " << sp.filter << std::endl;
+        if (sp.delay != 0.0)
+            std::cerr << "  delay: " << sp.delay << std::endl;
+
+    }
+
+    void iface::stop() { 
+        deliv.remove_interface(sp);
+        std::cerr << "Capture on interface " << sp.ifa << " stopped."
+                  << std::endl;
+    }
+    
 };
 
 

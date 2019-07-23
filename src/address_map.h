@@ -29,15 +29,12 @@
 template <class A, class T>
 class address_map {
 
-private:
 public:
     typedef std::map<A,T> single_map;
     typedef std::map<unsigned int,single_map> mask_map;
     typedef typename std::map<unsigned int,single_map>::const_reverse_iterator
     iter;
     mask_map m;
-
-public:
 
     // Adds a key to the map, address 'a', mask 'mask', value 't'.
     void insert(const A& a, unsigned int mask, T t) {
