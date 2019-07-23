@@ -84,7 +84,7 @@ namespace control {
 	void cmd_add_endpoint(const std::vector<std::string>& lst);
 	void cmd_remove_endpoint(const std::vector<std::string>& lst);
 	void cmd_help();
-	void cmd_auth(const std::vector<std::string>& lst);
+	void cmd_auth(const json& j);
 	void cmd_add_parameter(const std::vector<std::string>& lst);
 	void cmd_remove_parameter(const std::vector<std::string>& lst);
 
@@ -101,6 +101,7 @@ namespace control {
 	// Response with payload.
 	void response(int status, const std::string& msg,
 		      const std::string& response);
+        void response(const json& j);
 
 	// Thread body.
 	virtual void run();

@@ -68,17 +68,16 @@ void cmd_json(tcpip::tcp_socket& sock,
     if (res["status"].is_null())
         throw std::runtime_error("No 'status' field");
 
-    int status = std::stoi(res["status"].get<std::string>());
-
+    int status = res["status"].get<int>();
     if (status < 200 || status >= 300) {
-        if (res["error"].is_null())
-            throw std::runtime_error("Error status, but no 'error' field");
-        throw std::runtime_error(res["error"]);
+        if (res["message"].is_null())
+            throw std::runtime_error("Error status, but no 'message' field");
+        throw std::runtime_error(res["message"]);
     }
 
 }
 
-void cmd_auth(tcpip::tcp_socket& sock,
+bool cmd_auth(tcpip::tcp_socket& sock,
               const std::string& username,
               const std::string& password)
 {
@@ -86,15 +85,18 @@ void cmd_auth(tcpip::tcp_socket& sock,
     try {
 
         json req = {
+            {"action", "auth"},
             {"username", username},
             {"password", password}
         };
 
         json res;
         cmd_json(sock, req, res);
+        return true;
 
     } catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
+        return false;
     }
 
 }
@@ -249,46 +251,36 @@ void cmd_interfaces(tcpip::tcp_socket& sock)
     };
 
     json res;
-    cmd_json(sock, req, res);
 
-#ifdef ASD
-    std::cout.setf(std::ios::left);
+    try {
+        cmd_json(sock, req, res);
 
-    std::cout << std::setw(20) << "Interface"
-	      << std::setw(8) << "Delay"
-	      << std::setw(50) << "Filter"
-	      << std::endl;
+        std::cout.setf(std::ios::left);
+
+        std::cout << std::setw(20) << "Interface"
+                  << std::setw(8) << "Delay"
+                  << std::setw(50) << "Filter"
+                  << std::endl;
     
-    std::cout << std::setw(20) << "---------"
-	      << std::setw(8) << "-----"
-	      << std::setw(50) << "------"
-	      << std::endl;
+        std::cout << std::setw(20) << "---------"
+                  << std::setw(8) << "-----"
+                  << std::setw(50) << "------"
+                  << std::endl;
     
-    while (1) {
+        for(auto it = res["interfaces"].begin();
+            it != res["interfaces"].end(); it++) {
 
-	int pos = result.find(":");
-	if (pos == -1) break;
-	std::string interface = result.substr(0, pos);
-	result = result.substr(pos + 1);
+            std::cout << std::setw(20) << (*it)["interface"].get<std::string>()
+                      << std::setw(8) << (*it)["delay"].get<double>()
+                      << std::setw(50) << (*it)["filter"].get<std::string>()
+                      << std::endl;
 
-	pos = result.find(":");
-	if (pos == -1) break;
-	std::string delay = result.substr(0, pos);
-	result = result.substr(pos + 1);
+        }
 
-	pos = result.find("\n");
-	if (pos == -1) break;
-	std::string filter = result.substr(0, pos);
-	result = result.substr(pos + 1);
-
-	std::cout << std::setw(20) << interface
-		  << std::setw(8) << delay
-		  << std::setw(50) << filter
-		  << std::endl;
-
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return;
     }
-
-#endif
       
 }
 
@@ -531,25 +523,16 @@ int client(int argc, char** argv)
 
 	readline::get_password("Password: ", password);
 
-	std::string cmd = "auth " + user + " " + password + "\n";
-
-	sock.write(cmd);
-
-	std::string response;
-	sock.readline(response);
-
-	std::string status;
-	int pos = response.find(" ");
-	if (pos != -1)
-	    status = response.substr(0, pos);
-
-	if (status == "200") {
-	    std::cout << "Authentication successful." << std::endl;
-	    break;
-	} else
-	    std::cout << response << std::endl;
+        try {
+            bool success = cmd_auth(sock, user, password);
+            if (success) break;
+        } catch (std::exception& e) {
+            std::cerr << e.what() << std::endl;
+        }
 
     }
+
+    std::cerr << "HERE" << std::endl;
 
     while (1) {
 

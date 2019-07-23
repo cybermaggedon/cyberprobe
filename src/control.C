@@ -130,32 +130,45 @@ namespace control {
     // Return an OK response (should be status=200).
     void connection::ok(int status, const std::string& msg)
     {
-        std::ostringstream buf;
-        buf << status << " " << msg << "\n";
-        s->write(buf.str());
+     json j = {
+            {"status", status},
+            {"message", msg}
+        };
+
+        std::string e = j.dump();
+        s->write(std::to_string(e.size()) + "\n");
+        s->write(e);
+
         std::cerr << "Reply: " << status << " " << msg << std::endl;
+
     }
 
     // Return an ERROR response (should be status=3xx or 5xx).
     void connection::error(int status, const std::string& msg)
     {
-        std::ostringstream buf;
-        buf << status << " " << msg << "\n";
-        s->write(buf.str());
+        json j = {
+            {"status", status},
+            {"message", msg}
+        };
+
+        std::string e = j.dump();
+        s->write(std::to_string(e.size()) + "\n");
+        s->write(e);
+
         std::cerr << "Reply: " << status << " " << msg << std::endl;
+
     }
 
     // Return an OK response with payload (should be status=201).
-    void connection::response(int status, const std::string& msg,
-                              const std::string& resp)
+    void connection::response(const json& j)
     {
-        std::ostringstream buf;
-        buf << status << " " << msg << "\n" 
-            << resp.size() << "\n";
-        s->write(buf.str());
-        s->write(resp);
-        s->write("\n");
-        std::cerr << "Reply: " << status << " " << msg << std::endl;
+
+        std::string e = j.dump();
+        s->write(std::to_string(e.size()) + "\n");
+        s->write(e);
+
+        std::cerr << "Reply: " << e << std::endl;
+
     }
 
     // 'endpoints' command.
@@ -166,7 +179,7 @@ namespace control {
         d.get_endpoints(si);
 
         json j(si);
-        response(201, "Endpoints list follows.", j.dump());
+//        response(201, "Endpoints list follows.", j.dump());
 
     }
 
@@ -183,8 +196,13 @@ namespace control {
             return;
         }
 
-        json j(ii);
-        response(201, "Interfaces list follows,", j.dump());
+        json j = {
+            {"status", 201},
+            {"message", "Interfaces list."},
+            {"interfaces", ii}
+        };
+
+        response(j);
 
     }
 
@@ -197,7 +215,7 @@ namespace control {
         d.get_parameters(p);
 
         json j(p);
-        response(201, "Paramter list follows.", j.dump());
+//        response(201, "Paramter list follows.", j.dump());
 
     }
 
@@ -210,7 +228,7 @@ namespace control {
         d.get_targets(lst);
 
         json j(lst);
-        response(201, "Targets list follows,", j.dump());
+//        response(201, "Targets list follows,", j.dump());
 
     }
 
@@ -524,21 +542,24 @@ namespace control {
     }
 
     // 'auth' command.
-    void connection::cmd_auth(const std::vector<std::string>& lst)
+    void connection::cmd_auth(const json& j)
     {
 
-        if (lst.size() != 3) {
-            error(301, "Usage: auth <user> <password>");
-            return;
-        }
+        try {
 
-        if (lst[1] == sp.username && lst[2] == sp.password) {
-            auth = true;
-            ok(200, "Authenticated.");
-            return;
-        }
+            if (j["username"].get<std::string>() == sp.username &&
+                j["password"].get<std::string>() == sp.password) {
+                auth = true;
+                ok(200, "Authenticated.");
+                return;
+            }
 
-        error(331, "Authentication failure.");
+            error(331, "Authentication failure.");
+            return;
+
+        } catch (std::exception& e) {
+            error(500, e.what());
+        }
 
     }
 
@@ -594,7 +615,7 @@ namespace control {
             << "      Lists parameters, format is key:value\n"
             << "\n";
 
-        response(201, "Help information follows.", buf.str());
+//        response(201, "Help information follows.", buf.str());
     }
 
     // connection body, handles a single connection.
@@ -625,6 +646,7 @@ namespace control {
 
                     json j;
                     try {
+                        std::cerr << line << std::endl;
                         j = json::parse(line);
                     } catch (...) {
                         error(301, "Could not parse JSON");
@@ -643,6 +665,11 @@ namespace control {
 
                     if (j["action"] == "auth") {
                         cmd_auth(j);
+                        continue;
+                    }
+
+                    if (j["action"] == "get-interfaces") {
+                        cmd_interfaces();
                         continue;
                     }
 
