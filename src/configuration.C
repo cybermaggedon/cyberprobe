@@ -10,55 +10,6 @@
 
 using json = nlohmann::json;
 
-namespace parameter {
-
-    void to_json(json& j, const spec& s) {
-        j = json{{"key", s.key},
-                 {"value", s.val}};
-    }
-    
-    void from_json(const json& j, spec& s) {
-        j.at("key").get_to(s.key);
-        j.at("value").get_to(s.val);
-    }
-
-    std::string spec::get_hash() const {
-
-        // See that space before the hash?  It means that endpoint
-        // hashes are "less than" other hashes, which means they are at the
-        // front of the set.  This means endpoints are started before
-        // targets.
-        
-        // The end result of that, is that we know endpoints will be
-        // configured before targets are added to the delivery engine,
-        // which means that 'target up' messages will be sent on targets
-        // configured in the config file.
-
-        json j = *this;
-        return "   " + j.dump();
-
-    }
-
-};
-
-namespace snort_alert {
-
-    void to_json(json& j, const spec& s) {
-        j = json{{"path", s.path}, {"duration", s.duration}};
-    }
-
-    void from_json(const json& j, spec& s) {
-        j.at("path").get_to(s.path);
-        j.at("duration").get_to(s.duration);
-    }
-
-    std::string spec::get_hash() const { 
-        json j = *this;
-        return " " + j.dump();            
-    }
-
-};
-
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
 			  std::list<cybermon::specification*>& lst)

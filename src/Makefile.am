@@ -7,7 +7,7 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	sender.h delivery.h capture.h endpoint.C \
 	configuration.h control.h snort_alert.h target.h target.C \
 	parameters.h packet_consumer.h interface.h interface.C \
-	endpoint.h parameter.h \
+	endpoint.h parameter.h parameter.C \
 	vxlan_capture.h vxlan_capture.C
 cyberprobe_LDADD = libcybermon.la -lssl
 
@@ -19,7 +19,9 @@ endif
 cybermon_SOURCES = cybermon.C management.h 
 cybermon_LDADD = libcybermon.la -lssl
 
-cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h
+cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h interface.h \
+	interface.C endpoint.h endpoint.C parameter.h parameter.C \
+	target.h target.C
 cyberprobe_cli_LDADD = libcybermon.la -lssl
 
 nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C

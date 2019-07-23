@@ -14,6 +14,8 @@
 
 namespace snort_alert {
 
+    using json = nlohmann::json;
+
     // Specification for a snort alerter.
     class spec : public cybermon::specification {
 
@@ -93,6 +95,10 @@ namespace snort_alert {
         }
     
     };
+
+    void to_json(json& j, const spec& s);
+
+    void from_json(const json& j, spec& s);
 
 };
 

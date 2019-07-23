@@ -1,6 +1,8 @@
 
 #include "control.h"
 #include "management.h"
+#include "json.h"
+#include "parameter.h"
 
 #include <vector>
 #include <mutex>
@@ -94,84 +96,64 @@ namespace control {
 
     }
 
-    // Command line tokenisation.  Looks for space-separated tokens, just
-    // returns a list of tokens.
-    void connection::tokenise(const std::string& line, 
-                              std::vector<std::string>& tok)
-    {
-
-        std::string left = line;
-
-        tok.clear();
-
-        while (!left.empty()) {
-
-            left.erase(0, left.find_first_not_of(" \t"));
-	
-            int pos = left.find_first_of(" \t");
-            if (pos != -1) {
-
-                tok.push_back(left.substr(0, pos));
-                left.erase(0, pos+1);
-
-            } else if (!left.empty()) {
-
-                tok.push_back(left);
-                left.clear();
-
-            }
-
-        }
-
-    }
-
     // Return an OK response (should be status=200).
     void connection::ok(int status, const std::string& msg)
     {
-        std::ostringstream buf;
-        buf << status << " " << msg << "\n";
-        s->write(buf.str());
-        std::cerr << "Reply: " << status << " " << msg << std::endl;
+        json j = {
+            {"status", status},
+            {"message", msg}
+        };
+
+        std::string e = j.dump();
+        s->write(std::to_string(e.size()) + "\n");
+        s->write(e);
+
     }
 
     // Return an ERROR response (should be status=3xx or 5xx).
     void connection::error(int status, const std::string& msg)
     {
-        std::ostringstream buf;
-        buf << status << " " << msg << "\n";
-        s->write(buf.str());
-        std::cerr << "Reply: " << status << " " << msg << std::endl;
+        json j = {
+            {"status", status},
+            {"message", msg}
+        };
+
+        std::string e = j.dump();
+        s->write(std::to_string(e.size()) + "\n");
+        s->write(e);
+
     }
 
     // Return an OK response with payload (should be status=201).
-    void connection::response(int status, const std::string& msg,
-                              const std::string& resp)
+    void connection::response(const json& j)
     {
-        std::ostringstream buf;
-        buf << status << " " << msg << "\n" 
-            << resp.size() << "\n";
-        s->write(buf.str());
-        s->write(resp);
-        std::cerr << "Reply: " << status << " " << msg << std::endl;
+
+        std::string e = j.dump();
+        s->write(std::to_string(e.size()) + "\n");
+        s->write(e);
+
     }
 
     // 'endpoints' command.
     void connection::cmd_endpoints()
     {
 
-        std::list<sender_info> si;
-        d.get_endpoints(si);
+        std::list<endpoint::spec> es;
     
-        std::ostringstream buf;
-    
-        for(std::list<sender_info>::iterator it = si.begin();
-            it != si.end();
-            it++) {
-            buf << it->hostname << ":" << it->port << ":" 
-                << it->type << ":" << it->description << "\n";
+        try {
+            d.get_endpoints(es);
+        } catch (std::exception& e) {
+            error(500, e.what());
+            return;
         }
 
-        response(201, "Endpoints list follows.", buf.str());
+        json j = {
+            {"status", 201},
+            {"message", "Endpoints list."},
+            {"endpoints", es}
+        };
+
+        response(j);
 
     }
 
@@ -179,7 +161,7 @@ namespace control {
     void connection::cmd_interfaces()
     {
 
-        std::list<interface_info> ii;
+        std::list<interface::spec> ii;
     
         try {
             d.get_interfaces(ii);
@@ -188,16 +170,13 @@ namespace control {
             return;
         }
 
-        std::ostringstream buf;
-    
-        for(std::list<interface_info>::iterator it = ii.begin();
-            it != ii.end();
-            it++) {
-            buf << it->interface << ":" << it->delay << ":" 
-                << it->filter << "\n";
-        }
-    
-        response(201, "Interfaces list follows.", buf.str());
+        json j = {
+            {"status", 201},
+            {"message", "Interfaces list."},
+            {"interfaces", ii}
+        };
+
+        response(j);
 
     }
 
@@ -205,19 +184,22 @@ namespace control {
     void connection::cmd_parameters()
     {
 
-        std::map<std::string,std::string> p;
+        std::list<parameter::spec> ii;
     
-        d.get_parameters(p);
-
-        std::ostringstream buf;
-    
-        for(std::map<std::string,std::string>::iterator it = p.begin();
-            it != p.end();
-            it++) {
-            buf << it->first << ":" << it->second << "\n";
+        try {
+            d.get_parameters(ii);
+        } catch (std::exception& e) {
+            error(500, e.what());
+            return;
         }
-    
-        response(201, "Paramter list follows.", buf.str());
+
+        json j = {
+            {"status", 201},
+            {"message", "Parameters list."},
+            {"parameters", ii}
+        };
+
+        response(j);
 
     }
 
@@ -225,377 +207,186 @@ namespace control {
     void connection::cmd_targets()
     {
 
-        std::map<int, std::map<tcpip::ip4_address, std::string> > t4;
-        std::map<int, std::map<tcpip::ip6_address, std::string> > t6;
-		    
-        d.get_targets(t4, t6);
-
-        std::ostringstream buf;
-
-        for(std::map<int, std::map< tcpip::ip4_address, std::string> >::iterator it
-                = t4.begin();
-            it != t4.end();
-            it++) {
-
-            for(std::map<tcpip::ip4_address, std::string>::iterator it2
-                    = it->second.begin();
-                it2 != it->second.end();
-                it2++) {
-
-                buf << it2->second << ":" << "ipv4" << ":" 
-                    << it2->first << "/" << it->first << "\n";
-
-            }
-        }
+        std::list<target::spec> ii;
     
-        for(std::map<int, std::map<tcpip::ip6_address, std::string> >::iterator it
-                = t6.begin();
-            it != t6.end();
-            it++) {
-	
-            for(std::map<tcpip::ip6_address, std::string>::iterator it2
-                    = it->second.begin();
-                it2 != it->second.end();
-                it2++) {
-
-                buf << it2->second << ":" << "ipv6" << ":" 
-                    << it2->first << "/" << it->first << "\n";
-
-            }
-
+        try {
+            d.get_targets(ii);
+        } catch (std::exception& e) {
+            error(500, e.what());
+            return;
         }
-    
-        response(201, "Targets list follows.", buf.str());
+
+        json j = {
+            {"status", 201},
+            {"message", "Target list."},
+            {"targets", ii}
+        };
+
+        response(j);
 
     }
 
     // 'add_interface' command.
-    void connection::cmd_add_interface(const std::vector<std::string>& lst)
+    void connection::cmd_add_interface(const json &j)
     {
 
-        if (lst.size() != 3 && lst.size() != 4) {
-            error(301, "Usage: add_interface <if> <del> [<fltr>]");
+        try {
+
+            interface::spec sp;
+            j["interface"].get_to(sp);
+            d.add_interface(sp);
+        } catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
-    
-        std::string iface = lst[1];
-        float delay;
-        std::istringstream buf(lst[2]);
-        buf >> delay;
-        std::string filter;
-    
-        if (lst.size() == 4)
-            filter = lst[3];
-    
-        try {
-            d.add_interface(iface, filter, delay);
-            ok(200, "Added interface.");
-        } catch (...) {
-            error(500, "Failed to add interface.");
-        }
+
+        ok(200, "Interface added.");
 
     }
 
     // 'remove_interface' command.
-    void connection::cmd_remove_interface(const std::vector<std::string>& lst)
+    void connection::cmd_remove_interface(const json& j)
     {
 
-        if (lst.size() != 3 && lst.size() != 4) {
-            error(301, "Usage: remove_interface <if> <del> [<fltr>]");
+        try {
+
+            interface::spec sp;
+            j["interface"].get_to(sp);
+            d.remove_interface(sp);
+        }  catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
-    
-        std::string iface = lst[1];
-        float delay;
-        std::istringstream buf(lst[2]);
-        buf >> delay;
-        std::string filter;
-    
-        if (lst.size() == 4)
-            filter = lst[3];
-    
-        try {
-            d.remove_interface(iface, filter, delay);
-            ok(200, "Removed interface.");
-        } catch (...) {
-            error(500, "Failed to remove interface.");
-        }
-    
+
+        ok(200, "Interface removed.");
     
     }
 
     // 'add_target' command.
-    void connection::cmd_add_target(const std::vector<std::string>& lst)
+    void connection::cmd_add_target(const json& j)
     {
 
-        if (lst.size() != 4) {
-            error(301, "Usage: add_target <liid> <class> <address>");
+        try {
+            target::spec sp;
+            j["target"].get_to(sp);
+            d.add_target(sp);
+        }  catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
 
-        std::string liid = lst[1];
-        std::string cls = lst[2];
-
-        if (cls == "ipv4") {
-	
-            try {
-
-                tcpip::ip4_address a4;
-                unsigned int mask;
-                tcpip::ip4_address::parse(lst[3], a4, mask);
-
-                // FIXME: Can't control network parameter.
-                d.add_target(a4, mask, liid, "");
-
-            } catch (...) {
-                error(302, "Failed to parse address.");
-                return;
-            }
-	
-            ok(200, "Added target.");
-            return;
-	
-        }
-    
-        if (cls == "ipv6") {
-	
-            try {
-                unsigned int mask;
-                tcpip::ip6_address a6;
-                tcpip::ip6_address::parse(lst[3], a6, mask);
-                // FIXME: Can't control network parameter.
-                d.add_target(a6, mask, liid, "");
-            } catch (...) {
-                error(302, "Failed to parse address.");
-                return;
-            }
-	
-            ok(200, "Added target.");
-            return;
-	
-        }
-    
-        error(301, "Address class not recognised.");
+        ok(200, "Target added.");
     
     }
 
     // 'remove_target' command.
-    void connection::cmd_remove_target(const std::vector<std::string>& lst)
+    void connection::cmd_remove_target(const json& j)
     {
 
-        if (lst.size() != 3) {
-            error(301, "Usage: remove_target <class> <address>");
+        try {
+            target::spec sp;
+            j["target"].get_to(sp);
+            d.remove_target(sp);
+        }  catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
 
-        std::string cls = lst[1];
-		    
-        if (cls == "ipv4") {
-	
-            try {
-                unsigned int mask;
-                tcpip::ip4_address a4;
-                tcpip::ip4_address::parse(lst[2], a4, mask);
-                d.remove_target(a4, mask);
-            } catch (...) {
-                error(302, "Failed to parse address.");
-                return;
-            }
-
-            ok(200, "Removed target.");
-            return;
-
-        }
-
-        if (cls == "ipv6") {
-	
-            try {
-                unsigned int mask;
-                tcpip::ip6_address a6;
-                tcpip::ip6_address::parse(lst[2], a6, mask);
-                d.remove_target(a6, mask);
-            } catch (...) {
-                error(302, "Failed to parse address.");
-                return;
-            }
-	
-            ok(200, "Remove target.");
-            return;
-	
-        }
-    
-        error(301, "Address class not recognised.");
+        ok(200, "Target removed.");
     
     }
 
     // 'add_endpoint' command.
-    void connection::cmd_add_endpoint(const std::vector<std::string>& lst)
+    void connection::cmd_add_endpoint(const json& j)
     {
 
-        if (lst.size() != 5) {
-            error(301, "Usage: add_endpoint <host> <port> <type> <transport>");
+        try {
+            endpoint::spec sp;
+            j["endpoint"].get_to(sp);
+            d.add_endpoint(sp);
+        }  catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
-    
-        const std::string& host = lst[1];
-        int port;
-        std::istringstream buf(lst[2]);
-        buf >> port;
-        const std::string& type = lst[3];
-        const std::string& transport = lst[4];
-    
-        try {
 
-            // FIXME: Allow parameters to be added.
-            std::map<std::string, std::string> params;
-            d.add_endpoint(host, port, type, transport, params);
-            ok(200, "Added endpoint.");
-        } catch (...) {
-            error(500, "Failed to add endpoint.");
-        }
-
+        ok(200, "Endpoint added.");
+    
     }
 
     // 'remove_endpoint' command.
-    void connection::cmd_remove_endpoint(const std::vector<std::string>& lst)
+    void connection::cmd_remove_endpoint(const json& j)
     {
 
-        if (lst.size() != 5) {
-            error(301, "Usage: remove_endpoint <host> <port> <type> <transport>");
+        try {
+            endpoint::spec sp;
+            j["endpoint"].get_to(sp);
+            d.remove_endpoint(sp);
+        }  catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
-    
-        const std::string host = lst[1];
-        int port;
-        std::istringstream buf(lst[2]);
-        buf >> port;
-        const std::string type = lst[3];
-        const std::string transport = lst[4];
-    
-        try {
-            // FIXME: Allow parameters to be added.
-            std::map<std::string, std::string> params;
-            d.remove_endpoint(host, port, type, transport, params);
-            ok(200, "Removed endpoint.");
-        } catch (...) {
-            error(500, "Failed to remove endpoint.");
-        }
-    
+
+        ok(200, "Endpoint removed.");
     
     }
 
     // 'add_endpoint' command.
-    void connection::cmd_add_parameter(const std::vector<std::string>& lst)
+    void connection::cmd_add_parameter(const json& j)
     {
 
-        if (lst.size() != 3) {
-            error(301, "Usage: add_parameter <key> <value>");
+        try {
+
+            parameter::spec sp;
+            j["parameter"].get_to(sp);
+            d.add_parameter(sp);
+        }  catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
-    
-        std::string key = lst[1];
-        std::string val = lst[2];
-    
-        try {
-            d.add_parameter(key, val);
-            ok(200, "Added parameter.");
-        } catch (...) {
-            error(500, "Failed to add parameter.");
-        }
 
+        ok(200, "Parameter added.");
+    
     }
 
     // 'add_endpoint' command.
-    void connection::cmd_remove_parameter(const std::vector<std::string>& lst)
+    void connection::cmd_remove_parameter(const json& j)
     {
 
-        if (lst.size() != 2) {
-            error(301, "Usage: remove_parameter <key>");
+        try {
+
+            parameter::spec sp;
+            j["parameter"].get_to(sp);
+            d.remove_parameter(sp);
+        }  catch (std::exception& e) {
+            error(500, e.what());
             return;
         }
-    
-        std::string key = lst[1];
-    
-        try {
-            d.remove_parameter(key);
-            ok(200, "Removed parameter.");
-        } catch (...) {
-            error(500, "Failed to remove parameter.");
-        }
 
+        ok(200, "Parameter removed.");
+    
     }
 
     // 'auth' command.
-    void connection::cmd_auth(const std::vector<std::string>& lst)
+    void connection::cmd_auth(const json& j)
     {
-        if (lst.size() != 3) {
-            error(301, "Usage: auth <user> <password>");
+
+        try {
+
+            if (j["username"].get<std::string>() == sp.username &&
+                j["password"].get<std::string>() == sp.password) {
+                auth = true;
+                ok(200, "Authenticated.");
+                return;
+            }
+
+            sleep(1);
+            error(331, "Authentication failure.");
             return;
+
+        } catch (std::exception& e) {
+            error(500, e.what());
         }
 
-        if (lst[1] == sp.username && lst[2] == sp.password) {
-            auth = true;
-            ok(200, "Authenticated.");
-            return;
-        }
-
-        error(331, "Authentication failure.");
-
-    }
-
-    // 'help' command.
-    void connection::cmd_help()
-    {
-        std::ostringstream buf;
-
-        buf << "Commands:\n"
-            << "\n"
-            << "  auth <user> <password>\n"
-            << "\n"
-            << "  help\n"
-            << "\n"
-            << "  add_interface <iface> <delay> [<filter>]\n"
-            << "      Starts packet capture from an interface.\n"
-            << "\n"
-            << "  remove_interface <iface> <delay> [<filter>]\n"
-            << "      Removes a previously enabled packet capture.\n"
-            << "\n"
-            << "  interfaces\n"
-            << "      Lists all interfaces, output is format iface:delay:filter\n"
-            << "\n"
-            << "  add_endpoint <host> <port> <type>\n"
-            << "      Adds an endpoint to delivery data to.\n"
-            << "      where type is one of: etsi nhis1.1\n"
-            << "\n"
-            << "  remove_endpoint <host> <port> <type>\n"
-            << "      Removes a previously enabled endpoint.\n"
-            << "      where type is one of: etsi nhis1.1\n"
-            << "\n"
-            << "  endpoints\n"
-            << "      Lists endpoints, format is host:port:type:description\n"
-            << "\n"
-            << "  add_target <liid> <class> <address>\n"
-            << "      Adds a new targeted IP address.\n"
-            << "      where class is one of: ipv4 ipv6\n"
-            << "\n"
-            << "  remove_target <class> <address>\n"
-            << "      Removes a previously targeted IP address.\n"
-            << "      where class is one of: ipv4 ipv6\n"
-            << "\n"
-            << "  targets\n"
-            << "      Lists targets, format is liid:class:address\n"
-            << "\n"
-            << "  add_parameter <key> <val>\n"
-            << "      Adds a new parameter, or changes a parameter value.\n"
-            << "\n"
-            << "  remove_parameter <key>\n"
-            << "      Removes a parameter value.\n"
-            << "\n"
-            << "  parameters\n"
-            << "      Lists parameters, format is key:value\n"
-            << "\n";
-
-        response(201, "Help information follows.", buf.str());
     }
 
     // connection body, handles a single connection.
@@ -622,28 +413,25 @@ namespace control {
                         break;
                     }
 
-                    std::cerr << "Command: " << line << std::endl;
-
-                    // Tokenise.
-                    std::vector<std::string> lst;
-                    tokenise(line, lst);
-
-                    if (lst.empty()) {
-                        ok(200, "Nothing to do.");
+                    json j;
+                    try {
+                        j = json::parse(line);
+                    } catch (...) {
+                        error(301, "Could not parse JSON");
                         continue;
                     }
 
-                    if (lst.front() == "help") {
-                        cmd_help();
+                    if (j["action"].is_null()) {
+                        error(301, "Must specify 'action'");
                         continue;
                     }
 
-                    if (lst.front() == "auth") {
-                        cmd_auth(lst);
+                    if (j["action"] == "auth") {
+                        cmd_auth(j);
                         continue;
                     }
 
-                    if (lst.front() == "quit") {
+                    if (j["action"] == "quit") {
                         ok(200, "Tra, then.");
                         break;
                     }
@@ -655,63 +443,63 @@ namespace control {
                         continue;
                     }
 
-                    if (lst.front() == "endpoints") {
-                        cmd_endpoints();
-                        continue;
-                    } 
-  
-                    if (lst.front() == "targets") {
-                        cmd_targets();
-                        continue;
-                    } 
-  
-                    if (lst.front() == "interfaces") {
+                    if (j["action"] == "get-interfaces") {
                         cmd_interfaces();
                         continue;
                     }
-  
-                    if (lst.front() == "parameters") {
+
+                    if (j["action"] == "get-targets") {
+                        cmd_targets();
+                        continue;
+                    } 
+
+                    if (j["action"] == "get-endpoints") {
+                        cmd_endpoints();
+                        continue;
+                    } 
+                    
+                    if (j["action"] == "get-parameters") {
                         cmd_parameters();
                         continue;
-                    }
-  
-                    if (lst.front() == "add_interface") {
-                        cmd_add_interface(lst);
+                    } 
+
+                    if (j["action"] == "add-interface") {
+                        cmd_add_interface(j);
+                        continue;
+                    }                     
+
+                    if (j["action"] == "remove-interface") {
+                        cmd_remove_interface(j);
                         continue;
                     } 
 
-                    if (lst.front() == "remove_interface") {
-                        cmd_remove_interface(lst);
+                    if (j["action"] == "add-target") {
+                        cmd_add_target(j);
+                        continue;
+                    }                     
+
+                    if (j["action"] == "remove-target") {
+                        cmd_remove_target(j);
                         continue;
                     } 
 
-                    if (lst.front() == "add_target") {
-                        cmd_add_target(lst);
+                    if (j["action"] == "add-endpoint") {
+                        cmd_add_endpoint(j);
+                        continue;
+                    }                     
+
+                    if (j["action"] == "remove-endpoint") {
+                        cmd_remove_endpoint(j);
                         continue;
                     } 
 
-                    if (lst.front() == "remove_target") {
-                        cmd_remove_target(lst);
+                    if (j["action"] == "add-parameter") {
+                        cmd_add_parameter(j);
                         continue;
-                    } 
+                    }                     
 
-                    if (lst.front() == "add_endpoint") {
-                        cmd_add_endpoint(lst);
-                        continue;
-                    } 
-
-                    if (lst.front() == "remove_endpoint") {
-                        cmd_remove_endpoint(lst);
-                        continue;
-                    } 
-
-                    if (lst.front() == "add_parameter") {
-                        cmd_add_parameter(lst);
-                        continue;
-                    } 
-
-                    if (lst.front() == "remove_parameter") {
-                        cmd_remove_parameter(lst);
+                    if (j["action"] == "remove-parameter") {
+                        cmd_remove_parameter(j);
                         continue;
                     } 
 

@@ -12,8 +12,9 @@
 #include <cybermon/specification.h>
 #include <cybermon/resource.h>
 
-#include "delivery.h"
 #include "json.h"
+
+class delivery;
 
 namespace target {
 
@@ -102,41 +103,10 @@ namespace target {
             sp(sp), deliv(d) { }
 
         // Start method, change the delivery engine mapping.
-        virtual void start() { 
-
-            std::string txt;
-            if (sp.universe == spec::IPv4) {
-                deliv.add_target(sp.addr, sp.mask, sp.device,
-                                 sp.network);
-                sp.addr.to_string(txt);
-            } else {
-                deliv.add_target(sp.addr6, sp.mask, sp.device,
-                                 sp.network);
-                sp.addr6.to_string(txt);
-            }
-
-            std::cerr << "Added target " << txt << "/" << sp.mask
-                      << " -> " 
-                      << sp.device << "." << std::endl;
-
-        }
+        virtual void start();
 
         // Stop method, remove the mapping.
-        virtual void stop() { 
-
-            std::string txt;
-            if (sp.universe == spec::IPv4) {
-                deliv.remove_target(sp.addr, sp.mask);
-                sp.addr.to_string(txt);
-            } else {
-                deliv.remove_target(sp.addr6, sp.mask);
-                sp.addr6.to_string(txt);
-            }
-
-            std::cerr << "Removed target " << txt << "/" << sp.mask
-                      << " -> " 
-                      << sp.device << "." << std::endl;
-        }
+        virtual void stop();
 
     };
 

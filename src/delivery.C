@@ -162,9 +162,7 @@ bool delivery::ipv4_match(const_iterator& start,
 
 	    // Tell all senders, target up.
             std::lock_guard<std::mutex> lock(senders_mutex);
-	    for(std::map<ep,sender*>::iterator it = senders.begin();
-		it != senders.end();
-		it++) {
+	    for(auto it = senders.begin(); it != senders.end(); it++) {
 		it->second->target_up(device, network, saddr);
 	    }
 
@@ -198,9 +196,7 @@ bool delivery::ipv4_match(const_iterator& start,
 
 	    // Tell all senders, target up.
             std::lock_guard<std::mutex> lock(senders_mutex);
-	    for(std::map<ep,sender*>::iterator it = senders.begin();
-		it != senders.end();
-		it++) {
+	    for(auto it = senders.begin(); it != senders.end(); it++) {
 		it->second->target_up(device, network, daddr);
 	    }
 
@@ -266,9 +262,7 @@ bool delivery::ipv6_match(const_iterator& start,
 
 	    // Tell all senders, target up.
             std::lock_guard<std::mutex> lock(senders_mutex);
-	    for(std::map<ep,sender*>::iterator it = senders.begin();
-		it != senders.end();
-		it++) {
+	    for(auto it = senders.begin(); it != senders.end(); it++) {
 		it->second->target_up(device, network, saddr);
 	    }
 
@@ -302,9 +296,7 @@ bool delivery::ipv6_match(const_iterator& start,
 
 	    // Tell all senders, target up.
             std::lock_guard<std::mutex> lock(senders_mutex);
-	    for(std::map<ep,sender*>::iterator it = senders.begin();
-		it != senders.end();
-		it++) {
+	    for(auto it = senders.begin(); it != senders.end(); it++) {
 		it->second->target_up(device, network, daddr);
 	    }
 
@@ -364,9 +356,7 @@ void delivery::receive_packet(timeval tv,
         std::lock_guard<std::mutex> lock(senders_mutex);
 
 	// Now invoke destinations, and send packet to destinations.
-	for(std::map<ep,sender*>::iterator it = senders.begin();
-	    it != senders.end();
-	    it++) {
+	for(auto it = senders.begin(); it != senders.end(); it++) {
 	    it->second->deliver(tv, m->device, m->network, dir, start, end);
 	}
 
@@ -392,9 +382,7 @@ void delivery::receive_packet(timeval tv,
         std::lock_guard<std::mutex> lock(senders_mutex);
 
 	// Now invoke destinations, and send packet to destinations.
-	for(std::map<ep,sender*>::iterator it = senders.begin();
-	    it != senders.end();
-	    it++) {
+	for(auto it = senders.begin(); it != senders.end(); it++) {
 	    it->second->deliver(tv, m->device, m->network, dir, start, end);
 	}
 
@@ -403,25 +391,20 @@ void delivery::receive_packet(timeval tv,
 }
 
 // Modifies interface capture
-void delivery::add_interface(const std::string& iface,
-			     const std::string& filter,
-			     float delay)
+void delivery::add_interface(const interface::spec& sp)
 {
 
     std::lock_guard<std::mutex> lock(interfaces_mutex);
 
-    intf i;
-    i.interface = iface;
-    i.filter = filter;
-    i.delay = delay;
-
-    if (interfaces.find(i) != interfaces.end()) {
-	interfaces[i]->stop();
-	interfaces[i]->join();
-	interfaces.erase(i);
+    if (interfaces.find(sp) != interfaces.end()) {
+	interfaces[sp]->stop();
+	interfaces[sp]->join();
+	interfaces.erase(sp);
     }
 
     try {
+
+        const std::string& iface = sp.ifa;
 
 #ifdef WITH_DAG
 
@@ -431,7 +414,7 @@ void delivery::add_interface(const std::string& iface,
 	    if (filter != "")
 		p->add_filter(filter);
 	    p->start();
-	    interfaces[i] = p;
+	    interfaces[sp] = p;
 
             return;
 
@@ -443,23 +426,23 @@ void delivery::add_interface(const std::string& iface,
 
             unsigned short port = std::stoi(iface.substr(6));
 
-            vxlan_capture* p = new vxlan_capture(port, delay, *this);
-            if (filter != "")
-                p->add_filter(filter);
+            vxlan_capture* p = new vxlan_capture(port, sp.delay, *this);
+            if (sp.filter != "")
+                p->add_filter(sp.filter);
             p->start();
-            interfaces[i] = p;
+            interfaces[sp] = p;
 
             return;
 
         }
 
-        pcap_dev* p = new pcap_dev(iface, delay, *this);
-        if (filter != "")
-            p->add_filter(filter);
+        pcap_dev* p = new pcap_dev(iface, sp.delay, *this);
+        if (sp.filter != "")
+            p->add_filter(sp.filter);
         
         p->start();
         
-        interfaces[i] = p;
+        interfaces[sp] = p;
 
     } catch (std::exception& e) {
 	throw;
@@ -468,78 +451,62 @@ void delivery::add_interface(const std::string& iface,
 }
 
 // Modifies interface capture
-void delivery::remove_interface(const std::string& iface,
-				const std::string& filter,
-				float delay)
+void delivery::remove_interface(const interface::spec& sp)
 {
 
     std::lock_guard<std::mutex> lock(interfaces_mutex);
 
-    intf i;
-    i.interface = iface;
-    i.filter = filter;
-    i.delay = delay;
-
-    if (interfaces.find(i) != interfaces.end()) {
-	interfaces[i]->stop();
-	interfaces[i]->join();
-	interfaces.erase(i);
+    if (interfaces.find(sp) != interfaces.end()) {
+	interfaces[sp]->stop();
+	interfaces[sp]->join();
+	interfaces.erase(sp);
     }
 
 }
 
-void delivery::get_interfaces(std::list<interface_info>& ii)
+void delivery::get_interfaces(std::list<interface::spec>& ii)
 {
 
     ii.clear();
 
     std::lock_guard<std::mutex> lock(interfaces_mutex);
 
-    for(std::map<intf,capture_dev*>::iterator it = interfaces.begin();
-	it != interfaces.end();
-	it++) {
-	interface_info inf;
-	inf.interface = it->first.interface;
-	inf.filter = it->first.filter;
-	inf.delay = it->first.delay;
-	ii.push_back(inf);
+    for(auto it = interfaces.begin(); it != interfaces.end(); it++) {
+        ii.push_back(it->first);
     }
 
 }
 
 // Modifies the target map to include a mapping from address to target.
-void delivery::add_target(const tcpip::address& addr,
-			  unsigned int mask,
-			  const std::string& device,
-			  const std::string& network)
+void delivery::add_target(const target::spec& sp)
 {
 
     std::lock_guard<std::mutex> lock(targets_mutex);
 
-    if (addr.universe == addr.ipv4) {
+    if (sp.universe == sp.IPv4) {
 	const tcpip::ip4_address& a =
-	    reinterpret_cast<const tcpip::ip4_address&>(addr);
-	targets.insert(a, mask, match_state(device, network));
+	    reinterpret_cast<const tcpip::ip4_address&>(sp.addr);
+	targets.insert(a, sp.mask, match_state(sp.device, sp.network));
     } else {
 	const tcpip::ip6_address& a =
-	    reinterpret_cast<const tcpip::ip6_address&>(addr);
-	targets6.insert(a, mask, match_state(device, network));
+	    reinterpret_cast<const tcpip::ip6_address&>(sp.addr6);
+	targets6.insert(a, sp.mask, match_state(sp.device, sp.network));
     }
 
 }
 
 // Removes a target mapping.
-void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
+void delivery::remove_target(const target::spec& sp)
 {
 
     std::lock_guard<std::mutex> lock(targets_mutex);
 
     std::string device;
 
-    if (addr.universe == addr.ipv4) {
+    if (sp.universe == sp.IPv4) {
 
 	const tcpip::ip4_address& a =
-	    reinterpret_cast<const tcpip::ip4_address&>(addr);
+	    reinterpret_cast<const tcpip::ip4_address&>(sp.addr);
 
 	match_state* ms;
 	bool hit = targets.get(a, ms);
@@ -548,9 +515,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 
 	    // Tell all senders, target down.
             std::lock_guard<std::mutex> lock(senders_mutex);
-	    for(std::map<ep,sender*>::iterator it = senders.begin();
-		it != senders.end();
-		it++) {
+	    for(auto it = senders.begin(); it != senders.end(); it++) {
 
 		for(std::map<tcpip::ip4_address,match>::iterator it2 =
 			ms->mangled.begin();
@@ -572,12 +537,12 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 
 	}
 	
-	targets.remove(a, mask);
+	targets.remove(a, sp.mask);
 
     } else {
 
 	const tcpip::ip6_address& a =
-	    reinterpret_cast<const tcpip::ip6_address&>(addr);
+	    reinterpret_cast<const tcpip::ip6_address&>(sp.addr6);
 
 	match_state* ms;
 	bool hit = targets6.get(a, ms);
@@ -587,9 +552,7 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 	    // Tell all senders, target down.
             std::lock_guard<std::mutex> lock(senders_mutex);
 
-	    for(std::map<ep,sender*>::iterator it = senders.begin();
-		it != senders.end();
-		it++) {
+	    for(auto it = senders.begin(); it != senders.end(); it++) {
 
 		for(std::map<tcpip::ip4_address,match>::iterator it2 =
 			ms->mangled.begin();
@@ -611,89 +574,111 @@ void delivery::remove_target(const tcpip::address& addr, unsigned int mask)
 
 	}
 	
-	targets6.remove(a, mask);
+	targets6.remove(a, sp.mask);
 
     }
 
 }
 
 // Fetch current target list.
-void delivery::get_targets(std::map<int,
-			   std::map<tcpip::ip4_address, std::string> >& t4,
-			   std::map<int,
-			   std::map<tcpip::ip6_address, std::string> >& t6)
+void delivery::get_targets(std::list<target::spec>& lst)
 {
-#ifdef FIXME
-    // FIXME: Doesn't return anything... it should!
-    t4 = targets;
-    t6 = targets6;
-#endif
+
+    lst.clear();
+    
+    std::lock_guard<std::mutex> lock(targets_mutex);
+
+    for(auto mask = targets.m.begin(); mask != targets.m.end(); mask++) {
+        for(auto addr = mask->second.begin(); addr != mask->second.end();
+            addr++) {
+            target::spec sp;
+            sp.addr = addr->first;
+            sp.mask = mask->first;
+            sp.universe = sp.IPv4;
+            sp.device = addr->second.device;
+            sp.network = addr->second.network;
+            lst.push_back(sp);
+        }
+    }
+    
+    for(auto mask = targets6.m.begin(); mask != targets6.m.end(); mask++) {
+        for(auto addr = mask->second.begin(); addr != mask->second.end();
+            addr++) {
+            target::spec sp;
+            sp.addr6 = addr->first;
+            sp.mask = mask->first;
+            sp.universe = sp.IPv6;
+            sp.device = addr->second.device;
+            sp.network = addr->second.network;
+            lst.push_back(sp);
+        }
+    }
+
 }
 
 // Adds an endpoint
-void delivery::add_endpoint(const std::string& host, unsigned int port,
-			    const std::string& type,
-			    const std::string& transport,
-			    const std::map<std::string, std::string>& params)
+void delivery::add_endpoint(const endpoint::spec& sp)
 {
 
     std::lock_guard<std::mutex> lock(senders_mutex);
 
-    ep e(host, port, type, transport, params);
-
     sender* s;
 
-    if (senders.find(e) != senders.end()) {
-	senders[e]->stop();
-	senders[e]->join();
-	senders.erase(e);
+    if (senders.find(sp) != senders.end()) {
+	senders[sp]->stop();
+	senders[sp]->join();
+	senders.erase(sp);
     }
 
-    if (type == "nhis1.1") {
-	s = new nhis11_sender(host, port, transport, params, *this);
-    } else if (type == "etsi") {
-	s = new etsi_li_sender(host, port, transport, params, *this);
+    if (sp.type == "nhis1.1") {
+        std::map<std::string,std::string> params = {
+            {"certificate", sp.certificate_file},
+            {"key", sp.key_file},
+            {"chain", sp.trusted_ca_file},
+        };
+	s = new nhis11_sender(sp.hostname, sp.port, sp.transport, params,
+                              *this);
+    } else if (sp.type == "etsi") {
+        std::map<std::string,std::string> params = {
+            {"certificate", sp.certificate_file},
+            {"key", sp.key_file},
+            {"chain", sp.trusted_ca_file},
+        };
+	s = new etsi_li_sender(sp.hostname, sp.port, sp.transport, params,
+                               *this);
     } else {
 	throw std::runtime_error("Endpoint type not known.");
     }
 
     s->start();
-    senders[e] = s;
+    senders[sp] = s;
 
 }
 
 // Removes an endpoint
-void delivery::remove_endpoint(const std::string& host, unsigned int port,
-			       const std::string& type,
-			       const std::string& transport,
-			       const std::map<std::string, std::string>& params)
+void delivery::remove_endpoint(const endpoint::spec& sp)
 {
 
     std::lock_guard<std::mutex> lock(senders_mutex);
 
-    ep e(host, port, type, transport, params);
-
-    if (senders.find(e) != senders.end()) {
-	senders[e]->stop();
-	senders[e]->join();
-	senders.erase(e);
+    if (senders.find(sp) != senders.end()) {
+	senders[sp]->stop();
+	senders[sp]->join();
+	senders.erase(sp);
     }
 
 }
 
 // Fetch current target list.
-void delivery::get_endpoints(std::list<sender_info>& info)
+void delivery::get_endpoints(std::list<endpoint::spec>& info)
 {
 
     std::lock_guard<std::mutex> lock(senders_mutex);
 
     info.clear();
-    for(std::map<ep,sender*>::iterator it = senders.begin();
-	it != senders.end();
-	it++) {
-	sender_info inf;
-	it->second->get_info(inf);
-	info.push_back(inf);
+
+    for(auto it = senders.begin(); it != senders.end(); it++) {
+        info.push_back(it->first);
     }
 
 }
