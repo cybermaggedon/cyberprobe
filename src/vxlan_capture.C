@@ -11,48 +11,56 @@
 void vxlan_capture::run()
 {
 
-    // Start UDP service
-    tcpip::udp_socket recv;
-    recv.bind(port);
+    try {
 
-    while (running) {
+        // Start UDP service
+        tcpip::udp_socket recv;
+        recv.bind(port);
 
-        // Rattling around this loop allows clearing the delay line.
-        bool activ = recv.poll(0.05);
+        while (running) {
 
-        if (activ) {
+            // Rattling around this loop allows clearing the delay line.
+            bool activ = recv.poll(0.05);
 
-            std::vector<unsigned char> buffer;
-            
-            recv.read(buffer, 65536);
+            if (activ) {
 
-            // Ignore truncated VXLAN.
-            if (buffer.size() < 8) continue;
+                std::vector<unsigned char> buffer;
+                
+                recv.read(buffer, 65536);
 
-            // VXLAN header (8-bytes):
-            //   Flags: 8-bits, bit 3 = VNI is valid.
-            //   Reserved: 24 bits
-            //   VNI: 24 bits
-            //   Reserved: 8 bits
+                // Ignore truncated VXLAN.
+                if (buffer.size() < 8) continue;
 
-            // Start from the end of VXLAN header.
-            std::vector<unsigned char>::const_iterator s = buffer.begin() + 8;
-            std::vector<unsigned char>::const_iterator e = buffer.end();
+                // VXLAN header (8-bytes):
+                //   Flags: 8-bits, bit 3 = VNI is valid.
+                //   Reserved: 24 bits
+                //   VNI: 24 bits
+                //   Reserved: 8 bits
 
-	    // filter check
-            if (apply_filter(s, e)) {
+                // Start from the end of VXLAN header.
+                std::vector<unsigned char>::const_iterator s =
+                    buffer.begin() + 8;
+                std::vector<unsigned char>::const_iterator e =
+                    buffer.end();
 
-                // Filter hits.
-                timeval tv = {0};
-		handle(tv, e - s, &s[0]);
+                // filter check
+                if (apply_filter(s, e)) {
+                    
+                    // Filter hits.
+                    timeval tv = {0};
+                    handle(tv, e - s, &s[0]);
 
-	    }
+                }
+                
+            }
 
-	}
+            // Maybe clear some delay line.
+            service_delayline();
 
-	// Maybe clear some delay line.
-        service_delayline();
+        }
 
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
     }
 
 }
