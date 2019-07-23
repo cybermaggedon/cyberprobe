@@ -1,0 +1,291 @@
+
+@node Writing your own configuration file
+@section Writing your own configuration file
+
+Now, take a copy of the @file{quiet.lua} configuration file, and have a look
+at it. It is a Lua module which defines a minimum of one function,
+@samp{event}, which is called when events occur.  LUA
+is a lightweight scripting langauge which is really good as a configuration
+language. This function is called when a TCP connection is
+made:
+
+@cindex @code{event}
+
+@example
+observer.event = function(e)
+end
+@end example
+
+Let's get hacking! The header parameter is a LUA table which contains
+key/value pairs from the header. The url parameter contains the full URL of
+the response. The body parameter contains the payload body as an empty
+string. Let's start simple:
+
+@cindex @code{http_response}
+
+@example
+observer.event = function(e)
+  if e.action == "http_response" then
+    print(url)
+  end
+end
+@end example
+
+Then run that up...
+
+@example
+cybermon -p 10000 -c my.lua
+@end example
+
+Now, do some web browsing, and you should see a list of URLs flying
+past. Each web page typically consists of several HTTP requests, but you
+should be able to see the URLs associated with all of the web pages you
+visit. Let's tart that up a little more:
+
+@example
+-- This function is called when an HTTP response is observed.
+observer.event = function(e)
+
+  if e.action == "http_response" then
+
+    -- Take first 40 characters of URL
+    local u = url:sub(1,40)
+
+    -- Get Content-Type (first 20 characters)
+    local ct
+    ct = ""
+    for key, value in pairs(header) do
+      if key:lower() == "content-type" then
+        ct = value:sub(1,20)
+      end
+    end
+
+    io.write(string.format("%-40s %-20s %d\n", u, ct, #body))
+
+  end
+
+end
+@end example
+
+That basically outputs three columns: The URL (truncated to 40 characters),
+the body content type (truncated to 20 characters) and the HTTP response
+payload length. Here's what I get from visiting Slashdot:
+
+@example
+http://widget-cdn.rpxnow.com/manifest/sh text/javascript;char 42980
+http://slashdot.org/                     text/html; charset=u 40105
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 5625
+http://pagead2.googlesyndication.com/pag application/x-shockw 33347
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 540
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 42
+http://ad.doubleclick.net/adj/ostg.slash text/javascript; cha 452
+http://pagead2.googlesyndication.com/pag                      0
+@end example
+
+@heading Forging a TCP reset
+
+So far, this has just been monitoring. It's time to add data to the network!
+From the LUA functions, there are a couple of functions available which
+allow you to put some packets back onto the network.
+
+@cindex TCP reset
+@cindex Packet forgery
+@cindex Packet injection
+@cindex @command{cyberprobe}, delay
+@cindex Delay
+
+But first... there's a problem. You remember in step 9, we added a delay?
+That's not going to work with packet forgery, because by the time we've
+forged a packet and sent it on to the network, it's too late. So, we need to
+change our interface back so that there's no delay on the interface. That
+means, we're monitoring network data, but we'll miss the original attack
+which triggered a Snort alert.
+
+@example
+    ...
+    "interfaces": [
+        @{ "interface": "eth0", "delay": 0.0 @}
+    ],
+    ...        
+@end example
+
+Once you have this code working, you might be able to mess with the delay
+parameter to see if you can pick a low-latency value that works for you. On
+my network, the value 0.02 is low enough to allow a response to allow packet
+forgery to work. Any higher, and the forged packets are too late to beat the
+real packets.
+
+The LUA interface passes a context variable to many of the LUA functions,
+which gives access to @command{cybermon} information and the packet forgery
+functions. In this step, we're going to forge a TCP reset on any connections
+which are from or to port 80. Hack the configuration file:
+
+@cindex @code{event}
+@cindex @code{context}
+@cindex @code{connected_up}
+
+@example
+observer.event = function(e)
+
+  if e.action == "connected_up" then
+
+    -- Get TCP ports.
+    local cls, src_addr, dest_addr
+    cls, src_addr = e.context:get_src_addr()
+    cls, dest_addr = e.context:get_dest_addr()
+
+    -- check if it is port 80.
+    if not((src_addr == "80") or (dest_addr == "80")) then
+      -- Ignore non-HTTP traffic
+      return
+    end
+
+    -- TCP reset    
+    print("Reset on HTTP connection.")
+    e.context:forge_tcp_reset(context)
+
+  end
+
+end
+@end example
+
+Now before we go any further, @command{cybermon} needs to run as root in
+order to use either of the packet forgery functions. Packet forgery needs
+access to the raw IP socket layer, which is a privileged operation. Start
+that up:
+
+@example
+sudo cybermon -p 10000 -c my.lua
+@end example
+
+Now start web browsing, and you should see a bunch of "Reset on HTTP
+connection" messages. Also, you'll see a page saying "The connection was
+reset" in your web browser. That's a fairly anti-social configuration to run
+on any network. See the @file{forge-reset.lua} example for a more useful
+configuration. It disrupts network traffic going to/from an SSH server which
+isn't from your administration workstation.
+
+On any network with an SSH service open to the outside world, you might want
+to use firewall rules to prevent access to the SSH service from addresses
+outside of your network, but you could use @command{cybermon} as a
+belt-and-braces protection mechanism.
+
+Another example is where you know the user community on your network is
+being targeted by phishing emails. Your first step is to try to get the
+phishing emails out of their inboxes, getting your email provider to filter
+the attacks. But a backup attack would be to make sure your users can't get
+to the phisher's web site. The event function allows us to reset
+requests going to a particular web site.
+
+@cindex @code{event}
+@cindex @code{context}
+@cindex @code{http_request}
+
+@example
+observer.event = function (e)
+
+  if e.action == "http_request" then
+
+    if e.header["Host"] == "example.org" then
+      print("Reset on HTTP request")
+      context:forge_tcp_reset(context)
+    end
+
+    if e.header["Host"] == "www.example.org" then
+      print("Reset on HTTP request")
+      context:forge_tcp_reset(context)
+    end
+
+  end
+
+end
+@end example
+
+@heading Forging a DNS response
+
+@cindex Forging, DNS response
+
+In this step, we'll detect a particular DNS request, and forge a
+response. First of all, you'll need to familiarise yourself with host which
+is a useful DNS test tool. e.g.
+
+@example
+$ host -t a example.org
+example.org has address 93.184.216.119
+@end example
+
+The @code{example.org} name has been resolved to a particular IP
+address. Let's hack the DNS request function in @file{my.lua}:
+
+@cindex @code{event}
+@cindex @code{context}
+@cindex @code{dns_message}
+
+@example
+-- This function is called when a DNS message is observed.
+observer.event = function(e)
+
+  if e.event == "dns_message" then
+
+    -- Check my assumptions.  Need a DNS query request, with one query,
+    -- name is example.org, type 'A', class 'IN'.
+    if e.header.qr == 0 and #e.queries == 1 and
+      e.queries[1].name == "example.org" and e.queries[1].type == 1 and
+      e.queries[1].class == 1 then
+
+      -- Send a fake response
+
+      -- Set query/response flag to 'response'
+
+      new_hdr = e.header
+      new_hdr.qr = 1
+
+      new_ans = e.answers
+
+      -- 1 answer
+      new_ans = @{@}
+      new_ans[1] = @{@}
+      new_ans[1].name = "example.org"
+      new_ans[1].type = 1
+      new_ans[1].class = 1
+      new_ans[1].rdaddress = "1.2.3.4"
+
+      -- 1 answer
+      new_hdr.ancount = 1
+
+      io.write("Forging DNS response!\n")
+
+      context:forge_dns_response(context, new_hdr, queries, new_ans,
+                                 @{@}, @{@})
+
+    end
+
+  end
+
+end
+@end example
+
+So, this example, checks that the query is one we want to mess with. If it
+is, we turn the query structures into response structures, and hand them
+back to @command{cybermon} to do a forgery. The above example forges the
+address @code{1.2.3.4}. Start up @command{cybermon} with the script:
+
+@example
+cybermon -p 10000 -c my.lua
+@end example
+
+If everything is working your host command will show a different result:
+
+@example
+$ host -t a example.org
+example.org has address 1.2.3.4
+@end example
+
+DNS forgery has applications in blocking access to a phishers
+resources on the internet, you might want to redirect your users to an
+address which is inside your network.
+
+The @ref{@command{cybermon} configuration} documentation details the LUA
+interface in detail if
+you want to find out what else you can do in your LUA code.
+

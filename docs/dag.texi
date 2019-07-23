@@ -1,0 +1,27 @@
+
+@node Endace DAG
+@chapter Endace DAG
+
+@cindex Endace
+@cindex DAG
+
+@command{cyberprobe} includes support for Endace DAG.  This is presently
+not distributed.  If you compile @command{cyberprobe} on a host which has
+the DAG library (@file{libdag}) installed, it will be detected at the
+@command{configure} step.
+
+If DAG support is compiled in, then the DAG devices can be referenced
+in the @file{cyberprobe.cfg} file using the prefix @samp{dag} plus the
+card number e.g.
+
+@example
+    ...
+    "interfaces": [
+        @{ "interface": "dag0" @}
+    ]
+    ...
+@end example
+
+To use DAG devices, you need to load DAG firmware, and set all
+appropriate card options using @command{dagload} and @command{dagconfig}
+prior to starting @command{cyberprobe}.

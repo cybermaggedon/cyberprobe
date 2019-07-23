@@ -1,0 +1,110 @@
+
+@node Management interface
+@section Management interface
+@cindex Management
+@cindex @command{cyberprobe}, management
+
+At this step, we'll setup a control port, and use it modify the
+configuration of @command{cyberprobe}.
+
+First step is to modify the configuration file to include this line, just
+after the @code{<configuration>} line:
+
+@cindex Authentication
+
+@example
+@{
+    "interfaces": [
+        @{ "interface": "eth0" @}
+    ],
+    "targets": [
+        @{
+            "address": "192.168.1.80",
+            "device": "123456"
+        @}
+    ],
+    "endpoints": [
+        @{
+            "hostname": "localhost",
+            "port": 10000,
+            "transport": "tcp",
+            "type": "etsi"
+        @}
+    ],
+    "controls": [
+        @{
+            "port": 8888,
+            "username": "admin",
+            "password": "mypassword"
+        @}
+    ]
+@}
+@end example
+
+That declares that a management service needs to be run on port 8888. The
+authentication details are provided too. You should see this output from
+@command{cyberprobe}:
+
+@example
+Starting control on port 8888
+@end example
+
+@cindex @command{cyberprobe-cli}
+
+Good! Now need to connect and interrogate the targets list.  The API
+is a simple text protocol with requests and responses encoded in JSON.
+The @command{cyberprobe-cli} command gives you an interactive CLI
+interface.
+@example
+cyberprobe-cli localhost 8888
+@end example
+
+You are then prompted for a username and password:
+@example
+$ cyberprobe-cli  localhost 8888
+Connected.  You must authenticate.
+User: admin
+Password: **********
+> 
+@end example
+
+Press @code{TAB} to see command auto-completion.
+
+@example
+> show endpoints 
+Hostname                                Port    Type      
+--------                                ----    ----      
+localhost                               9000    etsi      
+localhost                               9001    etsi      
+localhost                               9002    nhis1.1   
+> add target my-machine4 ipv6 fe80:5551:4024:8196:8175::/40 dark-net
+> show targets
+Device              Class   Address                       Mask    
+----                -----   -------                       ----    
+my-machine          ipv4    0.0.0.0                       /0       
+my-machine2         ipv4    10.0.0.0                      /8       
+my-machine4         ipv6    fe80:5551:4000::              /40      
+my-machine3         ipv6    fe80:4124:5696::              /48      
+> remove target my-machine4 ipv6 fe80:5551:4024:8196:8175::/40 dark-net
+> add interface vxlan:8124 0.5 not port 9000
+> show interfaces 
+Interface           Delay   Filter                                            
+---------           -----   ------                                            
+vxlan:4789          0.5     not port 10001 and not port 10002                 
+vxlan:4790          0.3                                                       
+vxlan:8124          0.5     not port 9000                                     
+@end example
+
+The interface isn't pretty, but you get the idea. You can change almost
+everything that you can manage by changing the configuration file.
+
+Note: The the management interface changes the active state of
+@command{cyberprobe} but it doesn't change the configuration file. So,
+configuration changes made through the management interface are 'lost' when
+you restart @command{cyberprobe}.
+
+Note also that you may get some weird results if you use the configuration
+file AND the control interface to manage the same resources, so you probably
+don't want to do that.
+
+See @ref{@command{cyberprobe-cli} invocation}.

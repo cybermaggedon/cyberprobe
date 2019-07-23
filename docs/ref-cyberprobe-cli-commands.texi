@@ -1,0 +1,100 @@
+
+@node @command{cyberprobe-cli} commands
+@section @command{cyberprobe-cli} commands
+
+@cindex @command{cyberprobe-cli}, commands
+@cindex Management client
+
+The following commands are supported by @command{cyberprobe-cli}:
+
+@table @samp
+
+@item add endpoint HOST PORT TYPE [TRANSPORT [KEY CERT CA]]
+Adds a delivery endpoint.
+@table @samp
+@item HOST
+Specifies the delivery host.
+@item PORT
+Specifies TCP port to deliver to.
+@item TYPE
+Can be one of @samp{nhis} or @samp{etsi} for delivery protocol.
+@item TRANSPORT
+Can be one of @samp{tcp} or @samp{tls} for TCP or TLS transports.
+Defaults to @samp{tcp}.
+@item KEY
+Filename of a key file in PEM format if @samp{tls} is specified.
+@item CERT
+Filename of an X.509 file in PEM format if @samp{tls} is specified.
+@item TRANSPORT
+Filename of trusted CA certs in PEM format if @samp{tls} is specified.
+@end table
+
+Note: It is not possible to specify the appropriate transport paramters for
+TLS delivery using the management interface currently.
+
+@item add interface INTERFACE [DELAY [FILTER]]
+Adds an interface for packet sniffing.
+@table @samp
+@item INTERFACE
+Interface name.
+@item DELAY
+Delay between packet acquisiton and delivery.  Defaults to zero.
+@item FILTER
+Optional, species a filter to be applied for positive selection of packets,
+in BPF / libpcap format.
+@end table
+
+@item add parameter KEY VALUE
+Adds a parameter.
+@table @samp
+@item KEY
+Parameter key.
+@item VALUE
+Parameter value.
+@end table
+
+@item add target DEVICE PROTOCOL ADDRESS
+Adds an address target for packet capture.
+@table @samp
+@item DEVICE
+Device identifier.
+@item PROTOCOL
+Address protocol, one of @samp{ipv4} or @samp{ipv6}.
+@item ADDRESS
+Address value, in IPv4 or IPv6 format, according to the PROTOCOL value.
+Optionally can have a @samp{/mask} suffic.
+@end table
+
+@item quit
+Causes the client to close the connection and terminate.
+
+@item remove endpoint HOST PORT TYPE [TRANSPORT [KEY CERT CHAIN]]
+Removes an endpoint added through the @samp{add endpoint} command.
+The HOST, PORT TYPE and TRANSPORT, ... values are the same as for
+@samp{add endpoint}.
+
+@item remove interface INTERFACE [DELAY [FILTER]]
+Removes an interface added through the @samp{add interface} command.
+The INTERFACE, DELAY and FILTER values are the same as for @samp{add interface}.
+
+@item remove paramter KEY VALUE
+Removes a paramter added through the @samp{add parameter} command.
+The KEY and VALUE values are the same as for @samp{remove parameter}.
+
+@item remove target DEVICE PROTOCOL ADDRESS
+Removes a target added through the @samp{remove target} command.
+The PROTOCOL and ADDRESS values are the same as for @samp{add target}.
+
+@item show endpoints
+Displays a table showing endpoints.
+
+@item show interfaces
+Displays a table showing interfaces.
+
+@item show parameters
+Displays a table showing parameters.
+
+@item show targets
+Displays a table showing targets.
+
+@end table

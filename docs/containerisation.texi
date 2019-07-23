@@ -1,0 +1,109 @@
+
+@node A containerised processing system
+@chapter A containerised processing system
+
+@heading Cybermon, Gaffer, ElasticSearch
+
+@cindex Containers
+@cindex Docker
+@cindex Docker compose
+@cindex @file{docker-compose.yml}
+@cindex @file{docker-compose-cp-snort.yml}
+@cindex ElasticSearch
+@cindex Gaffer
+
+The @command{cybermon}, subscriber components and data stores can easily be
+deployed in containers to form a scalable processing system.
+
+To illustrate this in use, we distrubute a Docker Compose configuration which
+can be used to start:
+
+@itemize @bullet
+
+@item
+A @command{cybermon}, listening on port 9000.
+
+@item
+A @command{cybermon-geoip} container, adding GeoIP information to events.
+
+@item
+A @command{cybermon-detector} container, adding IOC information to events
+from a sample STIX data set.
+
+@item
+A @command{cybermon-elasticsearch} container, to load information into
+ElasticSearch.
+
+@item
+A @command{cybermon-gaffer} container, to load information into Gaffer.
+
+@item
+An @command{elasticsearch} container to store events.
+
+@item
+A @command{kibana} container to store events.
+
+@item
+A Gaffer cluster consisting of Hadoop, Zookeeper, Accumulo and Gaffer
+containers.
+
+@end itemize
+
+You can see the Docker Compose configuration at the path:
+
+@example
+@file{@value{DOCDIR}/docker-compose.yml}
+@end example
+
+In order to invoke this run:
+
+@example
+cd @file{@value{DOCDIR}/}
+docker-compose up
+@end example
+
+No data is stored persistently - you can change how this works by
+changing the @file{docker-compose.yml} file.
+It takes about a minute to settle down, at which point, you need to generate
+data using cyberprobe and send to port 9000.
+
+You can connect to the Kibana instance on port 5601.  The first thing you will
+need to do is to go to the Management > Index Patterns dialogue, and create
+an index pattern for index @samp{cyberprobe}, with time specified in the
+@samp{time} field.
+
+You may want to install our data dashboards, using Management > Saved Objects
+and press the Import button.  The dashboard file
+is installed at:
+@example
+@file{@value{DOCDIR}/kibana-dashboards.json}
+@end example
+
+ElasticSearch bails out unless @samp{vm.max_map_count} setting is right.
+If you have problems, try:
+@example
+sudo sysctl vm.max_map_count=512000
+@end example
+
+@heading Snort, Cyberprobe, Cybermon, Gaffer, ElasticSearch
+
+There is a second configuration which adds Snort and Cyberprobe to the
+deployment.  This accesses the host network interface by providing
+host network access to the @command{cyberprobe} and @command{snort} containers.
+The network interface name is specified in the @file{cyberprobe.cfg}
+file for @command{cyberprobe} and the @file{docker-compose-cp-snort.yml}
+file for @command{snort} so you will need to edit accordingly.
+
+@example
+cd @file{@value{DOCDIR}/}
+docker-compose \
+  -f @file{@value{DOCDIR}/docker-compose-cp-snort.yml} up
+@end example
+
+The configuration results in trigger packet acquisition as soon as
+any port 80 or port 11111 data is observed. e.g.
+
+@example
+wget -q -O- http://www.example.org/
+@end example
+

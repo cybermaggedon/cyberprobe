@@ -1,0 +1,162 @@
+
+@node Overview
+@chapter Overview
+
+@cindex Overview of Cyberprobe
+@heading Summary
+
+Cyberprobe is a distrbuted architecture for real-time monitoring of networks
+against attack. The software consists of a number of components, including:
+
+@itemize @bullet
+
+@item
+a probe, which collects data packets and forwards it over a network in
+a streaming protocol.
+
+@item
+a monitor, which receives the streamed packets, decodes the protocols, and
+interprets the information.
+
+@item
+a set of subscribers which can be used to do things with the captured data
+e.g. store to ElasticSearch, BigQuery or Gaffer.
+
+@end itemize
+
+@cindex @command{cyberprobe}, features
+@cindex Features, of @command{cyberprobe}
+
+These components can be used together or separately. For a simple
+configuration, they can be run on the same host, for more complex
+environments, a number of probes can feed a single monitor. For more detail,
+and to see where we are going, read the @ref{Architecture} page.
+
+The probe, @command{cyberprobe} has the following features:
+
+@itemize @bullet
+
+@item
+The probe can be tasked to collect packets from an interface and forward any
+which match a configurable address list.
+
+@item
+The probe can be configured to receive Snort alerts. In this configuration,
+when an alert is received from Snort, the IP source address associated with
+the alert is dynamically targeted for a period of time. In such a
+configuration, the system will collect data from any network actor who
+triggers a snort rule and is thus identified as a potential attacker.
+
+@item
+The probe can optionally run a management interface which allows remote
+interrogation of the state, and alteration of the configuration. This
+allows dynamic alteration of the targeting map, and integration with other
+systems.
+
+@item
+The probe can be configured to deliver on one of two standard stream
+protocols.
+
+@end itemize
+
+@cindex @command{cybermon}, features
+@cindex Features, of @command{cybermon}
+
+The monitor tool, @command{cybermon} has the following features:
+
+@itemize @bullet
+
+@item
+Collects packets delivered in stream protocols.
+
+@item
+Decodes packet protocols in and raises events in near-real-time.
+
+@item
+Decoded information is made available to user-configurable logic to define
+how the decoded data is handled. A simple configuration language is used
+(LUA) and example configurations are provided to monitor data volumes,
+display data hexdumps, or stash the data in files.
+
+@item
+Packet forgery techniques are included, which allow resetting TCP
+connections, and forging DNS responses. This can be invoked from your LUA in
+order to fight back against attacks on your network.
+
+@item
+Supports IP, TCP, UDP, ICMP, HTTP and DNS protocols, currently.
+
+@end itemize
+
+The code is targeted at the Linux platform, although it is generic enough to
+be applicable to other UN*X-like platforms.
+
+The easiest way to learn about the software is to follow our Quick Start
+tutorial.
+
+@cindex Release history
+@cindex Version history
+@heading Revision history
+
+Cyberprobe release highlights:
+
+@table @code
+
+@item 2.2.0
+Changed cyberprobe configuration file to use JSON instead of XML.
+JSON is easier to integrate with automated processes.
+
+@item 2.0.5
+Added VXLAN support to cybermon.  This allows cybermon to receive the
+VXLAN protocol which is e.g. used by AWS Traffic Mirroring.
+
+@item 2.0
+New simpler Lua API.  Native JSON encoding boosts performance of JSON output
+by 500%.
+
+@item 1.13
+Cybermon decodes for: TLS, GRE, ESP.
+
+@item 1.12.3
+Brought subscribers and docker-compose files up-to-date.
+
+@item 1.11.1
+Altered handling of @samp{origin} to make it more resilient.
+
+@item 1.11.0
+Added @samp{origin} field to identify whether or not the triggering
+device caused an event.
+
+@item 1.10.0
+Add RabbitMQ / AMQP 0.9.1 support for cybermon and subscribers.
+
+@item 1.8.4
+Endace DAG package support added.
+
+@item 1.7.0
+Gaffer subscriber brought up-to-date with Gaffer 1.0 API.  GeoIP and
+IOC processor added to the subscriber model.  Some unmaintained Lua code
+deprecated, as the subscriber model takes care of the functionality.
+
+@item 1.6.8
+Numerous fixes. UUID generation uses a good seed.  ElasticSearch loading
+fixed, Mac compilation fixed.
+
+@item 1.6.0
+Changed ETSI sender so that packet streams are multiplexed over multiple
+TCP streams.
+
+@item 1.5.1
+Unbounded queue internal to cybermon has a queue limit, to prevent unbounded
+growth.
+
+@item 1.5.0
+Timestamp information at the time of packet capture in cyberprobe is now
+consistently passed through to cybermon and the Lua functions.  The Lua API
+has undergone significant change as a result of passing through timing
+information.
+
+@item 1.0
+Lua invocation mechanism has been replaced by a thread-safe queue function.
+
+@end table

@@ -1,0 +1,40 @@
+
+@node @command{cybermon-detector} invocation
+@section @command{cybermon-detector} invocation
+
+@cindex @command{cybermon-detector}, invocation
+@cindex STIX
+@cindex IOC
+@cindex Indicator of compromise
+
+@command{cybermon-detector} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon} events, inspects them for IOCs, and adds detection
+information if IOCs are observed before re-publishing
+the elaborated events.  This effectively creates a processing
+chain.  The event subscription and publishing events should be different in
+order to avoid creating an infinite loop.
+
+Synopsis:
+
+@example
+cybermon-detector [BINDING [PUBLICATION] ]
+@end example
+
+Example:
+@example
+cybermon-detector
+cybermon-detector geo ioc
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{geo}.
+
+@item PUBLICATION
+Specifies the RabbitMQ pub/sub queue to publish to.  If not specified, defaults
+to @samp{ioc}.
+
+@end table
+

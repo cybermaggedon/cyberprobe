@@ -1,0 +1,417 @@
+
+@node Management protocol
+@section Management protocol
+@cindex Management protocol
+
+@heading Overview
+
+The management interface is a simple interface which supports studying and
+dynamically changing the cyberprobe configuration: endpoints, targets and
+interfaces.
+
+The configuration file specifies a port number, and username and password
+for the interface.
+
+The interface is intended to be used programmatically.  It is a request/response
+interface.
+
+Note that the protocol is in clear, so should not be used across a hostile
+network.
+
+@heading Request structure
+
+Each request is a JSON object encoded on a single line terminated with
+@samp{NEWLINE}.  Each request is required to have an @code{action} field
+which describes the action to take.  One action is special: @code{auth};
+other actions cannot be used until authentication has taken place.
+
+Example request:
+@example
+@{"action":"auth","password":"admin","username":"horse-battery-staple"@}
+@end example
+
+@heading Response structure
+
+Each response is preceded by a base-10 encoded human-readable byte length
+terminated by @samp{NEWLINE} after which the response is sent.  Response
+is a JSON payload.  The @code{status} field contains a numeric response
+code, statuses in the range 200-299 indicate success.
+The @code{message} field contains a human-readable response string,
+which will be an error message in the error case.
+
+Other fields depend on the request.
+
+@heading Actions
+
+Here is the list of supported actions.  JSON has been pretty-printed to
+aid understanding.
+
+
+The
+following values of the @code{action} field are supported:
+
+@table @code
+
+@item auth
+Must be accompanied by valid @code{username} and @code{password} fields in
+order to authenticate.  The response contains @code{status} and
+@code{message} fields.
+
+Example request:
+@example
+@{
+  "action":"auth",
+  "password":"admin",
+  "username":"horse-battery-staple"
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Authenticated.","status":200@}
+@end example
+
+@item add-interface
+Starts packet capture from an interface.
+Request should have an interface field containing an interface
+specification.
+
+Example request:
+@example
+@{
+  "action": "add-interface",
+  "interface": @{
+    "delay": 0.5,
+    "filter": "not port 9876",
+    "interface": "vxlan:9876"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Interface added.","status":200@}
+@end example
+
+@item remove-interface
+Removes a previously enabled packet capture.
+
+Example request:
+@example
+@{
+  "action": "remove-interface",
+  "interface": @{
+    "delay": 0.5,
+    "filter": "not port 9876",
+    "interface": "vxlan:9876"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Interface removed.","status":200@}
+@end example
+
+@item get-interfaces
+Lists all interfaces, output is format @code{iface:delay:filter}.
+
+Example request:
+@example
+@{
+  "action": "get-interfaces"
+@}
+@end example
+
+Example response:
+@example
+@{
+  "interfaces": [
+    @{
+      "delay": 0.5,
+      "filter": "not port 10001 and not port 10002",
+      "interface": "vxlan:4789"
+    @},
+    @{
+      "delay": 0.3
+      "filter": "",
+      "interface": "vxlan:4790"
+    @},
+    @{
+      "delay": 0.5,
+      "filter": "not port 9876",
+      "interface": "vxlan:9876"
+    @}
+  ],
+  "message": "Interfaces list.",
+  "status": 201
+@}
+@end example
+
+@item add-endpoint
+Adds an endpoint to delivery data to.
+
+Example request:
+@example
+@{
+  "action": "add-endpoint",
+  "endpoint": @{
+    "certificate": "cert.crt",
+    "hostname": "receiver",
+    "key": "key.pem",
+    "port": 10000,
+    "transport": "tls",
+    "trusted-ca": "ca.crt",
+    "type": "etsi"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Endpoint added.","status":200@}
+@end example
+
+@item remove-endpoint
+Removes a previously enabled endpoint.
+
+Example request:
+@example
+@{
+  "action": "remove-endpoint",
+  "endpoint": @{
+    "certificate": "cert.crt",
+    "hostname": "receiver",
+    "key": "key.pem",
+    "port": 10000,
+    "transport": "tls",
+    "trusted-ca": "ca.crt",
+    "type": "etsi"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Endpoint removed.","status":200@}
+@end example
+
+@item get-endpoints
+Gets the endpoint list.
+
+Example request:
+@example
+@{"action":"get-endpoints"@}
+@end example
+
+Example response:
+@example
+@{
+  "endpoints": [
+    @{
+      "hostname": "localhost",
+      "port": 9000,
+      "transport": "tcp",
+      "type": "etsi"
+    @},
+    @{
+      "hostname": "localhost",
+      "port": 9002,
+      "transport": "tcp",
+      "type": "nhis1.1"
+    @},
+    @{
+      "certificate": "cert.crt",
+      "hostname": "receiver",
+      "key": "key.pem",
+      "port": 10000,
+      "transport": "tls",
+      "trusted-ca": "ca.crt",
+      "type": "etsi"
+    @}
+  ],
+  "message": "Endpoints list.",
+  "status": 201
+@}
+@end example
+
+@item add-target
+Adds a new targeted IP address.
+
+Example requests:
+@example
+@{
+  "action": "add-target",
+  "target": @{
+    "address": "1.2.3.0/24",
+    "class": "ipv4",
+    "device": "my-machine4",
+    "network": "my-network"
+  @}
+@}
+@end example
+
+@example
+@{
+  "action": "add-target",
+  "target": @{
+    "address": "fe80:e015:e897::/24",
+    "class": "ipv6",
+    "device": "my-machine4",
+    "network": ""
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Target added.","status":200@}
+@end example
+
+@item remove-target
+Removes a previously targeted IP address.
+
+Example requests:
+@example
+@{
+  "action": "remove-target",
+  "target": @{
+    "address": "1.2.3.0/24",
+    "class": "ipv4",
+    "device": "my-machine4",
+    "network": "my-network"
+  @}
+@}
+@end example
+
+@example
+@{
+  "action": "remove-target",
+  "target": @{
+    "address": "fe80:e015:e897::/24",
+    "class": "ipv6",
+    "device": "my-machine4",
+    "network": ""
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Target removed.","status":200@}
+@end example
+
+
+@item get-targets
+Lists targets
+
+Example request:
+@example
+@{"action":"get-targets"@}
+@end example
+
+Example response:
+@example
+@{
+  "message": "Target list.",
+  "status": 201,
+  "targets": [
+    @{
+      "address": "10.0.0.0/8",
+      "class": "ipv4",
+      "device": "my-machine2",
+      "network": ""
+    @},
+    @{
+      "address": "1.2.3.0/24",
+      "class": "ipv4",
+      "device": "my-machine4",
+      "network": "my-network"
+    @},
+    @{
+      "address": "fe80:4124:5696::/48",
+      "class": "ipv6",
+      "device": "my-machine3",
+      "network": ""
+    @}
+  ]
+@}
+@end example
+
+@item add-parameter
+Adds a new parameter, or changes a parameter value.
+
+Example request:
+@example
+@{
+  "action": "add-parameter",
+  "parameter": @{
+    "key": "key",
+    "value": "value"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Parameter added.","status":200@}
+@end example
+
+@item remove-parameter
+Removes a parameter value.
+
+Example request:
+@example
+@{
+  "action": "remove-parameter",
+  "parameter": @{
+    "key": "key",
+    "value": "value"
+  @}
+@}
+@end example
+
+Example response:
+@example
+@{"message":"Parameter removed.","status":200@}
+@end example
+
+@item get-parameters
+Lists parameters.
+
+Example request:
+@example
+@{"action":"get-parameters"@}
+@end example
+
+@example
+@{
+  "message": "Parameters list.",
+  "parameters": [
+    @{
+      "key": "asd",
+      "value": "def"
+    @},
+    @{
+      "key": "bunchy",
+      "value": "loss"
+    @},
+    @{
+      "key": "key",
+      "value": "value"
+    @}
+  ],
+  "status": 201
+@}
+@end example
+
+@end table
+
+@heading Status codes
+
+Error codes always start with 3 or 5. A 3xx error code results from
+something which is your fault e.g. procedural or syntactic violation, 5xx
+error codes result from errors internal to the system. This is still
+probably your fault :) e.g. specifying an interface which doesn't exist.
+
+A 2xx means you didn't do anything wrong, and the command worked.

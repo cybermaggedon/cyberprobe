@@ -1,0 +1,228 @@
+
+@node Using @command{cyberprobe}
+@section Using @command{cyberprobe}
+@cindex @command{cyberprobe}
+@cindex @command{cyberprobe} configuration
+
+@heading Starting cyberprobe with a configuration file
+
+The source code contains a file @file{config.json} which is a good template
+for any configuration you're going to build. However, for the purpose of
+this discussion, let's start from scratch. In order to do anything useful,
+there are three essential elements to a cyberprobe configuration file:
+interfaces, targets and endpoints. The system won't do anything useful
+without those three configuration elements defined. Let's start with a very
+simple configuration.
+
+Using your favourite text editor, create a text file, say @file{c.cfg} with the
+following contents:
+
+@example
+@{
+    "interfaces": [
+        @{ "interface": "eth0" @}
+    ]
+@}
+@end example
+
+Note: You should replace the @code{eth0} string with the name of your
+network interface. Remember? We discovered that when playing with the
+@command{ifconfig} command.
+
+@cindex Privileged user
+
+We're ready to roll. We need to run as a privileged used because cyberprobe
+captures data off the network interface. So, running as root, you need to
+locate the place where you compiled the code, and run @command{cyberprobe}
+giving it the name of the configuration file you just created:
+
+@example
+cyberprobe c.cfg
+@end example
+
+If everything goes to plan, you should see the following output:
+
+@example
+Capture on interface eth0 started.
+@end example
+
+If you see an error message, the obvious two things to check are:
+
+@itemize
+
+@item
+Did you name a network interface correctly? See @command{ifconfig}
+discussion above.
+
+@item
+Are you running as a privileged user?
+
+@end itemize
+
+If you see no output at all, check that your configuration file is correct.
+
+Once you are seeing the "Capture on interface eth0" line, then you've
+achieved success in this step, and are ready to move on.
+
+If you have everything working, there's one thing to note before moving on:
+cyberprobe treats a broken configuration file the same as an empty
+configuration file. With cyberprobe running, edit the configuration file,
+and delete the query (@samp{?}) prefix in the first line, so that it looks like
+this:
+
+@example
+FIXME @{
+@end example
+
+You've now broken the configuration file. It's not valid JSON any more, so
+the parsing fails. You should see this output from @command{cyberprobe}:
+
+@example
+Capture on interface eth0 stopped.
+@end example
+
+If you repair the damage to the configuration file, everything will start
+working again. The lesson here is: If you find that @command{cyberprobe}
+won't recognise any resources, it's likely that your configuration file is
+invalid. Use a JSON parser to check that the file is valid
+if you're not getting the results you expect.
+
+@cindex Target
+@cindex @command{cyberprobe}, target
+@heading Adding a target
+
+We have @command{cyberprobe} running, but it isn't doing anything
+useful. Remember, I said that a useful configuration consists of three
+minimal elements: interfaces, targets and endpoints? Well, currently we only
+have interfaces defined. That means that @command{cyberprobe} is capturing
+packets off of the network, but throwing them away.
+
+Let's add a target. Edit the targets block of the configuration file. We
+need an entry describing the IP address of my workstation. Remember? We
+discovered that with the ifconfig command earlier? Instead of
+@code{192.168.1.80} use the IP address of your workstation.
+
+@example
+@{
+    "interfaces": [
+        @{ "interface": "eth0" @}
+    ],
+    "targets": [
+        @{
+            "address": "192.168.1.80",
+            "device": "123456"
+        @}
+    ]
+@}
+@end example
+
+If successful, you should see new output from @command{cyberprobe}:
+
+@example
+Added target 192.168.1.80 -> 123456.
+@end example
+
+The target configuration allows specification of IPv4 and IPv6 addresses, and
+addresses can include a mask, which allows IP address matching to be applied
+in a wildcard configuration.  See @ref{@command{cyberprobe} configuration}
+
+At this step, we're capturing packets, spotting target addresses, but as
+there's no endpoint defined there's still nowhere to send the data. So, this
+is still a useless configuration. On to the next step...
+
+@heading Adding an endpoint
+@anchor{Adding an endpoint}
+
+Adding an endpoint to the configuration file will define a place where the
+captured data is sent. Before adding an endpoint, let's make sure there's
+something ready to receive the data.
+
+In a separate terminal window, navigate to the @command{cyberprobe} build,
+and run:
+
+@cindex @command{etsi-rcvr}
+
+@example
+etsi-rcvr 10000 | tcpdump -n -r -
+@end example
+
+The @command{etsi-rcvr} program opens a TCP port listening on port 10000 for
+a stream of ETSI data, and on standard output, writes the IP packets it sees
+in PCAP format. The tcpdump command receives this PCAP data, and outputs
+packet summaries.
+
+If that starts successfully, the next step is to plumb a connection from
+@command{cyberprobe} to @command{etsi-rcvr}.
+
+Next, edit the configuration file, and edit the endpoints block to deliver
+packets to a local service on port 10000:
+
+@cindex Endpoint
+@cindex @command{cyberprobe}, endpoint
+
+@example
+@{
+    "interfaces": [
+        @{ "interface": "eth0" @}
+    ],
+    "targets": [
+        @{
+            "address": "192.168.1.80",
+            "device": "123456"
+        @}
+    ],
+    "endpoints": [
+        @{
+            "hostname": "localhost",
+            "port": 10000,
+            "transport": "tcp",
+            "type": "etsi"
+        @}
+    ]
+@}
+@end example
+
+If that worked, you should see @command{cyberprobe} start the endpoint:
+
+@example
+Added endpoint localhost:10000 of type etsi
+@end example
+
+Hopefully you'll start to see some output from tcpdump...
+
+@heading Capturing data
+
+At this step, @command{cyberprobe} should be forwarding an network traffic
+your workstation generates to the tcpdump command, so that you see data. Any
+average workstation is generating network traffic all the time, so you won't
+need to do anything. But if you see nothing, you can do something like,
+visit the Google home page in a browser on your workstation. You should see
+something like this pouring from the tcpdump.
+
+@example
+18:54:24.376838 IP 192.168.1.80.54249 > 212.58.244.71.http: Flags [P.],
+ seq 1:673, ack 1, win 115, options [nop,nop,TS val 129851063 ecr 33669
+55869], length 672
+18:54:24.390768 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [.], 
+ack 673, win 124, options [nop,nop,TS val 3366955882 ecr 129851063], le
+ngth 0
+18:54:24.392909 IP 212.58.244.71.http > 192.168.1.80.54249: Flags [P.],
+ seq 1:1796, ack 673, win 124, options [nop,nop,TS val 3366955884 ecr 1
+29851063], length 1795
+@end example
+
+At this step, it's worth having a quick play with the reconnection
+mechanism. Stop and start @command{etsi-rcvr}, and you'll see that
+@command{cyberprobe} reconnects automatically:
+
+@cindex Connection reset
+@cindex Connection restart
+@cindex Reconnection
+
+@example
+ETSI LI connection to localhost:10000 failed.
+Will reconnect...
+ETSI LI connection to localhost:10000 established.
+@end example
+
+We don't guarantee zero data loss on a reconnect.

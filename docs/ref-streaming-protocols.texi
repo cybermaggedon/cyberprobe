@@ -1,0 +1,88 @@
+
+@node Output streaming protocols
+@section Output streaming protocols
+
+@cindex NHIS 1.1 LI
+@cindex ETSI LI
+@cindex NHIS 1.1
+@cindex ETSI
+@cindex ETSI TS 102 232-1
+@cindex TS 102 232-1
+@cindex LIID
+@cindex Device ID
+
+@command{cyberprobe} supports packet output in one of two output formats,
+which are both LI formats. LI formats were chosen as they set good, open
+standards for streaming packets to a destination. There are also existing
+security products such as firewalls, and analysis tools which understand
+with these protocols. The two formats are ETSI LI and NHIS 1.1.
+
+@cindex TS 102 232-3
+@cindex ETSI TS 102 232-3
+@anchor{ETSI LI}
+@heading ETSI LI
+
+The first of the formats supported is the ETSI LI format (see ETSI TS 102
+232), which is used in Europe and internationally. The protocol is described
+using an ASN.1 specification which can be downloaded from the ETSI
+web-site. Google can find the standards. The over-arching TS 102 232-1
+standard describes the transport, while the TS 102 232-3 standard describes
+putting the IP packets in the transport.
+
+Those adverse to the use of ASN.1 technology may prefer the second format.
+
+@cindex TS 101 671
+@cindex ETSI TS 101 671
+@cindex GLIC
+@anchor{NHIS LI}
+@heading NHIS LI
+
+NHIS 1.1 which was defined for use in the UK in the 90s, based on GLIC
+in ETSI TS 101 671. The protocol is a much simpler header protocol than ETSI
+LI, and needs less work to decode.
+
+The standard was available on the internet on the @url{http://gliif.org}
+website, but that web-site has recently gone offline.
+
+The bluffers guide to decoding goes...
+
+@itemize
+
+@item
+The first 32 bytes after TCP connection are a header. Ignore the first 4
+bytes, the latter 28 bytes are the LIID / device ID, represented as an ASCII
+string. Unused bytes following the LIID / device ID are set to zero to pad out
+to 32 bytes.
+
+@item
+Once the start header is sent, the following data consists of IP packets
+pre-fixed by a 20 byte header. The only information of note in each 20 byte
+header is a 2-byte length field at offset 2 (network byte order). This tells
+you the length of the IP packet.
+
+@item
+The IP packets are transmitted until the TCP connection closes.  A separate
+TCP connection is used for each LIID / device ID.
+
+@end itemize
+
+@heading Output semantics
+
+@command{cyberprobe} automatically reconnects to failed destinations, but
+the buffering strategy is very simple. When destinations fail, the packets
+are buffered in a small queue, but there is limited buffering, so once the
+queue fills, packets will start to be dropped. The locking strategy is
+simple, so loss of a single endpoint will currently result in data loss to
+all endpoints. This may be a problem for operational scenarios where high
+data availability is required.
+
+@command{cyberprobe} includes some code to decode the ETSI and NHIS streams,
+and also includes two test utilities, @command{etsi-rcvr} and
+@command{nhis11-rcvr} which listen on a specified port number, decode the
+stream data, and forward in PCAP format on standard output. Example usage
+would be:
+
+@example
+etsi-rcvr 10001 | tcpdump -n -r-
+nhis11-rcvr 10000 | tcpdump -n -r-
+@end example

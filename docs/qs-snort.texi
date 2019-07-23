@@ -1,0 +1,148 @@
+
+@node Integration with @command{snort}
+@section Integration with @command{snort}
+@cindex @command{snort}, integration
+@cindex Integration with @command{snort}
+
+In this step, we'll add the excellent IDS, Snort to the mix. If you don't
+know Snort, it scans network traffic for patterns, and can take various
+actions when those patterns are discovered. It is typically used to detect
+network attacks, and the Snort folks maintain a huge collection of patterns
+that will identify known network attacks. The Snort team maintain the
+project at @url{http://www.snort.org}.
+
+If you want to try out the Snort integration, you need to head over to the
+Snort home page, download and install Snort.  Or install the appropriate
+package with your distribution.
+
+Once you have it installed, to simplify things, you'll want to put a
+rule in place that will definitely identify things on your
+network. The easiest way is to add a local rule that identifies your
+workstation. First of all, you'll want to make sure your Snort
+configuration file (probably @file{/etc/snort/snort.conf}) loads a
+local rules file. So, it should contain something like this:
+
+@cindex @command{snort}, rules
+@cindex @command{snort}, signatures
+
+@example
+# site specific rules
+include $RULE_PATH/local.rules
+@end example
+
+Then, to identify your workstation, add a rule like this to your local rules
+file (probably @file{/etc/snort/rules/local.rules}):
+
+@example
+alert tcp 192.168.1.80 any -> any 80 (msg:"Web"; 
+classtype:misc-activity;sid:200; rev:1;)
+@end example
+
+@command{cyberprobe} itself needs to be configured to receive Snort
+alerts. You do that by adding a block to the configuration file at the top
+level:
+
+@example
+@{
+    ...
+    "snort-alerters": [
+        @{
+            "path": "/var/log/snort/snort_alert",
+            "duration": 60
+        @}
+    ]
+    ...
+@}
+@end example
+
+That says, Snort alerts will result in dynamic collection of data for 60
+seconds from identification. While you're in the configuration file, you can
+remove the static IP address target line. Make sure the targets block is empty
+or removed from the configuration:
+
+@example
+@{
+...
+    "targets": [],
+...
+@}
+
+@end example
+
+@command{cyberprobe} should respond:
+
+@cindex @command{snort} alerts
+
+@example
+Removed target 192.168.1.80 -> 123456.
+Start snort alerter on /var/log/snort/snort_alert
+@end example
+
+Now I can run Snort in IDS mode. Snort needs to run as 'root':
+
+@example
+snort -i eth0 -A unsock -N -l /var/log/snort/ -c /etc/snort/snort.conf
+@end example
+
+Thanks to our Snort rule, when our workstation generates network data, Snort
+will detect it, trigger our rule, and alert @command{cyberprobe}. You should
+see @command{cyberprobe} say:
+
+@example
+Hit on signature ID 200, targeting 192.168.1.80
+@end example
+
+Also, once the rule is triggered, you should see evidence of packet data
+from the @command{tcpdump} command, as before. @command{cyberprobe} causes
+the targeting to time out after a period of time. If further alerts are
+seen, the targeting lifetime is targeted. If no further alerts are seen the
+IP address targeting is deleted. If you can convince your workstation to
+stop creating network data, by e.g. not using it for a minute or so, then
+you should see the rule time out:
+
+@example
+Stopped targeting on 192.168.1.80
+@end example
+
+In practice this may be harder than you think, as workstations generate
+network traffic all the time. You may have to turn off your email clients
+and close the web browse. Your attempt to silence your workstation may be
+further thwarted by the operating system checking for patches without you
+knowing.
+
+@cindex @command{cyberprobe}, delay
+@cindex Delay
+@heading Introducing a delay
+
+Your Snort integration suffers from a particular problem now. The time taken
+for Snort to inspect some packets, generate an alert and for
+@command{cyberprobe} to get the IP address targeted is not zero. It is hard
+to measure, but it is going to be a significant chunk of a millisecond. The
+problem is that by the time @command{cyberprobe} is targeting the IP
+address, the network attcker's packets have long gone. The result is, that
+while @command{cyberprobe} is now targetting the attacker, it won't capture
+the original network attack.
+
+Our solution is to introduce a packet delay in @command{cyberprobe}. The
+packets entering @command{cyberprobe} are kept in a time-delay queue and are
+processed once that delay expires. You can configure a delay, by putting the
+delay attribute in an interface specfication. e.g.
+
+@example
+...
+    "interfaces": [
+        @{ "interface": "eth0", "delay": 0.2 @}
+    ]
+...
+@end example
+
+0.2 second should be plenty enough. You should be able to see this delay in
+action: When you generate network traffic, you should be able to see the
+delay between network activity taking place, and the corresponding burst of
+activity from tcpdump.
+
+At this point, you've completed the guided tour of @command{cyberprobe}, the
+packet capture tool. If that's all you need, the rest of the tutorial will
+probably have less interest to you: In the following steps, we'll start to
+analyse and act on the captured data.
+

@@ -1,0 +1,335 @@
+
+@node Obtaining the software
+@chapter Obtaining the software
+
+@heading Deployment using containers
+
+Deploying containers is by far the easiest way to get the software running.
+It is possible to deploy a complete software stack for data capture and
+analysis using Docker containers which requires the minimal amount of
+software installation.
+See @ref{A containerised processing system}.
+
+@heading Debian / Ubuntu repository
+
+@cindex Debian
+@cindex Ubuntu
+@cindex @command{dpkg}
+@cindex @command{apt-get}
+
+We use GoCD to build the software, and regularly release packages
+in DEB and RPM form.  Installing from the repository is the easiest way to
+install if you're not using containers.
+
+In order to install, you need to add our signing key to your system:
+
+@example
+  wget -q -O- \
+    https://cybermaggedon.github.io/cyberprobe-release/cyberprobe.asc | \
+    apt-key add -
+@end example
+
+We use this signing key:
+@example
+@include signing.texi
+@end example
+
+Once done you then add our repository to @file{/etc/apt/sources.list}.
+
+For Debian Stretch, add:
+@example
+deb https://cybermaggedon.github.io/cyberprobe-release/debian \
+  stretch main
+@end example
+
+For Debian Jessie, add:
+@example
+deb https://cybermaggedon.github.io/cyberprobe-release/debian \
+  jessie main
+@end example
+
+For Debian Wheezy, add:
+@example
+deb https://cybermaggedon.github.io/cyberprobe-release/debian \
+  wheezy main
+@end example
+
+For Ubuntu Xenial, add:
+@example
+deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu \
+  xenial main
+@end example
+
+For Ubuntu Bionic, add:
+@example
+deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu \
+  bionic main
+@end example
+
+Once added, the cyberprobe installation proceeds thus:
+
+@example
+apt-get update
+apt-get install cyberprobe
+@end example
+
+@heading Fedora
+
+@cindex Fedora
+@cindex @command{dnf}
+
+To install using DNF, create file
+@file{/etc/yum.repos.d/cyberprobe.repo}:
+
+@example
+[cyberprobe]
+name=Cyberprobe
+baseurl=https://cybermaggedon.github.io/cyberprobe-release/fedora/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://cybermaggedon.github.io/cyberprobe-release/cyberprobe.asc
+@end example
+
+and then:
+
+@example
+dnf install cyberprobe
+@end example
+
+We use this signing key:
+@example
+@include signing.texi
+@end example
+
+@heading Amazon Linux
+
+@cindex Amazon Linux
+@cindex @command{yum}
+
+To install using Yum create file
+@file{/etc/yum.repos.d/cyberprobe.repo}:
+
+@example
+[cyberprobe]
+name=Cyberprobe
+baseurl=https://cybermaggedon.github.io/cyberprobe-release/amazon/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://cybermaggedon.github.io/cyberprobe-release/cyberprobe.asc
+@end example
+
+and then:
+
+@example
+yum install cyberprobe
+@end example
+
+We use this signing key:
+@example
+@include signing.texi
+@end example
+
+@heading Download packages
+
+You can download packages manually; packages are currently available for
+Fedora, CentOS, Debian and Ubuntu.  Downloads are available on the project
+page at
+@url{http://github.com/cybermaggedon/cyberprobe/releases}.
+
+Fedora packages are installed using @code{dnf}:
+
+@example
+sudo dnf install <package>
+@end example
+
+Debian and Ubuntu packages are installed using @code{dpkg}:
+
+@example
+sudo dpkg -i <package>
+@end example
+
+If there are dependency errors e.g. because you don't have some dependencies
+installed, you can install them thus:
+
+@example
+sudo apt-get install -f
+@end example
+
+@heading Install from source
+
+Note: on many platforms, installing a package just adds the "run time" part
+of the code. In order to be able to compile code against the run time, you
+need to install a separate "developers kit" package. On Fedora, for
+instance, both @code{libpcap} and @code{libpcap-devel} are needed in order to
+be able to build this code from source.
+
+Note also that @code{lua} packages can be a little strange: sometimes the
+package will exist in your distribution, at other times you need to install a
+utility called @code{luarocks} to install the package.
+
+Source downloads are available on the project page at
+@url{http://github.com/cybermaggedon/cyberprobe/releases},
+look for the @file{.tar.gz} file.
+
+These files can be unwrapped, then configured:
+
+@example
+tar xvfz cyberprobe-X.Y.tar.gz
+cd cyberprobe-X.Y
+./configure
+make
+sudo make install
+@end example
+
+@file{README.linux} provides some hints for Linux users.
+If installing on MacOS, read @file{README.mac}.
+
+@cindex Checkout from @command{git} repository
+@cindex @command{git} repository
+@heading Installing from git
+
+To checkout the latest code using git:
+
+@example
+git clone https://github.com/cybermaggedon/cyberprobe
+@end example
+
+To build, use:
+
+@example
+autoreconf -fi
+./configure
+make
+sudo make install
+@end example
+
+Powered by Github, project page is at
+@url{https://cybermaggedon.github.io/cyberprobe-docs/}.
+
+@cindex Docker
+@cindex Containers
+@cindex Cyberprobe, docker repository
+@cindex @command{cyberprobe}, docker repository
+@cindex @command{cybermon}, docker repository
+@heading Docker repository
+
+There are two Docker repositories containing the Cyberprobe distribution.
+See @url{http://hub.docker.com/r/cybermaggedon/cyberprobe}.
+
+@itemize
+
+@item
+@code{docker.io/cybermaggedon/cyberprobe}
+
+@item
+@code{docker.io/cybermaggedon/cybermon}
+
+@end itemize
+
+The only difference is the default command which is executed on running
+the container.  Here are some container invocations you may find useful:
+
+@itemize
+
+@item
+Run @command{cyberprobe}.  You will need to create a configuration file
+and map it in to the container.
+@example
+sudo docker -it --rm -v /etc/cyberprobe:/etc/cyberprobe_host \
+  docker.io/cybermaggedon/cyberprobe \
+  cyberprobe /etc/cyberprobe_host/cyberprobe.fg
+@end example
+
+@item
+Run @command{cybermon}.  The @command{cybermon} container exposes port
+9000.
+@example
+sudo docker -it --rm -p 9000:9000 -v \
+  --net=host --privileged --cap-add=NET_ADMIN \
+  docker.io/cybermaggedon/cybermon \
+  cybermon -p 9000 -c /etc/cyberprobe/amqp-topic.lua
+@end example
+
+@item
+Run @command{cybermon-cassandra}.  You need to know the IP address
+of the host side of the Docker bridge network, and provide addresses
+of the Cassandra servers.
+@example
+sudo docker -it --rm -v \
+  docker.io/cybermaggedon/cybermon \
+  cybermon-cassandra cyberprobe \
+  10.142.146.6,10.142.146.8
+@end example
+
+@end itemize
+
+Running cyberprobe in a container makes the deployment easier, but it needs
+to run with elevated privileges in order to sniff the network, which reduces
+some of the advantages of running it in a container.
+
+@heading Dependencies
+
+The code doesn't have many dependencies. Exotic dependencies are:
+
+@cindex dependencies
+@cindex Build dependencies
+@cindex Boost
+@cindex Lua
+@cindex @code{libpcap}
+@cindex @code{expat}
+@cindex @code{tcpdump}
+@cindex @code{telnet}
+@cindex @code{luafilesystem}
+@cindex @code{luajson}
+@cindex @code{libtaxii}
+@cindex @code{stix}
+@cindex @code{lua-md5}
+@cindex @code{ncurses}
+@cindex @code{readline}
+
+@itemize
+
+@item
+Boost regex.
+
+@item
+Boost shared pointer.
+
+@item
+LUA - 5.1 or later.
+
+@item
+GCC C++ compiler and development support.
+
+@item
+@code{libpcap}.
+
+@item
+@code{tcpdump} - not needed to build the software, but we use it in the
+tutorial.
+
+@item
+@code{telnet} - not needed to build the software, but we use it in the
+tutorial.
+
+@item
+@code{luafilesystem}, if using certain Lua configuration files.
+
+@item
+@code{luajson}, if using certain Lua configuration files.
+
+@item
+@code{lua-md5}, for MD5 hashing payloads.
+
+@item
+@code{ncurses}, needed for the command line admin utility.
+
+@item
+@code{readline}, needed for the command line admin utility.
+
+@item
+For STIX support, @code{libtaxii} and @code{stix} are Python modules
+made available at @url{http://mitre.org} which can be downloaded using
+@code{pip}.
+
+@end itemize

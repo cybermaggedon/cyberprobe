@@ -1,0 +1,57 @@
+
+@c @ifnottex
+@node Top
+@top Cyberprobe
+
+This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
+
+@image{cyberprobe-overview,125mm,,png}
+
+Cyberprobe is a distrbuted architecture for real-time monitoring of networks
+against attack. This has applications in network monitoring,
+intrusion detection, forensic analysis, and as a defensive platform during
+an attack.
+
+The software consists of a number of components, including:
+
+@itemize @bullet
+
+@item
+a probe, which collects data packets and forwards it over a network in
+standard streaming protocols.
+
+@item
+a monitor, which receives the streamed packets, decodes the protocols, and
+interprets the information.
+
+@item
+a set of subscribers which can be used to do things with the captured data
+e.g. store to ElasticSearch, BigQuery or Gaffer.
+
+@end itemize
+
+These components can be used together or separately. For a simple
+configuration, they can be run on the same host, for more complex
+environments, a number of probes can feed a single monitor. For more detail,
+and to see where we are going, read the @ref{Architecture} page.
+
+@quotation Note
+FIXME: Architecture diagram needs an update.
+@end quotation
+
+@c @end ifnottex
+
+@menu
+* Overview::
+* Obtaining the software::
+* Quick start tutorial::
+* Running cyberprobe/cybermon at boot time::
+* The pub/sub infrastructure::
+* A containerised processing system::
+* Integrating with AWS Traffic Mirroring::
+* Endace DAG::
+* Reference::
+* Architecture::
+* GNU Free Documentation License::
+* Index::
+@end menu

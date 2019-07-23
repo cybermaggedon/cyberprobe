@@ -1,0 +1,32 @@
+
+@node @command{nhis11-rcvr} invocation
+@section @command{nhis11-rcvr} invocation
+
+@cindex @command{nhis11-rcvr}, invocation
+
+@command{nhis11-rcvr} provides a TCP server which accepts connections from
+NHIS LI clients,  decodes NHIS LI streams and outputs contained IP  packets  on
+the standard output in PCAP format.  TCP port number to use is provided
+on the command line.  Synopsis:
+
+@example
+nhis11-rcvr @var{port-number}
+
+@end example
+
+@itemize @bullet
+
+@item
+@var{port-number} is the TCP port number to list to for connections.
+See @ref{NHIS LI}.
+
+@end itemize
+
+@cindex @command{cyberprobe}, configuration
+
+@command{nhis11-rcvr} executes indefinitely - to end the program, a signal
+should be sent. e.g.
+
+@example
+killall nhis11-rcvr
+@end example

@@ -1,0 +1,1269 @@
+
+@node @command{cybermon} configuration
+@section @command{cybermon} configuration
+
+@heading Overview
+
+Cybermon is a simple monitoring tool. It receives the ETSI protocol, decodes
+the protocols, and makes decoded information available for further handling
+which you can specify. The tool is very much a work in progress - it has
+limited protocol decode capability at the moment, but there's enough there
+to demonstrate the idea.  Usage
+
+Usage is: @code{cybermon -p <port-number> -c <config-file>}
+
+You specify a port number to receive data on, and a configuration file
+written in Lua. Lua is a simple but powerful scripting language. Here's an
+example to help you see how the configuration is used.
+
+@heading Example configuration
+
+The configuration file is there to provide functions which get called when
+certain events occur. The calling interface is fairly simple at the moment,
+and over time, expect to see a richer interface develop.
+
+To start with, we create the structure of the configuration file. Call it
+something with a @code{.lua} extension e.g. @code{config.lua} so that your
+editor knows how to indent the code. The basic structure is a module with a
+number of functions:
+
+@example
+local observer = @{@}
+
+-- Called when an event occurs
+observer.event = function(e)
+  print(e.action)
+end
+
+-- Return the table
+return observer
+
+@end example
+
+@cindex LUA events
+@cindex @code{cybermon} events
+@cindex @code{action}
+@heading LUA event calls
+
+The configuration file is expected to provide the event function
+which is called with a single argument, an event, in response to
+@command{cybermon} events.  The event looks like a table, but is a userdata
+object.  While the object fields can be read, they cannot be written.
+
+The structure of the event object depends
+on the @code{action} field.
+
+@table @code
+
+@item trigger_up
+
+Called when an attacker is seen coming on-stream.  The event contains
+the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item device
+describes the device ID
+
+@item address
+contains the triggering IP address in string form.
+
+@end table
+
+@item trigger_down
+Called when an attacker is seen going off-stream.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item device
+describes the device ID
+
+@end table
+
+@item connection_up
+Called when a stream-based connection (e.g. TCP) is made.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@end table
+
+@item connection_down
+Similar to @code{connection_up}, called when a connection closes.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@end table
+
+@item icmp
+Called when an ICMP message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item type
+ICMP type value
+
+@item code
+ICMP code value
+
+@end table
+
+@item http_request
+Called when an HTTP request is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item method
+HTTP method
+
+@item url
+HTTP URL (derived from host and path).
+
+@item header
+HTTP header values in a Lua associative array.
+
+@item body
+HTTP request body, if one exists.
+
+@end table
+
+@item http_response
+Called when an HTTP response is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item code
+HTTP response code
+
+@item status
+HTTP response status
+
+@item header
+HTTP response header, a Lua associative array.
+
+@item body
+HTTP response body.
+
+@end table
+
+@item smtp_command
+Called when an SMTP command is observed i.e. a single line message going to
+the server from a client.
+The event contains the following fields:
+
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item command
+the SMTP command
+
+@end table
+
+@item smtp_response
+Called when an SMTP response is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item status
+the SMTP status value e.g. @code{200}
+
+@item text
+SMTP human-readable response text, an array of strings
+
+@end table
+
+@item smtp_data
+Called when an SMTP payload is observed i.e. the body of text following the
+DATA command. To aid processing, the SMTP protocol processor assembles
+information from other commands.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+
+@item from
+contains the email From address described in the MAIL FROM command.
+
+@item to
+a list of addresses contained in all RCPT TO commands.  An array of strings.
+
+@item data
+contains the email body - it will be an RFC822
+payload.
+
+@end table
+
+@item ftp_command
+Called when an FTP command is observed i.e. a single line message going to
+the server from a client.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item command
+contains the command string.
+
+@end table
+
+@item ftp_response
+Called when an FTP response is observed. That is, status going from server
+to client following a command.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item status
+FTP status code e.g. 200.
+
+@item text
+contains the response text,
+described as a list of strings. Responses may occur over a number of lines,
+hence the parameter is a list: For single-line responses, there is only a
+single item in the list.
+
+@end table
+
+@item dns_message
+Called when a DNS message is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item header
+describes the DNS header
+
+@item query
+the DNS queries
+
+@item answer
+contains the answers in a response message
+
+@item auth
+DNS nameserver authority descriptions
+
+@item add
+provides additional DNS records
+
+@end table
+
+@item ntp_timestamp_message
+Called when a NTP timestamp message is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item header
+the NTP header
+
+@item timestamp
+contains the specific timestamp information
+
+@end table
+
+@item ntp_control_message
+Called when a NTP control message is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item header
+the NTP header
+
+@item control
+specific NTP control information.
+
+@end table
+
+@item ntp_private_message
+Called when a NTP control message is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item header
+the NTP header
+
+@item private
+specific NTP private information.
+
+@end table
+
+@item unrecognised_datagram
+Called when a datagram is received using a protocol which isn't
+recognised.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item data
+the payload.
+
+@end table
+
+@item unrecognised_stream
+Called when connection-orientated data is received using a protocol which
+isn't recognised.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item data
+the payload.
+
+@item position
+the stream position of the payload in bytes.  Starts at 0 when stream is
+connected, and increases with payload size.
+
+@end table
+
+@item imap
+Called when an IMAP message is detected - this is currently a port number
+detection.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item data
+the payload.
+
+@end table
+
+@item imap_ssl
+Called when an IMAP SSL message is detected. This is currently a port number
+detection.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item data
+the payload.
+
+@end table
+
+@item pop3
+Called when a POP3 message is detected.  This is currently
+a port number detection.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item data
+the payload.
+
+@end table
+
+@item pop3_ssl
+Called when a POP3 SSL message is detected. This is currently a port number
+detection.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item data
+the payload.
+
+@end table
+
+@item sip_request
+Called when a SIP request is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+
+@item from
+SIP originator
+
+@item to
+SIP destination
+
+@item method
+SIP method
+
+@item data
+the payload.
+
+@end table
+
+@item sip_response
+Called when a SIP request is observed.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item code
+SIP response code
+
+@item status
+SIP response status
+
+@item from
+SIP originator
+
+@item to
+SIP destination
+
+@item data
+the payload.
+
+@end table
+
+@item sip_ssl
+Called when a SIP SSL message is detected. This is currently a port number
+detection.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item data
+the payload.
+
+@end table
+
+@item gre
+Called when a GRE message with an unknown ethertype is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item next_proto
+the ethertype of the next protocol
+
+@item key
+the key, if present. If the key is not present then it will default to 0.
+
+@item sequence_number
+the sequence number, if present. If the sequence number is not present then it
+will default to 0.
+
+@item payload
+the payload
+
+@end table
+
+@item gre_pptp
+Called when a GRE PPTP message with an unknown ethertype is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item next_proto
+the ethertype of the next protocol
+
+@item call_id
+the call id
+
+@item sequence_number
+the sequence number, if present. If the sequence number is not present then it
+will default to 0.
+
+@item acknowledgement_number
+the acknowledgement number, if present. If the acknowledgement number is not
+present then it will default to 0.
+
+@item payload_length
+the payload length
+
+@item payload
+the payload
+
+@end table
+
+@item esp
+Called when an ESP packet is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item spi
+the SPI
+
+@item sequence_number
+the sequence number
+
+@item payload_length
+the payload length
+
+@item payload
+the payload
+
+@end table
+
+@item unrecognised_ip_protocol
+Called when an IP packet with an unhandled next protocol is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item next_proto
+the protocol number of the next protocol
+
+@item payload_length
+the payload length
+
+@item payload
+the payload
+
+@end table
+
+@item wlan
+Called when an 802.11 packet is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item version
+the 802.11 version
+
+@item type
+the type of the 802.11 dataframe
+
+@item subtype
+the subtype of the 802.11 dataframe
+
+@item flags
+the flags of the 802.11 dataframe
+
+@item protected
+the protected flag of the 802.11 dataframe, indicates if the payload is encrypted
+
+@item duration
+the duration
+
+@item filt_addr
+the filter MAC address
+
+@item frag_num
+the fragmentation number of the dataframe
+
+@item seq_num
+the sequence number of the dataframe
+
+@end table
+
+@item tls_unknown
+Called when an unknown TLS message (i.e. one that isn't covered by further
+handling) is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+The version of the TLS header.
+
+@item content_type
+The content type of the TLS message.
+
+@item length
+The length of the TLS message.
+
+@end table
+
+@end table
+
+@item tls_client_hello
+Called when a TLS Client Hello message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+The TLS version specified in the client hello message.
+
+@item session_id
+The session ID of the message.
+
+@item random_timestamp
+The timestamp field in the random field of the TLS message.
+
+@item random_data
+The data field in the random field of the TLS message.
+
+@item cipher_suites
+An ordered array of the cipher suites from the message.
+Each entry is a table with @code{id} and @code{name} fields.
+
+@item compression_methods
+An ordered array of the compression methods from the message.
+Each entry is a table with @code{id} and @code{name} fields.
+
+@item extensions
+An ordered array of the extensions from the message.
+Each entry is a table with @code{name}, @code{length} and @code{data} fields.
+(@code{data} will only be present if the @code{length} > 0)
+
+@end table
+
+@end table
+
+@item tls_server_hello
+Called when a TLS Server Hello message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+The TLS version specified in the server hello message.
+
+@item session_id
+The session ID of the message.
+
+@item random_timestamp
+The timestamp field in the random field of the TLS message.
+
+@item random_data
+The data field in the random field of the TLS message.
+
+@item cipher_suite
+The cipher suite from the message, as a table with @code{id} and @code{name} fields.
+
+@item compression_method
+The compression method from the message, as a table with @code{id} and @code{name} fields.
+
+@item extensions
+An ordered array of the extensions from the message.
+Each entry is a table with @code{name}, @code{length} and @code{data} fields.
+(@code{data} will only be present if the @code{length} > 0)
+
+@end table
+
+@end table
+
+@item tls_server_key_exchange
+Called when a TLS Server Key Exchange message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item key_exchange_algorithm
+The key exchange algorithm being used.
+
+@item curve_metadata
+Metadata about the curve (if ecdh) being used, as key:value pairs.
+
+@item public_key
+The public key field as bytes.
+
+@item signature_hash_algorithm
+The signature hash algorithm field.
+
+@item signature_algorithm
+The signature algorithm field.
+
+@item signature_hash
+The signature hash field. As a hex string
+
+@end table
+
+@end table
+
+@item tls_certificates
+Called when a TLS certificates message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item certificates
+an ordered array of certificates, each in bytes.
+
+@end table
+
+@end table
+
+@item tls_server_hello_done
+Called when a TLS Server Hello Done message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+@end table
+
+@end table
+
+@item tls_handshake_unknown
+Called when a TLS handshake message is detected, that isnt explicitly handled.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item type
+the type of the handshake message
+
+@item length
+the length of the handshake message
+
+@end table
+
+@end table
+
+@item tls_certificate_request
+Called when a TLS certificate request message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item cert_types
+An ordered array of certificate types
+
+@item signature_algorithms
+An ordered array of the Signature Algorithms from the message.
+Each entry is a table with @code{hash_algorithm} and @code{signature_algorithm} fields.
+
+@item distinguished_names
+the distinguished names field in bytes
+
+@end table
+
+@end table
+
+@item tls_client_key_exchange
+Called when a TLS client key exchange message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item key
+the key in bytes
+
+@end table
+
+@end table
+
+@item tls_certificate_verify
+Called when a TLS certificate verify message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item signature_algorithm
+the Signature Algorithms from the message. As a table with @code{hash_algorithm}
+and @code{signature_algorithm} fields.
+
+@item signature
+the signature as a hex string
+
+@end table
+
+@end table
+
+@item tls_change_cipher_spec
+Called when a TLS change cipher spec message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item val
+the value field
+
+@end table
+
+@end table
+
+@item tls_handshake_finished
+Called when a TLS handshake finished message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item msg
+the encrypted message
+
+@end table
+
+@end table
+
+@item tls_handshake_complete
+Called when a TLS handshake has been completely finished - i.e. both sides of the
+communication have sent change_cipher_spec and handshake_finished.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@end table
+
+@item tls_application_data
+Called when a TLS application data message is detected.
+The event contains the following fields:
+
+@table @code
+
+@item time
+time of event in format @code{YYYYMMDDTHHMMSS.sssZ}
+
+@item context
+a LUA userdata variable which can't be access directly, but can
+be used with the functions described below to access further information
+from @command{cybermon}.
+
+@item tls
+@table @code
+
+@item version
+the version on the TLS header.
+
+@item data
+the encrypted message.
+
+@end table
+
+@end table
+
+
+@end table
+
+@cindex @code{context} object
+@cindex @code{cybermon} @code{context} object
+@heading Context object
+
+From the LUA code there, the @code{context} variable has a number of method
+functions which can be called:
+
+@table @code
+
+@item context:get_type()
+Returns the protocol type of the context e.g. @code{http}, @code{tcp}, @code{udp}, @code{dns}, @code{ip4}
+
+@item context:get_parent()
+
+Returns the parent context relating to a context. This can be used to travel
+"up" the protocol stack. For example, call get_parent on a TCP context will
+return the IP context.
+
+@item context:get_src_addr()
+Returns the source address relating to a context. Returns two string
+variables: the first is the address class e.g. @code{ipv4}, the second is the
+address value e.g. @code{1.2.3.4}.
+
+@item context:get_dest_addr()
+Returns the destination address relating to a context. Returns two string
+variables: the first is the address class e.g. @code{ipv4}, the second is the
+address value e.g. @code{1.2.3.4}.
+
+@item context:get_reverse()
+Returns the context relating to the "other side" of a communication, but
+only if this has been identified. On an HTTP response, @code{get_reverse}
+will return the HTTP request. In the @code{http_request} function you will
+not be able to use @code{get_reverse} to find the HTTP response because the
+response does not exist at the point the request is identified.
+
+@item context:get_id()
+Returns a context's unique ID. Can be useful for tracking, or can be used as
+index into your own LUA structures to associate information with contexts.
+
+@item context:describe_src()
+Returns a human readable description of the protocol stack using source
+addresses.
+
+@item context:describe_dest()
+Returns a human readable description of the protocol stack using source
+addresses.
+
+@item context:get_device()
+Returns the trigger ID associated with a "target".
+
+@item context:get_network_info()
+@cindex @code{network} attribute, @file{cyberprobe.cfg}
+Returns three variables: the network name (from ETSI NetworkElementID),
+the source and destination network addresses (IP addresses) for this data.
+These are in normal IP address string format.  Network name is
+the empty string, if not provided in the input stream.
+See @ref{@command{cyberprobe} configuration} for specifying the
+network.
+
+@item context:get_trigger_info()
+Returns the IP address which triggered this collection, if known. If not,
+@code{0.0.0.0}x is returned. This is in normal IP address string format.
+
+@item context:get_direction()
+Returns the direction of the event with respect to the target device, if
+known.  This will be a string containing @samp{FROM_DEVICE}, @samp{TO_DEVICE},
+or @samp{NOT_KNOWN}.  The packet direction can only be determined if
+the ETSI stream delivery format is in use.  @command{cyberprobe} works out
+packet direction with respect to the addresses specified in the
+@file{cyberprobe.cfg} file.
+
+@item context:forge_tcp_reset()
+Creates a TCP reset packet and directs it at the source address associated
+with this context. Must have TCP protocol present in the stack.
+
+@item context:forge_dns_response(header, queries, answers, add)
+Creates a DNS message and directs it at the source
+address associated with this context. The provided parameters are used as
+protocol data in the DNS encoder.
+
+@end table
+

@@ -1,0 +1,167 @@
+
+@node Visualisation
+@section Visualisation
+@cindex Visualisation
+@cindex ElasticSearch
+@cindex Storing observations
+
+@heading Storing observations
+
+Now we need somewhere to store the observations which @command{cybermon}
+discovers. There are many candidates for a storage repository, but my
+favourite for this sort of scenario is the excellent ElasticSearch (
+@url{http://www.elasticsearch.org/}). It is flexible, offers a huge amount
+of functionality, and is incredibly simple to interface with, thanks to its
+JSON API. So, your next action is to head over to the download page
+(@url{http://www.elasticsearch.org/download/}) and get hold of the latest
+version. I'm using version 7.0 to build this tutorial but the
+ElasticSearch API has proven hugely stable, so should work with the latest.
+
+The easiest way to run ElasticSearch is as a Docker container, although you
+could download and run the distribution.
+
+@example
+docker run --name elasticsearch -p 9200:9200 \
+  elasticsearch:7.0
+@end example
+
+One brilliant thing about ElasticSearch is that it needs almost no
+configuration to get an instance started. You will need to make one
+configuration change to ElasticSearch if there are other instances running
+on your network: you need need to change @code{cluster.name} to some unique
+string in @file{config/elasticsearch.yml}, otherwise your ElasticSearch
+instance might join another cluster on your network, which could complicate
+things.
+
+You can check you have ElasticSearch up and running using a command such as
+this:
+
+@example
+wget -q -O- http://localhost:9200
+@end example
+
+The response will look something like this:
+
+@cindex JSON
+
+@example
+@{
+  "name" : "gAbVXGZ",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "TPZLBGYnTNqe0-LVLiF6yw",
+  "version" : @{
+    "number" : "7.0.0",
+    "build_hash" : "bd92e7f",
+    "build_date" : "2017-12-17T20:23:25.338Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.1.0",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  @},
+  "tagline" : "You Know, for Search"
+@}
+@end example
+
+Once ElasticSearch is running, you can get @command{cybermon} to load
+observations into it.  Before we do that, need RabbitMQ to provide the
+pub/sub infrastructure:
+
+@example
+docker run --name amqp -p 5672:5672 -p 15672:15672 \
+    docker.io/library/rabbitmq:3.7.4-management
+@end example
+
+Next we need to run two commands.
+Firstly, @command{cybermon} is run to output events on a RabbitMQ
+pub/sub queue.
+
+@example
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/amqp-topic.lua
+@end example
+
+While that's running, we can start the ElasticSearch loader:
+
+@example
+cybermon-elasticsearch cyberprobe
+@end example
+
+After some network data has been observed, you should be able to see results
+loaded into ElasticSearch using the following command:
+
+@example
+es=localhost:9200
+curl -s -XPOST \
+  "http://$es/cyberprobe/_search?pretty=true" -d '
+@{
+  "query" : @{
+    "match_all": @{@}
+  @}
+@}
+'
+@end example
+
+You should see some stuff which looks like data scrolling past on the
+screen. If your response looks like the following result, that's not so
+good, as it means there are no results. See @code{hits.total}? Zero means no
+results.
+
+@example
+@{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : @{
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  @},
+  "hits" : @{
+    "total" : 0,
+    "max_score" : null,
+    "hits" : [ ]
+  @}
+@}
+@end example
+
+If you see a lot of information scrolling past on the screen, that's good.
+
+@command{cybermon-elasticsearch} maps the @command{cybermon}
+observations into a form which is appropriate to store in
+ElasticSearch. 
+
+@cindex Kibana, dashboard
+@cindex Dashboard
+@heading Visualising observations
+
+Having loaded the observations into ElasticSearch, it's easy to do some
+visualisation with Kibana. Kibana is a brilliant, user-configurable
+dashboard package designed to sit on ElasticSearch. The dashboard runs in
+your browser.
+
+First thing to do is to run up a Kibana container.  Kibana is made by the
+ElasticSearch people, download page is at
+@url{http://www.elasticsearch.co/downloads/kibana}.
+
+Run a Kibana container:
+
+@example
+docker run --name kibana \
+  -e ELASTICSEARCH_URL=http://elasticsearch:9200/ -p 5601:5601 \
+  --link elasticsearch:elasticsearch \
+  kibana:7.0
+@end example
+
+Kibana starts on port 5601, so point your browser at e.g.
+@url{http://localhost:5601}
+
+and hopefully you see Kibana's "Welcome to Kibana" screen.
+
+Read the Kibana tutorial and start playing with the data.
+First thing you need to do is
+create a @code{cyberprobe} index with the time field @code{time}.
+The go to the Visualize tab to see raw data.
+
+Once you have data loading into ElasticSearch, you may want to install
+our basic dashboards.  These are installed at:
+@example
+@file{@value{DOCDIR}/kibana-dashboards.json}
+@end example

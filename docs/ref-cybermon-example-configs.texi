@@ -1,0 +1,103 @@
+
+@node @command{cybermon} example configurations
+@section @command{cybermon} example configurations
+
+@cindex @command{cybermon}, example configurations
+@cindex @command{cybermon}, configuration
+@heading Example configuration files
+
+@table @file
+
+@item forge-dns.lua
+
+Example Lua script, spots DNS queries for @samp{example.org}, and responds
+with made-up IP addresses.
+
+@item forge-reset.lua
+
+Example script, spots TCP port 22 sessions (which is the port number normally
+used for SSH sessions).  If detected, a TCP reset is forged.
+
+@item hexdump.lua
+
+Like @file{monitor.lua}, but adds a hex-dump of event payloads to the output.
+
+@item monitor.lua
+
+For each Lua event, outputs a plain text summary of the output on standard
+output.
+
+@item zeromq.lua
+
+@cindex ZeroMQ
+@cindex Cybermon JSON message format
+@cindex publish/subscribe
+@cindex pub/sub
+@cindex JSON
+
+For each Lua event, a JSON record is formatted and published to a ZeroMQ
+queue on port 5555.  See @ref{Cybermon JSON message format}.
+
+@item amqp-topic.lua
+
+@cindex AMQP
+@cindex RabbitMQ
+@cindex Cybermon JSON message format
+@cindex publish/subscribe
+@cindex pub/sub
+@cindex JSON
+
+For each Lua event, a JSON record is formatted and published to a RabbitMQ
+broker.  See @ref{Cybermon JSON message format}.  Environment variables
+@samp{AMQP_BROKER}, @samp{AMQP_EXCHANGE}, @samp{AMQP_ROUTING_KEY} can be
+used to tailor delivery.
+
+@item redis.lua
+
+@cindex Redis
+@cindex Cybermon JSON message format
+@cindex queue delivery using Redis
+@cindex JSON
+
+For each Lua event, a JSON record is formatted and RPUSH'd to a Redis server
+defiend by the @code{REDIS_SERVER} environment variable which should be in
+@code{HOST:PORT} form.
+Each message is JSON format, see @ref{Cybermon JSON message format}.
+
+@item json.lua
+
+@cindex Cybermon JSON message format
+@cindex JSON
+
+For each Lua event, a JSON record is formatted and delivered to standard
+outut.
+Each message is JSON format, see @ref{Cybermon JSON message format}.
+
+@item quiet.lua
+
+Does nothing.  This is an empty code shell, and a good template to write
+your own event handler.
+
+@end table
+
+@heading Utilities
+
+The @file{@value{SYSCONFDIR}/cyberprobe/util} directory contains some Lua
+utilities which can be used by other Lua configuration files.  They can be
+loaded as modules e.g.
+
+@example
+local addr = require("util.addresses")
+@end example
+
+The utilities are:
+
+@table @file
+
+@item addresses.lua
+Some @code{cybermon} address handling functions.
+
+@item json.lua
+The real JSON formatting is done here.
+
+@end table

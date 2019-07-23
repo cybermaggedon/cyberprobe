@@ -1,0 +1,186 @@
+
+@node @command{cyberprobe} configuration
+@section @command{cyberprobe} configuration
+@cindex @command{cyberprobe}, configuration
+@cindex @command{cyberprobe}, @code{control}
+@cindex @command{cyberprobe}, @code{interfaces}
+@cindex @command{cyberprobe}, @code{targets}
+@cindex @command{cyberprobe}, @code{endpoints}
+@cindex @command{cyberprobe}, @code{snort_alert}
+@cindex @code{control}
+@cindex @code{interfaces}
+@cindex @code{targets}
+@cindex @code{endpoints}
+@cindex @code{snort_alert}
+@cindex IP address matching
+@cindex IP address mask
+@cindex @code{targets}, address mask
+
+The configuration file is re-read when it changes, and changes are
+immediately actioned.
+
+Sample configuration:
+
+@example
+@{
+    "interfaces": [
+        @{
+            "interface": "eth0",
+            "filter": "not port 10001 and not port 10002",
+            "delay": 0.5
+        @},
+        @{
+            "interface": "eth1"
+        @}
+    ],
+    "targets": [
+        @{ "address": "192.168.1.1", "device": "sam-iphone" @},
+        @{ "address": "192.168.1.2", "device": "fred-android" @},
+        @{ "address": "10.2.0.0/16", "device": "lisa-mac" @},
+        @{ "address": "10.1.1.0", "device": "suzie-mac" @},
+        @{ "address": "10.1.1.2", "device": "suzie-android" @},
+        @{ "address": "10.1.1.3", "device": "suzie-iphone" @},
+        @{ "address": "10.1.1.4", "device": "imogen-pc" @},
+        @{ "address": "10.1.1.5", "device": "imogen-pc" @},
+        @{ "address": "10.1.1.6", "device": "imogen-pc" @},
+        @{ "address": "10.1.1.7", "device": "imogen-ipad" @},
+        @{ "address": "10.1.1.8", "device": "imogen-android" @},
+        @{ "address": "10.1.1.9", "device": "imogen-android" @},
+        @{ "address": "10.1.1.10", "device": "will-tablet" @},
+        @{ "address": "aaaa:bbbb:cccc:dddd::4:5:6", "class": "ipv6",
+          "device": "sam-pc" @},
+        @{ "address": "aaaa:bbbb:cccc::/48", class: "ipv6",
+          "device": "sam-pc" @}
+    ],
+
+    "endpoints": [
+        @{
+            "hostname": "monitor1",
+            "port": 10001,
+            "type": "nhis1.1"
+        @},
+        @{
+            "hostname": "monitor2",
+            "port": 10002,
+            "type": "etsi"
+        @}
+    ],
+    "parameters": @{
+        "country": "DE",
+        "operator": "Cyber",
+        "network_element": "10.8.2.4",
+        "interception_point": "abcd1234",
+        "username.123456": "user01@@example.org",
+        "username.123981": "user02@@example.org",
+        "username.981235": "user03@@example.org",
+        "snort.1.liid": "SNORT1",
+        "snort.2.liid": "SNORT2"
+    @},
+    "snort-alerters": [
+        @{
+            "duration": 30,
+            "path": "/tmp/alert"
+        @}
+    ]
+@}
+@end example
+
+The @code{control} element is optional, if it exists, @command{cyberprobe} runs
+a management interface on the specified port. The @code{port},
+@code{username} and @code{password} attributes must be specified. See
+@ref{Management interface} for how to communicate with that interface.
+
+@cindex VXLAN
+@cindex AWS Traffic Mirroring
+The @code{interfaces} block defines a set of interfaces to sniff. The
+@code{name} attribute is mandatory, the @code{filter} element is optional,
+and if specified should describe a BPF (Berkley Packet Filter)
+expression. The @code{delay} element can be used to specify, in seconds, the
+duration to wait before packets are processed. The delay is specified as a
+floating point decimal.  If the interface name is of the form
+@command{vxlan:PORT} then a VXLAN receiver is run in the specified port
+number for reception of e.g. AWS Traffic Mirroring.
+
+The @code{targets} block defines IP address to match. The
+@code{address} attribute defines the IP address with optional mask used for
+the address match. If a mask is specified, this describes the subset of the
+address which will be used for matching.  For instance, if
+@code{192.168.0.0/16} is specified, then a 16-bit mask will be applied, which
+makes this a class-B address match.  That is, any address in the
+@code{192.168.0.0}-@code{192.168.255.255} range will match.
+If no mask is specified, then this is an exact match against a single address.
+The @code{device} attribute defines the deivce ID which will be applied
+if this
+particular IP address is detected.
+
+@cindex @code{network} attribute, @file{cyberprobe.cfg}
+The optional @code{network} attribute
+defines the network (ETSI NetworkElementID), which, if specified,
+will be transmitted in the ETSI stream, and delivered as the JSON
+@samp{network} element in @command{cybermon} output.
+The address must be an IP address, and
+not a hostname. The address can be an IPv6 address if the @code{class}
+attribute is included, and set to @code{ipv6}.
+
+Device IDs can occur in multiple places in the target block, allowing
+multiple IP
+addresses to match to the same device ID, but the same IP address/mask specifier
+should only occur once in the target block.
+
+If subnetwork ranges overlap, the longest prefix match applies.
+
+The @code{device} and @code{network} can contain template constructs:
+
+@table @samp
+
+@item %i
+This is replaced with the IP address which causes a match.
+
+@item %s
+This is replaced with the IP address in the target rule - useful if this
+is a subnetwork address.
+
+@item %m
+This is replaced with the source MAC address in the header of the packet
+which causes a match.
+
+@item %v
+This is replaced with the VLAN ID in the header of the packet which causes
+a match.
+
+@item %%
+This is replaced with a literal @code{%}.
+
+@end table
+
+@cindex @code{certificate}, cyberprobe configuration option
+@cindex @code{key}, cyberprobe configuration option
+@cindex @code{trusted-ca}, cyberprobe configuration option
+@cindex TLS
+@cindex SSL
+@cindex cyberprobe secure delivery
+The @code{endpoints} block defines a set of addresses for delivery. The
+@code{hostname} and @code{port} attributes should be used to describe the
+endpoint address. Type @code{type} attribute should be @code{nhis1.1} or
+@code{etsi} to specify which output stream format to use.  The @code{transport}
+describe the transport type, which should be @code{tcp} for standard TCP stream,
+or @code{tls} for an SSL/TLS stream.  If TLS is invoked, the attributes
+@code{certificate}, @code{key} and @code{trusted-ca} should be specified,
+with filenames for client certificate, private key, and a trust CA chain.
+These should all be in PEM format.
+
+The optional @code{parameters} block defines a set of parameters which are
+only used in ETSI delivery. Each parameter element should have a @code{key}
+and a @code{value} attribute. The parameter values for @code{country},
+@code{operator}, @code{network_element} and @code{interception_point}
+describe values which are used in the @code{PSHeader} and @code{IRI}
+constructs. The parameters with prefix @code{username.} describe values for
+the @code{username} values in the IPIRI construct in ETSI LI. The @code{key}
+value is the literal @code{username.} suffixed with the device ID. If such an
+entry is present, it is used for the @code{username}. All parameters are
+optional, meaningless defaults (e.g. unknown) will be used if not specified.
+The @code{etsi-streams} parameter specifies the number of TCP streams which
+will be opened for delivery, the default being 12.  This feature potentially
+increases throughput, and is useful if the destination is a load-balanced
+resource.
+

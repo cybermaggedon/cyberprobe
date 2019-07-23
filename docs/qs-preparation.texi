@@ -1,0 +1,128 @@
+
+@node Preparation
+@section Preparation
+
+@cindex Building
+@cindex Downloading
+@cindex Compilation
+@cindex Packages
+@cindex Installation
+@heading Build software
+
+For installation, see @ref{Obtaining the software}.
+There's a fair amount of development taking place in the git repository, so
+you probably want to get the a package, or use the latest release on the
+downloads page (@url{http://github.com/cybermaggedon/cyberprobe/releases}).
+
+@cindex Executables
+@cindex Build targets
+
+The compilation process compiles the following commands:
+
+@table @command
+
+@cindex @command{cyberprobe}
+@item cyberprobe
+Packet capture.
+
+@cindex @command{cybermon}
+@item cybermon
+Data analyser, analyses the data streams and reports events.
+
+@cindex @command{etsi-rcvr}
+@item etsi-rcvr
+Test decoder for ETSI format data.
+
+@cindex @command{cyberprobe-cli}
+@item cyberprobe-cli
+Cyberprobe control command-line client.
+
+@cindex @command{cybermon-bigquery}
+@item cybermon-bigquery
+Pub/sub subscriber, delivers events to Google Bigquery.
+
+@cindex @command{cybermon-cassandra}
+@item cybermon-cassandra
+Pub/sub subscriber, delivers events to Cassandra.
+
+@cindex @command{cybermon-elasticsearch}
+@item cybermon-elasticsearch
+Pub/sub subscriber, delivers events to ElasticSearch.
+
+@cindex @command{cybermon-gaffer}
+@item cybermon-gaffer
+Pub/sub subscriber, delivers events to Gaffer.
+
+@cindex @command{cybermon-geoip}
+@item cybermon-geoip
+Pub/sub subscriber, uses GeoIP to add location information to events, and
+then republishes them.
+
+@cindex @command{cybermon-detector}
+@item cybermon-detector
+Pub/sub subscriber, looks for matches for STIX IOCs, adds IOC information
+to events, and then republishes them.
+
+@cindex @command{cybermon-dump}
+@item cybermon-dump
+Pub/sub subscriber, dumps out raw JSON messages.
+
+@cindex @command{cybermon-alert}
+@item cybermon-dump
+Pub/sub subscriber, alerts on matching IOCs.
+
+@end table
+
+@cindex Discussion forums
+
+If it installs / builds without errors, then it's time to start something up. 
+If you have problems you can't resolve raise an issue at
+(@url{https://github.com/cybermaggedon/cyberprobe/issues}).
+
+@cindex Network parameters
+@heading Establish network parameters
+
+The simplest way to use cyberprobe is to use it on a Linux workstation, or
+in a virtual machine.  Maybe you're using a Linux desktop now now?  If so,
+you could use it to capture all the data going to/from the internet. This
+will be a static configuration in order to keep things simple. We'll do
+dynamic tracking later.
+
+In the next few steps, you'll use @command{cyberprobe} to capture some data,
+on your workstation, and stream it to @command{etsi-rcvr} so that you know it's
+working. But first, you'll need to collect some information about your
+configuration.
+
+@cindex @command{ifconfig}
+
+You need to know the name of the network interface you are using. The
+command @command{/sbin/ifconfig} will show you all the network interfaces
+your machine knows about. e.g.
+
+@example
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10
+        [etc.]
+
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
+        inet 192.168.1.80  netmask 255.255.255.0
+        inet6 fe80::a60:6eff:fe81:7a75  prefixlen 64
+        [etc.]
+@end example
+
+The lo interface is a loopback interface, and isn't really on the network,
+so ignore that. It's an interface that gets packets going to
+@code{127.0.0.1} and makes sure they end up handled by your
+workstation. Your interface is quite likely to be called something like
+eth0. The other thing you need to know is the IP address of your
+workstation. The IP address is associated with an interface, so in the above
+example, I can see I have an IP address @code{192.168.1.80}.
+
+Note: on some networks (like mine) the IP address is allocated
+dynamically. In my case, the IP address is allocated by the broadband
+router. If things aren't working as you expect, you should check your IP
+address to check your workstation hasn't been allocated a new, different
+address. In my case, I can tell the broadband router to permanently allocate
+a particular IP address to this workstation, so that it won't change.
+

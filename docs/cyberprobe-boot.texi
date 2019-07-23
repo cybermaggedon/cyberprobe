@@ -1,0 +1,64 @@
+
+@node Running cyberprobe/cybermon at boot time
+@chapter Running cyberprobe/cybermon at boot time
+
+The @command{cyberprobe} and @command{cybermon} utilities are used as a pair
+to analyse network data.  The @command{cyberprobe} component is used to
+capture data and forward to @command{cybermon}.  When running on a network,
+you can decide to run several @command{cyberprobe} deployments into a single
+@command{cybermon}.  Or run a @command{cybermon} process everywhere you
+run a @command{cyberprobe}.
+
+Once you have decided your checklist, your setup checklist for using
+@command{cyberprobe} and @command{cybermon} consists of:
+
+@itemize
+
+@item
+Install the software, see @ref{Obtaining the software}.
+
+@item
+If you are going to run @command{cyberprobe}, provide the appropriate
+configuration
+in file
+@file{@value{SYSCONFDIR}/cyberprobe.cfg}.  The standard installation
+will install a template at this location.
+See @ref{@command{cyberprobe} configuration} on managing this configuration
+file.
+Make sure that the configuration file includes the delivery address of the
+appropriate @command{cybermon}.
+
+@item
+@cindex @command{cybermon}, pub/sub
+@cindex Pub/sub delivery
+If you are going to run @command{cybermon}, provide the
+appropriate configuration in file
+@example
+@file{@value{SYSCONFDIR}/cyberprobe/cybermon.lua}.
+@end example
+The standard installation
+does not create a file at this location, and you should create one.  You can
+copy an example from the @file{@value{SYSCONFDIR}/cyberprobe} directory.
+Use @file{@value{SYSCONFDIR}/cyberprobe/amqp-topic.lua} if you want to use
+pub/sub delivery.  See @ref{@command{cybermon} configuration} for more
+information on constructing the configuration file.
+See @ref{@command{cybermon} example configurations} for descriptions of the
+example configuration files.
+
+@item
+The installation installs appropriate @command{systemd} configuration, and
+you can enable boot-time starting of @command{cyberprobe} or
+@command{cybermon} by using either or both of these commands:
+@example
+systemctl enable cyberprobe
+systemctl enable cybermon
+@end example
+Once enabled, you can reboot, or immediately start the processes using either
+or both of these commands:
+@example
+systemctl start cyberprobe
+systemctl start cybermon
+@end example
+
+@end itemize
+

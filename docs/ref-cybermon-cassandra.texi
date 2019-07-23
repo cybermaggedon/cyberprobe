@@ -1,0 +1,41 @@
+
+@node @command{cybermon-cassandra} invocation
+@section @command{cybermon-cassandra} invocation
+
+@cindex @command{cybermon-cassandra}, invocation
+@cindex Apache Cassandra
+@cindex Cassandra
+@cindex Graph store
+
+@command{cybermon-cassandra} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for delivery to a
+Cassandra store.  The format used is intended to allow Cassandra to be used
+as an RDF store with SPARQL query.  To query and visualise the data stored in
+Cassandra, see @url{https://github.com/cybermaggedon/cassandra-redland}.
+
+Synopsis:
+
+@example
+cybermon-cassandra [BINDING [CASSANDRA-HOSTS] ]
+@end example
+
+Example:
+@example
+cybermon-cassandra
+cybermon-cassandra ioc cassandra1,cassandra2
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
+
+@item CASSANDRA-HOSTS
+Specifies a comma-separated list of Cassandra store hosts to contact.
+If not specified, defaults
+to @samp{localhost}.
+
+@end table
+

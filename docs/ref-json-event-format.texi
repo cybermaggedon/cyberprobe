@@ -1,0 +1,991 @@
+
+@node Cybermon JSON message format
+@section Cybermon JSON message format
+
+@cindex ZeroMQ
+@cindex RabbitMQ
+@cindex AMQP
+@cindex Redis
+@cindex Cybermon JSON message format
+@cindex publish/subscribe
+@cindex pub/sub
+@cindex JSON
+
+Cybermon's @samp{amqp-topic.lua}, @samp{zeromq.lua} and @samp{redis.lua}
+configuration files
+transmit messages in JSON format.  Each message is a JSON object
+with the following fields:
+
+@table @samp
+
+@item id
+Unique ID for the event: UUID format
+(e.g. 3c55d830-8d99-48a1-c8cd-ca77514a6d10).
+
+@item device
+Device identifier / LIID.
+
+@item network
+@cindex @code{network} attribute, @file{cyberprobe.cfg}
+Network identifier, if ETSI stream delivery is used, and the
+@code{network} identifier is used in @file{cyberprobe.cfg}.
+See @ref{@command{cyberprobe} configuration}
+
+@item origin
+If known, set to @samp{network} or @samp{device} depending on whether or not the
+event is observed to originate from the device or, the device is the recipient.
+This assertion is made by comparing the targeted IP address with the
+source/destination IP addresses of an event.  The @samp{origin} field will
+only be
+useful if a device IP address is set in the @file{cyberprobe.cfg} file;
+if a wildcard address e.g. @samp{0.0.0.0/0} is set, it is not defined
+which of the source or destination addresses will trigger in
+@command{cyberprobe}, and so the @samp{origin} field will be of no value.
+Further, the field is only known if the ETSI stream format is used to deliver
+from @command{cyberprobe} to @command{cybermon}.
+
+@item action
+The event type.  One of:
+@table @samp
+@item connected_up
+Records the creation of a stream-orientated connection (currently, only TCP).
+This event is created for all connections whether the protocol is
+recognised or not.
+@item connected_down
+Records the closing of a stream-orientated connection (currently, only TCP).
+This event is created for all connections whether the protocol is
+recognised or not.
+@item unrecognised_stream
+Records the sending of a PDU on a data stream transport (currently, only
+TCP) whose protocol has not been recognised.
+@item unrecognised_datagram
+Records the sending of a PDU on a connection-less transport (currently, only
+UDP) whose protocol has not been recognised.
+@item http_request
+Records the sending of an HTTP request.
+@item http_response
+Records the sending of an HTTP response.
+@item dns_message
+Records the sending of a DNS message (request and response).
+@item icmp
+Records the sending of an ICMP message.
+@item smtp_command
+Records the sending of an SMTP command.  This is a message from client
+to server.  Data commands are not recorded with this event - there is an
+@samp{smtp_data} event which records this.
+@item smtp_response
+Records the sending of a response to an SMTP command.  This is a status
+message from server to client.
+@item smtp_data
+Records an SMTP data transaction, including the full SMTP data payload
+(essentially an email).
+@item ftp_command
+Records an FTP command (client to server).
+@item ftp_response
+Records an FTP response (server to client).
+@item ntp_message
+Records the sending of a NTP message, including the NTP hdr (mode, version, leap second indicator)
+@item imap
+Records the presence of IMAP data.
+@item imap_ssl
+Records the presence of IMAP SSL data.
+@item pop3
+Records the presence of POP.3 data.
+@item pop3_ssl
+Records the presence of POP3 SSL data.
+@item sip_request
+Records the sending of a SIP request.
+@item sip_response
+Records the sending of a SIP response.
+@item sip_ssl
+Records the presence of SIP SSL data.
+@item gre
+Records the presence of a GRE data frame with an unhandled ethertype.
+@item grep_pptp
+Records the presence of a GRE PPTP data frame with an unhandled ethertype.
+@item esp
+Records the presence of ESP data.
+@item unrecognised_ip_protocol
+Records the sending of a PDU over IP with an unrecognised next protocol.
+@item wlan
+Records the presence of 802.11 data.
+@item tls_unknown
+Records the presence of a tls message.
+@item tls_client_hello
+Records the presence of a tls client hello message.
+@item tls_server_hello
+Records the presence of a tls server hello message.
+@item tls_certificates
+Records the presence of a tls certificates message.
+@item tls_server_key_exchange
+Records the presence of a tls server key exchange message.
+@item tls_server_hello_done
+Records the presence of a tls server hello done message.
+@item tls_handshake_unknown
+Records the presence of a tls handshake message.
+@item tls_certificate_request
+Records the presence of a tls certificate request message.
+@item tls_client_key_exchange
+Records the presence of a tls client_key exchange message.
+@item tls_certificate_verify
+Records the presence of a tls certificate verify message.
+@item tls_change_cipher_spec
+Records the presence of a tls change cipher spec message.
+@item tls_handshake_finished
+Records the presence of a tls handshake finished message.
+@item tls_handshake_complete
+Records the that both sides of the TLS handshake are complete.
+@item tls_application_data
+Records the presence of a tls application data message.
+
+@end table
+
+@item url
+The URL identified in any protocol which supports URL request/response e.g.
+HTTP.
+
+@item src
+A list of source protocol addresses travelling up the stack.
+Strings are of the form
+@code{protocol:address} or @code{protocol}.  Example protocol types are:
+@code{tcp}, @code{udp} and @code{ipv4}.
+
+@item dest
+A list of source protocol addresses travelling up the stack.
+Strings are of the form
+@code{protocol:address} or @code{protocol}.  Example protocol types are:
+@code{tcp}, @code{udp} and @code{ipv4}.
+
+@item time
+Time of the event in the form @code{2017-04-24T12:34:24.341Z}.
+
+
+@item dns_message
+Emitted when @code{action} is @code{dns_message}.
+@code{dns_message} is itself a
+JSON object containing the following fields:
+
+@table @samp
+@item query
+Describes DNS query records in @samp{dns_message} actions. Is a list
+of objects with @samp{name}, @samp{type} and @samp{class} fields containing
+strings for name, type and class.
+
+@item answer
+Describes DNS answer records in @samp{dns_message} actions.  Is a list
+of objects with @samp{name}, @samp{type} and @samp{class} and @samp{address}
+fields containing strings for name, type and class and IP address.
+
+@item type
+DNS message type, one of @samp{query} or @samp{response}.
+
+@end table
+
+
+@item unrecognised_datagram
+Emitted when @code{action} is @code{unrecognised_datagram}.
+The value is a JSON object ontaining the following fields:
+
+@table @samp
+
+@item datagram
+The datagram body, Base64 encoded.
+
+@end table
+
+
+@item unrecognised_stream
+Emitted when @code{action} is @code{unrecognised_stream}. 
+The value is a JSON object ontaining the following fields:
+
+@table @samp
+
+@item payload
+The datagram body, Base64 encoded.
+
+@item position
+The stream position, 0 for a newly connected stream, increases with each
+payload size.
+
+@end table
+
+
+@item icmp
+Emitted when @code{action} is @code{icmp}.
+The value is a JSON object
+ontaining the following fields:
+
+@table @samp
+
+@item type
+ICMP type field.
+
+@item code
+ICMP code field.
+
+@item data
+Raw ICMP payload, Base64 encoded.
+
+@end table
+
+
+@item http_request
+Emitted when @code{action} is @code{http_request}.
+The value is a JSON object
+ontaining the following fields:
+
+@table @samp
+
+@item method
+HTTP method.
+
+@item header
+An object containing key/value pairs for HTTP header.
+
+@item body
+HTTP body, Base64 encoded.
+
+@end table
+
+
+@item http_response
+Emitted when @code{action} is @code{http_response}.
+The value is a JSON object
+ontaining the following fields:
+
+@table @samp
+
+@item code
+HTTP code field e.g. 200.
+
+@item status
+HTTP status field e.g. OK.
+
+@item header
+An object containing key/value pairs for HTTP header.
+
+@item body
+HTTP body, Base64 encoded.
+
+@end table
+
+
+@item sip_request
+Emitted when @code{action} is @code{sip_request}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item method
+SIP method e.g. INVITE.
+
+@item from
+The SIP caller address.
+
+@item to
+The SIP callee address.
+
+@item data
+SIP message body, base64-encoded.
+
+@end table
+
+
+@item sip_response
+Emitted when @code{action} is @code{sip_response}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item code
+SIP response code.
+
+@item status
+SIP response status.
+
+@item from
+The SIP caller address.
+
+@item to
+The SIP callee address.
+
+@item data
+SIP message body, base64-encoded.
+
+@end table
+
+
+@item sip_ssl
+Emitted when @code{action} is @code{sip_ssl}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+@item imap
+Emitted when @code{action} is @code{imap}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+@item imap_ssl
+Emitted when @code{action} is @code{imap_ssl}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+@item pop3
+Emitted when @code{action} is @code{pop3}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+@item pop3_ssl
+Emitted when @code{action} is @code{pop3_ssl}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item payload
+The message payload, base64-encoded.
+
+@end table
+
+
+@item ntp_timestamp
+Emitted when @code{action} is @code{ntp_timestamp}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item version
+NTP header version field.
+
+@item mode
+NTP header mode field.
+
+@end table
+
+
+@item ntp_control
+Emitted when @code{action} is @code{ntp_control}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item version
+NTP header version field.
+
+@item mode
+NTP header mode field.
+
+@end table
+
+
+@item ntp_private
+Emitted when @code{action} is @code{ntp_private}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item version
+NTP header version field.
+
+@item mode
+NTP header mode field.
+
+@end table
+
+
+@item ftp_command
+Emitted when @code{action} is @code{ftp_command}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item command
+The FTP command e.g. PASV.
+
+@end table
+
+
+@item ftp_response
+Emitted when @code{action} is @code{ftp_response}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item status
+The FTP response status e.g. 200.
+
+@item text
+The FTP response human-readable text.
+
+@end table
+
+
+@item smtp_command
+Emitted when @code{action} is @code{smtp_response}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item command
+The SMTP command.
+
+@end table
+
+
+@item smtp_response
+Emitted when @code{action} is @code{smtp_response}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item status
+The SMTP response status.
+
+@item text
+The SMTP response human-readable text.
+
+@end table
+
+
+@item smtp_data
+Emitted when @code{action} is @code{smtp_data}.The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item from
+The value of the SMTP MAIL FROM field, a string.
+
+@item to
+A list of strings containing all SMTP RCPT TO field values.
+
+@item body
+The SMTP email body.
+
+@end table
+
+
+@item gre
+Emitted when @code{action} is @code{gre}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item next_proto
+The value of the PROTOCOL TYPE field, a string.
+
+@item key
+The value of the KEY field, a 32 bit number. Defaults to 0 if it is not present
+in the data frame.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number. Defaults to 0 if it is
+not present in the data frame.
+
+@item payload
+The GRE payload
+
+@end table
+
+
+@item gre_pptp
+Emitted when @code{action} is @code{gre_pptp}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item next_proto
+The value of the PROTOCOL TYPE field, a string.
+
+@item call_id
+The value of the CALL ID field, a 16 bit number.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number. Defaults to 0 if it is
+not present in the data frame.
+
+@item acknowledgement_number
+The value of the ACKNOWLEDGEMENT NUMBER field, a 32 bit number. Defaults to 0 if
+it is not present in the data frame.
+
+@item payload_length
+The length of the GRE PPTP payload
+
+@item payload
+The GRE payload
+
+@end table
+
+
+@item esp
+Emitted when @code{action} is @code{esp}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item spi
+The value of the SPI field, a 32 bit number.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number.
+
+@item payload_length
+The length of the ESP payload
+
+@item payload
+NOT CURRENTLY OUTPUT, but couple be enabled in the lua config
+The ESP payload
+
+@end table
+
+
+@item unrecognised_ip_protocol
+Emitted when @code{action} is @code{unrecognised_ip_protocol}. The value is a
+JSON object containing the following fields:
+
+@table @samp
+
+@item next_proto
+The value of the PROTOCOL field in the IP header.
+
+@item sequenceNo
+The value of the SEQUENCE NUMBER field, a 32 bit number.
+
+@item payload_length
+The length of the IP payload
+
+@item payload
+The IP payload
+
+@end table
+
+
+@item 802.11
+Emitted when @code{802.11} is @code{unrecognised_ip_protocol}. The value is a
+JSON object containing the following fields:
+
+@table @samp
+
+@item version
+The value of the VERSION field in the header, an 8 bit number.
+
+@item type
+The value of the TYPE field, an 8 bit number.
+
+@item subtype
+The value of the SUBTYPE field, an 8 bit number.
+
+@item flags
+The flags field, an 8 bit number
+
+@item protected
+Indicates if the protected flag is set, a boolean
+
+@item filt_addr
+The MAC address in the FILTER ADDRESS field, a string.
+
+@item frag_num
+The value in the FRAGMENTATION NUMBER field, an 8 bit number.
+
+@item seq_num
+The value in the SEQUENCE NUMBER field, a 16 bit number
+
+@item duration
+The value in the DURATION field, a 16 bit number
+
+@end table
+
+
+@item tls_unknown
+Emitted when @code{action} is @code{tls_unknown}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version of the TLS header.
+
+@item content_type
+The content type of the TLS message.
+
+@item length
+The length of the TLS message.
+
+@end table
+
+@end table
+
+
+@item tls_client_hello
+Emitted when @code{action} is @code{tls_client_hello}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version requested in the hello message.
+
+@item session_id
+The session id of the message.
+
+@item random
+@table @samp
+
+@item timestamp
+The timestamp field of the random field of the hello message.
+
+@item data
+The data field of the random field of the hello message.
+
+@end table
+
+@item cipher_suites
+An ordered array of the cipher suites names
+
+@item compression_methods
+An ordered array of the compression methods names
+
+@item extensions
+An ordered array of the extensions, in the form of an object with the keys
+@code{name}, @code{length} and @code{data}. (@code{data} will only be present if
+@code{length > 0})
+
+@end table
+
+@end table
+
+
+@item tls_server_hello
+Emitted when @code{action} is @code{tls_server_hello}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version requested in the hello message.
+
+@item session_id
+The session id of the message.
+
+@item random
+@table @samp
+
+@item timestamp
+The timestamp field of the random field of the hello message.
+
+@item data
+The data field of the random field of the hello message.
+
+@end table
+
+@item cipher_suite
+The name of the cipher suite
+
+@item compression_method
+The name of the compression methods
+
+@item extensions
+An ordered array of the extensions, in the form of an object with the keys
+@code{name}, @code{length} and @code{data}. (@code{data} will only be present if
+@code{length > 0})
+
+@end table
+
+@end table
+
+
+@item tls_certificates
+Emitted when @code{action} is @code{tls_certificates}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item certificates
+An ordered array of base64 encoded certificates.
+
+@end table
+
+@end table
+
+
+@item tls_server_key_exchange
+Emitted when @code{action} is @code{tls_server_key_exchange}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item key_exchange_algorithm
+The key exchange algorithm being used.
+
+@item curve_type
+The curve type field.
+
+@item curve_metadata
+Metadata about the curve being used. In the format of an object of Key:Value pairs.
+(usually this will only contain 'name' and the value will be the named curve
+being used)
+
+@item public_key
+Base64 encoded public key.
+
+@item signature_hash_algorithm
+The type of hash algorithm used for the signature.
+
+@item signature_algorithm
+The type of algorithm used for the signature.
+
+@item signature_hash
+The signature hash as a hex string
+
+@end table
+
+@end table
+
+
+@item tls_server_hello_done
+Emitted when @code{action} is @code{tls_server_hello_done}. The value is an empty
+JSON object with the key @code{tls}
+
+
+@item tls_handshake_unknown
+Emitted when @code{action} is @code{tls_handshake_unknown}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item type
+The type of the handshake message.
+
+@item length
+The length of the message.
+
+@end table
+
+@end table
+
+
+@item tls_certificate_request
+Emitted when @code{action} is @code{tls_certificate_request}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item cert_types
+An ordered array of the certificate types.
+
+@item signature_algorithms
+An ordered array of the signature algorithms, each one an object with the keys
+@code{hash_algorithm} and @code{signature_algorithm}.
+
+@item distinguished_names
+The distinguished names field.
+
+@end table
+
+@end table
+
+
+@item tls_client_key_exchange
+Emitted when @code{action} is @code{tls_client_key_exchange}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item key
+Base64 encoded key.
+
+@end table
+
+@end table
+
+
+@item tls_certificate_verify
+Emitted when @code{action} is @code{tls_certificate_verify}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item signature_algorithm
+The signature algorithm as an object with the keys @code{hash_algorithm} and
+@code{signature_algorithm}.
+
+@item signature
+The signature hash as a hex string.
+
+@end table
+
+@end table
+
+
+@item tls_change_cipher_spec
+Emitted when @code{action} is @code{tls_change_cipher_spec}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item value
+The value from the change cipher spec message.
+
+@end table
+
+@end table
+
+
+@item tls_handshake_finished
+Emitted when @code{action} is @code{tls_handshake_finished}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item message
+base64 encoded message.
+
+@end table
+
+@end table
+
+
+@item tls_handshake_complete
+Emitted when @code{action} is @code{tls_handshake_complete}. The value is an empty
+JSON object with the key @code{tls}
+
+
+@item tls_application_data
+Emitted when @code{action} is @code{tls_application_data}. The value is a JSON object
+containing the following fields:
+
+@table @samp
+
+@item tls
+@table @samp
+
+@item version
+The version of TLS being used.
+
+@item length
+The length of the message being sent.
+
+@end table
+
+@end table
+
+
+
+@item location
+@cindex GeoIP
+@cindex @command{cybermon-geoip}
+Not emitted by @command{cybermon}, but can be added to the message by
+@command{cybermon-geoip}.  See @ref{@command{cybermon-geoip} invocation}.
+
+The @code{location} object contains potentially two child-objects:
+@code{src} and @code{dest}.  Both @code{src} and @code{dest} may contain the
+following fields, if the information is known:
+
+@table @samp
+
+@item city
+Name of the city from the GeoIP database.
+
+@item iso
+Country ISO code, 2 characters.
+
+@item country
+Country name.
+
+@item latitude
+Latitude, degrees north of the equator.
+
+@item longitude
+Longitude, degrees east of Greenwich.
+
+@end table
+
+
+@item indicators
+@cindex IOC
+@cindex Indicator of compromise
+@cindex @command{cybermon-detector}
+Not emitted by @command{cybermon}, but can be added to the message by
+@command{cybermon-detector}.  See @ref{@command{cybermon-detector} invocation}.
+
+The @code{indicators} object is an array of IOC hits, if any have been
+detected.  Each array element is an object with the following fields:
+
+@table @samp
+
+@item id
+IOC identifier.
+
+@item type
+IOC type, one of: @code{ipv4}, @code{hostname}, @code{tcp}, @code{udp},
+@code{hostname}, @code{email}, @code{url}.
+
+@item value
+IOC hit value.
+
+@item description
+Human-readable text describing the IOC.
+
+@end table
+
+@end table

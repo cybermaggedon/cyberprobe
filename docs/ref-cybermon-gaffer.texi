@@ -1,0 +1,42 @@
+
+@node @command{cybermon-gaffer} invocation
+@section @command{cybermon-gaffer} invocation
+
+@cindex @command{cybermon-gaffer}, invocation
+@cindex Gaffer
+@cindex Graph store
+
+@command{cybermon-gaffer} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for delivery to a
+Gaffer store.  The format used is intended to allow Gaffer to be used
+as an RDF store with SPARQL query.  To query and visualise the data stored in
+Gaffer, see @url{https://github.com/cybermaggedon/gaffer-tools}.
+To get started with Gaffer quickly, a docker container for development
+can be found at
+@url{https://docker.io/cybermaggedon/gaffer}.
+
+Synopsis:
+
+@example
+cybermon-gaffer [BINDING [GAFFER-URL] ]
+@end example
+
+Example:
+@example
+cybermon-gaffer
+cybermon-gaffer ioc \
+    http://gaffer-store:8080/rest/v1
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
+
+@item GAFFER-URL
+Specifies the base URL for Gaffer.  If not specified, defaults
+to @samp{http://gaffer:8080/example-rest/v1}.
+
+@end table

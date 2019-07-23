@@ -1,0 +1,191 @@
+
+@node Threat indicators using STIX
+@section Threat indicators using STIX
+@cindex STIX
+@cindex TAXII
+@cindex STIX indicators
+@cindex Threat indicators
+@cindex Cyber threat indicators
+@cindex JSON
+
+We've been experimenting with an open model for describing cyber
+threats. STIX is a community-driven effort to standardise a model for cyber
+theat information. TAXII defines a set of services for distributing STIX
+information. There's some support in @command{Cyberprobe}, but you should
+know that this is very prototype at the moment.
+
+This is what we've got so far:
+
+@itemize
+
+@item
+There's a simple CSV file format we've created to describe cyber
+threats. This is just for convenience.
+
+@cindex @command{stix-create}
+@item
+A script, @command{stix-create} which reads the above configuration file,
+and converts into a STIX document containing Indicator objects.
+
+@cindex @command{taxii-server}
+@item
+A script, @command{taxii-server} which acts as a very simple TAXII server,
+serving up STIX documents.
+
+@cindex @command{taxii-client}
+@item
+A script, @command{taxii-client} which connects to a TAXII server, gets STIX
+documents and dumps some stuff out.
+
+@cindex @command{taxii-sync-json}
+@item
+A script @command{taxii-sync-json} which connects to a TAXII server, gets
+STIX documents, massages the whole lot into a single JSON form, and dumps
+that to a file.  This is intended to be used with the
+@file{cybermon-detector} subscriber.
+See @ref{@command{cybermon-detector} invocation}.
+
+@item
+A configuration file for @command{cybermon} which reads the JSON threat
+information and reports when theats are observed.
+
+@end itemize
+
+@cindex @code{pyOpenSSL}
+@cindex @code{libtaxii}
+@cindex @code{stix}
+@cindex @code{pip}
+
+Before taking this any further, you need to have Python installed, along
+with various dependencies (@code{pyOpenSSL}, @code{libtaxii} and
+@code{stix}). The easiest way to install the dependencies is to install
+@code{pip}, and issue this command:
+
+@example
+sudo pip install libtaxii pyOpenSSL stix
+@end example
+
+@heading A STIX document service
+
+The installation bundle includes a couple of CSV files containing some
+fictional cyber theats. Search for @file{example1.txt} and
+@file{example2.txt}. They may be in @file{@value{PREFIX}/share/doc/cyberprobe}
+once you've installed everything. You need to create a data area, and
+convert these files into STIX ready for serving:
+
+@example
+mkdir /tmp/stix
+cd /tmp/stix
+mkdir -p data/default
+stix-create @value{PREFIX}/share/doc/cyberprobe/example1.txt \
+        data/default/1 -i ex:1
+stix-create @value{PREFIX}/share/doc/cyberprobe/example2.txt \
+        data/default/2 -i ex:2
+@end example
+
+Check that you have two new XML files in data/default directory. If they're
+there, you're ready to start a STIX server. This will run on port 8080, so
+you'll need to use a different port number if you don't like this one. It's
+important that this is run from the directory where you just created the
+data directory.
+
+@example
+taxii-server --port 8080
+@end example
+
+If that works, use the test client to communicate:
+
+@example
+taxii-client --port 8080 --poll
+@end example
+
+And you should see some stuff that looks like cyber threat information
+dumped on the screen.
+
+@heading Deploying theat information to @command{cybermon}
+
+@cindex JSON
+
+Now, we use @command{taxii-sync-json} to fetch the STIX information in a
+JSON form I can easily ingest into the LUA code:
+
+@example
+taxii-sync-json --port 8080
+@end example
+
+This will create a JSON file called @file{stix-default-combined.json}.
+
+Finally, run processing.  Stop any running @command{cybermon} and
+@command{cybermon-elasticsearch} processes.  Then run @command{cybermon}
+to publish to a queue on RabbitMQ:
+
+@example
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/amqp-topic.lua
+@end example
+
+Next run @command{cyberprobe-detector} to apply STIX rules.  By default,
+this will subscribe to @samp{cyberprobe} and publish to @samp{ioc}:
+
+@example
+STIX_INDICATORS=stix-default-combined.json cybermon-detector \
+    cyberprobe ioc
+@end example
+
+Finally, in order to look at the output, we need to subscribe to
+@samp{ioc}:
+
+@example
+cybermon-dump ioc
+@end example
+
+If you have @command{jq} installed, this will make it easier to see
+when indicators hit:
+
+@example
+cybermon-dump ioc | jq --unbuffered .indicators
+@end example
+
+This activity should trigger a theat:
+
+@example
+wget -q -O- http://www.malware.com/malware.dat
+@end example
+
+If this works, you should see the following output:
+
+@example
+[
+  @{
+    "type": "url",
+    "id": "example1:7",
+    "value": "http://www.malware.com/malware.dat",
+    "description": "URL of a page serving malware"
+  @}
+]
+@end example
+
+This hits on a number of theat indicators. The hostname www.malware.com is
+present in a theat indicator, and it is detected in the HTTP request, and
+both the DNS query and response. Also, the URL
+@code{http://www.malware.com/malware.dat} is in a threat indicator and it is
+detected in both the HTTP request and response.
+
+@command{cybermon-detector} updates its state if
+the JSON configuration file has changed. So, you can do a round-trip update
+by changing the input files, re-running stix-create, using
+@command{taxii-sync-json} to fetch the updates, and all without stopping the
+monitoring.
+
+If you want to load the output of @command{cybermon-detector} into
+ElasticSearch, you can, but you need to subscribe to @samp{ioc}:
+
+@example
+cybermon-elasticsearch ioc
+@end example
+
+@heading Conclusion
+
+All done, I hope you enjoyed the tutorial! Any comments on the software, or
+tutorial itself are very welcome! Positive, or negative, we want to hear how
+you found the experience.
+

@@ -1,0 +1,103 @@
+
+@node Using @command{cybermon}
+@section Using @command{cybermon}
+@cindex @command{cybermon}
+@cindex @command{cybermon}, configuration
+@heading Introducing @command{cybermon}
+
+The previous 9 steps have all been about @command{cyberprobe}. If you've got
+this far successfully, you pretty much know all there is to know about
+@command{cyberprobe}. It is time to start doing something more useful with
+all that data you are capturing. In this step we'll start up
+@command{cybermon} and look at the data.
+
+@cindex @file{monitor.lua}
+
+Remember that @command{etsi-rcvr} command you started in step @ref{Adding an
+endpoint}? Stop that, and start @command{cybermon}. Two arguments are
+needed: A TCP port number to receive the data on, and a configuration which
+tells it what to do. A number of configuration files are bundled in with the
+source code, there should be a basic one called @file{monitor.lua} which
+is now installed in the etc directory, depending on where you installed the
+software:
+
+@example
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/monitor.lua
+@end example
+
+Now when you generate network traffic, some of the traffic will be presented
+in a reasonably intelligent form. For example, I do a naming service lookup
+for @code{www.google.com}...
+
+@example
+host -t a www.slashdot.org
+@end example
+
+@cindex DNS
+
+The DNS protocol is parsed, and presented in a human readable form. I can
+see the request, and the response:
+
+@example
+SNORTc0a80150: 192.168.1.80:54633 -> 192.168.1.1:53. DNS query
+    Query: www.slashdot.org
+
+SNORTc0a80150: 192.168.1.1:53 -> 192.168.1.80:54633. DNS response
+    Query: www.slashdot.org
+    Answer: www.slashdot.org -> 216.34.181.48
+@end example
+
+I see the query travelling from my workstation to the broadband router, and
+then the response from the broadband router contains an answer field mapping
+the name to an address. HTTP protocols are also decoded. Get the Slashdot
+home page...
+
+@example
+wget -O- 'http://www.slashdot.org/'
+@end example
+
+...and amongst all the other stuff, you see the HTTP request and response...
+
+@example
+SNORTc0a80150: 192.168.1.80:34284 -> 216.34.181.45:80. HTTP GET request
+    URL /
+    Connection: Keep-Alive
+    User-Agent: Wget/1.14 (linux-gnu)
+    Host: slashdot.org
+    Accept: */*
+
+SNORTc0a80150: 216.34.181.45:80 -> 192.168.1.80:34284. HTTP response 200
+OK
+    URL http://slashdot.org/
+    Connection: keep-alive
+    Content-Length: 113468
+    Date: Mon, 26 Aug 2013 13:13:25 GMT
+    Age: 17
+    X-Varnish: 1493567531 1493567417
+    X-XRDS-Location: http://slashdot.org/slashdot.xrds
+    Cache-Control: no-cache
+    Vary: Accept-Encoding
+    SLASH_LOG_DATA: shtml
+    Pragma: no-cache
+    Content-Type: text/html; charset=utf-8
+    Server: Apache/2.2.3 (CentOS)
+@end example
+
+@heading Trying other configuration files
+
+In the previous step, you started @command{cybermon} with the
+@file{monitor.lua}
+configuration file.  
+
+@cindex @file{json.lua}
+
+Configuration file @file{json.lua} causes @command{cybermon} to output the
+events as JSON objects.
+
+@example
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/json.lua
+@end example
+
+The @file{quiet.lua} configuration file does nothing. It may be a good place
+to start hacking your own configuration file. Which is exactly what we'll do
+in the next step.

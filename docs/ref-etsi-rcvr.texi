@@ -1,0 +1,31 @@
+
+@node @command{etsi-rcvr} invocation
+@section @command{etsi-rcvr} invocation
+
+@cindex @command{etsi-rcvr}, invocation
+
+@command{etsi-rcvr} provides a TCP server which accepts connections from
+ETSI LI clients,  decodes ETSI LI streams and outputs contained IP  packets  on
+the standard output in PCAP format.  TCP port number to use is provided
+on the command line.  Synopsis:
+
+@example
+etsi-rcvr @var{port-number}
+@end example
+
+@itemize @bullet
+
+@item
+@var{port-number} is the TCP port number to list to for connections.
+See @ref{ETSI LI}.
+
+@end itemize
+
+@cindex @command{cyberprobe}, configuration
+
+@command{etsi-rcvr} executes indefinitely - to end the program, a signal
+should be sent. e.g.
+
+@example
+killall etsi-rcvr
+@end example

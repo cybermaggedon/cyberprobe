@@ -1,0 +1,34 @@
+
+@node @command{cybermon-elasticsearch} invocation
+@section @command{cybermon-elasticsearch} invocation
+
+@cindex @command{cybermon-elasticsearch}, invocation
+
+@command{cybermon-elasticsearch} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon}
+events, and upon receipt of events, formats them for delivery to an
+ElasticSearch store.
+
+Synopsis:
+
+@example
+cybermon-elasticsearch [BINDING [ELASTICSEARCH-URL] ]
+@end example
+
+Example:
+@example
+cybermon-elasticsearch
+cybermon-elasticsearch ioc http://elastic-store:9200/
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
+
+@item ELASTICSEARCH-URL
+Specifies the base URL for ElasticSearch.  If not specified, defaults
+to @samp{http://localhost:9200}.
+
+@end table

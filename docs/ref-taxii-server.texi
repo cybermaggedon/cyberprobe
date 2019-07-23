@@ -1,0 +1,54 @@
+
+@node @command{taxii-server} invocation
+@section @command{taxii-server} invocation
+
+@cindex @command{taxii-server}, invocation
+
+@command{taxii-server} provides a TAXII compliant
+server to distribute cyber threat information.  TAXII/STIX implementation
+is experimental and incomplete.
+
+See
+@url{https://taxii.mitre.org/} for more information on TAXII and STIX.
+Synopsis:
+
+@example
+taxii-server [-h] [--host HOST] [--port PORT] [--data-dir DATA_DIR]
+        [--db DB] [--sync-period SYNC_PERIOD]
+@end example
+
+Example:
+@example
+taxii-server --port 8100 --data-dir data/ --db stix.db
+@end example
+
+@table @samp
+
+@item -h
+@itemx --help
+Shows command line usage.
+
+@item --host @var{HOST}
+Host to bind the HTTP service to.
+
+@item --port @var{PORT}
+Specifies port number of the TAXII service.
+
+@item --data-dir @var{PATH}
+Specifies the directory where STIX files are to be placed.  Directory
+structure should be @var{PATH}/@var{COLLECTION}/@var{STIX-FILE}.
+
+@item --db @var{DB}
+Specifies a file to hold the STIX data.  Default is @file{stix_store.db}.
+This is created if it does not exist.
+
+@item --sync-period @var{PERIOD}
+Specifies the period for synchronising the data directory with the database.
+Default is @samp{1}.
+
+@end table
+
+The TAXII server periodically checks the data directory with the contents
+of the database, and updates the database accordingly.  Deleting files results
+in deletion from the database, adding files results in creation.  Thus, the
+data directory is the master copy for the sync process.

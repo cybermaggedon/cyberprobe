@@ -1,0 +1,47 @@
+
+@node Integrating with AWS Traffic Mirroring
+@chapter Integrating with AWS Traffic Mirroring
+
+
+@cindex AWS Traffic Mirroring
+@cindex VXLAN
+
+@heading Overview
+
+AWS allows you to mirror network traversing a network interface (ENI)
+to another ENI, essentially providing the equivalent of an Ethernet tap
+in a data centre.  Traffic Mirroring allows you to select network interfaces
+or NLBs for traffic mirroring.  Filters can be applied to select the subset
+of traffic which will be mirrored, and a target interface allows you to specify
+an ENI or load-balancer to receive the data.  Data is delivered in VXLAN
+format, essentially, Ethernet frames wrapped in an 8-byte header.  These frames
+are delivered over UDP to port 4789.
+
+@heading Cyberprobe implementation
+
+Cyberprobe provides two ways to integrate with AWS Traffic Mirroring:
+
+@itemize @bullet
+
+@item
+@command{cyberprobe} implements VXLAN reception.  If an interface is defined
+whose
+name has a @code{vxlan:PORT} form, then a VXLAN receiver is started on the
+specified UDP port number.  For AWS traffic mirroring, delivery is on port
+4789, so the interface name @code{vxlan:4789} would be used.
+
+@item
+@command{cybermon} implements VXLAN reception with the @code{-V} option
+allowing a port to be specified.  Events produced form a VXLAN feed have
+the device ID set to the string @samp{VNI} plus the VNI identifier in
+decimal.
+
+@end itemize
+
+Using VXLAN support in @command{cyberprobe} provides more flexibility, as
+this allows delay line and filter commands to be used.  Also, IP addresses
+can be mapped to device IDs.
+
+Using VXLAN support in @command{cybermon} means that @command{cyberprobe}
+does not need to be used, and provides for a simpler architecture.
+

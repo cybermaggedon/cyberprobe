@@ -1,0 +1,79 @@
+
+@node Architecture
+@chapter Architecture
+@cindex Cyberprobe, architecture
+@cindex Architecture
+
+@image{architecture,145mm,,png}
+
+Cyberprobe consists of a set of loosely-coupled components which can be
+used together. We prefer to use simple interfaces, and prefer to use
+interfaces which are standards. Here's how we envisage these components
+being used:
+
+@table @code
+
+@item cyberprobe
+is a network sniffer which collects packets which match an IP address
+list. The packets collected are streamed using network streaming
+protocols. The IP address match list can be statically configured (in a
+configuration file), can be dynamically changed using a management
+interface, or can be dynamically changed as a result of Snort alerts.
+
+@item cybermon
+receives packets from cyberprobe, analyses them and generates
+session/transport level events which result in user-configurable
+actions. For each event, a call is made to a Lua script which the caller
+provides.
+
+@item cybermon-detector
+@cindex @command{cybermon-detector} invocation
+runs events past an IOC list, searching for
+cyber threat indicators. When these indicators are observed, the indicator
+meta-data is also added to the JSON events.
+
+@item zeromq.lua
+@cindex @file{amqp-topic.lua} configuration file
+@cindex @code{cybermon}, @file{amqp-topic.lua} configuration file
+is a cybermon configuration file we provide which publishes data to a
+RabbitMQ pub/sub queue.  It allows connection of consumers to the
+@command{cybermon} event stream.
+
+@item cybermon-bigquery
+@cindex @command{cybermon-bigquery}
+@cindex Google BigQuery
+@cindex BigQuery
+is a RabbitMQ subscriber which output @command{cybermon} events to a
+Google BigQuery table.
+
+@item cybermon-cassandra
+@cindex @command{cybermon-cassandra}
+@cindex Cassandra
+@cindex Apache Cassandra
+is a RabbitMQ subscriber which output @command{cybermon} events to a
+Cassandra store.
+
+@item cybermon-elasticsearch
+@cindex @command{cybermon-elasticsearch}
+@cindex ElasticSearch
+is a RabbitMQ subscriber which output @command{cybermon} events to a
+ElasticSearch store.
+
+@item cybermon-gaffer
+@cindex @command{cybermon-gaffer}
+@cindex Gaffer
+is a RabbitMQ subscriber which output @command{cybermon} events to a
+Gaffer store.
+
+@item taxii-server
+is a TAXII compliant server, which is used to distribute STIX rules over
+HTTP.
+
+@item taxii-client-json
+is a TAXII compliant client, which fetches STIX data over TAXII and write it
+to a JSON file in a way that @code{stix+db.lua} can read.
+
+@item snort
+is not part of cyberprobe, but it's a great NIDS, so we use that.
+
+@end table

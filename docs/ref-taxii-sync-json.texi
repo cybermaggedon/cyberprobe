@@ -1,0 +1,64 @@
+
+@node @command{taxii-sync-json} invocation
+@section @command{taxii-sync-json} invocation
+
+@cindex @command{taxii-sync-json}, invocation
+
+@command{taxii-sync-json} provides a means to connect with a TAXII compliant
+server to acquire cyber threat information.  @command{taxii-sync-json}
+uses a TAXII poll request, and reformats all STIX information into a single
+JSON file which is written to the current directory.  This JSON form is
+intended to be used with @command{cybermon-detector}.
+See @ref{@command{cybermon-detector} invocation}.
+
+TAXII/STIX implementation is experimental and incomplete.
+
+See
+@url{https://taxii.mitre.org/} for more information on TAXII and STIX.
+Synopsis:
+
+@example
+taxii-sync-json [-h] [--host HOST] [--port PORT] [--path PATH]
+        [--collection COLLECTION] [--begin_timestamp BEGIN_TS]
+        [--end_timestamp END_TS]
+@end example
+
+Example:
+@example
+taxii-sync-json -h taxii.com
+@end example
+
+@table @samp
+
+@item -h
+@itemx --help
+Shows command line usage.
+
+@item --host @var{HOST}
+Specifies host to connect to.
+
+@item --port @var{PORT}
+Specifies port number of the TAXII service.
+
+@item --path @var{PATH}
+Specifies the URI of the service.  Default is @samp{/}.
+
+@item --collection @var{COLLECTION}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --begin_timestamp @var{BEGIN}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --end_timestamp @var{END}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@end table
+
+The JSON information is written to the current directory to a file called
+@file{stix-@var{COLLECTION}-combined.json} where @var{COLLECTION} is the
+collection name chosen.
+
+Begin/end timestamps take the following form:
+@example
+YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm
+@end example

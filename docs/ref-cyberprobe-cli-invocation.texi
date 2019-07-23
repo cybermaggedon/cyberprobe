@@ -1,0 +1,45 @@
+
+@node @command{cyberprobe-cli} invocation
+@section @command{cyberprobe-cli} invocation
+
+@anchor{cyberprobe-cli}
+@cindex @command{cyberprobe-cli}, invocation
+@cindex Management client
+
+@command{cyberprobe-cli} connects to @command{cyberprobe} on the
+management port to allow dynamic administration.  This permits
+dynamic management of resources.
+
+@quotation Note
+You can end up in a confusing situation if you use both the configuration
+file, and the management interface to configure resources.  It is best to
+use one or the other.  You can safely use the configuration file
+for resources that you don't intend to change through the management interface,
+but you shouldn't use both the configuration file and management interface
+to change the same resources.
+@end quotation
+
+Synopsis:
+
+@example
+cyberprobe-cli HOST PORT
+@end example
+
+Example:
+@example
+cyberprobe-cli vpn-host031 8888
+@end example
+
+@table @samp
+
+@item HOST
+Specifies the hostname or  IP address of the host to connect to.
+
+@item PORT
+Specifies the management port number.
+
+@end table
+
+Upon connection, you are prompted to enter a username and password.  Upon
+successful authentication, you are then offered a command line prompt for
+administration commands.

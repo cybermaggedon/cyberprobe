@@ -1,0 +1,256 @@
+
+@node The pub/sub infrastructure
+@chapter The pub/sub infrastructure
+
+@menu
+* Pub/sub overview::
+* The Cassandra subscriber::
+* The ElasticSearch subscriber::
+* The Gaffer subscriber::
+* The Google BigQuery subscriber::
+* The debug monitor subscriber::
+@end menu
+
+@comment ----------------------------------------------------------------------
+
+@node Pub/sub overview
+@section Pub/sub overview
+
+@cindex @command{cybermon}, pub/sub
+@cindex Pub/sub delivery
+
+Events from @command{cybermon} can be delivered to a pub/sub mechanism which
+allows subscribers to connect and disconnect without disrupting delivery
+to other subscribers.  The pub/sub mechanism used is RabbitMQ, which is a
+simple non-persistent, broker-less mechanism.
+
+In order to use this mechanism, you need to ensure you have configured
+@command{cybermon} appropriately.  This is normally done by copying the
+@file{amqp-topic.lua} to @file{cybermon.lua} in directory
+@file{@value{SYSCONFDIR}/cyberprobe/}.
+prior to executing
+@command{cybermon}.  Alternatively, @command{cybermon} can be manually
+invoked, specifying the @file{amqp-topic.lua} pathname on the command line.
+
+Once running, @command{cybermon} will publish all events
+to RabbitMQ.
+
+RabbitMQ allows subscribers to be started and stopped without affecting the
+delivery of events to other receivers.  That is, you can start
+@command{cybermon} with no subscribers, discarding data, and introduce
+subscribers later.
+
+For more advanced processing scenarios, multiple pub/sub components can be
+chained.  e.g.
+
+@itemize @bullet
+
+@item
+@command{cybermon} can be executed with @file{amqp-topic.lua} to publish
+events to RabbitMQ queue @samp{cyberprobe}.
+
+@item
+@command{cybermon-geoip} can subscribe to @samp{cyberprobe}, and push
+events containing information to @samp{geo}.
+
+@item
+@command{cybermon-detector} can lookup for IOCs and push events with IOC
+detection information to @samp{ioc}.
+
+@item
+@command{cybermon-elasticsearch} can subscribe to @samp{ioc} and write events to
+ElasticSearch.
+
+@end itemize
+
+@comment ----------------------------------------------------------------------
+
+@node The Cassandra subscriber
+@section The Cassandra subscriber
+
+@quotation Note
+The Cassandra subscriber doesn't do much useful.  I recommend skipping this
+bit.
+@end quotation
+
+@cindex @command{cybermon-cassandra}, invocation
+@cindex Cassandra
+@cindex Apache Cassandra
+@cindex Graph store
+
+This subscriber writes data to a Cassandra store in a schema useful for
+graph analysis.
+
+The schema is experimental, but see
+@url{https://github.com/cybermaggedon/cassandra-redland} for the tooling
+I'm using.
+
+On the command-line you need to tell the subscriber the location
+of the Cassandra contact points e.g.
+
+@example
+cybermon-cassandra ioc cas1,cas2,cas3
+@end example
+
+See @ref{@command{cybermon-cassandra} invocation}.
+
+
+@comment ----------------------------------------------------------------------
+
+@node The ElasticSearch subscriber
+@section The ElasticSearch subscriber
+
+@cindex @command{cybermon-elasticsearch}, invocation
+@cindex ElasticSearch
+
+This suscriber extracts events from pub/sub and formats them for delivery
+to ElasticSearch.  The only piece of information you need is the ElasticSearch
+base URI, which is used as a command-line parameter e.g.
+
+@example
+cybermon-elasticsearch ioc http://es-host1:9200
+@end example
+
+See @ref{@command{cybermon-elasticsearch} invocation}.
+
+@comment ----------------------------------------------------------------------
+
+@node The Gaffer subscriber
+@section The Gaffer subscriber
+
+@cindex @command{cybermon-gaffer}, invocation
+@cindex Gaffer
+@cindex Graph store
+
+@heading About Gaffer
+
+Gaffer is a graph database built on top of Accumulo, Zookeeper
+and Hadoop.  This subscriber writes IP, TCP and UDP communication information
+into the
+graph.  If you want to use this, get familiar with Gaffer.
+Gaffer development is hosted on Github at
+@url{https://github.com/gchq/Gaffer}, and I maintain Gaffer containers here:
+
+@table @url
+
+@item https://hub.docker.com/r/cybermaggedon/wildfly-gaffer/
+Gaffer component, provides REST interface running in a Wildfly container.
+
+@item https://hub.docker.com/r/cybermaggedon/accumulo-gaffer/
+Accumulo component, with added Gaffer operator library which is necessary
+to be able to use Gaffer on Accumulo.
+
+@item https://hub.docker.com/r/cybermaggedon/zookeeper/
+Zookeeper container, which is required by Accumulo.
+
+@item https://hub.docker.com/r/cybermaggedon/hadooop/
+Hadoop container, which is required by Accumulo.
+
+@end table
+
+@heading Running Gaffer
+
+To get started, you can run a Gaffer system by launching with the minimal
+set of containers:
+
+@example
+
+GAFFER_VERSION=1.1.2
+
+# Run Hadoop
+docker run -d --name hadoop cybermaggedon/hadoop:2.8.1
+
+# Run Zookeeper
+docker run -d --name zookeeper \
+      cybermaggedon/zookeeper:3.4.10b
+
+# Run Accumulo
+docker run -d --name accumulo --link zookeeper:zookeeper \
+      --link hadoop:hadoop \
+      cybermaggedon/accumulo-gaffer:$@{GAFFER_VERSION@}
+
+# Run Wildfly, exposing port 8080.
+docker run -d --name wildfly --link zookeeper:zookeeper \
+  --link hadoop:hadoop --link accumulo:accumulo \
+  -p 8080:8080 \
+  cybermaggedon/wildfly-gaffer:$@{GAFFER_VERSION@}
+
+@end example
+
+The Gaffer/Wildfly component takes about 30 seconds to bed in.  Once working,
+you can check the status of Gaffer by interacting with the REST API.  This
+command should return the Graph schema, which is a JSON object:
+
+@example
+wget -q -O- http://localhost:8080/rest/v1/graph/schema
+@end example
+
+You can fetch the entire graph using this command.  Initially, the graph will
+be empty.  This command may take a long while to run once the graph is loaded
+with loads of data:
+
+@example
+wget -q -O- --header 'Content-Type: application/json' \
+  --post-data '
+  @{"class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"@}
+  ' http://localhost:8080/rest/v2/graph/operations/execute
+@end example
+
+@heading Linking to @command{cybermon}
+
+On the command-line you need to tell the subscriber the location
+of the Gaffer REST API. e.g.
+
+@example
+cybermon-gaffer ioc \
+    http://localhost:8080/rest/v1
+@end example
+
+See @ref{@command{cybermon-gaffer} invocation}.
+
+@comment ----------------------------------------------------------------------
+
+@node The Google BigQuery subscriber
+@section The Google BigQuery subscriber
+
+@cindex @command{cybermon-bigquery}, invocation
+@cindex Google BigQuery
+@cindex Google Cloud Platform
+
+Google BigQuery is a cloud data storage mechanism which is part of the
+Google Cloud Platform, available to Google Cloud subscribers.
+
+BigQuery is a 'big data' relational style database, with a query language
+familiar to SQL users.
+
+To use BigQuery, you need to get a private key file in private JSON format
+from the cloud interface, and store this at
+@file{@value{SYSCONFDIR}/cyberprobe/private.json}.  One way to do this is
+to go to the IAM interface and create a use with BigQuery access, and download
+the private JSON file.
+
+You need to also to create the BigQuery dataset.  Call it @samp{cyberprobe}.
+The BigQuery table is created automatically when the subscriber is started.
+
+If the key is installed at the above location, you do not need to
+provide any further parameters on the command line.  Just run:
+
+@example
+cybermon-bigquery
+@end example
+
+See @ref{@command{cybermon-bigquery} invocation}.
+
+@comment ----------------------------------------------------------------------
+
+@node The debug monitor subscriber
+@section The debug monitor subscriber
+
+@cindex @command{cybermon-monitor}, invocation
+
+The @command{cybermon-monitor} subscriber is a subscriber which takes
+events and writes human-readable output on standard output.  This is a
+useful means to verify that @command{cyberprobe}, @command{cybermon} and
+pub/sub are configured correctly.
+
+See @ref{@command{cybermon-monitor} invocation}.

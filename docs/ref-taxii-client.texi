@@ -1,0 +1,112 @@
+
+@node @command{taxii-client} invocation
+@section @command{taxii-client} invocation
+
+@cindex @command{taxii-client}, invocation
+
+@command{taxii-client} provides a means to connect with a TAXII compliant
+server to acquire cyber threat information.  TAXII/STIX implementation
+is experimental and incomplete.
+
+See
+@url{https://taxii.mitre.org/} for more information on TAXII and STIX.
+Synopsis:
+
+@example
+taxii-client [-h] [--host HOST] [--port PORT] [--path PATH]
+        [--collection COLLECTION] [--begin_timestamp BEGIN_TS]
+        [--end_timestamp END_TS] [--discovery] [--poll]
+        [--collection_information] [--subscribe] [--action ACT]
+        [--query QUERY] [--subs-id SUBSCRIPTION_ID]
+        [--inbox INBOX]
+@end example
+
+Example:
+@example
+taxii-client -h taxii.com --poll
+@end example
+
+@table @samp
+
+@item -h
+@itemx --help
+Shows command line usage.
+
+@item --host @var{HOST}
+Specifies host to connect to.
+
+@item --port @var{PORT}
+Specifies port number of the TAXII service.
+
+@item --path @var{PATH}
+Specifies the URI of the service.  Default is @samp{/}.
+
+@item --collection @var{COLLECTION}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --begin_timestamp @var{BEGIN}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --end_timestamp @var{END}
+Specifies the TAXII collection to use.  Default is @samp{default}.
+
+@item --discovery
+Invokes a TAXII discovery action.
+
+@item --poll
+Invokes a TAXII poll action.
+
+@item --collection_information
+Invokes a collection information action.
+
+@item --subscribe
+Invokes a TAXII subscribe action.
+
+@item --action @var{ACT}
+Specieis the subscription action to perform.
+
+@item --query @var{QUERY}
+Specifies the query to use for an inbox or poll action.  Query takes the
+form: @samp{type:value}.  Type can be one of:
+
+@table @samp
+
+@item address
+CybOX address object value e.g. @samp{address:1.2.3.4}
+
+@item addresstype
+CybOX address object type e.g. @samp{addresstype:e-mail}
+
+@item domainname
+CybOX DNS name
+
+@item port
+TCP/UDP port number e.g. @samp{port:11111}
+
+@item hash
+File object hash value.
+
+@item id
+Object ID.
+
+@item source
+Object source identifier.
+
+@end table
+
+Multiple query values may be specified in which case they are combined with
+a logical AND.
+
+@item --subs-id @var{SUBS-ID}
+Specifies the subscription ID for a subscription operation.
+
+@item --inbox @var{INBOX}
+Specifies the inbox destination for subscriptions.  The default value is
+@code{http://localhost:8888/}.
+
+@end table
+
+Begin/end timestamps take the following form:
+@example
+YYYY-MM-DDTHH:MM:SS.ssssss+/-hh:mm
+@end example

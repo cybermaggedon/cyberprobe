@@ -1,0 +1,30 @@
+
+@node @command{cybermon-dump} invocation
+@section @command{cybermon-dump} invocation
+
+@cindex @command{cybermon-dump}, invocation
+@cindex JSON
+@cindex Cybermon JSON message format
+
+@command{cybermon-dump} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon} events, and dumps the raw JSON to standard output.
+
+Synopsis:
+
+@example
+cybermon-dump [BINDING]
+@end example
+
+Example:
+@example
+cybermon-dump
+cybermon-dump cyberprobe
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{cyberprobe}.
+
+@end table

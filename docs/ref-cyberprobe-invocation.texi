@@ -1,0 +1,33 @@
+
+@node @command{cyberprobe} invocation
+@section @command{cyberprobe} invocation
+
+@cindex @command{cyberprobe}, invocation
+
+@command{cyberprobe} is a network monitor which collects packets which match an
+IP address list.  The packets collected are streamed using network streaming
+protocols.  The IP address match list can be statically conqfigured (in a
+configuration file), can be dynamically changed using a management
+interface, or can be dynamically changed as a result of snort alerts.
+Synopsis:
+
+@example
+cyberprobe @var{configuration-file}
+@end example
+
+@itemize @bullet
+
+@item
+@var{configuration-file} is the name of a JSON configuration file. 
+See @ref{@command{cyberprobe} configuration}.
+
+@end itemize
+
+@cindex @command{cyberprobe}, configuration
+
+@command{cyberprobe} executes indefinitely - to end the program, a signal should
+be sent. e.g.
+
+@example
+killall cyberprobe
+@end example

@@ -1,0 +1,30 @@
+
+@node @command{cybermon-alert} invocation
+@section @command{cybermon-alert} invocation
+
+@cindex @command{cybermon-alert}, invocation
+@cindex Alert
+
+@command{cybermon-alert} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon} events, and outputs a human-readable message
+when an IOC hits.
+
+Synopsis:
+
+@example
+cybermon-alert [BINDING]
+@end example
+
+Example:
+@example
+cybermon-alert
+cybermon-alert ioc
+@end example
+
+@table @samp
+
+@item BINDING
+Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+to @samp{ioc}.
+
+@end table
