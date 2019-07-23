@@ -108,8 +108,6 @@ namespace control {
         s->write(std::to_string(e.size()) + "\n");
         s->write(e);
 
-        std::cerr << "Reply: " << e << std::endl;
-
     }
 
     // Return an ERROR response (should be status=3xx or 5xx).
@@ -124,8 +122,6 @@ namespace control {
         s->write(std::to_string(e.size()) + "\n");
         s->write(e);
 
-        std::cerr << "Reply: " << e << std::endl;
-
     }
 
     // Return an OK response with payload (should be status=201).
@@ -135,8 +131,6 @@ namespace control {
         std::string e = j.dump();
         s->write(std::to_string(e.size()) + "\n");
         s->write(e);
-
-        std::cerr << "Reply: " << e << std::endl;
 
     }
 
@@ -419,11 +413,8 @@ namespace control {
                         break;
                     }
 
-                    std::cerr << "Command: " << line << std::endl;
-
                     json j;
                     try {
-                        std::cerr << line << std::endl;
                         j = json::parse(line);
                     } catch (...) {
                         error(301, "Could not parse JSON");
