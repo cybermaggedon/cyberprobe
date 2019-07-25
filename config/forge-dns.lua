@@ -21,7 +21,9 @@ observer.event = function(e)
     -- Send a fake response
 
     -- Set query/response flag to 'response'
-    e.header.qr = 1
+    header = e.header
+    header.qr = 1
+    header.ancount = 2
 
     -- Two answers, give example.org 2 alternative IP addresses.
     answers = {}
@@ -41,7 +43,7 @@ observer.event = function(e)
 
     io.write("Forging DNS response!\n")
 
-    e.context:forge_dns_response(e.header, e.queries, answers, {}, {})
+    e.context:forge_dns_response(header, e.queries, answers, {}, {})
 
   end
 
