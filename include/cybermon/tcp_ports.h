@@ -11,7 +11,7 @@
 #include <cybermon/context.h>
 #include <cybermon/manager.h>
 #include <cybermon/pdu.h>
-
+#include <vector>
 
 namespace cybermon
 {
@@ -23,7 +23,7 @@ namespace cybermon
 
         typedef void (*fn)(manager& mgr, context_ptr fc, const pdu_slice& s);
 
-        static fn port_handler[65536];
+        static std::vector<fn> port_handler;
 
         static bool handlers_initialised;
 

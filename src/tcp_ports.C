@@ -18,18 +18,13 @@
 using namespace cybermon;
 
 
-tcp_ports::fn tcp_ports::port_handler[65536] = {};
+std::vector<tcp_ports::fn> tcp_ports::port_handler(65536, nullptr);
 
 bool tcp_ports::handlers_initialised = false;
 
 
 void tcp_ports::init_handlers(void)
 {
-    // Initialize all elements to null first
-    for(uint32_t x = 0; x < 65536; x++)
-        {
-            port_handler[x] = NULL;
-        }
 
     // Now assign specific handlers
     port_handler[21]  = &ftp::process;
@@ -78,7 +73,7 @@ void tcp_ports::remove_port_handler(uint16_t port)
 
 bool tcp_ports::has_port_handler(uint16_t port)
 {
-    if (port_handler[port] != NULL)
+    if (port_handler[port] != nullptr)
         {
             return true;
         }

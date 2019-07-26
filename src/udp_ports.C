@@ -12,18 +12,13 @@
 using namespace cybermon;
 
 
-udp_ports::fn udp_ports::port_handler[65536] = {};
+std::vector<udp_ports::fn> udp_ports::port_handler(65536, nullptr);
 
 bool udp_ports::handlers_initialised = false;
 
 
 void udp_ports::init_handlers(void)
 {
-    // Initialize all elements to null first
-    for(uint32_t x = 0; x < 65536; x++)
-        {
-            port_handler[x] = NULL;
-        }
 
     // Now assign specific handlers
     port_handler[53]  = &dns_over_udp::process;
@@ -44,7 +39,7 @@ bool udp_ports::is_handlers_init(void)
 
 void udp_ports::add_port_handler(uint16_t port, fn function)
 {
-    if (port_handler[port] == NULL)
+    if (port_handler[port] == nullptr)
         {
             port_handler[port] = function;
         }
@@ -57,12 +52,12 @@ void udp_ports::add_port_handler(uint16_t port, fn function)
 
 void udp_ports::remove_port_handler(uint16_t port)
 {
-    port_handler[port] = NULL;
+    port_handler[port] = nullptr;
 }
 
 bool udp_ports::has_port_handler(uint16_t port)
 {
-    if (port_handler[port] != NULL)
+    if (port_handler[port] != nullptr)
         {
             return true;
         }
