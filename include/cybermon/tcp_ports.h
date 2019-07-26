@@ -23,7 +23,7 @@ namespace cybermon
 
         typedef void (*fn)(manager& mgr, context_ptr fc, const pdu_slice& s);
 
-        static fn port_handler[65535];
+        static fn port_handler[65536];
 
         static bool handlers_initialised;
 

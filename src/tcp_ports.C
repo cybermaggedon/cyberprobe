@@ -18,7 +18,7 @@
 using namespace cybermon;
 
 
-tcp_ports::fn tcp_ports::port_handler[65535] = {};
+tcp_ports::fn tcp_ports::port_handler[65536] = {};
 
 bool tcp_ports::handlers_initialised = false;
 
@@ -26,7 +26,7 @@ bool tcp_ports::handlers_initialised = false;
 void tcp_ports::init_handlers(void)
 {
     // Initialize all elements to null first
-    for(uint16_t x = 0; x < 65535; x++)
+    for(uint32_t x = 0; x < 65536; x++)
         {
             port_handler[x] = NULL;
         }

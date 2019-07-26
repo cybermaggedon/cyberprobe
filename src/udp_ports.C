@@ -12,7 +12,7 @@
 using namespace cybermon;
 
 
-udp_ports::fn udp_ports::port_handler[65535] = {};
+udp_ports::fn udp_ports::port_handler[65536] = {};
 
 bool udp_ports::handlers_initialised = false;
 
@@ -20,7 +20,7 @@ bool udp_ports::handlers_initialised = false;
 void udp_ports::init_handlers(void)
 {
     // Initialize all elements to null first
-    for(uint16_t x = 0; x < 65535; x++)
+    for(uint32_t x = 0; x < 65536; x++)
         {
             port_handler[x] = NULL;
         }
