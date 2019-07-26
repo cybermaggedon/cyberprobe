@@ -223,46 +223,49 @@ address. Let's hack the DNS request function in @file{my.lua}:
 
 @example
 -- This function is called when a DNS message is observed.
+local observer = @{@}
+
 observer.event = function(e)
+  if e.action ~= "dns_message" then
+    return
+  end
 
-  if e.event == "dns_message" then
+  if e.header.qr == 0 and #e.queries == 1 and e.queries[1].name == "example.org"
+    and e.queries[1].type == 1 and e.queries[1].class == 1 then
 
-    -- Check my assumptions.  Need a DNS query request, with one query,
-    -- name is example.org, type 'A', class 'IN'.
-    if e.header.qr == 0 and #e.queries == 1 and
-      e.queries[1].name == "example.org" and e.queries[1].type == 1 and
-      e.queries[1].class == 1 then
+    -- Send a fake response
 
-      -- Send a fake response
+    -- Set query/response flag to 'response'
+    header = e.header
+    header.qr = 1
+    header.ancount = 2
 
-      -- Set query/response flag to 'response'
+    -- Two answers, give example.org 2 alternative IP addresses.
+    answers = @{@}
+    answers[1] = @{@}
+    answers[1].name = "example.org"
+    answers[1].type = 1
+    answers[1].class = 1
+    answers[1].rdaddress = "1.2.3.4"
+    answers[2] = @{@}
+    answers[2].name = "example.org"
+    answers[2].type = 1
+    answers[2].class = 1
+    answers[2].rdaddress = "5.6.7.8"
 
-      new_hdr = e.header
-      new_hdr.qr = 1
+    -- Two answers
+    e.header.ancount = 2
 
-      new_ans = e.answers
+    io.write("Forging DNS response!\n")
 
-      -- 1 answer
-      new_ans = @{@}
-      new_ans[1] = @{@}
-      new_ans[1].name = "example.org"
-      new_ans[1].type = 1
-      new_ans[1].class = 1
-      new_ans[1].rdaddress = "1.2.3.4"
-
-      -- 1 answer
-      new_hdr.ancount = 1
-
-      io.write("Forging DNS response!\n")
-
-      context:forge_dns_response(context, new_hdr, queries, new_ans,
-                                 @{@}, @{@})
-
-    end
+    e.context:forge_dns_response(header, e.queries, answers, @{@}, @{@})
 
   end
 
 end
+
+-- Return the table
+return observer
 @end example
 
 So, this example, checks that the query is one we want to mess with. If it
