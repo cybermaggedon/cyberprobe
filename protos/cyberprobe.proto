@@ -16,37 +16,42 @@ enum Action {
     sip_response = 8;
     sip_ssl = 9;
     imap = 10;
-    pop3 = 11;
-    pop3_ssl = 12;
-    ntp_timestamp = 13;
-    ntp_control = 14;
-    ntp_private = 15;
-    ftp_command = 16;
-    ftp_response = 17;
-    smtp_command = 18;
-    smtp_response = 19;
-    smtp_data = 20;
-    gre = 21;
-    gre_pptp = 22;
-    esp = 23;
-    unrecognised_ip_protocol = 24;
-    wlan = 25;
-    tls_unknown = 26;
-    tls_client_hello = 27;
-    tls_server_hello = 28;
-    tls_certificates = 29;
-    tls_server_key_exchange = 30;
-    tls_server_hello_done = 31;
-    tls_handshake_unknown = 32;
-    tls_certificate_request = 33;
-    tls_client_key_exchange = 34;
-    tls_certificate_verify = 35;
-    tls_change_cipher_spec = 36;
-    tls_handshake_finished = 37;
-    tls_handshake_complete = 38;
-    tls_application_data = 39;
-    trigger_up = 40;
-    trigger_down = 41;
+    imap_ssl = 11;
+    pop3 = 12;
+    pop3_ssl = 13;
+    ntp_timestamp = 14;
+    ntp_control = 15;
+    ntp_private = 16;
+    ftp_command = 17;
+    ftp_response = 18;
+    smtp_command = 19;
+    smtp_response = 20;
+    smtp_data = 21;
+    gre = 22;
+    gre_pptp = 23;
+    esp = 24;
+    unrecognised_ip_protocol = 25;
+    wlan = 26;
+    tls_unknown = 27;
+    tls_client_hello = 28;
+    tls_server_hello = 29;
+    tls_certificates = 30;
+    tls_server_key_exchange = 31;
+    tls_server_hello_done = 32;
+    tls_handshake_unknown = 33;
+    tls_certificate_request = 34;
+    tls_client_key_exchange = 35;
+    tls_certificate_verify = 36;
+    tls_change_cipher_spec = 37;
+    tls_handshake_finished = 38;
+    tls_handshake_complete = 39;
+    tls_application_data = 40;
+    rtp = 41;
+    rtp_ssl = 42;
+    trigger_up = 43;
+    trigger_down = 44;
+    connection_up = 45;
+    connection_down = 46;
 };
 
 message Query {
@@ -116,6 +121,18 @@ message SipSsl {
 };
 
 message Imap {
+    bytes payload = 1;
+}
+
+message ImapSsl {
+    bytes payload = 1;
+}
+
+message Rtp {
+    bytes payload = 1;
+}
+
+message RtpSsl {
     bytes payload = 1;
 }
 
@@ -369,6 +386,12 @@ message TriggerUp {
 message TriggerDown {
 };
 
+message ConnectionUp {
+};
+
+message ConnectionDown {
+};
+
 message Event {
     string id = 1;
     string device = 2;
@@ -391,41 +414,46 @@ message Event {
 	SipResponse sip_response = 17;
 	SipSsl sip_ssl = 18;
 	Imap imap = 19;
-	Pop3 pop3 = 20;
-	Pop3Ssl pop3_ssl = 21;
-	Ntp ntp_timestamp = 22;
-	Ntp ntp_control = 23;
-	Ntp ntp_private = 24;
-	FtpCommand ftp_command = 25;
-	FtpResponse ftp_response = 26;
-	SmtpCommand smtp_command = 27;
-	SmtpResponse smtp_response = 28;
-	SmtpData smtp_data = 29;
-	Gre gre = 30;
-	GrePptp gre_pptp = 31;
-	Esp esp = 32;
-	UnrecognisedIpProtocol unrecognised_ip_protocol = 33;
-	Wlan wlan = 34;
-	TlsUnknown tls_unknown = 35;
-	TlsClientHello tls_client_hello = 36;
-	TlsServerHello tls_server_hello = 37;
-	TlsCertificates tls_certificates = 38;
-	TlsServerKeyExchange tls_server_key_exchange = 39;
-	TlsServerHelloDone tls_server_hello_done = 40;
-	TlsHandshakeUnknown tls_handshake_unknown = 41;
-	TlsCertificateRequest tls_certificate_request = 42;
-	TlsClientKeyExchange tls_client_key_exchange = 43;
-	TlsCertificateVerify tls_certificate_verify = 44;
-	TlsChangeCipherSpec tls_change_cipher_spec = 45;
-	TlsHandshakeFinished tls_handshake_finished = 46;
-	TlsHandshakeComplete tls_handshake_complete = 47;
-	TlsApplicationData tls_application_data = 48;
-        TriggerUp trigger_up = 49;
-        TriggerDown trigger_down = 50;
+	ImapSsl imap_ssl = 20;
+	Pop3 pop3 = 21;
+	Pop3Ssl pop3_ssl = 22;
+	Ntp ntp_timestamp = 23;
+	Ntp ntp_control = 24;
+	Ntp ntp_private = 25;
+	FtpCommand ftp_command = 26;
+	FtpResponse ftp_response = 27;
+	SmtpCommand smtp_command = 28;
+	SmtpResponse smtp_response = 29;
+	SmtpData smtp_data = 30;
+	Gre gre = 31;
+	GrePptp gre_pptp = 32;
+	Esp esp = 33;
+	UnrecognisedIpProtocol unrecognised_ip_protocol = 34;
+	Wlan wlan = 35;
+	TlsUnknown tls_unknown = 36;
+	TlsClientHello tls_client_hello = 37;
+	TlsServerHello tls_server_hello = 38;
+	TlsCertificates tls_certificates = 39;
+	TlsServerKeyExchange tls_server_key_exchange = 40;
+	TlsServerHelloDone tls_server_hello_done = 41;
+	TlsHandshakeUnknown tls_handshake_unknown = 42;
+	TlsCertificateRequest tls_certificate_request = 43;
+	TlsClientKeyExchange tls_client_key_exchange = 44;
+	TlsCertificateVerify tls_certificate_verify = 45;
+	TlsChangeCipherSpec tls_change_cipher_spec = 46;
+	TlsHandshakeFinished tls_handshake_finished = 47;
+	TlsHandshakeComplete tls_handshake_complete = 48;
+	TlsApplicationData tls_application_data = 49;
+        Rtp rtp = 50;
+        RtpSsl rtp_ssl = 51;
+        TriggerUp trigger_up = 52;
+        TriggerDown trigger_down = 53;
+        ConnectionUp connection_up = 54;
+        ConnectionDown connection_down = 55;
     };
 
-    Locations location = 51;
-    repeated Indicator indicators = 52;
+    Locations location = 56;
+    repeated Indicator indicators = 57;
 }
 
 message Empty {

@@ -95,6 +95,13 @@ int event::get_lua_value(cybermon_lua& state, const std::string& key)
 	return 1;
     }
 
+    if (key == "protobuf") {
+	std::string pb;
+	to_protobuf(pb);
+	state.push(pb);
+	return 1;
+    }
+
     if (key == "context") {
 	auto eptr = dynamic_cast<const protocol_event*>(this);
 	if (eptr == 0) {

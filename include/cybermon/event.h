@@ -97,6 +97,9 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		doc == "{}";
 	    }
+            virtual void to_protobuf(std::string& buf) {
+                throw std::runtime_error("Protobuf not implemented.");
+            }
 	};
 
 	class protocol_event : public event {

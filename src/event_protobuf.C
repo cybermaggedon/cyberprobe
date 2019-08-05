@@ -39,60 +39,17 @@ namespace cybermon {
 	    }
 	    
 	}
-	
-	void protobufify(const connection_up& e, pbuf& pb) {
-
-            // FIXME: No event!
-
-        }
-        
-	void protobufify(const connection_down& e, pbuf& pb) {
-
-            // FIXME: No event!
-
-	}
-
-	void protobufify(const trigger_up& e, pbuf& pb) {
-
-            cyberprobe::Event pe;
-            pe.set_id(e.id);
-            pe.set_action(cyberprobe::Action::trigger_up);
-            *(pe.mutable_time()) = 
-                google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
-            pe.set_device(e.get_device());
-
-            auto detail = pe.mutable_trigger_up();
-            detail->set_address(e.address);
-
-            pe.SerializeToString(&pb);
-
-	}
-
-	void protobufify(const trigger_down& e, pbuf& pb)
-        {
-
-            cyberprobe::Event pe;
-            pe.set_id(e.id);
-            pe.set_action(cyberprobe::Action::trigger_down);
-            *(pe.mutable_time()) = 
-                google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
-            pe.set_device(e.get_device());
-
-            auto detail = pe.mutable_trigger_down();
-
-            pe.SerializeToString(&pb);
-
-	}
 
 	static void protobufify_base(const protocol_event& e,
-                                     cyberprobe::Event& pe)
+                                     cyberprobe::Event& pe,
+                                     cyberprobe::Action a)
         {
 
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
             pe.set_id(e.id);
-            pe.set_action(cyberprobe::Action::unrecognised_stream);
+            pe.set_action(a);
             *(pe.mutable_time()) = 
                 google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
             pe.set_device(e.get_device());
@@ -108,11 +65,51 @@ namespace cybermon {
                 pe.add_dest()->assign(*it);
             
         }
+	
+	void protobufify(const connection_up& e, cyberprobe::Event& pe) {
+
+            protobufify_base(e, pe, cyberprobe::Action::unrecognised_stream);
+            auto detail = pe.mutable_connection_up();
+
+        }
+        
+	void protobufify(const connection_down& e, cyberprobe::Event& pe) {
+
+            protobufify_base(e, pe, cyberprobe::Action::unrecognised_stream);
+            auto detail = pe.mutable_connection_down();
+
+	}
+
+	void protobufify(const trigger_up& e, cyberprobe::Event& pe) {
+
+            pe.set_id(e.id);
+            pe.set_action(cyberprobe::Action::trigger_up);
+            *(pe.mutable_time()) = 
+                google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
+            pe.set_device(e.get_device());
+
+            auto detail = pe.mutable_trigger_up();
+            detail->set_address(e.address);
+
+	}
+
+	void protobufify(const trigger_down& e, cyberprobe::Event& pe)
+        {
+
+            pe.set_id(e.id);
+            pe.set_action(cyberprobe::Action::trigger_down);
+            *(pe.mutable_time()) = 
+                google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
+            pe.set_device(e.get_device());
+
+            auto detail = pe.mutable_trigger_down();
+
+	}
 
 	void protobufify(const unrecognised_stream& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe);
+            protobufify_base(e, pe, cyberprobe::Action::unrecognised_stream);
             
             auto detail = pe.mutable_unrecognised_stream();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -124,16 +121,18 @@ namespace cybermon {
                          cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe);
+            protobufify_base(e, pe,
+                             cyberprobe::Action::unrecognised_datagram);
 
             auto detail = pe.mutable_unrecognised_datagram();
             detail->set_payload(e.payload.data(), e.payload.size());
 
 	}
 
-	void protobufify(const icmp& e, cyberprobe::Event& pe) {
+	void protobufify(const icmp& e, cyberprobe::Event& pe)
+        {
 
-            protobufify_base(e, pe);
+            protobufify_base(e, pe, cyberprobe::Action::icmp);
 
             auto detail = pe.mutable_icmp();
             detail->set_type(e.type);
@@ -142,16 +141,96 @@ namespace cybermon {
 
 	}
 
-	void protobufify(const imap& e, cyberprobe::Event& pe) {
+	void protobufify(const imap& e, cyberprobe::Event& pe)
+        {
 
-            protobufify_base(e, pe);
+            protobufify_base(e, pe, cyberprobe::Action::imap);
 
             auto detail = pe.mutable_imap();
             detail->set_payload(e.payload.data(), e.payload.size());
 
 	}
-/*
-	void protobufify(const imap_ssl& e, pbuf& pb) {
+
+	void protobufify(const imap_ssl& e, cyberprobe::Event& pe)
+        {
+
+            protobufify_base(e, pe, cyberprobe::Action::imap_ssl);
+
+            auto detail = pe.mutable_imap_ssl();
+            detail->set_payload(e.payload.data(), e.payload.size());
+
+	}
+
+	void protobufify(const pop3& e, cyberprobe::Event& pe)
+        {
+
+            protobufify_base(e, pe, cyberprobe::Action::pop3);
+
+            auto detail = pe.mutable_pop3();
+            detail->set_payload(e.payload.data(), e.payload.size());
+
+	}
+
+	void protobufify(const pop3_ssl& e, cyberprobe::Event& pe)
+        {
+
+            protobufify_base(e, pe, cyberprobe::Action::pop3_ssl);
+
+            auto detail = pe.mutable_pop3();
+            detail->set_payload(e.payload.data(), e.payload.size());
+
+	}
+
+	void protobufify(const rtp& e, cyberprobe::Event& pe)
+        {
+
+            protobufify_base(e, pe, cyberprobe::Action::pop3_ssl);
+
+            auto detail = pe.mutable_rtp();
+            detail->set_payload(e.payload.data(), e.payload.size());
+
+	}
+
+	void protobufify(const rtp_ssl& e, cyberprobe::Event& pe)
+        {
+
+            protobufify_base(e, pe, cyberprobe::Action::pop3_ssl);
+
+            auto detail = pe.mutable_rtp_ssl();
+            detail->set_payload(e.payload.data(), e.payload.size());
+
+	}
+
+	void protobufify(const sip_request& e, cyberprobe::Event& pe)
+        {
+            
+            protobufify_base(e, pe, cyberprobe::Action::sip_request);
+
+            auto detail = pe.mutable_sip_request();
+            detail->set_method(e.method);
+            detail->set_from(e.from);
+            detail->set_to(e.to);
+            detail->set_payload(e.payload.data(), e.payload.size());
+
+	}
+
+	void protobufify(const sip_response& e, cyberprobe::Event& pe)
+        {
+            
+            protobufify_base(e, pe, cyberprobe::Action::sip_response);
+
+            auto detail = pe.mutable_sip_response();
+            detail->set_code(e.code);
+            detail->set_status(e.status);
+            detail->set_from(e.from);
+            detail->set_to(e.to);
+            detail->set_payload(e.payload.data(), e.payload.size());
+
+	}
+
+	void protobufify(const sip_ssl& e, cyberprobe::Event& pe) {
+
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -164,121 +243,11 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const pop3& e, pbuf& pb) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-	}
-
-	void protobufify(const pop3_ssl& e, pbuf& pb) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-	}
-
-	void protobufify(const rtp& e, pbuf& pb) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-	}
-
-	void protobufify(const rtp_ssl& e, pbuf& pb) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-	}
-
-	void protobufify(const sip_request& e, pbuf& pb) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "method", e.method },
-		{ "from", e.from },
-		{ "to", e.to }
-	    };
-	    return obj;
-	}
-
-	void protobufify(const sip_response& e, pbuf& pb) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "code", e.code },
-		{ "status", e.status },
-		{ "from", e.from },
-		{ "to", e.to }
-	    };
-	    return obj;
-	}
-
-	void protobufify(const sip_ssl& e, pbuf& pb) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-	}
-
-	void protobufify(const smtp_auth& e, pbuf& pb) {
+	void protobufify(const smtp_auth& e, cyberprobe::Event& pe) {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -294,9 +263,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const smtp_command& e, pbuf& pb) {
+	void protobufify(const smtp_command& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -312,9 +284,12 @@ namespace cybermon {
 		}
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const smtp_response& e, pbuf& pb) {
+	void protobufify(const smtp_response& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -331,9 +306,12 @@ namespace cybermon {
 		}
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const smtp_data& e, pbuf& pb) {
+	void protobufify(const smtp_data& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -351,9 +329,12 @@ namespace cybermon {
 		}
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const http_request& e, pbuf& pb) {
+	void protobufify(const http_request& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    std::map<std::string, std::string> hdr;
@@ -380,9 +361,12 @@ namespace cybermon {
 		obj["http_request"]["body"] = jsonify(e.body);
 
 	    return obj;
+            */
 	}
 
-	void protobufify(const http_response& e, pbuf& pb) {
+	void protobufify(const http_response& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    std::map<std::string, std::string> hdr;
@@ -408,9 +392,12 @@ namespace cybermon {
 	    };
 
 	    return obj;
+            */
 	}
 
-	void protobufify(const ftp_command& e, pbuf& pb) {
+	void protobufify(const ftp_command& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -426,9 +413,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const ftp_response& e, pbuf& pb) {
+	void protobufify(const ftp_response& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -445,9 +435,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const dns_message& e, pbuf& pb) {
+	void protobufify(const dns_message& e, cyberprobe::Event& pe)
+        {
+            /*
 
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
@@ -518,9 +511,12 @@ namespace cybermon {
 	    };
 
 	    return obj;
+            */
 	}
 
-	void protobufify(const ntp_timestamp_message& e, pbuf& pb) {
+	void protobufify(const ntp_timestamp_message& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -538,9 +534,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const ntp_control_message& e, pbuf& pb) {
+	void protobufify(const ntp_control_message& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -558,9 +557,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const ntp_private_message& e, pbuf& pb) {
+	void protobufify(const ntp_private_message& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -578,9 +580,11 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const gre& e, pbuf& pb) {
+	void protobufify(const gre& e, cyberprobe::Event& pe) {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -601,9 +605,12 @@ namespace cybermon {
 	    if (e.sequence_no != 0)
 		obj["gre"]["sequence_number"] = e.sequence_no;
 	    return obj;
+            */
 	}
 
-	void protobufify(const gre_pptp& e, pbuf& pb) {
+	void protobufify(const gre_pptp& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -625,9 +632,12 @@ namespace cybermon {
 	    if (e.sequence_no != 0)
 		obj["gre_pptp"]["sequence_number"] = e.sequence_no;
 	    return obj;
+            */
 	}
 
-	void protobufify(const esp& e, pbuf& pb) {
+	void protobufify(const esp& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -644,9 +654,13 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const unrecognised_ip_protocol& e, pbuf& pb) {
+	void protobufify(const unrecognised_ip_protocol& e,
+                         cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -664,9 +678,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const wlan& e, pbuf& pb) {
+	void protobufify(const wlan& e, cyberprobe::Event& pe) 
+        {
+/*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -690,9 +707,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_unknown& e, pbuf& pb) {
+	void protobufify(const tls_unknown& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -710,6 +730,7 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	} 
 
 	static std::string int_to_hex(int n) {
@@ -719,14 +740,17 @@ namespace cybermon {
 	}
 
 	using cipher_suite = cybermon::tls_handshake_protocol::cipher_suite;
-	void protobufify(const cipher_suite& suite, pbuf& pb) {
+	void protobufify(const cipher_suite& suite, cyberprobe::Event& pe) {
+            /*
 	    if (suite.name == "Unassigned")
 		return json(suite.name + "-" + int_to_hex(suite.id));
 	    return json(suite.name);
+            */
 	}
 
 	using cipher_suites = std::vector<cipher_suite>;
-	void protobufify(const cipher_suites& suites, pbuf& pb) {
+	void protobufify(const cipher_suites& suites, cyberprobe::Event& pe) {
+            /*
 	    json cs = json::array();
 	    for(cipher_suites::const_iterator it = suites.begin();
 		it != suites.end();
@@ -734,19 +758,27 @@ namespace cybermon {
 		cs.push_back(jsonify(*it));
 	    }
 	    return cs;
-
+            */
 	}
 
 	using compression_method =
-                               cybermon::tls_handshake_protocol::compression_method;
-	void protobufify(const compression_method& method, pbuf& pb) {
+                               cybermon::tls_handshake_protocol::
+                               compression_method;
+	void protobufify(const compression_method& method, cyberprobe::Event& pe)
+        {
+            /*
 	    if (method.name == "Unassigned")
 		return json(method.name + "-" + int_to_hex(method.id));
 	    return json(method.name);
+            */
 	}
 
 	using compression_methods = std::vector<compression_method>;
-	void protobufify(const compression_methods methods, pbuf& pb) {
+	void protobufify(const compression_methods methods,
+                         cyberprobe::Event& pe)
+
+        {
+            /*
 		     
 	    json cm = json::array();
 
@@ -756,31 +788,38 @@ namespace cybermon {
 		cm.push_back(jsonify(*it));
 	    }
 	    return cm;
+            */
 	}
 
 	using extension = cybermon::tls_handshake_protocol::extension;
-	void protobufify(const extension& ext, pbuf& pb) {
+	void protobufify(const extension& ext, cyberprobe::Event& pe)
+        {
+            /*
 	    json obj = {
 		{ "name", ext.name },
 		{ "length", ext.len },
 		{ "type", ext.type },
 		{ "data", jsonify(ext.data) }
 	    };
-	    return obj;
+	    return obj;*/
 	}
 
 	using extensions = std::vector<extension>;
-	void protobufify(const extensions& exts, pbuf& pb) {
+	void protobufify(const extensions& exts, cyberprobe::Event& pe)
+        {
+            /*
 	    json ex = json::array();
 	    for(extensions::const_iterator it = exts.begin();
 		it != exts.end();
 		it++) {
 		ex.push_back(jsonify(*it));
 	    }
-	    return ex;
+	    return ex;*/
 	}
 
-	void protobufify(const tls_client_hello& e, pbuf& pb) {
+	void protobufify(const tls_client_hello& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -808,9 +847,12 @@ namespace cybermon {
 	    };
 
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_server_hello& e, pbuf& pb) {
+	void protobufify(const tls_server_hello& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 	    json obj = {
@@ -837,10 +879,13 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
 
-	void protobufify(const tls_certificates& e, pbuf& pb) {
+	void protobufify(const tls_certificates& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -868,10 +913,14 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
 	using curve_data = tls_handshake_protocol::curve_data;
-	static void protobufify(const std::vector<curve_data>& cd, pbuf& pb) {
+	static void protobufify(const std::vector<curve_data>& cd,
+                                cyberprobe::Event& pe)
+        {
+            /*
 	    json obj = json::array();
 	    for(std::vector<curve_data>::const_iterator it = cd.begin();
 		it != cd.end();
@@ -883,10 +932,13 @@ namespace cybermon {
 		obj.push_back(c);
 	    }
 	    return obj;
+            */
 	}
 
 	using key_exchange = tls_handshake_protocol::key_exchange_data ;
-	static void protobufify(const key_exchange& ke, pbuf& pb) {
+	static void protobufify(const key_exchange& ke, cyberprobe::Event& pe)
+        {
+            /*
 	    if (ke.ecdh) {
 		json obj = {
 		    { "key_exchange_algorithm", "ec-dh" },
@@ -929,9 +981,15 @@ namespace cybermon {
 		}
 	    };
 	    return obj;
-	}
 
-	void protobufify(const tls_server_key_exchange& e, pbuf& pb) {
+            */
+        }
+            
+
+	void protobufify(const tls_server_key_exchange& e,
+                         cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -948,9 +1006,13 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_server_hello_done& e, pbuf& pb) {
+	void protobufify(const tls_server_hello_done& e, cyberprobe::Event& pe)
+        {
+
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -967,9 +1029,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_handshake_generic& e, pbuf& pb) {
+	void protobufify(const tls_handshake_generic& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -990,19 +1055,25 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
 	using signature_algorithm = tls_handshake_protocol::signature_algorithm;
-	void protobufify(const signature_algorithm& sa, pbuf& pb) {
+	void protobufify(const signature_algorithm& sa, cyberprobe::Event& pe)
+        {
+            /*
 	    json obj = {
 		{ "hash_algorithm", sa.sigHashAlgo },
 		{ "signature_algorithm", sa.sigAlgo }
 	    };
 	    return obj;
+            */
 	}
 
 	using signature_algorithms = std::vector<signature_algorithm>;
-	void protobufify(const signature_algorithms& sa, pbuf& pb) {
+	void protobufify(const signature_algorithms& sa, cyberprobe::Event& pe)
+        {
+            /*
 	    json arr = json::array();
 	    for(signature_algorithms::const_iterator it = sa.begin();
 		it != sa.end();
@@ -1010,18 +1081,26 @@ namespace cybermon {
 		arr.push_back(jsonify(*it));
 	    }
 	    return arr;
+            */
 	}
 
-	void protobufify(const std::vector<std::string>& strs, pbuf& pb) {
+	void protobufify(const std::vector<std::string>& strs,
+                         cyberprobe::Event& pe)
+        {
+            /*
 	    json arr = json::array();
 	    for(std::vector<std::string>::const_iterator it = strs.begin();
 		it != strs.end();
 		it++)
 		arr.push_back(*it);
 	    return arr;
+            */
 	}
 
-	void protobufify(const tls_certificate_request& e, pbuf& pb) {
+	void protobufify(const tls_certificate_request& e,
+                         cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -1046,9 +1125,13 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_client_key_exchange& e, pbuf& pb) {
+	void protobufify(const tls_client_key_exchange& e,
+                         cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -1069,9 +1152,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_certificate_verify& e, pbuf& pb) {
+	void protobufify(const tls_certificate_verify& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -1093,9 +1179,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_change_cipher_spec& e, pbuf& pb) {
+	void protobufify(const tls_change_cipher_spec& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -1115,9 +1204,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_handshake_finished& e, pbuf& pb) {
+	void protobufify(const tls_handshake_finished& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -1137,9 +1229,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_handshake_complete& e, pbuf& pb) {
+	void protobufify(const tls_handshake_complete& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -1158,9 +1253,12 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
 
-	void protobufify(const tls_application_data& e, pbuf& pb) {
+	void protobufify(const tls_application_data& e, cyberprobe::Event& pe)
+        {
+            /*
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
 
@@ -1181,8 +1279,9 @@ namespace cybermon {
 		{ "dest", dest }
 	    };
 	    return obj;
+            */
 	}
-*/
+
     };
 
 };

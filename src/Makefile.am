@@ -1,6 +1,6 @@
 
 bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli \
-	stream-rcvr tls-rcvr
+	stream-rcvr tls-rcvr decode_protobuf
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C capture.C configuration.C control.C snort_alert.C \
@@ -100,6 +100,9 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/tls.h \
 	../include/cybermon/vxlan.h \
 	../include/cybermon/event_queue.h
+
+decode_protobuf_SOURCES = decode_protobuf.C
+decode_protobuf_LDADD = libcybermon.la -lssl -lprotobuf
 
 ACLOCAL_AMFLAGS = -I m4
 
