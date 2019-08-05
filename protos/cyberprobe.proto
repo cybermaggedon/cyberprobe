@@ -27,50 +27,74 @@ enum Action {
     smtp_command = 19;
     smtp_response = 20;
     smtp_data = 21;
-    gre = 22;
-    gre_pptp = 23;
-    esp = 24;
-    unrecognised_ip_protocol = 25;
-    wlan = 26;
-    tls_unknown = 27;
-    tls_client_hello = 28;
-    tls_server_hello = 29;
-    tls_certificates = 30;
-    tls_server_key_exchange = 31;
-    tls_server_hello_done = 32;
-    tls_handshake_unknown = 33;
-    tls_certificate_request = 34;
-    tls_client_key_exchange = 35;
-    tls_certificate_verify = 36;
-    tls_change_cipher_spec = 37;
-    tls_handshake_finished = 38;
-    tls_handshake_complete = 39;
-    tls_application_data = 40;
-    rtp = 41;
-    rtp_ssl = 42;
-    trigger_up = 43;
-    trigger_down = 44;
-    connection_up = 45;
-    connection_down = 46;
+    smtp_auth = 22;
+    gre = 23;
+    gre_pptp = 24;
+    esp = 25;
+    unrecognised_ip_protocol = 26;
+    wlan = 27;
+    tls_unknown = 28;
+    tls_client_hello = 29;
+    tls_server_hello = 30;
+    tls_certificates = 31;
+    tls_server_key_exchange = 32;
+    tls_server_hello_done = 33;
+    tls_handshake_unknown = 34;
+    tls_certificate_request = 35;
+    tls_client_key_exchange = 36;
+    tls_certificate_verify = 37;
+    tls_change_cipher_spec = 38;
+    tls_handshake_finished = 39;
+    tls_handshake_complete = 40;
+    tls_application_data = 41;
+    rtp = 42;
+    rtp_ssl = 43;
+    trigger_up = 44;
+    trigger_down = 45;
+    connection_up = 46;
+    connection_down = 47;
 };
 
-message Query {
+message DnsHeader {
+    uint32 id = 1;
+    uint32 qr = 2;
+    uint32 opcode = 3;
+    uint32 aa = 4;
+    uint32 tc = 5;
+    uint32 rd = 6;
+    uint32 ra = 7;
+    uint32 rcode = 8;
+    uint32 qdcount = 9;
+    uint32 ancount = 10;
+    uint32 nscount = 11;
+    uint32 arcount = 12;
+};
+
+message DnsQuery {
     string name = 1;
     string type = 2;
     string class = 3;
 };
 
-message Answer {
+message DnsAnswer {
     string name = 1;
     string type = 2;
     string class = 3;
     string address = 4;
 };
 
+enum DnsMessageType {
+    query = 0;
+    response = 1;
+};
+
 message DnsMessage {
-    repeated Query query = 1;
-    repeated Answer answer = 2;
-    string type = 3;
+    DnsHeader header = 1;
+    repeated DnsQuery query = 2;
+    repeated DnsAnswer answer = 3;
+    repeated DnsAnswer authority = 4;
+    repeated DnsAnswer additional = 5;
+    DnsMessageType type = 8;
 };
 
 message UnrecognisedDatagram {
@@ -171,6 +195,10 @@ message SmtpData {
     string from = 1;
     repeated string to = 2;
     bytes body = 3;
+};
+
+message SmtpAuth {
+    bytes payload = 1;
 };
 
 message Gre {
@@ -425,35 +453,36 @@ message Event {
 	SmtpCommand smtp_command = 28;
 	SmtpResponse smtp_response = 29;
 	SmtpData smtp_data = 30;
-	Gre gre = 31;
-	GrePptp gre_pptp = 32;
-	Esp esp = 33;
-	UnrecognisedIpProtocol unrecognised_ip_protocol = 34;
-	Wlan wlan = 35;
-	TlsUnknown tls_unknown = 36;
-	TlsClientHello tls_client_hello = 37;
-	TlsServerHello tls_server_hello = 38;
-	TlsCertificates tls_certificates = 39;
-	TlsServerKeyExchange tls_server_key_exchange = 40;
-	TlsServerHelloDone tls_server_hello_done = 41;
-	TlsHandshakeUnknown tls_handshake_unknown = 42;
-	TlsCertificateRequest tls_certificate_request = 43;
-	TlsClientKeyExchange tls_client_key_exchange = 44;
-	TlsCertificateVerify tls_certificate_verify = 45;
-	TlsChangeCipherSpec tls_change_cipher_spec = 46;
-	TlsHandshakeFinished tls_handshake_finished = 47;
-	TlsHandshakeComplete tls_handshake_complete = 48;
-	TlsApplicationData tls_application_data = 49;
-        Rtp rtp = 50;
-        RtpSsl rtp_ssl = 51;
-        TriggerUp trigger_up = 52;
-        TriggerDown trigger_down = 53;
-        ConnectionUp connection_up = 54;
-        ConnectionDown connection_down = 55;
+        SmtpAuth smtp_auth = 31;
+	Gre gre = 32;
+	GrePptp gre_pptp = 33;
+	Esp esp = 34;
+	UnrecognisedIpProtocol unrecognised_ip_protocol = 35;
+	Wlan wlan = 36;
+	TlsUnknown tls_unknown = 37;
+	TlsClientHello tls_client_hello = 38;
+	TlsServerHello tls_server_hello = 39;
+	TlsCertificates tls_certificates = 40;
+	TlsServerKeyExchange tls_server_key_exchange = 41;
+	TlsServerHelloDone tls_server_hello_done = 42;
+	TlsHandshakeUnknown tls_handshake_unknown = 43;
+	TlsCertificateRequest tls_certificate_request = 44;
+	TlsClientKeyExchange tls_client_key_exchange = 45;
+	TlsCertificateVerify tls_certificate_verify = 46;
+	TlsChangeCipherSpec tls_change_cipher_spec = 47;
+	TlsHandshakeFinished tls_handshake_finished = 48;
+	TlsHandshakeComplete tls_handshake_complete = 49;
+	TlsApplicationData tls_application_data = 50;
+        Rtp rtp = 51;
+        RtpSsl rtp_ssl = 52;
+        TriggerUp trigger_up = 53;
+        TriggerDown trigger_down = 54;
+        ConnectionUp connection_up = 55;
+        ConnectionDown connection_down = 56;
     };
 
-    Locations location = 56;
-    repeated Indicator indicators = 57;
+    Locations location = 57;
+    repeated Indicator indicators = 58;
 }
 
 message Empty {

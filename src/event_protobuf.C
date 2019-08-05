@@ -10,6 +10,45 @@
 
 #include <google/protobuf/util/time_util.h>
 
+// FIXME: All copied form event_json.C, should be a util class.
+
+static std::map<int, std::string> dns_class_names = {
+    {1, "IN"}, {2, "CS"}, {3, "CH"}, {4, "HS"}
+};
+
+static std::map<int, std::string> dns_type_names = {
+    {1, "A"}, {2, "NS"}, {2, "NS"}, {3, "MD"}, {4, "MF"}, {5, "CNAME"}, 
+    {6, "SOA"}, {7, "MB"}, {8, "MG"}, {9, "MR"}, {10, "NULL"}, {11, "WKS"}, 
+    {12, "PTR"}, {13, "HINFO"}, {14, "MINFO"}, {15, "MX"}, {16, "TXT"}, 
+    {17, "RP"}, {18, "AFSDB"}, {19, "X25"}, {20, "ISDN"}, {21, "RT"}, 
+    {22, "NSAP"}, {23, "NSAP-PTR"}, {24, "SIG"}, {25, "KEY"}, {26, "PX"}, 
+    {27, "GPOS"}, {28, "AAAA"}, {29, "LOC"}, {31, "EID"}, {32, "NIMLOC"}, 
+    {33, "SRV"}, {34, "ATMA"}, {35, "NAPTR"}, {36, "KX"}, {37, "CERT"}, 
+    {39, "DNAME"}, {40, "SINK"}, {41, "OPT"}, {42, "APL"}, {43, "DS"}, 
+    {44, "SSHFP"}, {45, "IPSECKEY"}, {46, "RRSIG"}, {47, "NSEC"},
+    {48, "DNSKEY"}, {49, "DHCID"}, {50, "NSEC3"}, {51, "NSEC3PARAM"}, 
+    {52, "TLSA"}, {55, "HIP"}, {59, "CDS"}, {60, "CDNSKEY"}, {99, "SPF"}, 
+    {100, "UINFO"}, {101, "UID"}, {102, "GID"}, {103, "UNSPEC"}, {249, "TKEY"}, 
+    {250, "TSIG"}, {251, "IXFR"}, {252, "AXFR"}, {254, "MAILA"}, {256, "URI"}, 
+    {257, "CAA"}, {32768, "TA"}, {32769, "DLV"}
+};
+
+static std::string dns_class_name(int id) {
+    auto it = dns_class_names.find(id);
+    if (it != dns_class_names.end())
+	return it->second;
+    else
+	return std::to_string(id);
+}
+
+static std::string dns_type_name(int id) {
+    auto it = dns_type_names.find(id);
+    if (it != dns_type_names.end())
+	return it->second;
+    else
+	return std::to_string(id);
+}
+
 namespace cybermon {
 
     namespace event {
@@ -230,288 +269,210 @@ namespace cybermon {
 
 	void protobufify(const sip_ssl& e, cyberprobe::Event& pe) {
 
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe, cyberprobe::Action::sip_ssl);
+
+            auto detail = pe.mutable_sip_ssl();
+            detail->set_payload(e.payload.data(), e.payload.size());
+
 	}
 
 	void protobufify(const smtp_auth& e, cyberprobe::Event& pe) {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-                { "smtp_auth", {
-			{ "payload", jsonify(e.payload) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::smtp_auth);
+
+            auto detail = pe.mutable_smtp_auth();
+            detail->set_payload(e.payload.data(), e.payload.size());
+
 	}
 
 	void protobufify(const smtp_command& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "smtp_command", {
-			{ "command", e.command }
-		    }
-		}
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::smtp_command);
+
+            auto detail = pe.mutable_smtp_command();
+            detail->set_command(e.command);
+
 	}
 
 	void protobufify(const smtp_response& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "smtp_response", {
-			{ "status", e.status },
-			{ "text", e.text }
-		    }
-		}
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::smtp_response);
+
+            auto detail = pe.mutable_smtp_response();
+            detail->set_status(e.status);
+
+            for(auto it = e.text.begin();
+                it != e.text.end();
+                it++)
+                detail->add_text()->assign(*it);
+
 	}
 
 	void protobufify(const smtp_data& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "smtp_data", {
-			{ "from", e.from },
-			{ "to", e.to },
-			{ "body", std::string(e.body.begin(), e.body.end()) }
-		    }
-		}
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::smtp_data);
+
+            auto detail = pe.mutable_smtp_data();
+            detail->set_from(e.from);
+            detail->set_body(e.body.data(), e.body.size());
+
+            for(auto it = e.to.begin();
+                it != e.to.end();
+                it++)
+                detail->add_to()->assign(*it);
+            
 	}
 
 	void protobufify(const http_request& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    std::map<std::string, std::string> hdr;
-	    for(http_hdr_t::const_iterator it = e.header.begin();
-		it != e.header.end();
-		it++)
-		hdr[it->second.first] = it->second.second;
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "url", e.url },
-		{ "http_request", {
-			{ "method", e.method },
-			{ "header", hdr },
-		    }
-		}
-	    };
 
-	    if (e.body.size() > 0)
-		obj["http_request"]["body"] = jsonify(e.body);
+            protobufify_base(e, pe, cyberprobe::Action::http_request);
 
-	    return obj;
-            */
+            pe.set_url(e.url);
+
+            auto detail = pe.mutable_http_request();
+            detail->set_method(e.method);
+            detail->set_body(e.body.data(), e.body.size());
+
+            auto hdr = (*detail->mutable_header());
+            for(auto it = e.header.begin();
+                it != e.header.end();
+                it++) {
+                
+                hdr[it->second.first] = it->second.second;
+            }
+
 	}
 
 	void protobufify(const http_response& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    std::map<std::string, std::string> hdr;
-	    for(http_hdr_t::const_iterator it = e.header.begin();
-		it != e.header.end();
-		it++)
-		hdr[it->second.first] = it->second.second;
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "url", e.url },
-		{ "http_response", {
-			{ "status", e.status },
-			{ "code", e.code },
-			{ "header", hdr },
-			{ "body", jsonify(e.body) }
-		    }
-		}
-	    };
 
-	    return obj;
-            */
+            protobufify_base(e, pe, cyberprobe::Action::http_response);
+
+            pe.set_url(e.url);
+
+            auto detail = pe.mutable_http_response();
+            detail->set_status(e.status);
+            detail->set_code(e.code);
+            detail->set_body(e.body.data(), e.body.size());
+
+            auto hdr = (*detail->mutable_header());
+            for(auto it = e.header.begin();
+                it != e.header.end();
+                it++) {
+                
+                hdr[it->second.first] = it->second.second;
+            }
+
 	}
 
 	void protobufify(const ftp_command& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ftp_command", {
-			{ "command", e.command }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::ftp_command);
+
+            auto detail = pe.mutable_ftp_command();
+            detail->set_command(e.command);
+
 	}
 
 	void protobufify(const ftp_response& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ftp_response", {
-			{ "status", e.status },
-			{ "text", e.text }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::ftp_response);
+
+            auto detail = pe.mutable_ftp_response();
+            detail->set_status(e.status);
+
+            for(auto it = e.text.begin();
+                it != e.text.end();
+                it++)
+                detail->add_text()->assign(*it);
+     
 	}
+
+	void protobufify(const dns_header& h, cyberprobe::DnsHeader* pe) {
+            pe->set_id(h.id);
+            pe->set_qr(h.qr);
+            pe->set_opcode(h.opcode);
+            pe->set_aa(h.aa);
+            pe->set_tc(h.tc);
+            pe->set_rd(h.rd);
+            pe->set_ra(h.ra);
+            pe->set_rcode(h.rcode);
+            pe->set_qdcount(h.qdcount);
+            pe->set_ancount(h.ancount);
+            pe->set_nscount(h.nscount);
+            pe->set_arcount(h.arcount);
+        }
+
+	void protobufify(const dns_query& q, cyberprobe::DnsQuery* pe) {
+            pe->set_name(q.name);
+            pe->set_type(dns_type_name(q.type));
+            pe->set_class_(dns_class_name(q.cls));
+        }
+
+	void protobufify(const dns_rr& a, cyberprobe::DnsAnswer* pe) {
+            pe->set_name(a.name);
+            pe->set_type(dns_type_name(a.type));
+            pe->set_class_(dns_class_name(a.cls));
+
+            if (a.rdaddress.addr.size() == 4) {
+                // IPv4 address.
+                std::string addr;
+                addr = a.rdaddress.to_ip4_string();
+                pe->set_address(addr);
+            }
+            
+            if (a.rdaddress.addr.size() == 16) {
+                // IPv6 address.
+                std::string addr;
+                addr = a.rdaddress.to_ip6_string();
+                pe->set_address(addr);
+            }
+            
+        }
 
 	void protobufify(const dns_message& e, cyberprobe::Event& pe)
         {
-            /*
 
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
+            protobufify_base(e, pe, cyberprobe::Action::dns_message);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            auto detail = pe.mutable_dns_message();
+            if (e.header.qr == 0)
+                detail->set_type(cyberprobe::DnsMessageType::query);
+            else
+                detail->set_type(cyberprobe::DnsMessageType::response);
 
-	    std::string type;
-	    if (e.header.qr == 0)
-		type = "query";
-	    else
-		type = "response";
+            protobufify(e.header, detail->mutable_header());
 
-	    json q = json::array();;
-	    for(std::list<cybermon::dns_query>::const_iterator it =
-		    e.queries.begin();
-		it != e.queries.end();
-		it++) {
-		json o = {
-		    { "name", it->name },
-		    { "class", dns_class_name(it->cls) },
-		    { "type", dns_type_name(it->type) }
-		};
-		q.push_back(o);
-	    }
+            for(auto it = e.queries.begin();
+                it != e.queries.end();
+                it++) {
+                protobufify(*it, detail->add_query());
+            }
 
-	    json a = json::array();
-	    for(std::list<cybermon::dns_rr>::const_iterator it2 =
-		    e.answers.begin();
-		it2 != e.answers.end();
-		it2++) {
+            for(auto it = e.answers.begin();
+                it != e.answers.end();
+                it++) {
+                protobufify(*it, detail->add_answer());
+            }
 
-		json o = {
-		    { "name", it2->name },
-		    { "class", dns_class_name(it2->cls) },
-		    { "type", dns_type_name(it2->type) }
-		};
-	
-		if (it2->rdaddress.addr.size() != 0) {
-	    
-		    if (it2->rdaddress.addr.size() == 4) {
-			// IPv4 address.
-			o["address"] = it2->rdaddress.to_ip4_string();
-		    }
-		    if (it2->rdaddress.addr.size() == 16) {
-			// IPv6 address.
-			o["address"] = it2->rdaddress.to_ip6_string();
-		    }
+            for(auto it = e.authorities.begin();
+                it != e.authorities.end();
+                it++) {
+                protobufify(*it, detail->add_authority());
+            }
 
-		}
+            for(auto it = e.additional.begin();
+                it != e.additional.end();
+                it++) {
+                protobufify(*it, detail->add_additional());
+            }
 
-		if (it2->rdname != "")
-		    o["name"] = it2->rdname;
-
-		a.push_back(o);
-	    }
-
-	    obj["dns_message"] = {
-		{ "query", q },
-		{ "answer", a },
-		{ "type", type }
-	    };
-
-	    return obj;
-            */
 	}
 
 	void protobufify(const ntp_timestamp_message& e, cyberprobe::Event& pe)
