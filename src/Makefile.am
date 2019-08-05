@@ -9,7 +9,7 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	parameters.h packet_consumer.h interface.h interface.C \
 	endpoint.h parameter.h parameter.C \
 	vxlan_capture.h vxlan_capture.C
-cyberprobe_LDADD = libcybermon.la -lssl
+cyberprobe_LDADD = libcybermon.la -lssl -lprotobuf
 
 if WITH_DAG
 cyberprobe_SOURCES += dag_capture.C dag_capture.h
@@ -22,19 +22,19 @@ cybermon_LDADD = libcybermon.la -lssl -lgrpc++ -lprotobuf
 cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h interface.h \
 	interface.C endpoint.h endpoint.C parameter.h parameter.C \
 	target.h target.C
-cyberprobe_cli_LDADD = libcybermon.la -lssl
+cyberprobe_cli_LDADD = libcybermon.la -lssl -lprotobuf
 
 nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C
-nhis11_rcvr_LDADD = libcybermon.la -lssl
+nhis11_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
 
 etsi_rcvr_SOURCES = etsi_rcvr.C
-etsi_rcvr_LDADD = libcybermon.la -lssl
+etsi_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
 
 stream_rcvr_SOURCES = stream_rcvr.C
-stream_rcvr_LDADD = libcybermon.la -lssl
+stream_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
 
 tls_rcvr_SOURCES = tls_rcvr.C
-tls_rcvr_LDADD = libcybermon.la -lssl
+tls_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
 
 lib_LTLIBRARIES = libcybermon.la
 
@@ -43,7 +43,8 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	engine.C etsi_li.C forgery.C ftp.C http.C icmp.C imap.C		\
 	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C event.C  \
 	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
-	sip_ssl.C	event_json.C base64.C base64.h json.h \
+	sip_ssl.C	event_json.C \
+	base64.C base64.h json.h event_protobuf.C \
 	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C \
 	unrecognised.C \
 	tls_key_exchange.C vxlan.C \
@@ -75,6 +76,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/event.h					\
 	../include/cybermon/event_implementations.h			\
 	../include/cybermon/event_json.h  \
+	../include/cybermon/event_protobuf.h \
 	../include/cybermon/packet_capture.h				\
 	../include/cybermon/pdu.h ../include/cybermon/pop3.h		\
 	../include/cybermon/pop3_context.h				\
@@ -123,4 +125,4 @@ MOSTLYCLEANFILES = cyberprobe.pb.cc cyberprobe.pb.h
 
 #BUILD_SOURCES = cyberprobe.pb.h
 
-nodist_cybermon_SOURCES = cyberprobe.pb.cc cyberprobe.pb.h
+nodist_libcybermon_la_SOURCES = cyberprobe.pb.cc cyberprobe.pb.h

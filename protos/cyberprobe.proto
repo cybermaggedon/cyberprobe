@@ -45,6 +45,8 @@ enum Action {
     tls_handshake_finished = 37;
     tls_handshake_complete = 38;
     tls_application_data = 39;
+    trigger_up = 40;
+    trigger_down = 41;
 };
 
 message Query {
@@ -360,6 +362,13 @@ message Indicator {
     string description = 4;
 };
 
+message TriggerUp {
+    string address = 2;
+};
+
+message TriggerDown {
+};
+
 message Event {
     string id = 1;
     string device = 2;
@@ -411,10 +420,12 @@ message Event {
 	TlsHandshakeFinished tls_handshake_finished = 46;
 	TlsHandshakeComplete tls_handshake_complete = 47;
 	TlsApplicationData tls_application_data = 48;
+        TriggerUp trigger_up = 49;
+        TriggerDown trigger_down = 50;
     };
 
-    Locations location = 49;
-    repeated Indicator indicators = 50;
+    Locations location = 51;
+    repeated Indicator indicators = 52;
 }
 
 message Empty {

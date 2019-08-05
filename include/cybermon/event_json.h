@@ -10,7 +10,6 @@ namespace cybermon {
 
     namespace event {
 
-
 	using json = nlohmann::json;
 	
 	class connection_up;
