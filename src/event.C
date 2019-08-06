@@ -70,6 +70,33 @@ std::string& cybermon::event::action2string(action_type a)
     return action_names[a];
 }
 
+static int event_lua_json(lua_State* lua) {
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
+    luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
+    cybermon::event_userdata* ed =
+        reinterpret_cast<cybermon::event_userdata*>(ud);
+
+    std::string js;
+    ed->event->to_json(js);
+    ed->cml->push(js);
+    return 1;
+}
+
+static int event_lua_protobuf(lua_State* lua) {
+
+    void* ud = luaL_checkudata(lua, 1, "cybermon.event");
+    luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
+    cybermon::event_userdata* ed =
+        reinterpret_cast<cybermon::event_userdata*>(ud);
+    
+    std::string pb;
+    ed->event->to_protobuf(pb);
+    ed->cml->push(pb);
+    return 1;
+
+}
+
 int event::get_lua_value(cybermon_lua& state, const std::string& key)
 {
 
@@ -89,16 +116,12 @@ int event::get_lua_value(cybermon_lua& state, const std::string& key)
     }
 
     if (key == "json") {
-	std::string js;
-	to_json(js);
-	state.push(js);
+        state.push_c_function(event_lua_json);
 	return 1;
     }
 
     if (key == "protobuf") {
-	std::string pb;
-	to_protobuf(pb);
-	state.push(pb);
+        state.push_c_function(event_lua_protobuf);
 	return 1;
     }
 
