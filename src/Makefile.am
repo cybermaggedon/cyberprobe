@@ -10,7 +10,7 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	endpoint.h parameter.h parameter.C \
 	vxlan_capture.h vxlan_capture.C socket.C resource_manager.C \
 	../include/cybermon/socket.h etsi_li.C ../include/cybermon/etsi_li.h \
-	ber.C ../include/cybermon/ber.h
+	ber.C ../include/cybermon/ber.h address_map.h
 
 cyberprobe_LDADD = -lssl
 

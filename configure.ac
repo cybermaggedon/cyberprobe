@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([cyberprobe], [2.3.2], [https://github.com/cybermaggedon/cyberprobe])
+AC_INIT([cyberprobe], [2.3.3], [https://github.com/cybermaggedon/cyberprobe])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
