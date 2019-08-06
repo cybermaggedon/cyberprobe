@@ -868,186 +868,115 @@ namespace cybermon {
 	void protobufify(const tls_certificate_request& e,
                          cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_certificate_request", {
-			{ "tls", {
-				{ "cert_types",
-				  jsonify(e.data.certTypes) },
-				{ "signature_algorithms",
-				  jsonify(e.data.sigAlgos) },
-				{ "distinguished_names",
-				  jsonify(e.data.distinguishedNames) }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_certificate_request);
+
+            auto detail = pe.mutable_tls_certificate_request();
+
+            auto tls = detail->mutable_tls();
+
+            for(auto it = e.data.certTypes.begin();
+                it != e.data.certTypes.end();
+                it++) {
+                tls->add_certificate_type(*it);
+            }
+
+            for(auto it = e.data.sigAlgos.begin();
+                it != e.data.sigAlgos.end();
+                it++) {
+                auto sa = tls->add_signature_algorithm();
+		sa->set_hash_algorithm(it->sigHashAlgo);
+		sa->set_signature_algorithm(it->sigAlgo);
+            }
+
+            tls->set_distinguished_names(e.data.distinguishedNames.data(),
+                                         e.data.distinguishedNames.size());
+
 	}
 
 	void protobufify(const tls_client_key_exchange& e,
                          cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_client_key_exchange", {
-			{ "tls", {
-				{ "key",
-				  jsonify(e.key) }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_client_key_exchange);
+
+            auto detail = pe.mutable_tls_client_key_exchange();
+
+            auto tls = detail->mutable_tls();
+            tls->set_key(e.key.data(), e.key.size());
+
 	}
 
 	void protobufify(const tls_certificate_verify& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_certificate_verify", {
-			{ "tls", {
-				{ "signature_hash_algorithm", e.sig_hash_algo },
-				{ "signature_algorithm", e.sig_algo },
-				{ "signature", e.sig }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_certificate_verify);
+
+            auto detail = pe.mutable_tls_certificate_verify();
+
+            auto tls = detail->mutable_tls();
+
+            auto sa = tls->mutable_signature_algorithm();
+            sa->set_hash_algorithm(e.sig_hash_algo);
+            sa->set_signature_algorithm(e.sig_algo);
+
+            tls->set_signature(e.sig);
+
 	}
 
 	void protobufify(const tls_change_cipher_spec& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_change_cipher_spec", {
-			{ "tls", {
-				{ "value", e.val }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_change_cipher_spec);
+
+            auto detail = pe.mutable_tls_change_cipher_spec();
+
+            auto tls = detail->mutable_tls();
+            tls->set_value(e.val);
+
 	}
 
 	void protobufify(const tls_handshake_finished& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_handshake_finished", {
-			{ "tls", {
-				{ "message", jsonify(e.msg) }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_handshake_finished);
+
+            auto detail = pe.mutable_tls_handshake_finished();
+
+            auto tls = detail->mutable_tls();
+            tls->set_message(e.msg.data(), e.msg.size());
+
 	}
 
 	void protobufify(const tls_handshake_complete& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_handshake_complete", {
-			{ "tls", {
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_handshake_complete);
+
+            auto detail = pe.mutable_tls_handshake_complete();
+
+            auto tls = detail->mutable_tls();
+
 	}
 
 	void protobufify(const tls_application_data& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_application_data", {
-			{ "tls", {
-				{ "version", e.version },
-				{ "length", e.data.size() }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_application_data);
+
+            auto detail = pe.mutable_tls_application_data();
+
+            auto tls = detail->mutable_tls();
+            tls->set_version(e.version);
+            tls->set_length(e.data.size());
+
 	}
 
     };

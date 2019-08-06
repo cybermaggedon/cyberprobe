@@ -350,20 +350,20 @@ message TlsHandshakeGeneric {
 
 message TlsCertificateRequest {
     message Tls {
-        repeated string certificate_types = 1;
+        repeated string certificate_type = 1;
 	message SignatureAlgorithm {
-	    string hash_algorithm = 1;
-	    string signature_algorithm = 2;
+            uint32 hash_algorithm = 1;
+	    uint32 signature_algorithm = 2;
 	};
-	repeated SignatureAlgorithm signature_algorithms = 2;
-	string distinguished_names = 3;
+	repeated SignatureAlgorithm signature_algorithm = 2;
+        bytes distinguished_names = 3;
     };
     Tls tls = 1;
 };
 
 message TlsClientKeyExchange {
     message Tls {
-        string key = 1;
+        bytes key = 1;
     };
     Tls tls = 1;
 };
@@ -371,25 +371,25 @@ message TlsClientKeyExchange {
 message TlsCertificateVerify {
     message Tls {
 	message SignatureAlgorithm {
-	    string hash_algorithm = 1;
-	    string signature_algorithm = 2;
+	    uint32 hash_algorithm = 1;
+	    uint32 signature_algorithm = 2;
 	};
-	repeated SignatureAlgorithm signature_algorithms = 2;
-	string signature = 3;
+	SignatureAlgorithm signature_algorithm = 2;
+	bytes signature = 3;
     };
     Tls tls = 1;
 };
 
 message TlsChangeCipherSpec {
     message Tls {
-        string value = 1;
+        uint32 value = 1;
     };
     Tls tls = 1;
 };
 
 message TlsHandshakeFinished {
     message Tls {
-        string message = 1;
+       bytes message = 1;
     };
     Tls tls = 1;
 };
