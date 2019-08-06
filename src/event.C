@@ -10,6 +10,17 @@ using namespace cybermon::event;
 
 uuid_generator cybermon::event::event::gen;
 
+protocol_event::protocol_event(const action_type action,
+                               const timeval& time,
+                               context_ptr cp) :
+    event(action, time), context(cp)
+{
+    root_context& rc = cybermon::engine::get_root(cp);
+    direc = cp->addr.direc;
+    device = rc.get_device();
+    network = rc.get_network();
+}
+
 std::string protocol_event::get_device() const {
     std::string device;
     address trigger_address;
@@ -43,11 +54,11 @@ std::string action_names[] = {
     "ftp_command",
     "ftp_response",
     "dns_message",
-    "ntp_timestamp_message",
-    "ntp_control_message",
-    "ntp_private_message",
-    "gre_message",
-    "gre_pptp_message",
+    "ntp_timestamp",
+    "ntp_control",
+    "ntp_private",
+    "gre",
+    "gre_pptp",
     "esp",
     "unrecognised_ip_protocol",
     "wlan",
