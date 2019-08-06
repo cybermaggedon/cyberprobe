@@ -477,221 +477,120 @@ namespace cybermon {
 
 	void protobufify(const ntp_timestamp_message& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		// FIXME: Confusing
-		{ "id", e.id },
-		{ "action", "ntp_timestamp" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ntp_timestamp", {
-			{ "version", e.ts.m_hdr.m_version },
-			{ "mode", e.ts.m_hdr.m_mode }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::ntp_timestamp);
+
+            auto detail = pe.mutable_ntp_timestamp();
+            detail->set_version(e.ts.m_hdr.m_version);
+            detail->set_mode(e.ts.m_hdr.m_mode);
+
 	}
 
 	void protobufify(const ntp_control_message& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		// FIXME: Confusing
-		{ "id", e.id },
-		{ "action", "ntp_control" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ntp_control", {
-			{ "version", e.ctrl.m_hdr.m_version },
-			{ "mode", e.ctrl.m_hdr.m_mode }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::ntp_control);
+
+            auto detail = pe.mutable_ntp_control();
+            detail->set_version(e.ctrl.m_hdr.m_version);
+            detail->set_mode(e.ctrl.m_hdr.m_mode);
+
 	}
 
 	void protobufify(const ntp_private_message& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		// FIXME: Confusing
-		{ "id", e.id },
-		{ "action", "ntp_private" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ntp_private", {
-			{ "version", e.priv.m_hdr.m_version },
-			{ "mode", e.priv.m_hdr.m_mode }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::ntp_private);
+
+            auto detail = pe.mutable_ntp_private();
+            detail->set_version(e.priv.m_hdr.m_version);
+            detail->set_mode(e.priv.m_hdr.m_mode);
+
 	}
 
 	void protobufify(const gre& e, cyberprobe::Event& pe) {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "gre", {
-			{ "payload", jsonify(e.payload) },
-			{ "next_proto", e.next_proto },
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    if (e.key != 0)
-		obj["gre"]["key"] = e.key;
-	    if (e.sequence_no != 0)
-		obj["gre"]["sequence_number"] = e.sequence_no;
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::gre);
+
+            auto detail = pe.mutable_gre();
+            detail->set_next_proto(e.next_proto);
+            detail->set_key(e.key);
+            detail->set_sequence_number(e.sequence_no);
+            detail->set_payload(e.payload.data(), e.payload.size());
+
 	}
 
 	void protobufify(const gre_pptp& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "gre_pptp", {
-			{ "payload", jsonify(e.payload) },
-			{ "next_proto", e.next_proto },
-			{ "payload_length", e.payload_length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    if (e.ack_no != 0)
-		obj["gre_pptp"]["acknowledgement_number"] = e.ack_no;
-	    if (e.sequence_no != 0)
-		obj["gre_pptp"]["sequence_number"] = e.sequence_no;
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::gre_pptp);
+
+            auto detail = pe.mutable_gre_pptp();
+            detail->set_next_proto(e.next_proto);
+            detail->set_call_id(e.call_id);
+            detail->set_sequence_number(e.sequence_no);
+            detail->set_acknowledgement_number(e.ack_no);
+            detail->set_payload(e.payload.data(), e.payload.size());
+            detail->set_payload_length(e.payload_length);
+
 	}
 
 	void protobufify(const esp& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "esp", {
-			{ "sequence_number", e.sequence },
-			{ "payload_length", e.payload_length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::esp);
+
+            auto detail = pe.mutable_esp();
+            detail->set_sequence_number(e.sequence);
+            detail->set_payload_length(e.payload_length);
+
 	}
 
 	void protobufify(const unrecognised_ip_protocol& e,
                          cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "unrecognised_ip_protocol", {
-			{ "payload", jsonify(e.payload) },
-			{ "next_proto", e.next_proto },
-			{ "payload_length", e.payload_length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe,
+                             cyberprobe::Action::unrecognised_ip_protocol);
+
+            auto detail = pe.mutable_unrecognised_ip_protocol();
+            detail->set_payload(e.payload.data(), e.payload.size());
+            detail->set_next_proto(e.next_proto);
+            detail->set_payload_length(e.payload_length);
+
 	}
 
 	void protobufify(const wlan& e, cyberprobe::Event& pe) 
         {
-/*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "wlan", {
-			{ "version", e.version },
-			{ "type", e.type },
-			{ "subtype", e.subtype },
-			{ "flags", e.flags },
-			{ "protected", e.is_protected },
-			{ "filt_addr", e.filt_addr },
-			{ "frag_num", e.frag_num },
-			{ "seq_num", e.seq_num },
-			{ "duration", e.duration }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::wlan);
+
+            auto detail = pe.mutable_wlan();
+
+            detail->set_version(e.version);
+            detail->set_type(e.type);
+            detail->set_subtype(e.subtype);
+            detail->set_flags(e.flags);
+            detail->set_protected_(e.is_protected);
+            detail->set_filt_addr(e.filt_addr);
+            detail->set_frag_num(e.frag_num);
+            detail->set_seq_num(e.seq_num);
+            detail->set_duration(e.duration);
+
 	}
 
 	void protobufify(const tls_unknown& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_unknown", {
-			{ "version", e.version },
-			{ "content_type", e.content_type },
-			{ "length", e.length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::tls_unknown);
+
+            auto detail = pe.mutable_tls_unknown();
+
+            auto tls = detail->mutable_tls();
+            tls->set_version(e.version);
+            tls->set_content_type(e.content_type);
+            tls->set_length(e.length);
+
 	} 
 
 	static std::string int_to_hex(int n) {
@@ -701,180 +600,125 @@ namespace cybermon {
 	}
 
 	using cipher_suite = cybermon::tls_handshake_protocol::cipher_suite;
-	void protobufify(const cipher_suite& suite, cyberprobe::Event& pe) {
-            /*
+	void protobufify(const cipher_suite& suite, std::string* pe) {
 	    if (suite.name == "Unassigned")
-		return json(suite.name + "-" + int_to_hex(suite.id));
-	    return json(suite.name);
-            */
-	}
-
-	using cipher_suites = std::vector<cipher_suite>;
-	void protobufify(const cipher_suites& suites, cyberprobe::Event& pe) {
-            /*
-	    json cs = json::array();
-	    for(cipher_suites::const_iterator it = suites.begin();
-		it != suites.end();
-		it++) {
-		cs.push_back(jsonify(*it));
-	    }
-	    return cs;
-            */
+		*pe = suite.name + "-" + int_to_hex(suite.id);
+	    *pe = suite.name;
 	}
 
 	using compression_method =
                                cybermon::tls_handshake_protocol::
                                compression_method;
-	void protobufify(const compression_method& method, cyberprobe::Event& pe)
+	void protobufify(const compression_method& method, std::string* pe)
         {
-            /*
 	    if (method.name == "Unassigned")
-		return json(method.name + "-" + int_to_hex(method.id));
-	    return json(method.name);
-            */
-	}
-
-	using compression_methods = std::vector<compression_method>;
-	void protobufify(const compression_methods methods,
-                         cyberprobe::Event& pe)
-
-        {
-            /*
-		     
-	    json cm = json::array();
-
-	    for(compression_methods::const_iterator it = methods.begin();
-		it != methods.end();
-		it++) {
-		cm.push_back(jsonify(*it));
-	    }
-	    return cm;
-            */
+		*pe = method.name + "-" + int_to_hex(method.id);
+	    *pe = method.name;
 	}
 
 	using extension = cybermon::tls_handshake_protocol::extension;
-	void protobufify(const extension& ext, cyberprobe::Event& pe)
+	void protobufify(const extension& ext,
+                         cyberprobe::TlsClientHello_Tls_Extension* pe)
         {
-            /*
-	    json obj = {
-		{ "name", ext.name },
-		{ "length", ext.len },
-		{ "type", ext.type },
-		{ "data", jsonify(ext.data) }
-	    };
-	    return obj;*/
+            pe->set_name(ext.name);
+            pe->set_length(ext.len);
+            pe->set_type(ext.type);
+            pe->set_data(ext.data.data(), ext.data.size());
 	}
 
-	using extensions = std::vector<extension>;
-	void protobufify(const extensions& exts, cyberprobe::Event& pe)
+	using extension = cybermon::tls_handshake_protocol::extension;
+	void protobufify(const extension& ext,
+                         cyberprobe::TlsServerHello_Tls_Extension* pe)
         {
-            /*
-	    json ex = json::array();
-	    for(extensions::const_iterator it = exts.begin();
-		it != exts.end();
-		it++) {
-		ex.push_back(jsonify(*it));
-	    }
-	    return ex;*/
+            pe->set_name(ext.name);
+            pe->set_length(ext.len);
+            pe->set_type(ext.type);
+            pe->set_data(ext.data.data(), ext.data.size());
 	}
 
 	void protobufify(const tls_client_hello& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_client_hello", {
-			{ "version", e.data.version },
-			{ "session_id", e.data.sessionID },
-			{ "random", {
-				{ "random_timestamp", e.data.randomTimestamp },
-				{ "data", jsonify(std::begin(e.data.random),
-						  std::end(e.data.random)) }
-			    }
-			},
-			{ "cipher_suites", jsonify(e.data.cipherSuites) },
-			{ "compression_methods",
-			  jsonify(e.data.compressionMethods) },
-			{ "extensions", jsonify(e.data.extensions) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
 
-	    return obj;
-            */
+            protobufify_base(e, pe, cyberprobe::Action::tls_client_hello);
+
+            auto detail = pe.mutable_tls_client_hello();
+
+            auto tls = detail->mutable_tls();
+
+            tls->set_version(e.data.version);
+            tls->set_session_id(e.data.sessionID);
+
+            auto random = tls->mutable_random();
+            random->set_timestamp(e.data.randomTimestamp);
+            random->set_data(e.data.random, sizeof(e.data.random));
+
+            for(auto it = e.data.cipherSuites.begin();
+                it != e.data.cipherSuites.end();
+                it++) {
+                protobufify(*it, tls->add_cipher_suite());
+            }
+
+            for(auto it = e.data.compressionMethods.begin();
+                it != e.data.compressionMethods.end();
+                it++) {
+                protobufify(*it, tls->add_compression_method());
+            }
+
+            for(auto it = e.data.extensions.begin();
+                it != e.data.extensions.end();
+                it++) {
+                protobufify(*it, tls->add_extension());
+            }
+
 	}
 
 	void protobufify(const tls_server_hello& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_server_hello", {
-			{ "version", e.data.version },
-			{ "session_id", e.data.sessionID },
-			{ "random", {
-				{ "random_timestamp", e.data.randomTimestamp },
-				{ "data", jsonify(std::begin(e.data.random),
-						  std::end(e.data.random)) }
-			    }
-			},
-			{ "cipher_suite", jsonify(e.data.cipherSuite) },
-			{ "compression_method",
-			  jsonify(e.data.compressionMethod) },
-			{ "extensions", jsonify(e.data.extensions) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+
+            protobufify_base(e, pe, cyberprobe::Action::tls_server_hello);
+
+            auto detail = pe.mutable_tls_server_hello();
+
+            auto tls = detail->mutable_tls();
+
+            tls->set_version(e.data.version);
+            tls->set_session_id(e.data.sessionID);
+
+            auto random = tls->mutable_random();
+            random->set_timestamp(e.data.randomTimestamp);
+            random->set_data(e.data.random, sizeof(e.data.random));
+
+            auto cs = tls->mutable_cipher_suite();
+            protobufify(e.data.cipherSuite, cs);
+
+            auto cm = tls->mutable_compression_method();
+            protobufify(e.data.compressionMethod, cm);
+
+            for(auto it = e.data.extensions.begin();
+                it != e.data.extensions.end();
+                it++) {
+                protobufify(*it, tls->add_extension());
+            }
+
 	}
 
 
 	void protobufify(const tls_certificates& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json certs = json::array();
-	    for(std::vector<std::vector<uint8_t> >::const_iterator it =
+            protobufify_base(e, pe, cyberprobe::Action::tls_certificates);
+
+            auto detail = pe.mutable_tls_certificates();
+
+            auto tls = detail->mutable_tls();
+
+            for(std::vector<std::vector<uint8_t> >::const_iterator it =
 		    e.certs.begin();
 		it != e.certs.end();
 		it++) {
-		certs.push_back(jsonify(*it));
+                tls->add_certificate(it->data(), it->size());
 	    }
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_certificates", {
-			{ "tls", {
-				{ "certificates", certs }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
 	}
 
 	using curve_data = tls_handshake_protocol::curve_data;
@@ -897,126 +741,89 @@ namespace cybermon {
 	}
 
 	using key_exchange = tls_handshake_protocol::key_exchange_data ;
-	static void protobufify(const key_exchange& ke, cyberprobe::Event& pe)
+	static void protobufify(const key_exchange& ke,
+                                cyberprobe::TlsServerKeyExchange_Tls* pe)
         {
-            /*
 	    if (ke.ecdh) {
-		json obj = {
-		    { "key_exchange_algorithm", "ec-dh" },
-		    { "curve_type", ke.ecdh->curveType },
-		    { "curve_metadata", jsonify(ke.ecdh->curveData) },
-		    { "public_key", jsonify(ke.ecdh->pubKey) },
-		    { "signature_hash_algorithm", ke.ecdh->sigHashAlgo },
-		    { "signature_algorithm", ke.ecdh->sigAlgo },
-		    { "signature_hash",
-		      jsonify(ke.ecdh->hash.begin(), ke.ecdh->hash.end()) }
-		};
-		return obj;
-	    }
-	    if (ke.dhrsa) {
-		json obj = {
-		    { "key_exchange_algorithm", "dh-rsa" },
-		    { "prime",
-		      jsonify(ke.dhanon->p.begin(), ke.dhanon->p.end()) },
-		    { "generator",
-		      jsonify(ke.dhanon->g.begin(), ke.dhanon->g.end()) },
-		    { "pubkey",
-		      jsonify(ke.dhanon->pubKey.begin(),
-			      ke.dhanon->pubKey.end()) },
-		    { "signature",
-		      jsonify(ke.dhrsa->sig.begin(), ke.dhrsa->sig.end()) },
-		};
-		return obj;
-	    }
-	    json obj = {
-		{ "key_exchange_algorithm", "dh-anon" },
-		{ "prime",
-		  jsonify(ke.dhanon->p.begin(), ke.dhanon->p.end())
-		},
-		{ "generator",
-		  jsonify(ke.dhanon->g.begin(), ke.dhanon->g.end())
-		},
-		{ "pubkey",
-		  jsonify(ke.dhanon->pubKey.begin(),
-			  ke.dhanon->pubKey.end())
-		}
-	    };
-	    return obj;
+                pe->set_key_exchange_algorithm("ec-dh");
+                auto ecdh = pe->mutable_ecdh();
+                ecdh->set_curve_type(ke.ecdh->curveType);
 
-            */
+                auto cd = ecdh->mutable_curve_metadata();
+                for(auto it = ke.ecdh->curveData.begin();
+                    it != ke.ecdh->curveData.end();
+                    it++) {
+                    (*cd)[it->name] = it->value;
+                }
+                ecdh->set_public_key(ke.ecdh->pubKey.data(),
+                                   ke.ecdh->pubKey.size());
+                ecdh->set_signature_hash_algorithm(ke.ecdh->sigHashAlgo);
+                ecdh->set_signature_algorithm(ke.ecdh->sigAlgo);
+                ecdh->set_signature_hash(ke.ecdh->hash);
+                return;
+	    }
+            if (ke.dhrsa) {
+                pe->set_key_exchange_algorithm("dh-rsa");
+                auto dhrsa = pe->mutable_dhrsa();
+                dhrsa->set_prime(ke.dhrsa->p.data(), ke.dhrsa->p.size());
+                dhrsa->set_generator(ke.dhrsa->g.data(), ke.dhrsa->g.size());
+                dhrsa->set_pubkey(ke.dhrsa->pubKey.data(),
+                                  ke.dhrsa->pubKey.size());
+                dhrsa->set_signature(ke.dhrsa->sig.data(),
+                                     ke.dhrsa->sig.size());
+                return;
+            }
+
+            // dhanon
+            pe->set_key_exchange_algorithm("dh-anon");
+            auto dhanon = pe->mutable_dhanon();
+            dhanon->set_prime(ke.dhanon->p.data(), ke.dhanon->p.size());
+            dhanon->set_generator(ke.dhanon->g.data(), ke.dhanon->g.size());
+            dhanon->set_pubkey(ke.dhanon->pubKey.data(),
+                               ke.dhanon->pubKey.size());
+
         }
             
 
 	void protobufify(const tls_server_key_exchange& e,
                          cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_server_key_exchange", {
-			{ "tls", jsonify(e.data) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_server_key_exchange);
+
+            auto detail = pe.mutable_tls_server_key_exchange();
+
+            auto tls = detail->mutable_tls();
+
+            protobufify(e.data, tls);
+
 	}
 
 	void protobufify(const tls_server_hello_done& e, cyberprobe::Event& pe)
         {
 
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_server_hello_done);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_server_hello_done", {
-			{ "tls", json::object() }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            auto detail = pe.mutable_tls_server_hello_done();
+
+            auto tls = detail->mutable_tls();
+
 	}
 
 	void protobufify(const tls_handshake_generic& e, cyberprobe::Event& pe)
         {
-            /*
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_handshake_generic", {
-			{ "tls", {
-				{ "type", e.type },
-				{ "length", e.len }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
-            */
+            protobufify_base(e, pe,
+                             cyberprobe::Action::tls_handshake_generic);
+
+            auto detail = pe.mutable_tls_handshake_generic();
+
+            auto tls = detail->mutable_tls();
+
+            tls->set_type(e.type);
+
 	}
 
 	using signature_algorithm = tls_handshake_protocol::signature_algorithm;

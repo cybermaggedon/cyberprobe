@@ -39,7 +39,7 @@ enum Action {
     tls_certificates = 31;
     tls_server_key_exchange = 32;
     tls_server_hello_done = 33;
-    tls_handshake_unknown = 34;
+    tls_handshake_generic = 34;
     tls_certificate_request = 35;
     tls_client_key_exchange = 36;
     tls_certificate_verify = 37;
@@ -245,7 +245,7 @@ message Wlan {
 
 message TlsUnknown {
     message Tls {
-	uint32 version = 1;
+	string version = 1;
 	uint32 content_type = 2;
 	uint64 length = 3;
     };
@@ -254,29 +254,30 @@ message TlsUnknown {
 
 message TlsClientHello {
     message Tls {
-	uint32 version = 1;
-	uint64 session_id = 2;
+	string version = 1;
+	string session_id = 2;
 	message Random {
 	    uint64 timestamp = 1;
 	    bytes data = 2;
 	};
 	Random random = 3;
-	repeated string cipher_suites = 4;
-	repeated string compression_methods = 5;
+	repeated string cipher_suite = 4;
+	repeated string compression_method = 5;
 	message Extension {
 	    string name = 1;
 	    uint32 length = 2;
-	    bytes data = 3;
+            uint32 type = 3;
+	    bytes data = 4;
 	};
-	repeated Extension extensions = 6;
+	repeated Extension extension = 6;
     };
     Tls tls = 1;
 };
 
 message TlsServerHello {
     message Tls {
-	uint32 version = 1;
-	uint64 session_id = 2;
+	string version = 1;
+        string session_id = 2;
 	message Random {
 	    uint64 timestamp = 1;
 	    bytes data = 2;
@@ -287,30 +288,49 @@ message TlsServerHello {
 	message Extension {
 	    string name = 1;
 	    uint32 length = 2;
-	    bytes data = 3;
+            uint32 type = 3;
+	    bytes data = 4;
 	};
-	repeated Extension extensions = 6;
+	repeated Extension extension = 6;
     };
     Tls tls = 1;
 };
 
 message TlsCertificates {
     message Tls {
-	repeated bytes certificates = 1;
+	repeated bytes certificate = 1;
     };
     Tls tls = 1;
 };
 
 message TlsServerKeyExchange {
+    message Ecdh {
+        uint32 curve_type = 1;
+	map<string, string> curve_metadata = 2;
+        bytes public_key = 3;
+        uint32 signature_hash_algorithm = 4;
+	uint32 signature_algorithm = 5;
+	string signature_hash = 6;
+    };
+    message DhAnon {
+        bytes prime = 1;
+        bytes generator = 2;
+        bytes pubkey = 3;
+    };
+    message DhRsa {
+        bytes prime = 1;
+        bytes generator = 2;
+        bytes pubkey = 3;
+        bytes signature = 4;
+    };
     message Tls {
 	string key_exchange_algorithm = 1;
-	string curve_type_field = 2;
-	map<string, string> curve_metadata = 3;
-	string public_key = 4;
-	string signature_hash_algorithm = 5;
-	string signature_algorithm = 6;
-	string signature_hash = 7;
-    };
+        oneof Detail {
+            Ecdh ecdh = 2;
+            DhAnon dhanon = 3;
+            DhRsa dhrsa = 4;
+        };
+    }
     Tls tls = 1;
 };
 
@@ -320,9 +340,9 @@ message TlsServerHelloDone {
     Tls tls = 1;
 };
 
-message TlsHandshakeUnknown {
+message TlsHandshakeGeneric {
     message Tls {
-        string type = 1;
+        uint32 type = 1;
 	uint32 length = 2;
     };
     Tls tls = 1;
@@ -382,7 +402,7 @@ message TlsHandshakeComplete {
 
 message TlsApplicationData {
     message Tls {
-	uint32 version = 1;
+	string version = 1;
 	uint64 length = 2;
     };
     Tls tls = 1;
@@ -465,7 +485,7 @@ message Event {
 	TlsCertificates tls_certificates = 40;
 	TlsServerKeyExchange tls_server_key_exchange = 41;
 	TlsServerHelloDone tls_server_hello_done = 42;
-	TlsHandshakeUnknown tls_handshake_unknown = 43;
+	TlsHandshakeGeneric tls_handshake_generic = 43;
 	TlsCertificateRequest tls_certificate_request = 44;
 	TlsClientKeyExchange tls_client_key_exchange = 45;
 	TlsCertificateVerify tls_certificate_verify = 46;
