@@ -71,13 +71,12 @@ AS_IF([test "${PROTOC}" == "no"], [AC_MSG_ERROR([ProtoBuf compiler "protoc" not 
 
 # GRPC++ which is optional.
 PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.0.0 grpc >= 5.0.0],
-  [with_grpc=yes],
-  [with_grpc=no])
+    [with_grpc=yes],
+    [with_grpc=no])
 
 AS_IF([test "x$with_grpc" != "xno"],
-  [AC_SUBST([WITH_GRPC], [$with_grpc])
-   AC_DEFINE([WITH_GRPC], 1,
-    [Set if grpc++ is available])])
+    [AC_SUBST([WITH_GRPC], [$with_grpc])
+     AC_DEFINE([WITH_GRPC], 1, [Set if grpc++ is available])])
 
 AM_CONDITIONAL([WITH_GRPC], [test "x$with_grpc" != "xno"])
 
