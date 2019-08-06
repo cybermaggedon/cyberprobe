@@ -2,6 +2,8 @@
 #include <cybermon/event.h>
 #include <cybermon/engine.h>
 #include <cybermon/cybermon-lua.h>
+#include <cybermon/event_protobuf.h>
+
 #include <iostream>
 
 using namespace cybermon::event;
@@ -232,7 +234,6 @@ static void push_http_header(cybermon::cybermon_lua& state,
 
 }
 
-
 int http_request::get_lua_value(cybermon_lua& state, const std::string& key)
 {
     if (key == "method") {
@@ -253,7 +254,6 @@ int http_request::get_lua_value(cybermon_lua& state, const std::string& key)
     }
     return event::get_lua_value(state, key);
 }
-
 
 int http_response::get_lua_value(cybermon_lua& state, const std::string& key)
 {
@@ -280,7 +280,6 @@ int http_response::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-
 int icmp::get_lua_value(cybermon_lua& state, const std::string& key)
 {
     if (key == "code") {
@@ -298,7 +297,6 @@ int icmp::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-
 int trigger_up::get_lua_value(cybermon_lua& state, const std::string& key)
 {
     if (key == "address") {
@@ -313,7 +311,6 @@ int trigger_down::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-
 int unrecognised_stream::get_lua_value(cybermon_lua& state,
 				       const std::string& key)
 {
@@ -327,7 +324,6 @@ int unrecognised_stream::get_lua_value(cybermon_lua& state,
     }
     return event::get_lua_value(state, key);
 }
-
 
 int unrecognised_datagram::get_lua_value(cybermon_lua& state,
 					 const std::string& key)
@@ -349,7 +345,6 @@ int connection_down::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-
 int sip_request::get_lua_value(cybermon_lua& state, const std::string& key)
 {
     if (key == "method") {
@@ -370,7 +365,6 @@ int sip_request::get_lua_value(cybermon_lua& state, const std::string& key)
     }
     return event::get_lua_value(state, key);
 }
-
 
 int sip_response::get_lua_value(cybermon_lua& state, const std::string& key)
 {
@@ -415,13 +409,11 @@ int smtp_auth::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-
 int tls_handshake_complete::get_lua_value(cybermon_lua& state,
 					  const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
-
 
 int smtp_response::get_lua_value(cybermon_lua& state, const std::string& key)
 {
@@ -478,7 +470,6 @@ int tls_certificate_request::get_lua_value(cybermon_lua& state,
     }
     return event::get_lua_value(state, key);
 }
-
 
 int tls_client_hello::get_lua_value(cybermon_lua& state, const std::string& key)
 {
@@ -630,7 +621,6 @@ int tls_server_hello::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-
 int tls_handshake_generic::get_lua_value(cybermon_lua& state,
 					 const std::string& key)
 {
@@ -645,15 +635,11 @@ int tls_handshake_generic::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-
-
 int tls_server_key_exchange::get_lua_value(cybermon_lua& state,
 					   const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
-
-
 
 int gre::get_lua_value(cybermon_lua& state,
 		       const std::string& key)
@@ -707,8 +693,6 @@ int gre_pptp::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-
-
 int unrecognised_ip_protocol::get_lua_value(cybermon_lua& state,
 					    const std::string& key)
 {
@@ -741,7 +725,6 @@ int ntp_private_message::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-
 int ntp_timestamp_message::get_lua_value(cybermon_lua& state,
 					 const std::string& key)
 {
@@ -756,7 +739,6 @@ int ntp_timestamp_message::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-
 int ntp_control_message::get_lua_value(cybermon_lua& state,
 				       const std::string& key)
 {
@@ -766,7 +748,6 @@ int ntp_control_message::get_lua_value(cybermon_lua& state,
     }
     return event::get_lua_value(state, key);
 }
-
 
 int tls_application_data::get_lua_value(cybermon_lua& state,
 					const std::string& key)
@@ -781,8 +762,6 @@ int tls_application_data::get_lua_value(cybermon_lua& state,
     }
     return event::get_lua_value(state, key);
 }
-
-
 
 int ftp_response::get_lua_value(cybermon_lua& state,
 				const std::string& key)
@@ -808,9 +787,6 @@ int ftp_command::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-
-
-
 int smtp_data::get_lua_value(cybermon_lua& state, const std::string& key)
 {
     if (key == "from") {
@@ -828,8 +804,6 @@ int smtp_data::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-
-
 int tls_client_key_exchange::get_lua_value(cybermon_lua& state,
 					   const std::string& key)
 {
@@ -839,9 +813,6 @@ int tls_client_key_exchange::get_lua_value(cybermon_lua& state,
     }
     return event::get_lua_value(state, key);
 }
-
-
-
 
 int tls_unknown::get_lua_value(cybermon_lua& state, const std::string& key)
 {
@@ -859,7 +830,6 @@ int tls_unknown::get_lua_value(cybermon_lua& state, const std::string& key)
     }
     return event::get_lua_value(state, key);
 }
-
 
 int tls_certificate_verify::get_lua_value(cybermon_lua& state,
 					  const std::string& key)
@@ -881,8 +851,6 @@ int tls_certificate_verify::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-
-
 int tls_change_cipher_spec::get_lua_value(cybermon_lua& state,
 					  const std::string& key)
 {
@@ -893,13 +861,11 @@ int tls_change_cipher_spec::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-
 int tls_certificates::get_lua_value(cybermon_lua& state,
 				    const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
-
 
 int wlan::get_lua_value(cybermon_lua& state, const std::string& key)
 {
@@ -980,5 +946,197 @@ int esp::get_lua_value(cybermon_lua& state, const std::string& key)
 	return 1;
     }
     return event::get_lua_value(state, key);
+}
+
+// FIXME: About 1% performance improvement by inlining all these to_protobuf
+// methods.  I moved them here to prevent recompiling the entire codebase
+// when changing the proto spec.
+
+void connection_up::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void connection_down::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void trigger_up::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void trigger_down::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void unrecognised_stream::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void unrecognised_datagram::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void icmp::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void imap::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void imap_ssl::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void pop3::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void pop3_ssl::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void rtp::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void rtp_ssl::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void sip_request::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void sip_response::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void sip_ssl::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void smtp_auth::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void smtp_command::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void smtp_response::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void smtp_data::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void http_request::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void http_response::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void ftp_command::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void ftp_response::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void dns_message::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void ntp_timestamp_message::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void ntp_control_message::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void ntp_private_message::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void gre::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void gre_pptp::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void esp::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void unrecognised_ip_protocol::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void wlan::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_unknown::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_client_hello::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_server_hello::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_certificates::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_server_key_exchange::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_server_hello_done::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_handshake_generic::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_certificate_request::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_client_key_exchange::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_certificate_verify::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_change_cipher_spec::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_handshake_finished::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_handshake_complete::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
+}
+
+void tls_application_data::to_protobuf(std::string& buf) {
+    protobufify(*this, buf);
 }
 
