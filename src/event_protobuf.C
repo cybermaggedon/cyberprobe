@@ -721,25 +721,6 @@ namespace cybermon {
 
 	}
 
-	using curve_data = tls_handshake_protocol::curve_data;
-	static void protobufify(const std::vector<curve_data>& cd,
-                                cyberprobe::Event& pe)
-        {
-            /*
-	    json obj = json::array();
-	    for(std::vector<curve_data>::const_iterator it = cd.begin();
-		it != cd.end();
-		it++) {
-		json c = {
-		    { "name", it->name },
-		    { "value", it->value }
-		};
-		obj.push_back(c);
-	    }
-	    return obj;
-            */
-	}
-
 	using key_exchange = tls_handshake_protocol::key_exchange_data ;
 	static void protobufify(const key_exchange& ke,
                                 cyberprobe::TlsServerKeyExchange_Tls* pe)
@@ -824,45 +805,6 @@ namespace cybermon {
 
             tls->set_type(e.type);
 
-	}
-
-	using signature_algorithm = tls_handshake_protocol::signature_algorithm;
-	void protobufify(const signature_algorithm& sa, cyberprobe::Event& pe)
-        {
-            /*
-	    json obj = {
-		{ "hash_algorithm", sa.sigHashAlgo },
-		{ "signature_algorithm", sa.sigAlgo }
-	    };
-	    return obj;
-            */
-	}
-
-	using signature_algorithms = std::vector<signature_algorithm>;
-	void protobufify(const signature_algorithms& sa, cyberprobe::Event& pe)
-        {
-            /*
-	    json arr = json::array();
-	    for(signature_algorithms::const_iterator it = sa.begin();
-		it != sa.end();
-		it++) {
-		arr.push_back(jsonify(*it));
-	    }
-	    return arr;
-            */
-	}
-
-	void protobufify(const std::vector<std::string>& strs,
-                         cyberprobe::Event& pe)
-        {
-            /*
-	    json arr = json::array();
-	    for(std::vector<std::string>::const_iterator it = strs.begin();
-		it != strs.end();
-		it++)
-		arr.push_back(*it);
-	    return arr;
-            */
 	}
 
 	void protobufify(const tls_certificate_request& e,
