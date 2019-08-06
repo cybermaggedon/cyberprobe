@@ -133,4 +133,6 @@ dist_noinst_DATA = ../protos/cyberprobe.proto
 
 MOSTLYCLEANFILES = cyberprobe.pb.cc cyberprobe.pb.h
 
+BUILT_SOURCES = cyberprobe.pb.h
+
 nodist_libcybermon_la_SOURCES = cyberprobe.pb.cc cyberprobe.pb.h
