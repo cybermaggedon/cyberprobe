@@ -71,14 +71,16 @@ AM_CPPFLAGS = -I$(srcdir)/../include -I${srcdir}/../src
 
 noinst_PROGRAMS = test_socket test_resource test_address_map
 
-test_socket_SOURCES = test_socket.C
-test_socket_LDADD = ../src/libcybermon.la -lssl
+test_socket_SOURCES = test_socket.C ../src/socket.C \
+	../include/cybermon/socket.h
+test_socket_LDADD =
 
-test_resource_SOURCES = test_resource.C
-test_resource_LDADD = ../src/libcybermon.la -lssl
+test_resource_SOURCES = test_resource.C ../src/resource_manager.C \
+	../include/cybermon/resource.h
+test_resource_LDADD =
 
-test_address_map_SOURCES = test_address_map.C
-test_address_map_LDADD = ../src/libcybermon.la -lssl
+test_address_map_SOURCES = test_address_map.C ../include/cybermon/address_map.h
+test_address_map_LDADD =
 
 $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at

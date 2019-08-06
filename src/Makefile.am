@@ -8,44 +8,51 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	configuration.h control.h snort_alert.h target.h target.C \
 	parameters.h packet_consumer.h interface.h interface.C \
 	endpoint.h parameter.h parameter.C \
-	vxlan_capture.h vxlan_capture.C
-cyberprobe_LDADD = libcybermon.la -lssl -lprotobuf
+	vxlan_capture.h vxlan_capture.C socket.C resource_manager.C \
+	../include/cybermon/socket.h etsi_li.C ../include/cybermon/etsi_li.h \
+	ber.C ../include/cybermon/ber.h
+
+cyberprobe_LDADD = -lssl
 
 if WITH_DAG
 cyberprobe_SOURCES += dag_capture.C dag_capture.h
 cyberprobe_LDADD += -ldag
 endif
 
-cybermon_SOURCES = cybermon.C management.h 
+cybermon_SOURCES = cybermon.C management.h  socket.C \
+	../include/cybermon/socket.h etsi_li.C ../include/cybermon/etsi_li.h \
+	ber.C ../include/cybermon/ber.h
 cybermon_LDADD = libcybermon.la -lssl -lgrpc++ -lprotobuf
 
 cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h interface.h \
 	interface.C endpoint.h endpoint.C parameter.h parameter.C \
-	target.h target.C
-cyberprobe_cli_LDADD = libcybermon.la -lssl -lprotobuf
+	target.h target.C socket.C ../include/cybermon/socket.h
+cyberprobe_cli_LDADD = -lssl 
 
-nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C
-nhis11_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
+nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C socket.C \
+	../include/cybermon/socket.h
+nhis11_rcvr_LDADD = -lssl
 
-etsi_rcvr_SOURCES = etsi_rcvr.C
-etsi_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
+etsi_rcvr_SOURCES = etsi_rcvr.C socket.C ../include/cybermon/socket.h \
+	ber.C ../include/cybermon/ber.h etsi_li.C ../include/cybermon/etsi_li.h
+etsi_rcvr_LDADD =  -lssl
 
-stream_rcvr_SOURCES = stream_rcvr.C
-stream_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
+stream_rcvr_SOURCES = stream_rcvr.C socket.C ../include/cybermon/socket.h
+stream_rcvr_LDADD = -lssl
 
-tls_rcvr_SOURCES = tls_rcvr.C
-tls_rcvr_LDADD = libcybermon.la -lssl -lprotobuf
+tls_rcvr_SOURCES = tls_rcvr.C socket.C ../include/cybermon/socket.h
+tls_rcvr_LDADD = -lssl
 
 lib_LTLIBRARIES = libcybermon.la
 
-libcybermon_la_SOURCES = address.C base_context.C ber.C			\
+libcybermon_la_SOURCES = address.C base_context.C 		\
 	cybermon-lua.C dns_over_tcp.C dns_over_udp.C dns_protocol.C	\
-	engine.C etsi_li.C forgery.C ftp.C http.C icmp.C imap.C		\
+	engine.C  forgery.C ftp.C http.C icmp.C imap.C		\
 	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C event.C  \
-	reaper.C resource_manager.C rtp.C rtp_ssl.C sip.C sip_context.C \
+	reaper.C rtp.C rtp_ssl.C sip.C sip_context.C \
 	sip_ssl.C	event_json.C \
 	base64.C base64.h json.h event_protobuf.C \
-	smtp.C smtp_auth.C socket.C tcp.C tcp_ports.C udp.C udp_ports.C \
+	smtp.C smtp_auth.C tcp.C tcp_ports.C udp.C udp_ports.C \
 	unrecognised.C \
 	tls_key_exchange.C vxlan.C \
 	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C tls_handshake.C \
@@ -53,8 +60,8 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	hardware_addr_utils.h tls_cipher_suites.h tls_exception.h \
 	tls_extensions.h \
 	tls_handshake.h tls_key_exchange.h tls_utils.h \
-	../include/cybermon/address.h ../include/cybermon/ber.h		\
-	address_map.h	uuid.h	                \
+	../include/cybermon/address.h 	\
+	uuid.h	                \
 	../include/cybermon/base_context.h				\
 	../include/cybermon/context.h					\
 	../include/cybermon/cybermon-lua.h				\
@@ -62,7 +69,7 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/dns_over_tcp.h				\
 	../include/cybermon/dns_over_udp.h				\
 	../include/cybermon/dns_protocol.h				\
-	../include/cybermon/engine.h ../include/cybermon/etsi_li.h	\
+	../include/cybermon/engine.h 	\
 	../include/cybermon/exception.h ../include/cybermon/forgery.h	\
 	../include/cybermon/flow.h ../include/cybermon/ftp.h		\
 	../include/cybermon/http.h ../include/cybermon/icmp.h		\
@@ -90,7 +97,6 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/sip_ssl.h ../include/cybermon/smtp.h	\
 	../include/cybermon/smtp_auth.h					\
 	../include/cybermon/smtp_auth_context.h				\
-	../include/cybermon/socket.h					\
 	../include/cybermon/specification.h ../include/cybermon/tcp.h	\
 	../include/cybermon/transport.h	\
 	../include/cybermon/udp.h ../include/cybermon/unrecognised.h	\
@@ -101,7 +107,8 @@ libcybermon_la_SOURCES = address.C base_context.C ber.C			\
 	../include/cybermon/vxlan.h \
 	../include/cybermon/event_queue.h
 
-decode_protobuf_SOURCES = decode_protobuf.C
+decode_protobuf_SOURCES = decode_protobuf.C socket.C \
+	../include/cybermon/socket.h
 decode_protobuf_LDADD = libcybermon.la -lssl -lprotobuf
 
 ACLOCAL_AMFLAGS = -I m4
@@ -125,7 +132,5 @@ cyberprobe.pb.cc cyberprobe.pb.h: ../protos/cyberprobe.proto
 dist_noinst_DATA = ../protos/cyberprobe.proto
 
 MOSTLYCLEANFILES = cyberprobe.pb.cc cyberprobe.pb.h
-
-#BUILD_SOURCES = cyberprobe.pb.h
 
 nodist_libcybermon_la_SOURCES = cyberprobe.pb.cc cyberprobe.pb.h

@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([cyberprobe], [2.3.1], [https://github.com/cybermaggedon/cyberprobe])
-AM_INIT_AUTOMAKE([-Wall -Werror])
+AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
