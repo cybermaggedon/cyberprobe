@@ -69,6 +69,21 @@ AC_ARG_WITH([protoc],
 #AC_MSG_RESULT([${PROTOC}])
 AS_IF([test "${PROTOC}" == "no"], [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found.])])
 
+# GRPC++ which is optional.
+PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.0.0 grpc >= 5.0.0],
+  [with_grpc=yes],
+  [with_grpc=no])
+
+AS_IF([test "x$with_grpc" != "xno"],
+  [AC_SUBST([WITH_GRPC], [$with_grpc])
+   AC_DEFINE([WITH_GRPC], 1,
+    [Set if grpc++ is available])])
+
+AM_CONDITIONAL([WITH_GRPC], [test "x$with_grpc" != "xno"])
+
+AC_SUBST([GRPC_CFLAGS])
+AC_SUBST([GRPC_LIBS])
+
 # Lua
 AX_PROG_LUA([5.1], [], [], [AC_MSG_ERROR([Lua interpreter missing.])])
 AX_LUA_HEADERS([], [AC_MSG_ERROR([Lua headers missing.])])

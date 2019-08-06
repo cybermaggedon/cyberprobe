@@ -22,7 +22,13 @@ endif
 cybermon_SOURCES = cybermon.C management.h  socket.C \
 	../include/cybermon/socket.h etsi_li.C ../include/cybermon/etsi_li.h \
 	ber.C ../include/cybermon/ber.h
-cybermon_LDADD = libcybermon.la -lssl -lgrpc++ -lprotobuf
+cybermon_LDADD = libcybermon.la -lssl
+
+if WITH_GRPC
+cybermon_LDADD += -lgrpc++
+endif
+
+cybermon_LDADD += -lprotobuf
 
 cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h interface.h \
 	interface.C endpoint.h endpoint.C parameter.h parameter.C \
