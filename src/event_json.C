@@ -1004,12 +1004,12 @@ namespace cybermon {
 		json obj = {
 		    { "key_exchange_algorithm", "dh-rsa" },
 		    { "prime",
-		      jsonify(ke.dhanon->p.begin(), ke.dhanon->p.end()) },
+		      jsonify(ke.dhrsa->p.begin(), ke.dhrsa->p.end()) },
 		    { "generator",
-		      jsonify(ke.dhanon->g.begin(), ke.dhanon->g.end()) },
+		      jsonify(ke.dhrsa->g.begin(), ke.dhrsa->g.end()) },
 		    { "pubkey",
-		      jsonify(ke.dhanon->pubKey.begin(),
-			      ke.dhanon->pubKey.end()) },
+		      jsonify(ke.dhrsa->pubKey.begin(),
+			      ke.dhrsa->pubKey.end()) },
 		    { "signature",
 		      jsonify(ke.dhrsa->sig.begin(), ke.dhrsa->sig.end()) },
 		};
