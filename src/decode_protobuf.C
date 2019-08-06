@@ -1,61 +1,84 @@
 
-#include <base64.h>
+#include <iostream>
+#include <iomanip>
+#include <memory>
 #include <string>
-#include "cyberprobe.pb.h"
 
+#include <grpcpp/grpcpp.h>
 #include <google/protobuf/util/time_util.h>
 
-int main(int argc, char** argv)
+#include "cyberprobe.grpc.pb.h"
 
-{
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::Status;
+using cyberprobe::Event;
+using cyberprobe::Empty;
+using cyberprobe::EventStream;
+using google::protobuf::util::TimeUtil;
 
-    try {
+// Logic and data behind the server's behavior.
+class EventStreamServiceImpl final : public EventStream::Service {
+    Status Observe(ServerContext* context, const Event* request,
+                    Empty* reply) override {
 
-        std::string arg = argv[1];
-
-        std::string dec = base64_decode(arg);
-
-        std::cerr << "Decode length " << dec.size() << std::endl;
-
-        cyberprobe::Event ev;
-
-        if (!ev.ParseFromString(dec))
-            throw std::runtime_error("Did not parse.");
-
-        std::cout << "ID: " << ev.id() << std::endl;
-        std::cout << "Action: " << ev.action() << std::endl;
-        std::cout << "Device: " << ev.device() << std::endl;
-        std::string tm =
-            google::protobuf::util::TimeUtil::ToString(ev.time());
-        std::cout << "Time: " << tm << std::endl;
-        if (ev.network() != "")
-            std::cout << "Network: " << ev.network() << std::endl;
-
-        if (ev.has_unrecognised_stream()) {
-            std::cout << "Unrecognised stream: "<< std::endl;
-            std::cout << "  Payload length: "
-                      << ev.unrecognised_stream().payload().size() << std::endl;
-            std::cout << "  position: "
-                      << ev.unrecognised_stream().position() << std::endl;
-        }
-        
-        if (ev.has_unrecognised_datagram()) {
-            std::cout << "Unrecognised datagram payload length: "
-                      << ev.unrecognised_datagram().payload().size()
+        std::cout << std::endl;
+        std::cout << std::setw(30) << std::left
+                  << "Id: " << request->id() << std::endl;
+       std::cout << std::setw(30) << std::left
+                 << "Time: " << TimeUtil::ToString(request->time()) << std::endl;
+       std::cout << std::setw(30) << std::left
+                  << "Action: " << Action_Name(request->action())
+                  << std::endl;
+        std::cout << std::setw(30) << std::left
+                  << "Device: " << request->device()
+                  << std::endl;
+        if (request->network() != "")
+            std::cout << std::setw(30) << std::left
+                      << "Network: " << request->network()
                       << std::endl;
-        }
-
-        if (ev.has_icmp()) {
-            std::cout << "ICMP:" << std::endl
-                      << "  Type: " << ev.icmp().type() << std::endl
-                      << "  Code: " << ev.icmp().code() << std::endl
-                      << "  Payload length: " << ev.icmp().payload().size()
+        if (request->origin() == cyberprobe::Origin::network)
+            std::cout << std::setw(30) << std::left
+                      << "Origin: " << "network"
                       << std::endl;
-        }
-                
-    } catch (std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        else if (request->origin() == cyberprobe::Origin::device)
+            std::cout << std::setw(30) << std::left
+                      << "Origin: " << "device"
+                      << std::endl;
+
+        return Status::OK;
     }
+};
+
+void run() {
+
+    std::string server_address("0.0.0.0:50051");
+    EventStreamServiceImpl service;
+
+    ServerBuilder builder;
+
+    // Listen on the given address without any authentication mechanism.
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+
+    // Register "service" as the instance through which we'll communicate with
+    // clients. In this case it corresponds to an *synchronous* service.
+    builder.RegisterService(&service);
+
+    // Finally assemble the server.
+    std::unique_ptr<Server> server(builder.BuildAndStart());
+    std::cout << "Server listening on " << server_address << std::endl;
+
+    // Wait for the server to shutdown. Note that some other thread must be
+    // responsible for shutting down the server for this call to ever return.
+    server->Wait();
+
+}
+
+int main(int argc, char** argv) {
+
+    run();
+    return 0;
 
 }
 

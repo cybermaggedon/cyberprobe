@@ -91,7 +91,14 @@ namespace cybermon {
             pe.set_action(a);
             *(pe.mutable_time()) = 
                 google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
-            pe.set_device(e.get_device());
+            pe.set_device(e.device);
+            // FIXME:
+            if (e.network != "")
+                pe.set_network(e.network);
+            if (e.direc == FROM_TARGET)
+                pe.set_origin(cyberprobe::Origin::device);
+            else if (e.direc == TO_TARGET)
+                pe.set_origin(cyberprobe::Origin::network);
 
             for(auto it = src.begin();
                 it != src.end();

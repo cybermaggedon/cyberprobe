@@ -2,6 +2,10 @@
 #ifndef CYBERMON_EVENT_H
 #define CYBERMON_EVENT_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <vector>
 #include <string>
 #include <list>
@@ -12,6 +16,17 @@
 #include <cybermon/tls_handshake_protocol.h>
 #include <cybermon/ntp_protocol.h>
 #include <uuid.h>
+
+// Lua
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+namespace cyberprobe {
+    class Event;
+};
 
 namespace cybermon {
 
@@ -73,7 +88,7 @@ namespace cybermon {
 	};
 
 	std::string& action2string(action_type a);
-
+        
 	class event {
 	    static uuid_generator gen;
 	public:
@@ -95,11 +110,22 @@ namespace cybermon {
 	    virtual int get_lua_value(cybermon::cybermon_lua&,
 				      const std::string& name);
 	    virtual void to_json(std::string& doc) {
-                throw std::runtime_error("Protobuf not implemented.");
+                throw std::runtime_error("JSON not implemented.");
 	    }
-            virtual void to_protobuf(std::string& buf) {
+#ifdef WITH_PROTOBUF
+            void to_protobuf(std::string& buf);
+            virtual void to_protobuf(cyberprobe::Event& ev) {
                 throw std::runtime_error("Protobuf not implemented.");
             }
+#endif
+        private:
+            static int lua_json(lua_State* lua);
+#ifdef WITH_PROTOBUF
+            static int lua_protobuf(lua_State* lua);
+#ifdef WITH_GRPC
+            static int lua_grpc(lua_State* lua);
+#endif
+#endif
         };
 
 	class protocol_event : public event {

@@ -55,6 +55,12 @@ enum Action {
     connection_down = 47;
 };
 
+enum Origin {
+    unknown = 0;
+    device = 1;
+    network = 2;
+};
+
 message DnsHeader {
     uint32 id = 1;
     uint32 qr = 2;
@@ -444,7 +450,7 @@ message Event {
     string id = 1;
     string device = 2;
     string network = 3;
-    string origin = 4;
+    Origin origin = 4;
     Action action = 5;
     string url = 6;
     repeated string src = 7;
