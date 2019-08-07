@@ -8,6 +8,7 @@
 #include <google/protobuf/util/time_util.h>
 
 #include "cyberprobe.grpc.pb.h"
+#include <cybermon/socket.h>
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -46,6 +47,72 @@ class EventStreamServiceImpl final : public EventStream::Service {
             std::cout << std::setw(30) << std::left
                       << "Origin: " << "device"
                       << std::endl;
+
+        std::cout << std::setw(30) << std::left << "Src: ";
+        for(auto it = request->src().begin();
+            it != request->src().end();
+            it++) {
+            std::cout << cyberprobe::Protocol_Name(it->protocol());
+
+            auto a = it->address();
+
+            if (a.address_variant_case() == cyberprobe::Address::kIpv4) {
+                std::cout << ":"
+                          << ((it->address().ipv4() >> 24) & 0xff) << "."
+                          << ((it->address().ipv4() >> 16) & 0xff) << "."
+                          << ((it->address().ipv4() >> 8) & 0xff) << "."
+                          << (it->address().ipv4() & 0xff);
+            }
+
+            if (a.address_variant_case() == cyberprobe::Address::kIpv6) {
+                tcpip::ip6_address ip;
+                ip.addr.assign(it->address().ipv6().begin(),
+                               it->address().ipv6().end());
+                std::string a;
+                ip.to_string(a);
+                std::cout << ":" << a;
+            }
+
+            if (a.address_variant_case() == cyberprobe::Address::kPort) {
+                std::cout << ":" << it->address().port();
+            }
+
+            std::cout << " ";
+        }
+        std::cout << std::endl;
+
+        std::cout << std::setw(30) << std::left << "Dest: ";
+        for(auto it = request->dest().begin();
+            it != request->dest().end();
+            it++) {
+            std::cout << cyberprobe::Protocol_Name(it->protocol());
+
+            auto a = it->address();
+
+            if (a.address_variant_case() == cyberprobe::Address::kIpv4) {
+                std::cout << ":"
+                          << ((it->address().ipv4() >> 24) & 0xff) << "."
+                          << ((it->address().ipv4() >> 16) & 0xff) << "."
+                          << ((it->address().ipv4() >> 8) & 0xff) << "."
+                          << (it->address().ipv4() & 0xff);
+            }
+
+            if (a.address_variant_case() == cyberprobe::Address::kIpv6) {
+                tcpip::ip6_address ip;
+                ip.addr.assign(it->address().ipv6().begin(),
+                               it->address().ipv6().end());
+                std::string a;
+                ip.to_string(a);
+                std::cout << ":" << a;
+            }
+
+            if (a.address_variant_case() == cyberprobe::Address::kPort) {
+                std::cout << ":" << it->address().port();
+            }
+
+            std::cout << " ";
+        }
+        std::cout << std::endl;
 
         return Status::OK;
     }

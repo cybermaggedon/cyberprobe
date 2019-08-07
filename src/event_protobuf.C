@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <string>
+#include <cybermon/socket.h>
 
 #include <google/protobuf/util/time_util.h>
 
@@ -53,25 +54,21 @@ namespace cybermon {
 
     namespace event {
 
+        typedef std::pair<std::string, std::string> proto_addr;
+
         // FIXME: Copied from event_json.C
 	static void get_addresses(context_ptr cptr,
-				  std::list<std::string>& src,
-				  std::list<std::string>& dest) {
+				  std::list<proto_addr>& src,
+				  std::list<proto_addr>& dest) {
 	    while (cptr->get_type() != "root") {
 
 		std::string type, address;
 
 		cptr->get_src(type, address);
-		if (address == "")
-		    src.push_front(type);
-		else
-		    src.push_front(type + ":" + address);
+                src.push_front(proto_addr(type, address));
 
 		cptr->get_dest(type, address);
-		if (address == "")
-		    dest.push_front(type);
-		else
-		    dest.push_front(type + ":" + address);
+                dest.push_front(proto_addr(type, address));
 
 		cptr = cptr->get_parent();
 
@@ -79,12 +76,71 @@ namespace cybermon {
 	    
 	}
 
+        // Protobufify an IP address.
+        static void protobufify(const std::string& addr,
+                                cyberprobe::Address* a) {
+
+            try {
+                tcpip::ip4_address ip(addr);
+
+                // Should be true.
+                if (ip.addr.size() == 4) {
+                    uint32_t raw =
+                        ip.addr[0] << 24 |
+                        ip.addr[1] << 16 |
+                        ip.addr[2] << 8 |
+                        ip.addr[3];
+                    a->set_ipv4(raw);
+                }
+
+                // Success, it is IPv4.
+                return;
+
+            } catch (...) {
+                // Failure case, fall through to IPv6.
+            }
+
+            try {
+                tcpip::ip6_address ip(addr);
+
+                // Should be true.
+                if (ip.addr.size() == 16) {
+                    a->set_ipv6(ip.addr.data(), ip.addr.size());
+                }
+
+                // Success, it is IPv6.
+                return;
+
+            } catch (...) {
+                // Failure case, fall through to doing nothing.
+            }
+
+        }
+
+        static void protobufify(proto_addr& addr,
+                                cyberprobe::ProtocolAddress* pa) {
+
+            cyberprobe::Protocol prot;
+            cyberprobe::Protocol_Parse(addr.first, &prot);
+            pa->set_protocol(prot);
+
+            if (addr.first == "ipv4" || addr.first == "ipv6") {
+                auto a = pa->mutable_address();
+                protobufify(addr.second, a);
+            } else if (addr.first == "udp" | addr.first == "tcp") {
+                auto a = pa->mutable_address();
+                a->set_port(std::stoi(addr.second));
+            } else {
+                // Do nothing for the address.
+            }
+        }
+
 	static void protobufify_base(const protocol_event& e,
                                      cyberprobe::Event& pe,
                                      cyberprobe::Action a)
         {
 
-	    std::list<std::string> src, dest;
+	    std::list<proto_addr> src, dest;
 	    get_addresses(e.context, src, dest);
 
             pe.set_id(e.id);
@@ -92,9 +148,10 @@ namespace cybermon {
             *(pe.mutable_time()) = 
                 google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
             pe.set_device(e.device);
-            // FIXME:
+
             if (e.network != "")
                 pe.set_network(e.network);
+
             if (e.direc == FROM_TARGET)
                 pe.set_origin(cyberprobe::Origin::device);
             else if (e.direc == TO_TARGET)
@@ -102,14 +159,20 @@ namespace cybermon {
 
             for(auto it = src.begin();
                 it != src.end();
-                it++)
-                pe.add_src()->assign(*it);
+                it++) {
+
+                auto pa = pe.add_src();
+                protobufify(*it, pa);
+            }
 
             for(auto it = dest.begin();
                 it != dest.end();
-                it++)
-                pe.add_dest()->assign(*it);
-            
+                it++) {
+
+                auto pa = pe.add_dest();
+                protobufify(*it, pa);
+            }
+
         }
 	
 	void protobufify(const connection_up& e, cyberprobe::Event& pe) {
@@ -135,7 +198,10 @@ namespace cybermon {
             pe.set_device(e.get_device());
 
             auto detail = pe.mutable_trigger_up();
-            detail->set_address(e.address);
+
+            auto a = detail->mutable_address();
+
+            protobufify(e.address, a);
 
 	}
 
@@ -431,14 +497,16 @@ namespace cybermon {
                 // IPv4 address.
                 std::string addr;
                 addr = a.rdaddress.to_ip4_string();
-                pe->set_address(addr);
+                auto a = pe->mutable_address();
+                protobufify(addr, a);
             }
             
             if (a.rdaddress.addr.size() == 16) {
                 // IPv6 address.
                 std::string addr;
                 addr = a.rdaddress.to_ip6_string();
-                pe->set_address(addr);
+                auto a = pe->mutable_address();
+                protobufify(addr, a);
             }
             
         }

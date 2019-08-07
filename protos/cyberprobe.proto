@@ -56,9 +56,36 @@ enum Action {
 };
 
 enum Origin {
-    unknown = 0;
+    unknown_protocol = 0;
     device = 1;
     network = 2;
+};
+
+message Empty {
+}
+
+message Address {
+    oneof address_variant {
+        fixed32 ipv4 = 1;
+        bytes ipv6 = 2;
+        uint32 port = 3;
+        Empty empty = 4;
+    };
+};
+
+enum Protocol {
+    unknown = 0;
+    ipv4 = 1;
+    ipv6 = 2;
+    tcp = 3;
+    udp = 4;
+    dns = 5;
+    http = 6;
+};
+
+message ProtocolAddress {
+    Protocol protocol = 1;
+    Address address = 2;
 };
 
 message DnsHeader {
@@ -86,7 +113,7 @@ message DnsAnswer {
     string name = 1;
     string type = 2;
     string class = 3;
-    string address = 4;
+    Address address = 4;
 };
 
 enum DnsMessageType {
@@ -434,7 +461,7 @@ message Indicator {
 };
 
 message TriggerUp {
-    string address = 2;
+    Address address = 2;
 };
 
 message TriggerDown {
@@ -453,8 +480,8 @@ message Event {
     Origin origin = 4;
     Action action = 5;
     string url = 6;
-    repeated string src = 7;
-    repeated string dest = 8;
+    repeated ProtocolAddress src = 7;
+    repeated ProtocolAddress dest = 8;
     google.protobuf.Timestamp time = 9;
 
     oneof Detail {
@@ -509,9 +536,6 @@ message Event {
 
     Locations location = 57;
     repeated Indicator indicators = 58;
-}
-
-message Empty {
 }
 
 service EventStream {
