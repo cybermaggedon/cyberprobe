@@ -1,6 +1,12 @@
 
 bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli \
-	stream-rcvr tls-rcvr decode_protobuf
+	stream-rcvr tls-rcvr
+
+if WITH_PROTOBUF
+if WITH_GRPC
+bin_PROGRAMS += decode_protobuf
+endif
+endif
 
 cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C \
 	delivery.C capture.C configuration.C control.C snort_alert.C \
@@ -24,11 +30,12 @@ cybermon_SOURCES = cybermon.C management.h  socket.C \
 	ber.C ../include/cybermon/ber.h
 cybermon_LDADD = libcybermon.la -lssl
 
+if WITH_PROTOBUF
 if WITH_GRPC
 cybermon_LDADD += -lgrpc++
 endif
-
 cybermon_LDADD += -lprotobuf
+endif
 
 cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h interface.h \
 	interface.C endpoint.h endpoint.C parameter.h parameter.C \
@@ -57,7 +64,7 @@ libcybermon_la_SOURCES = address.C base_context.C 		\
 	imap_ssl.C ip.C ntp.C ntp_protocol.C pop3.C pop3_ssl.C event.C  \
 	reaper.C rtp.C rtp_ssl.C sip.C sip_context.C \
 	sip_ssl.C	event_json.C \
-	base64.C base64.h json.h event_protobuf.C \
+	base64.C base64.h json.h \
 	smtp.C smtp_auth.C tcp.C tcp_ports.C udp.C udp_ports.C \
 	unrecognised.C \
 	tls_key_exchange.C vxlan.C \
@@ -89,7 +96,6 @@ libcybermon_la_SOURCES = address.C base_context.C 		\
 	../include/cybermon/event.h					\
 	../include/cybermon/event_implementations.h			\
 	../include/cybermon/event_json.h  \
-	../include/cybermon/event_protobuf.h \
 	../include/cybermon/packet_capture.h				\
 	../include/cybermon/pdu.h ../include/cybermon/pop3.h		\
 	../include/cybermon/pop3_context.h				\
@@ -113,9 +119,18 @@ libcybermon_la_SOURCES = address.C base_context.C 		\
 	../include/cybermon/vxlan.h \
 	../include/cybermon/event_queue.h
 
+if WITH_PROTOBUF
+libcybermon_la_SOURCES += event_protobuf.C
+libcybermon_la_SOURCES += ../include/cybermon/event_protobuf.h
+endif
+
+if WITH_PROTOBUF
+if WITH_GRPC
 decode_protobuf_SOURCES = decode_protobuf.C socket.C \
 	../include/cybermon/socket.h
 decode_protobuf_LDADD = libcybermon.la -lssl -lprotobuf
+endif
+endif
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -132,6 +147,8 @@ AM_CPPFLAGS += $(BOOST_CPPFLAGS) $(LUA_INCLUDE)
 AM_LDFLAGS += $(LDFLAGS_BOOST) $(LUA_LDADD)
 LIBS += $(LIBS_BOOST) $(LUA_LIB)
 
+if WITH_PROTOBUF
+
 cyberprobe.pb.cc cyberprobe.pb.h: ../protos/cyberprobe.proto
 	$(PROTOC) --proto_path=$(srcdir)/../protos --cpp_out=$(builddir) $^
 
@@ -142,3 +159,5 @@ MOSTLYCLEANFILES = cyberprobe.pb.cc cyberprobe.pb.h
 BUILT_SOURCES = cyberprobe.pb.h
 
 nodist_libcybermon_la_SOURCES = cyberprobe.pb.cc cyberprobe.pb.h
+
+endif

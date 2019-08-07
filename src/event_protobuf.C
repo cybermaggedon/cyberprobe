@@ -108,14 +108,14 @@ namespace cybermon {
 	void protobufify(const connection_up& e, cyberprobe::Event& pe) {
 
             protobufify_base(e, pe, cyberprobe::Action::unrecognised_stream);
-            auto detail = pe.mutable_connection_up();
+            pe.mutable_connection_up();
 
         }
         
 	void protobufify(const connection_down& e, cyberprobe::Event& pe) {
 
             protobufify_base(e, pe, cyberprobe::Action::unrecognised_stream);
-            auto detail = pe.mutable_connection_down();
+            pe.mutable_connection_down();
 
 	}
 
@@ -141,7 +141,7 @@ namespace cybermon {
                 google::protobuf::util::TimeUtil::TimevalToTimestamp(e.time);
             pe.set_device(e.get_device());
 
-            auto detail = pe.mutable_trigger_down();
+            pe.mutable_trigger_down();
 
 	}
 
@@ -789,7 +789,7 @@ namespace cybermon {
 
             auto detail = pe.mutable_tls_server_hello_done();
 
-            auto tls = detail->mutable_tls();
+            detail->mutable_tls();
 
 	}
 
@@ -903,7 +903,7 @@ namespace cybermon {
 
             auto detail = pe.mutable_tls_handshake_complete();
 
-            auto tls = detail->mutable_tls();
+            detail->mutable_tls();
 
 	}
 
