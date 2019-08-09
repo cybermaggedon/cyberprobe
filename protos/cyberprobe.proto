@@ -1,0 +1,514 @@
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package cyberprobe;
+
+enum Action {
+    dns_message = 0;
+    unrecognised_datagram = 2;
+    unrecognised_stream = 3;
+    icmp = 4;
+    http_request = 5;
+    http_response = 6;
+    sip_request = 7;
+    sip_response = 8;
+    sip_ssl = 9;
+    imap = 10;
+    imap_ssl = 11;
+    pop3 = 12;
+    pop3_ssl = 13;
+    ntp_timestamp = 14;
+    ntp_control = 15;
+    ntp_private = 16;
+    ftp_command = 17;
+    ftp_response = 18;
+    smtp_command = 19;
+    smtp_response = 20;
+    smtp_data = 21;
+    smtp_auth = 22;
+    gre = 23;
+    gre_pptp = 24;
+    esp = 25;
+    unrecognised_ip_protocol = 26;
+    wlan = 27;
+    tls_unknown = 28;
+    tls_client_hello = 29;
+    tls_server_hello = 30;
+    tls_certificates = 31;
+    tls_server_key_exchange = 32;
+    tls_server_hello_done = 33;
+    tls_handshake_generic = 34;
+    tls_certificate_request = 35;
+    tls_client_key_exchange = 36;
+    tls_certificate_verify = 37;
+    tls_change_cipher_spec = 38;
+    tls_handshake_finished = 39;
+    tls_handshake_complete = 40;
+    tls_application_data = 41;
+    rtp = 42;
+    rtp_ssl = 43;
+    trigger_up = 44;
+    trigger_down = 45;
+    connection_up = 46;
+    connection_down = 47;
+};
+
+message DnsHeader {
+    uint32 id = 1;
+    uint32 qr = 2;
+    uint32 opcode = 3;
+    uint32 aa = 4;
+    uint32 tc = 5;
+    uint32 rd = 6;
+    uint32 ra = 7;
+    uint32 rcode = 8;
+    uint32 qdcount = 9;
+    uint32 ancount = 10;
+    uint32 nscount = 11;
+    uint32 arcount = 12;
+};
+
+message DnsQuery {
+    string name = 1;
+    string type = 2;
+    string class = 3;
+};
+
+message DnsAnswer {
+    string name = 1;
+    string type = 2;
+    string class = 3;
+    string address = 4;
+};
+
+enum DnsMessageType {
+    query = 0;
+    response = 1;
+};
+
+message DnsMessage {
+    DnsHeader header = 1;
+    repeated DnsQuery query = 2;
+    repeated DnsAnswer answer = 3;
+    repeated DnsAnswer authority = 4;
+    repeated DnsAnswer additional = 5;
+    DnsMessageType type = 8;
+};
+
+message UnrecognisedDatagram {
+    bytes payload = 1;
+};
+
+message UnrecognisedStream {
+    bytes payload = 1;
+    int64 position = 2;
+};
+
+message Icmp {
+    int32 type = 1;
+    int32 code = 2;
+    bytes payload = 3;
+};
+
+message HttpRequest {
+    string method = 1;
+    map<string, string> header = 2;
+    bytes body = 3;
+};
+
+message HttpResponse {
+    int32 code = 1;
+    string status = 2;
+    map<string, string> header = 3;
+    bytes body = 4;
+};
+
+message SipRequest {
+    string method = 1;
+    string from = 2;
+    string to = 3;
+    bytes payload = 4;
+};
+
+message SipResponse {
+    int32 code = 1;
+    string status = 2;
+    string from = 3;
+    string to = 4;
+    bytes payload = 5;
+};
+
+message SipSsl {
+    bytes payload = 1;
+};
+
+message Imap {
+    bytes payload = 1;
+}
+
+message ImapSsl {
+    bytes payload = 1;
+}
+
+message Rtp {
+    bytes payload = 1;
+}
+
+message RtpSsl {
+    bytes payload = 1;
+}
+
+message Pop3 {
+    bytes payload = 1;
+};
+
+message Pop3Ssl {
+    bytes payload = 1;
+};
+
+message Ntp {
+    int32 version = 1;
+    int32 mode = 2;
+};
+
+message FtpCommand {
+    string command = 1;
+};
+
+message FtpResponse {
+    int32 status = 1;
+    repeated string text = 2;
+};
+
+message SmtpCommand {
+    string command = 1;
+};
+
+message SmtpResponse {
+    int32 status = 1;
+    repeated string text = 2;
+};
+
+message SmtpData {
+    string from = 1;
+    repeated string to = 2;
+    bytes body = 3;
+};
+
+message SmtpAuth {
+    bytes payload = 1;
+};
+
+message Gre {
+    string next_proto = 1;
+    uint32 key = 2;
+    uint32 sequence_number = 3;
+    bytes payload = 4;
+};
+
+message GrePptp {
+    string next_proto = 1;
+    uint32 call_id = 2;
+    uint32 sequence_number = 3;
+    uint32 acknowledgement_number = 4;
+    bytes payload = 5;
+    uint32 payload_length = 6;
+};
+
+message Esp {
+    uint32 spi = 1;
+    uint32 sequence_number = 2;
+    bytes payload = 3;
+    uint32 payload_length = 4;
+};
+
+message UnrecognisedIpProtocol {
+    uint32 next_proto = 1;
+    uint32 sequence_number = 2;    
+    bytes payload = 3;
+    uint32 payload_length = 4;
+};
+
+message Wlan {
+    uint32 version = 1;
+    uint32 type = 2;
+    uint32 subtype = 3;
+    uint32 flags = 4;
+    bool protected = 5;
+    string filt_addr = 6;
+    uint32 frag_num = 7;
+    uint32 seq_num = 8;
+    uint32 duration = 9;
+};
+
+message TlsUnknown {
+    message Tls {
+	string version = 1;
+	uint32 content_type = 2;
+	uint64 length = 3;
+    };
+    Tls tls = 1;
+};
+
+message TlsClientHello {
+    message Tls {
+	string version = 1;
+	string session_id = 2;
+	message Random {
+	    uint64 timestamp = 1;
+	    bytes data = 2;
+	};
+	Random random = 3;
+	repeated string cipher_suite = 4;
+	repeated string compression_method = 5;
+	message Extension {
+	    string name = 1;
+	    uint32 length = 2;
+            uint32 type = 3;
+	    bytes data = 4;
+	};
+	repeated Extension extension = 6;
+    };
+    Tls tls = 1;
+};
+
+message TlsServerHello {
+    message Tls {
+	string version = 1;
+        string session_id = 2;
+	message Random {
+	    uint64 timestamp = 1;
+	    bytes data = 2;
+	};
+	Random random = 3;
+	string cipher_suite = 4;
+	string compression_method = 5;
+	message Extension {
+	    string name = 1;
+	    uint32 length = 2;
+            uint32 type = 3;
+	    bytes data = 4;
+	};
+	repeated Extension extension = 6;
+    };
+    Tls tls = 1;
+};
+
+message TlsCertificates {
+    message Tls {
+	repeated bytes certificate = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsServerKeyExchange {
+    message Ecdh {
+        uint32 curve_type = 1;
+	map<string, string> curve_metadata = 2;
+        bytes public_key = 3;
+        uint32 signature_hash_algorithm = 4;
+	uint32 signature_algorithm = 5;
+	string signature_hash = 6;
+    };
+    message DhAnon {
+        bytes prime = 1;
+        bytes generator = 2;
+        bytes pubkey = 3;
+    };
+    message DhRsa {
+        bytes prime = 1;
+        bytes generator = 2;
+        bytes pubkey = 3;
+        bytes signature = 4;
+    };
+    message Tls {
+	string key_exchange_algorithm = 1;
+        oneof Detail {
+            Ecdh ecdh = 2;
+            DhAnon dhanon = 3;
+            DhRsa dhrsa = 4;
+        };
+    }
+    Tls tls = 1;
+};
+
+message TlsServerHelloDone {
+    message Tls {
+    };
+    Tls tls = 1;
+};
+
+message TlsHandshakeGeneric {
+    message Tls {
+        uint32 type = 1;
+	uint32 length = 2;
+    };
+    Tls tls = 1;
+};
+
+message TlsCertificateRequest {
+    message Tls {
+        repeated string certificate_type = 1;
+	message SignatureAlgorithm {
+            uint32 hash_algorithm = 1;
+	    uint32 signature_algorithm = 2;
+	};
+	repeated SignatureAlgorithm signature_algorithm = 2;
+        bytes distinguished_names = 3;
+    };
+    Tls tls = 1;
+};
+
+message TlsClientKeyExchange {
+    message Tls {
+        bytes key = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsCertificateVerify {
+    message Tls {
+	message SignatureAlgorithm {
+	    uint32 hash_algorithm = 1;
+	    uint32 signature_algorithm = 2;
+	};
+	SignatureAlgorithm signature_algorithm = 2;
+	bytes signature = 3;
+    };
+    Tls tls = 1;
+};
+
+message TlsChangeCipherSpec {
+    message Tls {
+        uint32 value = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsHandshakeFinished {
+    message Tls {
+       bytes message = 1;
+    };
+    Tls tls = 1;
+};
+
+message TlsHandshakeComplete {
+    message Tls {
+    };
+    Tls tls = 1;
+};
+
+message TlsApplicationData {
+    message Tls {
+	string version = 1;
+	uint64 length = 2;
+    };
+    Tls tls = 1;
+};
+
+message Locations {
+    message Location {
+        string city = 1;
+	string iso = 2;
+	string country = 3;
+	float latitude = 4;
+	float longitude = 5;
+    };
+    Location src = 1;
+    Location dest = 2;
+};
+
+message Indicator {
+    string id = 1;
+    string type = 2;
+    string value = 3;
+    string description = 4;
+};
+
+message TriggerUp {
+    string address = 2;
+};
+
+message TriggerDown {
+};
+
+message ConnectionUp {
+};
+
+message ConnectionDown {
+};
+
+message Event {
+    string id = 1;
+    string device = 2;
+    string network = 3;
+    string origin = 4;
+    Action action = 5;
+    string url = 6;
+    repeated string src = 7;
+    repeated string dest = 8;
+    google.protobuf.Timestamp time = 9;
+
+    oneof Detail {
+	DnsMessage dns_message = 10;
+	UnrecognisedDatagram unrecognised_datagram = 11;
+	UnrecognisedStream unrecognised_stream = 12;
+	Icmp icmp = 13;
+	HttpRequest http_request = 14;
+	HttpResponse http_response = 15;
+	SipRequest sip_request = 16;
+	SipResponse sip_response = 17;
+	SipSsl sip_ssl = 18;
+	Imap imap = 19;
+	ImapSsl imap_ssl = 20;
+	Pop3 pop3 = 21;
+	Pop3Ssl pop3_ssl = 22;
+	Ntp ntp_timestamp = 23;
+	Ntp ntp_control = 24;
+	Ntp ntp_private = 25;
+	FtpCommand ftp_command = 26;
+	FtpResponse ftp_response = 27;
+	SmtpCommand smtp_command = 28;
+	SmtpResponse smtp_response = 29;
+	SmtpData smtp_data = 30;
+        SmtpAuth smtp_auth = 31;
+	Gre gre = 32;
+	GrePptp gre_pptp = 33;
+	Esp esp = 34;
+	UnrecognisedIpProtocol unrecognised_ip_protocol = 35;
+	Wlan wlan = 36;
+	TlsUnknown tls_unknown = 37;
+	TlsClientHello tls_client_hello = 38;
+	TlsServerHello tls_server_hello = 39;
+	TlsCertificates tls_certificates = 40;
+	TlsServerKeyExchange tls_server_key_exchange = 41;
+	TlsServerHelloDone tls_server_hello_done = 42;
+	TlsHandshakeGeneric tls_handshake_generic = 43;
+	TlsCertificateRequest tls_certificate_request = 44;
+	TlsClientKeyExchange tls_client_key_exchange = 45;
+	TlsCertificateVerify tls_certificate_verify = 46;
+	TlsChangeCipherSpec tls_change_cipher_spec = 47;
+	TlsHandshakeFinished tls_handshake_finished = 48;
+	TlsHandshakeComplete tls_handshake_complete = 49;
+	TlsApplicationData tls_application_data = 50;
+        Rtp rtp = 51;
+        RtpSsl rtp_ssl = 52;
+        TriggerUp trigger_up = 53;
+        TriggerDown trigger_down = 54;
+        ConnectionUp connection_up = 55;
+        ConnectionDown connection_down = 56;
+    };
+
+    Locations location = 57;
+    repeated Indicator indicators = 58;
+}
+
+message Empty {
+}
+
+service EventStream {
+    rpc Observe(Event) returns (Empty) {}
+}
+

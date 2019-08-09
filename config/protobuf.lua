@@ -10,10 +10,15 @@ local observer = {}
 
 -- The table should contain functions.
 
+mime = require("mime")
+
 -- Call the JSON functions for all observer functions.
 observer.event = function(e)
-  data = e:json()
-  print(data)
+
+  -- This isn't usable yet.
+  data = e:protobuf()
+  enc = mime.b64(data)
+  print(enc)
 end
 
 -- Return the table

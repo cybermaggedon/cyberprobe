@@ -276,14 +276,10 @@ The code doesn't have many dependencies. Exotic dependencies are:
 @cindex Boost
 @cindex Lua
 @cindex @code{libpcap}
-@cindex @code{expat}
 @cindex @code{tcpdump}
 @cindex @code{telnet}
-@cindex @code{luafilesystem}
-@cindex @code{luajson}
 @cindex @code{libtaxii}
 @cindex @code{stix}
-@cindex @code{lua-md5}
 @cindex @code{ncurses}
 @cindex @code{readline}
 
@@ -311,15 +307,6 @@ tutorial.
 @item
 @code{telnet} - not needed to build the software, but we use it in the
 tutorial.
-
-@item
-@code{luafilesystem}, if using certain Lua configuration files.
-
-@item
-@code{luajson}, if using certain Lua configuration files.
-
-@item
-@code{lua-md5}, for MD5 hashing payloads.
 
 @item
 @code{ncurses}, needed for the command line admin utility.

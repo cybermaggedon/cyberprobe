@@ -73,6 +73,8 @@ For each Lua event, a JSON record is formatted and delivered to standard
 outut.
 Each message is JSON format, see @ref{Cybermon JSON message format}.
 
+@comment FIXME: Mention protobuf.lua here
+
 @item quiet.lua
 
 Does nothing.  This is an empty code shell, and a good template to write

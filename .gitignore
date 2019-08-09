@@ -14,6 +14,7 @@ src/etsi-rcvr
 src/nhis11-rcvr
 src/stream-rcvr
 src/tls-rcvr
+src/cyberprobe.pb.*
 .deps
 .libs
 libcybermon.la

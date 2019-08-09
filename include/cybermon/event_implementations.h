@@ -36,6 +36,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class trigger_down : public event {
@@ -51,6 +52,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class unrecognised_stream : public protocol_event {
@@ -71,6 +73,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class connection_up : public protocol_event {
@@ -85,6 +88,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
       
 	class connection_down : public protocol_event {
@@ -99,6 +103,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
       
 	class unrecognised_datagram : public protocol_event {
@@ -117,6 +122,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class icmp : public protocol_event {
@@ -139,6 +145,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class imap : public protocol_event {
@@ -157,6 +164,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class imap_ssl : public protocol_event {
@@ -175,6 +183,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class pop3 : public protocol_event {
@@ -193,6 +202,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 	
 	class pop3_ssl : public protocol_event {
@@ -211,6 +221,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class rtp : public protocol_event {
@@ -229,6 +240,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class rtp_ssl: public protocol_event {
@@ -247,6 +259,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class smtp_auth : public protocol_event {
@@ -265,6 +278,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class sip_ssl : public protocol_event {
@@ -283,6 +297,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class sip_request : public protocol_event {
@@ -307,6 +322,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class sip_response : public protocol_event {
@@ -332,6 +348,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class http_request : public protocol_event {
@@ -357,6 +374,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class http_response : public protocol_event {
@@ -383,6 +401,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class smtp_command : public protocol_event {
@@ -398,6 +417,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class smtp_response : public protocol_event {
@@ -415,6 +435,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class smtp_data : public protocol_event {
@@ -438,6 +459,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class ftp_command : public protocol_event {
@@ -454,6 +476,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class ftp_response : public protocol_event {
@@ -471,6 +494,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class dns_message : public protocol_event {
@@ -496,6 +520,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
     
 	class ntp_timestamp_message : public protocol_event {
@@ -512,6 +537,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class ntp_control_message : public protocol_event {
@@ -528,6 +554,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class ntp_private_message : public protocol_event {
@@ -545,6 +572,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class gre : public protocol_event {
@@ -569,6 +597,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class gre_pptp : public protocol_event {
@@ -597,6 +626,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class esp : public protocol_event {
@@ -620,6 +650,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class unrecognised_ip_protocol : public protocol_event {
@@ -643,6 +674,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class wlan : public protocol_event {
@@ -674,6 +706,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_unknown : public protocol_event {
@@ -694,6 +727,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_client_hello : public protocol_event {
@@ -711,6 +745,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_server_hello : public protocol_event {
@@ -728,6 +763,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_server_hello_done : public protocol_event {
@@ -741,6 +777,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_certificates : public protocol_event {
@@ -760,6 +797,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_server_key_exchange : public protocol_event {
@@ -777,6 +815,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_handshake_generic : public protocol_event {
@@ -795,6 +834,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_certificate_request : public protocol_event {
@@ -812,6 +852,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_client_key_exchange : public protocol_event {
@@ -829,6 +870,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_certificate_verify : public protocol_event {
@@ -851,6 +893,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_change_cipher_spec : public protocol_event {
@@ -867,6 +910,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_handshake_finished : public protocol_event {
@@ -884,6 +928,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_handshake_complete : public protocol_event {
@@ -898,6 +943,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
 	class tls_application_data : public protocol_event {
@@ -917,6 +963,7 @@ namespace cybermon {
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
+            virtual void to_protobuf(std::string& buf);
 	};
 
     };

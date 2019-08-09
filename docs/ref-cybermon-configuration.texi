@@ -48,7 +48,34 @@ return observer
 The configuration file is expected to provide the event function
 which is called with a single argument, an event, in response to
 @command{cybermon} events.  The event looks like a table, but is a userdata
-object.  While the object fields can be read, they cannot be written.
+object.  While the object has fields which can be read, they cannot be changed
+in the event object itself.
+
+There are standard fields in the event object:
+
+@table @code
+
+@item device
+
+Return the device identifier.
+
+@item time
+
+The time of the event.
+
+@item action
+
+The action which caused the event.
+
+@item json
+
+Returns the event in JSON form.
+
+@item protobuf
+
+Returns the event in protobuf format.
+
+@end table
 
 The structure of the event object depends
 on the @code{action} field.

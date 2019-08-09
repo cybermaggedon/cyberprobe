@@ -95,9 +95,12 @@ namespace cybermon {
 	    virtual int get_lua_value(cybermon::cybermon_lua&,
 				      const std::string& name);
 	    virtual void to_json(std::string& doc) {
-		doc == "{}";
+                throw std::runtime_error("Protobuf not implemented.");
 	    }
-	};
+            virtual void to_protobuf(std::string& buf) {
+                throw std::runtime_error("Protobuf not implemented.");
+            }
+        };
 
 	class protocol_event : public event {
 	public:
