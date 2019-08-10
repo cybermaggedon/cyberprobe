@@ -103,8 +103,29 @@ void engine::get_root_info(context_ptr p, std::string& device, address& a)
 	p = p->parent.lock();
     }
 
+//    throw std::runtime_error("No root context?!");
+
 }
 
+root_context& engine::get_root(context_ptr p)
+{
+
+    while (p) {
+	if (p->get_type() == "root") {
+
+	    // Cast to root.
+	    root_context& rc = 
+		dynamic_cast<root_context&>(*p);
+
+            return rc;
+
+	}
+	p = p->parent.lock();
+    }
+
+    throw std::runtime_error("No root context?!");
+
+}
 
 void engine::get_network_info(context_ptr p,
 			      std::string& net, address& src, address& dest)

@@ -106,13 +106,13 @@ namespace cybermon {
 	public:
 	    protocol_event(const action_type action,
 			   const timeval& time,
-			   context_ptr cp) :
-		event(action, time), context(cp)
-		{
-		}
+			   context_ptr cp);
 	    virtual ~protocol_event() {}
 	    cybermon::context_ptr context;
 	    virtual std::string get_device() const;
+            std::string device;
+            std::string network;
+            direction direc;
 	};
 
     };

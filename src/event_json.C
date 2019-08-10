@@ -115,39 +115,39 @@ namespace cybermon {
 	    }
 	    
 	}
-	
-	json jsonify(const connection_up& e) {
+
+        static void apply_base(const protocol_event& e, json& obj,
+                               std::string action)
+        {
+            obj["id"] = e.id;
+            obj["action"] = action;
+            obj["device"] = e.device;
+            obj["time"] = jsonify(e.time);
+            if (e.network != "")
+                obj["network"] = e.network;
+
+            if (e.direc == FROM_TARGET)
+                obj["origin"] = "device";
+            else if (e.direc == TO_TARGET)
+                obj["origin"] = "network";
 
 	    std::list<std::string> src, dest;
 	    get_addresses(e.context, src, dest);
-	    
-	    json obj  {
-		// FIXME: Annoying.
-		{ "id", e.id },
-		{ "action", "connected_up" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+
+            obj["src"] = src;
+            obj["dest"] = dest;
+	                
+        }
+	
+	json jsonify(const connection_up& e) {
+	    json obj;
+            apply_base(e, obj, "connected_up");
 	    return obj;
 	}
 
 	json jsonify(const connection_down& e) {
-
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-    
-	    json obj  {
-		// FIXME: Annoying.
-		{ "id", e.id },
-		{ "action", "connected_down" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
-
+	    json obj;
+            apply_base(e, obj, "connected_down");
 	    return obj;
 	}
 
@@ -176,390 +176,223 @@ namespace cybermon {
 	}
 
 	json jsonify(const unrecognised_stream& e) {
-
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "unrecognised_stream", {
-			{ "payload", jsonify(e.payload) },
-			{ "position", e.position },
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
+	    json obj;
+            apply_base(e, obj, "unrecognised_stream");
+            obj["unrecognised_stream"] = {
+                { "payload", jsonify(e.payload) },
+                { "position", e.position }
+            };
+            return obj;
 	}
 
 	json jsonify(const unrecognised_datagram& e) {
-
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "unrecognised_datagram", {
-			{ "payload", jsonify(e.payload) },
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
+	    json obj;
+            apply_base(e, obj, "unrecognised_datagram");
+            obj["unrecognised_datagram"] = {
+                { "payload", jsonify(e.payload) }
+            };
+            return obj;
 	}
 
 	json jsonify(const icmp& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "icmp", {
-			{ "code", int(e.code) },
-			{ "type", int(e.type) },
-			{ "payload", jsonify(e.payload) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    return obj;
+            json obj;
+            apply_base(e, obj, "icmp");
+            obj["icmp"] = {
+                { "code", int(e.code) },
+                { "type", int(e.type) },
+                { "payload", jsonify(e.payload) }      
+            };
+            return obj;
 	}
 
 	json jsonify(const imap& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const imap_ssl& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const pop3& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const pop3_ssl& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const rtp& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const rtp_ssl& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const sip_request& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "method", e.method },
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) },
+                { "method", e.method },
 		{ "from", e.from },
 		{ "to", e.to }
-	    };
+            };
 	    return obj;
 	}
 
 	json jsonify(const sip_response& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest },
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) },
 		{ "code", e.code },
 		{ "status", e.status },
 		{ "from", e.from },
 		{ "to", e.to }
-	    };
+            };
 	    return obj;
 	}
 
 	json jsonify(const sip_ssl& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "payload", jsonify(e.payload) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+           json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const smtp_auth& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-                { "smtp_auth", {
-			{ "payload", jsonify(e.payload) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const smtp_command& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "smtp_command", {
-			{ "command", e.command }
-		    }
-		}
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "command", e.command }
+            };
 	    return obj;
 	}
 
 	json jsonify(const smtp_response& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "smtp_response", {
-			{ "status", e.status },
-			{ "text", e.text }
-		    }
-		}
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "status", e.status },
+                { "text", e.text }
+            };
 	    return obj;
 	}
 
 	json jsonify(const smtp_data& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "smtp_data", {
-			{ "from", e.from },
-			{ "to", e.to },
-			{ "body", std::string(e.body.begin(), e.body.end()) }
-		    }
-		}
-	    };
-	    return obj;
-	}
+            json obj;
+            apply_base(e, obj, e.get_action());
+                 obj[e.get_action()] = {
+                     { "from", e.from },
+                     { "to", e.to },
+                     { "body", std::string(e.body.begin(), e.body.end()) }
+                 };
+     	    return obj;
+     	}
 
-	json jsonify(const http_request& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
+     	json jsonify(const http_request& e) {
 	    std::map<std::string, std::string> hdr;
 	    for(http_hdr_t::const_iterator it = e.header.begin();
 		it != e.header.end();
 		it++)
 		hdr[it->second.first] = it->second.second;
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "url", e.url },
-		{ "http_request", {
-			{ "method", e.method },
-			{ "header", hdr },
-		    }
-		}
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+		{ "method", e.method },
+                { "header", hdr }
+            };
+            obj["url"] = e.url;
 
 	    if (e.body.size() > 0)
-		obj["http_request"]["body"] = jsonify(e.body);
+		obj[e.get_action()]["body"] = jsonify(e.body);
 
 	    return obj;
 	}
 
 	json jsonify(const http_response& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 	    std::map<std::string, std::string> hdr;
 	    for(http_hdr_t::const_iterator it = e.header.begin();
 		it != e.header.end();
 		it++)
 		hdr[it->second.first] = it->second.second;
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest },
-		{ "url", e.url },
-		{ "http_response", {
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
 			{ "status", e.status },
 			{ "code", e.code },
 			{ "header", hdr },
 			{ "body", jsonify(e.body) }
-		    }
-		}
-	    };
+            };
+            obj["url"] = e.url;
 
 	    return obj;
 	}
 
 	json jsonify(const ftp_command& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ftp_command", {
-			{ "command", e.command }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+       json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "command", e.command }
+            };
 	    return obj;
 	}
 
 	json jsonify(const ftp_response& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ftp_response", {
-			{ "status", e.status },
-			{ "text", e.text }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "status", e.status },
+                { "text", e.text }
+            };
 	    return obj;
 	}
 
 	json jsonify(const dns_message& e) {
-
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
 
 	    std::string type;
 	    if (e.header.qr == 0)
@@ -611,7 +444,7 @@ namespace cybermon {
 		a.push_back(o);
 	    }
 
-	    obj["dns_message"] = {
+	    obj[e.get_action()] = {
 		{ "query", q },
 		{ "answer", a },
 		{ "type", type }
@@ -621,194 +454,106 @@ namespace cybermon {
 	}
 
 	json jsonify(const ntp_timestamp_message& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		// FIXME: Confusing
-		{ "id", e.id },
-		{ "action", "ntp_timestamp" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ntp_timestamp", {
-			{ "version", e.ts.m_hdr.m_version },
-			{ "mode", e.ts.m_hdr.m_mode }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "version", e.ts.m_hdr.m_version },
+                { "mode", e.ts.m_hdr.m_mode }
+            };
 	    return obj;
 	}
 
 	json jsonify(const ntp_control_message& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		// FIXME: Confusing
-		{ "id", e.id },
-		{ "action", "ntp_control" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ntp_control", {
-			{ "version", e.ctrl.m_hdr.m_version },
-			{ "mode", e.ctrl.m_hdr.m_mode }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj["ntp_control"] = {
+                { "version", e.ctrl.m_hdr.m_version },
+                { "mode", e.ctrl.m_hdr.m_mode }
+            };
 	    return obj;
 	}
 
 	json jsonify(const ntp_private_message& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		// FIXME: Confusing
-		{ "id", e.id },
-		{ "action", "ntp_private" },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "ntp_private", {
-			{ "version", e.priv.m_hdr.m_version },
-			{ "mode", e.priv.m_hdr.m_mode }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj["ntp_private"] = {
+                { "version", e.priv.m_hdr.m_version },
+                { "mode", e.priv.m_hdr.m_mode }
+            };
 	    return obj;
 	}
 
 	json jsonify(const gre& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "gre", {
-			{ "payload", jsonify(e.payload) },
-			{ "next_proto", e.next_proto },
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-	    if (e.key != 0)
-		obj["gre"]["key"] = e.key;
-	    if (e.sequence_no != 0)
-		obj["gre"]["sequence_number"] = e.sequence_no;
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) },
+                { "next_proto", e.next_proto }
+            };
 	    return obj;
 	}
 
 	json jsonify(const gre_pptp& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "gre_pptp", {
-			{ "payload", jsonify(e.payload) },
-			{ "next_proto", e.next_proto },
-			{ "payload_length", e.payload_length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) },
+                { "next_proto", e.next_proto },
+                { "payload_length", e.payload_length }
+            };
 	    if (e.ack_no != 0)
-		obj["gre_pptp"]["acknowledgement_number"] = e.ack_no;
+		obj[e.get_action()]["acknowledgement_number"] = e.ack_no;
 	    if (e.sequence_no != 0)
-		obj["gre_pptp"]["sequence_number"] = e.sequence_no;
+		obj[e.get_action()]["sequence_number"] = e.sequence_no;
 	    return obj;
 	}
 
 	json jsonify(const esp& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "esp", {
-			{ "sequence_number", e.sequence },
-			{ "payload_length", e.payload_length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "sequence_number", e.sequence },
+                { "payload_length", e.payload_length }
+            };
 	    return obj;
 	}
 
 	json jsonify(const unrecognised_ip_protocol& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "unrecognised_ip_protocol", {
-			{ "payload", jsonify(e.payload) },
-			{ "next_proto", e.next_proto },
-			{ "payload_length", e.payload_length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "payload", jsonify(e.payload) },
+                { "next_proto", e.next_proto },
+                { "payload_length", e.payload_length }
+            };
 	    return obj;
 	}
 
 	json jsonify(const wlan& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "wlan", {
-			{ "version", e.version },
-			{ "type", e.type },
-			{ "subtype", e.subtype },
-			{ "flags", e.flags },
-			{ "protected", e.is_protected },
-			{ "filt_addr", e.filt_addr },
-			{ "frag_num", e.frag_num },
-			{ "seq_num", e.seq_num },
-			{ "duration", e.duration }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "version", e.version },
+                { "type", e.type },
+                { "subtype", e.subtype },
+                { "flags", e.flags },
+                { "protected", e.is_protected },
+                { "filt_addr", e.filt_addr },
+                { "frag_num", e.frag_num },
+                { "seq_num", e.seq_num },
+                { "duration", e.duration }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_unknown& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_unknown", {
-			{ "version", e.version },
-			{ "content_type", e.content_type },
-			{ "length", e.length }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "version", e.version },
+                { "content_type", e.content_type },
+                { "length", e.length }
+            };
 	    return obj;
 	} 
 
@@ -834,11 +579,11 @@ namespace cybermon {
 		cs.push_back(jsonify(*it));
 	    }
 	    return cs;
-
 	}
 
 	using compression_method =
-                               cybermon::tls_handshake_protocol::compression_method;
+                               cybermon::tls_handshake_protocol::
+                               compression_method;
 	json jsonify(const compression_method& method) {
 	    if (method.name == "Unassigned")
 		return json(method.name + "-" + int_to_hex(method.id));
@@ -881,68 +626,47 @@ namespace cybermon {
 	}
 
 	json jsonify(const tls_client_hello& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_client_hello", {
-			{ "version", e.data.version },
-			{ "session_id", e.data.sessionID },
-			{ "random", {
-				{ "random_timestamp", e.data.randomTimestamp },
-				{ "data", jsonify(std::begin(e.data.random),
-						  std::end(e.data.random)) }
-			    }
-			},
-			{ "cipher_suites", jsonify(e.data.cipherSuites) },
-			{ "compression_methods",
-			  jsonify(e.data.compressionMethods) },
-			{ "extensions", jsonify(e.data.extensions) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
-
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "version", e.data.version },
+                { "session_id", e.data.sessionID },
+                { "random", {
+                        { "random_timestamp", e.data.randomTimestamp },
+                        { "data", jsonify(std::begin(e.data.random),
+                                          std::end(e.data.random)) }
+                    }
+                },
+                { "cipher_suites", jsonify(e.data.cipherSuites) },
+                { "compression_methods",
+                  jsonify(e.data.compressionMethods) },
+                { "extensions", jsonify(e.data.extensions) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_server_hello& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_server_hello", {
-			{ "version", e.data.version },
-			{ "session_id", e.data.sessionID },
-			{ "random", {
-				{ "random_timestamp", e.data.randomTimestamp },
-				{ "data", jsonify(std::begin(e.data.random),
-						  std::end(e.data.random)) }
-			    }
-			},
-			{ "cipher_suite", jsonify(e.data.cipherSuite) },
-			{ "compression_method",
-			  jsonify(e.data.compressionMethod) },
-			{ "extensions", jsonify(e.data.extensions) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "version", e.data.version },
+                { "session_id", e.data.sessionID },
+                { "random", {
+                        { "random_timestamp", e.data.randomTimestamp },
+                        { "data", jsonify(std::begin(e.data.random),
+                                          std::end(e.data.random)) }
+                    }
+                },
+                { "cipher_suite", jsonify(e.data.cipherSuite) },
+                { "compression_method",
+                  jsonify(e.data.compressionMethod) },
+                { "extensions", jsonify(e.data.extensions) }
+            };
 	    return obj;
 	}
 
 
 	json jsonify(const tls_certificates& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
 
 	    json certs = json::array();
 	    for(std::vector<std::vector<uint8_t> >::const_iterator it =
@@ -952,21 +676,14 @@ namespace cybermon {
 		certs.push_back(jsonify(*it));
 	    }
 
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_certificates", {
-			{ "tls", {
-				{ "certificates", certs }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "certificates", certs }
+                    }
+                }
+            };
 	    return obj;
 	}
 
@@ -1032,63 +749,33 @@ namespace cybermon {
 	}
 
 	json jsonify(const tls_server_key_exchange& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_server_key_exchange", {
-			{ "tls", jsonify(e.data) }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", jsonify(e.data) }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_server_hello_done& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_server_hello_done", {
-			{ "tls", json::object() }
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", json::object() }
 	    };
 	    return obj;
 	}
 
 	json jsonify(const tls_handshake_generic& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_handshake_generic", {
-			{ "tls", {
-				{ "type", e.type },
-				{ "length", e.len }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "type", e.type },
+                        { "length", e.len }
+                    }
+                }
+            };
 	    return obj;
 	}
 
@@ -1122,164 +809,91 @@ namespace cybermon {
 	}
 
 	json jsonify(const tls_certificate_request& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_certificate_request", {
-			{ "tls", {
-				{ "cert_types",
-				  jsonify(e.data.certTypes) },
-				{ "signature_algorithms",
-				  jsonify(e.data.sigAlgos) },
-				{ "distinguished_names",
-				  jsonify(e.data.distinguishedNames) }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "cert_types", jsonify(e.data.certTypes) },
+                        { "signature_algorithms", jsonify(e.data.sigAlgos) },
+                        { "distinguished_names",
+                          jsonify(e.data.distinguishedNames) }
+                    }
+                }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_client_key_exchange& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_client_key_exchange", {
-			{ "tls", {
-				{ "key",
-				  jsonify(e.key) }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "key", jsonify(e.key) }
+                    }
+                }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_certificate_verify& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_certificate_verify", {
-			{ "tls", {
-				{ "signature_hash_algorithm", e.sig_hash_algo },
-				{ "signature_algorithm", e.sig_algo },
-				{ "signature", e.sig }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "signature_hash_algorithm", e.sig_hash_algo },
+                        { "signature_algorithm", e.sig_algo },
+                        { "signature", e.sig }
+                    }
+                }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_change_cipher_spec& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_change_cipher_spec", {
-			{ "tls", {
-				{ "value", e.val }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "value", e.val }
+                    }
+                }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_handshake_finished& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_handshake_finished", {
-			{ "tls", {
-				{ "message", jsonify(e.msg) }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "message", jsonify(e.msg) }
+                    }
+                }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_handshake_complete& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_handshake_complete", {
-			{ "tls", {
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                    }
+                }
+            };
 	    return obj;
 	}
 
 	json jsonify(const tls_application_data& e) {
-	    std::list<std::string> src, dest;
-	    get_addresses(e.context, src, dest);
-
-	    json obj = {
-		{ "id", e.id },
-		{ "action", e.get_action() },
-		{ "device", e.get_device() },
-		{ "time", jsonify(e.time) },
-		{ "tls_application_data", {
-			{ "tls", {
-				{ "version", e.version },
-				{ "length", e.data.size() }
-			    }
-			}
-		    }
-		},
-		{ "src", src },
-		{ "dest", dest }
-	    };
+            json obj;
+            apply_base(e, obj, e.get_action());
+            obj[e.get_action()] = {
+                { "tls", {
+                        { "version", e.version },
+                        { "length", e.data.size() }
+                    }
+                }
+            };
 	    return obj;
 	}
 

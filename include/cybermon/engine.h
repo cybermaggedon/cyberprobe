@@ -111,7 +111,10 @@ namespace cybermon {
 
 	}
 
-
+	// Given a context, locates the root context, and returns the device
+        // and target address.
+	static root_context& get_root(context_ptr p);
+	
 	// Given a context, locates the root context, and returns the device
         // and target address.
 	static void get_root_info(context_ptr p,
