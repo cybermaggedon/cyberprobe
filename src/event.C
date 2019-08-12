@@ -1,4 +1,8 @@
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <cybermon/event.h>
 #include <cybermon/engine.h>
 #include <cybermon/cybermon-lua.h>
@@ -8,6 +12,13 @@
 #endif
 
 #include <iostream>
+
+// Lua
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 
 using namespace cybermon::event;
 
@@ -86,7 +97,7 @@ std::string& cybermon::event::action2string(action_type a)
     return action_names[a];
 }
 
-static int event_lua_json(lua_State* lua) {
+int event::lua_json(lua_State* lua) {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
@@ -100,7 +111,7 @@ static int event_lua_json(lua_State* lua) {
 }
 
 #ifdef WITH_PROTOBUF
-static int event_lua_protobuf(lua_State* lua) {
+int event::lua_protobuf(lua_State* lua) {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
@@ -134,17 +145,24 @@ int event::get_lua_value(cybermon_lua& state, const std::string& key)
     }
 
     if (key == "json") {
-        state.push_c_function(event_lua_json);
+        state.push_c_function(&event::lua_json);
 	return 1;
     }
 
 #ifdef WITH_PROTOBUF
     if (key == "protobuf") {
-        state.push_c_function(event_lua_protobuf);
+        state.push_c_function(&event::lua_protobuf);
 	return 1;
     }
 #endif
     
+#ifdef WITH_GRPC
+    if (key == "grpc") {
+        state.push_c_function(&event::lua_grpc);
+        return 1;
+    }
+#endif
+
     if (key == "context") {
 	auto eptr = dynamic_cast<const protocol_event*>(this);
 	if (eptr == 0) {
@@ -970,379 +988,200 @@ int esp::get_lua_value(cybermon_lua& state, const std::string& key)
 // methods.  I moved them here to prevent recompiling the entire codebase
 // when changing the proto spec.
 
-void connection_up::to_protobuf(std::string& buf) {
 #ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+
+void event::to_protobuf(std::string& buf) {
+    cyberprobe::Event ev;
+    to_protobuf(ev);
+    ev.SerializeToString(&buf);
 }
 
-void connection_down::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void connection_up::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void trigger_up::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void connection_down::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void trigger_down::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void trigger_up::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void unrecognised_stream::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void trigger_down::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void unrecognised_datagram::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void unrecognised_stream::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void icmp::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void unrecognised_datagram::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void imap::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void icmp::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void imap_ssl::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void imap::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void pop3::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void imap_ssl::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void pop3_ssl::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void pop3::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void rtp::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void pop3_ssl::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void rtp_ssl::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void rtp::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void sip_request::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void rtp_ssl::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void sip_response::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void sip_request::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void sip_ssl::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void sip_response::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void smtp_auth::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void sip_ssl::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void smtp_command::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void smtp_auth::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void smtp_response::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void smtp_command::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void smtp_data::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void smtp_response::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void http_request::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void smtp_data::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void http_response::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void http_request::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void ftp_command::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void http_response::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void ftp_response::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void ftp_command::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void dns_message::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void ftp_response::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void ntp_timestamp_message::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void dns_message::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void ntp_control_message::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void ntp_timestamp_message::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void ntp_private_message::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void ntp_control_message::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void gre::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void ntp_private_message::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void gre_pptp::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void gre::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void esp::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void gre_pptp::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void unrecognised_ip_protocol::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void esp::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void wlan::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void unrecognised_ip_protocol::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_unknown::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void wlan::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_client_hello::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_unknown::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_server_hello::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_client_hello::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_certificates::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_server_hello::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_server_key_exchange::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_certificates::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_server_hello_done::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_server_key_exchange::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_handshake_generic::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_server_hello_done::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_certificate_request::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_handshake_generic::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_client_key_exchange::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_certificate_request::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_certificate_verify::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_client_key_exchange::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_change_cipher_spec::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_certificate_verify::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_handshake_finished::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_change_cipher_spec::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_handshake_complete::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_handshake_finished::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
-void tls_application_data::to_protobuf(std::string& buf) {
-#ifdef WITH_PROTOBUF
-    protobufify(*this, buf);
-#else
-    throw std::runtime_error("No protobuf support available.");
-#endif
+void tls_handshake_complete::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
 }
 
+void tls_application_data::to_protobuf(cyberprobe::Event& ev) {
+    protobufify(*this, ev);
+}
+
+#endif

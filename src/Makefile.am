@@ -126,9 +126,13 @@ endif
 
 if WITH_PROTOBUF
 if WITH_GRPC
+
+libcybermon_la_SOURCES += event_grpc.C
+
 decode_protobuf_SOURCES = decode_protobuf.C socket.C \
 	../include/cybermon/socket.h
-decode_protobuf_LDADD = libcybermon.la -lssl -lprotobuf
+decode_protobuf_LDADD = libcybermon.la -lssl -lgrpc++ -lprotobuf
+
 endif
 endif
 
@@ -156,8 +160,25 @@ dist_noinst_DATA = ../protos/cyberprobe.proto
 
 MOSTLYCLEANFILES = cyberprobe.pb.cc cyberprobe.pb.h
 
-BUILT_SOURCES = cyberprobe.pb.h
+nodist_libcybermon_la_SOURCES = $(builddir)/cyberprobe.pb.cc \
+	$(builddir)/cyberprobe.pb.h
 
-nodist_libcybermon_la_SOURCES = cyberprobe.pb.cc cyberprobe.pb.h
+BUILT_SOURCES=cyberprobe.pb.h
+
+if WITH_GRPC
+
+cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h: ../protos/cyberprobe.proto
+	$(PROTOC) --proto_path=$(srcdir)/../protos \
+	    --grpc_out=$(builddir) \
+	    --plugin=protoc-gen-grpc=$$(which grpc_cpp_plugin) $<
+
+MOSTLYCLEANFILES += cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h
+
+nodist_libcybermon_la_SOURCES += $(builddir)/cyberprobe.grpc.pb.cc \
+	$(builddir)/cyberprobe.grpc.pb.h
+
+BUILT_SOURCES += cyberprobe.grpc.pb.h
+
+endif
 
 endif
