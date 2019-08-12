@@ -48,10 +48,18 @@ BOOST_REQUIRE
 BOOST_PROGRAM_OPTIONS
 
 # Protobuf
-PKG_CHECK_MODULES(PROTOBUF, protobuf >= 2.4.0)
-AC_SUBST(PROTOBUF_LIBS)
-AC_SUBST(PROTOBUF_CFLAGS)
-AC_SUBST(PROTOBUF_VERSION)
+PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0],
+    [with_protobuf=yes],
+    [with_protobuf=no])
+
+AS_IF([test "x$with_protobuf" != "xno"],
+    [AC_SUBST([WITH_PROTOBUF], [$with_protobuf])
+     AC_DEFINE([WITH_PROTOBUF], 1, [Set if protobuf compiler is available])])
+
+AM_CONDITIONAL([WITH_PROTOBUF], [test "x$with_protobuf" != "xno"])
+
+AC_SUBST([PROTOBUF_LIBS])
+AC_SUBST([PROTOBUF_CFLAGS])
 
 # ProtoBuf compiler.
 # First, specify with --with-protoc=/path/of/protoc.
@@ -66,8 +74,6 @@ AC_ARG_WITH([protoc],
         [AC_PATH_PROG([PROTOC], [protoc], [no])])
     ]
 )
-#AC_MSG_RESULT([${PROTOC}])
-AS_IF([test "${PROTOC}" == "no"], [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found.])])
 
 # GRPC++ which is optional.
 PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.0.0 grpc >= 5.0.0],
