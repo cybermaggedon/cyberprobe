@@ -433,6 +433,33 @@ delete[] buf;
 
     };
 
+#ifdef WITH_GRPC
+
+    class eventstream_client;
+
+    class grpc_manager {
+    public:
+        grpc_manager() {}
+        std::map<std::string, std::shared_ptr<eventstream_client> > client;
+        static std::shared_ptr<grpc_manager> create();
+        void observe(std::shared_ptr<event::event>, const std::string& svc);
+        void close();
+        virtual ~grpc_manager();
+    };
+
+    class grpc_userdata {
+    public:
+
+        // gRPC
+        std::shared_ptr<grpc_manager> grpc;
+
+	// Cybermon bridge.
+	cybermon_lua* cml;
+        
+    };
+
+#endif
+    
     // Cybermon wrapper around the LUA state, acts as the cybermon to LUA
     // bridge.
     class cybermon_lua : public lua_state {
@@ -461,10 +488,19 @@ delete[] buf;
 
 	static int context_get_direction(lua_State*);
 
+        // Event methods
 	static int event_gc(lua_State*);
 	static int event_get_device(lua_State*);
 	static int event_get_action(lua_State*);
 	static int event_index(lua_State*);
+
+#ifdef WITH_GRPC
+        // gRPC methods
+        static int grpc_gc(lua_State*);
+        static int grpc_observe(lua_State*);
+
+        std::shared_ptr<grpc_manager> grpc_manager_init();
+#endif
 
 	// Constructor.
 	cybermon_lua(const std::string& cfg);
@@ -484,6 +520,11 @@ delete[] buf;
 
 	// Push a event pointer
 	void push(std::shared_ptr<event::event> ev);
+
+#ifdef WITH_GRPC
+        // Push a gRPC manager
+        void push(std::shared_ptr<grpc_manager>);
+#endif
 
 	// Push a timestamp value (convert to time).
 	void push(const timeval& time);

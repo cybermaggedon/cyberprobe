@@ -1,4 +1,8 @@
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sstream>
 
 #include <cybermon/cybermon-lua.h>
@@ -70,7 +74,53 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
     // Pop meta-table
     pop();
 
+#ifdef WITH_GRPC
+
+    // -- cybermon.grpc meta table
+
+    // Put new meta-table on the stack.
+    new_meta_table("cybermon.grpc.manager");
+
+    push("__index");
+    push_value(-2);       // pushes the metatable
+    set_table(-3);        // metatable.__index = metatable
+
+    std::map<std::string,lua_CFunction> mfns;
+    mfns["__gc"] = &grpc_gc;
+    mfns["observe"] = &grpc_observe;
+    register_table(mfns);
+
+    // Pop meta-table
+    pop();
+
+    // -- gRPC initialisation
+    auto grpc = grpc_manager::create();
+    push(grpc);
+    set_global("grpc");
+
+#endif
+
 }
+
+#ifdef WITH_GRPC
+
+void cybermon_lua::push(std::shared_ptr<grpc_manager> grpc)
+{
+
+    void* ud = new_userdata(sizeof(grpc_userdata));
+    grpc_userdata* gd = reinterpret_cast<grpc_userdata*>(ud);
+
+    // Placement 'new' to initialise the thing.
+    gd = new (gd) grpc_userdata;
+    gd->grpc = grpc;
+    gd->cml = this;
+
+    get_meta_table("cybermon.grpc.manager");
+    set_meta_table(-2);
+
+}
+
+#endif
 
 int cybermon_lua::event_index(lua_State* lua)
 {
@@ -113,6 +163,38 @@ int cybermon_lua::context_gc(lua_State* lua)
 
     return 0;
 }
+
+#ifdef WITH_GRPC
+int cybermon_lua::grpc_gc(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -1);
+    grpc_userdata* gd = reinterpret_cast<grpc_userdata*>(ud);
+
+    gd->cml->pop();
+
+    gd->grpc->close();
+
+    return 0;
+}
+
+int cybermon_lua::grpc_observe(lua_State* lua)
+{
+    void* ud = lua_touserdata(lua, -3);
+    grpc_userdata* gd = reinterpret_cast<grpc_userdata*>(ud);
+
+    ud = lua_touserdata(lua, -2);
+    event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
+
+    std::string svc;
+    gd->cml->to_string(-1, svc);
+
+    gd->cml->pop(3);
+
+    gd->grpc->observe(ed->event, svc);
+
+    return 0;
+}
+#endif
 
 void cybermon_lua::event(engine& an, std::shared_ptr<event::event> ev)
 {

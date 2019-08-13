@@ -155,13 +155,6 @@ int event::get_lua_value(cybermon_lua& state, const std::string& key)
 	return 1;
     }
 #endif
-    
-#ifdef WITH_GRPC
-    if (key == "grpc") {
-        state.push_c_function(&event::lua_grpc);
-        return 1;
-    }
-#endif
 
     if (key == "context") {
 	auto eptr = dynamic_cast<const protocol_event*>(this);

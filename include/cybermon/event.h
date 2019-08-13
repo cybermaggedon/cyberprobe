@@ -122,9 +122,6 @@ namespace cybermon {
             static int lua_json(lua_State* lua);
 #ifdef WITH_PROTOBUF
             static int lua_protobuf(lua_State* lua);
-#ifdef WITH_GRPC
-            static int lua_grpc(lua_State* lua);
-#endif
 #endif
         };
 

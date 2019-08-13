@@ -32,7 +32,7 @@ cybermon_LDADD = libcybermon.la -lssl
 
 if WITH_PROTOBUF
 if WITH_GRPC
-cybermon_LDADD += -lgrpc++
+cybermon_LDADD += -lgrpc++ -lgrpc
 endif
 cybermon_LDADD += -lprotobuf
 endif
@@ -131,7 +131,7 @@ libcybermon_la_SOURCES += event_grpc.C
 
 decode_protobuf_SOURCES = decode_protobuf.C socket.C \
 	../include/cybermon/socket.h
-decode_protobuf_LDADD = libcybermon.la -lssl -lgrpc++ -lprotobuf
+decode_protobuf_LDADD = libcybermon.la -lssl -lgrpc++ -lgrpc -lprotobuf
 
 endif
 endif
