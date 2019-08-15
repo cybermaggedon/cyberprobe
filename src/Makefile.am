@@ -152,6 +152,9 @@ AM_LDFLAGS += $(LDFLAGS_BOOST) $(LUA_LDADD)
 LIBS += $(LIBS_BOOST) $(LUA_LIB)
 
 BUILT_SOURCES =
+BUILT_SOURCES += cyberprobe.pb.h
+BUILT_SOURCES += cyberprobe.grpc.pb.h
+
 MOSTLYCLEANFILES =
 nodist_libcybermon_la_SOURCES =
 dist_noinst_DATA =
@@ -168,7 +171,6 @@ MOSTLYCLEANFILES += cyberprobe.pb.cc cyberprobe.pb.h
 nodist_libcybermon_la_SOURCES += $(builddir)/cyberprobe.pb.cc \
 	$(builddir)/cyberprobe.pb.h
 
-BUILT_SOURCES += cyberprobe.pb.h
 
 if WITH_GRPC
 
@@ -181,8 +183,6 @@ MOSTLYCLEANFILES += cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h
 
 nodist_libcybermon_la_SOURCES += $(builddir)/cyberprobe.grpc.pb.cc \
 	$(builddir)/cyberprobe.grpc.pb.h
-
-BUILT_SOURCES += cyberprobe.grpc.pb.h
 
 endif
 
