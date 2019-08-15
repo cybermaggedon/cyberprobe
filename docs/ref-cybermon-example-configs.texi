@@ -73,12 +73,24 @@ For each Lua event, a JSON record is formatted and delivered to standard
 outut.
 Each message is JSON format, see @ref{Cybermon JSON message format}.
 
-@comment FIXME: Mention protobuf.lua here
-
 @item quiet.lua
 
 Does nothing.  This is an empty code shell, and a good template to write
 your own event handler.
+
+@item protobuf.lua
+
+Outputs protobuf-formatted messages in base64 format, one message per line.
+Probably only useful for testing.
+
+@item grpc.lua
+
+
+For each Lua event, a gRPC call is made to a service
+defiend by the @code{GRPC_SERVICE} environment variable which should be in
+@code{HOST:PORT} form.
+Each message is protobuf format as defined by the @file{cyberprobe.proto}
+definition.
 
 @end table
 

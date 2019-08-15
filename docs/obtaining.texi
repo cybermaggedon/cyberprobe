@@ -42,28 +42,16 @@ deb https://cybermaggedon.github.io/cyberprobe-release/debian \
   stretch main
 @end example
 
-For Debian Jessie, add:
-@example
-deb https://cybermaggedon.github.io/cyberprobe-release/debian \
-  jessie main
-@end example
-
-For Debian Wheezy, add:
-@example
-deb https://cybermaggedon.github.io/cyberprobe-release/debian \
-  wheezy main
-@end example
-
-For Ubuntu Xenial, add:
-@example
-deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu \
-  xenial main
-@end example
-
 For Ubuntu Bionic, add:
 @example
 deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu \
   bionic main
+@end example
+
+For Ubuntu Disco, add:
+@example
+deb https://cybermaggedon.github.io/cyberprobe-release/ubuntu \
+  disco main
 @end example
 
 Once added, the cyberprobe installation proceeds thus:
@@ -286,12 +274,6 @@ The code doesn't have many dependencies. Exotic dependencies are:
 @itemize
 
 @item
-Boost regex.
-
-@item
-Boost shared pointer.
-
-@item
 LUA - 5.1 or later.
 
 @item
@@ -305,10 +287,6 @@ GCC C++ compiler and development support.
 tutorial.
 
 @item
-@code{telnet} - not needed to build the software, but we use it in the
-tutorial.
-
-@item
 @code{ncurses}, needed for the command line admin utility.
 
 @item
@@ -318,5 +296,8 @@ tutorial.
 For STIX support, @code{libtaxii} and @code{stix} are Python modules
 made available at @url{http://mitre.org} which can be downloaded using
 @code{pip}.
+
+@item
+Protobuf support, protobuf compiler and grpc for gRPC support (optional).
 
 @end itemize

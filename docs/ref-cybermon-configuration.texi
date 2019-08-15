@@ -1294,3 +1294,27 @@ protocol data in the DNS encoder.
 
 @end table
 
+@heading gRPC object
+
+If gRPC support is compiled into cybermon, a gRPC call containing the
+event, conforming to eventstream protobuf format can be made by calling
+@code{grpc:observe(e, service)}.  The first parameter is an event object,
+the second is a service address in @samp{host:port} format.  The gRPC
+call is used to deliver an event asynchronously, and nothing is returned
+from the service.  The @code{grpc:observe} call silently succeeds, and
+events are held in a queue until delivered.  The call will block if the queue
+achieves a pre-defined defined limit.
+
+@example
+observer = @{@}
+
+observer.event = function(e)
+  grpc:observe(e, "localhost:50051")
+end
+
+return observer
+@end example
+
+The @file{cyberprobe.proto} file in the source code contains the protobuf/gRPC
+service definition.
+

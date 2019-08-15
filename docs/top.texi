@@ -52,6 +52,5 @@ FIXME: Architecture diagram needs an update.
 * Endace DAG::
 * Reference::
 * Architecture::
-* GNU Free Documentation License::
 * Index::
 @end menu

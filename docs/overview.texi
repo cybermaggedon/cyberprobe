@@ -102,7 +102,11 @@ Cyberprobe release highlights:
 
 @table @code
 
-@item 2.2.0
+@item 2.3
+@command{cyberprobe-cli} and control API reworked, protobuf and gRPC support.
+Amazon Linux support.
+
+@item 2.2
 Changed cyberprobe configuration file to use JSON instead of XML.
 JSON is easier to integrate with automated processes.
 
