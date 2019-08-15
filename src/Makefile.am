@@ -152,47 +152,31 @@ AM_LDFLAGS += $(LDFLAGS_BOOST) $(LUA_LDADD)
 LIBS += $(LIBS_BOOST) $(LUA_LIB)
 
 BUILT_SOURCES =
-BUILT_SOURCES += cyberprobe.pb.h
-BUILT_SOURCES += cyberprobe.grpc.pb.h
-
 MOSTLYCLEANFILES =
-MOSTLYCLEANFILES += cyberprobe.pb.cc cyberprobe.pb.h
-MOSTLYCLEANFILES += cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h
-
 nodist_libcybermon_la_SOURCES =
 dist_noinst_DATA =
 
 if WITH_PROTOBUF
 
 cyberprobe.pb.cc cyberprobe.pb.h: ../protos/cyberprobe.proto
-	$(PROTOC) --proto_path=$(srcdir)/../protos --cpp_out=$(builddir) $^
+	$(PROTOC) --proto_path=$(srcdir)/../protos --cpp_out=. $^
 
 dist_noinst_DATA += ../protos/cyberprobe.proto
-
-nodist_libcybermon_la_SOURCES += $(builddir)/cyberprobe.pb.cc \
-	$(builddir)/cyberprobe.pb.h
-
+nodist_libcybermon_la_SOURCES += cyberprobe.pb.cc cyberprobe.pb.h
+BUILT_SOURCES += cyberprobe.pb.h
+MOSTLYCLEANFILES += cyberprobe.pb.cc cyberprobe.pb.h
 
 if WITH_GRPC
 
 cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h: ../protos/cyberprobe.proto
 	$(PROTOC) --proto_path=$(srcdir)/../protos \
-	    --grpc_out=$(builddir) \
+	    --grpc_out=. \
 	    --plugin=protoc-gen-grpc=$$(which grpc_cpp_plugin) $<
 
-nodist_libcybermon_la_SOURCES += $(builddir)/cyberprobe.grpc.pb.cc \
-	$(builddir)/cyberprobe.grpc.pb.h
-
-else 
-
-cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h:
-	touch $@
+nodist_libcybermon_la_SOURCES += cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h
+MOSTLYCLEANFILES += cyberprobe.grpc.pb.cc cyberprobe.grpc.pb.h
+BUILT_SOURCES += cyberprobe.grpc.pb.h
 
 endif
-
-else
-
-cyberprobe.pb.cc cyberprobe.pb.h:
-	touch $@
 
 endif
