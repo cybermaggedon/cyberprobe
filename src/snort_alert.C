@@ -150,6 +150,7 @@ void snort_alerter::run()
 
 		// IPv4 case.
 		src4.addr.assign(ip_hdr + 12, ip_hdr + 16);
+                src = &src4;
                 ipv4 = true;
 		targeting = (timeout4.find(src4) != timeout4.end());
 		// Just targeting single IP address, so use full mask.
@@ -159,6 +160,7 @@ void snort_alerter::run()
 
 		// IPv6 case.
 		src6.addr.assign(ip_hdr + 8, ip_hdr + 24);
+                src = &src6;
                 ipv4 = false;
 		targeting = (timeout6.find(src6) != timeout6.end());
 		// Just targeting single IP address, so use full mask.
