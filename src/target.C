@@ -55,8 +55,6 @@ namespace target {
         std::string address;
         j.at("address").get_to(address);
         
-        int mask;
-        
         int pos = address.find("/");
         std::string mstr = address.substr(pos + 1);
         if (pos != -1) {
