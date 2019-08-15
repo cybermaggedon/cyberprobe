@@ -1,15 +1,21 @@
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <cybermon/event_implementations.h>
 #include <cybermon/event_protobuf.h>
 #include <cybermon/context.h>
 
+#ifdef WITH_PROTOBUF
 #include "cyberprobe.pb.h"
+#include <google/protobuf/util/time_util.h>
+#endif
 
 #include <string.h>
 #include <string>
 #include <cybermon/socket.h>
 
-#include <google/protobuf/util/time_util.h>
 
 // FIXME: All copied form event_json.C, should be a util class.
 

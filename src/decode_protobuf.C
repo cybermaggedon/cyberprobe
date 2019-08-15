@@ -1,13 +1,23 @@
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <iostream>
 #include <iomanip>
 #include <memory>
 #include <string>
 
-#include <grpcpp/grpcpp.h>
+#ifdef WITH_PROTOBUF
 #include <google/protobuf/util/time_util.h>
 
+#ifdef WITH_GRPC
+#include <grpcpp/grpcpp.h>
 #include "cyberprobe.grpc.pb.h"
+#endif
+
+#endif
+
 #include <cybermon/socket.h>
 
 using grpc::Server;

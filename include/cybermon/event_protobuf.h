@@ -2,7 +2,14 @@
 #ifndef CYBERMON_EVENT_PROTOBUF_H
 #define CYBERMON_EVENT_PROTOBUF_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#ifdef WITH_PROTOBUF
 #include "cyberprobe.pb.h"
+#endif
+
 #include <string>
 
 namespace cybermon {

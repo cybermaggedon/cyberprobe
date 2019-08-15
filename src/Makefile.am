@@ -151,19 +151,24 @@ AM_CPPFLAGS += $(BOOST_CPPFLAGS) $(LUA_INCLUDE)
 AM_LDFLAGS += $(LDFLAGS_BOOST) $(LUA_LDADD)
 LIBS += $(LIBS_BOOST) $(LUA_LIB)
 
+BUILT_SOURCES =
+MOSTLYCLEANFILES =
+nodist_libcybermon_la_SOURCES =
+dist_noinst_DATA =
+
 if WITH_PROTOBUF
 
 cyberprobe.pb.cc cyberprobe.pb.h: ../protos/cyberprobe.proto
 	$(PROTOC) --proto_path=$(srcdir)/../protos --cpp_out=$(builddir) $^
 
-dist_noinst_DATA = ../protos/cyberprobe.proto
+dist_noinst_DATA += ../protos/cyberprobe.proto
 
-MOSTLYCLEANFILES = cyberprobe.pb.cc cyberprobe.pb.h
+MOSTLYCLEANFILES += cyberprobe.pb.cc cyberprobe.pb.h
 
-nodist_libcybermon_la_SOURCES = $(builddir)/cyberprobe.pb.cc \
+nodist_libcybermon_la_SOURCES += $(builddir)/cyberprobe.pb.cc \
 	$(builddir)/cyberprobe.pb.h
 
-BUILT_SOURCES=cyberprobe.pb.h
+BUILT_SOURCES += cyberprobe.pb.h
 
 if WITH_GRPC
 
