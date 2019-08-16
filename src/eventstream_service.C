@@ -10,6 +10,7 @@
 
 #ifdef WITH_PROTOBUF
 #include <google/protobuf/util/time_util.h>
+#include <google/protobuf/util/json_util.h>
 
 #ifdef WITH_GRPC
 #include <grpcpp/grpcpp.h>
@@ -34,98 +35,9 @@ using grpc::ServerAsyncResponseWriter;
 const int indent = 15;
 
 void display(const cyberprobe::Event& ev) {
-
-                
-    std::cout << std::endl;
-    std::cout << std::setw(indent) << std::left
-              << "Id: " << ev.id() << std::endl;
-    std::cout << std::setw(indent) << std::left
-              << "Time: " << TimeUtil::ToString(ev.time()) << std::endl;
-    std::cout << std::setw(indent) << std::left
-              << "Action: " << Action_Name(ev.action())
-              << std::endl;
-    std::cout << std::setw(indent) << std::left
-              << "Device: " << ev.device()
-              << std::endl;
-    if (ev.network() != "")
-        std::cout << std::setw(indent) << std::left
-                  << "Network: " << ev.network()
-                  << std::endl;
-    if (ev.origin() == cyberprobe::Origin::network)
-        std::cout << std::setw(indent) << std::left
-                  << "Origin: " << "network"
-                  << std::endl;
-    else if (ev.origin() == cyberprobe::Origin::device)
-        std::cout << std::setw(indent) << std::left
-                  << "Origin: " << "device"
-                  << std::endl;
-
-    std::cout << std::setw(indent) << std::left << "Src: ";
-    for(auto it = ev.src().begin();
-        it != ev.src().end();
-        it++) {
-        std::cout << cyberprobe::Protocol_Name(it->protocol());
-
-        auto a = it->address();
-
-        if (a.address_variant_case() == cyberprobe::Address::kIpv4) {
-            std::cout << ":"
-                      << ((it->address().ipv4() >> 24) & 0xff) << "."
-                      << ((it->address().ipv4() >> 16) & 0xff) << "."
-                      << ((it->address().ipv4() >> 8) & 0xff) << "."
-                      << (it->address().ipv4() & 0xff);
-        }
-
-        if (a.address_variant_case() == cyberprobe::Address::kIpv6) {
-            tcpip::ip6_address ip;
-            ip.addr.assign(it->address().ipv6().begin(),
-                           it->address().ipv6().end());
-            std::string a;
-            ip.to_string(a);
-            std::cout << ":" << a;
-        }
-
-        if (a.address_variant_case() == cyberprobe::Address::kPort) {
-            std::cout << ":" << it->address().port();
-        }
-
-        std::cout << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << std::setw(indent) << std::left << "Dest: ";
-    for(auto it = ev.dest().begin();
-        it != ev.dest().end();
-        it++) {
-        std::cout << cyberprobe::Protocol_Name(it->protocol());
-
-        auto a = it->address();
-
-        if (a.address_variant_case() == cyberprobe::Address::kIpv4) {
-            std::cout << ":"
-                      << ((it->address().ipv4() >> 24) & 0xff) << "."
-                      << ((it->address().ipv4() >> 16) & 0xff) << "."
-                      << ((it->address().ipv4() >> 8) & 0xff) << "."
-                      << (it->address().ipv4() & 0xff);
-        }
-
-        if (a.address_variant_case() == cyberprobe::Address::kIpv6) {
-            tcpip::ip6_address ip;
-            ip.addr.assign(it->address().ipv6().begin(),
-                           it->address().ipv6().end());
-            std::string a;
-            ip.to_string(a);
-            std::cout << ":" << a;
-        }
-
-        if (a.address_variant_case() == cyberprobe::Address::kPort) {
-            std::cout << ":" << it->address().port();
-        }
-
-        std::cout << " ";
-    }
-    std::cout << std::endl;
-
+    std::string buf;
+    google::protobuf::util::MessageToJsonString(ev, &buf);
+    std::cout << buf << std::endl;
 }
 
 class ServerImpl final {
@@ -140,9 +52,9 @@ public:
     }
 
     // There is no shutdown handling in this code.
-    void Run() {
+    void run(const std::string& address) {
 
-        std::string serveraddress("0.0.0.0:50051");
+        std::string serveraddress(address);
 
         ServerBuilder builder;
 
@@ -265,8 +177,13 @@ private:
 };
 
 int main(int argc, char** argv) {
-    ServerImpl server;
-    server.Run();
+    if (argc < 2) {
+        ServerImpl server;
+        server.run("0.0.0.0:50051");
+    } else {
+        ServerImpl server;
+        server.run(argv[1]);
+    }
 
     return 0;
 }

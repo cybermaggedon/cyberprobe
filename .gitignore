@@ -10,6 +10,7 @@ Makefile.bak
 src/cybermon
 src/cyberprobe
 src/cyberprobe-cli
+src/eventstream_service
 src/etsi-rcvr
 src/nhis11-rcvr
 src/stream-rcvr

@@ -4,7 +4,7 @@ bin_PROGRAMS = cyberprobe cybermon nhis11-rcvr etsi-rcvr cyberprobe-cli \
 
 if WITH_PROTOBUF
 if WITH_GRPC
-bin_PROGRAMS += decode_protobuf
+bin_PROGRAMS += eventstream_service
 endif
 endif
 
@@ -129,9 +129,9 @@ if WITH_GRPC
 
 libcybermon_la_SOURCES += event_grpc.C
 
-decode_protobuf_SOURCES = decode_protobuf.C socket.C \
+eventstream_service_SOURCES = eventstream_service.C socket.C \
 	../include/cybermon/socket.h
-decode_protobuf_LDADD = libcybermon.la -lssl -lgrpc++ -lgrpc -lprotobuf
+eventstream_service_LDADD = libcybermon.la -lssl -lgrpc++ -lgrpc -lprotobuf
 
 endif
 endif
