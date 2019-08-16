@@ -121,9 +121,6 @@ Supports IP, TCP, UDP, ICMP, HTTP, DNS, SMTP, FTP, TLS and more.
 The code is targeted at the Linux platform, although it is generic enough to
 be applicable to other UN*X-like platforms.
 
-The easiest way to learn about the software is to follow our Quick Start
-tutorial.
-
 @heading Subscribers
 
 The event stream from @command{cybermon} can be presented to RabbitMQ
@@ -180,5 +177,7 @@ to distribute load and permit scale-up.
 
 @end itemize
 
+The easiest way to learn about the software is to follow our Quick Start
+tutorial.
 
 @include history.texi
