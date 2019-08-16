@@ -5,18 +5,42 @@
 @cindex Overview of Cyberprobe
 @heading Summary
 
-Cyberprobe is a distrbuted architecture for real-time monitoring of networks
-against attack. The software consists of a number of components, including:
+Cyberprobe is a network packet inspection toolkit (Deep Packet Inspection)
+for real-time monitoring of networks.  This has applications in network
+monitoring, intrusion detection, forensic analysis, and as a defensive
+platform.  Cyberprobe packet inspection works on physical networks, and
+also in cloud VPCs.  There are features that allow cloud-scale deployments.
+
+This is not a single, monolithic intrusion detection toolkit which does
+everything you want straight out of the box.  If that's what you need,
+I would suggest you look elsewhere.  Instead, Cyberprobe is a set of flexible
+components which can combined in many ways
+to manage a wide variety of packet inspection tasks.  If you want to build
+custom network analytics there are many interfaces that make this
+straightforward.
+
+The project maintains a number of components, including:
+
+@cindex @command{cyberprobe}
+@cindex @command{cybermon}
+@cindex Snort
 
 @itemize @bullet
 
 @item
-a probe, which collects data packets and forwards it over a network in
-a streaming protocol.
+@command{cyberprobe}, which collects data packets and forwards them a network
+stream protocol in real time.  Packet collection can be target with IP
+addresses, CIDR ranges or full-take.  Collected packets are tagged with a
+device identifier.  @command{cyberprobe} can be integrated with Snort to allow
+dynamic targeting of IP addresses in response to a Snort rule hitting.
 
 @item
-a monitor, which receives the streamed packets, decodes the protocols, and
-interprets the information.
+@command{cybermon}, which receives collected packet streams, performs stateful
+processing and creates a stream of observations describing network events.
+The events can be consumed in many different ways e.g. the events can be
+delivered to a pub/sub system, or presented to a gRPC service.
+The event handling is implemented as a function written in Lua, so you can
+add your own custom event handling.
 
 @item
 a set of subscribers which can be used to do things with the captured data
@@ -24,67 +48,73 @@ e.g. store to ElasticSearch, BigQuery or Gaffer.
 
 @end itemize
 
+@heading Cyberprobe
+
 @cindex @command{cyberprobe}, features
 @cindex Features, of @command{cyberprobe}
-
-These components can be used together or separately. For a simple
-configuration, they can be run on the same host, for more complex
-environments, a number of probes can feed a single monitor. For more detail,
-and to see where we are going, read the @ref{Architecture} page.
 
 The probe, @command{cyberprobe} has the following features:
 
 @itemize @bullet
 
 @item
-The probe can be tasked to collect packets from an interface and forward any
-which match a configurable address list.
+Can be tasked to collect packets from an interface and forward any
+which match a configurable address list.  The address list can be
+individual IP addresses, CIDR ranges, or collect-all tasking (@samp{0.0.0.0/0}).
 
 @item
-The probe can be configured to receive Snort alerts. In this configuration,
+Can be configured to receive Snort alerts. In this configuration,
 when an alert is received from Snort, the IP source address associated with
-the alert is dynamically targeted for a period of time. In such a
-configuration, the system will collect data from any network actor who
+the alert is dynamically targeted for a configurable period of time. This is
+useful for e.g. collecting data from any network actor who
 triggers a snort rule and is thus identified as a potential attacker.
 
 @item
-The probe can optionally run a management interface which allows remote
+Can optionally offer a management API which allows remote
 interrogation of the state, and alteration of the configuration. This
 allows dynamic alteration of the targeting map, and integration with other
 systems.
 
 @item
-The probe can be configured to deliver on one of two standard stream
-protocols.
+Can be configured to deliver on one of two standard stream protocols.
+
+@item
+Can insert a packet collection delay line of configurable duration.
+This can be useful e.g. with snort alert triggering to make sure all packets
+which trigger an alert are collected.
 
 @end itemize
 
 @cindex @command{cybermon}, features
 @cindex Features, of @command{cybermon}
 
+@heading Cybermon
+
 The monitor tool, @command{cybermon} has the following features:
 
 @itemize @bullet
 
 @item
-Collects packets delivered in stream protocols.
+Analyses packets delivered in the ETSI stream protocol from one or more
+@command{cyberprobe} instances.
 
 @item
-Decodes packet protocols in and raises events in near-real-time.
+Decodes a number of packet protocols to detect network events, which are
+delivered to your configuration in near-real-time.
 
 @item
-Decoded information is made available to user-configurable logic to define
-how the decoded data is handled. A simple configuration language is used
-(LUA) and example configurations are provided to monitor data volumes,
-display data hexdumps, or stash the data in files.
+Decoded information is made available to user-configurable logic (written
+in Lua) to define how the decoded data is handled.  Sample configuration
+files are provided to deliver to RabbitMQ in JSON, a gRPC endpoint, and
+deliver to a redis queue.
 
 @item
 Packet forgery techniques are included, which allow resetting TCP
-connections, and forging DNS responses. This can be invoked from your LUA in
-order to fight back against attacks on your network.
+connections, and forging DNS responses. This can be invoked from your Lua
+configuration.
 
 @item
-Supports IP, TCP, UDP, ICMP, HTTP and DNS protocols, currently.
+Supports IP, TCP, UDP, ICMP, HTTP, DNS, SMTP, FTP, TLS and more.
 
 @end itemize
 
@@ -94,73 +124,61 @@ be applicable to other UN*X-like platforms.
 The easiest way to learn about the software is to follow our Quick Start
 tutorial.
 
-@cindex Release history
-@cindex Version history
-@heading Revision history
+@heading Subscribers
 
-Cyberprobe release highlights:
+The event stream from @command{cybermon} can be presented to RabbitMQ
+in a JSON form, which can then be delivered to further analytics:
 
-@table @code
+@itemize @bullet
 
-@item 2.3
-@command{cyberprobe-cli} and control API reworked, protobuf and gRPC support.
-Amazon Linux support.
+@item
+@command{cybermon-alert} reports indicator hits in events to standard output.
 
-@item 2.2
-Changed cyberprobe configuration file to use JSON instead of XML.
-JSON is easier to integrate with automated processes.
+@item
+@command{cybermon-bigquery} loads events into GCP BigQuery.
 
-@item 2.0.5
-Added VXLAN support to cybermon.  This allows cybermon to receive the
-VXLAN protocol which is e.g. used by AWS Traffic Mirroring.
+@item
+@command{cybermon-cassandra} loads events into Cassandra.
 
-@item 2.0
-New simpler Lua API.  Native JSON encoding boosts performance of JSON output
-by 500%.
+@item
+@command{cybermon-detector} studies events for the presence of indicators.
+Events are annotated with indicator hits of any are observed.
 
-@item 1.13
-Cybermon decodes for: TLS, GRE, ESP.
+@item
+@command{cybermon-dump} dumps raw event JSON to standard output.
 
-@item 1.12.3
-Brought subscribers and docker-compose files up-to-date.
+@item
+@command{cybermon-elasticsearch} loads events into ElasticSearch.
 
-@item 1.11.1
-Altered handling of @samp{origin} to make it more resilient.
+@item
+@command{cybermon-gaffer} loads network information into Gaffer (a graph
+database).
 
-@item 1.11.0
-Added @samp{origin} field to identify whether or not the triggering
-device caused an event.
+@item
+@command{cybermon-geoip} looks up IP addresses in GeoIP and annotates
+events with location information.
 
-@item 1.10.0
-Add RabbitMQ / AMQP 0.9.1 support for cybermon and subscribers.
+@item
+@command{cybermon-monitor} outputs event information to standard output.
 
-@item 1.8.4
-Endace DAG package support added.
+@end itemize
 
-@item 1.7.0
-Gaffer subscriber brought up-to-date with Gaffer 1.0 API.  GeoIP and
-IOC processor added to the subscriber model.  Some unmaintained Lua code
-deprecated, as the subscriber model takes care of the functionality.
+@heading Scaling
 
-@item 1.6.8
-Numerous fixes. UUID generation uses a good seed.  ElasticSearch loading
-fixed, Mac compilation fixed.
+The architecture has support for AWS Traffic Mirroring, and
+supports cloud-scale deployments:
 
-@item 1.6.0
-Changed ETSI sender so that packet streams are multiplexed over multiple
-TCP streams.
+@itemize @bullet
 
-@item 1.5.1
-Unbounded queue internal to cybermon has a queue limit, to prevent unbounded
-growth.
+@item
+Multiple @command{cyberprobe} instances can load-share across multiple
+@command{cybermon} instances behind a load-balancer.
 
-@item 1.5.0
-Timestamp information at the time of packet capture in cyberprobe is now
-consistently passed through to cybermon and the Lua functions.  The Lua API
-has undergone significant change as a result of passing through timing
-information.
+@item
+The event stream from @command{cybermon} can be delivered to a pub/sub system
+to distribute load and permit scale-up.
 
-@item 1.0
-Lua invocation mechanism has been replaced by a thread-safe queue function.
+@end itemize
 
-@end table
+
+@include history.texi
