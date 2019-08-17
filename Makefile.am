@@ -3,11 +3,15 @@ SUBDIRS = src include config docs stix www tests init subscribers utils
 
 ACLOCAL_AMFLAGS = -I m4
 
-dist_doc_DATA = README COPYING
+dist_doc_DATA = README.md COPYING
 
 EXTRA_DIST=debian
 
 # Ensure make distcheck still works
 DISTCHECK_CONFIGURE_FLAGS = \
   --with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)
+
+# No README.  README.md instead, this stops automake complaining about
+# missing README.
+README: README.md
 

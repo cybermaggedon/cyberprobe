@@ -9,7 +9,8 @@ dist_doc_DATA = architecture.png cyberprobe.css \
 info_TEXINFOS = cyberprobe.texi
 cyberprobe_TEXINFOS = architecture.texi aws-mirroring.texi \
 	containerisation.texi cyberprobe-boot.texi dag.texi \
-	obtaining.texi overview.texi pubsub.texi qs-cybermon-config.texi \
+	obtaining.texi overview.texi history.texi \
+        pubsub.texi qs-cybermon-config.texi \
 	qs-cybermon.texi qs-cyberprobe.texi qs-mgmt-if.texi \
 	qs-preparation.texi qs-snort.texi qs-threat-indicators.texi \
 	qs-top.texi qs-visualisation.texi ref-cybermon-alert.texi \

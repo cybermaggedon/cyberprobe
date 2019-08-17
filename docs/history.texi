@@ -1,0 +1,70 @@
+@cindex Release history
+@cindex Version history
+@heading Revision history
+
+Cyberprobe release highlights:
+
+@table @code
+
+@item 2.3
+@command{cyberprobe-cli} and control API reworked, protobuf and gRPC support.
+Amazon Linux support.
+
+@item 2.2
+Changed cyberprobe configuration file to use JSON instead of XML.
+JSON is easier to integrate with automated processes.
+
+@item 2.0.5
+Added VXLAN support to cybermon.  This allows cybermon to receive the
+VXLAN protocol which is e.g. used by AWS Traffic Mirroring.
+
+@item 2.0
+New simpler Lua API.  Native JSON encoding boosts performance of JSON output
+by 500%.
+
+@item 1.13
+Cybermon decodes for: TLS, GRE, ESP.
+
+@item 1.12.3
+Brought subscribers and docker-compose files up-to-date.
+
+@item 1.11.1
+Altered handling of @samp{origin} to make it more resilient.
+
+@item 1.11.0
+Added @samp{origin} field to identify whether or not the triggering
+device caused an event.
+
+@item 1.10.0
+Add RabbitMQ / AMQP 0.9.1 support for cybermon and subscribers.
+
+@item 1.8.4
+Endace DAG package support added.
+
+@item 1.7.0
+Gaffer subscriber brought up-to-date with Gaffer 1.0 API.  GeoIP and
+IOC processor added to the subscriber model.  Some unmaintained Lua code
+deprecated, as the subscriber model takes care of the functionality.
+
+@item 1.6.8
+Numerous fixes. UUID generation uses a good seed.  ElasticSearch loading
+fixed, Mac compilation fixed.
+
+@item 1.6.0
+Changed ETSI sender so that packet streams are multiplexed over multiple
+TCP streams.
+
+@item 1.5.1
+Unbounded queue internal to cybermon has a queue limit, to prevent unbounded
+growth.
+
+@item 1.5.0
+Timestamp information at the time of packet capture in cyberprobe is now
+consistently passed through to cybermon and the Lua functions.  The Lua API
+has undergone significant change as a result of passing through timing
+information.
+
+@item 1.0
+Lua invocation mechanism has been replaced by a thread-safe queue function.
+
+@end table

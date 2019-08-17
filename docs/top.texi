@@ -7,22 +7,44 @@ This is the manual for Cyberprobe (version @value{VERSION}, @value{UPDATED}).
 
 @image{cyberprobe-overview,125mm,,png}
 
-Cyberprobe is a distrbuted architecture for real-time monitoring of networks
-against attack. This has applications in network monitoring,
-intrusion detection, forensic analysis, and as a defensive platform during
-an attack.
+@cindex Packet inspection
+@cindex DPI
+Cyberprobe is a network packet inspection toolkit (Deep Packet Inspection)
+for real-time monitoring of networks.  This has applications in network
+monitoring, intrusion detection, forensic analysis, and as a defensive
+platform.  Cyberprobe packet inspection works on physical networks, and
+also in cloud VPCs.  There are features that allow cloud-scale deployments.
 
-The software consists of a number of components, including:
+This is not a single, monolithic intrusion detection toolkit which does
+everything you want straight out of the box.  If that's what you need,
+I would suggest you look elsewhere.  Instead, Cyberprobe is a set of flexible
+components which can combined in many ways
+to manage a wide variety of packet inspection tasks.  If you want to build
+custom network analytics there are many interfaces that make this
+straightforward.
+
+The project maintains a number of components, including:
+
+@cindex @command{cyberprobe}
+@cindex @command{cybermon}
+@cindex Snort
 
 @itemize @bullet
 
 @item
-a probe, which collects data packets and forwards it over a network in
-standard streaming protocols.
+@command{cyberprobe}, which collects data packets and forwards them a network
+stream protocol in real time.  Packet collection can be target with IP
+addresses, CIDR ranges or full-take.  Collected packets are tagged with a
+device identifier.  @command{cyberprobe} can be integrated with Snort to allow
+dynamic targeting of IP addresses in response to a Snort rule hitting.
 
 @item
-a monitor, which receives the streamed packets, decodes the protocols, and
-interprets the information.
+@command{cybermon}, which receives collected packet streams, performs stateful
+processing and creates a stream of observations describing network events.
+The events can be consumed in many different ways e.g. the events can be
+delivered to a pub/sub system, or presented to a gRPC service.
+The event handling is implemented as a function written in Lua, so you can
+add your own custom event handling.
 
 @item
 a set of subscribers which can be used to do things with the captured data
@@ -30,14 +52,8 @@ e.g. store to ElasticSearch, BigQuery or Gaffer.
 
 @end itemize
 
-These components can be used together or separately. For a simple
-configuration, they can be run on the same host, for more complex
-environments, a number of probes can feed a single monitor. For more detail,
-and to see where we are going, read the @ref{Architecture} page.
-
-@quotation Note
-FIXME: Architecture diagram needs an update.
-@end quotation
+The architecture has support for AWS Traffic Mirroring, and
+supports cloud-scale deployments.
 
 @c @end ifnottex
 
