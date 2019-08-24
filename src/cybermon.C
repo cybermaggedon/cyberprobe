@@ -108,7 +108,6 @@ public:
 class pcap_input : public cybermon::pcap::packet_handler {
 private:
     cybermon::engine& e;
-    int count;
     std::string device;
 
 
@@ -116,12 +115,40 @@ public:
     pcap_input(cybermon::engine& e, const std::string& device) :
 	e(e), device(device)
         {
-            count = 0;
         }
 
     virtual void handle(timeval tv, unsigned long len, const unsigned char* f);
 
     virtual int get_datalink() = 0;
+
+};
+
+class interface_input : public pcap_input, public cybermon::pcap::interface {
+
+private:
+    std::thread* thr;
+
+public:
+    interface_input(const std::string& iface, cybermon::engine& e,
+               const std::string& device) :
+        interface(*this, iface), pcap_input(e, device)
+        {
+        }
+
+    virtual void join() {
+	if (thr)
+	    thr->join();
+    }
+    
+    virtual void start() {
+	thr = new std::thread(&interface::run, this);
+    }
+
+    virtual void stop() {
+	interface::stop();
+    }
+
+    virtual int get_datalink() { return pcap_datalink(p); }
 
 };
 
@@ -153,7 +180,6 @@ public:
     virtual int get_datalink() { return pcap_datalink(p); }
 
 };
-
 
 void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 {
@@ -244,9 +270,10 @@ int main(int argc, char** argv)
     std::string key, cert, chain;
     unsigned int port = 0;
     unsigned int vxlan_port = 0;
-    std::string pcap_file, config_file;
+    std::string pcap_input, config_file;
     std::string transport;
     std::string device;
+    std::string interface;
     float time_limit = -1;
 
     po::options_description desc("Supported options");
@@ -260,7 +287,9 @@ int main(int argc, char** argv)
 	 "server public key file")
 	("trusted-ca,T", po::value<std::string>(&chain), "server trusted CAs")
 	("port,p", po::value<unsigned int>(&port), "port number to listen on")
-	("pcap,f", po::value<std::string>(&pcap_file), "PCAP file to read")
+	("pcap,f", po::value<std::string>(&pcap_input), "PCAP file to read")
+	("interface,i", po::value<std::string>(&interface),
+         "Interface to monitor")
 	("vxlan,V", po::value<unsigned int>(&vxlan_port),
          "VXLAN port to listen on")
         ("time-limit,L", po::value<float>(&time_limit),
@@ -280,13 +309,13 @@ int main(int argc, char** argv)
 	if (config_file == "")
 	    throw std::runtime_error("Configuration file must be specified.");
 
-	if (pcap_file == "" && port == 0 && vxlan_port == 0)
-	    throw std::runtime_error("Must specify a PCAP file or a port.");
+	if (pcap_input == "" && port == 0 && vxlan_port == 0 && interface == "")
+	    throw std::runtime_error("Must specify PCAP file, interface, port or VXLAN input.");
 
-	if (pcap_file != "" && port != 0)
-	    throw std::runtime_error("Specify EITHER a PCAP file OR a port.");
+	if (pcap_input != "" && port != 0)
+	    throw std::runtime_error("Can't specify both PCAP file and port.");
 
-	if (pcap_file == "") {
+	if (port != 0) {
 
 	    if (transport != "tls" && transport != "tcp")
 		throw std::runtime_error("Transport most be one of: tcp, tls");
@@ -323,14 +352,29 @@ int main(int argc, char** argv)
         protocol_engine pe(queue);
         lua_engine le(pe, queue, config_file);
 
-        le.start();
-
-	if (pcap_file != "") {
+	if (interface != "") {
 
             if (device == "") device = "PCAP";
 
-            file_input pin(pcap_file, pe, device);
+            interface_input pin(interface, pe, device);
 
+            le.start();
+            pin.start();
+
+            if (time_limit > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(
+                                                long(time_limit * 1000)));
+                pin.stop();
+            }
+
+            pin.join();
+
+        } else if (pcap_input != "") {
+
+            if (device == "") device = "PCAP";
+            file_input pin(pcap_input, pe, device);
+
+            le.start();
             pin.start();
 
             if (time_limit > 0) {
@@ -350,6 +394,7 @@ int main(int argc, char** argv)
             if (device != "")
                 r.device = device;
 
+            le.start();
             r.start();
 
             if (time_limit > 0) {
@@ -371,6 +416,8 @@ int main(int argc, char** argv)
 
 	    // Start an ETSI receiver.
 	    cybermon::etsi_li::receiver r(sock, pe);
+
+            le.start();
 	    r.start();
 
             if (time_limit > 0) {
