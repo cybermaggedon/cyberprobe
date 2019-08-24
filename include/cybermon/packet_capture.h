@@ -43,23 +43,24 @@ private:
 
     // Packet filter state.
     struct bpf_program fltr;
-//    packet_handler& handler;
+    packet_handler& handler;
 
 protected:
 
     // Internal PCAP call-back.
-    static void handler(unsigned char* usr, const struct pcap_pkthdr *h,
-			const unsigned char* bytes) {
-	capture* c = reinterpret_cast<capture*>(usr);
-	c->handle(h->ts, h->caplen, bytes);
-    }
+    static void handle_packet(unsigned char* usr, const struct pcap_pkthdr *h,
+                              const unsigned char* bytes)
+        {
+            capture* c = reinterpret_cast<capture*>(usr);
+            c->handler.handle(h->ts, h->caplen, bytes);
+        }
 
     bool running;
 
 public:
 
     // Constructor.
-    capture(/*packet_handler& h*/) /*: handler(h) */{
+    capture(packet_handler& h) : handler(h) {
         p = 0; running = true;
     }
 
@@ -86,11 +87,6 @@ public:
 
     }
 
-    // This is the method which gets called when a packet is received.
-    // The user should implement this method.
-    virtual void handle(timeval tv, unsigned long len,
-                        const unsigned char* bytes) = 0;
-
     // Invokes packet processing on this capture handle, channelling received
     // packets through the 'handle' method.  Keeps processing forever or
     // until the 'stop' method is called.
@@ -115,7 +111,7 @@ public:
 
                 // Got a packet.
                 if (retval == 1)
-                    handler((unsigned char*) this, hdr, data);
+                    handle_packet((unsigned char*) this, hdr, data);
 
                 // End of savefile.
                 if (retval == -2)
@@ -146,28 +142,30 @@ public:
 
     // Constructor.  'iface' is the interface name e.g. eth0
     // snaplen = maximum packet size to capture.
-    interface(const std::string& iface, int snaplen = 65535) {
-	char errmsg[8192];
+    interface(packet_handler& h, const std::string& iface,
+              int snaplen = 65535) : capture(h)
+        {
+            char errmsg[8192];
 #ifdef HAVE_PCAP_CREATE
-	p = pcap_create(iface.c_str(), errmsg);
-	if (p == 0)
-	    throw std::runtime_error(errmsg);
-
-	pcap_set_snaplen(p, 65535);
-	if (pcap_can_set_rfmon(p))
-	    pcap_set_rfmon(p, 1);
-	pcap_set_promisc(p, 1);
-
-        int ret = pcap_activate(p);
-	if (ret < 0) {
-	    throw std::runtime_error("pcap_activate failed");
-	}
+            p = pcap_create(iface.c_str(), errmsg);
+            if (p == 0)
+                throw std::runtime_error(errmsg);
+            
+            pcap_set_snaplen(p, 65535);
+            if (pcap_can_set_rfmon(p))
+                pcap_set_rfmon(p, 1);
+            pcap_set_promisc(p, 1);
+            
+            int ret = pcap_activate(p);
+            if (ret < 0) {
+                throw std::runtime_error("pcap_activate failed");
+            }
 #else
-	p = pcap_open_live(iface.c_str(), snaplen, 1, 1, errmsg);
-	if (p == 0)
-	    throw std::runtime_error(errmsg);
+            p = pcap_open_live(iface.c_str(), snaplen, 1, 1, errmsg);
+            if (p == 0)
+                throw std::runtime_error(errmsg);
 #endif
-    }
+        }
 
     virtual ~interface() {}
 
@@ -180,7 +178,7 @@ public:
 
     // Constructor.  'iface' is the interface name e.g. eth0
     // snaplen = maximum packet size to capture.
-    reader(const std::string& path) {
+    reader(packet_handler& h, const std::string& path) : capture(h) {
 	char errmsg[8192];
 	p = pcap_open_offline(path.c_str(), errmsg);
 	if (p == 0)
