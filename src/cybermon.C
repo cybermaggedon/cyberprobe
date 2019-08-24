@@ -105,25 +105,37 @@ public:
 
 };
 
-class pcap_input : public cybermon::pcap::reader,
-                   public cybermon::pcap::packet_handler {
+class pcap_input : public cybermon::pcap::packet_handler {
 private:
     cybermon::engine& e;
     int count;
     std::string device;
 
+
+public:
+    pcap_input(cybermon::engine& e, const std::string& device) :
+	e(e), device(device)
+        {
+            count = 0;
+        }
+
+    virtual void handle(timeval tv, unsigned long len, const unsigned char* f);
+
+    virtual int get_datalink() = 0;
+
+};
+
+class file_input : public pcap_input, public cybermon::pcap::reader {
+
+private:
     std::thread* thr;
 
 public:
-    pcap_input(const std::string& f, cybermon::engine& e,
+    file_input(const std::string& file, cybermon::engine& e,
                const std::string& device) :
-	cybermon::pcap::reader(*this, f), e(e), device(device) {
-	count = 0;
-    }
-
-    virtual void stop() {
-	reader::stop();
-    }
+        reader(*this, file), pcap_input(e, device)
+        {
+        }
 
     virtual void join() {
 	if (thr)
@@ -131,10 +143,14 @@ public:
     }
     
     virtual void start() {
-	thr = new std::thread(&pcap_input::run, this);
+	thr = new std::thread(&reader::run, this);
     }
 
-    virtual void handle(timeval tv, unsigned long len, const unsigned char* f);
+    virtual void stop() {
+	reader::stop();
+    }
+
+    virtual int get_datalink() { return pcap_datalink(p); }
 
 };
 
@@ -142,7 +158,7 @@ public:
 void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 {
 
-    int datalink = pcap_datalink(p);
+    int datalink = get_datalink();
 
     try {
 
@@ -313,7 +329,7 @@ int main(int argc, char** argv)
 
             if (device == "") device = "PCAP";
 
-            pcap_input pin(pcap_file, pe, device);
+            file_input pin(pcap_file, pe, device);
 
             pin.start();
 
