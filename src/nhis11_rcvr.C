@@ -19,10 +19,10 @@ NHIS 1.1 test receiver.  Usage:
 
 class output : public cybermon::monitor {
 private:
-    pcap_writer& p;
+    cybermon::pcap::writer& p;
     std::mutex mutex;
 public:
-    output(pcap_writer& p) : p(p) {}
+    output(cybermon::pcap::writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
                             cybermon::pdu_slice s) {
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 	int port;
 	buf >> port;
 
-	pcap_writer p;
+        cybermon::pcap::writer p;
 
 	output o(p);
 

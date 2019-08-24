@@ -105,7 +105,7 @@ public:
 
 };
 
-class pcap_input : public pcap_reader {
+class pcap_input : public cybermon::pcap::reader {
 private:
     cybermon::engine& e;
     int count;
@@ -116,12 +116,12 @@ private:
 public:
     pcap_input(const std::string& f, cybermon::engine& e,
                const std::string& device) :
-	pcap_reader(f), e(e), device(device) {
+	cybermon::pcap::reader(f), e(e), device(device) {
 	count = 0;
     }
 
     virtual void stop() {
-	pcap_reader::stop();
+	reader::stop();
     }
 
     virtual void join() {

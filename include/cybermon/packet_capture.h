@@ -20,10 +20,20 @@ extern "C" {
 #include <pcap-bpf.h>
 }
 
+namespace cybermon {
+
+namespace pcap {
+
+class packet_handler {
+public:
+    virtual void handle(timeval tv, unsigned long len,
+                        const unsigned char* bytes) = 0;
+};
+
 // Base class for capture functionality.  Use the 'interface_capture'
 // class for interface sniffing.  This could be sub-classed to a PCAP
 // file reader too, if needed.
-class pcap_capture {
+class capture {
 
 protected:
     // PCAP handle.
@@ -33,13 +43,14 @@ private:
 
     // Packet filter state.
     struct bpf_program fltr;
+//    packet_handler& handler;
 
 protected:
 
     // Internal PCAP call-back.
     static void handler(unsigned char* usr, const struct pcap_pkthdr *h,
 			const unsigned char* bytes) {
-	pcap_capture* c = reinterpret_cast<pcap_capture*>(usr);
+	capture* c = reinterpret_cast<capture*>(usr);
 	c->handle(h->ts, h->caplen, bytes);
     }
 
@@ -48,10 +59,12 @@ protected:
 public:
 
     // Constructor.
-    pcap_capture() { p = 0; running = true; }
+    capture(/*packet_handler& h*/) /*: handler(h) */{
+        p = 0; running = true;
+    }
 
     // Destructor.
-    virtual ~pcap_capture() { if (p) pcap_close(p); p = 0; }
+    virtual ~capture() { if (p) pcap_close(p); p = 0; }
 
     // Adds a filter to the capture class.  spec specifies a PCAP-style
     // filter statement.  See 'pcap' man-page.  Throws a runtime_error
@@ -127,13 +140,13 @@ public:
 };
 
 // Packet capture interface for a network interface.
-class pcap_interface : public pcap_capture {
+class interface : public capture {
 
 public:
 
     // Constructor.  'iface' is the interface name e.g. eth0
     // snaplen = maximum packet size to capture.
-    pcap_interface(const std::string& iface, int snaplen = 65535) {
+    interface(const std::string& iface, int snaplen = 65535) {
 	char errmsg[8192];
 #ifdef HAVE_PCAP_CREATE
 	p = pcap_create(iface.c_str(), errmsg);
@@ -156,18 +169,18 @@ public:
 #endif
     }
 
-    virtual ~pcap_interface() {}
+    virtual ~interface() {}
 
 };
 
 // File reader
-class pcap_reader : public pcap_capture {
+class reader : public capture {
 
 public:
 
     // Constructor.  'iface' is the interface name e.g. eth0
     // snaplen = maximum packet size to capture.
-    pcap_reader(const std::string& path) {
+    reader(const std::string& path) {
 	char errmsg[8192];
 	p = pcap_open_offline(path.c_str(), errmsg);
 	if (p == 0)
@@ -175,18 +188,18 @@ public:
 	pcap_set_snaplen(p, 65535);
     }
 
-    virtual ~pcap_reader() {}
+    virtual ~reader() {}
 
 
 };
 
 // Class, writes PCAP files.
-class pcap_writer {
+class writer {
 private:
     pcap_t* p;
     pcap_dumper_t* dumper;
 public:
-    pcap_writer(const std::string& file = "-") {
+    writer(const std::string& file = "-") {
 	p = pcap_open_dead(DLT_RAW, 65535);
 	if (p == 0)
 	    throw std::runtime_error("pcap_open_dead failed.");
@@ -219,7 +232,11 @@ public:
 	pcap_dump_close(dumper);
 	pcap_close(p);
     }
-    ~pcap_writer() { close(); }
+    ~writer() { close(); }
+};
+
+};
+
 };
 
 #endif

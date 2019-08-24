@@ -160,7 +160,7 @@ public:
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class pcap_dev : public pcap_interface , public delayline_dev {
+class pcap_dev : public cybermon::pcap::interface , public delayline_dev {
 private:
 
     std::thread* thr;
@@ -172,7 +172,7 @@ public:
 
     // Constructor.  i=interface name, d=packet consumer.
     pcap_dev(const std::string& i, float delay, packet_consumer& d) :
-	pcap_interface(i), delayline_dev(d, delay, pcap_datalink(p)) {
+	interface(i), delayline_dev(d, delay, pcap_datalink(p)) {
 	thr = 0;
     }
 
@@ -182,7 +182,7 @@ public:
     }
 
     virtual void stop() {
-	pcap_interface::stop();
+	interface::stop();
 	running = false;
     }
 
