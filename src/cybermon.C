@@ -25,7 +25,7 @@ Usage:
 #include <cyberprobe/protocol/context.h>
 #include <cyberprobe/analyser/engine.h>
 #include <cyberprobe/analyser/monitor.h>
-#include <cyberprobe/analyser/cybermon-lua.h>
+#include <cyberprobe/analyser/lua.h>
 #include <cyberprobe/pkt_capture/packet_capture.h>
 #include <cyberprobe/stream/vxlan.h>
 #include <cyberprobe/stream/etsi_li.h>
@@ -43,7 +43,7 @@ private:
 public:
     engine& m;
     event::queue& q;
-    cybermon_lua cml;
+    lua cml;
     
     lua_engine(engine& m,
                event::queue& q,

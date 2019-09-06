@@ -5,7 +5,7 @@
 
 #include <sstream>
 
-#include <cyberprobe/analyser/cybermon-lua.h>
+#include <cyberprobe/analyser/lua.h>
 #include <cyberprobe/protocol/forgery.h>
 #include <cyberprobe/protocol/pdu.h>
 #include <cyberprobe/event/event.h>
@@ -14,7 +14,7 @@ using namespace cyberprobe;
 using namespace cyberprobe::analyser;
 using namespace cyberprobe::protocol;
 
-cybermon_lua::cybermon_lua(const std::string& cfg)
+lua::lua(const std::string& cfg)
 {
 
     // Add configuration file's directory to package.path.
@@ -106,7 +106,7 @@ cybermon_lua::cybermon_lua(const std::string& cfg)
 
 #ifdef WITH_GRPC
 
-void cybermon_lua::push(std::shared_ptr<grpc_manager> grpc)
+void lua::push(std::shared_ptr<grpc_manager> grpc)
 {
 
     void* ud = new_userdata(sizeof(grpc_userdata));
@@ -124,7 +124,7 @@ void cybermon_lua::push(std::shared_ptr<grpc_manager> grpc)
 
 #endif
 
-int cybermon_lua::event_index(lua_State* lua)
+int lua::event_index(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.event");
@@ -140,7 +140,7 @@ int cybermon_lua::event_index(lua_State* lua)
 
 }
 
-int cybermon_lua::event_gc(lua_State* lua)
+int lua::event_gc(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
     event_userdata* ed = reinterpret_cast<event_userdata*>(ud);
@@ -153,7 +153,7 @@ int cybermon_lua::event_gc(lua_State* lua)
     return 0;
 }
 
-int cybermon_lua::context_gc(lua_State* lua)
+int lua::context_gc(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
     context_userdata* cd = reinterpret_cast<context_userdata*>(ud);
@@ -167,7 +167,7 @@ int cybermon_lua::context_gc(lua_State* lua)
 }
 
 #ifdef WITH_GRPC
-int cybermon_lua::grpc_gc(lua_State* lua)
+int lua::grpc_gc(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -1);
     grpc_userdata* gd = reinterpret_cast<grpc_userdata*>(ud);
@@ -179,7 +179,7 @@ int cybermon_lua::grpc_gc(lua_State* lua)
     return 0;
 }
 
-int cybermon_lua::grpc_observe(lua_State* lua)
+int lua::grpc_observe(lua_State* lua)
 {
     void* ud = lua_touserdata(lua, -3);
     grpc_userdata* gd = reinterpret_cast<grpc_userdata*>(ud);
@@ -198,7 +198,7 @@ int cybermon_lua::grpc_observe(lua_State* lua)
 }
 #endif
 
-void cybermon_lua::event(engine& an, std::shared_ptr<event::event> ev)
+void lua::event(engine& an, std::shared_ptr<event::event> ev)
 {
 
     // Get config.event
@@ -221,7 +221,7 @@ void cybermon_lua::event(engine& an, std::shared_ptr<event::event> ev)
 
 }
 
-void cybermon_lua::push(const ntp_hdr& hdr)
+void lua::push(const ntp_hdr& hdr)
 {
     create_table(0, 3);
 
@@ -238,7 +238,7 @@ void cybermon_lua::push(const ntp_hdr& hdr)
     set_table(-3);
 }
 
-void cybermon_lua::push(const ntp_timestamp& ts)
+void lua::push(const ntp_timestamp& ts)
 {    
     create_table(0, 11);
     
@@ -287,7 +287,7 @@ void cybermon_lua::push(const ntp_timestamp& ts)
     set_table(-3);
 }
 
-void cybermon_lua::push(const ntp_control& ctrl)
+void lua::push(const ntp_control& ctrl)
 {
     create_table(0, 10);
     
@@ -339,7 +339,7 @@ void cybermon_lua::push(const ntp_control& ctrl)
     set_table(-3);
 }
 
-void cybermon_lua::push(const ntp_private& priv)
+void lua::push(const ntp_private& priv)
 {
     create_table(0, 4);
 
@@ -360,7 +360,7 @@ void cybermon_lua::push(const ntp_private& priv)
     set_table(-3);
 } 
 
-void cybermon_lua::push(const dns_header& hdr)
+void lua::push(const dns_header& hdr)
 {
 
     create_table(0, 8);
@@ -415,7 +415,7 @@ void cybermon_lua::push(const dns_header& hdr)
 
 }
 
-void cybermon_lua::push(const dns_query& qry)
+void lua::push(const dns_query& qry)
 {
 
     create_table(0, 3);
@@ -434,7 +434,7 @@ void cybermon_lua::push(const dns_query& qry)
 
 }
 
-void cybermon_lua::push(const dns_rr& rr)
+void lua::push(const dns_rr& rr)
 {
 
     create_table(0, 7);
@@ -485,7 +485,7 @@ void cybermon_lua::push(const dns_rr& rr)
 
 }
 
-void cybermon_lua::push(const std::list<dns_query>& lst)
+void lua::push(const std::list<dns_query>& lst)
 {
 
     create_table(lst.size(), 0);
@@ -503,7 +503,7 @@ void cybermon_lua::push(const std::list<dns_query>& lst)
 
 }
 
-void cybermon_lua::push(const std::list<dns_rr>& lst)
+void lua::push(const std::list<dns_rr>& lst)
 {
 
     create_table(lst.size(), 0);
@@ -521,7 +521,7 @@ void cybermon_lua::push(const std::list<dns_rr>& lst)
 
 }
 
-void cybermon_lua::to_dns_query(int pos, dns_query& d)
+void lua::to_dns_query(int pos, dns_query& d)
 {
     
     get_field(pos, "name");
@@ -538,7 +538,7 @@ void cybermon_lua::to_dns_query(int pos, dns_query& d)
 
 }
 
-void cybermon_lua::to_dns_queries(int pos, std::list<dns_query>& lst)
+void lua::to_dns_queries(int pos, std::list<dns_query>& lst)
 {
 
     int len = raw_len(pos);
@@ -564,7 +564,7 @@ void cybermon_lua::to_dns_queries(int pos, std::list<dns_query>& lst)
 
 }
 
-void cybermon_lua::to_dns_rr(int pos, dns_rr& d)
+void lua::to_dns_rr(int pos, dns_rr& d)
 {
     
     get_field(pos, "name");
@@ -608,7 +608,7 @@ void cybermon_lua::to_dns_rr(int pos, dns_rr& d)
 
 }
 
-void cybermon_lua::to_dns_rrs(int pos, std::list<dns_rr>& lst)
+void lua::to_dns_rrs(int pos, std::list<dns_rr>& lst)
 {
 
     int len = raw_len(pos);
@@ -633,7 +633,7 @@ void cybermon_lua::to_dns_rrs(int pos, std::list<dns_rr>& lst)
 
 }
 
-void cybermon_lua::to_dns_header(int pos, dns_header& hdr)
+void lua::to_dns_header(int pos, dns_header& hdr)
 {
     
     get_field(pos, "id");
@@ -686,7 +686,7 @@ void cybermon_lua::to_dns_header(int pos, dns_header& hdr)
 
 }
 
-void cybermon_lua::push(context_ptr cp)
+void lua::push(context_ptr cp)
 {
 
     void* ud = new_userdata(sizeof(context_userdata));
@@ -703,7 +703,7 @@ void cybermon_lua::push(context_ptr cp)
 
 }
 
-void cybermon_lua::push(std::shared_ptr<event::event> ev)
+void lua::push(std::shared_ptr<event::event> ev)
 {
 
     void* ud = new_userdata(sizeof(event_userdata));
@@ -720,7 +720,7 @@ void cybermon_lua::push(std::shared_ptr<event::event> ev)
 
 }
 
-void cybermon_lua::push(const timeval& time)
+void lua::push(const timeval& time)
 {
 
     char t[256];
@@ -746,7 +746,7 @@ void cybermon_lua::push(const timeval& time)
 
 }
 
-int cybermon_lua::context_get_parent(lua_State *lua)
+int lua::context_get_parent(lua_State *lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -766,7 +766,7 @@ int cybermon_lua::context_get_parent(lua_State *lua)
 
 }
 
-int cybermon_lua::context_get_reverse(lua_State *lua)
+int lua::context_get_reverse(lua_State *lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -786,7 +786,7 @@ int cybermon_lua::context_get_reverse(lua_State *lua)
 
 }
 
-int cybermon_lua::context_get_id(lua_State *lua)
+int lua::context_get_id(lua_State *lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -802,7 +802,7 @@ int cybermon_lua::context_get_id(lua_State *lua)
 
 }
 
-int cybermon_lua::context_get_src_addr(lua_State *lua)
+int lua::context_get_src_addr(lua_State *lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -820,7 +820,7 @@ int cybermon_lua::context_get_src_addr(lua_State *lua)
 
 }
 
-int cybermon_lua::context_get_dest_addr(lua_State *lua)
+int lua::context_get_dest_addr(lua_State *lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -838,7 +838,7 @@ int cybermon_lua::context_get_dest_addr(lua_State *lua)
 
 }
 
-int cybermon_lua::context_describe_src(lua_State* lua)
+int lua::context_describe_src(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -856,7 +856,7 @@ int cybermon_lua::context_describe_src(lua_State* lua)
     return 1;
 }
 
-int cybermon_lua::context_describe_dest(lua_State* lua)
+int lua::context_describe_dest(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -874,7 +874,7 @@ int cybermon_lua::context_describe_dest(lua_State* lua)
     return 1;
 }
 
-int cybermon_lua::context_get_type(lua_State* lua)
+int lua::context_get_type(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -891,7 +891,7 @@ int cybermon_lua::context_get_type(lua_State* lua)
 
 }
 
-int cybermon_lua::context_get_creation_time(lua_State* lua)
+int lua::context_get_creation_time(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -909,7 +909,7 @@ int cybermon_lua::context_get_creation_time(lua_State* lua)
 
 }
 
-int cybermon_lua::context_get_direction(lua_State* lua)
+int lua::context_get_direction(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -931,7 +931,7 @@ int cybermon_lua::context_get_direction(lua_State* lua)
 
 }
 
-int cybermon_lua::context_get_trigger_info(lua_State* lua)
+int lua::context_get_trigger_info(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -957,7 +957,7 @@ int cybermon_lua::context_get_trigger_info(lua_State* lua)
 
 }
 
-int cybermon_lua::context_get_network_info(lua_State* lua)
+int lua::context_get_network_info(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -978,7 +978,7 @@ int cybermon_lua::context_get_network_info(lua_State* lua)
 }
 
 
-int cybermon_lua::context_forge_dns_response(lua_State* lua)
+int lua::context_forge_dns_response(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -1019,7 +1019,7 @@ int cybermon_lua::context_forge_dns_response(lua_State* lua)
 
 }
 
-int cybermon_lua::context_forge_tcp_reset(lua_State* lua)
+int lua::context_forge_tcp_reset(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");
@@ -1034,7 +1034,7 @@ int cybermon_lua::context_forge_tcp_reset(lua_State* lua)
 
 }
 
-int cybermon_lua::context_forge_tcp_data(lua_State* lua)
+int lua::context_forge_tcp_data(lua_State* lua)
 {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.context");

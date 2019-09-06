@@ -6,8 +6,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYBERMON_CYBERMON_LUA_H
-#define CYBERMON_CYBERMON_LUA_H
+#ifndef CYBERPROBE_ANALYSER_LUA_H
+#define CYBERPROBE_ANALYSER_LUA_H
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -407,7 +407,7 @@ delete[] buf;
 
     };
 
-    class cybermon_lua;
+    class lua;
 
     // We need to pass some values into LUA, so we pass one of these
     // objects as light userdata.  It allows callbacks back into this
@@ -421,7 +421,7 @@ delete[] buf;
 	std::shared_ptr<event::event> event;
 
 	// Cybermon bridge.
-	cybermon_lua* cml;
+	lua* cml;
 
     };
 
@@ -432,7 +432,7 @@ delete[] buf;
 	context_ptr ctxt;
 
 	// Cybermon bridge.
-	cybermon_lua* cml;
+	lua* cml;
 
     };
 
@@ -457,7 +457,7 @@ delete[] buf;
         std::shared_ptr<grpc_manager> grpc;
 
 	// Cybermon bridge.
-	cybermon_lua* cml;
+	lua* cml;
         
     };
 
@@ -465,7 +465,7 @@ delete[] buf;
     
     // Cybermon wrapper around the LUA state, acts as the cybermon to LUA
     // bridge.
-    class cybermon_lua : public lua_state {
+    class lua : public lua_state {
 
     public:
 
@@ -506,7 +506,7 @@ delete[] buf;
 #endif
 
 	// Constructor.
-	cybermon_lua(const std::string& cfg);
+	lua(const std::string& cfg);
 
 	using lua_state::push;
 

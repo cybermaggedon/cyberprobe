@@ -66,7 +66,7 @@ tls_rcvr_LDADD = -lssl
 
 lib_LTLIBRARIES = libcybermon.la
 
-libcybermon_la_SOURCES = address.C base_context.C cybermon-lua.C	\
+libcybermon_la_SOURCES = address.C base_context.C lua.C			\
 	dns_over_tcp.C dns_over_udp.C dns_protocol.C engine.C		\
 	forgery.C ftp.C http.C icmp.C imap.C imap_ssl.C ip.C ntp.C	\
 	ntp_protocol.C pop3.C pop3_ssl.C event.C reaper.C rtp.C		\
@@ -77,7 +77,7 @@ libcybermon_la_SOURCES = address.C base_context.C cybermon-lua.C	\
 	tls_handshake.C tls_utils.C hardware_addr_utils.h		\
 	tls_cipher_suites.h tls_exception.h tls_extensions.h		\
 	tls_handshake.h tls_key_exchange.h tls_utils.h uuid.h		\
-	../include/cyberprobe/analyser/cybermon-lua.h			\
+	../include/cyberprobe/analyser/lua.h				\
 	../include/cyberprobe/analyser/engine.h				\
 	../include/cyberprobe/analyser/manager.h			\
 	../include/cyberprobe/analyser/monitor.h			\
