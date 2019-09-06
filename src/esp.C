@@ -1,13 +1,13 @@
-#include <cybermon/esp.h>
+#include <cyberprobe/protocol/esp.h>
 
-#include <cybermon/manager.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/event/event_implementations.h>
 
 #include <arpa/inet.h>
 #include <iomanip>
 #include <sstream>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 ///////////////////////////////////////////////////////////////////////////////
 // context

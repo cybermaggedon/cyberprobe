@@ -1,13 +1,15 @@
 
-#include <cybermon/forgery.h>
-#include <cybermon/context.h>
-#include <cybermon/dns_context.h>
-#include <cybermon/dns_protocol.h>
-#include <cybermon/udp.h>
-#include <cybermon/tcp.h>
-#include <cybermon/ip.h>
+#include <cyberprobe/protocol/forgery.h>
+#include <cyberprobe/util/serial.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/protocol/dns_context.h>
+#include <cyberprobe/protocol/dns_protocol.h>
+#include <cyberprobe/protocol/udp.h>
+#include <cyberprobe/protocol/tcp.h>
+#include <cyberprobe/protocol/ip.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
+using namespace cyberprobe::util;
 
 void forgery::forge_dns_response(context_ptr cp, 
 				 const dns_header& hdr,

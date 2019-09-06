@@ -1,9 +1,9 @@
 
-#include <cybermon/sip_context.h>
+#include <cyberprobe/protocol/sip_context.h>
 #include <regex>
 
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 // Constructor.
 sip_context::sip_context(manager& m) : context(m) {}

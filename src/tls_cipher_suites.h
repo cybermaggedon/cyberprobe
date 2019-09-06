@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-namespace cybermon
+namespace cyberprobe
 {
     namespace cipher
     {

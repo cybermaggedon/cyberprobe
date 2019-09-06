@@ -3,9 +3,9 @@
 #include <config.h>
 #endif
 
-#include <cybermon/event_implementations.h>
-#include <cybermon/event_protobuf.h>
-#include <cybermon/context.h>
+#include <cyberprobe/event/event_implementations.h>
+#include <cyberprobe/event/event_protobuf.h>
+#include <cyberprobe/protocol/context.h>
 
 #ifdef WITH_PROTOBUF
 #include "cyberprobe.pb.h"
@@ -14,7 +14,7 @@
 
 #include <string.h>
 #include <string>
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 
 
 // FIXME: All copied form event_json.C, should be a util class.
@@ -56,7 +56,7 @@ static std::string dns_type_name(int id) {
 	return std::to_string(id);
 }
 
-namespace cybermon {
+namespace cyberprobe {
 
     namespace event {
 
@@ -158,9 +158,11 @@ namespace cybermon {
             if (e.network != "")
                 pe.set_network(e.network);
 
-            if (e.direc == FROM_TARGET)
+            using direction = cyberprobe::protocol::direction;
+            
+            if (e.direc == direction::FROM_TARGET)
                 pe.set_origin(cyberprobe::Origin::device);
-            else if (e.direc == TO_TARGET)
+            else if (e.direc == direction::TO_TARGET)
                 pe.set_origin(cyberprobe::Origin::network);
 
             for(auto it = src.begin();
@@ -473,7 +475,8 @@ namespace cybermon {
      
 	}
 
-	void protobufify(const dns_header& h, cyberprobe::DnsHeader* pe) {
+	void protobufify(const protocol::dns_header& h,
+                         cyberprobe::DnsHeader* pe) {
             pe->set_id(h.id);
             pe->set_qr(h.qr);
             pe->set_opcode(h.opcode);
@@ -488,13 +491,14 @@ namespace cybermon {
             pe->set_arcount(h.arcount);
         }
 
-	void protobufify(const dns_query& q, cyberprobe::DnsQuery* pe) {
+	void protobufify(const protocol::dns_query& q,
+                         cyberprobe::DnsQuery* pe) {
             pe->set_name(q.name);
             pe->set_type(dns_type_name(q.type));
             pe->set_class_(dns_class_name(q.cls));
         }
 
-	void protobufify(const dns_rr& a, cyberprobe::DnsAnswer* pe) {
+	void protobufify(const protocol::dns_rr& a, cyberprobe::DnsAnswer* pe) {
             pe->set_name(a.name);
             pe->set_type(dns_type_name(a.type));
             pe->set_class_(dns_class_name(a.cls));
@@ -680,7 +684,8 @@ namespace cybermon {
 	    return buf.str();
 	}
 
-	using cipher_suite = cybermon::tls_handshake_protocol::cipher_suite;
+	using cipher_suite = cyberprobe::protocol::tls_handshake_protocol::
+                               cipher_suite;
 	void protobufify(const cipher_suite& suite, std::string* pe) {
 	    if (suite.name == "Unassigned")
 		*pe = suite.name + "-" + int_to_hex(suite.id);
@@ -688,7 +693,7 @@ namespace cybermon {
 	}
 
 	using compression_method =
-                               cybermon::tls_handshake_protocol::
+                               cyberprobe::protocol::tls_handshake_protocol::
                                compression_method;
 	void protobufify(const compression_method& method, std::string* pe)
         {
@@ -697,7 +702,8 @@ namespace cybermon {
 	    *pe = method.name;
 	}
 
-	using extension = cybermon::tls_handshake_protocol::extension;
+	using extension = cyberprobe::protocol::tls_handshake_protocol::
+                               extension;
 	void protobufify(const extension& ext,
                          cyberprobe::TlsClientHello_Tls_Extension* pe)
         {
@@ -707,7 +713,8 @@ namespace cybermon {
             pe->set_data(ext.data.data(), ext.data.size());
 	}
 
-	using extension = cybermon::tls_handshake_protocol::extension;
+	using extension = cyberprobe::protocol::tls_handshake_protocol::
+            extension;
 	void protobufify(const extension& ext,
                          cyberprobe::TlsServerHello_Tls_Extension* pe)
         {
@@ -802,7 +809,8 @@ namespace cybermon {
 
 	}
 
-	using key_exchange = tls_handshake_protocol::key_exchange_data ;
+	using key_exchange = protocol::tls_handshake_protocol::
+            key_exchange_data ;
 	static void protobufify(const key_exchange& ke,
                                 cyberprobe::TlsServerKeyExchange_Tls* pe)
         {

@@ -1,10 +1,10 @@
-#include <cybermon/802_11.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/802_11.h>
+#include <cyberprobe/event/event_implementations.h>
 
-#include <cybermon/manager.h>
+#include <cyberprobe/analyser/manager.h>
 #include "hardware_addr_utils.h"
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 ///////////////////////////////////////////////////////////////////////////////
 // context

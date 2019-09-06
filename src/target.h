@@ -8,11 +8,13 @@
 #ifndef TARGET_H
 #define TARGET_H
 
-#include <cybermon/socket.h>
-#include <cybermon/specification.h>
-#include <cybermon/resource.h>
+#include <cyberprobe/network/socket.h>
+#include <cyberprobe/resources/specification.h>
+#include <cyberprobe/resources/resource.h>
 
 #include "json.h"
+
+namespace cyberprobe {
 
 class delivery;
 
@@ -21,7 +23,7 @@ namespace target {
     using json = nlohmann::json;
 
     // A target specification: Maps an IP address to a device ID.
-    class spec : public cybermon::specification {
+    class spec : public cyberprobe::specification {
     public:
 
         // Type is 'target'.
@@ -87,7 +89,7 @@ namespace target {
 
     // Target resource.  The target resources are just instantiated as
     // changes to the target map in the delivery engine.
-    class target : public cybermon::resource {
+    class target : public cyberprobe::resource {
     private:
 
         // Spec.
@@ -113,6 +115,8 @@ namespace target {
     void to_json(json& j, const spec& s);
 
     void from_json(const json& j, spec& s);
+
+};
 
 };
 

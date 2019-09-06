@@ -8,24 +8,28 @@
 #ifndef CAPTURE_H
 #define CAPTURE_H
 
-#include <cybermon/packet_capture.h>
+#include <cyberprobe/pkt_capture/packet_capture.h>
 #include <packet_consumer.h>
 
 #include <queue>
 #include <thread>
 
-class capture_dev {
+namespace cyberprobe {
+
+namespace capture {
+
+class device {
 public:
-    virtual ~capture_dev() {}
+    virtual ~device() {}
     virtual void stop() = 0;
     virtual void start() = 0;
     virtual void join() = 0;
 
 };
 
-using packet_handler = cybermon::pcap::packet_handler;
+using packet_handler = cyberprobe::pcap::packet_handler;
 
-class delayline_dev : public capture_dev {
+class delayline : public device {
 protected:
 
     // Handle to the deliver engine.
@@ -50,7 +54,7 @@ protected:
 
 public:
 
-    delayline_dev(packet_consumer& deliv, float delay, int datalink) :
+    delayline(packet_consumer& deliv, float delay, int datalink) :
         deliv(deliv), delay(delay), datalink(datalink) {
 
         // Calculate delay in form of a timeval.
@@ -60,7 +64,7 @@ public:
 
     }
 
-    virtual ~delayline_dev() {}
+    virtual ~delayline() {}
         
     // Packet handler.
     virtual void handle(timeval tv, unsigned long len,
@@ -89,7 +93,7 @@ public:
 
 };
 
-class filtering_dev : public delayline_dev {
+class filtering_device : public delayline {
 
 private:
     struct bpf_program fltr;
@@ -98,8 +102,8 @@ private:
 
 public:
 
-    filtering_dev(packet_consumer& deliv, float delay, int datalink) :
-        delayline_dev(deliv, delay, datalink) {
+    filtering_device(packet_consumer& deliv, float delay, int datalink) :
+        delayline(deliv, delay, datalink) {
 
         // Only used for filtering.
         p = pcap_open_dead(datalink, 65535);
@@ -112,7 +116,7 @@ public:
 
     }
 
-    virtual ~filtering_dev() {
+    virtual ~filtering_device() {
 
         if (filtering) {
             pcap_freecode(&fltr);
@@ -162,9 +166,9 @@ public:
 
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class pcap_dev : public cybermon::pcap::interface ,
-                 public packet_handler,
-                 public delayline_dev {
+class interface : public cyberprobe::pcap::interface,
+                  public packet_handler,
+                  public delayline {
 private:
 
     std::thread* thr;
@@ -175,13 +179,15 @@ public:
     virtual void run();
 
     // Constructor.  i=interface name, d=packet consumer.
-    pcap_dev(const std::string& i, float delay, packet_consumer& d) :
-	interface(*this, i), delayline_dev(d, delay, pcap_datalink(p)) {
-	thr = 0;
-    }
+    interface(const std::string& i, float delay, packet_consumer& d) :
+	cyberprobe::pcap::interface(*this, i),
+        delayline(d, delay, pcap_datalink(p))
+        {
+            thr = 0;
+        }
 
     // Destructor.
-    virtual ~pcap_dev() {
+    virtual ~interface() {
 	delete thr;
     }
 
@@ -196,15 +202,19 @@ public:
     }
     
     virtual void start() {
-	thr = new std::thread(&pcap_dev::run, this);
+	thr = new std::thread(&interface::run, this);
     }
 
      // Packet handler.
     virtual void handle(timeval tv, unsigned long len,
 			const unsigned char* bytes) {
-        delayline_dev::handle(tv, len, bytes);
+        delayline::handle(tv, len, bytes);
     }
     
+};
+
+};
+
 };
 
 #endif

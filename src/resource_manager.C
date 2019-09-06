@@ -1,5 +1,5 @@
 
-#include <cybermon/resource.h>
+#include <cyberprobe/resources/resource.h>
 
 #include <sys/stat.h>
 
@@ -11,7 +11,7 @@
 
 #include <string>
 
-using namespace cybermon;
+using namespace cyberprobe;
 
 void resource_manager::update(const std::string& file)
 {

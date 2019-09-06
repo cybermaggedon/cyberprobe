@@ -1,14 +1,12 @@
 
-#include <cybermon/pop3_ssl.h>
+#include <cyberprobe/protocol/pop3_ssl.h>
 
-#include <cybermon/address.h>
-#include <cybermon/flow.h>
-#include <cybermon/pop3_ssl_context.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/flow.h>
+#include <cyberprobe/protocol/pop3_ssl_context.h>
+#include <cyberprobe/event/event_implementations.h>
 
-
-using namespace cybermon;
-
+using namespace cyberprobe::protocol;
 
 void pop3_ssl::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {

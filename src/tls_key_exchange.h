@@ -2,17 +2,19 @@
 #ifndef TLS_KEY_EXCHANGE_H
 #define TLS_KEY_EXCHANGE_H
 
-#include <cybermon/tls_handshake_protocol.h>
-#include <cybermon/pdu.h>
+#include <cyberprobe/protocol/tls_handshake_protocol.h>
+#include <cyberprobe/protocol/pdu.h>
 
 #include <stdint.h>
 #include <string>
 #include <vector>
 
-namespace cybermon {
+namespace cyberprobe {
     namespace tls_key_exchange {
 
-        void server_ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md);
+        using pdu_slice = cyberprobe::protocol::pdu_slice;
+
+        void server_ecdh(const pdu_slice& pduSlice, uint16_t length, protocol::tls_handshake_protocol::ecdh_ptr md);
         void client_ecdh(const pdu_slice& pduSlice, uint16_t length, std::vector<uint8_t>& key);
 
         enum NamedCurve {
@@ -33,6 +35,6 @@ namespace cybermon {
         std::string to_string(const NamedCurve nc);
 
     } // namespace tls_key_exchange
-} // namespace cybermon
+} // namespace cyberprobe
 
 #endif

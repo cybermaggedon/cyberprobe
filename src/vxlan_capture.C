@@ -1,14 +1,16 @@
 
 #include <vxlan_capture.h>
 
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 
 #include <stdint.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 
+using namespace cyberprobe::capture;
+
 // Capture device, main thread body.
-void vxlan_capture::run()
+void vxlan::run()
 {
 
     try {

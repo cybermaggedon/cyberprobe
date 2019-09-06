@@ -6,15 +6,20 @@
 #include <memory>
 #include <sys/time.h>
 
+#include <cyberprobe/protocol/pdu.h>
+#include <cyberprobe/stream/nhis11.h>
+#include <cyberprobe/stream/etsi_li.h>
+
 #include "management.h"
-#include <cybermon/nhis11.h>
-#include <cybermon/etsi_li.h>
 #include "parameters.h"
-#include <cybermon/pdu.h>
 
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+
+namespace cyberprobe {
+
+using direction = cyberprobe::protocol::direction;
 
 // Shared pointers to TCP/IP address.
 typedef std::shared_ptr<tcpip::address> address_ptr;
@@ -28,7 +33,7 @@ public:
     std::shared_ptr<std::string> network; // Valid for: PDU, TARGET_UP/DOWN
     std::vector<unsigned char> pdu;         // Valid for: PDU
     address_ptr addr;                       // Valid for: TARGET_UP
-    cybermon::direction dir;                // Valid for: PDU, from/to target.
+    direction dir;                // Valid for: PDU, from/to target.
 };
 
 // Queue PDU pointer
@@ -87,7 +92,7 @@ public:
     void deliver(timeval tv,
                  std::shared_ptr<std::string> device,
 		 std::shared_ptr<std::string> n,
-                 cybermon::direction dir,
+                 direction dir,
 		 const_iterator& start,
 		 const_iterator& end);
 
@@ -114,7 +119,7 @@ class nhis11_sender : public sender {
 private:
 
     // NHIS 1.1 transport.
-    std::map<std::string,cybermon::nhis11::sender> transport;
+    std::map<std::string,cyberprobe::nhis11::sender> transport;
 
     // Connection details, host, port, transport.
     std::string h;
@@ -158,8 +163,8 @@ public:
 class etsi_li_sender : public sender {
 private:
 
-    typedef cybermon::etsi_li::sender e_sender;
-    typedef cybermon::etsi_li::mux e_mux;
+    typedef cyberprobe::etsi_li::sender e_sender;
+    typedef cyberprobe::etsi_li::mux e_mux;
 
     // ETSI LI transport and mux...
 
@@ -237,6 +242,8 @@ public:
 
     // Short-hand
     typedef std::vector<unsigned char>::const_iterator const_iterator;
+
+};
 
 };
 

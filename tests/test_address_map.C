@@ -1,8 +1,10 @@
 
-#include "address_map.h"
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
+#include <cyberprobe/util/address_map.h>
 #include <string>
 #include <assert.h>
+
+using namespace cyberprobe;
 
 class bunchy {
 public:

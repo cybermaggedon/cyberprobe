@@ -1,12 +1,12 @@
 
-#include <cybermon/dns_over_udp.h>
+#include <cyberprobe/protocol/dns_over_udp.h>
 
-#include <cybermon/address.h>
-#include <cybermon/dns_context.h>
-#include <cybermon/flow.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/dns_context.h>
+#include <cyberprobe/protocol/flow.h>
+#include <cyberprobe/event/event_implementations.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 void dns_over_udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)

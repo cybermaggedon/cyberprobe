@@ -1,14 +1,14 @@
 
-#include <cybermon/smtp_auth.h>
+#include <cyberprobe/protocol/smtp_auth.h>
 
-#include <cybermon/address.h>
-#include <cybermon/flow.h>
-#include <cybermon/manager.h>
-#include <cybermon/smtp_auth_context.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/flow.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/smtp_auth_context.h>
+#include <cyberprobe/event/event_implementations.h>
 
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 void smtp_auth::process(manager& mgr, context_ptr c, const pdu_slice& sl)

@@ -19,7 +19,7 @@
 
 #endif
 
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 
 using grpc::Server;
 using grpc::ServerBuilder;

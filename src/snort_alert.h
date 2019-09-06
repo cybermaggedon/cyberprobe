@@ -8,16 +8,18 @@
 #ifndef SNORT_ALERT_H
 #define SNORT_ALERT_H
 
-#include <cybermon/resource.h>
+#include <cyberprobe/resources/resource.h>
 
 #include "delivery.h"
+
+namespace cyberprobe {
 
 namespace snort_alert {
 
     using json = nlohmann::json;
 
     // Specification for a snort alerter.
-    class spec : public cybermon::specification {
+    class spec : public cyberprobe::specification {
 
     public:
 
@@ -44,7 +46,7 @@ namespace snort_alert {
 
     // Snort alerter, receives snort alerts and enables targeting on alerted
     // IP addresses.
-    class snort_alerter : public cybermon::resource {
+    class snort_alerter : public cyberprobe::resource {
 
     private:
 
@@ -99,6 +101,8 @@ namespace snort_alert {
     void to_json(json& j, const spec& s);
 
     void from_json(const json& j, spec& s);
+
+};
 
 };
 

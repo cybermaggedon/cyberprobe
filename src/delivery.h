@@ -7,19 +7,23 @@
 #include "management.h"
 #include "capture.h"
 #include "packet_consumer.h"
-#include "address_map.h"
+#include <cyberprobe/util/address_map.h>
 #include "interface.h"
 #include "endpoint.h"
 #include "target.h"
 #include "parameter.h"
 
-#include <cybermon/pdu.h>
+#include <cyberprobe/protocol/pdu.h>
 
 #include <map>
 #include <list>
 #include <algorithm>
 #include <memory>
 #include <mutex>
+
+namespace cyberprobe {
+
+using direction = cyberprobe::protocol::direction;
 
 // Defines an endpoint.
 class ep {
@@ -120,7 +124,7 @@ private:
 
     // Interfaces
     std::mutex interfaces_mutex;
-    std::map<interface::spec, capture_dev*> interfaces;
+    std::map<interface::spec, capture::device*> interfaces;
 
     // Parameters and lock
     std::mutex parameters_mutex;
@@ -141,7 +145,7 @@ private:
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
 		    tcpip::ip4_address& match,
-                    cybermon::direction& direc,
+                    direction& direc,
 		    const link_info&);
 
     // IPv6 header to device ID
@@ -149,7 +153,7 @@ private:
 		    const_iterator& end,           /* End of packet */
 		    const match*& hit,
 		    tcpip::ip6_address& match,
-                    cybermon::direction& direc,
+                    direction& direc,
 		    const link_info&);
 
     // Expand device/network template
@@ -235,6 +239,8 @@ public:
         }
     }
 
+
+};
 
 };
 

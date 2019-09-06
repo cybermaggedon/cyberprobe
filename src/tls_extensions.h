@@ -2,7 +2,7 @@
 #ifndef TLS_EXTENSIONS_H
 #define TLS_EXTENSIONS_H
 
-namespace cybermon {
+namespace cyberprobe {
     namespace tls_extensions {
 
         std::vector<std::string> lookupExts = {

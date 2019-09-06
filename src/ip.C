@@ -1,16 +1,16 @@
 
 #include <stdint.h>
 
-#include <cybermon/ip.h>
-#include <cybermon/tcp.h>
-#include <cybermon/udp.h>
-#include <cybermon/icmp.h>
-#include <cybermon/gre.h>
-#include <cybermon/esp.h>
-#include <cybermon/manager.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/ip.h>
+#include <cyberprobe/protocol/tcp.h>
+#include <cyberprobe/protocol/udp.h>
+#include <cyberprobe/protocol/icmp.h>
+#include <cyberprobe/protocol/gre.h>
+#include <cyberprobe/protocol/esp.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/event/event_implementations.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 const unsigned int ip4_context::max_frag_list_len = 50;
 

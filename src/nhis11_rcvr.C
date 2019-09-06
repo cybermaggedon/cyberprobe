@@ -7,25 +7,28 @@ NHIS 1.1 test receiver.  Usage:
 
 ****************************************************************************/
 
-#include <cybermon/monitor.h>
-#include <cybermon/nhis11.h>
-#include <cybermon/packet_capture.h>
-#include <cybermon/pdu.h>
+#include <cyberprobe/protocol/pdu.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/analyser/monitor.h>
+#include <cyberprobe/stream/nhis11.h>
+#include <cyberprobe/pkt_capture/packet_capture.h>
 
 #include <thread>
 #include <mutex>
 
 #include <getopt.h>
 
-class output : public cybermon::monitor {
+using namespace cyberprobe;
+
+class output : public analyser::monitor {
 private:
-    cybermon::pcap::writer& p;
+    pcap::writer& p;
     std::mutex mutex;
 public:
-    output(cybermon::pcap::writer& p) : p(p) {}
+    output(cyberprobe::pcap::writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
-                            cybermon::pdu_slice s) {
+                            protocol::pdu_slice s) {
         std::lock_guard<std::mutex> lock(mutex);
 	p.write(s.start, s.end);
     }
@@ -53,11 +56,11 @@ int main(int argc, char** argv)
 	int port;
 	buf >> port;
 
-        cybermon::pcap::writer p;
+        cyberprobe::pcap::writer p;
 
 	output o(p);
 
-	cybermon::nhis11::receiver r(port, o);
+	cyberprobe::nhis11::receiver r(port, o);
 
 	r.start();
 	r.join();

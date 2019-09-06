@@ -1,9 +1,9 @@
 
 //FIXME: No ID present!
 
-#include <cybermon/event_implementations.h>
-#include <cybermon/event_json.h>
-#include <cybermon/context.h>
+#include <cyberprobe/event/event_implementations.h>
+#include <cyberprobe/event/event_json.h>
+#include <cyberprobe/protocol/context.h>
 
 #include <string.h>
 #include <string>
@@ -12,6 +12,9 @@
 #include <base64.h>
 
 using json = nlohmann::json;
+
+using namespace cyberprobe::protocol;
+using namespace cyberprobe::event;
 
 static std::map<int, std::string> dns_class_names = {
     {1, "IN"}, {2, "CS"}, {3, "CH"}, {4, "HS"}
@@ -50,7 +53,7 @@ static std::string dns_type_name(int id) {
 	return std::to_string(id);
 }
 
-namespace cybermon {
+namespace cyberprobe {
 
     namespace event {
 
@@ -83,7 +86,7 @@ namespace cybermon {
 	    return json(t);
 	}
 
-	json jsonify(const cybermon::address& addr) {
+	json jsonify(const address& addr) {
 	    if (addr.addr.size() == 4)
 		return json(addr.to_ip4_string());
 	    if (addr.addr.size() == 16)
@@ -401,7 +404,7 @@ namespace cybermon {
 		type = "response";
 
 	    json q = json::array();;
-	    for(std::list<cybermon::dns_query>::const_iterator it =
+	    for(std::list<dns_query>::const_iterator it =
 		    e.queries.begin();
 		it != e.queries.end();
 		it++) {
@@ -414,7 +417,7 @@ namespace cybermon {
 	    }
 
 	    json a = json::array();
-	    for(std::list<cybermon::dns_rr>::const_iterator it2 =
+	    for(std::list<dns_rr>::const_iterator it2 =
 		    e.answers.begin();
 		it2 != e.answers.end();
 		it2++) {
@@ -563,7 +566,7 @@ namespace cybermon {
 	    return buf.str();
 	}
 
-	using cipher_suite = cybermon::tls_handshake_protocol::cipher_suite;
+	using cipher_suite = tls_handshake_protocol::cipher_suite;
 	json jsonify(const cipher_suite& suite) {
 	    if (suite.name == "Unassigned")
 		return json(suite.name + "-" + int_to_hex(suite.id));
@@ -582,7 +585,7 @@ namespace cybermon {
 	}
 
 	using compression_method =
-                               cybermon::tls_handshake_protocol::
+                               tls_handshake_protocol::
                                compression_method;
 	json jsonify(const compression_method& method) {
 	    if (method.name == "Unassigned")
@@ -603,7 +606,7 @@ namespace cybermon {
 	    return cm;
 	}
 
-	using extension = cybermon::tls_handshake_protocol::extension;
+	using extension = tls_handshake_protocol::extension;
 	json jsonify(const extension& ext) {
 	    json obj = {
 		{ "name", ext.name },

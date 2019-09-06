@@ -5,6 +5,8 @@
 
 using json = nlohmann::json;
 
+namespace cyberprobe {
+
 namespace interface {
 
     void to_json(json& j, const interface::spec& s) {
@@ -52,5 +54,5 @@ namespace interface {
     
 };
 
-
+};
 

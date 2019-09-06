@@ -1,15 +1,19 @@
 
 #include <fstream>
 
-#include <cybermon/etsi_li.h>
-#include <cybermon/ber.h>
+#include <cyberprobe/protocol/pdu.h>
+
+#include <cyberprobe/stream/etsi_li.h>
+#include <cyberprobe/stream/ber.h>
+
 #include <sys/time.h>
 #include <string.h>
-#include <cybermon/pdu.h>
 
 // Support for a simple usage of ETSI LI protocol, defined in ETSI TS 102 232.
 
-using namespace cybermon::etsi_li;
+using namespace cyberprobe::etsi_li;
+using namespace cyberprobe::stream;
+using namespace cyberprobe::protocol;
 
 // The next CIN which will be used.
 uint32_t mux::next_cin = 0;
@@ -516,9 +520,9 @@ void sender::send_ip(timeval tv,
     // Direction
     ber::berpdu payload_direction_p;
     int direction;
-    if (dir == FROM_TARGET)
+    if (dir == direction::FROM_TARGET)
         direction = 0;
-    else if (dir == TO_TARGET)
+    else if (dir == direction::TO_TARGET)
         direction = 1;
     else
         direction = 2;
@@ -815,9 +819,9 @@ void connection::run()
                             ber::berpdu& dir_p = it2->get_element(0);
                             int direc = dir_p.decode_int();
                             if (direc == 0)
-                                dir = FROM_TARGET;
+                                dir = direction::FROM_TARGET;
                             else if (direc == 1)
-                                dir = TO_TARGET;
+                                dir = direction::TO_TARGET;
                         } catch (...) {
                         }
 

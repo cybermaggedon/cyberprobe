@@ -7,8 +7,8 @@
 #include <condition_variable>
 #include <queue>
 
-#include <cybermon/event.h>
-#include <cybermon/cybermon-lua.h>
+#include <cyberprobe/event/event.h>
+#include <cyberprobe/analyser/cybermon-lua.h>
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
@@ -28,7 +28,7 @@ using cyberprobe::EventStream;
 using grpc::ClientAsyncResponseReader;
 using grpc::CompletionQueue;
 
-namespace cybermon {
+namespace cyberprobe {
 
     class eventstream_client {
 
@@ -58,7 +58,7 @@ namespace cybermon {
         }
 
         // Assembles the client's payload and sends it to the server.
-        void observe(std::shared_ptr<cybermon::event::event> ev) {
+        void observe(std::shared_ptr<cyberprobe::event::event> ev) {
 
             // Call object to store rpc data
             async_call* call = new async_call;

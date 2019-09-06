@@ -3,12 +3,12 @@
 #include <config.h>
 #endif
 
-#include <cybermon/event.h>
-#include <cybermon/engine.h>
-#include <cybermon/cybermon-lua.h>
+#include <cyberprobe/event/event.h>
+#include <cyberprobe/analyser/engine.h>
+#include <cyberprobe/analyser/cybermon-lua.h>
 
 #ifdef WITH_PROTOBUF
-#include <cybermon/event_protobuf.h>
+#include <cyberprobe/event/event_protobuf.h>
 #endif
 
 #include <iostream>
@@ -20,16 +20,20 @@ extern "C" {
 #include <lauxlib.h>
 }
 
-using namespace cybermon::event;
+using namespace cyberprobe;
+using namespace cyberprobe::protocol;
+using namespace cyberprobe::analyser;
 
-uuid_generator cybermon::event::event::gen;
+namespace cyberprobe::event {
+
+uuid_generator event::gen;
 
 protocol_event::protocol_event(const action_type action,
                                const timeval& time,
                                context_ptr cp) :
     event(action, time), context(cp)
 {
-    root_context& rc = cybermon::engine::get_root(cp);
+    root_context& rc = engine::get_root(cp);
     direc = cp->addr.direc;
     device = rc.get_device();
     network = rc.get_network();
@@ -38,7 +42,7 @@ protocol_event::protocol_event(const action_type action,
 std::string protocol_event::get_device() const {
     std::string device;
     address trigger_address;
-    cybermon::engine::get_root_info(context, device, trigger_address);
+    engine::get_root_info(context, device, trigger_address);
     return device;
 }
 
@@ -92,7 +96,7 @@ std::string action_names[] = {
     "tls_application_data"
 };
 
-std::string& cybermon::event::action2string(action_type a)
+std::string& action2string(action_type a)
 {
     return action_names[a];
 }
@@ -101,8 +105,8 @@ int event::lua_json(lua_State* lua) {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
-    cybermon::event_userdata* ed =
-        reinterpret_cast<cybermon::event_userdata*>(ud);
+    cyberprobe::event_userdata* ed =
+        reinterpret_cast<cyberprobe::event_userdata*>(ud);
 
     std::string js;
     ed->event->to_json(js);
@@ -115,8 +119,8 @@ int event::lua_protobuf(lua_State* lua) {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
-    cybermon::event_userdata* ed =
-        reinterpret_cast<cybermon::event_userdata*>(ud);
+    cyberprobe::event_userdata* ed =
+        reinterpret_cast<cyberprobe::event_userdata*>(ud);
     
     std::string pb;
     ed->event->to_protobuf(pb);
@@ -243,7 +247,7 @@ int rtp_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-static void push_http_header(cybermon::cybermon_lua& state,
+static void push_http_header(cybermon_lua& state,
 			     const http_hdr_t& hdr)
 {
 
@@ -1178,3 +1182,5 @@ void tls_application_data::to_protobuf(cyberprobe::Event& ev) {
 }
 
 #endif
+
+}

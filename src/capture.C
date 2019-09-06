@@ -4,10 +4,11 @@
 #include <unistd.h>
 
 // FIXME: Thread this for performance.
+using namespace cyberprobe::capture;
 
 // Packet handler.
-void delayline_dev::handle(timeval tv, unsigned long len,
-                           const unsigned char* payload)
+void delayline::handle(timeval tv, unsigned long len,
+                       const unsigned char* payload)
 {
 
     // Bypass the delay line stuff if there's no delay.
@@ -40,7 +41,7 @@ void delayline_dev::handle(timeval tv, unsigned long len,
 }
 
 // Capture device, main thread body.
-void pcap_dev::run()
+void interface::run()
 {
 
     struct pollfd pfd;

@@ -2,8 +2,9 @@
 
 #include <tls_exception.h>
 
+using namespace cyberprobe;
 
-std::string cybermon::tls_utils::convertTLSVersion(uint8_t maj, uint8_t min)
+std::string tls_utils::convertTLSVersion(uint8_t maj, uint8_t min)
 {
     // should always be true
     if (maj == 3)
@@ -17,5 +18,5 @@ std::string cybermon::tls_utils::convertTLSVersion(uint8_t maj, uint8_t min)
                     return "TLS 1." + std::to_string(min - 1);
                 }
         }
-    throw cybermon::tls_exception("Invalid TLS Version");
+    throw tls_exception("Invalid TLS Version");
 }

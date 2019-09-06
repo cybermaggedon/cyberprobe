@@ -5,6 +5,8 @@
 #include "json.h"
 #include "delivery.h"
 
+namespace cyberprobe {
+
 namespace endpoint {
 
     void to_json(json& j, const spec& s) {
@@ -73,3 +75,6 @@ namespace endpoint {
     }
 
 };
+
+};
+

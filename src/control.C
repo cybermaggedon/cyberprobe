@@ -7,6 +7,8 @@
 #include <vector>
 #include <mutex>
 
+namespace cyberprobe {
+
 namespace control {
 
     void to_json(json& j, const spec& s) {
@@ -522,6 +524,8 @@ namespace control {
         svc.close_me(this);
 
     }
+
+};
 
 };
 

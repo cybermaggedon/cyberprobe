@@ -1,12 +1,12 @@
 
 #include <memory>
 
-#include <cybermon/unrecognised.h>
-#include <cybermon/manager.h>
-#include <cybermon/tcp.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/unrecognised.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/tcp.h>
+#include <cyberprobe/event/event_implementations.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 void unrecognised::process_unrecognised_stream(manager& mgr, context_ptr c, 
 					       const pdu_slice& sl)

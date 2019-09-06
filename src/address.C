@@ -1,13 +1,13 @@
 
-#include <cybermon/socket.h>
-#include <cybermon/address.h>
+#include <cyberprobe/network/socket.h>
+#include <cyberprobe/protocol/address.h>
 
 #include "hardware_addr_utils.h"
 
 #include <iomanip>
 #include <arpa/inet.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 void address::get(std::string& cls, std::string& address) const
 {

@@ -1,10 +1,10 @@
-#include <cybermon/ntp_protocol.h>
+#include <cyberprobe/protocol/ntp_protocol.h>
 
 #include <math.h>
 #include <string>
 #include <vector>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 ntp_decoder::ntp_decoder(pdu_iter s, pdu_iter e)
     : m_start(s), m_end(e), m_ptr(s)

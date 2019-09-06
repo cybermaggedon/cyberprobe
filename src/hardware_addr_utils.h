@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace cybermon {
+namespace cyberprobe {
     namespace hw_addr_utils {
 
         // no bounds checking, must be done in caller

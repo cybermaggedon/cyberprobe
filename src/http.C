@@ -1,17 +1,17 @@
 
 // Derived: http://www.jmarshall.com/easy/http
 
-#include <cybermon/address.h>
-#include <cybermon/http.h>
-#include <cybermon/manager.h>
-#include <cybermon/unrecognised.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/http.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/unrecognised.h>
+#include <cyberprobe/event/event_implementations.h>
 
 #include <ctype.h>
 #include <sstream>
 #include <iomanip>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 // HTTP response processing function.
 void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)
@@ -406,7 +406,7 @@ void http::process_request(manager& mgr, context_ptr c,
 	try {
 	    std::lock_guard<std::mutex> lock(fc->mutex);
 	    fc->parse(fc, sl, mgr);
-	} catch (cybermon::exception& e) {
+	} catch (cyberprobe::exception& e) {
 	    unrecognised::process_unrecognised_stream(mgr, fc, sl);
 	}
     }
@@ -435,7 +435,7 @@ void http::process_response(manager& mgr, context_ptr c,
 	try {
 	    std::lock_guard<std::mutex> lock(fc->mutex);
 	    fc->parse(fc, sl, mgr);
-	} catch (cybermon::exception& e) {
+	} catch (cyberprobe::exception& e) {
 	    unrecognised::process_unrecognised_stream(mgr, fc, sl);
 	}
     }

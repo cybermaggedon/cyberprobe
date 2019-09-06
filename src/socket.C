@@ -1,5 +1,5 @@
 
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 
 #include <openssl/ssl.h>
 #include <errno.h>
@@ -15,7 +15,9 @@ const float small_time = 0.1;
 // SSL socket timeouts.
 const int timeout = 5;
 
-bool tcpip::ssl_socket::ssl_init = false;
+using namespace cyberprobe::tcpip;
+
+bool ssl_socket::ssl_init = false;
 
 // Certificate verification callback, always accept certificates which are
 // pre-verified.
@@ -25,7 +27,7 @@ static int verify_callback(int preverify_ok, X509_STORE_CTX *ctx)
     return 1;
 }
 
-tcpip::ip_address tcpip::ip_address::my_address()
+ip_address ip_address::my_address()
 {
 
     int ret;
@@ -46,7 +48,7 @@ tcpip::ip_address tcpip::ip_address::my_address()
 
 }
 
-unsigned short tcpip::tcp_socket::bound_port()
+unsigned short tcp_socket::bound_port()
 {
 
     struct sockaddr_in addr;
@@ -61,7 +63,7 @@ unsigned short tcpip::tcp_socket::bound_port()
 
 }
 
-unsigned short tcpip::ssl_socket::bound_port()
+unsigned short ssl_socket::bound_port()
 {
 
     struct sockaddr_in addr;
@@ -76,7 +78,7 @@ unsigned short tcpip::ssl_socket::bound_port()
 
 }
 
-void tcpip::tcp_socket::connect(const std::string& hostname, int port)
+void tcp_socket::connect(const std::string& hostname, int port)
 {
 
     struct hostent* hent = ::gethostbyname(hostname.c_str());
@@ -96,7 +98,7 @@ void tcpip::tcp_socket::connect(const std::string& hostname, int port)
 
 }
 
-void tcpip::ssl_socket::connect(const std::string& hostname, int port)
+void ssl_socket::connect(const std::string& hostname, int port)
 {
 
 #ifdef __linux
@@ -189,7 +191,7 @@ void tcpip::ssl_socket::connect(const std::string& hostname, int port)
 
 }
 
-void tcpip::udp_socket::connect(const std::string& hostname, int port)
+void udp_socket::connect(const std::string& hostname, int port)
 {
 
     struct hostent* hent = ::gethostbyname(hostname.c_str());
@@ -209,7 +211,7 @@ void tcpip::udp_socket::connect(const std::string& hostname, int port)
 
 }
 
-bool tcpip::tcp_socket::poll(float timeout) 
+bool tcp_socket::poll(float timeout) 
 {
     struct pollfd fds;
     fds.fd = sock;
@@ -240,7 +242,7 @@ bool tcpip::tcp_socket::poll(float timeout)
 }
 
 // FIXME: SSL socket re-uses loads of tcp_socket code!  Should be derived.
-bool tcpip::ssl_socket::poll(float timeout) 
+bool ssl_socket::poll(float timeout) 
 {
 
     struct pollfd fds;
@@ -273,7 +275,7 @@ bool tcpip::ssl_socket::poll(float timeout)
 }
 
 // FIXME: SSL socket re-uses loads of tcp_socket code!  Should be derived.
-bool tcpip::ssl_socket::poll_write(float timeout) 
+bool ssl_socket::poll_write(float timeout) 
 {
 
     struct pollfd fds;
@@ -305,7 +307,7 @@ bool tcpip::ssl_socket::poll_write(float timeout)
 
 }
 
-bool tcpip::udp_socket::poll(float timeout) 
+bool udp_socket::poll(float timeout) 
 {
     struct pollfd fds;
     fds.fd = sock;
@@ -335,7 +337,7 @@ bool tcpip::udp_socket::poll(float timeout)
 	return false;
 }
 
-int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
+int tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 {
     int needed = len;
     int got = 0;
@@ -374,7 +376,7 @@ int tcpip::tcp_socket::read(std::vector<unsigned char>& buffer, int len)
 }
 
 
-int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
+int ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 {
 
     const int timeout = 900;
@@ -421,7 +423,7 @@ int tcpip::ssl_socket::read(std::vector<unsigned char>& buffer, int len)
 
 }
 
-int tcpip::udp_socket::read(std::vector<unsigned char>& buffer, int len)
+int udp_socket::read(std::vector<unsigned char>& buffer, int len)
 {
 
     char tmp[len];
@@ -437,7 +439,7 @@ int tcpip::udp_socket::read(std::vector<unsigned char>& buffer, int len)
 
 }
 
-int tcpip::udp_socket::read(char* buffer, int len)
+int udp_socket::read(char* buffer, int len)
 {
 
     int ret = ::recv(sock, buffer, len, 0);
@@ -448,7 +450,7 @@ int tcpip::udp_socket::read(char* buffer, int len)
 
 }
 
-int tcpip::tcp_socket::read(char* buffer, int len)
+int tcp_socket::read(char* buffer, int len)
 {
     int needed = len;
     int got = 0;
@@ -484,7 +486,7 @@ int tcpip::tcp_socket::read(char* buffer, int len)
     return got;
 }
 
-int tcpip::ssl_socket::read(char* buffer, int len)
+int ssl_socket::read(char* buffer, int len)
 {
 
     const int timeout = 900;
@@ -528,7 +530,7 @@ int tcpip::ssl_socket::read(char* buffer, int len)
 
 }
 
-void tcpip::tcp_socket::bind(int port)
+void tcp_socket::bind(int port)
 {
 
     struct sockaddr_in addr;
@@ -556,7 +558,7 @@ void tcpip::tcp_socket::bind(int port)
 
 }
 
-void tcpip::ssl_socket::bind(int port)
+void ssl_socket::bind(int port)
 {
 
     struct sockaddr_in addr;
@@ -584,7 +586,7 @@ void tcpip::ssl_socket::bind(int port)
 
 }
 
-void tcpip::udp_socket::bind(int port)
+void udp_socket::bind(int port)
 {
 
     struct sockaddr_in addr;
@@ -607,7 +609,7 @@ void tcpip::udp_socket::bind(int port)
 
 }
 
-void tcpip::stream_socket::readline(std::string& line)
+void stream_socket::readline(std::string& line)
 {
     unsigned char c;
     line = "";
@@ -623,14 +625,14 @@ void tcpip::stream_socket::readline(std::string& line)
     }
 }
 
-std::ostream& operator<<(std::ostream& o, const tcpip::address& addr) {
+std::ostream& operator<<(std::ostream& o, const address& addr) {
     std::string s;
     addr.to_string(s);
     o << s;
     return o;
 }
 
-void tcpip::unix_socket::connect(const std::string& path)
+void unix_socket::connect(const std::string& path)
 {
 
     struct sockaddr_un address;
@@ -645,7 +647,7 @@ void tcpip::unix_socket::connect(const std::string& path)
 
 }
 
-bool tcpip::unix_socket::poll(float timeout) 
+bool unix_socket::poll(float timeout) 
 {
     struct pollfd fds;
     fds.fd = sock;
@@ -675,7 +677,7 @@ bool tcpip::unix_socket::poll(float timeout)
 	return false;
 }
 
-int tcpip::unix_socket::read(std::vector<unsigned char>& buffer, int len)
+int unix_socket::read(std::vector<unsigned char>& buffer, int len)
 {
 
     char tmp[len];
@@ -691,7 +693,7 @@ int tcpip::unix_socket::read(std::vector<unsigned char>& buffer, int len)
 
 }
 
-int tcpip::unix_socket::read(char* buffer, int len)
+int unix_socket::read(char* buffer, int len)
 {
 
     int ret = ::recv(sock, buffer, len, 0);
@@ -702,7 +704,7 @@ int tcpip::unix_socket::read(char* buffer, int len)
 
 }
 
-void tcpip::unix_socket::bind(const std::string& path)
+void unix_socket::bind(const std::string& path)
 {
 
     struct sockaddr_un addr;
@@ -719,7 +721,7 @@ void tcpip::unix_socket::bind(const std::string& path)
 
 }
 
-void tcpip::raw_socket::connect(const std::string& hostname)
+void raw_socket::connect(const std::string& hostname)
 {
 
     struct hostent* hent = ::gethostbyname(hostname.c_str());
@@ -741,7 +743,7 @@ void tcpip::raw_socket::connect(const std::string& hostname)
 
 
 /** Accept a connection. */
-std::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
+std::shared_ptr<stream_socket> ssl_socket::accept()
 {
 
     int ns = ::accept(sock, 0, 0);
@@ -827,7 +829,7 @@ std::shared_ptr<tcpip::stream_socket> tcpip::ssl_socket::accept()
 }
 
 /** Close the connection. */
-void tcpip::ssl_socket::close()
+void ssl_socket::close()
 {
 
     if (ssl) {
@@ -842,7 +844,7 @@ void tcpip::ssl_socket::close()
 }
 
 /** Constructor. */
-tcpip::ssl_socket::ssl_socket() { 
+ssl_socket::ssl_socket() { 
     bufstart = bufsize = 0;
 
     if (!ssl_init) {
@@ -874,7 +876,7 @@ tcpip::ssl_socket::ssl_socket() {
 
 }
 
-int tcpip::ssl_socket::write(const char* buffer, int len)
+int ssl_socket::write(const char* buffer, int len)
 {
 
     time_t then = time(0);
@@ -912,7 +914,7 @@ int tcpip::ssl_socket::write(const char* buffer, int len)
 
 
 /** Constructor. */
-tcpip::ssl_socket::ssl_socket(int s) { 
+ssl_socket::ssl_socket(int s) { 
 
     bufstart = bufsize = 0;
 
@@ -947,7 +949,7 @@ tcpip::ssl_socket::ssl_socket(int s) {
 
 
 /** Provide certificate. */
-void tcpip::ssl_socket::use_certificate_file(const std::string& f)
+void ssl_socket::use_certificate_file(const std::string& f)
 {
     if (context == 0)
 	throw std::runtime_error("No SSL context.");
@@ -958,7 +960,7 @@ void tcpip::ssl_socket::use_certificate_file(const std::string& f)
 }
 
 /** Provide private key. */
-void tcpip::ssl_socket::use_key_file(const std::string& f)
+void ssl_socket::use_key_file(const std::string& f)
 {
     if (context == 0)
 	throw std::runtime_error("No SSL context.");
@@ -969,7 +971,7 @@ void tcpip::ssl_socket::use_key_file(const std::string& f)
 }
 
 /** Provide CA chain. */
-void tcpip::ssl_socket::use_certificate_chain_file(const std::string& f)
+void ssl_socket::use_certificate_chain_file(const std::string& f)
 {
     if (context == 0)
 	throw std::runtime_error("No SSL context.");
@@ -987,7 +989,7 @@ void tcpip::ssl_socket::use_certificate_chain_file(const std::string& f)
 
 }
 
-void tcpip::ssl_socket::check_private_key()
+void ssl_socket::check_private_key()
 {
 
     if (!SSL_CTX_check_private_key(context))

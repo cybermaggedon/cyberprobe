@@ -2,6 +2,8 @@
 #include "delivery.h"
 #include "parameter.h"
 
+namespace cyberprobe {
+
 namespace parameter {
 
     void to_json(json& j, const spec& s) {
@@ -46,3 +48,6 @@ namespace parameter {
     }
 
 };
+
+};
+

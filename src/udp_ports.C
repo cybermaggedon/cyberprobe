@@ -1,15 +1,15 @@
 
-#include <cybermon/udp_ports.h>
+#include <cyberprobe/protocol/udp_ports.h>
 
-#include <cybermon/dns_over_udp.h>
-#include <cybermon/ntp.h>
-#include <cybermon/rtp.h>
-#include <cybermon/rtp_ssl.h>
-#include <cybermon/sip.h>
-#include <cybermon/sip_ssl.h>
+#include <cyberprobe/protocol/dns_over_udp.h>
+#include <cyberprobe/protocol/ntp.h>
+#include <cyberprobe/protocol/rtp.h>
+#include <cyberprobe/protocol/rtp_ssl.h>
+#include <cyberprobe/protocol/sip.h>
+#include <cyberprobe/protocol/sip_ssl.h>
 
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 std::vector<udp_ports::fn> udp_ports::port_handler(65536, nullptr);

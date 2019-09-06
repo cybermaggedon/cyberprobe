@@ -1,5 +1,5 @@
 
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 
 #include <iostream>
 #include <memory>
@@ -11,19 +11,21 @@
 
 #include <stdlib.h>
 
+using namespace cyberprobe::tcpip;
+
 class receiver;
 
 class connection {
 
 private:
-    std::shared_ptr<tcpip::stream_socket> s;
+    std::shared_ptr<stream_socket> s;
     receiver &r;
     bool running;
     std::ofstream out;
     std::thread* thr;
 
 public:
-    connection(std::shared_ptr<tcpip::stream_socket> s, receiver& r,
+    connection(std::shared_ptr<stream_socket> s, receiver& r,
 	       std::string fname) : s(s), r(r) {
 	running = true;
 	std::cout << "Writing to " << fname << std::endl;
@@ -55,7 +57,7 @@ private:
     std::string base;
     int oneup;
 
-    std::shared_ptr<tcpip::stream_socket> svr;
+    std::shared_ptr<stream_socket> svr;
 
     std::mutex close_me_mutex;
     std::queue<connection*> close_mes;
@@ -65,7 +67,7 @@ private:
 public:
     receiver(int port, const std::string& base) : base(base) {
 	running = true;
-	std::shared_ptr<tcpip::stream_socket> sock(new tcpip::tcp_socket);
+	std::shared_ptr<stream_socket> sock(new tcp_socket);
 	svr = sock;
 	svr->bind(port);
 	oneup = 0;
@@ -103,7 +105,7 @@ void receiver::run()
 
 	    if (activ) {
 
-		std::shared_ptr<tcpip::stream_socket> cn;
+		std::shared_ptr<stream_socket> cn;
 
 		try {
 		    cn = svr->accept();

@@ -8,9 +8,13 @@
 
 #include <thread>
 
+namespace cyberprobe {
+
+namespace capture {
+
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class vxlan_capture : public filtering_dev {
+class vxlan : public filtering_device {
 private:
 
     unsigned short port;
@@ -24,14 +28,14 @@ public:
     virtual void run();
 
     // Constructor.  i=interface name, d=packet consumer.
-    vxlan_capture(unsigned short port, float delay, packet_consumer& d) :
-        filtering_dev(d, delay, DLT_EN10MB) {
+    vxlan(unsigned short port, float delay, packet_consumer& d) :
+        filtering_device(d, delay, DLT_EN10MB) {
         this->port = port;
         this->running = true;
     }
 
     // Destructor.
-    virtual ~vxlan_capture() {}
+    virtual ~vxlan() {}
 
     virtual void stop() {
 	running = false;
@@ -43,8 +47,12 @@ public:
     }
     
     virtual void start() {
-	thr = new std::thread(&vxlan_capture::run, this);
+	thr = new std::thread(&vxlan::run, this);
     }
+
+};
+
+};
 
 };
 

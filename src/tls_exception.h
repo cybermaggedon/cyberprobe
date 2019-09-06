@@ -8,9 +8,9 @@
 #ifndef TLS_EXCEPTION_H
 #define TLS_EXCEPTION_H
 
-#include <cybermon/exception.h>
+#include <cyberprobe/exception.h>
 
-namespace cybermon {
+namespace cyberprobe {
 
 // A tls processing exception
     class tls_exception : public exception {

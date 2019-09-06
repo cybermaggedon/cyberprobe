@@ -5,12 +5,14 @@
 
 #include <sstream>
 
-#include <cybermon/cybermon-lua.h>
-#include <cybermon/forgery.h>
-#include <cybermon/pdu.h>
-#include <cybermon/event.h>
+#include <cyberprobe/analyser/cybermon-lua.h>
+#include <cyberprobe/protocol/forgery.h>
+#include <cyberprobe/protocol/pdu.h>
+#include <cyberprobe/event/event.h>
 
-using namespace cybermon;
+using namespace cyberprobe;
+using namespace cyberprobe::analyser;
+using namespace cyberprobe::protocol;
 
 cybermon_lua::cybermon_lua(const std::string& cfg)
 {
@@ -845,7 +847,7 @@ int cybermon_lua::context_describe_src(lua_State* lua)
 
     std::ostringstream buf;
 
-    cybermon::engine::describe_src(cd->ctxt, buf);
+    engine::describe_src(cd->ctxt, buf);
 
     cd->cml->pop(1);
 
@@ -863,7 +865,7 @@ int cybermon_lua::context_describe_dest(lua_State* lua)
 
     std::ostringstream buf;
 
-    cybermon::engine::describe_dest(cd->ctxt, buf);
+    engine::describe_dest(cd->ctxt, buf);
 
     cd->cml->pop(1);
 
