@@ -14,8 +14,9 @@ provides.  Synposes:
 
 @example
 cybermon [--help] [--transport TRANSPORT] [--port PORT] [--key KEY]
-        [--certificate CERT] [--trusted-ca CHAIN] [--pcap PCAP_FILE]
-        [--config CONFIG] [--vxlan VXLAN-PORT]
+        [--certificate CERT] [--trusted-ca CHAIN] [--pcap PCAP-FILE]
+        [--config CONFIG] [--vxlan VXLAN-PORT] [--interface IFACE]
+        [--device DEVICE] [--time-limit LIMIT]
 @end example
 
 @itemize @bullet
@@ -45,7 +46,7 @@ Only used in TLS mode.
 specifies a filename for trusted CA keys in PEM format.  Only used in TLS mode.
 
 @item
-@var{PCAP_FILE}
+@var{PCAP-FILE}
 is a PCAP file to read.  This form of the command reads the PCAP file, and
 then exits.  If the file is @samp{-}, standard input is read.
 
@@ -60,5 +61,20 @@ should take when certain events are observed.  See
 is a UDP port number.  This describes a port number to listen on for
 VXLAN protocol.  This scenario is used to receive traffic-mirrored data
 on AWS.
+
+@item
+@var{IFACE}
+is a network interface to sniff for packets as input.
+
+@item
+@var{DEVICE}
+is a device-name to include in the output events.  Use this to specify
+the device for PCAP files, interfaces or VXLAN input if you don't want the
+default placeholder.
+
+@item
+@var{LIMIT}
+is the length of time to run for (in seconds).  The program exits after this
+period.
 
 @end itemize
