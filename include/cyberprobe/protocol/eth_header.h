@@ -2,7 +2,8 @@
 #ifndef ETH_HEADER_H
 #define ETH_HEADER_H
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
     namespace eth {
 
@@ -71,7 +72,8 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif
 

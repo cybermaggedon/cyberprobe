@@ -4,12 +4,13 @@
 
 #include <stdint.h>
 
-#include "context.h"
-#include "manager.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 
 #include <deque>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
     
     class ip;
 
@@ -146,8 +147,10 @@ namespace cybermon {
     // Processing
     class ip {
 
+        using manager = cyberprobe::analyser::manager;
+
     public:
-	
+
 	// Calculate IP header cksum
 	static uint16_t calculate_cksum(pdu_iter s, 
 					pdu_iter e);
@@ -167,6 +170,7 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif

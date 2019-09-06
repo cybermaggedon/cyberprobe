@@ -7,6 +7,8 @@
 #include <arpa/inet.h>
 #include <sstream>
 
+using namespace cyberprobe;
+
 #ifdef NOT_USED
 
 namespace {
@@ -26,9 +28,9 @@ namespace {
 }
 #endif
 
-void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md)
+void tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t length, protocol::tls_handshake_protocol::ecdh_ptr md)
 {
-    pdu_iter dataPtr = pduSlice.start;
+    protocol::pdu_iter dataPtr = pduSlice.start;
     uint16_t dataLeft = length;
 
     md->curveType = *dataPtr;
@@ -153,7 +155,7 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
     }
 
     std::ostringstream oss;
-    for (pdu_iter iter=dataPtr;
+    for (protocol::pdu_iter iter=dataPtr;
          iter != dataPtr+hashLen;
          ++iter)
         {
@@ -165,9 +167,9 @@ void cybermon::tls_key_exchange::server_ecdh(const pdu_slice& pduSlice, uint16_t
 
 }
 
-void cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t length, std::vector<uint8_t>& key)
+void tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t length, std::vector<uint8_t>& key)
 {
-    pdu_iter dataPtr = pduSlice.start;
+    protocol::pdu_iter dataPtr = pduSlice.start;
     uint16_t dataLeft = length;
 
     uint8_t pointLen = *dataPtr;
@@ -184,7 +186,7 @@ void cybermon::tls_key_exchange::client_ecdh(const pdu_slice& pduSlice, uint16_t
 
 }
 
-std::string cybermon::tls_key_exchange::to_string(const NamedCurve nc) {
+std::string tls_key_exchange::to_string(const NamedCurve nc) {
     switch (nc)
         {
         case sect163k1:

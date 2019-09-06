@@ -2,10 +2,11 @@
 #ifndef CYBERMON_ICMP_H
 #define CYBERMON_ICMP_H
 
-#include "context.h"
-#include "observer.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/observer.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
     
     // ICMP context.  No address information, just flagging the presence of
     // ICMP.
@@ -39,6 +40,8 @@ namespace cybermon {
     
     class icmp {
 
+        using manager = cyberprobe::analyser::manager;
+
     public:
 	
 	// ICMP processing function.
@@ -46,7 +49,8 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif
 

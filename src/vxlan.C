@@ -1,10 +1,11 @@
 
-#include <cybermon/vxlan.h>
-#include <cybermon/socket.h>
+#include <cyberprobe/stream/vxlan.h>
+#include <cyberprobe/network/socket.h>
+#include <cyberprobe/protocol/pdu.h>
 
 #include <vector>
 
-using namespace cybermon::vxlan;
+using namespace cyberprobe::vxlan;
 
 // VXLAN receiver
 void receiver::run()
@@ -86,15 +87,17 @@ void receiver::run()
                 timeval tv;
                 gettimeofday(&tv, 0);
 
+                using pdu_slice = cyberprobe::protocol::pdu_slice;
+                using direction = cyberprobe::protocol::direction;
 
                 if (device == "") {
                     std::string vni_device;
                     vni_device = "VNI" + std::to_string(vxlan_id);
                     mon(vni_device, "",
-                        pdu_slice(p, buffer.end(), tv, NOT_KNOWN));
+                        pdu_slice(p, buffer.end(), tv, direction::NOT_KNOWN));
                 } else
                     mon(device, "",
-                        pdu_slice(p, buffer.end(), tv, NOT_KNOWN));
+                        pdu_slice(p, buffer.end(), tv, direction::NOT_KNOWN));
             
             }
 

@@ -12,15 +12,17 @@
 
 #include <set>
 
-#include "context.h"
-#include "manager.h"
-#include "serial.h"
-#include "protocol.h"
-#include "dns_protocol.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/util/serial.h>
+#include <cyberprobe/analyser/protocol.h>
+#include <cyberprobe/protocol/dns_protocol.h>
 
-namespace cybermon {
+namespace cyberprobe {
 
-// A DNS context.
+namespace protocol {
+
+    // A DNS context.
     class dns_context : public context
     {
     public:
@@ -58,7 +60,9 @@ namespace cybermon {
 
     };
 
-}; // End namespace
+} // End namespace
+
+}
 
 #endif
 

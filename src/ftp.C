@@ -1,15 +1,15 @@
 
-#include <cybermon/address.h>
-#include <cybermon/ftp.h>
-#include <cybermon/manager.h>
-#include <cybermon/ip.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/ftp.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/ip.h>
+#include <cyberprobe/event/event_implementations.h>
 
 #include <regex>
 #include <iostream>
 #include <ctype.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 // FTP processing function.

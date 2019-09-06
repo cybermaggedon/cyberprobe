@@ -8,15 +8,17 @@
 #ifndef CYBERMON_IMAP_CONTEXT_H
 #define CYBERMON_IMAP_CONTEXT_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/analyser/protocol.h>
 
-
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
     
-    class imap_context : public context
-    {
+    class imap_context : public context {
+
+        using manager = cyberprobe::analyser::manager;
+
     public:
 
         // Constructor.
@@ -53,7 +55,8 @@ namespace cybermon
             }
     };
 
-}; // End namespace
+}
+}
 
 #endif
 

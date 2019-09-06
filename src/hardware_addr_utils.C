@@ -5,7 +5,7 @@
 #include <sstream>
 
 
-std::string cybermon::hw_addr_utils::to_string(const uint8_t* addr)
+std::string cyberprobe::hw_addr_utils::to_string(const uint8_t* addr)
 {
     std::ostringstream oss;
     for (int i=0; i<6; ++i)

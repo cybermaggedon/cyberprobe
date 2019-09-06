@@ -12,12 +12,13 @@
 
 #include <set>
 
-#include "context.h"
-#include "manager.h"
-#include "serial.h"
-#include "protocol.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/util/serial.h>
+#include <cyberprobe/analyser/protocol.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
     // SMTP client parser.
     class smtp_client_parser {
@@ -172,6 +173,8 @@ namespace cybermon {
 
     private:
 
+        using manager = cyberprobe::analyser::manager;
+
         // SMTP client request processing function.
         static void process_client(manager&, context_ptr c,
                                    const pdu_slice& sl);
@@ -181,7 +184,8 @@ namespace cybermon {
                                    const pdu_slice& sl);
     };
 
-};
+}
+}
 
 #endif
 

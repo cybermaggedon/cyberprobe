@@ -2,7 +2,7 @@
 #include "readline.h"
 #include <iostream>
 #include <sstream>
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 #include <vector>
 #include <regex>
 #include <iomanip>
@@ -17,6 +17,9 @@
 using json = nlohmann::json;
 auto match_cont = std::regex_constants::match_continuous;
 
+using namespace cyberprobe::tcpip;
+using namespace cyberprobe;
+
 std::vector<std::string> commands;
 std::vector<std::string> add_commands;
 std::vector<std::string> remove_commands;
@@ -26,8 +29,7 @@ std::vector<std::string> classes;
 std::vector<std::string>::iterator table_pos;
 std::vector<std::string>::iterator table_end;
 
-void cmd_json(tcpip::tcp_socket& sock,
-              const json& req, json& res)
+void cmd_json(tcp_socket& sock, const json& req, json& res)
 {
 
     sock.write(req.dump() + "\n");
@@ -50,7 +52,7 @@ void cmd_json(tcpip::tcp_socket& sock,
 
 }
 
-bool cmd_auth(tcpip::tcp_socket& sock,
+bool cmd_auth(tcp_socket& sock,
               const std::string& username,
               const std::string& password)
 {
@@ -74,7 +76,7 @@ bool cmd_auth(tcpip::tcp_socket& sock,
 
 }
         
-bool cmd_add_interface(tcpip::tcp_socket& sock,
+bool cmd_add_interface(tcp_socket& sock,
                        const std::string& ifa,
                        const std::string& delay,
                        const std::string& filter)
@@ -106,7 +108,7 @@ bool cmd_add_interface(tcpip::tcp_socket& sock,
 
 }
  
-bool cmd_remove_interface(tcpip::tcp_socket& sock,
+bool cmd_remove_interface(tcp_socket& sock,
                        const std::string& ifa,
                        const std::string& delay,
                        const std::string& filter)
@@ -138,7 +140,7 @@ bool cmd_remove_interface(tcpip::tcp_socket& sock,
 
 }
      
-bool cmd_add_target(tcpip::tcp_socket& sock,
+bool cmd_add_target(tcp_socket& sock,
                     const std::string& device,
                     const std::string& cls,
                     const std::string& addr,
@@ -190,7 +192,7 @@ bool cmd_add_target(tcpip::tcp_socket& sock,
     }
 
 }
-bool cmd_remove_target(tcpip::tcp_socket& sock,
+bool cmd_remove_target(tcp_socket& sock,
                        const std::string& device,
                        const std::string& cls,
                        const std::string& addr,
@@ -243,7 +245,7 @@ bool cmd_remove_target(tcpip::tcp_socket& sock,
 
 }
 
-bool cmd_add_parameter(tcpip::tcp_socket& sock,
+bool cmd_add_parameter(tcp_socket& sock,
                         const std::string& k,
                         const std::string& v)
 {
@@ -270,7 +272,7 @@ bool cmd_add_parameter(tcpip::tcp_socket& sock,
 
 }
   
-bool cmd_remove_parameter(tcpip::tcp_socket& sock,
+bool cmd_remove_parameter(tcp_socket& sock,
                           const std::string& k)
 {
 
@@ -295,7 +297,7 @@ bool cmd_remove_parameter(tcpip::tcp_socket& sock,
 
 }
   
-bool cmd_add_endpoint(tcpip::tcp_socket& sock,
+bool cmd_add_endpoint(tcp_socket& sock,
                       const std::string& hostname,
                       const std::string& port,
                       const std::string& type,
@@ -335,7 +337,7 @@ bool cmd_add_endpoint(tcpip::tcp_socket& sock,
 
 }
 
-bool cmd_remove_endpoint(tcpip::tcp_socket& sock,
+bool cmd_remove_endpoint(tcp_socket& sock,
                       const std::string& hostname,
                       const std::string& port,
                       const std::string& type,
@@ -380,7 +382,7 @@ void cmd_help()
     std::cerr << "Not implemented. :) " << std::endl;
 }
 
-void cmd_endpoints(tcpip::tcp_socket& sock) 
+void cmd_endpoints(tcp_socket& sock) 
 {
 
     json req = {
@@ -424,7 +426,7 @@ void cmd_endpoints(tcpip::tcp_socket& sock)
     
 }
 
-void cmd_targets(tcpip::tcp_socket& sock) 
+void cmd_targets(tcp_socket& sock) 
 {
 
     json req = {
@@ -482,7 +484,7 @@ void cmd_targets(tcpip::tcp_socket& sock)
       
 }
 
-void cmd_interfaces(tcpip::tcp_socket& sock) 
+void cmd_interfaces(tcp_socket& sock) 
 {
 
     json req = {
@@ -526,7 +528,7 @@ void cmd_interfaces(tcpip::tcp_socket& sock)
       
 }
 
-void cmd_parameters(tcpip::tcp_socket& sock) 
+void cmd_parameters(tcp_socket& sock) 
 {
 
     json req = {
@@ -757,7 +759,7 @@ int client(int argc, char** argv)
     unsigned int port;
     buf >> port;
 
-    tcpip::tcp_socket sock;
+    tcp_socket sock;
     sock.connect(host, port);
 
     std::cout << "Connected.  You must authenticate." << std::endl;

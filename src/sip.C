@@ -1,20 +1,18 @@
 
-#include <cybermon/sip.h>
+#include <cyberprobe/protocol/sip.h>
 
 #include <regex>
 #include <string>
 
-#include <cybermon/address.h>
-#include <cybermon/flow.h>
-#include <cybermon/rtp.h>
-#include <cybermon/sip_context.h>
-#include <cybermon/tcp_ports.h>
-#include <cybermon/udp_ports.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/flow.h>
+#include <cyberprobe/protocol/rtp.h>
+#include <cyberprobe/protocol/sip_context.h>
+#include <cyberprobe/protocol/tcp_ports.h>
+#include <cyberprobe/protocol/udp_ports.h>
+#include <cyberprobe/event/event_implementations.h>
 
-
-using namespace cybermon;
-
+using namespace cyberprobe::protocol;
 
 void sip::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {

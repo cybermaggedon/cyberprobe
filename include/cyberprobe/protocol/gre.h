@@ -2,10 +2,11 @@
 #ifndef CYBERMON_GRE_H
 #define CYBERMON_GRE_H
 
-#include "context.h"
-#include "observer.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/observer.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
 // GRE context.  No address information, just flagging the presence of
 // GRE.
@@ -36,6 +37,7 @@ namespace cybermon {
     };
 
     class gre {
+        using manager = cyberprobe::analyser::manager;
     public:
 
 	// GRE processing function.
@@ -58,6 +60,7 @@ namespace cybermon {
         static std::string get_next_proto(const gre_header* hdr);
     };
 
-} // namespace cybermon
+}
+}
 
 #endif

@@ -1,26 +1,26 @@
 
-#include <cybermon/tcp.h>
+#include <cyberprobe/protocol/tcp.h>
 
 #include <regex>
 #include <set>
 
-#include <cybermon/manager.h>
-#include <cybermon/pdu.h>
-#include <cybermon/context.h>
-#include <cybermon/http.h>
-#include <cybermon/unrecognised.h>
-#include <cybermon/forgery.h>
-#include <cybermon/ftp.h>
-#include <cybermon/imap.h>
-#include <cybermon/imap_ssl.h>
-#include <cybermon/pop3.h>
-#include <cybermon/pop3_ssl.h>
-#include <cybermon/smtp.h>
-#include <cybermon/smtp_auth.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/pdu.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/protocol/http.h>
+#include <cyberprobe/protocol/unrecognised.h>
+#include <cyberprobe/protocol/forgery.h>
+#include <cyberprobe/protocol/ftp.h>
+#include <cyberprobe/protocol/imap.h>
+#include <cyberprobe/protocol/imap_ssl.h>
+#include <cyberprobe/protocol/pop3.h>
+#include <cyberprobe/protocol/pop3_ssl.h>
+#include <cyberprobe/protocol/smtp.h>
+#include <cyberprobe/protocol/smtp_auth.h>
+#include <cyberprobe/event/event_implementations.h>
 
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 const unsigned int tcp_context::ident_buffer_max = 20;

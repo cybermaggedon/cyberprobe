@@ -4,14 +4,15 @@
 #include <tls_extensions.h>
 #include <tls_exception.h>
 
-#include <cybermon/tls_handshake_protocol.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/tls_handshake_protocol.h>
+#include <cyberprobe/event/event_implementations.h>
 #include <tls_key_exchange.h>
 
 #include <arpa/inet.h>
 #include <iomanip>
 
-using namespace cybermon;
+using namespace cyberprobe;
+using namespace cyberprobe::protocol;
 
 void tls_handshake::process(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, const tls::header* hdr)
 {

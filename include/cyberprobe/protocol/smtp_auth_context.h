@@ -8,11 +8,11 @@
 #ifndef CYBERMON_SMTP_AUTH_CONTEXT_H
 #define CYBERMON_SMTP_AUTH_CONTEXT_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
     
 // An SMTP_AUTH context.
     class smtp_auth_context : public context
@@ -53,7 +53,8 @@ namespace cybermon
             }
     };
 
-}; // End namespace
+}
+}
 
 #endif
 

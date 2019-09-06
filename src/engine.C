@@ -1,9 +1,10 @@
 
-#include <cybermon/context.h>
-#include <cybermon/engine.h>
-#include <cybermon/ip.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/engine.h>
+#include <cyberprobe/protocol/ip.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
+using namespace cyberprobe::analyser;
 
 context_ptr engine::get_root_context(const std::string& device,
 				     const std::string& network)

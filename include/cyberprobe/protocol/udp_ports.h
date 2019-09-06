@@ -8,17 +8,18 @@
 #define CYBERMON_UDP_PORTS_H
 
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 #include <cyberprobe/protocol/pdu.h>
 #include <vector>
 
-
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
 
     class udp_ports
     {
+
+        using manager = cyberprobe::analyser::manager;
 
     private:
 
@@ -44,6 +45,7 @@ namespace cybermon
 
     }; // End class
 
-}; // End namespace
+}
+}
 
 #endif

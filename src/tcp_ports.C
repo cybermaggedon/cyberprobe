@@ -1,21 +1,21 @@
-#include <cybermon/tcp_ports.h>
+#include <cyberprobe/protocol/tcp_ports.h>
 
-#include <cybermon/dns_over_tcp.h>
-#include <cybermon/ftp.h>
-#include <cybermon/imap.h>
-#include <cybermon/imap_ssl.h>
-#include <cybermon/pop3.h>
-#include <cybermon/pop3_ssl.h>
-#include <cybermon/rtp.h>
-#include <cybermon/rtp_ssl.h>
-#include <cybermon/sip.h>
-#include <cybermon/sip_ssl.h>
-#include <cybermon/smtp.h>
-#include <cybermon/smtp_auth.h>
-#include <cybermon/tls.h>
+#include <cyberprobe/protocol/dns_over_tcp.h>
+#include <cyberprobe/protocol/ftp.h>
+#include <cyberprobe/protocol/imap.h>
+#include <cyberprobe/protocol/imap_ssl.h>
+#include <cyberprobe/protocol/pop3.h>
+#include <cyberprobe/protocol/pop3_ssl.h>
+#include <cyberprobe/protocol/rtp.h>
+#include <cyberprobe/protocol/rtp_ssl.h>
+#include <cyberprobe/protocol/sip.h>
+#include <cyberprobe/protocol/sip_ssl.h>
+#include <cyberprobe/protocol/smtp.h>
+#include <cyberprobe/protocol/smtp_auth.h>
+#include <cyberprobe/protocol/tls.h>
 
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 std::vector<tcp_ports::fn> tcp_ports::port_handler(65536, nullptr);

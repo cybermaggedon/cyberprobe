@@ -1,11 +1,12 @@
 
 #include <memory>
 
-#include <cybermon/icmp.h>
-#include <cybermon/manager.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/icmp.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/event/event_implementations.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
+using namespace cyberprobe::analyser;
 
 void icmp::process(manager& mgr, context_ptr c, const pdu_slice& sl)
 {

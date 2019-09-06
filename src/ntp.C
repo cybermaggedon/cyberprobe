@@ -1,13 +1,13 @@
 
-#include <cybermon/ntp.h>
-#include <cybermon/manager.h>
-#include <cybermon/address.h>
-#include <cybermon/udp.h>
-#include <cybermon/ip.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/ntp.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/udp.h>
+#include <cyberprobe/protocol/ip.h>
+#include <cyberprobe/event/event_implementations.h>
 
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 void ntp::process(manager& mgr, context_ptr c, const pdu_slice& sl)

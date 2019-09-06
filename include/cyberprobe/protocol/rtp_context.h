@@ -8,12 +8,12 @@
 #ifndef CYBERMON_RTP_CONTEXT_H
 #define CYBERMON_RTP_CONTEXT_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 
 
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
     
     class rtp_context : public context
     {
@@ -53,7 +53,8 @@ namespace cybermon
             }
     };
 
-}; // End namespace
+}
+}
 
 #endif
 

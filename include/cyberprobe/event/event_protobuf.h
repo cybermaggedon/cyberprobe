@@ -12,7 +12,7 @@
 
 #include <string>
 
-namespace cybermon {
+namespace cyberprobe {
 
     namespace event {
 	

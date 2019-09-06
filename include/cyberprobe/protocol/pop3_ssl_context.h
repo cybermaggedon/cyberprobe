@@ -8,12 +8,13 @@
 #ifndef CYBERMON_POP3_SSL_CONTEXT_H
 #define CYBERMON_POP3_SSL_CONTEXT_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 
 
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
+
     class pop3_ssl_context : public context
     {
     public:
@@ -52,7 +53,8 @@ namespace cybermon
             }
     };
 
-}; // End namespace
+}
+}
 
 #endif
 

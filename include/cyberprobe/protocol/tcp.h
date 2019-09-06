@@ -12,14 +12,15 @@
 
 #include <set>
 
-#include "context.h"
-#include "manager.h"
-#include "serial.h"
-#include "protocol.h"
-#include "tcp_ports.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/util/serial.h>
+#include <cyberprobe/analyser/protocol.h>
+#include <cyberprobe/protocol/tcp_ports.h>
 
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
     class tcp_segment {
     public:
@@ -49,11 +50,13 @@ namespace cybermon {
 	bool svc_idented;
 	process_fn processor;
 
+        typedef cyberprobe::util::serial<uint32_t, uint32_t> serial;
+        
 	// Sequence number.
-	serial<int32_t, uint32_t> seq_expected;
+	serial seq_expected;
 
 	// Sequence number, only used in packet forgery.
-	serial<int32_t, uint32_t> ack_received;
+	serial ack_received;
 
 	// Segments buffer for reassembly.
 	static const unsigned int max_segments;
@@ -134,7 +137,8 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif
 

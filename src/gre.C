@@ -1,15 +1,15 @@
-#include <cybermon/gre.h>
+#include <cyberprobe/protocol/gre.h>
 
-#include <cybermon/manager.h>
-#include <cybermon/ip.h>
-#include <cybermon/802_11.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/ip.h>
+#include <cyberprobe/protocol/802_11.h>
+#include <cyberprobe/event/event_implementations.h>
 
 #include <arpa/inet.h>
 #include <iomanip>
 #include <sstream>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 ///////////////////////////////////////////////////////////////////////////////
 // context

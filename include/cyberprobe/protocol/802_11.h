@@ -2,10 +2,11 @@
 #ifndef CYBERMON_802_11_H
 #define CYBERMON_802_11_H
 
-#include "context.h"
-#include "observer.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/observer.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
 // 802.11 context.  No address information, just flagging the presence of
 // 802.11.
@@ -36,6 +37,7 @@ namespace cybermon {
     };
 
     class wlan {
+        using manager = cyberprobe::analyser::manager;
     public:
 
 	// 802.11 processing function.
@@ -52,6 +54,7 @@ namespace cybermon {
         };
     };
 
-} // namespace cybermon
+}
+}
 
 #endif

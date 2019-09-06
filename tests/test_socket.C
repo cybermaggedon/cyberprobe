@@ -1,7 +1,9 @@
 
 #include <iostream>
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 #include <assert.h>
+
+using namespace cyberprobe;
 
 int main(int argc, char** argv)
 {

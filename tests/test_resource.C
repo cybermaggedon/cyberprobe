@@ -1,5 +1,5 @@
 
-#include <cybermon/resource.h>
+#include <cyberprobe/resources/resource.h>
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -12,7 +12,7 @@
 std::map<std::string, bool> running;
 
 // Lion spec, doesn't do anything useful.
-class lion_spec : public cybermon::specification {
+class lion_spec : public cyberprobe::specification {
 public:
     std::string name;
     lion_spec(const std::string& name) : name(name) {}
@@ -21,7 +21,7 @@ public:
 };
 
 // Tiger spec, doesn't do anything useful.
-class tiger_spec : public cybermon::specification {
+class tiger_spec : public cyberprobe::specification {
 public:
     std::string name;
     tiger_spec(const std::string& name) : name(name) {}
@@ -30,7 +30,7 @@ public:
 };
 
 // Lion resource
-class lion : public cybermon::resource {
+class lion : public cyberprobe::resource {
 public:
     lion(const lion_spec& spec) : name(spec.name) {}
     std::string name;
@@ -45,7 +45,7 @@ public:
 };
 
 // Tiger resource
-class tiger : public cybermon::resource {
+class tiger : public cyberprobe::resource {
 public:
     tiger(const tiger_spec& spec) : name(spec.name) {}
     std::string name;
@@ -62,14 +62,14 @@ public:
 // Resource manager.  Creates lion and tiger resources.  The 'read' method
 // ignores the configuration file and just has some hard-coded logic for
 // creating resources.
-class test_resource_mgr : public cybermon::resource_manager {
+class test_resource_mgr : public cyberprobe::resource_manager {
 private:
     virtual bool newer(const std::string& file, long& tm) { return true; }
 
 protected:
 
     // Resource creator.
-    virtual cybermon::resource* create(cybermon::specification& spec) {
+    virtual cyberprobe::resource* create(cyberprobe::specification& spec) {
 
 	if (spec.get_type() == "lion") {
 	    lion_spec& s = dynamic_cast<lion_spec&>(spec);
@@ -87,7 +87,7 @@ protected:
 
     // Reads the (non-existent) configuration file.
     virtual void read(const std::string& file,
-		      std::list<cybermon::specification*>& specs) {
+		      std::list<cyberprobe::specification*>& specs) {
 
 	static bool here = false;
 

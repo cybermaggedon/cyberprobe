@@ -36,15 +36,6 @@ namespace cyberprobe {
 
     using pdu = protocol::pdu;
     using context_ptr = protocol::context_ptr;
-    using dns_header = protocol::dns_header;
-    using dns_query = protocol::dns_query;
-    using dns_rr = protocol::dns_rr;
-    using ntp_hdr = protocol::ntp_hdr;
-    using ntp_timestamp = protocol::ntp_timestamp;
-    using ntp_control = protocol::ntp_control;
-    using ntp_private = protocol::ntp_private;
-//    using context_ptr = protocol::context_ptr;
-//    using context_ptr = protocol::context_ptr;
 
     // Generic C++ wrapper around LUA.
     class lua_state {
@@ -542,25 +533,25 @@ delete[] buf;
 	void push(const timeval& time);
 
 	// Push DNS stuff.
-	void push(const dns_header&);
-	void push(const dns_query&);
-	void push(const std::list<dns_query>&);
-	void push(const dns_rr&);
-	void push(const std::list<dns_rr>&);
+	void push(const protocol::dns_header&);
+	void push(const protocol::dns_query&);
+	void push(const std::list<protocol::dns_query>&);
+	void push(const protocol::dns_rr&);
+	void push(const std::list<protocol::dns_rr>&);
 
-	void to_dns_header(int pos, dns_header&);
+	void to_dns_header(int pos, protocol::dns_header&);
 
-	void to_dns_query(int pos, dns_query&);
-	void to_dns_queries(int pos, std::list<dns_query>&);
+	void to_dns_query(int pos, protocol::dns_query&);
+	void to_dns_queries(int pos, std::list<protocol::dns_query>&);
 
-	void to_dns_rr(int pos, dns_rr&);
-	void to_dns_rrs(int pos, std::list<dns_rr>&);
+	void to_dns_rr(int pos, protocol::dns_rr&);
+	void to_dns_rrs(int pos, std::list<protocol::dns_rr>&);
 	
 	// Push NTP stuff
-	void push(const ntp_hdr&);
-	void push(const ntp_timestamp&);
-	void push(const ntp_control&);
-	void push(const ntp_private&);
+	void push(const protocol::ntp_hdr&);
+	void push(const protocol::ntp_timestamp&);
+	void push(const protocol::ntp_control&);
+	void push(const protocol::ntp_private&);
 
 	// Call the config.event function as event(content, event)
 	void event(analyser::engine& an, std::shared_ptr<event::event> ev);

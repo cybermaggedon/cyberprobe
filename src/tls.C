@@ -1,7 +1,7 @@
-#include <cybermon/tls.h>
+#include <cyberprobe/protocol/tls.h>
 
-#include <cybermon/unrecognised.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/unrecognised.h>
+#include <cyberprobe/event/event_implementations.h>
 
 #include <tls_handshake.h>
 #include <tls_utils.h>
@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <arpa/inet.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 // anonymous namespace
 namespace {

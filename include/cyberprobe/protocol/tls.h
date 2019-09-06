@@ -2,11 +2,12 @@
 #ifndef CYBERMON_TLS_H
 #define CYBERMON_TLS_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 #include <cyberprobe/protocol/pdu.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
     class tls_context : public context {
     public:
@@ -49,6 +50,7 @@ namespace cybermon {
     };
 
     class tls {
+        using manager = cyberprobe::analyser::manager;
     public:
         static void process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice);
 
@@ -69,6 +71,7 @@ namespace cybermon {
         static void applicationData(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice, const header* hdr);
     };
 
-} // namespace cybermon
+}
+}
 
 #endif

@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace cybermon {
+namespace cyberprobe {
     namespace tls_utils {
         std::string convertTLSVersion(uint8_t maj, uint8_t min);
     }

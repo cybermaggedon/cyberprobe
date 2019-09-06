@@ -1,15 +1,15 @@
 
-#include <cybermon/address.h>
-#include <cybermon/smtp.h>
-#include <cybermon/manager.h>
-#include <cybermon/event_implementations.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/smtp.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/event/event_implementations.h>
 
 #include <regex>
 #include <iostream>
 
 #include <ctype.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 // SMTP processing function.

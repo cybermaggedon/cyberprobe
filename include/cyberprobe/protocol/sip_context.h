@@ -8,14 +8,14 @@
 #ifndef CYBERMON_SIP_CONTEXT_H
 #define CYBERMON_SIP_CONTEXT_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 
 #include <memory>
 
 
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
     
     class sip_context : public context
     {
@@ -45,7 +45,8 @@ namespace cybermon
         uint16_t video_port;
     };
 
-}; // End namespace
+}
+}
 
 #endif
 

@@ -1,14 +1,14 @@
 
-#include <cybermon/udp.h>
+#include <cyberprobe/protocol/udp.h>
 
-#include <cybermon/address.h>
-#include <cybermon/flow.h>
-#include <cybermon/manager.h>
-#include <cybermon/udp_ports.h>
-#include <cybermon/unrecognised.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/flow.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/udp_ports.h>
+#include <cyberprobe/protocol/unrecognised.h>
 
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 
 void udp::process(manager& mgr, context_ptr c, const pdu_slice& sl)

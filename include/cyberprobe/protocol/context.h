@@ -5,8 +5,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef CYBERMON_CONTEXT_H
-#define CYBERMON_CONTEXT_H
+#ifndef CYBERPROBE_PROTOCOL_CONTEXT_H
+#define CYBERPROBE_PROTOCOL_CONTEXT_H
 
 #include <sys/time.h>
 
@@ -30,11 +30,13 @@ namespace protocol {
     protected:
 
 	// Watcher, tidies things up when they get old.
-	manager& mgr;
+        analyser::manager& mgr;
 
     public:
 
-	manager& get_manager() { return mgr; }
+        using manager = cyberprobe::analyser::manager;
+        
+        manager& get_manager() { return mgr; }
 
 	// Default time-to-live.
 	static const int default_ttl = 120;
@@ -257,9 +259,9 @@ namespace protocol {
 	virtual std::string get_type() { return "root"; }
     };
 
-};
+}
 
-};
+}
 
 #endif
 

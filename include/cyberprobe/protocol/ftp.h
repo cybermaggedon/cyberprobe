@@ -12,12 +12,13 @@
 
 #include <set>
 
-#include "context.h"
-#include "manager.h"
-#include "serial.h"
-#include "protocol.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/util/serial.h>
+#include <cyberprobe/analyser/protocol.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
     // FTP client parser.
     class ftp_client_parser {
@@ -183,7 +184,8 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif
 

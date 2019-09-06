@@ -13,12 +13,13 @@
 
 #include <set>
 
-#include "context.h"
-#include "manager.h"
-#include "serial.h"
-#include "protocol.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/util/serial.h>
+#include <cyberprobe/analyser/protocol.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
     // HTTP parser.  The request / response structures are almost identical,
     // so this parser make most use of the commonality.
@@ -239,6 +240,7 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif

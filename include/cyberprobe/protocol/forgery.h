@@ -50,7 +50,9 @@ namespace protocol {
 
     };
 
-};
+}
+
+}
 
 #endif
 

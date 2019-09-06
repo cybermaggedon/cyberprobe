@@ -24,9 +24,9 @@
 //     name in CNAME data, the name in PTR data, the name in MX data, or one
 //     of the names in SOA data. 
 
-#include <cybermon/dns_protocol.h>
+#include <cyberprobe/protocol/dns_protocol.h>
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 pdu_iter& dns_decoder::validate_iter(pdu_iter& pos, pdu_iter e)
 {

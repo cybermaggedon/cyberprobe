@@ -136,9 +136,9 @@ namespace cyberprobe {
             protocol::direction direc;
 	};
 
-    };
+    }
 
-};
+}
 
 #endif
 

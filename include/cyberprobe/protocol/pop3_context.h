@@ -8,12 +8,12 @@
 #ifndef CYBERMON_POP3_CONTEXT_H
 #define CYBERMON_POP3_CONTEXT_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 
 
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
     
 // A POP3 context.
     class pop3_context : public context
@@ -54,7 +54,8 @@ namespace cybermon
             }
     };
 
-}; // End namespace
+}
+}
 
 #endif
 

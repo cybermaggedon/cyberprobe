@@ -12,11 +12,12 @@
 
 #include <set>
 
-#include <cybermon/context.h>
-#include "manager.h"
-#include "protocol.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/analyser/protocol.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
     
     // An unrecoginsed stream.
     class unrecognised_stream_context : public context {
@@ -117,7 +118,8 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif
 

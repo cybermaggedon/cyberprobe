@@ -28,7 +28,7 @@ public:
     output(cyberprobe::pcap::writer& p) : p(p) {}
     virtual void operator()(const std::string& liid,
 			    const std::string& network,
-                            analyser::pdu_slice s) {
+                            protocol::pdu_slice s) {
         std::lock_guard<std::mutex> lock(mutex);
 	p.write(s.start, s.end);
     }

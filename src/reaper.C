@@ -3,7 +3,9 @@
 #include <iostream>
 #include <list>
 
-#include <cybermon/reaper.h>
+#include <cyberprobe/util/reaper.h>
+
+using namespace cyberprobe::util;
 
 void reaper::run()
 {

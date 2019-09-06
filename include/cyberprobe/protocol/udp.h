@@ -8,16 +8,20 @@
 #ifndef CYBERMON_UDP_H
 #define CYBERMON_UDP_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
-#include <cybermon/protocol.h>
-#include <cybermon/udp_ports.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/udp_ports.h>
+#include <cyberprobe/analyser/protocol.h>
 
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
     
     // A UDP context.
     class udp_context : public context {
+
+        using manager = cyberprobe::analyser::manager;
+
     public:
 
         // Once identified, the processing function.
@@ -68,7 +72,8 @@ namespace cybermon {
 
     };
 
-};
+}
+}
 
 #endif
 

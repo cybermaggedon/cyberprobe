@@ -8,12 +8,12 @@
 #ifndef CYBERMON_IMAP_SSL_CONTEXT_H
 #define CYBERMON_IMAP_SSL_CONTEXT_H
 
-#include <cybermon/context.h>
-#include <cybermon/manager.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/manager.h>
 
 
-namespace cybermon
-{
+namespace cyberprobe {
+namespace protocol {
     
     class imap_ssl_context : public context
     {
@@ -53,7 +53,8 @@ namespace cybermon
             }
     };
 
-}; // End namespace
+}
+}
 
 #endif
 

@@ -2,10 +2,11 @@
 #ifndef CYBERMON_ESP_H
 #define CYBERMON_ESP_H
 
-#include "context.h"
-#include "observer.h"
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/observer.h>
 
-namespace cybermon {
+namespace cyberprobe {
+namespace protocol {
 
 // ESP context.  No address information, just flagging the presence of
 // ESP.
@@ -36,6 +37,7 @@ namespace cybermon {
     };
 
     class esp {
+        using manager = cyberprobe::analyser::manager;
     public:
 
 	// ESP processing function.
@@ -47,6 +49,7 @@ namespace cybermon {
         };
     };
 
-} // namespace cybermon
+}
+}
 
 #endif
