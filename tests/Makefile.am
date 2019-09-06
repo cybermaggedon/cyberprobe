@@ -72,11 +72,11 @@ AM_CPPFLAGS = -I$(srcdir)/../include -I${srcdir}/../src
 noinst_PROGRAMS = test_socket test_resource test_address_map
 
 test_socket_SOURCES = test_socket.C ../src/socket.C \
-	../include/cybermon/socket.h
+	../include/cyberprobe/network/socket.h
 test_socket_LDADD =
 
 test_resource_SOURCES = test_resource.C ../src/resource_manager.C \
-	../include/cybermon/resource.h
+	../include/cyberprobe/resources/resource.h
 test_resource_LDADD =
 
 test_address_map_SOURCES = test_address_map.C ../src/address_map.h

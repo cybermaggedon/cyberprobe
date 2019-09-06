@@ -1,5 +1,5 @@
 
-cybermonincdir = ${includedir}/cybermon
+cyberprobeincdir = ${includedir}/cyberprobe
 
-cybermoninc_HEADERS =
+cyberprobeinc_HEADERS =
 

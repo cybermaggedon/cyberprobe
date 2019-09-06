@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([cyberprobe], [2.3.7], [cyberprobe-discussion@googlegroups.com])
-AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
+AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects foreign])
 AC_CONFIG_SRCDIR([src/target.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

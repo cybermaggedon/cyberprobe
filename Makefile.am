@@ -11,7 +11,3 @@ EXTRA_DIST=debian
 DISTCHECK_CONFIGURE_FLAGS = \
   --with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)
 
-# No README.  README.md instead, this stops automake complaining about
-# missing README.
-README: README.md
-
