@@ -7,7 +7,7 @@
 #include "management.h"
 #include "capture.h"
 #include "packet_consumer.h"
-#include "address_map.h"
+#include <cyberprobe/util/address_map.h>
 #include "interface.h"
 #include "endpoint.h"
 #include "target.h"

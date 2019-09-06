@@ -17,7 +17,8 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C delivery.C		\
 	socket.C resource_manager.C					\
 	../include/cyberprobe/network/socket.h etsi_li.C		\
 	../include/cyberprobe/stream/etsi_li.h ber.C			\
-	../include/cyberprobe/stream/ber.h address_map.h
+	../include/cyberprobe/stream/ber.h \
+	../include/cyberprobe/util/address_map.h
 
 cyberprobe_LDADD = -lssl
 

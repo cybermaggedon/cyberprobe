@@ -79,7 +79,9 @@ test_resource_SOURCES = test_resource.C ../src/resource_manager.C \
 	../include/cyberprobe/resources/resource.h
 test_resource_LDADD =
 
-test_address_map_SOURCES = test_address_map.C ../src/address_map.h
+test_address_map_SOURCES = test_address_map.C	\
+        ../include/cyberprobe/util/address_map.h
+
 test_address_map_LDADD =
 
 $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4
