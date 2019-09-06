@@ -17,6 +17,10 @@
 
 #include <vxlan_capture.h>
 
+using namespace cyberprobe;
+
+using direction = cyberprobe::protocol::direction;
+
 // This method studies the packet data, and PCAP datalink attribute, and:
 // - Returns the IP version (4 or 6).
 // - Alters the start iterator to point at the start of the IP packet.
@@ -122,7 +126,7 @@ bool delivery::ipv4_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
 			  tcpip::ip4_address& hit,
-                          cybermon::direction& dir,
+                          direction& dir,
 			  const link_info& link)
 {
 
@@ -173,7 +177,7 @@ bool delivery::ipv4_match(const_iterator& start,
 
 	m = &(md->mangled.find(saddr)->second);
 	hit = saddr;
-        dir = cybermon::FROM_TARGET;
+        dir = direction::FROM_TARGET;
 	return true;
 
     }
@@ -207,7 +211,7 @@ bool delivery::ipv4_match(const_iterator& start,
 
 	m = &(md->mangled.find(daddr)->second);
 	hit = daddr;
-        dir = cybermon::TO_TARGET;
+        dir = direction::TO_TARGET;
 	return true;
 
     }
@@ -222,7 +226,7 @@ bool delivery::ipv6_match(const_iterator& start,
 			  const_iterator& end,
 			  const match*& m,
 			  tcpip::ip6_address& hit,
-                          cybermon::direction& dir,
+                          direction& dir,
 			  const link_info& link)
 {
 
@@ -273,7 +277,7 @@ bool delivery::ipv6_match(const_iterator& start,
 
 	m = &(md->mangled6.find(saddr)->second);
 	hit = saddr;
-        dir = cybermon::FROM_TARGET;
+        dir = direction::FROM_TARGET;
 	return true;
 
     }
@@ -307,7 +311,7 @@ bool delivery::ipv6_match(const_iterator& start,
 
 	m = &(md->mangled6.find(daddr)->second);
 	hit = daddr;
-        dir = cybermon::TO_TARGET;
+        dir = direction::TO_TARGET;
 	return true;
 
     }
@@ -342,7 +346,7 @@ void delivery::receive_packet(timeval tv,
 
 	const match* m = 0;
 	tcpip::ip4_address hit;
-        cybermon::direction dir;
+        direction dir;
 
 	// Match the IP addresses.
 	bool was_hit = ipv4_match(start, end, m, hit, dir, link);
@@ -368,7 +372,7 @@ void delivery::receive_packet(timeval tv,
 
 	const match* m = 0;
 	tcpip::ip6_address hit;
-        cybermon::direction dir;
+        direction dir;
 
 	// Match the IP addresses.
 	bool was_hit = ipv6_match(start, end, m, hit, dir, link);
@@ -410,7 +414,8 @@ void delivery::add_interface(const interface::spec& sp)
 
 	if (iface.substr(0, 3) == "dag") {
 
-	    dag_dev* p = new dag_dev(iface, delay, *this);
+            cyberprobe::capture::dag* p =
+                new cyberprobe::capture::dag(iface, delay, *this);
 	    if (filter != "")
 		p->add_filter(filter);
 	    p->start();
@@ -426,7 +431,8 @@ void delivery::add_interface(const interface::spec& sp)
 
             unsigned short port = std::stoi(iface.substr(6));
 
-            vxlan_capture* p = new vxlan_capture(port, sp.delay, *this);
+            cyberprobe::capture::vxlan* p =
+                new cyberprobe::capture::vxlan(port, sp.delay, *this);
             if (sp.filter != "")
                 p->add_filter(sp.filter);
             p->start();
@@ -436,7 +442,8 @@ void delivery::add_interface(const interface::spec& sp)
 
         }
 
-        pcap_dev* p = new pcap_dev(iface, sp.delay, *this);
+        cyberprobe::capture::interface* p =
+            new cyberprobe::capture::interface(iface, sp.delay, *this);
         if (sp.filter != "")
             p->add_filter(sp.filter);
         

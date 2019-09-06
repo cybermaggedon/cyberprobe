@@ -7,19 +7,21 @@
 #include <mutex>
 #include <thread>
 
-#include <cybermon/socket.h>
-#include <cybermon/specification.h>
-#include <cybermon/resource.h>
+#include <cyberprobe/network/socket.h>
+#include <cyberprobe/resources/specification.h>
+#include <cyberprobe/resources/resource.h>
 
 #include "management.h"
 #include "json.h"
+
+namespace cyberprobe {
 
 namespace control {
     
     using json = nlohmann::json;
     
     // Management interface specification.
-    class spec : public cybermon::specification {
+    class spec : public specification {
     public:
 
 	// Type is 'control'.
@@ -133,7 +135,7 @@ namespace control {
     };
 
     // Management service.
-    class service : public cybermon::resource {
+    class service : public resource {
 
     private:
 	
@@ -202,6 +204,8 @@ namespace control {
     void to_json(json& j, const spec& s);
     
     void from_json(const json& j, spec& s);
+
+};
 
 };
 

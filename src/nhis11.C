@@ -1,13 +1,15 @@
 
 #include <sys/time.h>
 
-#include <cybermon/transport.h>
-#include <cybermon/nhis11.h>
+#include <cyberprobe/protocol/pdu.h>
+#include <cyberprobe/stream/transport.h>
+#include <cyberprobe/stream/nhis11.h>
 
 #include <string>
 #include <vector>
 
-using namespace cybermon::nhis11;
+using namespace cyberprobe::nhis11;
+using namespace cyberprobe::protocol;
 
 // Next CID counter.
 unsigned long sender::next_cid;
@@ -173,7 +175,7 @@ void connection::run()
 	    struct timeval tv;
 	    gettimeofday(&tv, 0);
 	    p(liid, "",
-              pdu_slice(pdu.begin(), pdu.end(), tv, cybermon::NOT_KNOWN));
+              pdu_slice(pdu.begin(), pdu.end(), tv, direction::NOT_KNOWN));
 
 	}
 	

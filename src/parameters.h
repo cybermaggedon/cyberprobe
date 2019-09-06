@@ -4,6 +4,8 @@
 
 #include <string>
 
+namespace cyberprobe {
+
 // Interface to an class which knows about parameters.
 class parameters {
 public:
@@ -13,6 +15,8 @@ public:
     // default value is returned.
     virtual std::string get_parameter(const std::string& key,
 				      const std::string& deflt = "") = 0;
+};
+
 };
 
 #endif

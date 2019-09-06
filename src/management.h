@@ -10,7 +10,9 @@
 #include "target.h"
 #include "parameter.h"
 
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
+
+namespace cyberprobe {
 
 class management {
 
@@ -53,6 +55,8 @@ public:
 
     // Get all parameters.
     virtual void get_parameters(std::list<parameter::spec>& lst) = 0;
+
+};
 
 };
 

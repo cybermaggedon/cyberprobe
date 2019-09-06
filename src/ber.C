@@ -1,10 +1,10 @@
 
-#include <cybermon/ber.h>
+#include <cyberprobe/stream/ber.h>
 
 #include <algorithm>
 #include <iterator>
 
-using namespace cybermon::ber;
+using namespace cyberprobe::stream::ber;
 
 bool berpdu::read_pdu(tcpip::stream_socket& sock)
 {

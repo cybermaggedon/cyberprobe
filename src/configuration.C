@@ -10,9 +10,11 @@
 
 using json = nlohmann::json;
 
+using namespace cyberprobe;
+
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
-			  std::list<cybermon::specification*>& lst)
+			  std::list<specification*>& lst)
 {
 
     try {
@@ -86,7 +88,7 @@ void config_manager::read(const std::string& file,
 
         for(json::iterator it = control_j.begin(); it != control_j.end();
             it++) {
-            control::spec* sp = new control::spec();
+            cyberprobe::control::spec* sp = new cyberprobe::control::spec();
             it->get_to(*sp);
             lst.push_back(sp);
         }        
@@ -115,7 +117,7 @@ void config_manager::read(const std::string& file,
 }
 
 // Create resources from specifications.
-cybermon::resource* config_manager::create(cybermon::specification& spec)
+resource* config_manager::create(specification& spec)
 {
     
     // Interface.
@@ -150,8 +152,9 @@ cybermon::resource* config_manager::create(cybermon::specification& spec)
 
     // Control.
     if (spec.get_type() == "control") {
-        control::spec& s = dynamic_cast<control::spec&>(spec);
-	return new control::service(s, deliv);
+        cyberprobe::control::spec& s =
+            dynamic_cast<cyberprobe::control::spec&>(spec);
+	return new cyberprobe::control::service(s, deliv);
     }
 
     // This REALLY shouldn't happen, because config_manager::read only

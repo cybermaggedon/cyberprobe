@@ -4,11 +4,15 @@
 #include <condition_variable>
 #include <mutex>
 
+using namespace cyberprobe;
+
+using direction = cyberprobe::protocol::direction;
+
 // Called to add packets to the queue.
 void sender::deliver(timeval tv,
 		     std::shared_ptr<std::string> device, // Device
 		     std::shared_ptr<std::string> network, // Network
-                     cybermon::direction dir, // To/from target.
+                     direction dir, // To/from target.
 		     const_iterator& start,   // Start of packet
 		     const_iterator& end)     // End of packet
 {

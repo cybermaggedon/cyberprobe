@@ -47,10 +47,10 @@ int main(int argc, char** argv)
     signal(SIGPIPE, SIG_IGN);
 
     // Create the delivery engine.
-    delivery deliv;
+    cyberprobe::delivery deliv;
 
     // Create the configuration manager.
-    config_manager cm(deliv);
+    cyberprobe::config_manager cm(deliv);
 
     // Loop forever, checking the configuration file for a change.
     while (1) {

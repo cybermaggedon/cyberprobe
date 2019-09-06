@@ -4,7 +4,7 @@
 #include <cybermon/manager.h>
 #include "hardware_addr_utils.h"
 
-using namespace cybermon;
+using namespace cyberprobe::protocol;
 
 ///////////////////////////////////////////////////////////////////////////////
 // context

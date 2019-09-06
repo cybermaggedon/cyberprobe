@@ -25,6 +25,7 @@
 
 #ifndef ADDRESS_MAP_H
 #define ADDRESS_MAP_H
+namespace cyberprobe {
 
 template <class A, class T>
 class address_map {
@@ -86,6 +87,8 @@ public:
 	return get(a, t, ignored);
     }
       
+};
+
 };
 
 #endif

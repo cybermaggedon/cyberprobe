@@ -10,10 +10,12 @@
 
 #include <string>
 
-#include <cybermon/specification.h>
-#include <cybermon/resource.h>
+#include <cyberprobe/resources/specification.h>
+#include <cyberprobe/resources/resource.h>
 
 #include "json.h"
+
+namespace cyberprobe {
 
 class delivery;
 
@@ -22,7 +24,7 @@ namespace endpoint {
     using json = nlohmann::json;
 
     // An endpoint, describes where to send stuff.
-    class spec : public cybermon::specification {
+    class spec : public cyberprobe::specification {
     public:
 
         // Type is 'endpoint'.
@@ -90,7 +92,7 @@ namespace endpoint {
 
     // Endpoint resource.  The endpoint resources are just instantiated as
     // changes to the endpoint list in the delivery engine.
-    class endpoint : public cybermon::resource {
+    class endpoint : public cyberprobe::resource {
     private:
 
         // Spec.
@@ -116,6 +118,8 @@ namespace endpoint {
     void to_json(json& j, const spec& s);
 
     void from_json(const json& j, spec& s);
+
+};
 
 };
 

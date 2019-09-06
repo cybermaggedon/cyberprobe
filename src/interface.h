@@ -8,13 +8,15 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <cybermon/specification.h>
-#include <cybermon/resource.h>
+#include <cyberprobe/resources/specification.h>
+#include <cyberprobe/resources/resource.h>
 
 #include "capture.h"
 #include "json.h"
 
 #include <string>
+
+namespace cyberprobe {
 
 class delivery;
 
@@ -23,7 +25,7 @@ namespace interface {
     using json = nlohmann::json;
 
     // An interface specification
-    class spec : public cybermon::specification {
+    class spec : public cyberprobe::specification {
     public:
 
         // Type is 'iface'
@@ -66,7 +68,7 @@ namespace interface {
 
     // An interface resources, basically wraps the 'cap' class in a thread
     // which can started and stopped.
-    class iface : public cybermon::resource {
+    class iface : public cyberprobe::resource {
     private:
 
         // Specification.
@@ -92,6 +94,8 @@ namespace interface {
     void to_json(json& j, const spec& s);
 
     void from_json(const json& j, spec& s);
+
+};
 
 };
 

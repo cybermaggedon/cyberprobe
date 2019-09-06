@@ -20,28 +20,33 @@ Usage:
 
 #include <boost/program_options.hpp>
 
-#include <cybermon/event_queue.h>
-#include <cybermon/engine.h>
-#include <cybermon/monitor.h>
-#include <cybermon/etsi_li.h>
-#include <cybermon/packet_capture.h>
-#include <cybermon/context.h>
-#include <cybermon/cybermon-lua.h>
-#include <cybermon/pdu.h>
-#include <cybermon/event.h>
-#include <cybermon/vxlan.h>
+#include <cyberprobe/protocol/pdu.h>
+#include <cyberprobe/protocol/address.h>
+#include <cyberprobe/protocol/context.h>
+#include <cyberprobe/analyser/engine.h>
+#include <cyberprobe/analyser/monitor.h>
+#include <cyberprobe/analyser/cybermon-lua.h>
+#include <cyberprobe/pkt_capture/packet_capture.h>
+#include <cyberprobe/stream/vxlan.h>
+#include <cyberprobe/stream/etsi_li.h>
+#include <cyberprobe/event/event_queue.h>
+#include <cyberprobe/event/event.h>
 
-class lua_engine : cybermon::event::observer {
+using namespace cyberprobe;
+using namespace cyberprobe::protocol;
+using namespace cyberprobe::analyser;
+
+class lua_engine : event::observer {
 private:
     std::thread* thr;
 
 public:
-    cybermon::engine& m;
-    cybermon::event::queue& q;
-    cybermon::cybermon_lua cml;
+    engine& m;
+    event::queue& q;
+    cybermon_lua cml;
     
-    lua_engine(cybermon::engine& m,
-               cybermon::event::queue& q,
+    lua_engine(engine& m,
+               event::queue& q,
                const std::string& config) :
         m(m), q(q), cml(config) {}
 
@@ -51,7 +56,7 @@ public:
         q.run(*this);
     }
 
-    virtual void handle(std::shared_ptr<cybermon::event::event> e) {
+    virtual void handle(std::shared_ptr<event::event> e) {
         cml.event(m, e);
     }
 
@@ -70,33 +75,33 @@ public:
     
 };
 
-class protocol_engine : public cybermon::engine {
+class protocol_engine : public engine {
 private:
 
     // Analysis engine
-    cybermon::event::queue& q;
+    event::queue& q;
 
 public:
 
     // Constructor.
-    protocol_engine(cybermon::event::queue& q) : q(q) {}
+    protocol_engine(event::queue& q) : q(q) {}
 
-    virtual void handle(std::shared_ptr<cybermon::event::event> e) {
+    virtual void handle(std::shared_ptr<event::event> e) {
         q.push(e);
     }
 
     typedef std::vector<unsigned char>::const_iterator iter;
 
-    using cybermon::engine::target_up;
-    using cybermon::engine::target_down;
+    using engine::target_up;
+    using engine::target_down;
     
     // Called when a PDU is received.
     virtual void operator()(const std::string& device,
 			    const std::string& network,
-                            cybermon::pdu_slice p) {
+                            pdu_slice p) {
         try {
             // Process the PDU
-            cybermon::engine::process(device, network, p);
+            engine::process(device, network, p);
         } catch (std::exception& e) {
             // Processing failure event.
             std::cerr << "Packet failed: " << e.what() << std::endl;
@@ -105,14 +110,14 @@ public:
 
 };
 
-class pcap_input : public cybermon::pcap::packet_handler {
+class pcap_input : public pcap::packet_handler {
 private:
-    cybermon::engine& e;
+    engine& e;
     std::string device;
 
 
 public:
-    pcap_input(cybermon::engine& e, const std::string& device) :
+    pcap_input(engine& e, const std::string& device) :
 	e(e), device(device)
         {
         }
@@ -123,13 +128,13 @@ public:
 
 };
 
-class interface_input : public pcap_input, public cybermon::pcap::interface {
+class interface_input : public pcap_input, public pcap::interface {
 
 private:
     std::thread* thr;
 
 public:
-    interface_input(const std::string& iface, cybermon::engine& e,
+    interface_input(const std::string& iface, engine& e,
                const std::string& device) :
         interface(*this, iface), pcap_input(e, device)
         {
@@ -152,13 +157,13 @@ public:
 
 };
 
-class file_input : public pcap_input, public cybermon::pcap::reader {
+class file_input : public pcap_input, public pcap::reader {
 
 private:
     std::thread* thr;
 
 public:
-    file_input(const std::string& file, cybermon::engine& e,
+    file_input(const std::string& file, engine& e,
                const std::string& device) :
         reader(*this, file), pcap_input(e, device)
         {
@@ -200,7 +205,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		v.assign(f + 14, f + len);
 
 		e.process(device, "",
-			  cybermon::pdu_slice(v.begin(), v.end(), tv));
+			  pdu_slice(v.begin(), v.end(), tv));
 
 	    }
 
@@ -211,7 +216,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		v.assign(f + 14, f + len);
 
 		e.process(device, "",
-			  cybermon::pdu_slice(v.begin(), v.end(), tv));
+			  pdu_slice(v.begin(), v.end(), tv));
 
 	    }
 
@@ -225,7 +230,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		    v.assign(f + 18, f + len);
 
 		    e.process(device, "",
-			      cybermon::pdu_slice(v.begin(), v.end(), tv));
+			      pdu_slice(v.begin(), v.end(), tv));
 
 		}
 
@@ -236,7 +241,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 		    v.assign(f + 18, f + len);
 
 		    e.process(device, "",
-			      cybermon::pdu_slice(v.begin(), v.end(), tv));
+			      pdu_slice(v.begin(), v.end(), tv));
 
 		}
 
@@ -252,7 +257,7 @@ void pcap_input::handle(timeval tv, unsigned long len, const unsigned char* f)
 	    std::string str( v.begin(), v.end() );
 
 	    e.process(device, "",
-		      cybermon::pdu_slice(v.begin(), v.end(), tv));
+		      pdu_slice(v.begin(), v.end(), tv));
 
 	}
 
@@ -347,7 +352,7 @@ int main(int argc, char** argv)
     try {
 
 	// queue to store the incoming packets to be processed
-        cybermon::event::queue queue;
+        event::queue queue;
 
         protocol_engine pe(queue);
         lua_engine le(pe, queue, config_file);
@@ -387,7 +392,7 @@ int main(int argc, char** argv)
 
         } else if (vxlan_port != 0) {
 
-            cybermon::vxlan::receiver r(vxlan_port, pe);
+            vxlan::receiver r(vxlan_port, pe);
 
             // Over-ride VNI??? device for VXLAN if device was specified
             // on command line.
@@ -415,7 +420,7 @@ int main(int argc, char** argv)
 	    sock->check_private_key();
 
 	    // Start an ETSI receiver.
-	    cybermon::etsi_li::receiver r(sock, pe);
+	    etsi_li::receiver r(sock, pe);
 
             le.start();
 	    r.start();
@@ -431,7 +436,7 @@ int main(int argc, char** argv)
 	} else {
 
 	    // Start an ETSI receiver.
-	    cybermon::etsi_li::receiver r(port, pe);
+	    etsi_li::receiver r(port, pe);
 	    r.start();
 
             if (time_limit > 0) {

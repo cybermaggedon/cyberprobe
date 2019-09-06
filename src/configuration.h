@@ -5,15 +5,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIGURATION_H
+#define CONFIGURATION_H
 
-#include <cybermon/resource.h>
+#include <cyberprobe/resources/resource.h>
 
 #include "delivery.h"
 
+namespace cyberprobe {
+
 // Configuration file manager.
-class config_manager : public cybermon::resource_manager {
+class config_manager : public resource_manager {
 private:
 
     // Delivery engine.
@@ -26,10 +28,10 @@ protected:
 
     // Read the configuration file.
     virtual void read(const std::string& file,
-		      std::list<cybermon::specification*>&);
+		      std::list<specification*>&);
 
     // Convert a specification into a resource.
-    virtual cybermon::resource* create(cybermon::specification& spec);
+    virtual resource* create(specification& spec);
 
 public:
 
@@ -38,6 +40,8 @@ public:
 
     // Constructor.
     config_manager(delivery& d) : deliv(d) { }
+
+};
 
 };
 

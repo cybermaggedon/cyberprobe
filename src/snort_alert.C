@@ -8,8 +8,10 @@
 #include <string>
 #include <arpa/inet.h>
 
-#include <cybermon/socket.h>
+#include <cyberprobe/network/socket.h>
 #include "snort_alert.h"
+
+namespace cyberprobe {
 
 namespace snort_alert {
 
@@ -339,6 +341,8 @@ void snort_alerter::run()
     }
 
 }
+
+};
 
 };
 

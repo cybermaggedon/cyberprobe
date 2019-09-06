@@ -1,13 +1,15 @@
 
-#include <cybermon/specification.h>
-#include <cybermon/resource.h>
-#include <cybermon/socket.h>
+#include <cyberprobe/resources/specification.h>
+#include <cyberprobe/resources/resource.h>
+#include <cyberprobe/network/socket.h>
 
 #include "target.h"
 #include "json.h"
 #include "delivery.h"
-
+    
 using json = nlohmann::json;
+
+namespace cyberprobe {
 
 namespace target {
 
@@ -116,3 +118,6 @@ namespace target {
     }
 
 };
+
+};
+

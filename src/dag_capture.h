@@ -8,9 +8,13 @@
 
 #include <sys/time.h>
 
+namespace cyberprobe {
+
+namespace capture {
+
 // Packet capture.  Captures on an interface, and then submits captured
 // packets to the delivery engine.
-class dag_dev : public filtering_dev {
+class dag : public filtering_dev {
 private:
 
     std::string iface;
@@ -47,6 +51,10 @@ public:
     virtual void start() {
 	thr = new std::thread(&dag_dev::run, this);
     }
+
+};
+
+};
 
 };
 
