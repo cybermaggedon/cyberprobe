@@ -1295,6 +1295,8 @@ protocol data in the DNS encoder.
 @end table
 
 @heading gRPC object
+@cindex gRPC
+@cindex Protobuf
 
 If gRPC support is compiled into cybermon, a gRPC call containing the
 event, conforming to eventstream protobuf format can be made by calling
@@ -1315,6 +1317,7 @@ end
 return observer
 @end example
 
+@cindex @command{eventstream-service}
 The @file{cyberprobe.proto} file in the source code contains the protobuf/gRPC
-service definition.
-
+service definition.  The sample gRPC client @command{eventstream-service} can
+be used to receive cyberprobe gRPC events.  See @ref{eventstream-service}.

@@ -1,0 +1,43 @@
+
+@node @command{eventstream-service} invocation
+@section @command{eventstream-service} invocation
+
+@anchor{eventstream-service}
+@cindex @command{eventstream-service}, invocation
+@cindex gRPC
+@cindex Protobuf
+
+@command{eventstream-service} is a demonstrator gRPC service for
+cyberprobe gRPC.  It isn't particularly useful for anything other than
+demo/debugging/diagnosing gRPC problems.
+
+It receives gRPC requests containing event data, and outputs these in
+a JSON form, one event per line.  This is a default mapping for
+Protobuf data determined by the Protobuf libraries, and is not
+identical to Cyberprobe JSON format.
+
+The @file{eventstream-service.C} code may be useful in building your own
+gRPC service.
+
+Synopsis:
+
+@example
+eventstream-service [HOST:PORT]
+@end example
+
+Example:
+@example
+eventstream-service 0.0.0.0:9100
+@end example
+
+@table @samp
+
+@item HOST
+Specifies the hostname or  IP address to bind this service to, to receive
+requests.  0.0.0.0 means any address.
+
+@item PORT
+Specifies the port number to listen on.
+
+@end table
+

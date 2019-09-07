@@ -7,6 +7,7 @@
 * @command{cyberprobe} configuration::
 * @command{cyberprobe-cli} invocation::
 * @command{cyberprobe-cli} commands::
+* @command{eventstream-service} invocation::
 * Output streaming protocols::
 * Management protocol::
 * @command{cybermon} invocation::
