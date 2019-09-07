@@ -61,7 +61,6 @@ rm -rf $RPM_BUILD_ROOT
 %config /etc/cyberprobe.cfg
 /usr/bin/*
 /usr/lib/python3.*/site-packages/cyberprobe
-/usr/include/cybermon/*
 %{_libdir}/lib*
 /usr/lib/systemd/system/cyberprobe.service
 /usr/lib/systemd/system/cybermon.service
