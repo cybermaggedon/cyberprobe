@@ -28,7 +28,7 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C delivery.C	\
 	../include/cyberprobe/probe/interface.h			\
 	../include/cyberprobe/probe/endpoint.h			\
 	../include/cyberprobe/probe/parameter.h			\
-	../include/cyberprobe/probe/vxlan_capture.h
+	../include/cyberprobe/probe/vxlan_capture.h		\
 	../include/cyberprobe/probe/management.h
 
 cyberprobe_LDADD = -lssl
@@ -52,9 +52,12 @@ endif
 cybermon_LDADD += -lprotobuf
 endif
 
-cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C readline.h		\
-	interface.h interface.C endpoint.h endpoint.C parameter.h	\
-	parameter.C target.h target.C socket.C				\
+cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C		\
+	../include/cyberprobe/util/readline.h			\
+	../include/cyberprobe/probe/interface.h interface.C	\
+	../include/cyberprobe/probe/endpoint.h endpoint.C	\
+	../include/cyberprobe/probe/parameter.h parameter.C	\
+	../include/cyberprobe/probe/target.h target.C socket.C	\
 	../include/cyberprobe/network/socket.h
 cyberprobe_cli_LDADD = -lssl 
 
