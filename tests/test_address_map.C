@@ -5,6 +5,7 @@
 #include <assert.h>
 
 using namespace cyberprobe;
+using namespace cyberprobe::util;
 
 class bunchy {
 public:

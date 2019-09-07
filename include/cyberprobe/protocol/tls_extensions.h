@@ -3,6 +3,7 @@
 #define TLS_EXTENSIONS_H
 
 namespace cyberprobe {
+namespace protocol {
     namespace tls_extensions {
 
         std::vector<std::string> lookupExts = {
@@ -82,7 +83,6 @@ namespace cyberprobe {
         }
     }
 }
-
-
+}
 
 #endif

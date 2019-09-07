@@ -1,5 +1,4 @@
 
-#include "readline.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -11,6 +10,7 @@
 #include <cyberprobe/probe/endpoint.h>
 #include <cyberprobe/probe/target.h>
 #include <cyberprobe/probe/parameter.h>
+#include <cyberprobe/util/readline.h>
 
 #include <nlohmann/json.h>
 

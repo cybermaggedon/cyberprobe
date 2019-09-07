@@ -8,7 +8,7 @@
 #include <cyberprobe/protocol/tls_handshake_protocol.h>
 
 namespace cyberprobe {
-
+namespace protocol {
     class tls_handshake {
         using manager = cyberprobe::protocol::manager;
         using tls_context = cyberprobe::protocol::tls_context;
@@ -20,7 +20,7 @@ namespace cyberprobe {
         static void clientHello(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
         static void serverHello(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
         static uint16_t commonHello(const pdu_slice& pduSlice, uint16_t length, cyberprobe::protocol::tls_handshake_protocol::hello_base& hello);
-        static void processExtensions(const pdu_slice& pduSlice, uint16_t length, std::vector<protocol::tls_handshake_protocol::extension>& exts);
+        static void processExtensions(const pdu_slice& pduSlice, uint16_t length, std::vector<tls_handshake_protocol::extension>& exts);
         static void certificate(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
         static void serverKeyExchange(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
         static void serverHelloDone(manager& mgr, tls_context::ptr ctx, const pdu_slice& pduSlice, uint16_t length);
@@ -38,8 +38,7 @@ namespace cyberprobe {
         };
     };
 
-
+}
 } // cybermon
-
 
 #endif

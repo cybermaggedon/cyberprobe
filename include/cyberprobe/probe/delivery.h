@@ -117,8 +117,8 @@ private:
     // Targets : an IP address to device ID mapping.
     std::mutex targets_mutex;
 
-    address_map<tcpip::ip4_address, match_state> targets;
-    address_map<tcpip::ip6_address, match_state> targets6;
+    util::address_map<tcpip::ip4_address, match_state> targets;
+    util::address_map<tcpip::ip6_address, match_state> targets6;
 
     // Endpoints
     std::mutex senders_mutex;

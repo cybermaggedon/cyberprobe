@@ -82,13 +82,18 @@ libcybermon_la_SOURCES = address.C base_context.C lua.C			\
 	forgery.C ftp.C http.C icmp.C imap.C imap_ssl.C ip.C ntp.C	\
 	ntp_protocol.C pop3.C pop3_ssl.C event.C reaper.C rtp.C		\
 	rtp_ssl.C sip.C sip_context.C sip_ssl.C event_json.C base64.C	\
-	base64.h smtp.C smtp_auth.C tcp.C tcp_ports.C udp.C		\
-	udp_ports.C unrecognised.C tls_key_exchange.C vxlan.C		\
+	smtp.C smtp_auth.C tcp.C tcp_ports.C udp.C udp_ports.C		\
+	unrecognised.C tls_key_exchange.C vxlan.C			\
 	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C		\
-	tls_handshake.C tls_utils.C hardware_addr_utils.h		\
-	tls_cipher_suites.h tls_exception.h tls_extensions.h		\
-	tls_handshake.h tls_key_exchange.h tls_utils.h uuid.h		\
-	../include/nlohmann/json.h					\
+	tls_handshake.C tls_utils.C ../include/base64/base64.h		\
+	../include/cyberprobe/util/hardware_addr_utils.h		\
+	../include/cyberprobe/protocol/tls_cipher_suites.h		\
+	../include/cyberprobe/protocol/tls_exception.h			\
+	../include/cyberprobe/protocol/tls_extensions.h			\
+	../include/cyberprobe/protocol/tls_handshake.h			\
+	../include/cyberprobe/protocol/tls_key_exchange.h		\
+	../include/cyberprobe/protocol/tls_utils.h			\
+	../include/cyberprobe/util/uuid.h ../include/nlohmann/json.h	\
 	../include/cyberprobe/analyser/lua.h				\
 	../include/cyberprobe/analyser/engine.h				\
 	../include/cyberprobe/protocol/manager.h			\

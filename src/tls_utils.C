@@ -1,8 +1,8 @@
-#include <tls_utils.h>
 
-#include <tls_exception.h>
+#include <cyberprobe/protocol/tls_utils.h>
+#include <cyberprobe/protocol/tls_exception.h>
 
-using namespace cyberprobe;
+using namespace cyberprobe::protocol;
 
 std::string tls_utils::convertTLSVersion(uint8_t maj, uint8_t min)
 {
