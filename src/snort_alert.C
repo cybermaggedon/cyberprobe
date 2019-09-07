@@ -9,9 +9,11 @@
 #include <arpa/inet.h>
 
 #include <cyberprobe/network/socket.h>
-#include "snort_alert.h"
+#include <cyberprobe/probe/snort_alert.h>
 
 namespace cyberprobe {
+
+namespace probe {
 
 namespace snort_alert {
 
@@ -342,7 +344,9 @@ void snort_alerter::run()
 
 }
 
-};
+}
 
-};
+}
+
+}
 

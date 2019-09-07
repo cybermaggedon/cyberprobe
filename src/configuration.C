@@ -1,16 +1,17 @@
 
-#include "configuration.h"
-#include "interface.h"
-#include "target.h"
-#include "endpoint.h"
-#include "parameter.h"
-#include "snort_alert.h"
-#include "control.h"
-#include "json.h"
+#include <cyberprobe/probe/configuration.h>
+#include <cyberprobe/probe/interface.h>
+#include <cyberprobe/probe/target.h>
+#include <cyberprobe/probe/endpoint.h>
+#include <cyberprobe/probe/parameter.h>
+#include <cyberprobe/probe/snort_alert.h>
+#include <cyberprobe/probe/control.h>
+#include <nlohmann/json.h>
 
 using json = nlohmann::json;
 
-using namespace cyberprobe;
+using namespace cyberprobe::probe;
+using namespace cyberprobe::resources;
 
 // Read the configuration file, and convert into a list of specifications.
 void config_manager::read(const std::string& file, 
@@ -88,7 +89,7 @@ void config_manager::read(const std::string& file,
 
         for(json::iterator it = control_j.begin(); it != control_j.end();
             it++) {
-            cyberprobe::control::spec* sp = new cyberprobe::control::spec();
+            control::spec* sp = new control::spec();
             it->get_to(*sp);
             lst.push_back(sp);
         }        
@@ -152,9 +153,9 @@ resource* config_manager::create(specification& spec)
 
     // Control.
     if (spec.get_type() == "control") {
-        cyberprobe::control::spec& s =
-            dynamic_cast<cyberprobe::control::spec&>(spec);
-	return new cyberprobe::control::service(s, deliv);
+        control::spec& s =
+            dynamic_cast<control::spec&>(spec);
+	return new control::service(s, deliv);
     }
 
     // This REALLY shouldn't happen, because config_manager::read only

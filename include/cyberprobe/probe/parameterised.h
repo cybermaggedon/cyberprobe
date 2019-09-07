@@ -7,9 +7,9 @@
 namespace cyberprobe {
 
 // Interface to an class which knows about parameters.
-class parameters {
+class parameterised {
 public:
-    virtual ~parameters() {}
+    virtual ~parameterised() {}
 
     // Get the value of a parameter.  If parameter is not known, the
     // default value is returned.

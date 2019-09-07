@@ -6,6 +6,8 @@
 
 namespace cyberprobe {
 
+namespace resources {
+
     class specification {
     public:
     
@@ -30,7 +32,9 @@ namespace cyberprobe {
     
     };
 
-};
+}
+
+}
 
 #endif
 

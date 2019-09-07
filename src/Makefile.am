@@ -8,17 +8,28 @@ bin_PROGRAMS += eventstream-service
 endif
 endif
 
-cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C delivery.C		\
-	capture.C configuration.C control.C snort_alert.C sender.h	\
-	delivery.h capture.h endpoint.C configuration.h control.h	\
-	snort_alert.h target.h target.C parameters.h			\
-	packet_consumer.h interface.h interface.C endpoint.h		\
-	parameter.h parameter.C vxlan_capture.h vxlan_capture.C		\
-	socket.C resource_manager.C					\
-	../include/cyberprobe/network/socket.h etsi_li.C		\
-	../include/cyberprobe/stream/etsi_li.h ber.C			\
-	../include/cyberprobe/stream/ber.h \
-	../include/cyberprobe/util/address_map.h
+cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C delivery.C	\
+	capture.C configuration.C control.C snort_alert.C	\
+	vxlan_capture.C parameter.C interface.C socket.C	\
+	resource_manager.C etsi_li.C				\
+	../include/cyberprobe/network/socket.h			\
+	../include/cyberprobe/stream/etsi_li.h ber.C		\
+	../include/cyberprobe/stream/ber.h			\
+	../include/cyberprobe/util/address_map.h		\
+	../include/cyberprobe/probe/sender.h			\
+	../include/cyberprobe/probe/delivery.h			\
+	../include/cyberprobe/probe/capture.h endpoint.C	\
+	../include/cyberprobe/probe/configuration.h		\
+	../include/cyberprobe/probe/control.h			\
+	../include/cyberprobe/probe/snort_alert.h		\
+	../include/cyberprobe/probe/target.h target.C		\
+	../include/cyberprobe/probe/parameterised.h		\
+	../include/cyberprobe/probe/packet_consumer.h		\
+	../include/cyberprobe/probe/interface.h			\
+	../include/cyberprobe/probe/endpoint.h			\
+	../include/cyberprobe/probe/parameter.h			\
+	../include/cyberprobe/probe/vxlan_capture.h
+	../include/cyberprobe/probe/management.h
 
 cyberprobe_LDADD = -lssl
 
@@ -27,7 +38,7 @@ cyberprobe_SOURCES += dag_capture.C dag_capture.h
 cyberprobe_LDADD += -ldag
 endif
 
-cybermon_SOURCES = cybermon.C management.h socket.C		\
+cybermon_SOURCES = cybermon.C socket.C		\
 	../include/cyberprobe/network/socket.h etsi_li.C	\
 	../include/cyberprobe/stream/etsi_li.h ber.C		\
 	../include/cyberprobe/stream/ber.h
@@ -71,12 +82,13 @@ libcybermon_la_SOURCES = address.C base_context.C lua.C			\
 	forgery.C ftp.C http.C icmp.C imap.C imap_ssl.C ip.C ntp.C	\
 	ntp_protocol.C pop3.C pop3_ssl.C event.C reaper.C rtp.C		\
 	rtp_ssl.C sip.C sip_context.C sip_ssl.C event_json.C base64.C	\
-	base64.h json.h smtp.C smtp_auth.C tcp.C tcp_ports.C udp.C	\
+	base64.h smtp.C smtp_auth.C tcp.C tcp_ports.C udp.C		\
 	udp_ports.C unrecognised.C tls_key_exchange.C vxlan.C		\
 	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C		\
 	tls_handshake.C tls_utils.C hardware_addr_utils.h		\
 	tls_cipher_suites.h tls_exception.h tls_extensions.h		\
 	tls_handshake.h tls_key_exchange.h tls_utils.h uuid.h		\
+	../include/nlohmann/json.h					\
 	../include/cyberprobe/analyser/lua.h				\
 	../include/cyberprobe/analyser/engine.h				\
 	../include/cyberprobe/protocol/manager.h			\

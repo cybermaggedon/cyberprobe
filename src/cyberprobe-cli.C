@@ -2,23 +2,23 @@
 #include "readline.h"
 #include <iostream>
 #include <sstream>
-#include <cyberprobe/network/socket.h>
 #include <vector>
 #include <regex>
 #include <iomanip>
 
-#include "interface.h"
-#include "endpoint.h"
-#include "target.h"
-#include "parameter.h"
+#include <cyberprobe/network/socket.h>
+#include <cyberprobe/probe/interface.h>
+#include <cyberprobe/probe/endpoint.h>
+#include <cyberprobe/probe/target.h>
+#include <cyberprobe/probe/parameter.h>
 
-#include "json.h"
+#include <nlohmann/json.h>
 
 using json = nlohmann::json;
 auto match_cont = std::regex_constants::match_continuous;
 
 using namespace cyberprobe::tcpip;
-using namespace cyberprobe;
+using namespace cyberprobe::probe;
 
 std::vector<std::string> commands;
 std::vector<std::string> add_commands;

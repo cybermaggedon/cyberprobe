@@ -7,12 +7,14 @@
 #include <unistd.h>
 #include <assert.h>
 
+using namespace cyberprobe::resources;
+
 // Records which resources are running.  The resources mess with this
 // directly so we know.
 std::map<std::string, bool> running;
 
 // Lion spec, doesn't do anything useful.
-class lion_spec : public cyberprobe::specification {
+class lion_spec : public specification {
 public:
     std::string name;
     lion_spec(const std::string& name) : name(name) {}
@@ -21,7 +23,7 @@ public:
 };
 
 // Tiger spec, doesn't do anything useful.
-class tiger_spec : public cyberprobe::specification {
+class tiger_spec : public specification {
 public:
     std::string name;
     tiger_spec(const std::string& name) : name(name) {}
@@ -30,7 +32,7 @@ public:
 };
 
 // Lion resource
-class lion : public cyberprobe::resource {
+class lion : public resource {
 public:
     lion(const lion_spec& spec) : name(spec.name) {}
     std::string name;
@@ -45,7 +47,7 @@ public:
 };
 
 // Tiger resource
-class tiger : public cyberprobe::resource {
+class tiger : public resource {
 public:
     tiger(const tiger_spec& spec) : name(spec.name) {}
     std::string name;
@@ -62,14 +64,14 @@ public:
 // Resource manager.  Creates lion and tiger resources.  The 'read' method
 // ignores the configuration file and just has some hard-coded logic for
 // creating resources.
-class test_resource_mgr : public cyberprobe::resource_manager {
+class test_resource_mgr : public resource_manager {
 private:
     virtual bool newer(const std::string& file, long& tm) { return true; }
 
 protected:
 
     // Resource creator.
-    virtual cyberprobe::resource* create(cyberprobe::specification& spec) {
+    virtual resource* create(specification& spec) {
 
 	if (spec.get_type() == "lion") {
 	    lion_spec& s = dynamic_cast<lion_spec&>(spec);
@@ -87,7 +89,7 @@ protected:
 
     // Reads the (non-existent) configuration file.
     virtual void read(const std::string& file,
-		      std::list<cyberprobe::specification*>& specs) {
+		      std::list<specification*>& specs) {
 
 	static bool here = false;
 

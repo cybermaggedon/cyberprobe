@@ -9,13 +9,14 @@
 #define CONFIGURATION_H
 
 #include <cyberprobe/resources/resource.h>
-
-#include "delivery.h"
+#include <cyberprobe/probe/delivery.h>
 
 namespace cyberprobe {
 
+namespace probe {
+
 // Configuration file manager.
-class config_manager : public resource_manager {
+class config_manager : public resources::resource_manager {
 private:
 
     // Delivery engine.
@@ -28,10 +29,10 @@ protected:
 
     // Read the configuration file.
     virtual void read(const std::string& file,
-		      std::list<specification*>&);
+		      std::list<resources::specification*>&);
 
     // Convert a specification into a resource.
-    virtual resource* create(specification& spec);
+    virtual resources::resource* create(resources::specification& spec);
 
 public:
 
@@ -43,7 +44,9 @@ public:
 
 };
 
-};
+}
+
+}
 
 #endif
 

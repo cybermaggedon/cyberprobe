@@ -9,19 +9,20 @@
 #define PARAMETER_H
 
 #include <cyberprobe/resources/resource.h>
-
-#include "json.h"
+#include <nlohmann/json.h>
 
 namespace cyberprobe {
 
 class delivery;
 
+namespace probe {
+        
 namespace parameter {
 
     using json = nlohmann::json;
 
     // A paramter, represents a key/val pair.
-    class spec : public cyberprobe::specification {
+    class spec : public cyberprobe::resources::specification {
     public:
 
         // Type is 'target'.
@@ -44,7 +45,7 @@ namespace parameter {
     };
 
     // Parameter resource.  Just instantiated as changes to the delivery engine.
-    class parameter : public cyberprobe::resource {
+    class parameter : public cyberprobe::resources::resource {
     private:
 
         // Spec.
@@ -73,7 +74,9 @@ namespace parameter {
 
 };
 
-};
+}
+
+}
 
 #endif
 

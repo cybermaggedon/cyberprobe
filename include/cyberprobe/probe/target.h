@@ -11,10 +11,11 @@
 #include <cyberprobe/network/socket.h>
 #include <cyberprobe/resources/specification.h>
 #include <cyberprobe/resources/resource.h>
-
-#include "json.h"
+#include <nlohmann/json.h>
 
 namespace cyberprobe {
+
+namespace probe {
 
 class delivery;
 
@@ -23,7 +24,7 @@ namespace target {
     using json = nlohmann::json;
 
     // A target specification: Maps an IP address to a device ID.
-    class spec : public cyberprobe::specification {
+    class spec : public cyberprobe::resources::specification {
     public:
 
         // Type is 'target'.
@@ -89,7 +90,7 @@ namespace target {
 
     // Target resource.  The target resources are just instantiated as
     // changes to the target map in the delivery engine.
-    class target : public cyberprobe::resource {
+    class target : public cyberprobe::resources::resource {
     private:
 
         // Spec.
@@ -118,7 +119,9 @@ namespace target {
 
 };
 
-};
+}
+
+}
 
 #endif
 

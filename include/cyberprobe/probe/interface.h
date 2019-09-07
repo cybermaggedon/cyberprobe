@@ -10,13 +10,14 @@
 
 #include <cyberprobe/resources/specification.h>
 #include <cyberprobe/resources/resource.h>
-
-#include "capture.h"
-#include "json.h"
+#include <cyberprobe/probe/capture.h>
+#include <nlohmann/json.h>
 
 #include <string>
 
 namespace cyberprobe {
+
+namespace probe {
 
 class delivery;
 
@@ -25,7 +26,7 @@ namespace interface {
     using json = nlohmann::json;
 
     // An interface specification
-    class spec : public cyberprobe::specification {
+    class spec : public cyberprobe::resources::specification {
     public:
 
         // Type is 'iface'
@@ -68,7 +69,7 @@ namespace interface {
 
     // An interface resources, basically wraps the 'cap' class in a thread
     // which can started and stopped.
-    class iface : public cyberprobe::resource {
+    class iface : public cyberprobe::resources::resource {
     private:
 
         // Specification.
@@ -95,9 +96,11 @@ namespace interface {
 
     void from_json(const json& j, spec& s);
 
-};
+}
 
-};
+}
+
+}
 
 #endif
 

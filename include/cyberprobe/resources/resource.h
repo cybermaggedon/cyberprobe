@@ -32,8 +32,10 @@
 
 namespace cyberprobe {
 
-// Resource base class.  Resources are an implementation of a specification.
-// Then can be started and stopped.
+namespace resources {
+
+    // Resource base class.  Resources are an implementation of a specification.
+    // Then can be started and stopped.
     class resource {
     public:
     
@@ -47,10 +49,10 @@ namespace cyberprobe {
         virtual ~resource() {}
     };
 
-// Resource manager class.  Reads a configuration file when the 'update'
-// method is called, converts the configuration file into a set of
-// specifications, then starts/stops the resources according to changes
-// in the specifications.
+    // Resource manager class.  Reads a configuration file when the 'update'
+    // method is called, converts the configuration file into a set of
+    // specifications, then starts/stops the resources according to changes
+    // in the specifications.
     class resource_manager {
 
     private:
@@ -114,7 +116,9 @@ namespace cyberprobe {
 
     };
 
-};
+}
+
+}
 
 #endif
 

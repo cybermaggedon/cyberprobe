@@ -1,11 +1,13 @@
 
 #include <string>
 
-#include "endpoint.h"
-#include "json.h"
-#include "delivery.h"
+#include <cyberprobe/probe/endpoint.h>
+#include <cyberprobe/probe/delivery.h>
+#include <nlohmann/json.h>
 
 namespace cyberprobe {
+
+namespace probe {
 
 namespace endpoint {
 
@@ -74,7 +76,9 @@ namespace endpoint {
 
     }
 
-};
+}
 
-};
+}
+
+}
 

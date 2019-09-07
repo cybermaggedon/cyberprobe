@@ -1,11 +1,13 @@
 
-#include "interface.h"
-#include "json.h"
-#include "delivery.h"
+#include <cyberprobe/probe/interface.h>
+#include <cyberprobe/probe/delivery.h>
+#include <nlohmann/json.h>
 
 using json = nlohmann::json;
 
 namespace cyberprobe {
+
+namespace probe {
 
 namespace interface {
 
@@ -52,7 +54,9 @@ namespace interface {
                   << std::endl;
     }
     
-};
+}
 
-};
+}
+
+}
 

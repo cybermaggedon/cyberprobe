@@ -1,8 +1,10 @@
 
-#include "delivery.h"
-#include "parameter.h"
+#include <cyberprobe/probe/delivery.h>
+#include <cyberprobe/probe/parameter.h>
 
 namespace cyberprobe {
+
+namespace probe   {
 
 namespace parameter {
 
@@ -49,5 +51,7 @@ namespace parameter {
 
 };
 
-};
+}
+
+}
 

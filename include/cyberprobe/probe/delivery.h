@@ -2,17 +2,16 @@
 #ifndef DELIVERY_H
 #define DELIVERY_H
 
-#include "sender.h"
-#include "parameters.h"
-#include "management.h"
-#include "capture.h"
-#include "packet_consumer.h"
+#include <cyberprobe/probe/sender.h>
+#include <cyberprobe/probe/parameterised.h>
+#include <cyberprobe/probe/management.h>
+#include <cyberprobe/probe/capture.h>
+#include <cyberprobe/probe/packet_consumer.h>
 #include <cyberprobe/util/address_map.h>
-#include "interface.h"
-#include "endpoint.h"
-#include "target.h"
-#include "parameter.h"
-
+#include <cyberprobe/probe/interface.h>
+#include <cyberprobe/probe/endpoint.h>
+#include <cyberprobe/probe/target.h>
+#include <cyberprobe/probe/parameter.h>
 #include <cyberprobe/protocol/pdu.h>
 
 #include <map>
@@ -22,6 +21,8 @@
 #include <mutex>
 
 namespace cyberprobe {
+
+namespace probe {
 
 using direction = cyberprobe::protocol::direction;
 
@@ -109,7 +110,8 @@ public:
 //
 // Note an IP address can only can be mapped to a single device.
 
-class delivery : public parameters, public management, public packet_consumer {
+class delivery : public parameterised, public management,
+                 public packet_consumer {
 private:
 
     // Targets : an IP address to device ID mapping.
@@ -242,7 +244,9 @@ public:
 
 };
 
-};
+}
+
+}
 
 #endif
 
