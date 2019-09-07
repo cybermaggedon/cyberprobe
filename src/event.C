@@ -5,7 +5,7 @@
 
 #include <cyberprobe/event/event.h>
 #include <cyberprobe/analyser/engine.h>
-#include <cyberprobe/analyser/cybermon-lua.h>
+#include <cyberprobe/analyser/lua.h>
 
 #ifdef WITH_PROTOBUF
 #include <cyberprobe/event/event_protobuf.h>
@@ -130,7 +130,7 @@ int event::lua_protobuf(lua_State* lua) {
 }
 #endif
 
-int event::get_lua_value(cybermon_lua& state, const std::string& key)
+int event::get_lua_value(lua& state, const std::string& key)
 {
 
     if (key == "device") {
@@ -176,7 +176,7 @@ int event::get_lua_value(cybermon_lua& state, const std::string& key)
     return 1;
 }
 
-int dns_message::get_lua_value(cybermon_lua& state, const std::string& key)
+int dns_message::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "header") {
 	state.push(header);
@@ -193,7 +193,7 @@ int dns_message::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int imap::get_lua_value(cybermon_lua& state, const std::string& key)
+int imap::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -202,7 +202,7 @@ int imap::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int imap_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
+int imap_ssl::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -211,7 +211,7 @@ int imap_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int pop3::get_lua_value(cybermon_lua& state, const std::string& key)
+int pop3::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -220,7 +220,7 @@ int pop3::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int pop3_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
+int pop3_ssl::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -229,7 +229,7 @@ int pop3_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int rtp::get_lua_value(cybermon_lua& state, const std::string& key)
+int rtp::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -238,7 +238,7 @@ int rtp::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int rtp_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
+int rtp_ssl::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -247,7 +247,7 @@ int rtp_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-static void push_http_header(cybermon_lua& state,
+static void push_http_header(lua& state,
 			     const http_hdr_t& hdr)
 {
 
@@ -267,7 +267,7 @@ static void push_http_header(cybermon_lua& state,
 
 }
 
-int http_request::get_lua_value(cybermon_lua& state, const std::string& key)
+int http_request::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "method") {
 	state.push(method);
@@ -288,7 +288,7 @@ int http_request::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int http_response::get_lua_value(cybermon_lua& state, const std::string& key)
+int http_response::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "code") {
 	state.push(code);
@@ -313,7 +313,7 @@ int http_response::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int icmp::get_lua_value(cybermon_lua& state, const std::string& key)
+int icmp::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "code") {
 	state.push(code);
@@ -330,7 +330,7 @@ int icmp::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int trigger_up::get_lua_value(cybermon_lua& state, const std::string& key)
+int trigger_up::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "address") {
 	state.push(address);
@@ -339,12 +339,12 @@ int trigger_up::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int trigger_down::get_lua_value(cybermon_lua& state, const std::string& key)
+int trigger_down::get_lua_value(lua& state, const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
 
-int unrecognised_stream::get_lua_value(cybermon_lua& state,
+int unrecognised_stream::get_lua_value(lua& state,
 				       const std::string& key)
 {
     if (key == "data") {
@@ -358,7 +358,7 @@ int unrecognised_stream::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int unrecognised_datagram::get_lua_value(cybermon_lua& state,
+int unrecognised_datagram::get_lua_value(lua& state,
 					 const std::string& key)
 {
     if (key == "data") {
@@ -368,17 +368,17 @@ int unrecognised_datagram::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int connection_up::get_lua_value(cybermon_lua& state, const std::string& key)
+int connection_up::get_lua_value(lua& state, const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
 
-int connection_down::get_lua_value(cybermon_lua& state, const std::string& key)
+int connection_down::get_lua_value(lua& state, const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
 
-int sip_request::get_lua_value(cybermon_lua& state, const std::string& key)
+int sip_request::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "method") {
 	state.push(method);
@@ -399,7 +399,7 @@ int sip_request::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int sip_response::get_lua_value(cybermon_lua& state, const std::string& key)
+int sip_response::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "code") {
 	state.push(code);
@@ -424,7 +424,7 @@ int sip_response::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int sip_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
+int sip_ssl::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -433,7 +433,7 @@ int sip_ssl::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int smtp_auth::get_lua_value(cybermon_lua& state, const std::string& key)
+int smtp_auth::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "data") {
 	state.push(payload);
@@ -442,13 +442,13 @@ int smtp_auth::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_handshake_complete::get_lua_value(cybermon_lua& state,
+int tls_handshake_complete::get_lua_value(lua& state,
 					  const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
 
-int smtp_response::get_lua_value(cybermon_lua& state, const std::string& key)
+int smtp_response::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "status") {
 	state.push(status);
@@ -461,7 +461,7 @@ int smtp_response::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_certificate_request::get_lua_value(cybermon_lua& state,
+int tls_certificate_request::get_lua_value(lua& state,
 					   const std::string& key)
 {
     if (key == "cert_types") {
@@ -504,7 +504,7 @@ int tls_certificate_request::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int tls_client_hello::get_lua_value(cybermon_lua& state, const std::string& key)
+int tls_client_hello::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "version") {
 	state.push(data.version);
@@ -588,7 +588,7 @@ int tls_client_hello::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_server_hello::get_lua_value(cybermon_lua& state, const std::string& key)
+int tls_server_hello::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "version") {
 	state.push(data.version);
@@ -654,7 +654,7 @@ int tls_server_hello::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_handshake_generic::get_lua_value(cybermon_lua& state,
+int tls_handshake_generic::get_lua_value(lua& state,
 					 const std::string& key)
 {
     if (key == "type") {
@@ -668,13 +668,13 @@ int tls_handshake_generic::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int tls_server_key_exchange::get_lua_value(cybermon_lua& state,
+int tls_server_key_exchange::get_lua_value(lua& state,
 					   const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
 
-int gre::get_lua_value(cybermon_lua& state,
+int gre::get_lua_value(lua& state,
 		       const std::string& key)
 {
     if (key == "next_proto") {
@@ -696,7 +696,7 @@ int gre::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int gre_pptp::get_lua_value(cybermon_lua& state,
+int gre_pptp::get_lua_value(lua& state,
 			    const std::string& key)
 {
     if (key == "next_proto") {
@@ -726,7 +726,7 @@ int gre_pptp::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int unrecognised_ip_protocol::get_lua_value(cybermon_lua& state,
+int unrecognised_ip_protocol::get_lua_value(lua& state,
 					    const std::string& key)
 {
     if (key == "next_proto") {
@@ -744,7 +744,7 @@ int unrecognised_ip_protocol::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int ntp_private_message::get_lua_value(cybermon_lua& state,
+int ntp_private_message::get_lua_value(lua& state,
 				       const std::string& key)
 {
     if (key == "header") {
@@ -758,7 +758,7 @@ int ntp_private_message::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int ntp_timestamp_message::get_lua_value(cybermon_lua& state,
+int ntp_timestamp_message::get_lua_value(lua& state,
 					 const std::string& key)
 {
     if (key == "header") {
@@ -772,7 +772,7 @@ int ntp_timestamp_message::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int ntp_control_message::get_lua_value(cybermon_lua& state,
+int ntp_control_message::get_lua_value(lua& state,
 				       const std::string& key)
 {
     if (key == "header") {
@@ -782,7 +782,7 @@ int ntp_control_message::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int tls_application_data::get_lua_value(cybermon_lua& state,
+int tls_application_data::get_lua_value(lua& state,
 					const std::string& key)
 {
     if (key == "version") {
@@ -796,7 +796,7 @@ int tls_application_data::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int ftp_response::get_lua_value(cybermon_lua& state,
+int ftp_response::get_lua_value(lua& state,
 				const std::string& key)
 {
     if (key == "status") {
@@ -810,7 +810,7 @@ int ftp_response::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int ftp_command::get_lua_value(cybermon_lua& state,
+int ftp_command::get_lua_value(lua& state,
 			       const std::string& key)
 {
     if (key == "command") {
@@ -820,7 +820,7 @@ int ftp_command::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int smtp_data::get_lua_value(cybermon_lua& state, const std::string& key)
+int smtp_data::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "from") {
 	state.push(from);
@@ -837,7 +837,7 @@ int smtp_data::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_client_key_exchange::get_lua_value(cybermon_lua& state,
+int tls_client_key_exchange::get_lua_value(lua& state,
 					   const std::string& key)
 {
     if (key == "key") {
@@ -847,7 +847,7 @@ int tls_client_key_exchange::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int tls_unknown::get_lua_value(cybermon_lua& state, const std::string& key)
+int tls_unknown::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "version") {
 	state.push(version);
@@ -864,7 +864,7 @@ int tls_unknown::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_certificate_verify::get_lua_value(cybermon_lua& state,
+int tls_certificate_verify::get_lua_value(lua& state,
 					  const std::string& key)
 {
     if (key == "signature_algorithm") {
@@ -884,7 +884,7 @@ int tls_certificate_verify::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int tls_change_cipher_spec::get_lua_value(cybermon_lua& state,
+int tls_change_cipher_spec::get_lua_value(lua& state,
 					  const std::string& key)
 {
     if (key == "val") {
@@ -894,13 +894,13 @@ int tls_change_cipher_spec::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int tls_certificates::get_lua_value(cybermon_lua& state,
+int tls_certificates::get_lua_value(lua& state,
 				    const std::string& key)
 {
     return event::get_lua_value(state, key);
 }
 
-int wlan::get_lua_value(cybermon_lua& state, const std::string& key)
+int wlan::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "version") {
 	state.push(version);
@@ -941,7 +941,7 @@ int wlan::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int tls_handshake_finished::get_lua_value(cybermon_lua& state,
+int tls_handshake_finished::get_lua_value(lua& state,
 					  const std::string& key)
 {
     if (key == "message") {
@@ -951,7 +951,7 @@ int tls_handshake_finished::get_lua_value(cybermon_lua& state,
     return event::get_lua_value(state, key);
 }
 
-int smtp_command::get_lua_value(cybermon_lua& state, const std::string& key)
+int smtp_command::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "command") {
 	state.push(command);
@@ -960,7 +960,7 @@ int smtp_command::get_lua_value(cybermon_lua& state, const std::string& key)
     return event::get_lua_value(state, key);
 }
 
-int esp::get_lua_value(cybermon_lua& state, const std::string& key)
+int esp::get_lua_value(lua& state, const std::string& key)
 {
     if (key == "spi") {
 	state.push(spi);

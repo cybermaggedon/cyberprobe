@@ -6,9 +6,10 @@
 #include <mutex>
 #include <condition_variable>
 #include <queue>
+#include <thread>
 
 #include <cyberprobe/event/event.h>
-#include <cyberprobe/analyser/cybermon-lua.h>
+#include <cyberprobe/analyser/lua.h>
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
