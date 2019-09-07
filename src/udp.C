@@ -3,7 +3,7 @@
 
 #include <cyberprobe/protocol/address.h>
 #include <cyberprobe/protocol/flow.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/udp_ports.h>
 #include <cyberprobe/protocol/unrecognised.h>
 

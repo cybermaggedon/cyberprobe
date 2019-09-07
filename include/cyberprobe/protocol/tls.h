@@ -3,7 +3,7 @@
 #define CYBERMON_TLS_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/pdu.h>
 
 namespace cyberprobe {
@@ -50,7 +50,6 @@ namespace protocol {
     };
 
     class tls {
-        using manager = cyberprobe::analyser::manager;
     public:
         static void process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice);
 

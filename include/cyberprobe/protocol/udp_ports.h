@@ -9,7 +9,7 @@
 
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/pdu.h>
 #include <vector>
 
@@ -19,7 +19,6 @@ namespace protocol {
     class udp_ports
     {
 
-        using manager = cyberprobe::analyser::manager;
 
     private:
 

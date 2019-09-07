@@ -14,9 +14,8 @@
 #include <set>
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/util/serial.h>
-#include <cyberprobe/analyser/protocol.h>
 
 namespace cyberprobe {
 namespace protocol {
@@ -227,6 +226,7 @@ namespace protocol {
     };
 
     class http {
+
 
     public:
 

@@ -13,9 +13,8 @@
 #include <set>
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/util/serial.h>
-#include <cyberprobe/analyser/protocol.h>
 #include "ntp_protocol.h"
 
 namespace cyberprobe {
@@ -57,7 +56,6 @@ namespace protocol {
     };
 
     class ntp {
-
     public:
       
 	// NTP processing function.

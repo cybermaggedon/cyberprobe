@@ -19,7 +19,7 @@
 #include <cyberprobe/protocol/context.h>
 #include <cyberprobe/util/reaper.h>
 #include <cyberprobe/analyser/monitor.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/event/event.h>
 #include <cyberprobe/event/event_implementations.h>
 
@@ -35,7 +35,7 @@ namespace analyser {
     
     // Packet analysis engine.  Designed to be sub-classed, caller should
     // implement the 'observer' interface.
-    class engine : public manager, public monitor {
+    class engine : public protocol::manager, public monitor {
     private:
 
 	// Lock for all state.

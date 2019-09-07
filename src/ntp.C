@@ -1,6 +1,6 @@
 
 #include <cyberprobe/protocol/ntp.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/address.h>
 #include <cyberprobe/protocol/udp.h>
 #include <cyberprobe/protocol/ip.h>

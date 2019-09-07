@@ -3,7 +3,7 @@
 #define CYBERMON_ICMP_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/observer.h>
+#include <cyberprobe/protocol/observer.h>
 
 namespace cyberprobe {
 namespace protocol {
@@ -40,7 +40,6 @@ namespace protocol {
     
     class icmp {
 
-        using manager = cyberprobe::analyser::manager;
 
     public:
 	

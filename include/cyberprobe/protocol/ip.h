@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 
 #include <deque>
 
@@ -147,7 +147,6 @@ namespace protocol {
     // Processing
     class ip {
 
-        using manager = cyberprobe::analyser::manager;
 
     public:
 

@@ -9,15 +9,13 @@
 #define CYBERMON_IMAP_CONTEXT_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
-#include <cyberprobe/analyser/protocol.h>
+#include <cyberprobe/protocol/manager.h>
 
 namespace cyberprobe {
 namespace protocol {
     
     class imap_context : public context {
 
-        using manager = cyberprobe::analyser::manager;
 
     public:
 

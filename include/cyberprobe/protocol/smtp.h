@@ -13,9 +13,8 @@
 #include <set>
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/util/serial.h>
-#include <cyberprobe/analyser/protocol.h>
 
 namespace cyberprobe {
 namespace protocol {
@@ -173,7 +172,6 @@ namespace protocol {
 
     private:
 
-        using manager = cyberprobe::analyser::manager;
 
         // SMTP client request processing function.
         static void process_client(manager&, context_ptr c,

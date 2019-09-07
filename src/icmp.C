@@ -2,7 +2,7 @@
 #include <memory>
 
 #include <cyberprobe/protocol/icmp.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/event/event_implementations.h>
 
 using namespace cyberprobe::protocol;

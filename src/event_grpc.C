@@ -29,7 +29,11 @@ using cyberprobe::EventStream;
 using grpc::ClientAsyncResponseReader;
 using grpc::CompletionQueue;
 
+using cyberprobe::analyser::grpc_manager;
+
 namespace cyberprobe {
+
+namespace analyser {
 
     class eventstream_client {
 
@@ -293,6 +297,8 @@ namespace cyberprobe {
 
     grpc_manager::~grpc_manager() {
     }
+
+}
 
 }
 

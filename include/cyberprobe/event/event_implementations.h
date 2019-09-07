@@ -39,7 +39,7 @@ namespace cyberprobe {
 		    addr.to_string(address);
 		}
 	    virtual ~trigger_up() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    virtual std::string get_device() const { return device; }
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -57,7 +57,7 @@ namespace cyberprobe {
 		device(device)
 		{}
 	    virtual ~trigger_down() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    virtual std::string get_device() const { return device; }
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -79,7 +79,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~unrecognised_stream() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    int64_t position;
 	    virtual void to_json(std::string& doc) {
@@ -98,7 +98,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~connection_up() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
@@ -115,7 +115,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~connection_down() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
@@ -135,7 +135,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~unrecognised_datagram() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -158,7 +158,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~icmp() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    unsigned int type;
 	    unsigned int code;
 	    pdu payload;
@@ -181,7 +181,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~imap() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -202,7 +202,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~imap_ssl() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -223,7 +223,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~pop3() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -244,7 +244,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~pop3_ssl() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -265,7 +265,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~rtp() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -286,7 +286,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~rtp_ssl() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -307,7 +307,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~smtp_auth() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -328,7 +328,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_ssl() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    pdu payload;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -352,7 +352,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_request() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string method;
 	    const std::string from;
 	    const std::string to;
@@ -379,7 +379,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~sip_response() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    unsigned int code;
 	    const std::string status;
 	    const std::string from;
@@ -408,7 +408,7 @@ namespace cyberprobe {
 		    std::copy(s, e, body.begin());
 		}
 	    virtual ~http_request() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string method;
 	    const std::string url;
 	    http_hdr_t header;
@@ -436,7 +436,7 @@ namespace cyberprobe {
 		    std::copy(s, e, body.begin());
 		}
 	    virtual ~http_response() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    unsigned int code;
 	    const std::string status;
 	    http_hdr_t header;
@@ -458,7 +458,7 @@ namespace cyberprobe {
 		command(command)
 		{}
 	    virtual ~smtp_command() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string command;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -477,7 +477,7 @@ namespace cyberprobe {
 		status(status), text(text)
 		{}
 	    virtual ~smtp_response() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    int status;
 	    const std::list<std::string> text;
 	    virtual void to_json(std::string& doc) {
@@ -502,7 +502,7 @@ namespace cyberprobe {
 		    std::copy(s, e, body.begin());
 		}
 	    virtual ~smtp_data() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string from;
 	    const std::list<std::string> to;
 	    pdu body;
@@ -523,7 +523,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~ftp_command() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string command;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -542,7 +542,7 @@ namespace cyberprobe {
 		status(status), text(text)
 		{}
 	    virtual ~ftp_response() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    int status;
 	    const std::list<std::string> text;
 	    virtual void to_json(std::string& doc) {
@@ -567,7 +567,7 @@ namespace cyberprobe {
 		authorities(authorities), additional(additional)
 		{}
 	    virtual ~dns_message() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    protocol::dns_header header;
 	    std::list<protocol::dns_query> queries;
 	    std::list<protocol::dns_rr> answers;
@@ -590,7 +590,7 @@ namespace cyberprobe {
 		ts(ts)
 		{}
 	    virtual ~ntp_timestamp_message() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const protocol::ntp_timestamp ts;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -609,7 +609,7 @@ namespace cyberprobe {
 		ctrl(ctrl)
 		{}
 	    virtual ~ntp_control_message() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const protocol::ntp_control ctrl;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -629,7 +629,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~ntp_private_message() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const protocol::ntp_private priv;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -653,7 +653,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~gre() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string next_proto;
 	    const uint32_t key;
 	    const uint32_t sequence_no;
@@ -682,7 +682,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~gre_pptp() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string next_proto;
 	    const uint16_t payload_length;
 	    const uint16_t call_id;
@@ -710,7 +710,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~esp() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const uint32_t spi;
 	    const uint32_t sequence;
 	    const uint32_t payload_length;
@@ -737,7 +737,7 @@ namespace cyberprobe {
 		    std::copy(s, e, payload.begin());
 		}
 	    virtual ~unrecognised_ip_protocol() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const uint8_t next_proto;
 	    const uint32_t payload_length;
 	    pdu payload;
@@ -765,7 +765,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~wlan() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const uint8_t version;
 	    const uint8_t type;
 	    const uint8_t subtype;
@@ -794,7 +794,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_unknown() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string version;
 	    const uint8_t content_type;
 	    const uint16_t length;
@@ -816,7 +816,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_client_hello() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const protocol::tls_handshake_protocol::client_hello_data data;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -836,7 +836,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_server_hello() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const protocol::tls_handshake_protocol::server_hello_data data;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -874,7 +874,7 @@ namespace cyberprobe {
 		    certs.insert(certs.end(), crt.begin(), crt.end());
 		}
 	    virtual ~tls_certificates() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    std::vector<std::vector<uint8_t>> certs;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -894,7 +894,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_server_key_exchange() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const protocol::tls_handshake_protocol::key_exchange_data data;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -914,7 +914,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_handshake_generic() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const uint8_t type;
 	    const uint32_t len;
 	    virtual void to_json(std::string& doc) {
@@ -935,7 +935,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_certificate_request() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const protocol::tls_handshake_protocol::certificate_request_data data;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -955,7 +955,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_client_key_exchange() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::vector<uint8_t> key;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -978,7 +978,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_certificate_verify() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const uint8_t sig_hash_algo;
 	    const uint8_t sig_algo;
 	    const std::string sig;
@@ -999,7 +999,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_change_cipher_spec() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const uint8_t val;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -1019,7 +1019,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_handshake_finished() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::vector<uint8_t> msg;
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
@@ -1037,7 +1037,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_handshake_complete() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    virtual void to_json(std::string& doc) {
 		jsonify(*this, doc);
 	    }
@@ -1057,7 +1057,7 @@ namespace cyberprobe {
 		{
 		}
 	    virtual ~tls_application_data() {}
-	    virtual int get_lua_value(lua&, const std::string& name);
+	    virtual int get_lua_value(analyser::lua&, const std::string& name);
 	    const std::string version;
 	    const std::vector<uint8_t> data;
 	    virtual void to_json(std::string& doc) {

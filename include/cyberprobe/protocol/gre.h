@@ -3,7 +3,7 @@
 #define CYBERMON_GRE_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/observer.h>
+#include <cyberprobe/protocol/observer.h>
 
 namespace cyberprobe {
 namespace protocol {
@@ -37,7 +37,6 @@ namespace protocol {
     };
 
     class gre {
-        using manager = cyberprobe::analyser::manager;
     public:
 
 	// GRE processing function.

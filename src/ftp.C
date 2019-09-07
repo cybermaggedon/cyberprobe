@@ -1,8 +1,7 @@
 
 #include <cyberprobe/protocol/address.h>
 #include <cyberprobe/protocol/ftp.h>
-#include <cyberprobe/analyser/manager.h>
-#include <cyberprobe/protocol/ip.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/event/event_implementations.h>
 
 #include <regex>

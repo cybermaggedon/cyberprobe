@@ -4,7 +4,7 @@
 #include <regex>
 #include <set>
 
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/pdu.h>
 #include <cyberprobe/protocol/context.h>
 #include <cyberprobe/protocol/http.h>

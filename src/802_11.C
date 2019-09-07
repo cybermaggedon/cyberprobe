@@ -1,7 +1,7 @@
 #include <cyberprobe/protocol/802_11.h>
 #include <cyberprobe/event/event_implementations.h>
 
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include "hardware_addr_utils.h"
 
 using namespace cyberprobe::protocol;

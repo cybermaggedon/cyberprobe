@@ -3,7 +3,7 @@
 
 #include <cyberprobe/protocol/address.h>
 #include <cyberprobe/protocol/http.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/unrecognised.h>
 #include <cyberprobe/event/event_implementations.h>
 
@@ -12,6 +12,7 @@
 #include <iomanip>
 
 using namespace cyberprobe::protocol;
+using namespace cyberprobe::analyser;
 
 // HTTP response processing function.
 void http_parser::parse(context_ptr c, const pdu_slice& sl, manager& mgr)

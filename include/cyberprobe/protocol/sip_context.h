@@ -9,7 +9,7 @@
 #define CYBERMON_SIP_CONTEXT_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 
 #include <memory>
 

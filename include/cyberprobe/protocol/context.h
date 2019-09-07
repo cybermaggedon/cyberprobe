@@ -16,7 +16,7 @@
 #include <cyberprobe/protocol/base_context.h>
 #include <cyberprobe/exception.h>
 #include <cyberprobe/util/reaper.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 
 namespace cyberprobe {
 
@@ -30,11 +30,10 @@ namespace protocol {
     protected:
 
 	// Watcher, tidies things up when they get old.
-        analyser::manager& mgr;
+        manager& mgr;
 
     public:
 
-        using manager = cyberprobe::analyser::manager;
         
         manager& get_manager() { return mgr; }
 

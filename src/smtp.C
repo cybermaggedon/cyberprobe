@@ -1,7 +1,7 @@
 
 #include <cyberprobe/protocol/address.h>
 #include <cyberprobe/protocol/smtp.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/event/event_implementations.h>
 
 #include <regex>
