@@ -34,7 +34,7 @@ cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C delivery.C	\
 cyberprobe_LDADD = -lssl
 
 if WITH_DAG
-cyberprobe_SOURCES += dag_capture.C dag_capture.h
+cyberprobe_SOURCES += dag_capture.C ../include/cyberprobe/probe/dag_capture.h
 cyberprobe_LDADD += -ldag
 endif
 
