@@ -437,6 +437,8 @@ int main(int argc, char** argv)
 
 	    // Start an ETSI receiver.
 	    etsi_li::receiver r(port, pe);
+
+            le.start();
 	    r.start();
 
             if (time_limit > 0) {
