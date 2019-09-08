@@ -215,9 +215,6 @@ namespace analyser {
         // Loop while listening for completed responses.
         // Prints out the response from the server.
         
-        void* got_tag;
-        bool ok = false;
-
         // Block until the next result is available in the completion
         // queue.
         std::unique_lock<std::mutex> lock(mutex);
@@ -240,7 +237,8 @@ namespace analyser {
                 delete call;
 
                 call2->response_reader =
-                    stub->PrepareAsyncObserve(&call2->context, call2->request, &cq);
+                    stub->PrepareAsyncObserve(&call2->context, call2->request,
+                                              &cq);
                 call2->response_reader->StartCall();
                 call2->response_reader->Finish(&call2->reply, &call2->status,
                                               (void*)call2);

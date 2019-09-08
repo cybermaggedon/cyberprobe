@@ -133,7 +133,7 @@ namespace cyberprobe {
             if (addr.first == "ipv4" || addr.first == "ipv6") {
                 auto a = pa->mutable_address();
                 protobufify(addr.second, a);
-            } else if (addr.first == "udp" | addr.first == "tcp") {
+            } else if (addr.first == "udp" || addr.first == "tcp") {
                 auto a = pa->mutable_address();
                 a->set_port(std::stoi(addr.second));
             } else {
