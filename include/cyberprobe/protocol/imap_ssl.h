@@ -9,7 +9,7 @@
 #define CYBERMON_IMAP_SSL_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/pdu.h>
 
 
@@ -18,7 +18,6 @@ namespace protocol {
     
     class imap_ssl
     {
-        using manager = cyberprobe::analyser::manager;
     public:
 
         // IMAP_SSL processing.

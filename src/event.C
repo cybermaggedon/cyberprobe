@@ -105,8 +105,8 @@ int event::lua_json(lua_State* lua) {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
-    cyberprobe::event_userdata* ed =
-        reinterpret_cast<cyberprobe::event_userdata*>(ud);
+    event_userdata* ed =
+        reinterpret_cast<event_userdata*>(ud);
 
     std::string js;
     ed->event->to_json(js);
@@ -119,8 +119,8 @@ int event::lua_protobuf(lua_State* lua) {
 
     void* ud = luaL_checkudata(lua, 1, "cybermon.event");
     luaL_argcheck(lua, ud != NULL, 1, "`event' expected");
-    cyberprobe::event_userdata* ed =
-        reinterpret_cast<cyberprobe::event_userdata*>(ud);
+    event_userdata* ed =
+        reinterpret_cast<event_userdata*>(ud);
     
     std::string pb;
     ed->event->to_protobuf(pb);

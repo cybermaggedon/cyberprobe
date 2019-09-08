@@ -79,10 +79,10 @@ libcybermon_la_SOURCES = address.C base_context.C lua.C			\
 	tls_handshake.h tls_key_exchange.h tls_utils.h uuid.h		\
 	../include/cyberprobe/analyser/lua.h				\
 	../include/cyberprobe/analyser/engine.h				\
-	../include/cyberprobe/analyser/manager.h			\
+	../include/cyberprobe/protocol/manager.h			\
 	../include/cyberprobe/analyser/monitor.h			\
-	../include/cyberprobe/analyser/observer.h			\
-	../include/cyberprobe/analyser/protocol.h			\
+	../include/cyberprobe/protocol/observer.h			\
+	../include/cyberprobe/protocol/process.h			\
 	../include/cyberprobe/event/event.h				\
 	../include/cyberprobe/event/event_implementations.h		\
 	../include/cyberprobe/event/event_json.h			\

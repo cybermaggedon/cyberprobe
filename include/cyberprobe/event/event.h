@@ -28,7 +28,10 @@ namespace cyberprobe {
 
     class Event;
 
-    class lua;
+    // FIXME: Decouple this?  Interface?
+    namespace analyser {
+        class lua;
+    }
 
     namespace event {    
 
@@ -105,7 +108,7 @@ namespace cyberprobe {
 	    virtual std::string& get_action() const {
 		return action2string(action);
 	    }
-	    virtual int get_lua_value(cyberprobe::lua&,
+	    virtual int get_lua_value(analyser::lua&,
 				      const std::string& name);
 	    virtual void to_json(std::string& doc) {
                 throw std::runtime_error("JSON not implemented.");

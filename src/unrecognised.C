@@ -2,7 +2,7 @@
 #include <memory>
 
 #include <cyberprobe/protocol/unrecognised.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/tcp.h>
 #include <cyberprobe/event/event_implementations.h>
 

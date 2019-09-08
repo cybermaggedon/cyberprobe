@@ -13,14 +13,14 @@
 #include <set>
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
-#include <cyberprobe/analyser/protocol.h>
+#include <cyberprobe/protocol/manager.h>
 
 namespace cyberprobe {
 namespace protocol {
     
     // An unrecoginsed stream.
     class unrecognised_stream_context : public context {
+
         
     public:
 
@@ -66,6 +66,8 @@ namespace protocol {
 
     // An unrecoginsed datagram
     class unrecognised_datagram_context : public context {
+
+
     public:
 	
 	// Constructor.
@@ -105,7 +107,6 @@ namespace protocol {
     };
 
     class unrecognised {
-
     public:
 
 	// HTTP request processing function.

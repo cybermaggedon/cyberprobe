@@ -9,7 +9,7 @@
 #define CYBERMON_DNS_OVER_UDP_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/pdu.h>
 
 namespace cyberprobe {
@@ -20,7 +20,6 @@ namespace protocol {
     {
     public:
 
-        using manager = cyberprobe::analyser::manager;
 
         // DNS over UDP processing function.
         static void process(manager&, context_ptr c, const pdu_slice& s);

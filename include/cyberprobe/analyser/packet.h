@@ -8,7 +8,7 @@
 #include "socket.h"
 
 // Virtual packet handling interface
-class packet_processor {
+class DELETE_ME_packet_processor {
 public:
 
     // IP packet.

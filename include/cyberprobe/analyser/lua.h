@@ -34,6 +34,8 @@ extern "C" {
 
 namespace cyberprobe {
 
+namespace analyser {
+
     using pdu = protocol::pdu;
     using context_ptr = protocol::context_ptr;
 
@@ -561,6 +563,8 @@ delete[] buf;
 
     };
 
-};
+}
+
+}
 
 #endif

@@ -13,9 +13,9 @@
 #include <set>
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/util/serial.h>
-#include <cyberprobe/analyser/protocol.h>
+#include <cyberprobe/protocol/process.h>
 #include <cyberprobe/protocol/tcp_ports.h>
 
 
@@ -103,6 +103,7 @@ namespace protocol {
     };
 
     class tcp {
+
 
     public:
 

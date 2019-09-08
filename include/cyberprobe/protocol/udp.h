@@ -9,9 +9,9 @@
 #define CYBERMON_UDP_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/protocol/udp_ports.h>
-#include <cyberprobe/analyser/protocol.h>
+#include <cyberprobe/protocol/process.h>
 
 
 namespace cyberprobe {
@@ -20,7 +20,6 @@ namespace protocol {
     // A UDP context.
     class udp_context : public context {
 
-        using manager = cyberprobe::analyser::manager;
 
     public:
 
@@ -64,6 +63,7 @@ namespace protocol {
     };
     
     class udp {
+
 
     public:
 	

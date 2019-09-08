@@ -3,7 +3,7 @@
 #define CYBERMON_802_11_H
 
 #include <cyberprobe/protocol/context.h>
-#include <cyberprobe/analyser/observer.h>
+#include <cyberprobe/protocol/observer.h>
 
 namespace cyberprobe {
 namespace protocol {
@@ -37,7 +37,6 @@ namespace protocol {
     };
 
     class wlan {
-        using manager = cyberprobe::analyser::manager;
     public:
 
 	// 802.11 processing function.

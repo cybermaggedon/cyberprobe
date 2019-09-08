@@ -1,6 +1,6 @@
 #include <cyberprobe/protocol/esp.h>
 
-#include <cyberprobe/analyser/manager.h>
+#include <cyberprobe/protocol/manager.h>
 #include <cyberprobe/event/event_implementations.h>
 
 #include <arpa/inet.h>
