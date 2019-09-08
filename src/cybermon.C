@@ -136,7 +136,7 @@ private:
 public:
     interface_input(const std::string& iface, engine& e,
                const std::string& device) :
-        interface(*this, iface), pcap_input(e, device)
+        pcap_input(e, device), interface(*this, iface)
         {
         }
 
@@ -165,7 +165,7 @@ private:
 public:
     file_input(const std::string& file, engine& e,
                const std::string& device) :
-        reader(*this, file), pcap_input(e, device)
+        pcap_input(e, device), reader(*this, file)
         {
         }
 
