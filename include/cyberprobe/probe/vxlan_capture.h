@@ -2,7 +2,7 @@
 #ifndef VXLAN_CAPTURE_H
 #define VXLAN_CAPTURE_H
 
-#include <capture.h>
+#include <cyberprobe/probe/capture.h>
 
 #include <sys/time.h>
 

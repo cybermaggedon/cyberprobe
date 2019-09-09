@@ -8,16 +8,16 @@
 #include <config.h>
 #endif
 
-#include "delivery.h"
+#include <cyberprobe/probe/delivery.h>
 
 #ifdef WITH_DAG
 // DAG support if available.
 #include "dag_capture.h"
 #endif
 
-#include <vxlan_capture.h>
+#include <cyberprobe/probe/vxlan_capture.h>
 
-using namespace cyberprobe;
+using namespace cyberprobe::probe;
 
 using direction = cyberprobe::protocol::direction;
 

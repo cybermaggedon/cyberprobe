@@ -9,9 +9,8 @@
 #include <cyberprobe/protocol/pdu.h>
 #include <cyberprobe/stream/nhis11.h>
 #include <cyberprobe/stream/etsi_li.h>
-
-#include "management.h"
-#include "parameters.h"
+#include <cyberprobe/probe/management.h>
+#include <cyberprobe/probe/parameterised.h>
 
 #include <mutex>
 #include <condition_variable>
@@ -53,14 +52,14 @@ protected:
     // State: true if we're running, false if we've been asked to stop.
     bool running;
 
-    parameters& global_pars;
+    parameterised& global_pars;
 
     std::thread* thr;
 
 public:
 
     // Constructor.
-    sender(parameters& p) : global_pars(p) {
+    sender(parameterised& p) : global_pars(p) {
 	running = true;
 	thr = 0;
     }
@@ -135,7 +134,7 @@ public:
     nhis11_sender(const std::string& h, unsigned short p,
 		  const std::string& transp,
 		  const std::map<std::string, std::string>& params,
-		  parameters& globals) :
+		  parameterised& globals) :
         sender(globals), h(h), p(p), params(params) {
 	if (transp == "tls")
 	    tls = true;
@@ -206,7 +205,7 @@ public:
     etsi_li_sender(const std::string& h, unsigned int short p,
                    const std::string& transp,
 		   const std::map<std::string, std::string>& params,
-		   parameters& globals) :
+		   parameterised& globals) :
         sender(globals), h(h), p(p), params(params), cur_connect(0)
         {
 

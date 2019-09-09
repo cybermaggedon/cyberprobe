@@ -3,14 +3,16 @@
 #include <cyberprobe/resources/resource.h>
 #include <cyberprobe/network/socket.h>
 
-#include "target.h"
-#include "json.h"
-#include "delivery.h"
+#include <cyberprobe/probe/target.h>
+#include <cyberprobe/probe/delivery.h>
+#include <nlohmann/json.h>
     
 using json = nlohmann::json;
 
 namespace cyberprobe {
 
+namespace probe {
+        
 namespace target {
 
     void to_json(json& j, const spec& s) {
@@ -117,7 +119,9 @@ namespace target {
 
     }
 
-};
+}
 
-};
+}
+
+}
 

@@ -14,6 +14,8 @@
 
 namespace cyberprobe {
 
+namespace probe {
+
 class management {
 
 public:
@@ -58,7 +60,9 @@ public:
 
 };
 
-};
+}
+
+}
 
 #endif
 

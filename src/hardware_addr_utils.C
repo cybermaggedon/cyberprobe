@@ -1,11 +1,13 @@
-#include <hardware_addr_utils.h>
+
+#include <cyberprobe/util/hardware_addr_utils.h>
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 
+using namespace cyberprobe::util;
 
-std::string cyberprobe::hw_addr_utils::to_string(const uint8_t* addr)
+std::string hw_addr_utils::to_string(const uint8_t* addr)
 {
     std::ostringstream oss;
     for (int i=0; i<6; ++i)

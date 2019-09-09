@@ -1,13 +1,13 @@
-#include <tls_key_exchange.h>
 
-#include <tls_exception.h>
+#include <cyberprobe/protocol/tls_key_exchange.h>
+#include <cyberprobe/protocol/tls_exception.h>
 
 #include <iomanip>
 #include <iostream>
 #include <arpa/inet.h>
 #include <sstream>
 
-using namespace cyberprobe;
+using namespace cyberprobe::protocol;
 
 #ifdef NOT_USED
 
@@ -276,3 +276,4 @@ std::string tls_key_exchange::to_string(const NamedCurve nc) {
         }
     return "reserved";
 }
+

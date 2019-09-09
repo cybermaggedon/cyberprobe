@@ -4,12 +4,12 @@
 #include <cyberprobe/event/event_implementations.h>
 #include <cyberprobe/event/event_json.h>
 #include <cyberprobe/protocol/context.h>
+#include <nlohmann/json.h>
 
 #include <string.h>
 #include <string>
 
-#include <json.h>
-#include <base64.h>
+#include <base64/base64.h>
 
 using json = nlohmann::json;
 
@@ -58,13 +58,13 @@ namespace cyberprobe {
     namespace event {
 
 	json jsonify(const std::vector<unsigned char>& b) {
-	    std::string s = base64_encode(b.begin(), b.end());
+	    std::string s = base64::encode(b.begin(), b.end());
 	    return json(s);
 	}
 
 	template<typename iter>
 	json jsonify(iter s, iter e) {
-	    std::string str = base64_encode(s, e);
+	    std::string str = base64::encode(s, e);
 	    return json(str);
 	}
 

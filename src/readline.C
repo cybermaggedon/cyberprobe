@@ -1,5 +1,5 @@
 
-#include "readline.h"
+#include <cyberprobe/util/readline.h>
 
 readline::completer_fn readline::completion;
 

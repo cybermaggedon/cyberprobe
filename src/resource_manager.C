@@ -11,7 +11,7 @@
 
 #include <string>
 
-using namespace cyberprobe;
+using namespace cyberprobe::resources;
 
 void resource_manager::update(const std::string& file)
 {

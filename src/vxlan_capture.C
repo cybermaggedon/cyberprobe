@@ -1,6 +1,5 @@
 
-#include <vxlan_capture.h>
-
+#include <cyberprobe/probe/vxlan_capture.h>
 #include <cyberprobe/network/socket.h>
 
 #include <stdint.h>

@@ -9,7 +9,7 @@
 #define CAPTURE_H
 
 #include <cyberprobe/pkt_capture/packet_capture.h>
-#include <packet_consumer.h>
+#include <cyberprobe/probe/packet_consumer.h>
 
 #include <queue>
 #include <thread>

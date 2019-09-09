@@ -19,9 +19,10 @@ Usage:
 #include <arpa/inet.h>
 #include <signal.h>
 
-#include "configuration.h"
-#include "delivery.h"
+#include <cyberprobe/probe/configuration.h>
+#include <cyberprobe/probe/delivery.h>
 
+using namespace cyberprobe::probe;
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -47,10 +48,10 @@ int main(int argc, char** argv)
     signal(SIGPIPE, SIG_IGN);
 
     // Create the delivery engine.
-    cyberprobe::delivery deliv;
+    delivery deliv;
 
     // Create the configuration manager.
-    cyberprobe::config_manager cm(deliv);
+    config_manager cm(deliv);
 
     // Loop forever, checking the configuration file for a change.
     while (1) {

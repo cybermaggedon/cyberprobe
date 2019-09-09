@@ -5,8 +5,9 @@
 #include <vector>
 #include <string>
 
-namespace cyberprobe
-{
+namespace cyberprobe {
+namespace protocol {
+
     namespace cipher
     {
 
@@ -582,6 +583,7 @@ namespace cyberprobe
             return KeyExchangeAlgorithm::unknown;
         }
     }
+}
 }
 
 #endif

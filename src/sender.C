@@ -1,5 +1,5 @@
 
-#include "sender.h"
+#include <cyberprobe/probe/sender.h>
 
 #include <condition_variable>
 #include <mutex>

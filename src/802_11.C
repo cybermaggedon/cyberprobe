@@ -1,8 +1,8 @@
+
 #include <cyberprobe/protocol/802_11.h>
 #include <cyberprobe/event/event_implementations.h>
-
 #include <cyberprobe/protocol/manager.h>
-#include "hardware_addr_utils.h"
+#include <cyberprobe/util/hardware_addr_utils.h>
 
 using namespace cyberprobe::protocol;
 
@@ -67,7 +67,7 @@ void wlan::process(manager& mgr, context_ptr ctx, const pdu_slice& pduSlice)
     auto ev =
         std::make_shared<event::wlan>(flowContext, version, type, subtype,
                                       flags, is_protected, hdr->duration,
-                                      hw_addr_utils::to_string(hdr->filt),
+                                      util::hw_addr_utils::to_string(hdr->filt),
                                       frag_num, seq_num, pduSlice.time);
     mgr.handle(ev);
 

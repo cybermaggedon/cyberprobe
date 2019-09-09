@@ -1,13 +1,15 @@
 
-#include "control.h"
-#include "management.h"
-#include "json.h"
-#include "parameter.h"
+#include <cyberprobe/probe/control.h>
+#include <cyberprobe/probe/management.h>
+#include <cyberprobe/probe/parameter.h>
+#include <nlohmann/json.h>
 
 #include <vector>
 #include <mutex>
 
 namespace cyberprobe {
+
+namespace probe {
 
 namespace control {
 
@@ -525,7 +527,9 @@ namespace control {
 
     }
 
-};
+}
 
-};
+}
+
+}
 

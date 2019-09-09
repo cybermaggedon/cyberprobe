@@ -10,18 +10,19 @@
 #include <cyberprobe/network/socket.h>
 #include <cyberprobe/resources/specification.h>
 #include <cyberprobe/resources/resource.h>
-
-#include "management.h"
-#include "json.h"
+#include <cyberprobe/probe/management.h>
+#include <nlohmann/json.h>
 
 namespace cyberprobe {
+
+namespace probe {
 
 namespace control {
     
     using json = nlohmann::json;
     
     // Management interface specification.
-    class spec : public specification {
+    class spec : public resources::specification {
     public:
 
 	// Type is 'control'.
@@ -135,7 +136,7 @@ namespace control {
     };
 
     // Management service.
-    class service : public resource {
+    class service : public resources::resource {
 
     private:
 	
@@ -205,9 +206,11 @@ namespace control {
     
     void from_json(const json& j, spec& s);
 
-};
+}
 
-};
+}
+
+}
 
 #endif
 

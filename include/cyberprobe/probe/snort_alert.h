@@ -14,12 +14,14 @@
 
 namespace cyberprobe {
 
+namespace probe {
+
 namespace snort_alert {
 
     using json = nlohmann::json;
 
     // Specification for a snort alerter.
-    class spec : public cyberprobe::specification {
+    class spec : public resources::specification {
 
     public:
 
@@ -46,7 +48,7 @@ namespace snort_alert {
 
     // Snort alerter, receives snort alerts and enables targeting on alerted
     // IP addresses.
-    class snort_alerter : public cyberprobe::resource {
+    class snort_alerter : public resources::resource {
 
     private:
 
@@ -102,9 +104,11 @@ namespace snort_alert {
 
     void from_json(const json& j, spec& s);
 
-};
+}
 
-};
+}
+
+}
 
 #endif
 

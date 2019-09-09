@@ -15,7 +15,7 @@
 #include <cyberprobe/protocol/dns_protocol.h>
 #include <cyberprobe/protocol/tls_handshake_protocol.h>
 #include <cyberprobe/protocol/ntp_protocol.h>
-#include <uuid.h>
+#include <cyberprobe/util/uuid.h>
 
 // Lua
 extern "C" {

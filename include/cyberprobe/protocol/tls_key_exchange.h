@@ -10,11 +10,12 @@
 #include <vector>
 
 namespace cyberprobe {
+namespace protocol {
     namespace tls_key_exchange {
 
         using pdu_slice = cyberprobe::protocol::pdu_slice;
 
-        void server_ecdh(const pdu_slice& pduSlice, uint16_t length, protocol::tls_handshake_protocol::ecdh_ptr md);
+        void server_ecdh(const pdu_slice& pduSlice, uint16_t length, tls_handshake_protocol::ecdh_ptr md);
         void client_ecdh(const pdu_slice& pduSlice, uint16_t length, std::vector<uint8_t>& key);
 
         enum NamedCurve {
@@ -35,6 +36,7 @@ namespace cyberprobe {
         std::string to_string(const NamedCurve nc);
 
     } // namespace tls_key_exchange
+} // namespace protocol
 } // namespace cyberprobe
 
 #endif
