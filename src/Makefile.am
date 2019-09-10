@@ -8,39 +8,41 @@ bin_PROGRAMS += eventstream-service
 endif
 endif
 
-cyberprobe_SOURCES = cyberprobe.C nhis11.C sender.C delivery.C	\
-	capture.C configuration.C control.C snort_alert.C	\
-	vxlan_capture.C parameter.C interface.C socket.C	\
-	resource_manager.C etsi_li.C				\
-	../include/cyberprobe/network/socket.h			\
-	../include/cyberprobe/stream/etsi_li.h ber.C		\
-	../include/cyberprobe/stream/ber.h			\
-	../include/cyberprobe/util/address_map.h		\
-	../include/cyberprobe/probe/sender.h			\
-	../include/cyberprobe/probe/delivery.h			\
-	../include/cyberprobe/probe/capture.h endpoint.C	\
-	../include/cyberprobe/probe/configuration.h		\
-	../include/cyberprobe/probe/control.h			\
-	../include/cyberprobe/probe/snort_alert.h		\
-	../include/cyberprobe/probe/target.h target.C		\
-	../include/cyberprobe/probe/parameterised.h		\
-	../include/cyberprobe/probe/packet_consumer.h		\
-	../include/cyberprobe/probe/interface.h			\
-	../include/cyberprobe/probe/endpoint.h			\
-	../include/cyberprobe/probe/parameter.h			\
-	../include/cyberprobe/probe/vxlan_capture.h		\
+cyberprobe_SOURCES = cyberprobe.C stream/nhis11.C probe/sender.C	\
+	probe/delivery.C probe/capture.C probe/configuration.C		\
+	probe/control.C probe/snort_alert.C probe/vxlan_capture.C	\
+	probe/parameter.C probe/interface.C network/socket.C		\
+	resources/resource_manager.C stream/etsi_li.C			\
+	../include/cyberprobe/network/socket.h				\
+	../include/cyberprobe/stream/etsi_li.h stream/ber.C		\
+	../include/cyberprobe/stream/ber.h				\
+	../include/cyberprobe/util/address_map.h			\
+	../include/cyberprobe/probe/sender.h				\
+	../include/cyberprobe/probe/delivery.h				\
+	../include/cyberprobe/probe/capture.h probe/endpoint.C		\
+	../include/cyberprobe/probe/configuration.h			\
+	../include/cyberprobe/probe/control.h				\
+	../include/cyberprobe/probe/snort_alert.h			\
+	../include/cyberprobe/probe/target.h probe/target.C		\
+	../include/cyberprobe/probe/parameterised.h			\
+	../include/cyberprobe/probe/packet_consumer.h			\
+	../include/cyberprobe/probe/interface.h				\
+	../include/cyberprobe/probe/endpoint.h				\
+	../include/cyberprobe/probe/parameter.h				\
+	../include/cyberprobe/probe/vxlan_capture.h			\
 	../include/cyberprobe/probe/management.h
 
 cyberprobe_LDADD = -lssl
 
 if WITH_DAG
-cyberprobe_SOURCES += dag_capture.C ../include/cyberprobe/probe/dag_capture.h
+cyberprobe_SOURCES += probe/dag_capture.C	\
+        ../include/cyberprobe/probe/dag_capture.h
 cyberprobe_LDADD += -ldag
 endif
 
-cybermon_SOURCES = cybermon.C socket.C		\
-	../include/cyberprobe/network/socket.h etsi_li.C	\
-	../include/cyberprobe/stream/etsi_li.h ber.C		\
+cybermon_SOURCES = cybermon.C network/socket.C				\
+	../include/cyberprobe/network/socket.h stream/etsi_li.C	\
+	../include/cyberprobe/stream/etsi_li.h stream/ber.C	\
 	../include/cyberprobe/stream/ber.h
 
 cybermon_LDADD = libcybermon.la -lssl
@@ -52,43 +54,52 @@ endif
 cybermon_LDADD += -lprotobuf
 endif
 
-cyberprobe_cli_SOURCES = cyberprobe-cli.C readline.C		\
-	../include/cyberprobe/util/readline.h			\
-	../include/cyberprobe/probe/interface.h interface.C	\
-	../include/cyberprobe/probe/endpoint.h endpoint.C	\
-	../include/cyberprobe/probe/parameter.h parameter.C	\
-	../include/cyberprobe/probe/target.h target.C socket.C	\
-	../include/cyberprobe/network/socket.h
+cyberprobe_cli_SOURCES = cyberprobe-cli.C util/readline.C		\
+	../include/cyberprobe/util/readline.h				\
+	../include/cyberprobe/probe/interface.h probe/interface.C	\
+	../include/cyberprobe/probe/endpoint.h probe/endpoint.C		\
+	../include/cyberprobe/probe/parameter.h probe/parameter.C	\
+	../include/cyberprobe/probe/target.h probe/target.C		\
+	network/socket.C ../include/cyberprobe/network/socket.h
 cyberprobe_cli_LDADD = -lssl 
 
-nhis11_rcvr_SOURCES = nhis11_rcvr.C nhis11.C socket.C \
+nhis11_rcvr_SOURCES = nhis11_rcvr.C stream/nhis11.C network/socket.C \
 	../include/cyberprobe/network/socket.h
 nhis11_rcvr_LDADD = -lssl
 
-etsi_rcvr_SOURCES = etsi_rcvr.C socket.C		\
-	../include/cyberprobe/network/socket.h ber.C	\
-	../include/cyberprobe/stream/ber.h etsi_li.C	\
+etsi_rcvr_SOURCES = etsi_rcvr.C network/socket.C		\
+	../include/cyberprobe/network/socket.h stream/ber.C	\
+	../include/cyberprobe/stream/ber.h stream/etsi_li.C	\
 	../include/cyberprobe/stream/etsi_li.h
 etsi_rcvr_LDADD =  -lssl
 
-stream_rcvr_SOURCES = stream_rcvr.C socket.C	\
+stream_rcvr_SOURCES = stream_rcvr.C network/socket.C	\
         ../include/cyberprobe/network/socket.h
 stream_rcvr_LDADD = -lssl
 
-tls_rcvr_SOURCES = tls_rcvr.C socket.C ../include/cyberprobe/network/socket.h
+tls_rcvr_SOURCES = tls_rcvr.C network/socket.C	\
+        ../include/cyberprobe/network/socket.h
 tls_rcvr_LDADD = -lssl
 
 lib_LTLIBRARIES = libcybermon.la
 
-libcybermon_la_SOURCES = address.C base_context.C lua.C			\
-	dns_over_tcp.C dns_over_udp.C dns_protocol.C engine.C		\
-	forgery.C ftp.C http.C icmp.C imap.C imap_ssl.C ip.C ntp.C	\
-	ntp_protocol.C pop3.C pop3_ssl.C event.C reaper.C rtp.C		\
-	rtp_ssl.C sip.C sip_context.C sip_ssl.C event_json.C base64.C	\
-	smtp.C smtp_auth.C tcp.C tcp_ports.C udp.C udp_ports.C		\
-	unrecognised.C tls_key_exchange.C vxlan.C			\
-	hardware_addr_utils.C gre.C esp.C 802_11.C tls.C		\
-	tls_handshake.C tls_utils.C ../include/base64/base64.h		\
+libcybermon_la_SOURCES = protocol/address.C protocol/base_context.C	\
+	analyser/lua.C protocol/dns_over_tcp.C				\
+	protocol/dns_over_udp.C protocol/dns_protocol.C			\
+	analyser/engine.C protocol/forgery.C protocol/ftp.C		\
+	protocol/http.C protocol/icmp.C protocol/imap.C			\
+	protocol/imap_ssl.C protocol/ip.C protocol/ntp.C		\
+	protocol/ntp_protocol.C protocol/pop3.C protocol/pop3_ssl.C	\
+	event/event.C util/reaper.C protocol/rtp.C			\
+	protocol/rtp_ssl.C protocol/sip.C protocol/sip_context.C	\
+	protocol/sip_ssl.C event/event_json.C base64/base64.C		\
+	protocol/smtp.C protocol/smtp_auth.C protocol/tcp.C		\
+	protocol/tcp_ports.C protocol/udp.C protocol/udp_ports.C	\
+	protocol/unrecognised.C protocol/tls_key_exchange.C		\
+	stream/vxlan.C util/hardware_addr_utils.C protocol/gre.C	\
+	protocol/esp.C protocol/802_11.C protocol/tls.C			\
+	protocol/tls_handshake.C protocol/tls_utils.C			\
+	../include/base64/base64.h					\
 	../include/cyberprobe/util/hardware_addr_utils.h		\
 	../include/cyberprobe/protocol/tls_cipher_suites.h		\
 	../include/cyberprobe/protocol/tls_exception.h			\
@@ -161,16 +172,16 @@ libcybermon_la_SOURCES = address.C base_context.C lua.C			\
 	../include/cyberprobe/util/serial.h
 
 if WITH_PROTOBUF
-libcybermon_la_SOURCES += event_protobuf.C
+libcybermon_la_SOURCES += event/event_protobuf.C
 libcybermon_la_SOURCES += ../include/cyberprobe/event/event_protobuf.h
 endif
 
 if WITH_PROTOBUF
 if WITH_GRPC
 
-libcybermon_la_SOURCES += event_grpc.C
+libcybermon_la_SOURCES += event/event_grpc.C
 
-eventstream_service_SOURCES = eventstream-service.C socket.C \
+eventstream_service_SOURCES = eventstream-service.C network/socket.C	\
 	../include/cyberprobe/network/socket.h
 eventstream_service_LDADD = libcybermon.la -lssl -lgrpc++ -lgrpc -lprotobuf
 
