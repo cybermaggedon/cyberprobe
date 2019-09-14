@@ -192,7 +192,7 @@ public:
     }
 
     virtual void stop() {
-	interface::stop();
+        cyberprobe::pcap::interface::stop();
 	running = false;
     }
 
