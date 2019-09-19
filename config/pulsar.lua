@@ -122,7 +122,7 @@ local submit = function(obs)
 end
 
 observer.event = function(e)
-  submit(e.json)
+  submit(e:json())
 end
 
 -- Initialise

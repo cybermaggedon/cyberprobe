@@ -315,7 +315,6 @@ def init():
 def es_output(obs, id):
 
     u = "%s%s/_doc/%s" % (es_url, es_index, id)
-    print(u)
 
     r = requests.put(u, data=json.dumps(obs),
                      headers={"Content-Type": "application/json"})
@@ -336,7 +335,10 @@ def handle(msg, output):
     ob["id"] = ev["id"]
     ob["action"] = ev["action"]
     ob["device"] = ev["device"]
-    ob["network"] = ev["network"]
+    try:
+        ob["network"] = ev["network"]
+    except:
+        pass
     ob["time"] = ev["time"]
     if "url" in ev: ob["url"] = ev["url"]
     if "location" in ev: ob["location"] = ev["location"]

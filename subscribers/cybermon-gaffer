@@ -175,7 +175,7 @@ def handle(msg, output):
         add_edge(edges, "udpflow", src, dest)
 
         if obj["action"] == "dns_message" and "query" in obj["dns_message"]:
-            for v in ev["dns_message"]["query"]:
+            for v in obj["dns_message"]["query"]:
                 if "name" in v:
                     add_edge(edges, "dnsrequest", src, v["name"])
 

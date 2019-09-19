@@ -104,7 +104,7 @@ local submit = function(obs)
 end
 
 observer.event = function(e)
-  data = e.json
+  data = e:json()
   submit(data)
 end
 

@@ -62,7 +62,7 @@ end
 
 -- Call the JSON functions for all observer functions.
 observer.event = function(e)
-  submit(e.json)
+  submit(e:json())
 end
 
 -- Initialise
