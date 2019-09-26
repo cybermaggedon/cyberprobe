@@ -735,20 +735,23 @@ namespace cyberprobe {
 		};
 		return obj;
 	    }
-	    json obj = {
-		{ "key_exchange_algorithm", "dh-anon" },
-		{ "prime",
-		  jsonify(ke.dhanon->p.begin(), ke.dhanon->p.end())
-		},
-		{ "generator",
-		  jsonify(ke.dhanon->g.begin(), ke.dhanon->g.end())
-		},
-		{ "pubkey",
-		  jsonify(ke.dhanon->pubKey.begin(),
-			  ke.dhanon->pubKey.end())
-		}
-	    };
-	    return obj;
+	    if (ke.dhanon) {
+		json obj = {
+		    { "key_exchange_algorithm", "dh-anon" },
+		    { "prime",
+		      jsonify(ke.dhanon->p.begin(), ke.dhanon->p.end())
+		    },
+		    { "generator",
+		      jsonify(ke.dhanon->g.begin(), ke.dhanon->g.end())
+		    },
+		    { "pubkey",
+		      jsonify(ke.dhanon->pubKey.begin(),
+			      ke.dhanon->pubKey.end())
+		    }
+		};
+		return obj;
+	    }
+	    return json();
 	}
 
 	json jsonify(const tls_server_key_exchange& e) {

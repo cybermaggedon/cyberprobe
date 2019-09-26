@@ -109,9 +109,16 @@ int event::lua_json(lua_State* lua) {
         reinterpret_cast<event_userdata*>(ud);
 
     std::string js;
-    ed->event->to_json(js);
-    ed->cml->push(js);
-    return 1;
+
+    try {
+	ed->event->to_json(js);
+	ed->cml->push(js);
+	return 1;
+    } catch(std::exception& e) {
+	ed->cml->push(e.what());
+	ed->cml->error();
+	return 1;
+    }
 }
 
 #ifdef WITH_PROTOBUF

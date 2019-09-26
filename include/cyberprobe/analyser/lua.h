@@ -166,6 +166,8 @@ namespace analyser {
 	    lua_settable(lua, pos);
 	}
 
+	void error() { lua_error(lua); }
+
 	// Pop p items from the stack.
 	void pop(int p = 1) { lua_pop(lua, p); }
 		
