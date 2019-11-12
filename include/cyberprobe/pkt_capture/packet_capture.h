@@ -155,6 +155,8 @@ public:
             if (pcap_can_set_rfmon(p))
                 pcap_set_rfmon(p, 1);
             pcap_set_promisc(p, 1);
+
+            pcap_set_timeout(p, 1);
             
             int ret = pcap_activate(p);
             if (ret < 0) {
