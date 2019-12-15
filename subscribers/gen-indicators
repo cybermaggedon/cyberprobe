@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+import sys
+import uuid
+from cyberprobe.indicators import Indicators, Indicator, Descriptor
+from cyberprobe.logictree import And, Or, Not, Match
+
+i = Indicators(description="Some test data", version="1")
+
+source="id:" + str(uuid.uuid4())
+
+ii = Indicator(Descriptor(description="Spearphish attacker",
+                          category="spyware",
+                          author="someone@example.com",
+                          source=source,
+                          type="email", value="malware@malware.org"))
+ii.value = Match(type = "email", value="malware@malware.org")
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="Malware server IP address",
+                          category="malware",
+                          author="someone@example.com",
+                          source=source,
+                          type="ipv4", value="192.179.1.72"))
+ii.value = Match(type="ipv4", value="192.179.1.72")
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="Compromised wifi access point",
+                          category="malware",
+                          author="someone@example.com",
+                          source=source,
+                          type="mac", value="aa:bb:cc:dd:ee:ff"))
+ii.value = Match(type="mac", value="aa:bb:cc:dd:ee:ff")
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="File containing malware",
+                          category="malware",
+                          author="someone@example.com",
+                          source=source,
+                          type="path", value="/etc/malware.dat"))
+ii.value = Match(type="path", value="/etc/malware.dat")
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="Hostname of malware server",
+                          category="malware",
+                          author="someone@example.com",
+                          source=source,
+                          type="hostname", value="www.malware.org"))
+ii.value = Match(type="hostname", value="www.malware.org")
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="TCP port of malware trojan",
+                          category="malware",
+                          author="someone@example.com",
+                          source=source,
+                          type="tcp", value="11111"))
+ii.value = Match(type="tcp", value="11111")
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="URL of a page serving malware",
+                          category="malware",
+                          author="someone@example.com",
+                          source=source,
+                          type="url", value="http://malware.org/malware.dat"))
+ii.value = And([
+    Or([
+        Match(type="url", value="http://www.malware.org/malware.dat"),
+        Match(type="url", value="http://malware.org/malware.dat")
+    ]),
+    Not(
+        Or([
+            Match(type="port", value="222"),
+            Match(type="port", value="224")
+        ])
+    )
+])
+
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="Account which malware is observed to use",
+                          category="malware",
+                          author="someone@example.com",
+                          source=source,
+                          type="account", value="finchy_mcgochlan"))
+ii.value = Match(type="account", value="finchy_mcgochlan")
+i.add_indicator(ii)
+
+ii = Indicator(Descriptor(description="Hash of BBC logo",
+                          category="spyware",
+                          author="someone@example.com",
+                          source=source,
+                          type="hash",
+                          value="md5:1b83d7a25838adc97be4121cc3ce0d83"))
+ii.value = Match(type="hash", value="md5:1b83d7a25838adc97be4121cc3ce0d83")
+i.add_indicator(ii)
+
+print(i.dumps())
+
+

@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import sys
+import cyberprobe.indicators as ind
+
+data = open(sys.argv[1]).read()
+i = ind.loads(data)
+
+for ii in i.indicators:
+    print("%s: %s" % (ii.id, ii.descriptor.description))
+    fsm = ii.extract_fsm()
+    for v in fsm:
+        for w in v[1]:
+            print("  %s -- %s:%s -> %s" % (v[0], w[0], w[1], v[2]))
+    print()
+

@@ -1,0 +1,149 @@
+{
+    "description": "Some test data",
+    "version": "1",
+    "indicators": [
+        {
+            "id": "9364a191-f7f1-46ad-875c-e80f61740dca",
+            "descriptor": {
+                "description": "Spearphish attacker",
+                "category": "spyware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "email",
+                "value": "malware@malware.org"
+            },
+            "type": "email",
+            "value": "malware@malware.org"
+        },
+        {
+            "id": "0acf0328-6276-4726-9686-510633881413",
+            "descriptor": {
+                "description": "Malware server IP address",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "ipv4",
+                "value": "192.179.1.72"
+            },
+            "type": "ipv4",
+            "value": "192.179.1.72"
+        },
+        {
+            "id": "222b5390-054b-4630-9709-b809288ac947",
+            "descriptor": {
+                "description": "Compromised wifi access point",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "mac",
+                "value": "aa:bb:cc:dd:ee:ff"
+            },
+            "type": "mac",
+            "value": "aa:bb:cc:dd:ee:ff"
+        },
+        {
+            "id": "c453df4f-a039-4183-92de-ae9082325787",
+            "descriptor": {
+                "description": "File containing malware",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "path",
+                "value": "/etc/malware.dat"
+            },
+            "type": "path",
+            "value": "/etc/malware.dat"
+        },
+        {
+            "id": "3fa4d58f-d229-42ee-839e-edd3b26ad104",
+            "descriptor": {
+                "description": "Hostname of malware server",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "hostname",
+                "value": "www.malware.org"
+            },
+            "type": "hostname",
+            "value": "www.malware.org"
+        },
+        {
+            "id": "845bcc85-49f5-427c-806c-5fe5984c2c5c",
+            "descriptor": {
+                "description": "TCP port of malware trojan",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "tcp",
+                "value": "11111"
+            },
+            "type": "tcp",
+            "value": "11111"
+        },
+        {
+            "id": "6b7aa83f-8c43-4aaa-817f-5039adef19ef",
+            "descriptor": {
+                "description": "URL of a page serving malware",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "url",
+                "value": "http://malware.org/malware.dat"
+            },
+            "and": [
+                {
+                    "or": [
+                        {
+                            "type": "url",
+                            "value": "http://www.malware.org/malware.dat"
+                        },
+                        {
+                            "type": "url",
+                            "value": "http://malware.org/malware.dat"
+                        }
+                    ]
+                },
+                {
+                    "not": {
+                        "or": [
+                            {
+                                "type": "port",
+                                "value": "222"
+                            },
+                            {
+                                "type": "port",
+                                "value": "224"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "02341ecb-24d2-4987-858d-971090039eee",
+            "descriptor": {
+                "description": "Account which malware is observed to use",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "account",
+                "value": "finchy_mcgochlan"
+            },
+            "type": "account",
+            "value": "finchy_mcgochlan"
+        },
+        {
+            "id": "fc8911fa-09b5-43a8-85e6-54e577af8f68",
+            "descriptor": {
+                "description": "Hash of BBC logo",
+                "category": "spyware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "hash",
+                "value": "md5:1b83d7a25838adc97be4121cc3ce0d83"
+            },
+            "type": "hash",
+            "value": "md5:1b83d7a25838adc97be4121cc3ce0d83"
+        }
+    ]
+}

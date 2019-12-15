@@ -4,6 +4,8 @@ import json
 import sys
 import os
 import cyberprobe.qcomms as q
+from cyberprobe.fsm import Fsm, FsmState, FsmCollection
+import cyberprobe.indicators as ind
 
 if len(sys.argv) < 2:
     binding = "geo"
@@ -15,188 +17,124 @@ if len(sys.argv) < 3:
 else:
     output = "ioc"
 
-stix = {}
-
-stix_file = os.getenv("STIX_INDICATORS", "stix-default-combined.json")
+iocs_file = os.getenv("INDICATORS", "indicators.json")
 mtime = 0
+
+iocs = None
+fsc = None
 
 def check_config():
 
     global mtime
-    global stix
+    global iocs
+    global fsc
     
-    s = os.stat(stix_file).st_mtime
-    if s != mtime:
+    s = os.stat(iocs_file).st_mtime
+    if s == mtime: return
 
-        stix = {
-            "index": {
-                "email": {},
-                "user_account": {},
-                "hostname": {},
-                "port": {},
-                "url": {},
-                "ipv4": {},
-                "mac": {},
-                "file": {},
-                "hash": {}
-            }
-        }
+    print("Loading IOCs...")
 
-        data = open(stix_file, "r").read()
-        stix["configuration"] = json.loads(data)
+    with open(iocs_file) as f:
+        data = f.read()
 
-        ind = stix["configuration"]["indicators"]
-        for i in ind:
-            o = i["observable"]["object"]["properties"]
-            if o["xsi:type"] == "AddressObjectType":
-                if o["category"] == "e-mail":
-                    stix["index"]["email"][o["address_value"]] = i
-                if o["category"] == "ipv4-addr":
-                    stix["index"]["ipv4"][o["address_value"]] = i
-                if o["category"] == "mac":
-                    stix["index"]["mac"][o["address_value"]] = i
-            elif o["xsi:type"] == "UserAccountObjectType":
-                if o["domain"] and o["username"]:
-                    ix = o["domain"] + "|" + o["username"]
-                    stix["index"]["user_account"][ix] = i
-            elif o["xsi:type"] == "HostnameObjectType":
-                stix["index"]["hostname"][o["hostname_value"]] = i
-            elif o["xsi:type"] == "PortObjectType":
-                if o["port_value"] and o["layer4_protocol"]:
-                    ix = o["layer4_protocol"]["value"] + ":" + str(o["port_value"])
-                    stix["index"]["port"][ix] = i
-            elif o["xsi:type"] == "URIObjectType":
-                stix["index"]["url"][o["value"]] = i
+    obj = json.loads(data)
 
-        print("STIX data loaded.")
-        mtime = s
+    iocs = ind.load(obj)
+    fsc = FsmCollection.load_from(iocs)
+#    print("FSMs:")
+#    for v in fsc.fsms:
+#        v.dump()
+#        print("---")
+#    print()
+    
+    print("Indicator data loaded.")
+    mtime = s
+
+def add_indicator(obj, ind):
+    if "indicators" not in obj:
+        obj["indicators"] = []
+    obj["indicators"].append(ind)
 
 def check_addresses(obj):
 
-    ips = {}
     for v in obj["src"]:
-        if v.startswith("ipv4"): ips[v[5:]] = True
+        if v.startswith("ipv4:"):
+            fsc.update(('ipv4', v[5:]))
+        if v.startswith("ipv6:"):
+            fsc.update(('ipv6', v[5:]))
+        if v.startswith("tcp:"):
+            fsc.update(('tcp', v[4:]))
+        if v.startswith("udp:"):
+            fsc.update(('udp', v[4:]))
+
     for v in obj["dest"]:
-        if v.startswith("ipv4"): ips[v[5:]] = True
-
-    for v in ips:
-        if v in stix["index"]["ipv4"]:
-            hit = stix["index"]["ipv4"][v]
-            indicator = {
-                "type": "ipv4",
-                "value": v,
-                "id": hit["id"],
-                "description": hit["description"]
-            }
-            if "indicators" not in obj: obj["indicators"] = []
-            obj["indicators"].append(indicator)
-
-    ports = {}
-    for v in obj["src"]:
-        if v.startswith("tcp"): ports[v] = True
-    for v in obj["dest"]:
-        if v.startswith("tcp"): ports[v] = True
-
-    for v in ports:
-        if v in stix["index"]["port"]:
-            hit = stix["index"]["port"][v]
-            indicator = {
-                "type": "tcp",
-                "value": v,
-                "id": hit["id"],
-                "description": hit["description"]
-            }
-            if "indicators" not in obj: obj["indicators"] = []
-            obj["indicators"].append(indicator)
-
-    ports = {}
-    for v in obj["src"]:
-        if v.startswith("udp"): ports[v] = True
-    for v in obj["dest"]:
-        if v.startswith("udp"): ports[v] = True
-
-    for v in ports:
-        if v in stix["index"]["port"]:
-            hit = stix["index"]["port"][v]
-            indicator = {
-                "type": "udp",
-                "value": v,
-                "id": hit["id"],
-                "description": hit["description"]
-            }
-            if "indicators" not in obj: obj["indicators"] = []
-            obj["indicators"].append(indicator)
+        if v.startswith("ipv4:"):
+            fsc.update(('ipv4', v[5:]))
+        if v.startswith("ipv6:"):
+            fsc.update(('ipv6', v[5:]))
+        if v.startswith("tcp:"):
+            fsc.update(('tcp', v[4:]))
+        if v.startswith("udp:"):
+            fsc.update(('udp', v[4:]))
 
 def check_dns(obj):
 
-    hosts = {}
+    hosts = set()
 
     if "dns_message" in obj and "query" in obj["dns_message"]:
         for v in obj["dns_message"]["query"]:
             if "name" in v:
-                hosts[v["name"]] = True
+                hosts.add(v["name"])
+
     if "dns_message" in obj and "answer" in obj["dns_message"]:
         for v in obj["dns_message"]["answer"]:
             if "name" in v:
-                hosts[v["name"]] = True
+                hosts.add(v["name"])
 
     for v in hosts:
-        if v in stix["index"]["hostname"]:
-            hit = stix["index"]["hostname"][v]
-            indicator = {
-                "type": "hostname",
-                "value": v,
-                "id": hit["id"],
-                "description": hit["description"]
-            }
-            if "indicators" not in obj: obj["indicators"] = []
-            obj["indicators"].append(indicator)
+        fsc.update(('hostname', v))
 
 def check_url(obj):
 
     if "url" in obj:
-        if obj["url"] in stix["index"]["url"]:
-            hit = stix["index"]["url"][obj["url"]]
-            indicator = {
-                "type": "url",
-                "value": obj["url"],
-                "id": hit["id"],
-                "description": hit["description"]
-            }
-            if "indicators" not in obj: obj["indicators"] = []
-            obj["indicators"].append(indicator)
+        fsc.update(('url', obj["url"]))
 
 def check_email(obj):
 
-    emails = {}
+    emails = set()
     if "smtp_data" in obj and "from" in obj["smtp_data"]:
-        emails[obj["smtp_data"]["from"]] = True
+        emails.add(obj["smtp_data"]["from"])
     if "smtp_data" in obj and "to" in obj["smtp_data"]:
         for v in obj["smtp_data"]["to"]:
-            emails[v] = True
+            emails.add(v)
 
     for v in emails:
-        if v in stix["index"]["email"]:
-            hit = stix["index"]["email"][v]
-            indicator = {
-                "type": "url",
-                "value": v,
-                "id": hit["id"],
-                "description": hit["description"]
-            }
-            if "indicators" not in obj: obj["indicators"] = []
-            obj["indicators"].append(indicator)
+        fsc.update(('email', v))
+
+def check_hits(obj):
+    inds = fsc.get_hits()
+    for ind in inds:
+        add_indicator(obj, ind.descriptor.dump())
 
 def handle(msg, output):
     obj = json.loads(msg)
+
     check_config()
+
+    fsc.init_state()
     check_addresses(obj)
     check_dns(obj)
     check_url(obj)
     check_email(obj)
+
+    fsc.update(('end', ''))
+
+    check_hits(obj)
+
     output(json.dumps(obj))
 
 try:
+    check_config()
     q.subscribe(binding, handle, output)
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))

@@ -1,0 +1,54 @@
+{
+    "description": "Some test data",
+    "version": "1",
+    "indicators": [
+        {
+            "id": "3ce77704-abe4-4527-84e6-ed6a745aebcf",
+	    "descriptor": {
+		"description": "URL of a page serving malware",
+		"category": "malware",
+		"author": "someone@example.com",
+		"source": "id:5122eba5-a848-4cb1-871e-09cddfe66a87",
+		"prob": 1.0,
+		"type": "url",
+		"value": "http://malware.org/malware.dat"
+	    },
+	    "and": [
+		{
+		    "not": {
+			"or": [
+			    {
+				"type": "tcp",
+				"value": "8081"
+			    },
+			    {
+				"type": "tcp",
+				"value": "8082"
+			    }	
+			]
+		    }
+		},
+		{
+		    "and": [
+			{
+			    "or": [
+				{
+				    "type": "url",
+				    "value": "http://www.malware.org/malware.dat"
+				},
+				{
+				    "type": "url",
+				    "value": "http://malware.org/malware.dat"
+				}	
+			    ]
+			},
+			{
+			    "type": "tcp",
+			    "value": "80"
+			}
+		    ]
+		}
+	    ]
+	}
+    ]
+}
