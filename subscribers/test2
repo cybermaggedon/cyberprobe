@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+
+from cyberprobe.fsm import Fsm, FsmState, FsmCollection
+import cyberprobe.indicators as ind
+import json
+
+with open("indicators.json") as f:
+    data = f.read()
+
+obj = json.loads(data)
+
+i = ind.load(obj)
+f = FsmCollection.load_from(i)
+print("FSMs:")
+for v in f.fsms:
+    v.dump()
+    print("---")
+print()
+
+print("Test case 1")
+f.init_state()
+terms = [
+    ('url', 'http://malware.com/malware.dat'),
+    ('bunchy', 'BUNCHY'),
+    ('port', '224')
+]
+for v in terms:
+    print(v)
+    f.update(v)
+print()
+
+print("Test case 2")
+f.init_state()
+terms = [
+    ('url', 'http://malware.com/malware.dat'),
+    ('bunchy', 'BUNCHY'),
+    ('end', '')
+]
+for v in terms:
+    print(v)
+    f.update(v)
+print()
+
+print("Test case 3")
+f.init_state()
+terms = [
+    ('bunchy', 'BUNCHY'),
+    ('end', '')
+]
+for v in terms:
+    print(v)
+    f.update(v)
+print()
+
+print("Test case 4")
+f.init_state()
+terms = [
+    ('bunchy', 'BUNCHY'),
+    ('port', '224'),
+    ('end', '')
+]
+for v in terms:
+    print(v)
+    f.update(v)
+print()
+

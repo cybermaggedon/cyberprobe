@@ -73,34 +73,39 @@ def lookup(ip):
     
 def handle(msg, output):
 
-    obj = json.loads(msg)
+    try:
     
-    sip = None
-    dip = None
+        obj = json.loads(msg)
 
-    for v in obj["src"]:
-        if v.startswith("ipv4:"):
-            sip = v[5:]
-            break
+        sip = None
+        dip = None
+
+        for v in obj["src"]:
+            if v.startswith("ipv4:"):
+                sip = v[5:]
+                break
     
-    for v in obj["dest"]:
-        if v.startswith("ipv4:"):
-            dip = v[5:]
-            break
+        for v in obj["dest"]:
+            if v.startswith("ipv4:"):
+                dip = v[5:]
+                break
 
-    if sip != None:
-        g = lookup(sip)
-        if g != None:
-            if "location" not in obj: obj["location"] = {}
-            obj["location"]["src"] = g
+        if sip != None:
+            g = lookup(sip)
+            if g != None:
+                if "location" not in obj: obj["location"] = {}
+                obj["location"]["src"] = g
 
-    if dip != None:
-        g = lookup(dip)
-        if g != None:
-            if "location" not in obj: obj["location"] = {}
-            obj["location"]["dest"] = g
+        if dip != None:
+            g = lookup(dip)
+            if g != None:
+                if "location" not in obj: obj["location"] = {}
+                obj["location"]["dest"] = g
             
-    output(json.dumps(obj))
+        output(json.dumps(obj))
+
+    except Exception as e:
+        pass
 
 try:
     q.subscribe(binding, handle, output)

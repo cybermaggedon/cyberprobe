@@ -1,54 +1,25 @@
 #!/usr/bin/env python3
 
-import json
-import sys
-import os
-import cyberprobe.qcomms as q
 from cyberprobe.fsm import Fsm, FsmState, FsmCollection
 import cyberprobe.indicators as ind
+import json
 
-if len(sys.argv) < 2:
-    binding = "geo"
-else:
-    binding = sys.argv[1]
-    
-if len(sys.argv) < 3:
-    output = "ioc"
-else:
-    output = "ioc"
+evs = []
+with open("test-data.js") as f:
+    for line in f:
+        try:
+            a = json.loads(line)
+            evs.append(a)
+        except:
+            pass
 
-iocs_file = os.getenv("INDICATORS", "indicators.json")
-mtime = 0
+with open("indicators.json") as f:
+    data = f.read()
 
-iocs = None
-fsc = None
+obj = json.loads(data)
 
-def check_config():
-
-    global mtime
-    global iocs
-    global fsc
-    
-    s = os.stat(iocs_file).st_mtime
-    if s == mtime: return
-
-    print("Loading IOCs...")
-
-    with open(iocs_file) as f:
-        data = f.read()
-
-    obj = json.loads(data)
-
-    iocs = ind.load(obj)
-    fsc = FsmCollection.load_from(iocs)
-#    print("FSMs:")
-#    for v in fsc.fsms:
-#        v.dump()
-#        print("---")
-#    print()
-    
-    print("Indicator data loaded.")
-    mtime = s
+i = ind.load(obj)
+fsc = FsmCollection.load_from(i)
 
 def add_indicator(obj, ind):
     if "indicators" not in obj:
@@ -116,26 +87,21 @@ def check_hits(obj):
     for ind in inds:
         add_indicator(obj, ind.descriptor.dump())
 
-def handle(msg, output):
-    obj = json.loads(msg)
-
-    check_config()
-
+def handle(obj):
     fsc.init_state()
     check_addresses(obj)
     check_dns(obj)
     check_url(obj)
     check_email(obj)
-
     fsc.update(('end', ''))
-
     check_hits(obj)
+    return obj
 
-    output(json.dumps(obj))
+count = 0
+fin = 1000000
 
-try:
-    check_config()
-    q.subscribe(binding, handle, output)
-except Exception as e:
-    sys.stderr.write("Exception: %s\n" % str(e))
+while count < fin:
+    for e in evs:
+        e = handle(e)
 
+        count = count + 1
