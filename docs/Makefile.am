@@ -14,7 +14,8 @@ cyberprobe_TEXINFOS = architecture.texi aws-mirroring.texi		\
 	qs-threat-indicators.texi qs-top.texi qs-visualisation.texi	\
 	ref-cybermon-alert.texi ref-cybermon-bigquery.texi		\
 	ref-cybermon-cassandra.texi ref-cybermon-configuration.texi	\
-	ref-cybermon-detector.texi ref-cybermon-dump.texi		\
+	ref-cybermon-detector.texi ref-indicators.texi                  \
+        ref-cybermon-dump.texi		                                \
 	ref-cybermon-elasticsearch.texi					\
 	ref-cybermon-example-configs.texi ref-cybermon-gaffer.texi	\
 	ref-cybermon-geoip.texi ref-cybermon-invocation.texi		\

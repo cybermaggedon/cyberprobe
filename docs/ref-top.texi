@@ -21,6 +21,7 @@
 * @command{cybermon-cassandra} invocation::
 * @command{cybermon-geoip} invocation::
 * @command{cybermon-detector} invocation::
+* Cyberprobe indicator format::
 * @command{cybermon-dump} invocation::
 * @command{cybermon-alert} invocation::
 * @command{taxii-client} invocation::
