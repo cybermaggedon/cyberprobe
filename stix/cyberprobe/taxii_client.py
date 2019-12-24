@@ -2,7 +2,7 @@
 import sys
 import argparse
 import dateutil.parser
-import StringIO
+from io import StringIO
 import datetime
 
 from stix.core import STIXPackage, STIXHeader
@@ -107,7 +107,7 @@ class TaxiiClient:
             content = cb.content
 
             # Parse the payload, should be a STIX document.
-            package = STIXPackage.from_xml(StringIO.StringIO(content))
+            package = STIXPackage.from_xml(StringIO(content.decode('utf-8')))
 
             pkgs.append(package)
             

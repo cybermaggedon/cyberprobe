@@ -3,9 +3,9 @@
 @section @command{cybermon-detector} invocation
 
 @cindex @command{cybermon-detector}, invocation
-@cindex STIX
 @cindex IOC
 @cindex Indicator of compromise
+@cindex Indicator
 
 @command{cybermon-detector} subscribes to a RabbitMQ pub/sub queue for
 @command{cybermon} events, inspects them for IOCs, and adds detection
@@ -13,6 +13,11 @@ information if IOCs are observed before re-publishing
 the elaborated events.  This effectively creates a processing
 chain.  The event subscription and publishing events should be different in
 order to avoid creating an infinite loop.
+
+The indicator file is specified by the @samp{INDICATORS} environment variable,
+the default is @file{indicators.json}.  The file format is the
+@ref{Cyberprobe indicator format}.  When the file changes, the indicators are
+reloaded without the needed to restart @command{cybermon-detector}.
 
 Synopsis:
 

@@ -187,7 +187,7 @@ for row in reader:
 # Parsing complete, write object to output file
 f = open(output_file, 'w')
 f.write('<?xml version="1.0"?>')
-f.write(package.to_xml())
+f.write(package.to_xml().decode('utf-8'))
 f.close()
 
 # All done, exit

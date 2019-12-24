@@ -1,0 +1,214 @@
+
+@node Cyberprobe indicator format
+@section Cyberprobe indicator format
+
+@cindex IOC
+@cindex Indicator of compromise
+@cindex Indicator
+
+@heading Overview
+
+The @command{cybermon-detector} subscriber implements detection against a
+set of indicators (see @ref{@command{cybermon-detector} invocation}.  The
+indicators are presented in a file containing JSON describing the
+indicators.
+
+Indicators consist of two parts:
+
+@itemize @bullet
+
+@item
+A boolean expression which describes what to look for.
+
+@item
+A descriptor which describes changes made to the output event when an
+indicator selects data.
+
+@end itemize
+
+@heading Overall structure
+
+The indicators file consists of a simple header containing the
+@samp{description} and @samp{version} fields.  The @samp{version} field is
+intended to record a revision history identified for the indicators, and
+should be changed to a unique value when an update occurs.
+
+These fields are not used by @command{cybermon-detect}.  
+
+@example
+@{
+    "description": "Some test data",
+    "version": "1",
+    "indicators": [
+      ...
+    ]
+@}
+@end example
+
+The @samp{indicators} field consists of a list of indicators.
+
+@heading Indicator
+
+An indicator consists of: an ID, a descriptor which is tagged onto events
+when they hit indicators, and a definition of what to hit on.  The
+example below shows ID and descriptor.  
+
+@example
+@{
+    "id": "6b7aa83f-8c43-4aaa-817f-5039adef19ef",
+    "descriptor": @{
+        "description": "URL of a page serving malware",
+        "category": "malware",
+        "author": "someone@@example.com",
+        "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+        "type": "url",
+        "value": "http://malware.org/malware.dat"
+    @},
+    ...
+@}
+@end example
+
+A descriptor contains a type/value pair which is a seed of information that an
+investigator would want to search for for further information.
+
+The descriptor fields are:
+
+@table @samp
+
+@item description
+A human-readable description of the purpose of this indicator.
+
+@item category
+A threat category for the indicator, which is used to group threats into
+type of threat
+
+@item author
+Email address of indicator author
+
+@item source
+Source of the indicator, should be a URL e.g. a web-page address of a report
+
+@item type
+The type of the @samp{value} field, can be one of @samp{hostname},
+@samp{url}, @samp{ipv4}, @samp{ipv6}, @samp{tcp}, @samp{udp}, @samp{email}.
+
+@end table
+
+@heading Indicator value
+
+The indicator value consists of four constructs:
+
+@itemize @bullet
+
+@item
+@samp{and}
+
+@item
+@samp{or}
+
+@item
+@samp{not}
+
+@item
+Match term
+
+@end itemize
+
+The value construct is included in the Indicator object alongside the
+@samp{id} field e.g.
+
+@example
+@{
+    "id": "845bcc85-49f5-427c-806c-5fe5984c2c5c",
+    "descriptor": @{
+      ...
+    @},
+    "type": "tcp",
+    "value": "11111"
+@}
+@end example
+
+or
+
+@example
+@{
+    "id": "845bcc85-49f5-427c-806c-5fe5984c2c5c",
+    "descriptor": @{
+      ...
+    @},
+    "or": [
+        @{
+            "type": "tcp",
+            "value": "11111"
+        @},
+        @{
+            "type": "tcp",
+            "value": "11112"
+        @}
+    ]
+@}
+@end example
+
+The four value constructs can be combined with multiple layers to any
+depth.
+
+@subheading Match term
+
+The simple matching form consists of a type and value.  The type field
+can be one of: @samp{hostname}, @samp{url}, @samp{ipv4}, @samp{ipv4.src},
+@samp{ipv4.dest}, @samp{ipv6}, @samp{ipv6.src}, @samp{ipv6.dest},
+@samp{tcp}, @samp{tcp.src}, @samp{tcp.dest}, @samp{udp},
+@samp{udp.src}, @samp{udp.dest}, @samp{email}. e.g.
+
+@example
+@{
+    "type": "ipv4.src",
+    "value": "192.168.0.1"
+@}
+@end example
+
+@subheading @samp{and} construct
+
+The @samp{and} construct is true if all of its children are true.
+
+@example
+"and": [
+    @{
+        "type": "hostname",
+        "value": "example.com"
+    @},
+    @{
+        "type": "tcp",
+        "value": "11112"
+    @}
+]
+@end example
+
+@subheading @samp{or} construct
+
+The @samp{or} construct is true if any of its children are true.
+
+@example
+"or": [
+    @{
+        "type": "hostname",
+        "value": "example.com"
+    @},
+    @{
+        "type": "hostname",
+        "value": "example.com"
+    @}
+]
+@end example
+
+@subheading @samp{not} construct
+
+The @samp{not} construct is true if its child is false.
+
+@example
+"not": @{
+    "type": "hostname",
+    "value": "example.com"
+@}
+@end example
+

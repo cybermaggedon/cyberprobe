@@ -13,7 +13,7 @@ from cybox.objects.file_object import File
 from cybox.objects.port_object import Port
 from cybox.objects.uri_object import URI
 from cybox.objects.user_account_object import UserAccount
-import StringIO
+from io import StringIO
 import datetime
 
 ############################################################################
@@ -95,16 +95,16 @@ for cb in resp.content_blocks:
     content = cb.content
 
     # Hack an XML header on the top?! and add the payload body.
-    resp = "<?xml version=\"1.0\"?>\n" + content
+    resp = "<?xml version=\"1.0\"?>\n" + content.decode('utf-8')
 
     # Parse the payload, should be a STIX document.
-    package = STIXPackage.from_xml(StringIO.StringIO(resp))
+    package = STIXPackage.from_xml(StringIO(resp))
 
     # Dump package ID
     if package.id_:
         print("***** Package id: %s" % package.id_)
         fname = 'stix-%s-%s.xml' % (args.collection, package.id_)
         f = open(fname, 'w')
-        f.write(package.to_xml())
+        f.write(package.to_xml().decode('utf-8'))
         f.close()
 

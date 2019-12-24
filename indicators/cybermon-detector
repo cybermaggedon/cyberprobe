@@ -60,22 +60,30 @@ def check_addresses(obj):
     for v in obj["src"]:
         if v.startswith("ipv4:"):
             fsc.update(('ipv4', v[5:]))
+            fsc.update(('ipv4.src', v[5:]))
         if v.startswith("ipv6:"):
             fsc.update(('ipv6', v[5:]))
+            fsc.update(('ipv6.src', v[5:]))
         if v.startswith("tcp:"):
             fsc.update(('tcp', v[4:]))
+            fsc.update(('tcp.src', v[4:]))
         if v.startswith("udp:"):
             fsc.update(('udp', v[4:]))
+            fsc.update(('udp.dest', v[4:]))
 
     for v in obj["dest"]:
         if v.startswith("ipv4:"):
             fsc.update(('ipv4', v[5:]))
+            fsc.update(('ipv4.dest', v[5:]))
         if v.startswith("ipv6:"):
             fsc.update(('ipv6', v[5:]))
+            fsc.update(('ipv6.dest', v[5:]))
         if v.startswith("tcp:"):
             fsc.update(('tcp', v[4:]))
+            fsc.update(('tcp.dest', v[4:]))
         if v.startswith("udp:"):
             fsc.update(('udp', v[4:]))
+            fsc.update(('udp.dest', v[4:]))
 
 def check_dns(obj):
 
