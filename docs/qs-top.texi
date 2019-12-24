@@ -12,5 +12,5 @@
 * Using @command{cybermon}::
 * Writing your own configuration file::
 * Visualisation::
-* Threat indicators using STIX::
+* Threat indicators::
 @end menu

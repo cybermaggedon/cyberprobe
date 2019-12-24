@@ -986,6 +986,15 @@ IOC hit value.
 @item description
 Human-readable text describing the IOC.
 
+@item category
+Category tag for the indicator.
+
+@item source
+Indicator source, a URL, could be the URL of a web page or report.
+
+@item author
+Email address of the originator.
+
 @end table
 
 @end table

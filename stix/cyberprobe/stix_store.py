@@ -2,9 +2,9 @@
 import uuid
 import sqlite3
 import threading
-from StringIO import StringIO
+from io import StringIO
 import time
-from urlparse import urlparse
+import urllib
 from lxml import etree
 import datetime
 
@@ -31,7 +31,7 @@ class STIXSender(threading.Thread):
         s.cond.release()
 
     def publish(s, content, collection, url):
-        u = urlparse(url)
+        u = urllib.parse(url)
         c = TaxiiClient(u.hostname, u.port)
         c.push(collection=collection, content=content)
 
@@ -185,7 +185,7 @@ class STIXStore:
 
         s.senders_lock.acquire()
 
-        if not s.subscriptions.has_key(collection):
+        if not connection in s.subscriptions:
             s.subscriptions[collection] = {}
 
         s.subscriptions[collection][id] = {}
@@ -253,7 +253,7 @@ class STIXStore:
 
         for collection in collections:
             
-            if not s.subscriptions.has_key(collection): continue
+            if not collection in s.subscriptions: continue
 
             for subs in s.subscriptions[collection]:
 

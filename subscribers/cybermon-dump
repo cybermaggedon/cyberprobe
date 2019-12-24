@@ -10,7 +10,7 @@ else:
     binding = sys.argv[1]
     
 def handle(msg, output):
-    print(msg)
+    print(msg.decode("utf-8"))
 
 try:
     q.subscribe(binding, handle)

@@ -1,5 +1,5 @@
 
-import BaseHTTPServer
+import http.server
 import time
 import argparse
 
@@ -13,7 +13,7 @@ import libtaxii.taxii_default_query as tdq
 ############################################################################
 # TAXII request handler
 ############################################################################
-class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class TAXIIHandler(http.server.BaseHTTPRequestHandler):
 
     def get_matching(s, collection, begin, end, query, handle):
         return None
@@ -205,20 +205,21 @@ class TAXIIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 ############################################################################
 # TAXII Server
 ############################################################################
-class TAXIIServer(BaseHTTPServer.HTTPServer):
+class TAXIIServer(http.server.HTTPServer):
 
-    def __init__(s, host, port, handler):
-        s.host = host
-        s.port = port
-        BaseHTTPServer.HTTPServer.__init__(s, (host, port), handler)
+    def __init__(self, host, port, handler):
+        self.host = host
+        self.port = port
+        http.server.HTTPServer.__init__(self, (host, port), handler)
 
-    def run(s):
-        print(time.asctime(), "Server Starts - %s:%d" % (s.host, s.port))
+    def run(self):
+        print(time.asctime(), "Server Starts - %s:%d" % (self.host, self.port))
 
         # Serve indefinitely.
         try:
-            s.serve_forever()
+            self.serve_forever()
         except KeyboardInterrupt:
-            s.server_close()
-            print(time.asctime(), "Server Stops - %s:%d" % (s.host, s.port))
+            self.server_close()
+            print(time.asctime(), "Server Stops - %s:%d" %
+                  (self.host, self.port))
 
