@@ -20,12 +20,6 @@ The installation bundle includes a a file containing some
 sample indicators, search for @file{indicators.json}, which may be installed
 at @file{@value{PREFIX}/share/doc/cyberprobe}.
 
-
-
-
-
-
-
 @heading Deploying theat information to @command{cybermon}
 
 To run using your existing processing pipeline, stop any running
@@ -100,6 +94,9 @@ This results in indicator hit information being loaded into ES.
 For more information on indicators, see
 @ref{@command{cybermon-detector} invocation} and
 @ref{Cyberprobe indicator format}.
+
+See @url{https://github.com/cybermaggedon/threat-exchanges} for code which
+creates indicator sets from threat exchanges.
 
 @heading Conclusion
 

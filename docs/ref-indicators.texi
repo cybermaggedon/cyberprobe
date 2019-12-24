@@ -212,3 +212,7 @@ The @samp{not} construct is true if its child is false.
 @}
 @end example
 
+@heading Threat exchanges
+
+See @url{https://github.com/cybermaggedon/threat-exchanges} for code which
+creates indicator sets from threat exchanges.
