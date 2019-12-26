@@ -1,7 +1,9 @@
 
-bin_SCRIPTS = cybermon-detector
+bin_SCRIPTS = cybermon-detector indicators-dump-fsm indicators-graph-fsm \
+	indicators-show-fsm
 
-EXTRA_DIST = cybermon-detector
+EXTRA_DIST = cybermon-detector indicators-dump-fsm indicators-graph-fsm \
+	indicators-show-fsm
 
 dist_doc_DATA = indicators.json
 

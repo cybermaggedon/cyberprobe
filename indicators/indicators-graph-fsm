@@ -3,6 +3,11 @@
 import sys
 import cyberprobe.indicators as ind
 
+if len(sys.argv) != 3:
+    print("Usage:")
+    print("    indicator-graph-fsm <indicators> <id>")
+    sys.exit(1)
+
 data = open(sys.argv[1]).read()
 i = ind.loads(data)
 
@@ -28,6 +33,4 @@ for v in fsm:
         print('%s [label = "%s"];' % (node.replace("-", "_"), node))
 
 print('}')
-
-
 

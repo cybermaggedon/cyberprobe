@@ -3,6 +3,11 @@
 import sys
 import cyberprobe.indicators as ind
 
+if len(sys.argv) != 2:
+    print("Usage:")
+    print("    indicator-dump-fsm <indicators>")
+    sys.exit(1)
+
 data = open(sys.argv[1]).read()
 i = ind.loads(data)
 

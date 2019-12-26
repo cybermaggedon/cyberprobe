@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+
+import sys
+import json
+import cyberprobe.indicators as ind
+
+if len(sys.argv) != 2:
+    print("Usage:")
+    print("    indicator-dump-fsm <indicators>")
+    sys.exit(1)
+
+data = open(sys.argv[1]).read()
+i = ind.loads(data)
+
+fsms = []
+
+for ii in i.indicators:
+    fsm = ii.extract_fsm()
+    fsms.append({
+        "id": ii.id,
+        "descriptor": ii.descriptor.dump(),
+        "fsm": fsm
+    })
+
+print(json.dumps(fsms, indent=4))
+
