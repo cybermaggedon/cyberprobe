@@ -198,6 +198,7 @@ class Not(Element):
         if not self in state: state[self] = ElementState()
         if state[self].active: return
 
+        self.e.record_end(state)
         if self.e in state:
             if state[self.e].active:
                 return

@@ -11,8 +11,6 @@ Use:
   a = lt.And([lt.Match("ipv4", "10.0.0.1"), lt.Match("ipv4", "192.168.0.1")])
   fsm = fsme.extract(a)
   m = fsme.mapify(fsm)
-
-FIXME: I think there's a bug where Not(Not(...)) doesn't work.
 """
 
 import itertools
