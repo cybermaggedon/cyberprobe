@@ -1,0 +1,362 @@
+#!/usr/bin/env python3
+
+import cyberprobe.indicators as ind
+import cyberprobe.logictree as lt
+from cyberprobe.logictree import Not, And, Or, Match
+import json
+import random
+import os
+import time
+import importlib
+import uuid
+import ipaddress
+import pickle
+
+class IndicatorGenerator:
+
+    @staticmethod
+    def rand_ip():
+        ip = ipaddress.IPv4Address(random.randint(1, 65536 * 65536))
+        return str(ip)
+
+    @staticmethod
+    def rand_port():
+        port = random.randint(1, 65535)
+        return str(port)
+
+    @staticmethod
+    def generate(ips=5, ports=2):
+
+        i = ind.Indicators(description="Some test data", version="1")
+        source="id:" + str(uuid.uuid4())
+
+        ip_matches=Or([Match("ipv4", IndicatorGenerator.rand_ip())
+                       for v in range(0, ips) ])
+        port_matches = Not(Or([Match("tcp", IndicatorGenerator.rand_port())
+                               for v in range(0, ports)]))
+
+        ii = ind.Indicator(ind.Descriptor(description="Spearphish attacker",
+                                  category="spyware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="email", value="malware@malware.org"))
+        ip = ipaddress.IPv4Address(random.randint(1, 65536 * 65536 - 1))
+        ii.value = And([ip_matches, port_matches])
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="Spearphish attacker",
+                                  category="spyware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="email", value="malware@malware.org"))
+        ii.value = Match(type = "email", value="malware@malware.org")
+        i.add_indicator(ii)
+        
+        ii = ind.Indicator(ind.Descriptor(description="Malware server IP address",
+                                  category="malware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="ipv4", value="192.179.1.72"))
+        ii.value = Match(type="ipv4", value="192.179.1.72")
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="Compromised wifi access point",
+                                  category="malware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="mac", value="aa:bb:cc:dd:ee:ff"))
+        ii.value = Match(type="mac", value="aa:bb:cc:dd:ee:ff")
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="File containing malware",
+                                  category="malware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="path", value="/etc/malware.dat"))
+        ii.value = Match(type="path", value="/etc/malware.dat")
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="Hostname of malware server",
+                                  category="malware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="hostname", value="www.malware.org"))
+        ii.value = Match(type="hostname", value="www.malware.org")
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="TCP port of malware trojan",
+                                  category="malware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="tcp", value="11111"))
+        ii.value = Match(type="tcp", value="11111")
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="URL of a page serving malware",
+                                  category="malware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="url",
+                                  value="http://malware.org/malware.dat"))
+        ii.value = And([
+            Or([
+                Match(type="url", value="http://www.malware.org/malware.dat"),
+                Match(type="url", value="http://malware.org/malware.dat")
+            ]),
+            Not(
+                Or([
+                    Match(type="port", value="222"),
+                    Match(type="port", value="224")
+                ])
+            )
+        ])
+
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="Malware account",
+                                  category="malware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="account", value="finchy_mcgochlan"))
+        ii.value = Match(type="account", value="finchy_mcgochlan")
+        i.add_indicator(ii)
+
+        ii = ind.Indicator(ind.Descriptor(description="Hash of BBC logo",
+                                  category="spyware",
+                                  author="someone@example.com",
+                                  source=source,
+                                  type="hash",
+                                  value="md5:1b83d7a25838adc97be4121cc3ce0d83"))
+        ii.value = Match(type="hash",
+                         value="md5:1b83d7a25838adc97be4121cc3ce0d83")
+        i.add_indicator(ii)
+
+        return i
+
+class Benchmark:
+
+    default_indicators="indicators.json"
+    default_indicators="big.json"
+    
+    def __init__(self, implementation="fsm",
+                 events=100000,
+                 test_data_file="test-data.js",
+                 indicators=IndicatorGenerator()):
+
+        self.implementation = implementation
+        self.event_count = events
+        self.test_data_file = test_data_file
+
+        self.events = None
+        self.indicators = indicators
+
+        if implementation == "fsm":
+            collection_module = importlib.import_module("cyberprobe.fsm")
+            self.collection_class = getattr(collection_module, "FsmCollection")
+        else:
+            collection_module = importlib.import_module("cyberprobe.logictree")
+            self.collection_class = getattr(collection_module, "LtsCollection")
+
+    def load_test_data(self):
+
+        self.events = []
+        with open(self.test_data_file) as f:
+            for line in f:
+                try:
+                    a = json.loads(line)
+                    self.events.append(a)
+                except:
+                    pass
+                 
+    def load_indicators(self):
+
+        inds_obj = self.indicators.dump()
+
+        start = (time.process_time(), time.time())
+
+        self.indicators = ind.load(inds_obj)
+        self.collection = self.collection_class.load_from(self.indicators)
+        self.rule_count = len(self.indicators.indicators)
+
+        self.load_resource = (
+            time.process_time() - start[0],
+            time.time() - start[1]
+        )
+
+    def run(self):
+
+        self.hit_count = 0
+        count = 0
+
+        start = (time.process_time(), time.time())
+
+        while count < self.event_count:
+            for e in self.events:
+                e = self.handle(e)
+                count = count + 1
+                if count >= self.event_count: break
+
+        self.detect_resource = (
+            time.process_time() - start[0],
+            time.time() - start[1]
+        )
+    
+    def add_indicator(self, obj, ind):
+        if "indicators" not in obj:
+            obj["indicators"] = []
+        obj["indicators"].append(ind)
+
+    def check_addresses(self, obj):
+
+        for v in obj["src"]:
+            if v.startswith("ipv4:"):
+                self.collection.update(('ipv4', v[5:]))
+            if v.startswith("ipv6:"):
+                self.collection.update(('ipv6', v[5:]))
+            if v.startswith("tcp:"):
+                self.collection.update(('tcp', v[4:]))
+            if v.startswith("udp:"):
+                self.collection.update(('udp', v[4:]))
+
+        for v in obj["dest"]:
+            if v.startswith("ipv4:"):
+                self.collection.update(('ipv4', v[5:]))
+            if v.startswith("ipv6:"):
+                self.collection.update(('ipv6', v[5:]))
+            if v.startswith("tcp:"):
+                self.collection.update(('tcp', v[4:]))
+            if v.startswith("udp:"):
+                self.collection.update(('udp', v[4:]))
+
+    def check_dns(self, obj):
+
+        hosts = set()
+
+        if "dns_message" in obj and "query" in obj["dns_message"]:
+            for v in obj["dns_message"]["query"]:
+                if "name" in v:
+                    hosts.add(v["name"])
+
+        if "dns_message" in obj and "answer" in obj["dns_message"]:
+            for v in obj["dns_message"]["answer"]:
+                if "name" in v:
+                    hosts.add(v["name"])
+
+        for v in hosts:
+            self.collection.update(('hostname', v))
+
+    def check_url(self, obj):
+
+        if "url" in obj:
+            self.collection.update(('url', obj["url"]))
+
+    def check_email(self, obj):
+
+        emails = set()
+        if "smtp_data" in obj and "from" in obj["smtp_data"]:
+            emails.add(obj["smtp_data"]["from"])
+        if "smtp_data" in obj and "to" in obj["smtp_data"]:
+            for v in obj["smtp_data"]["to"]:
+                emails.add(v)
+
+        for v in emails:
+            self.collection.update(('email', v))
+
+    def check_hits(self, obj):
+        inds = self.collection.get_hits()
+        if len(inds) == 0:
+            return False
+        else:
+            for ind in inds:
+                self.add_indicator(obj, ind.descriptor.dump())
+            return True
+
+    def handle(self, obj):
+
+        self.collection.init_state()
+        self.check_addresses(obj)
+        self.check_dns(obj)
+        self.check_url(obj)
+        self.check_email(obj)
+        self.collection.update(('end', ''))
+        has_hits = self.check_hits(obj)
+        if has_hits:
+            self.hit_count += 1
+        return obj
+
+    def dump_stats(self):
+
+        load_cpu = self.load_resource[0]
+        load_elapse = self.load_resource[1]
+        load_rate = self.rule_count/self.load_resource[1]
+        detect_rate = self.event_count/self.detect_resource[1]        
+
+        msg = (
+            f'Load: cpu = {load_cpu:.2f}, real = {load_elapse:.2f}\n'
+            f'Load: rate = {load_rate:.1f} rules/s\n'
+            f'Load: {self.rule_count} rules\n'
+            f'Detect: cpu = {self.detect_resource[0]:.2f}, '
+            f'real = {self.detect_resource[1]:.2f}\n'
+            f'Detect: {detect_rate:.1f} ev/s, '
+            f'{self.event_count} events\n'
+            f'Detect: {self.hit_count} hits, '
+            f'{100 * self.hit_count/self.event_count:.1f}% rate'
+        )
+
+        print(msg)
+
+def benchmark_range(ip_range, events, implementation="fsm"):
+    results = []
+    for v in ip_range:
+            w = events
+            print()
+            print(implementation, v, w)
+            print("Generate indicators...")
+            inds = IndicatorGenerator.generate(ips=v, ports=50)
+            b = Benchmark(implementation=implementation,
+                          indicators=inds, events=w)
+            print("Load test data...")
+            b.load_test_data()
+            print("Load indicators...")
+            b.load_indicators()
+            print("Run detection...")
+            b.run()
+            b.dump_stats()
+
+            load_rate = b.rule_count / b.load_resource[1]
+            detect_rate = b.event_count / b.detect_resource[1]        
+
+            print(">>>", detect_rate)
+
+            results.append((v, w, detect_rate))
+
+    return results
+
+benchmarks = {}
+lts1 = benchmark_range(ip_range=[1, 5, 10, 50, 100, 300, 500, 700, 900, 1100, 1300, 1500],
+                       events=5000,
+                       implementation="lts")
+benchmarks["lts"] = lts1
+
+fsm1 = benchmark_range(ip_range=[100, 500, 1500, 3000, 4500, 6000, 10000,
+                                 50000, 100000,
+                                 250000, 400000, 600000, 800000, 1000000],
+                       events=500000,
+                       implementation="fsm")
+benchmarks["fsm"] = fsm1
+
+with open("benchmark.pkl", "wb") as f:
+    pickle.dump(benchmarks, f)
+    
+# print("Generate indicators...")
+# inds = IndicatorGenerator.generate(ips=1000000, ports=50)
+
+# b = Benchmark(implementation="fsm", indicators=inds, events=1000000)
+# print("Load test data...")
+# b.load_test_data()
+# print("Load indicators...")
+# b.load_indicators()
+# print("Run detection...")
+# b.run()
+
+# b.dump_stats()
