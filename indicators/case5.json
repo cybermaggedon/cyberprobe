@@ -35,11 +35,11 @@
 		    "or": [
 			{
 			    "type": "url",
-			    "value": "http://www.malware.org/malware.dat"
+			    "value": "http://www.example.com/malware.dat"
 			},
 			{
 			    "type": "url",
-			    "value": "http://malware.org/malware.dat"
+			    "value": "http://example.org/malware.dat"
 			}
 		    ]
 		}

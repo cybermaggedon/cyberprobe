@@ -31,20 +31,20 @@
 		{
 		    "and": [
 			{
+			    "type": "tcp",
+			    "value": "80"
+			},
+			{
 			    "or": [
 				{
 				    "type": "url",
-				    "value": "http://www.malware.org/malware.dat"
+				    "value": "http://www.example.org/malware.dat"
 				},
 				{
 				    "type": "url",
-				    "value": "http://malware.org/malware.dat"
+				    "value": "http://example.org/malware.dat"
 				}	
 			    ]
-			},
-			{
-			    "type": "tcp",
-			    "value": "80"
 			}
 		    ]
 		}
