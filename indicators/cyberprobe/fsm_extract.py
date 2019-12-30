@@ -35,16 +35,6 @@ def find_states(e, states):
     if type(e.par) == lt.Not:
         states.add(e)
 
-def find_match_terms(e, states):
-    """
-    A walker function used to find the FSM match states in a logic tree.
-    Use with lt.walk:
-      terms=set()
-      tree.walk(find_match_terms, terms)
-    """
-    if type(e) == lt.Match:
-        states.add(e)
-
 def name_combined_state(sts, tree):
     """
     Converts a combination state (list of states) into a string representing
@@ -91,7 +81,7 @@ class FsmExtractor:
     def find_terms(self):
         """ Finds the match terms in a logic tree """
         terms=set()
-        self.tree.walk(find_match_terms, terms)
+        self.tree.walk(lt.find_match_terms, terms)
         return terms
 
     def evaluate_term(self, instate, term):

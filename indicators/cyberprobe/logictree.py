@@ -303,3 +303,107 @@ def dump_logic_tree(obj, indent=0):
     """ Dumps out a logic tree in human-readable form """
     obj.dump_logic_tree()
 
+def find_match_terms(e, states):
+    """
+    A walker function used to find the FSM match states in a logic tree.
+    Use with logictree.walk:
+      terms=set()
+      tree.walk(find_match_terms, terms)
+    """
+    if type(e) == Match:
+        states.add(e)
+
+def is_not(e, ret):
+    """
+    A walker function used to find the 'not' nodes
+    Use with logicree.walk:
+      state=set()
+      tree.walk(find_states, state)
+    """
+    if type(e) == Not:
+        ret['value'] = True
+        
+def contains_not(e):
+    """ Returns true if a logictree contains a 'not' node """
+    ret = { 'value': False }
+    e.walk(is_not, ret)
+    return ret['value']
+
+class LtsCollection:
+    """
+    Represents a set of indicators, and provides the functionality to
+    apply the indicators to event attributes, maintaining the detection
+    state.
+    """
+    def __init__(self):
+        """ Constructor """
+        pass
+
+    @staticmethod
+    def get_activator_terms(ind):
+        """
+        Gets the list of type:value terms which the logictrees use.
+        """
+        terms=set()
+        ind.value.walk(find_match_terms, terms)
+        return terms
+
+    @classmethod
+    def load_from(cls, inds):
+        """ Loads from a set of Indicator objects """
+
+        sc = cls()
+        sc.indicators = inds
+
+        # Loop over the list, building a map of activator terms which
+        # are linked to indicator logictrees.
+        activators = {}
+        nots = []
+        for v in sc.indicators.indicators:
+
+            terms = LtsCollection.get_activator_terms(v)
+            for node in terms:
+                term = (node.type, node.value)
+                if term not in activators:
+                    activators[term] = []
+                activators[term].append(node)
+            if contains_not(v.value):
+                nots.append(v)
+
+        sc.activators = activators
+        sc.nots = nots
+
+        return sc
+
+    def init_state(self):
+        """
+        Initialises state.  This is called at the start of scanning a
+        new object.
+        """
+        self.state = {}
+
+    def update(self, term):
+        """
+        Updates state based on seeing a term of the form (type, value).
+        A special form is ('end', '') for the end of scanning.
+        """
+
+        if term == ('end', ''):
+            for v in self.nots:
+                v.value.record_end(self.state)
+            return
+
+        if term in self.activators:
+            for sc in self.activators[term]:
+                sc.activate(self.state)
+
+    def get_hits(self):
+        """
+        Return all Indicator hits.
+        """
+        return [
+            v for v in self.indicators.indicators
+            if v.value in self.state and
+            self.state[v.value].active == True
+        ]
+        
