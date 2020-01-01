@@ -9,7 +9,7 @@ with open("benchmark.pkl", "rb") as f:
     bench = pickle.load(f)
 
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=[14, 8])
 
 for v in bench:
     print(v)
@@ -23,7 +23,7 @@ for v in bench:
 ax.legend()
 
 ax.set(xlabel='rules', ylabel='detect rate',
-       title='Detection rates')
+       title='Detection rates', xscale="log")
 ax.grid()
 
 fig.savefig("plot.png")

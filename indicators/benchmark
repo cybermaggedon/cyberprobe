@@ -338,7 +338,7 @@ lts1 = benchmark_range(ip_range=[1, 5, 10, 50, 100, 300, 500, 700, 900, 1100, 13
                        implementation="lts")
 benchmarks["lts"] = lts1
 
-fsm1 = benchmark_range(ip_range=[100, 500, 1500, 3000, 4500, 6000, 10000,
+fsm1 = benchmark_range(ip_range=[1, 5, 10, 50, 100, 500, 1500, 3000, 4500, 6000, 10000,
                                  50000, 100000,
                                  250000, 400000, 600000, 800000, 1000000],
                        events=500000,
