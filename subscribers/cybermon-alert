@@ -11,7 +11,7 @@ else:
     
 def handle(msg, output):
     obj = json.loads(msg)
-    if obj.has_key("indicators"):
+    if "indicators" in obj:
         print("%s, %s, %s" % (obj["time"], obj["device"], obj["action"]))
         for v in obj["indicators"]:
             print("  %s: %s" % (v["value"], v["description"]))

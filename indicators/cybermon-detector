@@ -6,6 +6,7 @@ import os
 import cyberprobe.qcomms as q
 from cyberprobe.fsm import Fsm, FsmState, FsmCollection
 import cyberprobe.indicators as ind
+import cyberprobe.detector as detector
 
 if len(sys.argv) < 2:
     binding = "geo"
@@ -20,8 +21,7 @@ else:
 iocs_file = os.getenv("INDICATORS", "indicators.json")
 mtime = 0
 
-iocs = None
-fsc = None
+det = detector.Detector()
 
 def check_config():
 
@@ -39,111 +39,19 @@ def check_config():
 
     obj = json.loads(data)
 
-    iocs = ind.load(obj)
-    fsc = FsmCollection.load_from(iocs)
-#    print("FSMs:")
-#    for v in fsc.fsms:
-#        v.dump()
-#        print("---")
-#    print()
+    det.load(obj)
     
     print("Indicator data loaded.")
     mtime = s
 
-def add_indicator(obj, ind):
-    if "indicators" not in obj:
-        obj["indicators"] = []
-    obj["indicators"].append(ind)
-
-def check_addresses(obj):
-
-    for v in obj["src"]:
-        if v.startswith("ipv4:"):
-            fsc.update(('ipv4', v[5:]))
-            fsc.update(('ipv4.src', v[5:]))
-        if v.startswith("ipv6:"):
-            fsc.update(('ipv6', v[5:]))
-            fsc.update(('ipv6.src', v[5:]))
-        if v.startswith("tcp:"):
-            fsc.update(('tcp', v[4:]))
-            fsc.update(('tcp.src', v[4:]))
-        if v.startswith("udp:"):
-            fsc.update(('udp', v[4:]))
-            fsc.update(('udp.dest', v[4:]))
-
-    for v in obj["dest"]:
-        if v.startswith("ipv4:"):
-            fsc.update(('ipv4', v[5:]))
-            fsc.update(('ipv4.dest', v[5:]))
-        if v.startswith("ipv6:"):
-            fsc.update(('ipv6', v[5:]))
-            fsc.update(('ipv6.dest', v[5:]))
-        if v.startswith("tcp:"):
-            fsc.update(('tcp', v[4:]))
-            fsc.update(('tcp.dest', v[4:]))
-        if v.startswith("udp:"):
-            fsc.update(('udp', v[4:]))
-            fsc.update(('udp.dest', v[4:]))
-
-def check_dns(obj):
-
-    hosts = set()
-
-    if "dns_message" in obj and "query" in obj["dns_message"]:
-        for v in obj["dns_message"]["query"]:
-            if "name" in v:
-                hosts.add(v["name"])
-
-    if "dns_message" in obj and "answer" in obj["dns_message"]:
-        for v in obj["dns_message"]["answer"]:
-            if "name" in v:
-                hosts.add(v["name"])
-
-    for v in hosts:
-        fsc.update(('hostname', v))
-
-def check_url(obj):
-
-    if "url" in obj:
-        fsc.update(('url', obj["url"]))
-
-def check_email(obj):
-
-    emails = set()
-    if "smtp_data" in obj and "from" in obj["smtp_data"]:
-        emails.add(obj["smtp_data"]["from"])
-    if "smtp_data" in obj and "to" in obj["smtp_data"]:
-        for v in obj["smtp_data"]["to"]:
-            emails.add(v)
-
-    for v in emails:
-        fsc.update(('email', v))
-
-def check_hits(obj):
-    inds = fsc.get_hits()
-    for ind in inds:
-        add_indicator(obj, ind.descriptor.dump())
-
 def handle(msg, output):
-    obj = json.loads(msg)
-
-    check_config()
-
-    fsc.init_state()
-    check_addresses(obj)
-    check_dns(obj)
-    check_url(obj)
-    check_email(obj)
-
-    fsc.update(('end', ''))
-
-    check_hits(obj)
-
-    output(json.dumps(obj))
+    event = json.loads(msg)
+    det.detect(event)
+    output(json.dumps(event))
 
 try:
     check_config()
-    q.subscribe(binding, handle, output)
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
+q.subscribe(binding, handle, output)
