@@ -12,6 +12,10 @@ class Detector:
         self.iocs = ind.load(obj)
         self.fsc = FsmCollection.load_from(self.iocs)
 
+    def load_fsc(self, iocs, fsc):
+        self.iocs = iocs
+        self.fsc = fsc
+
     def add_indicator(self, obj, ind):
         if "indicators" not in obj:
             obj["indicators"] = []

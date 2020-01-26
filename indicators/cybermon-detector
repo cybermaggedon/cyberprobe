@@ -3,7 +3,10 @@
 import json
 import sys
 import os
-import cyberprobe.qcomms as q
+import time
+from threading import Thread
+import queue
+import cyberprobe.qcomms as qcomms
 from cyberprobe.fsm import Fsm, FsmState, FsmCollection
 import cyberprobe.indicators as ind
 import cyberprobe.detector as detector
@@ -19,40 +22,67 @@ else:
     output = "ioc"
 
 iocs_file = os.getenv("INDICATORS", "indicators.json")
-mtime = 0
 
 det = detector.Detector()
+q = queue.Queue()
 
-def check_config():
+class FetchIndicators(Thread):
+    def __init__(self, iocs_file, q):
+        Thread.__init__(self)
+        self.iocs_file = iocs_file
+        self.q = q
 
-    global mtime
-    global iocs
-    global fsc
-    
-    s = os.stat(iocs_file).st_mtime
-    if s == mtime: return
+    def run(self):
 
-    print("Loading IOCs...")
+        try:
+            mtime = 0
+            while True:
+                s = os.stat(iocs_file).st_mtime
+                if s == mtime:
+                    time.sleep(1)
+                    continue
 
-    with open(iocs_file) as f:
-        data = f.read()
+                print("Loading IOCs...")
 
-    obj = json.loads(data)
+                with open(iocs_file) as f:
+                    data = f.read()
 
-    det.load(obj)
-    
-    print("Indicator data loaded.")
-    mtime = s
+                obj = json.loads(data)
+
+                iocs = ind.load(obj)
+
+                fsc = FsmCollection.load_from(iocs)
+                print("Indicators loaded.")
+
+                self.q.put((iocs, fsc))
+
+                mtime = s
+        except Exception as e:
+            # Put exception on q and bail
+            print("Exception:", e)
+            self.q.put(e)
+            return
+
+fi = FetchIndicators(iocs_file, q)
+fi.start()
 
 def handle(msg, output):
-    check_config()
+    if not q.empty():
+        elt = q.get()
+        if isinstance(elt, Exception):
+            raise elt
+        else:
+            # Assume it's an indicator set
+            det.load_fsc(elt[0], elt[1])
     event = json.loads(msg)
     det.detect(event)
     output(json.dumps(event))
 
 try:
-    check_config()
-    q.subscribe(binding, handle, output)
+    while q.empty():
+        time.sleep(0.1)
+    qcomms.subscribe(binding, handle, output)
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
+    sys.exit(1)
 
