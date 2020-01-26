@@ -45,13 +45,14 @@ def check_config():
     mtime = s
 
 def handle(msg, output):
+    check_config()
     event = json.loads(msg)
     det.detect(event)
     output(json.dumps(event))
 
 try:
     check_config()
+    q.subscribe(binding, handle, output)
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
-q.subscribe(binding, handle, output)
