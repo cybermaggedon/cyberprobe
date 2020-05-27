@@ -9,16 +9,16 @@ enum Action {
     dns_message = 0;
     unrecognised_datagram = 2;
     unrecognised_stream = 3;
-    icmp = 4;
+    icmp_message = 4;
     http_request = 5;
     http_response = 6;
     sip_request = 7;
     sip_response = 8;
-    sip_ssl = 9;
-    imap = 10;
-    imap_ssl = 11;
-    pop3 = 12;
-    pop3_ssl = 13;
+    sip_ssl_message = 9;
+    imap_message = 10;
+    imap_ssl_message = 11;
+    pop3_message = 12;
+    pop3_ssl_message = 13;
     ntp_timestamp = 14;
     ntp_control = 15;
     ntp_private = 16;
@@ -26,13 +26,13 @@ enum Action {
     ftp_response = 18;
     smtp_command = 19;
     smtp_response = 20;
-    smtp_data = 21;
-    smtp_auth = 22;
-    gre = 23;
-    gre_pptp = 24;
-    esp = 25;
+    smtp_data_message = 21;
+    smtp_auth_message = 22;
+    gre_message = 23;
+    gre_pptp_message = 24;
+    esp_message = 25;
     unrecognised_ip_protocol = 26;
-    wlan = 27;
+    wlan_message = 27;
     tls_unknown = 28;
     tls_client_hello = 29;
     tls_server_hello = 30;
@@ -47,8 +47,8 @@ enum Action {
     tls_handshake_finished = 39;
     tls_handshake_complete = 40;
     tls_application_data = 41;
-    rtp = 42;
-    rtp_ssl = 43;
+    rtp_message = 42;
+    rtp_ssl_message = 43;
     trigger_up = 44;
     trigger_down = 45;
     connection_up = 46;
@@ -56,7 +56,7 @@ enum Action {
 };
 
 enum Origin {
-    unknown_protocol = 0;
+    unspecified = 0;
     device = 1;
     network = 2;
 };
@@ -79,8 +79,26 @@ enum Protocol {
     ipv6 = 2;
     tcp = 3;
     udp = 4;
-    dns = 5;
+    icmp = 5;
     http = 6;
+    dns = 7;
+    smtp = 8;
+    ftp = 9;
+    ntp = 10;
+    imap = 11;
+    imap_ssl = 12;
+    pop3 = 13;
+    pop3_ssl = 14;
+    rtp = 15;
+    rtp_ssl = 16;
+    sip = 17;
+    sip_ssl = 18;
+    smtp_auth = 19;
+    gre = 20;
+    esp = 21;
+    wlan = 22;
+    tls = 23;
+    unrecognised = 24;
 };
 
 message ProtocolAddress {

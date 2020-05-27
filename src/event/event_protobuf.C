@@ -252,7 +252,7 @@ namespace cyberprobe {
 	void protobufify(const icmp& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::icmp);
+            protobufify_base(e, pe, cyberprobe::Action::icmp_message);
 
             auto detail = pe.mutable_icmp();
             detail->set_type(e.type);
@@ -264,7 +264,7 @@ namespace cyberprobe {
 	void protobufify(const imap& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::imap);
+            protobufify_base(e, pe, cyberprobe::Action::imap_message);
 
             auto detail = pe.mutable_imap();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -274,7 +274,7 @@ namespace cyberprobe {
 	void protobufify(const imap_ssl& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::imap_ssl);
+            protobufify_base(e, pe, cyberprobe::Action::imap_ssl_message);
 
             auto detail = pe.mutable_imap_ssl();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -284,7 +284,7 @@ namespace cyberprobe {
 	void protobufify(const pop3& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::pop3);
+            protobufify_base(e, pe, cyberprobe::Action::pop3_message);
 
             auto detail = pe.mutable_pop3();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -294,7 +294,7 @@ namespace cyberprobe {
 	void protobufify(const pop3_ssl& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::pop3_ssl);
+            protobufify_base(e, pe, cyberprobe::Action::pop3_ssl_message);
 
             auto detail = pe.mutable_pop3();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -304,7 +304,7 @@ namespace cyberprobe {
 	void protobufify(const rtp& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::pop3_ssl);
+            protobufify_base(e, pe, cyberprobe::Action::rtp_message);
 
             auto detail = pe.mutable_rtp();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -314,7 +314,7 @@ namespace cyberprobe {
 	void protobufify(const rtp_ssl& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::pop3_ssl);
+            protobufify_base(e, pe, cyberprobe::Action::rtp_ssl_message);
 
             auto detail = pe.mutable_rtp_ssl();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -350,7 +350,7 @@ namespace cyberprobe {
 
 	void protobufify(const sip_ssl& e, cyberprobe::Event& pe) {
 
-            protobufify_base(e, pe, cyberprobe::Action::sip_ssl);
+            protobufify_base(e, pe, cyberprobe::Action::sip_ssl_message);
 
             auto detail = pe.mutable_sip_ssl();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -359,7 +359,7 @@ namespace cyberprobe {
 
 	void protobufify(const smtp_auth& e, cyberprobe::Event& pe) {
 
-            protobufify_base(e, pe, cyberprobe::Action::smtp_auth);
+            protobufify_base(e, pe, cyberprobe::Action::smtp_auth_message);
 
             auto detail = pe.mutable_smtp_auth();
             detail->set_payload(e.payload.data(), e.payload.size());
@@ -394,7 +394,7 @@ namespace cyberprobe {
 	void protobufify(const smtp_data& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::smtp_data);
+            protobufify_base(e, pe, cyberprobe::Action::smtp_data_message);
 
             auto detail = pe.mutable_smtp_data();
             detail->set_from(e.from);
@@ -595,7 +595,7 @@ namespace cyberprobe {
 
 	void protobufify(const gre& e, cyberprobe::Event& pe) {
 
-            protobufify_base(e, pe, cyberprobe::Action::gre);
+            protobufify_base(e, pe, cyberprobe::Action::gre_message);
 
             auto detail = pe.mutable_gre();
             detail->set_next_proto(e.next_proto);
@@ -608,7 +608,7 @@ namespace cyberprobe {
 	void protobufify(const gre_pptp& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::gre_pptp);
+            protobufify_base(e, pe, cyberprobe::Action::gre_pptp_message);
 
             auto detail = pe.mutable_gre_pptp();
             detail->set_next_proto(e.next_proto);
@@ -623,7 +623,7 @@ namespace cyberprobe {
 	void protobufify(const esp& e, cyberprobe::Event& pe)
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::esp);
+            protobufify_base(e, pe, cyberprobe::Action::esp_message);
 
             auto detail = pe.mutable_esp();
             detail->set_sequence_number(e.sequence);
@@ -648,7 +648,7 @@ namespace cyberprobe {
 	void protobufify(const wlan& e, cyberprobe::Event& pe) 
         {
 
-            protobufify_base(e, pe, cyberprobe::Action::wlan);
+            protobufify_base(e, pe, cyberprobe::Action::wlan_message);
 
             auto detail = pe.mutable_wlan();
 

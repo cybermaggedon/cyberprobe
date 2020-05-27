@@ -12,7 +12,8 @@ local os = require("os")
 local json = require("json")
 local string = require("string")
 local socket = require("socket")
-local websocket = require "http.websocket"
+local websocket = require("http.websocket")
+local mime = require("mime")
 
 -- Config ------------------------------------------------------------------
 
@@ -104,7 +105,6 @@ local submit = function(obs)
     context = "1"
   })
   while true do
-    print("Attempting...")
     local ok, err = ws:send(msg)
     if not ok then
       ws:close()
@@ -113,16 +113,14 @@ local submit = function(obs)
       init()
     else
       -- Receive result and ignore.
-      print("Sent.")
       ws:receive()
-      print("Response received.")
       return
     end
   end
 end
 
 observer.event = function(e)
-  submit(e:json())
+  submit(e:protobuf())
 end
 
 -- Initialise
