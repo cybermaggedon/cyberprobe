@@ -477,7 +477,10 @@ message Indicator {
     string id = 1;
     string type = 2;
     string value = 3;
-    string description = 4;
+    string category = 4;
+    string source = 5;
+    string author = 6;
+    string description = 7;
 };
 
 message TriggerUp {
