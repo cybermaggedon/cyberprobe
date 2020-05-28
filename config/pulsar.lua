@@ -97,11 +97,10 @@ local b64 = function(x)
 end
 
 -- Object submission function - just pushes the object onto the queue.
-local submit = function(obs)
-  pay = b64(obs)
+local submit = function(data, props)
   msg = json.encode({
-    payload = pay,
-    properties = { device = obs["device"], network = obs["network"] },
+    payload = b64(data),
+    properties = props,
     context = "1"
   })
   while true do
@@ -120,7 +119,7 @@ local submit = function(obs)
 end
 
 observer.event = function(e)
-  submit(e:protobuf())
+  submit(e:protobuf(), {device = e["device"], network = e["network"]})
 end
 
 -- Initialise
