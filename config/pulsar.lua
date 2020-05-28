@@ -54,7 +54,7 @@ print("Persistency: " .. pers)
 print("Namespace: " .. ns)
 print("Topic: " .. topic)
 
-url = string.format("%s/ws/v2/producer/persistent/%s/%s/%s", broker, tenant, ns, topic)
+url = string.format("%s/ws/v2/producer/%s/%s/%s/%s", broker, pers, tenant, ns, topic)
 
 -- Initialise.
 local init = function()
