@@ -466,6 +466,8 @@ message Locations {
 	string country = 3;
 	float latitude = 4;
 	float longitude = 5;
+        string asnum = 6;
+        string asorg = 7;
     };
     Location src = 1;
     Location dest = 2;
