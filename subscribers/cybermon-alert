@@ -2,7 +2,8 @@
 
 import json
 import sys
-import cyberprobe.qcomms as q
+import cyberprobe.analytic as q
+import cyberprobe.cyberprobe_pb2 as pb
 
 if len(sys.argv) < 2:
     binding = "ioc"
@@ -10,12 +11,19 @@ else:
     binding = sys.argv[1]
     
 def handle(msg, output):
-    obj = json.loads(msg)
-    if obj.has_key("indicators"):
-        print("%s, %s, %s" % (obj["time"], obj["device"], obj["action"]))
-        for v in obj["indicators"]:
-            print("  %s: %s" % (v["value"], v["description"]))
-        print()
+    try:
+        obj = pb.Event()
+        obj.ParseFromString(msg.data())
+
+        tm = obj.time.ToDatetime()
+
+        if len(obj.indicators) > 0:
+            print("%s, %s, %s" % (tm, obj.device, pb.Action.Name(obj.action)))
+            for v in obj.indicators:
+                print("  %s: %s" % (v.value, v.description))
+            print()
+    except Exception as e:
+        print(e)
 
 try:
     q.subscribe(binding, handle)
