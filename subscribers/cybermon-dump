@@ -3,7 +3,6 @@
 import json
 import sys
 import cyberprobe.analytic as q
-import cyberprobe.cyberprobe_pb2 as pb
 from google.protobuf.json_format import MessageToJson
 
 if len(sys.argv) < 2:

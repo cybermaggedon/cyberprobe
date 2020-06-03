@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import sys
 import cyberprobe.analytic as q
 import cyberprobe.cyberprobe_pb2 as pb
@@ -9,24 +8,24 @@ if len(sys.argv) < 2:
     binding = "ioc"
 else:
     binding = sys.argv[1]
-    
-def handle(msg, output):
-    try:
-        obj = pb.Event()
-        obj.ParseFromString(msg.data())
 
-        tm = obj.time.ToDatetime()
+class Alerter(q.EventAnalytic):
+    def event(self, ev, properties):
+        try:
 
-        if len(obj.indicators) > 0:
-            print("%s, %s, %s" % (tm, obj.device, pb.Action.Name(obj.action)))
-            for v in obj.indicators:
-                print("  %s: %s" % (v.value, v.description))
-            print()
-    except Exception as e:
-        print(e)
+            tm = ev.time.ToDatetime()
+
+            if len(ev.indicators) > 0:
+                print("%s, %s, %s" %
+                      (tm, ev.device, pb.Action.Name(ev.action)))
+                for v in ev.indicators:
+                    print("  %s: %s" % (v.value, v.description))
+                print()
+        except Exception as e:
+            print(e)
 
 try:
-    q.subscribe(binding, handle)
+    Alerter(binding).run()
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
