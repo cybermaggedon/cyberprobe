@@ -3,6 +3,7 @@ import pulsar
 import os
 import sys
 import uuid
+import cyberprobe.cyberprobe_pb2 as pb
 
 def subscribe(binding, handle, output=None):
 
@@ -27,6 +28,46 @@ def subscribe(binding, handle, output=None):
     
     c = Consumer(subs, broker, in_topic)
     c.consume(cb)
+
+class Analytic:
+    def __init__(self, binding, outputs=[]):
+        
+        broker = os.getenv("PULSAR_BROKER", "pulsar://localhost:6650")
+
+        in_topic = f"persistent://public/default/{binding}"
+        out_topics = [f"persistent://public/default/{v}" for v in outputs]
+        self.outqs = [Producer(broker, v) for v in out_topics]
+
+        subs = str(uuid.uuid4())
+    
+        self.cons = Consumer(subs, broker, in_topic)
+
+    def run(self):
+        self.cons.consume(self.handle)
+
+    def handle(self, msg):
+        pass
+
+    def output(self, msg, properties=None):
+        for q in self.outqs:
+            q.publish(msg, properties)
+
+class EventAnalytic(Analytic):
+
+    def event(self, ev, properties):
+        pass
+    
+    def handle(self, msg):
+        try:
+            ev = pb.Event()
+            ev.ParseFromString(msg.data())
+            self.event(ev, msg.properties())
+        except Exception as e:
+            print(e)
+
+    def output_event(self, ev, properties=None):
+        data = ev.SerializeToString()
+        self.output(data, properties)
 
 class Consumer:
 

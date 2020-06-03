@@ -31,95 +31,95 @@ else:
     binding = sys.argv[1]
     
 if len(sys.argv) < 3:
-    output = "geo"
+    output = ["geo"]
 else:
-    output = sys.argv[2]
+    output = sys.argv[2].split(",")
 
-def lookup(ip):
+class GeoIP(q.EventAnalytic):
 
-    g = None
-    asn = None
+    def lookup(self, ip):
 
-    if geo:
-        try:
-            g = geo.city(ip)
-        except:
-            pass
+        g = None
+        asn = None
 
-    if geo2:
-        try:
-            asn = geo2.asn(ip)
-        except:
-            pass
+        if geo:
+            try:
+                g = geo.city(ip)
+            except:
+                pass
 
-    locn = pb.Locations.Location()
+        if geo2:
+            try:
+                asn = geo2.asn(ip)
+            except:
+                pass
 
-    if g is None and asn is None:
-        return None
+        locn = pb.Locations.Location()
 
-    if g:
-        if g.city and g.city.name:
-            locn.city = g.city.name
-        if g.country.iso_code: locn.iso = g.country.iso_code
-        if g.country.name: locn.country = g.country.name
-        if g.location.latitude and g.location.longitude:
-            locn.latitude = g.location.latitude
-            locn.longitude = g.location.longitude
-        if g.postal.code: locn.postcode = g.postal.code
+        if g is None and asn is None:
+            return None
 
-    if asn:
-        locn.asnum = str(asn.autonomous_system_number)
-        locn.asorg = asn.autonomous_system_organization
+        if g:
+            if g.city and g.city.name:
+                locn.city = g.city.name
+            if g.country.iso_code: locn.iso = g.country.iso_code
+            if g.country.name: locn.country = g.country.name
+            if g.location.latitude and g.location.longitude:
+                locn.latitude = g.location.latitude
+                locn.longitude = g.location.longitude
+            if g.postal.code: locn.postcode = g.postal.code
 
-    return locn
+        if asn:
+            locn.asnum = str(asn.autonomous_system_number)
+            locn.asorg = asn.autonomous_system_organization
+
+        return locn
     
-def handle(msg, output):
+    def event(self, ev, properties):
 
-    try:
+        try:
 
-        ev = pb.Event()
-        ev.ParseFromString(msg.data())
+            sip = None
+            dip = None
 
-        sip = None
-        dip = None
+            # Get IP src address.  If there's more than one, assumption is
+            # that the outer address (lower in the stack) is the right one
+            # to use for geo.
+            for v in ev.src:
+                if v.protocol == pb.Protocol.ipv4:
+                    sip = str(ipaddress.ip_address(v.address.ipv4))
+                    break
+                if v.protocol == pb.Protocol.ipv6:
+                    sip = str(ipaddress.ip_address(v.address.ipv6))
+                    break
 
-        # Get IP src address.  If there's more than one, assumption is that the
-        # outer address (lower in the stack) is the right one to use for geo.
-        for v in ev.src:
-            if v.protocol == pb.Protocol.ipv4:
-                sip = str(ipaddress.ip_address(v.address.ipv4))
-                break
-            if v.protocol == pb.Protocol.ipv6:
-                sip = str(ipaddress.ip_address(v.address.ipv6))
-                break
+            # Get IP dest address.
+            for v in ev.dest:
+                if v.protocol == pb.Protocol.ipv4:
+                    dip = str(ipaddress.ip_address(v.address.ipv4))
+                    break
+                if v.protocol == pb.Protocol.ipv6:
+                    dip = str(ipaddress.ip_address(v.address.ipv6))
+                    break
 
-        # Get IP dest address.
-        for v in ev.dest:
-            if v.protocol == pb.Protocol.ipv4:
-                dip = str(ipaddress.ip_address(v.address.ipv4))
-                break
-            if v.protocol == pb.Protocol.ipv6:
-                dip = str(ipaddress.ip_address(v.address.ipv6))
-                break
+            if sip != None:
+                g = self.lookup(sip)
+                if g != None:
+                    ev.location.src.CopyFrom(g)
 
-        if sip != None:
-            g = lookup(sip)
-            if g != None:
-                ev.location.src.CopyFrom(g)
+            if dip != None:
+                g = self.lookup(dip)
+                if g != None:
+                    ev.location.dest.CopyFrom(g)
 
-        if dip != None:
-            g = lookup(dip)
-            if g != None:
-                ev.location.dest.CopyFrom(g)
+            self.output_event(ev, properties)
 
-        data = ev.SerializeToString()
-        output(data, msg.properties())
-
-    except Exception as e:
-        pass
+        except Exception as e:
+            print(e)
+            pass
 
 try:
-    q.subscribe(binding, handle, output)
+    GeoIP(binding, output).run()
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
