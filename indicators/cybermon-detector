@@ -15,159 +15,157 @@ else:
     binding = sys.argv[1]
     
 if len(sys.argv) < 3:
-    output = "ioc"
+    output = ["ioc"]
 else:
-    output = "ioc"
+    output = sys.argv[2].split(",")
 
-iocs_file = os.getenv("INDICATORS", "indicators.json")
-mtime = 0
+class Detector(q.EventAnalytic):
 
-iocs = None
-fsc = None
+    def __init__(self, binding, outputs=[]):
+        self.iocs_file = os.getenv("INDICATORS", "indicators.json")
+        self.mtime = 0
+        self.iocs = None
+        self.fsc = None
+        super().__init__(binding, outputs)
 
-def check_config():
+    def check_config(self):
 
-    global mtime
-    global iocs
-    global fsc
-    
-    s = os.stat(iocs_file).st_mtime
-    if s == mtime: return
+        s = os.stat(self.iocs_file).st_mtime
+        if s == self.mtime: return
 
-    print("Loading IOCs...")
+        print("Loading IOCs...")
 
-    with open(iocs_file) as f:
-        data = f.read()
+        with open(self.iocs_file) as f:
+            data = f.read()
 
-    obj = json.loads(data)
+        obj = json.loads(data)
 
-    iocs = ind.load(obj)
-    fsc = FsmCollection.load_from(iocs)
-#    print("FSMs:")
-#    for v in fsc.fsms:
-#        v.dump()
-#        print("---")
-#    print()
-    
-    print("Indicator data loaded.")
-    mtime = s
+        self.iocs = ind.load(obj)
+        self.fsc = FsmCollection.load_from(self.iocs)
+    #    print("FSMs:")
+    #    for v in self.fsc.fsms:
+    #        v.dump()
+    #        print("---")
+    #    print()
 
-def add_indicator(obj, ind):
-    obj.indicators.add().CopyFrom(ind)
+        print("Indicator data loaded.")
+        self.mtime = s
 
-def check_addresses(obj):
+    def add_indicator(self, ev, ind):
+        ev.indicators.add().CopyFrom(ind)
 
-    for v in obj.src:
-        if v.protocol == pb.Protocol.ipv4:
-            addr = str(ipaddress.ip_address(v.address.ipv4))
-            fsc.update(('ipv4', addr))
-            fsc.update(('ipv4.src', addr))
-        if v.protocol == pb.Protocol.ipv6:
-            addr = str(ipaddress.ip_address(v.address.ipv6))
-            fsc.update(('ipv6', addr))
-            fsc.update(('ipv6.src', addr))
-        if v.protocol == pb.Protocol.tcp:
-            addr = str(v.address.port)
-            fsc.update(('tcp', addr))
-            fsc.update(('tcp.src', addr))
-        if v.protocol == pb.Protocol.udp:
-            addr = str(v.address.port)
-            fsc.update(('udp', addr))
-            fsc.update(('udp.src', addr))
+    def check_addresses(self, ev):
 
-    for v in obj.dest:
-        if v.protocol == pb.Protocol.ipv4:
-            addr = str(ipaddress.ip_address(v.address.ipv4))
-            fsc.update(('ipv4', addr))
-            fsc.update(('ipv4.dest', addr))
-        if v.protocol == pb.Protocol.ipv6:
-            addr = str(ipaddress.ip_address(v.address.ipv6))
-            fsc.update(('ipv6', addr))
-            fsc.update(('ipv6.dest', addr))
-        if v.protocol == pb.Protocol.tcp:
-            addr = str(v.address.port)
-            fsc.update(('tcp', addr))
-            fsc.update(('tcp.dest', addr))
-        if v.protocol == pb.Protocol.udp:
-            addr = str(v.address.port)
-            fsc.update(('udp', addr))
-            fsc.update(('udp.dest', addr))
+        for v in ev.src:
+            if v.protocol == pb.Protocol.ipv4:
+                addr = str(ipaddress.ip_address(v.address.ipv4))
+                self.fsc.update(('ipv4', addr))
+                self.fsc.update(('ipv4.src', addr))
+            if v.protocol == pb.Protocol.ipv6:
+                addr = str(ipaddress.ip_address(v.address.ipv6))
+                self.fsc.update(('ipv6', addr))
+                self.fsc.update(('ipv6.src', addr))
+            if v.protocol == pb.Protocol.tcp:
+                addr = str(v.address.port)
+                self.fsc.update(('tcp', addr))
+                self.fsc.update(('tcp.src', addr))
+            if v.protocol == pb.Protocol.udp:
+                addr = str(v.address.port)
+                self.fsc.update(('udp', addr))
+                self.fsc.update(('udp.src', addr))
 
-def check_dns(obj):
+        for v in ev.dest:
+            if v.protocol == pb.Protocol.ipv4:
+                addr = str(ipaddress.ip_address(v.address.ipv4))
+                self.fsc.update(('ipv4', addr))
+                self.fsc.update(('ipv4.dest', addr))
+            if v.protocol == pb.Protocol.ipv6:
+                addr = str(ipaddress.ip_address(v.address.ipv6))
+                self.fsc.update(('ipv6', addr))
+                self.fsc.update(('ipv6.dest', addr))
+            if v.protocol == pb.Protocol.tcp:
+                addr = str(v.address.port)
+                self.fsc.update(('tcp', addr))
+                self.fsc.update(('tcp.dest', addr))
+            if v.protocol == pb.Protocol.udp:
+                addr = str(v.address.port)
+                self.fsc.update(('udp', addr))
+                self.fsc.update(('udp.dest', addr))
 
-    hosts = set()
+    def check_dns(self, ev):
 
-    if obj.HasField("dns_message") and obj.dns_message.HasField("query"):
-        for v in obj.dns_message.query:
-            if v.HasField("name"):
-                hosts.add(v.name)
+        hosts = set()
 
-    if obj.HasField("dns_message") and obj.dns_message.HasField("answer"):
-        for v in obj.dns_message.answer:
-            if v.HasField("name"):
-                hosts.add(v.name)
+        if ev.HasField("dns_message") and ev.dns_message.HasField("query"):
+            for v in ev.dns_message.query:
+                if v.HasField("name"):
+                    hosts.add(v.name)
 
-    for v in hosts:
-        fsc.update(('hostname', v))
+        if ev.HasField("dns_message") and ev.dns_message.HasField("answer"):
+            for v in ev.dns_message.answer:
+                if v.HasField("name"):
+                    hosts.add(v.name)
 
-def check_url(obj):
+        for v in hosts:
+            self.fsc.update(('hostname', v))
 
-    if obj.url != "":
-        fsc.update(('url', obj.url))
+    def check_url(self, ev):
 
-def check_email(obj):
+        if ev.url != "":
+            self.fsc.update(('url', ev.url))
 
-    emails = set()
+    def check_email(self, ev):
 
-    if obj.HasField("smtp_data") and obj.smtp_data.HasField("from"):
-        emails.add(getattr(obj.smtp_data, "from"))
-    if obj.HasField("smtp_data") and obj.smtp_data.HasField("to"):
-        for v in obj.smtp_data.to:
-            emails.add(v)
+        emails = set()
 
-    for v in emails:
-        fsc.update(('email', v))
+        if ev.HasField("smtp_data") and ev.smtp_data.HasField("from"):
+            emails.add(getattr(ev.smtp_data, "from"))
+        if ev.HasField("smtp_data") and ev.smtp_data.HasField("to"):
+            for v in ev.smtp_data.to:
+                emails.add(v)
 
-def check_hits(obj):
-    inds = fsc.get_hits()
-    for ind in inds:
-        dmp = ind.descriptor.dump()
-        i = pb.Indicator()
-        i.description = dmp["description"]
-        i.category = dmp["category"]
-        i.author = dmp["author"]
-        i.source = dmp["source"]
-        i.type = dmp["type"]
-        i.value = dmp["value"]
-        add_indicator(obj, i)
+        for v in emails:
+            self.fsc.update(('email', v))
 
-def handle(msg, output):
+    def check_hits(self, ev):
+        inds = self.fsc.get_hits()
+        for ind in inds:
+            dmp = ind.descriptor.dump()
+            i = pb.Indicator()
+            i.description = dmp["description"]
+            i.category = dmp["category"]
+            i.author = dmp["author"]
+            i.source = dmp["source"]
+            i.type = dmp["type"]
+            i.value = dmp["value"]
+            self.add_indicator(ev, i)
 
-    try:
-        obj = pb.Event()
-        obj.ParseFromString(msg.data())
+    def event(self, ev, properties):
 
-        check_config()
+        try:
 
-        fsc.init_state()
-        check_addresses(obj)
-        check_dns(obj)
-        check_url(obj)
-        check_email(obj)
+            self.check_config()
 
-        fsc.update(('end', ''))
+            self.fsc.init_state()
+            self.check_addresses(ev)
+            self.check_dns(ev)
+            self.check_url(ev)
+            self.check_email(ev)
 
-        check_hits(obj)
+            self.fsc.update(('end', ''))
 
-        data = obj.SerializeToString()
-        output(data, msg.properties())
+            self.check_hits(ev)
 
-    except Exception as e:
-        print(e)
+            self.output_event(ev, properties)
+
+        except Exception as e:
+            print(e)
+
 
 try:
-    check_config()
-    q.subscribe(binding, handle, output)
+    d = Detector(binding, output)
+    d.check_config()
+    d.run()
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
