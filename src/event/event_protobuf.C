@@ -418,12 +418,11 @@ namespace cyberprobe {
             detail->set_method(e.method);
             detail->set_body(e.body.data(), e.body.size());
 
-            auto hdr = (*detail->mutable_header());
+            auto hdr = detail->mutable_header();
             for(auto it = e.header.begin();
                 it != e.header.end();
                 it++) {
-                
-                hdr[it->second.first] = it->second.second;
+                (*hdr)[it->second.first] = it->second.second;
             }
 
 	}
@@ -440,12 +439,11 @@ namespace cyberprobe {
             detail->set_code(e.code);
             detail->set_body(e.body.data(), e.body.size());
 
-            auto hdr = (*detail->mutable_header());
+            auto hdr = detail->mutable_header();
             for(auto it = e.header.begin();
                 it != e.header.end();
                 it++) {
-                
-                hdr[it->second.first] = it->second.second;
+                (*hdr)[it->second.first] = it->second.second;
             }
 
 	}

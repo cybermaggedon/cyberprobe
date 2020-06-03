@@ -29,6 +29,19 @@
             "value": "192.179.1.72"
         },
         {
+            "id": "0acf0328-6276-4726-9686-510633881413",
+            "descriptor": {
+                "description": "Malware server IP address",
+                "category": "malware",
+                "author": "someone@example.com",
+                "source": "id:3245edd9-e0f3-4982-9406-fbf93b874555",
+                "type": "ipv4",
+                "value": "10.0.2.15"
+            },
+            "type": "ipv4",
+            "value": "10.0.2.15"
+        },
+        {
             "id": "222b5390-054b-4630-9709-b809288ac947",
             "descriptor": {
                 "description": "Compromised wifi access point",

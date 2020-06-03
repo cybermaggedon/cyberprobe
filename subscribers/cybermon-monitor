@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import json
 import sys
-import cyberprobe.qcomms as q
+import cyberprobe.analytic as q
+import cyberprobe.cyberprobe_pb2 as pb
 
 if len(sys.argv) < 2:
     binding = "cyberprobe"
@@ -11,94 +11,90 @@ else:
     
 def handle(msg, output):
 
-    obj = json.loads(msg)
+    try:
 
-    print()
-    print("Action: %s" % obj["action"])
-    print("Device: %s" % obj["device"])
+        obj = pb.Event()
+        obj.ParseFromString(msg.data())
+        tm = obj.time.ToDatetime()
 
-    print("Time: %s" % obj["time"])
+        print()
+        print("Action: %s" % pb.Action.Name(obj.action))
+        print("Device: %s" % obj.device)
 
-    if "url" in obj:
-        print("URL: %s" % obj["url"])
+        print("Time: %s" % tm)
 
-    if "icmp" in obj:
-        print("ICMP type: %d" % obj["icmp"]["type"])
-        print("ICMP code: %d" % obj["icmp"]["code"])
+        if obj.url != "":
+            print("URL: %s" % obj.url)
 
-    if "dns_message" in obj:
-        detail = obj["dns_message"]
-        if "type" in detail:
-            print("Type: %s" % detail["type"])
-            if detail["type"] == "query" and "query" in detail:
-                for v in detail["query"]:
-                    if "name" in v:
-                        print("Query name: %s" % v["name"])
-                    if "type" in v:
-                        print("Query type: %s" % v["type"])
-                    if "class" in v:
-                        print("Query class: %s" % v["class"])
-            if "answer" in detail:
-                for v in detail["answer"]:
-                    if "name" in v:
-                        print("Answer name: %s" % v["name"])
-                    if "type" in v:
-                        print("Answer type: %s" % v["type"])
-                    if "class" in v:
-                        print("Answer class: %s" % v["class"])
-                    if "address" in v:
-                        print("Answer address: %s" % v["address"])
+        if obj.HasField("icmp"):
+            print("ICMP type: %d" % obj.icmp.type)
+            print("ICMP code: %d" % obj.icmp.code)
 
-    if "http_request" in obj:
-        detail = obj["http_request"]
-        print("Method: %s" % detail["method"])
-        if "header" in detail:
-            for k in detail["header"]:
-                 print("%s: %s" % (k, detail["header"][k]))
+        if obj.HasField("dns_message"):
+            detail = obj.dns_message
+            print("Type: %s" % pb.DnsMessageType.Name(detail.type))
+            if detail.type == pb.DnsMessageType.query:
+                for v in detail.query:
+                    print("Query name: %s" % v.name)
+                    print("Query type: %s" % v.type)
+                    print("Query class: %s" % getattr(v, "class"))
+            else:
+                for v in detail.answer:
+                    print("Answer name: %s" % v.name)
+                    print("Answer type: %s" % v.type)
+                    print("Answer class: %s" % getattr(v, "class"))
+                    print("Answer address: %s" % v.address)
 
-    if "http_response" in obj:
-        detail = obj["http_response"]
-        print("Code: %d" % detail["code"])
-        print("Status: %s" % detail["status"])
-        if "header" in detail:
-            for k in detail["header"]:
-                 print("%s: %s" % (k, detail["header"][k]))
+        if obj.HasField("http_request"):
+            detail = obj.http_request
+            print("Method: %s" % detail.method)
+            for k in detail.header:
+                print("%s: %s" % (k, detail.header[k]))
 
-    if "ftp_command" in obj:
-        detail = obj["ftp_command"]
-        print("Command: %s" % detail["command"])
+        if obj.HasField("http_response"):
+            detail = obj.http_response
+            print("Code: %d" % detail.code)
+            print("Status: %s" % detail.status)
+            for k in detail.header:
+                print("%s: %s" % (k, detail.header[k]))
 
-    if "ftp_response" in obj:
-        detail = obj["ftp_response"]
-        print("Status: %d" % detail["status"])
-        for v in detail["text"]:
-            print("Text: %s" % v)
+        if obj.HasField("ftp_command"):
+            detail = obj.ftp_command
+            print("Command: %s" % detail.command)
 
-    if "sip_request" in obj:
-        detail = obj["sip_request"]
-        print("Method: %s" % detail["method"])
-        print("From: %s" % detail["from"])
-        print("To: %s" % detail["from"])
-        if "header" in detail:
-            for k in detail["header"]:
-                 print("%s: %s" % (k, detail["header"][k]))
+        if obj.HasField("ftp_response"):
+            detail = obj.ftp_response
+            print("Status: %d" % detail.status)
+            for v in detail.text:
+                print("Text: %s" % v)
 
-    if "sip_response" in obj:
-        detail = obj["sip_response"]
-        print("Code: %d" % detail["code"])
-        print("Status: %s" % detail["status"])
-        print("From: %s" % detail["from"])
-        print("To: %s" % detail["from"])
+        if obj.HasField("sip_request"):
+            detail = obj.sip_request
+            print("Method: %s" % detail.method)
+            print("From: %s" % getattr(detail, "from"))
+            print("To: %s" % detail.to)
+            for k in detail.header:
+                print("%s: %s" % (k, detail.header[k]))
 
-    if "smtp_command" in obj:
-        detail = obj["smtp_command"]
-        print("Command: %s" % detail["command"])
+        if obj.HasField("sip_response"):
+            detail = obj.sip_response
+            print("Code: %d" % detail.code)
+            print("Status: %s" % detail.status)
+            print("From: %s" % getattr(detail, "from"))
+            print("To: %s" % detail.to)
 
-    if "smtp_response" in obj:
-        detail = obj["smtp_response"]
-        print("Status: %d" % detail["status"])
-        for v in detail["text"]:
-            print("Text: %s" % v)
+        if obj.HasField("smtp_command"):
+            detail = obj.smtp_command
+            print("Command: %s" % detail.command)
+
+        if obj.HasField("smtp_response"):
+            detail = obj.smtp_response
+            print("Status: %d" % detail.status)
+            for v in detail.text:
+                print("Text: %s" % v)
+
+    except Exception as e:
+        print(e)
 
 try:
     q.subscribe(binding, handle)
