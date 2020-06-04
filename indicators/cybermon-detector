@@ -96,14 +96,12 @@ class Detector(q.EventAnalytic):
 
         hosts = set()
 
-        if ev.HasField("dns_message") and ev.dns_message.HasField("query"):
+        if ev.HasField("dns_message"):
             for v in ev.dns_message.query:
-                if v.HasField("name"):
+                if v.name != "":
                     hosts.add(v.name)
-
-        if ev.HasField("dns_message") and ev.dns_message.HasField("answer"):
             for v in ev.dns_message.answer:
-                if v.HasField("name"):
+                if v.name != "":
                     hosts.add(v.name)
 
         for v in hosts:
@@ -132,6 +130,7 @@ class Detector(q.EventAnalytic):
         for ind in inds:
             dmp = ind.descriptor.dump()
             i = pb.Indicator()
+            i.id = ind.id
             i.description = dmp["description"]
             i.category = dmp["category"]
             i.author = dmp["author"]

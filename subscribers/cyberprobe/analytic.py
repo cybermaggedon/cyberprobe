@@ -63,7 +63,7 @@ class EventAnalytic(Analytic):
             ev.ParseFromString(msg.data())
             self.event(ev, msg.properties())
         except Exception as e:
-            print(e)
+            print("Exception:", e)
 
     def output_event(self, ev, properties=None):
         data = ev.SerializeToString()

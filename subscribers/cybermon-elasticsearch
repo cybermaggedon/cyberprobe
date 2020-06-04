@@ -4,7 +4,9 @@ import json
 import sys
 import requests
 import time
-import cyberprobe.qcomms as q
+import cyberprobe.analytic as q
+import cyberprobe.cyberprobe_pb2 as pb
+import ipaddress
 
 ############################################################################
 
@@ -18,530 +20,520 @@ if len(sys.argv) < 3:
 else:
     es_url = sys.argv[2]
 
-es_index = "cyberprobe"
-
 ############################################################################
 
-def init():
-
-    mapping = {
-        "mappings": {
-            "properties": {
-		"id": { "type": "keyword" },
-		"time": { "type": "date" },
-		"url": { "type": "keyword" },
-		"action": { "type": "keyword" },
-		"device": { "type": "keyword" },
-		"network": { "type": "keyword" },
-		"dns": {
-		    "properties": {
-		        "type": {
-		            "type": "keyword"
-		        },
-                        "query": {
-		            "properties": {
-		                "name": {
-		                    "type": "keyword"
-		                },
-		                "type": {
-		                    "type": "keyword"
-		                },
-		                "class": {
-		                    "type": "keyword"
-		                }
-		            }
-		        },
-		        "answer": {
-		            "properties": {
-		                "name": {
-		                    "type": "keyword"
-		                },
-		                "type": {
-		                    "type": "keyword"
-		                },
-		                "class": {
-		                    "type": "keyword"
-		                },
-		                "address": {
-		                    "type": "keyword"
-		                }
-		            }
-		        }
-		    }
-		},
-		"http": {
-		    "properties": {
-		        "method": {
-		            "type": "keyword"
-		        },
-		        "status": {
-		            "type": "keyword"
-		        },
-		        "code": {
-		            "type": "integer"
-		        },
-		        "header": {
-		            "properties": {
-		                "User-Agent": {
-		                    "type": "keyword"
-		                },
-		                "Host": {
-		                    "type": "keyword"
-		                },
-		                "Content-Type": {
-		                    "type": "keyword"
-		                },
-		                "Server": {
-		                    "type": "keyword"
-		                },
-		                "Connection": {
-		                    "type": "keyword"
-		                }
-		            }
-		        }
-		    }
-		},
-		"ftp": {
-		    "properties": {
-		        "command": {
-		            "type": "keyword"
-		        },
-		        "status": {
-		            "type": "integer"
-		        },
-		        "text": {
-		            "type": "text"
-		        }
-		    }
-		},
-		"icmp": {
-		    "properties": {
-		        "type": {
-		            "type": "integer"
-		        },
-		        "code": {
-		            "type": "integer"
-		        }
-		    }
-		},
-		"sip": {
-		    "properties": {
-		        "method": {
-		            "type": "keyword"
-		        },
-		        "from": {
-		            "type": "keyword"
-		        },
-		        "to": {
-		            "type": "keyword"
-		        },
-		        "status": {
-		            "type": "keyword"
-		        },
-		        "code": {
-		            "type": "integer"
-		        }
-		    }
-		},
-		"smtp": {
-		    "properties": {
-		        "command": {
-		            "type": "keyword"
-		        },
-		        "from": {
-		            "type": "keyword"
-		        },
-		        "to": {
-		            "type": "keyword"
-		        },
-		        "status": {
-		            "type": "keyword"
-		        },
-		        "text": {
-		            "type": "text"
-		        },
-		        "code": {
-		            "type": "integer"
-		        }
-		    }
-		},
-		"ntp": {
-		    "properties": {
-		        "version": {
-		            "type": "integer"
-		        },
-		        "mode": {
-		            "type": "integer"
-		        }
-		    }
-		},
-		"src": {
-		    "properties": {
-		        "ipv4": {
-		            "type": "ip"
-		        },
-		        "ipv6": {
-		            "type": "ip"
-		        },
-		        "tcp": {
-		            "type": "integer"
-		        },
-		        "udp": {
-		            "type": "integer"
-		        }
-		    }
-		},
-		"dest": {
-		    "properties": {
-		        "ipv4": {
-		            "type": "ip"
-		        },
-		        "ipv6": {
-		            "type": "ip"
-		        },
-		        "tcp": {
-		            "type": "integer"
-		        },
-		        "udp": {
-		            "type": "integer"
-		        }
-		    }
-		},
-		"location": {
-		    "properties": {
-		        "src": {
-		            "properties": {
-		                "city": {
-		                    "type": "keyword"
-		                },
-		                "iso": {
-		                    "type": "keyword"
-		                },
-		                "country": {
-		                    "type": "keyword"
-		                },
-		                "asnum": {
-		                    "type": "integer"
-		                },
-		                "asorg": {
-		                    "type": "keyword"
-		                },
-		                "position": {
-		                    "type": "geo_point"
-		                },
-		                "accuracy": {
-		                    "type": "integer"
-		                },
-		                "postcode": {
-		                    "type": "keyword"
-		                }
-		            }
-		        },
-		        "dest": {
-		            "properties": {
-		                "city": {
-		                    "type": "keyword"
-		                },
-		                "iso": {
-		                    "type": "keyword"
-		                },
-		                "country": {
-		                    "type": "keyword"
-		                },
-		                "asnum": {
-		                    "type": "integer"
-		                },
-		                "asorg": {
-		                    "type": "keyword"
-		                },
-		                "position": {
-		                    "type": "geo_point"
-		                },
-		                "accuracy": {
-		                    "type": "integer"
-		                },
-		                "postcode": {
-		                    "type": "keyword"
-		                }
-		            }
-		        }
-		    }
-		},
-		"indicators": {
-		    "properties": {
-		        "id": {
-		            "type": "keyword"
-		        },
-		        "type": {
-		            "type": "keyword"
-		        },
-		        "value": {
-		            "type": "keyword"
-		        },
-		        "description": {
-		            "type": "keyword"
-		        },
-		        "category": {
-		            "type": "keyword"
-		        },
-		        "author": {
-		            "type": "keyword"
-		        },
-		        "source": {
-		            "type": "keyword"
-		        }
-		    }
-		}
-	    }
-	}
+mapping = {
+    "mappings": {
+        "properties": {
+            "id": { "type": "keyword" },
+            "time": { "type": "date" },
+            "url": { "type": "keyword" },
+            "action": { "type": "keyword" },
+            "device": { "type": "keyword" },
+            "network": { "type": "keyword" },
+            "dns": {
+                "properties": {
+                    "type": {
+                        "type": "keyword"
+                    },
+                    "query": {
+                        "properties": {
+                            "name": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "class": {
+                                "type": "keyword"
+                            }
+                        }
+                    },
+                    "answer": {
+                        "properties": {
+                            "name": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "class": {
+                                "type": "keyword"
+                            },
+                            "address": {
+                                "type": "keyword"
+                            }
+                        }
+                    }
+                }
+            },
+            "http": {
+                "properties": {
+                    "method": {
+                        "type": "keyword"
+                    },
+                    "status": {
+                        "type": "keyword"
+                    },
+                    "code": {
+                        "type": "integer"
+                    },
+                    "header": {
+                        "properties": {
+                            "User-Agent": {
+                                "type": "keyword"
+                            },
+                            "Host": {
+                                "type": "keyword"
+                            },
+                            "Content-Type": {
+                                "type": "keyword"
+                            },
+                            "Server": {
+                                "type": "keyword"
+                            },
+                            "Connection": {
+                                "type": "keyword"
+                            }
+                        }
+                    }
+                }
+            },
+            "ftp": {
+                "properties": {
+                    "command": {
+                        "type": "keyword"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "text": {
+                        "type": "text"
+                    }
+                }
+            },
+            "icmp": {
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "code": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "sip": {
+                "properties": {
+                    "method": {
+                        "type": "keyword"
+                    },
+                    "from": {
+                        "type": "keyword"
+                    },
+                    "to": {
+                        "type": "keyword"
+                    },
+                    "status": {
+                        "type": "keyword"
+                    },
+                    "code": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "smtp": {
+                "properties": {
+                    "command": {
+                        "type": "keyword"
+                    },
+                    "from": {
+                        "type": "keyword"
+                    },
+                    "to": {
+                        "type": "keyword"
+                    },
+                    "status": {
+                        "type": "keyword"
+                    },
+                    "text": {
+                        "type": "text"
+                    },
+                    "code": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "ntp": {
+                "properties": {
+                    "version": {
+                        "type": "integer"
+                    },
+                    "mode": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "src": {
+                "properties": {
+                    "ipv4": {
+                        "type": "ip"
+                    },
+                    "ipv6": {
+                        "type": "ip"
+                    },
+                    "tcp": {
+                        "type": "integer"
+                    },
+                    "udp": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "dest": {
+                "properties": {
+                    "ipv4": {
+                        "type": "ip"
+                    },
+                    "ipv6": {
+                        "type": "ip"
+                    },
+                    "tcp": {
+                        "type": "integer"
+                    },
+                    "udp": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "location": {
+                "properties": {
+                    "src": {
+                        "properties": {
+                            "city": {
+                                "type": "keyword"
+                            },
+                            "iso": {
+                                "type": "keyword"
+                            },
+                            "country": {
+                                "type": "keyword"
+                            },
+                            "asnum": {
+                                "type": "integer"
+                            },
+                            "asorg": {
+                                "type": "keyword"
+                            },
+                            "position": {
+                                "type": "geo_point"
+                            },
+                            "accuracy": {
+                                "type": "integer"
+                            },
+                            "postcode": {
+                                "type": "keyword"
+                            }
+                        }
+                    },
+                    "dest": {
+                        "properties": {
+                            "city": {
+                                "type": "keyword"
+                            },
+                            "iso": {
+                                "type": "keyword"
+                            },
+                            "country": {
+                                "type": "keyword"
+                            },
+                            "asnum": {
+                                "type": "integer"
+                            },
+                            "asorg": {
+                                "type": "keyword"
+                            },
+                            "position": {
+                                "type": "geo_point"
+                            },
+                            "accuracy": {
+                                "type": "integer"
+                            },
+                            "postcode": {
+                                "type": "keyword"
+                            }
+                        }
+                    }
+                }
+            },
+            "indicators": {
+                "properties": {
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "type": {
+                        "type": "keyword"
+                    },
+                    "value": {
+                        "type": "keyword"
+                    },
+                    "description": {
+                        "type": "keyword"
+                    },
+                    "category": {
+                        "type": "keyword"
+                    },
+                    "author": {
+                        "type": "keyword"
+                    },
+                    "source": {
+                        "type": "keyword"
+                    }
+                }
+            }
+        }
     }
+}
 
-    u = "%s%s" % (es_url, es_index)
+############################################################################
 
-    while True:
-        try: 
-            r = requests.put(u, data=json.dumps(mapping),
+class ElasticSearchLoader(q.EventAnalytic):
+
+    def __init__(self, binding, es_url):
+
+        self.es_index = "cyberprobe"
+
+        print("Connecting to ElasticSearch...")
+        while True:
+            self.es_url = es_url
+            self.session = requests.Session()
+
+            try:
+                r = self.session.get(self.es_url)
+            except:
+                print("Not connected, will retry...")
+                time.sleep(10)
+                continue
+
+            if r.status_code == 200: break
+
+            print("Not connected, will retry...")
+            time.sleep(10)
+
+        print("Connected.")
+
+        self.init()
+
+        super().__init__(binding)
+
+    def init(self):
+
+        u = "%s%s" % (self.es_url, self.es_index)
+
+        while True:
+            try: 
+                hdrs = {"Content-Type": "application/json"}
+                r = self.session.put(u, data=json.dumps(mapping),
+                                     headers=hdrs)
+                if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
+                    sys.stderr.write("elasticsearch: Error sending to ElasticSearch\n")
+                    sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_code) + "\n")
+                    print(r.text)
+                sys.stderr.write("elasticsearch: Mapping put: %d\n" % r.status_code)
+                break
+            except Exception as e:
+                sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
+                time.sleep(1)
+
+    def es_output(self, obs, id):
+
+        u = "%s%s/_doc/%s" % (self.es_url, self.es_index, id)
+
+        r = self.session.put(u, data=json.dumps(obs),
                              headers={"Content-Type": "application/json"})
-            if r.status_code != 201 and r.status_code != 200 and r.status_code != 400:
-                sys.stderr.write("elasticsearch: Error sending to ElasticSearch\n")
-                sys.stderr.write("elasticsearch: HTTP code: " + str(r.status_code) + "\n")
-                print(r.text)
-            sys.stderr.write("elasticsearch: Mapping put: %d\n" % r.status_code)
-            break
-        except Exception as e:
-            sys.stderr.write("elasticsearch: Exception: %s\n" % str(e))
-            time.sleep(1)
+        if r.status_code != 201 and r.status_code != 200:
+            print("Error sending to ElasticSearch")
+            print("HTTP code: " + str(r.status_code))
 
-def es_output(obs, id):
+            print(r.text)
 
-    u = "%s%s/_doc/%s" % (es_url, es_index, id)
+    def copy_core(self, ev, ob):
 
-    r = requests.put(u, data=json.dumps(obs),
-                     headers={"Content-Type": "application/json"})
-    if r.status_code != 201:
-        print(obs)
-        print("Error sending to ElasticSearch")
-        print("HTTP code: " + str(r.status_code))
+        ob["id"] = ev.id
+        ob["action"] = pb.Action.Name(ev.action)
+        ob["device"] = ev.device
 
-        print(r.text)
+        if ev.network != "": ob["network"] = ev.network
+        ob["time"] = ev.time.ToDatetime().strftime("%Y%m%dT%T.%fZ")
+        if ev.url != "": ob["url"] = ev.url
 
-############################################################################
+        return ob
 
-def handle(msg, output):
+    def get_location(self, loc):
 
-    ev = json.loads(msg)
+        obj = {}
+        for v in ["city", "iso", "country", "postcode", "latitude",
+                  "longitude", "asnum", "asorg"]:
+            if getattr(loc, v): obj[v] = getattr(loc, v)
+        return obj
 
-    ob = {}
-    ob["id"] = ev["id"]
-    ob["action"] = ev["action"]
-    ob["device"] = ev["device"]
-    try:
-        ob["network"] = ev["network"]
-    except:
-        pass
-    ob["time"] = ev["time"]
-    if "url" in ev: ob["url"] = ev["url"]
-    if "location" in ev: ob["location"] = ev["location"]
-        
-    if "dns_message" in ev:
+    def copy_locations(self, ev, ob):
 
-        ob["dns"] = {}
+        src = self.get_location(ev.location.src)
+        dest = self.get_location(ev.location.dest)
 
-        if "query" in ev["dns_message"]:
+        if src: ob.setdefault("location", {})["src"] = src
+        if dest: ob.setdefault("location", {})["dest"] = dest
 
-            name = []
-            tpe = []
-            clss = []
+    def get_ip_address(self, addr):
 
-            for v in ev["dns_message"]["query"]:
-                if "name" in v: name.append(v["name"])
-                if "type" in v: tpe.append(v["type"])
-                if "class" in v: clss.append(v["class"])
+        if addr.HasField("ipv4"):
+            return str(ipaddress.ip_address(addr.ipv4))
 
-            ob["dns"]["query"] = {
-                "name": name, "type": tpe, "class": clss
+        if addr.HasField("ipv6"):
+            return str(ipaddress.ip_address(addr.ipv6))
+
+        return None
+
+    def get_address(self, addr):
+
+        if addr.HasField("ipv4"):
+            return str(ipaddress.ip_address(addr.ipv4))
+
+        if addr.HasField("ipv6"):
+            return str(ipaddress.ip_address(addr.ipv6))
+
+        if addr.HasField("port"):
+            return str(addr.port)
+
+        if addr.HasField("empty"):
+            return ""
+
+        return ""
+
+    def event(self, ev, properties):
+
+        ob = {}
+        self.copy_core(ev, ob)
+
+        self.copy_locations(ev, ob)
+
+        if ev.action == pb.Action.dns_message:
+            for v in ev.dns_message.query:
+                ob.setdefault("dns", {}).setdefault("query", []).append({
+                    "name": v.name,
+                    "type": v.type,
+                    "class": getattr(v, "class")
+                })
+            for v in ev.dns_message.answer:
+                da = {
+                    "name": v.name,
+                    "type": v.type,
+                    "class": getattr(v, "class")
+                }
+                addr = self.get_ip_address(v.address)
+                if addr != None: da["address"] = addr
+                ob.setdefault("dns", {}).setdefault("answer", []).append(da)
+
+        if ev.action == pb.Action.icmp_message:
+            ob["icmp"] = {
+                "type": ev.icmp.type,
+                "code": ev.icmp.code,
             }
 
-        if "answer" in ev["dns_message"]:
-
-            name = []
-            tpe = []
-            clss = []
-            address = []
-
-            for v in ev["dns_message"]["answer"]:
-                if "name" in v: name.append(v["name"])
-                if "type" in v: tpe.append(v["type"])
-                if "class" in v: clss.append(v["class"])
-                if "address" in v: address.append(v["address"])
-
-            ob["dns"]["answer"] = {
-                "name": name, "type": tpe, "class": clss, "address": address
+        if ev.action == pb.Action.http_request:
+            ob["http"] = {
+                "method": ev.http_request.method,
+                "header": {k: ev.http_request.header[k]
+                           for k in ev.http_request.header},
             }
 
-            ob["dns"]["type"] = ev["dns_message"]["type"]
+        if ev.action == pb.Action.http_response:
+            ob["http"] = {
+                "status": ev.http_response.status,
+                "code": ev.http_response.code,
+                "header": {k: ev.http_response.header[k]
+                           for k in ev.http_response.header},
+            }
 
-    if "indicators" in ev:
+        if ev.action == pb.Action.ftp_command:
+            ob["ftp"] = {
+                "command": ev.ftp_command.command
+            }
 
-        tpe = []
-        id = []
-        value = []
-        desc = []
+        if ev.action == pb.Action.ftp_response:
+            ob["ftp"] = {
+                "status": ev.ftp_response.status,
+                "text": [v for v in ev.ftp_response.text]
+            }
 
-        for v in ev["indicators"]:
-            tpe.append(v["type"])
-            id.append(v["id"])
-            value.append(v["value"])
-            desc.append(v["description"])
+        if ev.action == pb.Action.sip_request:
+            ob["sip"] = {
+                "method": ev.sip_request.method,
+                "from": getattr(ev.sip_request, "from"),
+                "to": [v for v in ev.http_request.to],
+            }
 
-        ob["indicators"] = {
-            "type": tpe,
-            "id": id,
-            "value": value,
-            "description": desc
-        }
+        if ev.action == pb.Action.sip_response:
+            ob["sip"] = {
+                "code": ev.sip_request.code,
+                "status": ev.sip_request.status,
+                "from": getattr(ev.sip_request, "from"),
+                "to": [v for v in ev.http_request.to],
+            }
 
-    if "http_request" in ev:
-        ob["http"] = {
-            "method": ev["http_request"]["method"],
-            "header": ev["http_request"]["header"]
-        }
+        if ev.action == pb.Action.smtp_command:
+            ob["smtp"] = {
+                "command": ev.smtp_command.command
+            }
 
-    if "http_response" in ev:
-        ob["http"] = {
-            "status": ev["http_response"]["status"],
-            "code": ev["http_response"]["code"],
-            "header": ev["http_response"]["header"]
-        }
+        if ev.action == pb.Action.smtp_response:
+            ob["smtp"] = {
+                "status": ev.smtp_response.status,
+                "text": [v for v in ev.smtp_response.text],
+            }
 
-    if "ftp_request" in ev:
-        ob["ftp"] = {
-            "command": ev["ftp_request"]["command"]
-        }
+        if ev.action == pb.Action.smtp_data_message:
+            ob["smtp"] = {
+                "from": getattr(ev.smtp_data, "from"),
+                "to": [v for v in ev.smtp_data.to],
+            }
 
-    if "ftp_response" in ev:
-        ob["ftp"] = {
-            "status": ev["ftp_response"]["status"],
-            "text": ev["ftp_response"]["text"]
-        }
+        if ev.action == pb.Action.ntp_timestamp:
+            ob["ntp"] = {
+                "version": ev.ntp_timestamp.version,
+                "mode": ev.ntp_timestamp.mode
+            }
 
-    if "icmp" in ev:
-        ob["icmp"] = {
-            "type": ev["icmp"]["type"],
-            "code": ev["icmp"]["code"]
-        }
+        if ev.action == pb.Action.ntp_control:
+            ob["ntp"] = {
+                "version": ev.ntp_control.version,
+                "mode": ev.ntp_control.mode
+            }
 
-    if "sip_request" in ev:
-        ob["sip"] = {
-            "method": ev["sip_request"]["method"],
-            "from": ev["sip_request"]["from"],
-            "to": ev["sip_request"]["to"]
-        }
+        if ev.action == pb.Action.ntp_private:
+            ob["ntp"] = {
+                "version": ev.ntp_private.version,
+                "mode": ev.ntp_private.mode
+            }
 
-    if "sip_response" in ev:
-        ob["sip"] = {
-            "code": ev["sip_response"]["code"],
-            "status": ev["sip_response"]["status"],
-            "from": ev["sip_response"]["from"],
-            "to": ev["sip_response"]["to"]
-        }
+        ob["src"] = {}
+        for addr in ev.src:
+            cls = pb.Protocol.Name(addr.protocol)
+            spec = self.get_address(addr.address)
+            ob["src"].setdefault(cls, []).append(spec)
 
-    if "smtp_command" in ev:
-        ob["smtp"] = {
-            "command": ev["smtp_command"]["command"]
-        }
+        ob["dest"] = {}
+        for addr in ev.dest:
+            cls = pb.Protocol.Name(addr.protocol)
+            spec = self.get_address(addr.address)
+            ob["dest"].setdefault(cls, []).append(spec)
 
-    if "smtp_response" in ev:
-        ob["smtp"] = {
-            "status": ev["smtp_response"]["status"],
-            "text": ev["smtp_response"]["text"]
-        }
-
-    if "smtp_data" in ev:
-        ob["smtp"] = {
-            "from": ev["smtp_data"]["from"],
-            "to": ev["smtp_data"]["to"]
-        }
-
-    if "ntp_timestamp" in ev:
-        ob["ntp"] = {
-            "version": ev["ntp_timestamp"]["version"],
-            "mode": ev["ntp_timestamp"]["mode"]
-        }
-
-    if "ntp_control" in ev:
-        ob["ntp"] = {
-            "version": ev["ntp_control"]["version"],
-            "mode": ev["ntp_control"]["mode"]
-        }
-
-    if "ntp_private" in ev:
-        ob["ntp"] = {
-            "version": ev["ntp_private"]["version"],
-            "mode": ev["ntp_private"]["mode"]
-        }
-
-    src = {}
-
-    if "src" in ev:
-        for v in ev["src"]:
-            if v.find(":") < 0:
-                cls = v
-                addr = ""
-            else:
-                cls = v[0:v.find(":")]
-                addr = v[v.find(":") + 1:]
-
-            if cls not in src:
-                src[cls] = []
-
-            src[cls].append(addr)
-
-        ob["src"] = src
-
-    dest = {}
-
-    if "dest" in ev:
-        for v in ev["dest"]:
-            if v.find(":") < 0:
-                cls = v
-                addr = ""
-            else:
-                cls = v[0:v.find(":")]
-                addr = v[v.find(":") + 1:]
-
-            if cls not in dest:
-                dest[cls] = []
-
-            dest[cls].append(addr)
-
-        ob["dest"] = dest
-
-    es_output(ob, ev["id"])
+        self.es_output(ob, ev.id)
 
 ############################################################################
-
-print("Connecting to ElasticSearch...")
-while True:
-    url = es_url
-    try:
-        r = requests.get(url)
-    except:
-        print("Not connected, will retry...")
-        time.sleep(10)
-        continue
-
-    if r.status_code == 200: break
-
-    print("Not connected, will retry...")
-    time.sleep(10)
-
-print("Connected.")
-
-init()
 
 try:
-    q.subscribe(binding, handle)
+    ElasticSearchLoader(binding, es_url).run()
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
