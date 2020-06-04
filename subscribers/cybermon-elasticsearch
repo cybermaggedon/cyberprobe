@@ -363,7 +363,7 @@ class ElasticSearchLoader(q.EventAnalytic):
         ob["device"] = ev.device
 
         if ev.network != "": ob["network"] = ev.network
-        ob["time"] = ev.time.ToDatetime().strftime("%Y%m%dT%T.%fZ")
+        ob["time"] = ev.time.ToDatetime().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         if ev.url != "": ob["url"] = ev.url
 
         return ob
@@ -514,6 +514,17 @@ class ElasticSearchLoader(q.EventAnalytic):
             ob["ntp"] = {
                 "version": ev.ntp_private.version,
                 "mode": ev.ntp_private.mode
+            }
+
+        if len(ev.indicators) > 0:
+            ob["indicators"] = {
+                "id": [v.id for v in ev.indicators],
+                "type": [v.type for v in ev.indicators],
+                "value": [v.value for v in ev.indicators],
+                "category": [v.category for v in ev.indicators],
+                "source": [v.source for v in ev.indicators],
+                "author": [v.author for v in ev.indicators],
+                "description": [v.description for v in ev.indicators],
             }
 
         ob["src"] = {}
