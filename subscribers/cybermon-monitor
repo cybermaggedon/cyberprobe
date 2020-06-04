@@ -8,96 +8,96 @@ if len(sys.argv) < 2:
     binding = "cyberprobe"
 else:
     binding = sys.argv[1]
-    
-def handle(msg, output):
 
-    try:
+class Monitor(q.EventAnalytic):
 
-        obj = pb.Event()
-        obj.ParseFromString(msg.data())
-        tm = obj.time.ToDatetime()
+    def event(self, ev, properties):
 
-        print()
-        print("Action: %s" % pb.Action.Name(obj.action))
-        print("Device: %s" % obj.device)
+        try:
 
-        print("Time: %s" % tm)
+            tm = ev.time.ToDatetime()
 
-        if obj.url != "":
-            print("URL: %s" % obj.url)
+            print()
+            print("Action: %s" % pb.Action.Name(ev.action))
+            print("Device: %s" % ev.device)
 
-        if obj.HasField("icmp"):
-            print("ICMP type: %d" % obj.icmp.type)
-            print("ICMP code: %d" % obj.icmp.code)
+            print("Time: %s" % tm)
 
-        if obj.HasField("dns_message"):
-            detail = obj.dns_message
-            print("Type: %s" % pb.DnsMessageType.Name(detail.type))
-            if detail.type == pb.DnsMessageType.query:
-                for v in detail.query:
-                    print("Query name: %s" % v.name)
-                    print("Query type: %s" % v.type)
-                    print("Query class: %s" % getattr(v, "class"))
-            else:
-                for v in detail.answer:
-                    print("Answer name: %s" % v.name)
-                    print("Answer type: %s" % v.type)
-                    print("Answer class: %s" % getattr(v, "class"))
-                    print("Answer address: %s" % v.address)
+            if ev.url != "":
+                print("URL: %s" % ev.url)
 
-        if obj.HasField("http_request"):
-            detail = obj.http_request
-            print("Method: %s" % detail.method)
-            for k in detail.header:
-                print("%s: %s" % (k, detail.header[k]))
+            if ev.HasField("icmp"):
+                print("ICMP type: %d" % ev.icmp.type)
+                print("ICMP code: %d" % ev.icmp.code)
 
-        if obj.HasField("http_response"):
-            detail = obj.http_response
-            print("Code: %d" % detail.code)
-            print("Status: %s" % detail.status)
-            for k in detail.header:
-                print("%s: %s" % (k, detail.header[k]))
+            if ev.HasField("dns_message"):
+                detail = ev.dns_message
+                print("Type: %s" % pb.DnsMessageType.Name(detail.type))
+                if detail.type == pb.DnsMessageType.query:
+                    for v in detail.query:
+                        print("Query name: %s" % v.name)
+                        print("Query type: %s" % v.type)
+                        print("Query class: %s" % getattr(v, "class"))
+                else:
+                    for v in detail.answer:
+                        print("Answer name: %s" % v.name)
+                        print("Answer type: %s" % v.type)
+                        print("Answer class: %s" % getattr(v, "class"))
+                        print("Answer address: %s" % v.address)
 
-        if obj.HasField("ftp_command"):
-            detail = obj.ftp_command
-            print("Command: %s" % detail.command)
+            if ev.HasField("http_request"):
+                detail = ev.http_request
+                print("Method: %s" % detail.method)
+                for k in detail.header:
+                    print("%s: %s" % (k, detail.header[k]))
 
-        if obj.HasField("ftp_response"):
-            detail = obj.ftp_response
-            print("Status: %d" % detail.status)
-            for v in detail.text:
-                print("Text: %s" % v)
+            if ev.HasField("http_response"):
+                detail = ev.http_response
+                print("Code: %d" % detail.code)
+                print("Status: %s" % detail.status)
+                for k in detail.header:
+                    print("%s: %s" % (k, detail.header[k]))
 
-        if obj.HasField("sip_request"):
-            detail = obj.sip_request
-            print("Method: %s" % detail.method)
-            print("From: %s" % getattr(detail, "from"))
-            print("To: %s" % detail.to)
-            for k in detail.header:
-                print("%s: %s" % (k, detail.header[k]))
+            if ev.HasField("ftp_command"):
+                detail = ev.ftp_command
+                print("Command: %s" % detail.command)
 
-        if obj.HasField("sip_response"):
-            detail = obj.sip_response
-            print("Code: %d" % detail.code)
-            print("Status: %s" % detail.status)
-            print("From: %s" % getattr(detail, "from"))
-            print("To: %s" % detail.to)
+            if ev.HasField("ftp_response"):
+                detail = ev.ftp_response
+                print("Status: %d" % detail.status)
+                for v in detail.text:
+                    print("Text: %s" % v)
 
-        if obj.HasField("smtp_command"):
-            detail = obj.smtp_command
-            print("Command: %s" % detail.command)
+            if ev.HasField("sip_request"):
+                detail = ev.sip_request
+                print("Method: %s" % detail.method)
+                print("From: %s" % getattr(detail, "from"))
+                print("To: %s" % detail.to)
+                for k in detail.header:
+                    print("%s: %s" % (k, detail.header[k]))
 
-        if obj.HasField("smtp_response"):
-            detail = obj.smtp_response
-            print("Status: %d" % detail.status)
-            for v in detail.text:
-                print("Text: %s" % v)
+            if ev.HasField("sip_response"):
+                detail = ev.sip_response
+                print("Code: %d" % detail.code)
+                print("Status: %s" % detail.status)
+                print("From: %s" % getattr(detail, "from"))
+                print("To: %s" % detail.to)
 
-    except Exception as e:
-        print(e)
+            if ev.HasField("smtp_command"):
+                detail = ev.smtp_command
+                print("Command: %s" % detail.command)
+
+            if ev.HasField("smtp_response"):
+                detail = ev.smtp_response
+                print("Status: %d" % detail.status)
+                for v in detail.text:
+                    print("Text: %s" % v)
+
+        except Exception as e:
+            print(e)
 
 try:
-    q.subscribe(binding, handle)
+    Monitor(binding).run()
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 
