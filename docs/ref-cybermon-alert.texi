@@ -5,7 +5,7 @@
 @cindex @command{cybermon-alert}, invocation
 @cindex Alert
 
-@command{cybermon-alert} subscribes to a pub/sub queue for
+@command{cybermon-alert} subscribes to a pub/sub topic for
 @command{cybermon} events, and outputs a human-readable message
 when an IOC hits.
 
@@ -24,7 +24,7 @@ cybermon-alert ioc
 @table @samp
 
 @item BINDING
-Specifies the pub/sub queue to connect to.  If not specified, defaults
+Specifies the pub/sub topic to connect to.  If not specified, defaults
 to @samp{ioc}.
 
 @end table

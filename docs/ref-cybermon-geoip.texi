@@ -5,7 +5,7 @@
 @cindex @command{cybermon-geoip}, invocation
 @cindex GeoIP
 
-@command{cybermon-geoip} subscribes to a pub/sub queue for
+@command{cybermon-geoip} subscribes to a pub/sub topic for
 @command{cybermon} events, adds location information from GeoIP, and
 re-publishes the elaborated events.  This effectively creates a processing
 chain.  The event subscription and publishing events should be different in
@@ -26,11 +26,11 @@ cybermon-geoip cyberprobe geo
 @table @samp
 
 @item BINDING
-Specifies the pub/sub queue to connect to.  If not specified, defaults
+Specifies the pub/sub topic to connect to.  If not specified, defaults
 to @samp{cyberprobe}.
 
 @item PUBLICATION
-Specifies the pub/sub queue to publish to.  If not specified, defaults
+Specifies the pub/sub topic to publish to.  If not specified, defaults
 to @samp{geo}.
 
 @end table

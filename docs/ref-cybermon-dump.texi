@@ -6,7 +6,7 @@
 @cindex JSON
 @cindex Cybermon JSON message format
 
-@command{cybermon-dump} subscribes to a pub/sub queue for
+@command{cybermon-dump} subscribes to a pub/sub topic for
 @command{cybermon} events, and dumps the raw JSON to standard output.
 
 Synopsis:
@@ -24,7 +24,7 @@ cybermon-dump cyberprobe
 @table @samp
 
 @item BINDING
-Specifies the pub/sub queue to connect to.  If not specified, defaults
+Specifies the pub/sub topic to connect to.  If not specified, defaults
 to @samp{cyberprobe}.
 
 @end table

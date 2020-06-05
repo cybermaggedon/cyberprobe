@@ -24,7 +24,7 @@ at @file{@value{PREFIX}/share/doc/cyberprobe}.
 
 To run using your existing processing pipeline, stop any running
 @command{cybermon} and @command{cybermon-elasticsearch} processes.  Then run
-@command{cybermon} to publish to a queue on Pulsar:
+@command{cybermon} to publish to a topic on Pulsar:
 
 @example
 cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/pulsar.lua
