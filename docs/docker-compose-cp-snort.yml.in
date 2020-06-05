@@ -6,7 +6,7 @@ services:
 
   # ElasticSearch and Kibana
   elasticsearch:
-    image: elasticsearch:7.0.0
+    image: elasticsearch:7.7.1
     ports:
     - "9200:9200"
     environment:
@@ -14,7 +14,7 @@ services:
     restart: always
     shm_size: 1G
   kibana:
-    image: kibana:7.0.0
+    image: kibana:7.7.1
     ports:
     - "5601:5601"
     environment:
@@ -23,16 +23,16 @@ services:
 
   # Gaffer
   hadoop:
-    image: docker.io/cybermaggedon/hadoop:3.2.0
+    image: docker.io/cybermaggedon/hadoop:2.10.0
     restart: always
   zookeeper:    
-    image: docker.io/cybermaggedon/zookeeper:3.4.14
+    image: docker.io/cybermaggedon/zookeeper:3.6.1
     restart: always
   accumulo:
-    image: docker.io/cybermaggedon/accumulo-gaffer:1.9.0
+    image: docker.io/cybermaggedon/accumulo-gaffer:1.12.0
     restart: always
   gaffer:
-    image: docker.io/cybermaggedon/wildfly-gaffer:1.9.0
+    image: docker.io/cybermaggedon/wildfly-gaffer:1.12.0
     ports:
     - "8080:8080"
     restart: always
@@ -59,22 +59,23 @@ services:
     cap_add:
       - NET_ADMIN
 
-  # RabbitMQ
-  amqp:
-    image: rabbitmq:3.7.14
+  # Pulsar
+  exchange:
+    image: apachepulsar/pulsar:2.5.1
     restart: always
     ports:
-    - "5672:5672"
+    - "6650:6650"
+    - "8080:8080"
 
-  # Cybermon receives packets on port 9000 and publishes events on port 5555.
+  # Cybermon receives packets on port 9000 and publishes events to Pulsar.
   cybermon:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon -p 9000 -c /etc/cyberprobe/amqp-topic.lua
+    command: cybermon -p 9000 -c /etc/cyberprobe/pulsar.lua
     ports:
     - "9000:9000"
     restart: always
     environment:
-      AMQP_BROKER: amqp:5672
+      PULSAR_BROKER: ws://exchange:8080/
 
   # GeoIP: Adds location information to cybermon events and republishes.
   cybermon-geoip:
@@ -82,7 +83,7 @@ services:
     command: cybermon-geoip
     restart: always
     environment:
-      AMQP_BROKER: amqp
+      PULSAR_BROKER: pulsar://exchange:6650
 
   # Detector: Adds IOC information to output from cybermon-geoip
   cybermon-detector:
@@ -92,7 +93,7 @@ services:
     - .:/etc/iocs
     environment:
       STIX_INDICATORS: /etc/iocs/stix-default-combined.json
-      AMQP_BROKER: amqp
+      PULSAR_BROKER: pulsar://exchange:6650
     restart: always
 
   # ElasticSearch loader
@@ -100,7 +101,7 @@ services:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-elasticsearch ioc http://elasticsearch:9200/
     environment:
-      AMQP_BROKER: amqp
+      PULSAR_BROKER: pulsar://exchange:6650
     restart: always
 
   # Gaffer loader
@@ -108,7 +109,7 @@ services:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
     command: cybermon-gaffer
     environment:
-      AMQP_BROKER: amqp
+      PULSAR_BROKER: pulsar://exchange:6650
     restart: always
 
 volumes:
