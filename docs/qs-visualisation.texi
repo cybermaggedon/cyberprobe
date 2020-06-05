@@ -63,20 +63,24 @@ The response will look something like this:
 @end example
 
 Once ElasticSearch is running, you can get @command{cybermon} to load
-observations into it.  Before we do that, need RabbitMQ to provide the
+observations into it.  Before we do that, need Pulsar to provide the
 pub/sub infrastructure:
 
 @example
-docker run --name amqp -p 5672:5672 -p 15672:15672 \
-    docker.io/library/rabbitmq:3.7.4-management
+docker run -it \
+    --name pubsub \
+    -p 6650:6650 \
+    -p 8080:8080 \
+    apachepulsar/pulsar:2.5.2 \
+    bin/pulsar standalone
 @end example
 
 Next we need to run two commands.
-Firstly, @command{cybermon} is run to output events on a RabbitMQ
-pub/sub queue.
+Firstly, @command{cybermon} is run to output events on a Pulsar
+pub/sub exchange.
 
 @example
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/amqp-topic.lua
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/pulsar.lua
 @end example
 
 While that's running, we can start the ElasticSearch loader:

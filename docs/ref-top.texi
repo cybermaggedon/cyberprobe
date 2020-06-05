@@ -14,9 +14,9 @@
 * @command{cybermon} configuration::
 * @command{cybermon} example configurations::
 * Cybermon JSON message format::
+* Cybermon protobuf event format::
 * @command{cybermon-monitor} invocation::
 * @command{cybermon-elasticsearch} invocation::
-* @command{cybermon-bigquery} invocation::
 * @command{cybermon-gaffer} invocation::
 * @command{cybermon-cassandra} invocation::
 * @command{cybermon-geoip} invocation::

@@ -24,10 +24,10 @@ at @file{@value{PREFIX}/share/doc/cyberprobe}.
 
 To run using your existing processing pipeline, stop any running
 @command{cybermon} and @command{cybermon-elasticsearch} processes.  Then run
-@command{cybermon} to publish to a queue on RabbitMQ:
+@command{cybermon} to publish to a queue on Pulsar:
 
 @example
-cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/amqp-topic.lua
+cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/pulsar.lua
 @end example
 
 Next run @command{cyberprobe-detector} to apply indicator rules.  By default,

@@ -37,10 +37,6 @@ Test decoder for ETSI format data.
 @item cyberprobe-cli
 Cyberprobe control command-line client.
 
-@cindex @command{cybermon-bigquery}
-@item cybermon-bigquery
-Pub/sub subscriber, delivers events to Google Bigquery.
-
 @cindex @command{cybermon-cassandra}
 @item cybermon-cassandra
 Pub/sub subscriber, delivers events to Cassandra.

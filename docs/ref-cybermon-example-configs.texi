@@ -52,6 +52,45 @@ broker.  See @ref{Cybermon JSON message format}.  Environment variables
 @samp{AMQP_BROKER}, @samp{AMQP_EXCHANGE}, @samp{AMQP_ROUTING_KEY} can be
 used to tailor delivery.
 
+@item pulsar.lua
+
+@cindex Apache Pulsar
+@cindex Pulsar
+@cindex Cybermon protobuf event format
+@cindex publish/subscribe
+@cindex pub/sub
+@cindex protobuf
+
+For each Lua event, an event is formatted in protobuf wire format
+and published to a Pulsar exchange.
+See @ref{Cybermon protobuf event format} for details.  The following
+environment variables configure the exchange:
+
+@table @samp
+
+@item PULSAR_BROKER
+
+Specifies broker location.  Currently we use the Pulsar websocket endpoint,
+default is @samp{ws://localhost:8080}.
+
+@item PULSAR_TENANT
+
+Specifies tenant, default is @samp{public}.
+
+@item PULSAR_PERSISTENCY
+
+Specifies persistency of messages, default is @samp{persistent}.
+
+@item PULSAR_NAMESPACE
+
+Specifies namespace, default is @samp{default}.
+
+@item PULSAR_TOPIC
+
+Specifies topic, default is @samp{cyberprobe}.
+
+@end table
+
 @item redis.lua
 
 @cindex Redis

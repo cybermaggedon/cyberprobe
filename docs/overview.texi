@@ -44,7 +44,7 @@ add your own custom event handling.
 
 @item
 a set of subscribers which can be used to do things with the captured data
-e.g. store to ElasticSearch, BigQuery or Gaffer.
+e.g. store to ElasticSearch, Cassandra or Gaffer.
 
 @end itemize
 
@@ -123,16 +123,13 @@ be applicable to other UN*X-like platforms.
 
 @heading Subscribers
 
-The event stream from @command{cybermon} can be presented to RabbitMQ
-in a JSON form, which can then be delivered to further analytics:
+The event stream from @command{cybermon} can be presented to a Pulsar
+exchange in protobuf form, which can then be delivered to further analytics:
 
 @itemize @bullet
 
 @item
 @command{cybermon-alert} reports indicator hits in events to standard output.
-
-@item
-@command{cybermon-bigquery} loads events into GCP BigQuery.
 
 @item
 @command{cybermon-cassandra} loads events into Cassandra.

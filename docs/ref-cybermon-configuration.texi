@@ -67,13 +67,16 @@ The time of the event.
 
 The action which caused the event.
 
-@item json
+@item json()
 
-Returns the event in JSON form.
+Function, returns the event in JSON form.
+See @ref{Cybermon JSON message format}.
 
-@item protobuf
+@item protobuf()
 
-Returns the event in protobuf format.
+Method, returns the event in protobuf wire format.  This is only implemented
+if protobuf support is detected during build).
+See @ref{Cybermon protobuf event format}.
 
 @end table
 
@@ -1317,7 +1320,16 @@ end
 return observer
 @end example
 
-@cindex @command{eventstream-service}
-The @file{cyberprobe.proto} file in the source code contains the protobuf/gRPC
-service definition.  The sample gRPC client @command{eventstream-service} can
-be used to receive cyberprobe gRPC events.  See @ref{eventstream-service}.
+If protobuf support is compiled into cybermon, a protobuf representation of
+a cybermon event can be obtained by calling @code{e:protobuf()}.  This obtains
+the event described in protobuf v3 wire format.  No network communication
+takes place.
+
+@example
+observer.event = function(e)
+  x = e:protobuf()
+  -- do something useful
+end
+@end example
+
+See @ref{Cybermon protobuf event format} for details of the protobuf events.

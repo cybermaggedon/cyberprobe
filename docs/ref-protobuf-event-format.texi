@@ -1,0 +1,18 @@
+
+@node Cybermon protobuf event format
+@section Cybermon protobuf event format
+
+@cindex protobuf
+@cindex gRPC
+@cindex Cybermon protobuf event format
+
+Cybermon's @samp{pulsar.lua} configuration file
+transmit messages in protobuf format to a Pulsar exchange.
+
+The @file{cyberprobe.proto} file in the source code contains the protobuf
+definition.  The format is decoded by pub/sub subscribers in the Cyberprobe
+source code @file{subscribers} directory if you want a good starting point
+to code your own.  See @url{https://github.com/cybermaggedon/cyberprobe/tree/master/subscribers}.
+
+See @url{https://github.com/cybermaggedon/cyberprobe/blob/master/protos/cyberprobe.proto} for the protobuf definition file.
+

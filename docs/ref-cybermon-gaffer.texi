@@ -6,7 +6,7 @@
 @cindex Gaffer
 @cindex Graph store
 
-@command{cybermon-gaffer} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon-gaffer} subscribes to a pub/sub queue for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to a
 Gaffer store.  The format used is intended to allow Gaffer to be used
@@ -32,7 +32,7 @@ cybermon-gaffer ioc \
 @table @samp
 
 @item BINDING
-Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+Specifies the pub/sub queue to connect to.  If not specified, defaults
 to @samp{ioc}.
 
 @item GAFFER-URL
