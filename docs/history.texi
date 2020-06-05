@@ -6,6 +6,10 @@ Cyberprobe release highlights:
 
 @table @code
 
+@item 2.5
+Pulsar and protobuf support added, permits events from cybermon to be
+described in protobuf form, and delivered to a Pulsar pub/sub exchange.
+
 @item 2.4
 @command{cybermon-detector} refactored to use FSM-based evaluation of
 boolean expressions.

@@ -2,12 +2,11 @@
 
 ############################################################################
 
-import json
-import uuid
 import sys
-import requests
 from cassandra.cluster import Cluster
-import cyberprobe.qcomms as q
+import cyberprobe.analytic as q
+import cyberprobe.cyberprobe_pb2 as pb
+import ipaddress
 
 ############################################################################
 
@@ -19,418 +18,195 @@ else:
 if len(sys.argv) < 3:
     contacts = ["127.0.0.1"]
 else:
-    contacts = json.loads("[" + sys.argv[2] + "]")
-
-############################################################################
-
-cybobj = "http://cyberprobe.sf.net/obj/"
-cybprop = "http://cyberprobe.sf.net/prop/"
-cybtype = "http://cyberprobe.sf.net/type/"
-rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-rdfs = "http://www.w3.org/2000/01/rdf-schema#"
-
-rdftype = rdf + "type"
-rdfslabel = rdfs + "label"
-
-############################################################################
-
-def obj_uri(tp, id):
-    return cybobj + tp + "/" + id
-
-def prop_uri(prop):
-    return cybprop + prop
-
-def type_uri(t):
-    return cybtype + t
-
-############################################################################
-
-def add_string(obs, s, p, o):
-    obs.append(("u:" + s, "u:" + p, "s:" + o))
-
-def add_dt(obs, s, p, o):
-    obs.append(("u:" + s, "u:" + p, "d:" + o))
-
-def add_uri(obs, s, p, o):
-    obs.append(("u:" + s, "u:" + p, "u:" + o))
-
-def add_resource_type(obs, type, label):
-    add_uri(obs, type_uri(type), rdftype, rdfs + "Resource")
-    add_string(obs, type_uri(type), rdfslabel, label)
-
-def add_property(obs, type, label):
-    add_uri(obs, type_uri(type), rdftype, rdfs + "Property")
-    add_string(obs, type_uri(type), rdfslabel, label)
-
-############################################################################
-
-def init():
-
-    obs = []
-
-    # Observation type
-    add_uri(obs, type_uri("observation"), rdftype, rdf + "Resource")
-    add_string(obs, type_uri("observation"), rdfslabel, "Observation")
-
-    # Device type
-    add_uri(obs, type_uri("device"), rdftype, rdf + "Resource")
-    add_string(obs, type_uri("device"), rdfslabel, "Device")
-
-    # Device property on Observation.
-    add_uri(obs, prop_uri("device"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("device"), rdfslabel, "Device")
-
-    # Method property on Observation.
-    add_uri(obs, prop_uri("method"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("method"), rdfslabel, "Method")
-
-    # Action property on Observation.
-    add_uri(obs, prop_uri("action"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("action"), rdfslabel, "Action")
-
-    # Code property on Observation.
-    add_uri(obs, prop_uri("code"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("code"), rdfslabel, "Code")
-
-    # Command property on Observation.
-    add_uri(obs, prop_uri("command"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("command"), rdfslabel, "Command")
-
-    # Status property on Observation.
-    add_uri(obs, prop_uri("status"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("status"), rdfslabel, "Status")
-
-    # URL property on Observation.
-    add_uri(obs, prop_uri("url"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("url"), rdfslabel, "URL")
-
-    # Time property on Observation.
-    add_uri(obs, prop_uri("time"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("time"), rdfslabel, "Time")
-
-    # Country property on Observation.
-    add_uri(obs, prop_uri("country"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("country"), rdfslabel, "Country of origin")
-
-    # Message type property on Observation
-    add_uri(obs, prop_uri("type"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("type"), rdfslabel, "Type")
-
-    # DNS Query (name) on Observation
-    add_uri(obs, prop_uri("query_name"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("query_name"), rdfslabel, "Query Name")
-    
-    # DNS Query (type) on Observation
-    add_uri(obs, prop_uri("query_type"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("query_type"), rdfslabel, "Query Type")
-    
-    # DNS Query (class) on Observation
-    add_uri(obs, prop_uri("query_class"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("query_class"), rdfslabel, "Query Class")
-
-    # DNS Answer (name) on Observation
-    add_uri(obs, prop_uri("answer_name"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("answer_name"), rdfslabel, "Answer (name)")
-    
-    # DNS Answer (type) on Observation
-    add_uri(obs, prop_uri("answer_type"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("answer_type"), rdfslabel, "Answer (type)")
-    
-    # DNS Answer (class) on Observation
-    add_uri(obs, prop_uri("answer_class"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("answer_class"), rdfslabel, "Answer (class)")
-
-    # DNS Answer (address) on Observation
-    add_uri(obs, prop_uri("answer_address"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("answer_address"), rdfslabel, "Answer (address)")
-
-    # Protocol context
-    add_uri(obs, prop_uri("context"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("context"), rdfslabel, "Context")
-
-    # From property on Observation
-    add_uri(obs, prop_uri("from"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("from"), rdfslabel, "From")
-
-    # To property on Observation
-    add_uri(obs, prop_uri("to"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("to"), rdfslabel, "To")
-
-    # Source property on Observation
-    add_uri(obs, prop_uri("source"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("source"), rdfslabel, "Source address")
-
-    # Destination property on Observation
-    add_uri(obs, prop_uri("destination"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("destination"), rdfslabel, "Destination address")
-
-    # IP type
-    add_uri(obs, type_uri("ip"), rdftype, rdf + "Resource")
-    add_string(obs, type_uri("ip"), rdfslabel, "IP address")
-
-    # TCP type
-    add_uri(obs, type_uri("tcp"), rdftype, rdf + "Resource")
-    add_string(obs, type_uri("tcp"), rdfslabel, "TCP port")
-
-    # UDP type
-    add_uri(obs, type_uri("udp"), rdftype, rdf + "Resource")
-    add_string(obs, type_uri("udp"), rdfslabel, "UDP port")
-
-    # Port property on TCP and UDP
-    add_uri(obs, prop_uri("port"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("port"), rdfslabel, "Port")
-
-    # IP property on IP, TCP and UDP
-    add_uri(obs, prop_uri("ip"), rdftype, rdf + "Property")
-    add_string(obs, prop_uri("ip"), rdfslabel, "IP")
-
-    cass_output(obs)
-
-def cass_output(obs):
-
-    for o in obs:
-        session.execute(insert_stmt, [
-            o[0], o[1], o[2], o[0], o[1], o[2], o[0], o[1], o[2]
-        ])
-    
-############################################################################
-
-def handle(msg, output):
-
-    ev = json.loads(msg)
-
-    if ev["action"] == "connected_up":
-        return
-
-    if ev["action"] == "connected_down":
-        return
-
-    obs = []
-
-    id = ev["id"]
-
-    uri = obj_uri("obs", id)
-    add_string(obs, uri, rdftype, type_uri("observation"))
-
-    if ev["action"] == "unrecognised_datagram":
-        add_string(obs, uri, rdfslabel, "unrecognised datagram")
-    elif ev["action"] == "unrecognised_stream":
-        add_string(obs, uri, rdfslabel, "unrecognised stream")
-    elif ev["action"] == "icmp":
-        add_string(obs, uri, rdfslabel, "ICMP")
-    elif ev["action"] == "http_request":
-        add_string(obs, uri, rdfslabel, "HTTP " + ev["method"] + " " +
-                   ev["url"])
-    elif ev["action"] == "http_response":
-        add_string(obs, uri, rdfslabel, "HTTP " + str(ev["code"]) + " " +
-                   ev["status"] + " " + ev["url"])
-    elif ev["action"] == "dns_message":
-        if ev["type"] == "query":
-            lbl = "DNS query"
-        else:
-            lbl = "DNS answer"
-        for v in ev["queries"]:
-            lbl = lbl + " " + v["name"]
-        add_string(obs, uri, rdfslabel, lbl)
-    elif ev["action"] == "ftp_command":
-        add_string(obs, uri, rdfslabel, "FTP " + ev["command"])
-    elif ev["action"] == "ftp_response":
-        add_string(obs, uri, rdfslabel, "FTP " + ev["status"])
-    elif ev["action"] == "smtp_command":
-        add_string(obs, uri, rdfslabel, "SMTP " + ev["command"])
-    elif ev["action"] == "smtp_response":
-        add_string(obs, uri, rdfslabel, "SMTP " + ev["status"])
-    elif ev["action"] == "smtp_data":
-        lbl = "SMTP " + ev["from"]
-        for v in ev["to"]:
-            lbl = lbl + " " + v
-        add_string(obs, uri, rdfslabel, lbl)
-    
-    add_string(obs, uri, prop_uri("action"), ev["action"])
-    add_uri(obs, uri, prop_uri("device"), obj_uri("device", ev["device"]))
-
-    add_uri(obs, obj_uri("device", ev["device"]), rdftype, type_uri("device"))
-    add_string(obs, obj_uri("device", ev["device"]), rdfslabel,
-               "Device " + ev["device"])
-
-    add_dt(obs, uri, prop_uri("time"), ev["time"])
-    if "method" in ev:
-        add_string(obs, uri, prop_uri("method"), ev["method"])
-    if "url" in ev:
-        add_uri(obs, uri, prop_uri("url"), ev["url"])
-    if "command" in ev:
-        add_string(obs, uri, prop_uri("command"), ev["command"])
-    if "status" in ev:
-        add_string(obs, uri, prop_uri("status"), str(ev["status"]))
-    if "text" in ev:
-        t = ""
-        s = ""
-        for v in ev["text"]:
-            t = t + v + s
-            s = " "
-        add_string(obs, uri, prop_uri("text"), t)
-    if "payload" in ev:
-        pass
-    if "body" in ev:
-        pass
-    if "from" in ev:
-        add_string(obs, uri, prop_uri("from"), ev["from"])
-    if "to" in ev:
-        for v in ev["to"]:
-            add_string(obs, uri, prop_uri("to"), v)
-    if "header" in ev:
-        for k in ev["header"]:
-            add_string(obs, uri, prop_uri("header:" + k), ev["header"][k])
-    if "type" in ev:
-        add_string(obs, uri, prop_uri("type"), ev["type"])
-    if "queries" in ev:
-        for v in ev["queries"]:
-            if "name" in v:
-                add_string(obs, uri, prop_uri("query_name"), v["name"])
-            if "type" in v:
-                add_string(obs, uri, prop_uri("query_type"), v["type"])
-            if "class" in v:
-                add_string(obs, uri, prop_uri("query_class"), v["class"])    
-    if "answers" in ev:
-        for v in ev["answers"]:
-            if "name" in v:
-                add_string(obs, uri, prop_uri("answer_name"), v["name"])
-            if "type" in v:
-                add_string(obs, uri, prop_uri("answer_type"), v["type"])
-            if "class" in v:
-                add_string(obs, uri, prop_uri("answer_class"), v["class"])   
-            if "address" in v:
-                add_string(obs, uri, prop_uri("answer_address"), v["address"])
-
-    if "src" in ev:
-        ip = None
-        for v in ev["src"]:
-            if v.find(":") < 0:
-                cls = v
-                addr = ""
-            else:
-                cls = v[0:v.find(":")]
-                addr = v[v.find(":") + 1:]
-
-            if cls == "tcp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("src"), obj_uri("tcp", fulladdr))
-                add_uri(obs, obj_uri("tcp", fulladdr), rdftype, type_uri("tcp"))
-                add_string(obs, obj_uri("tcp", fulladdr), rdfslabel,
-                           "TCP " + fulladdr)
-                add_uri(obs, obj_uri("tcp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("port"),
-                           addr)
-
-            if cls == "udp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("src"), obj_uri("udp", fulladdr))
-                add_uri(obs, obj_uri("udp", fulladdr), rdftype, type_uri("udp"))
-                add_string(obs, obj_uri("udp", fulladdr), rdfslabel,
-                           "UDP " + fulladdr)
-                add_uri(obs, obj_uri("udp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("port"),
-                           addr)
-
-            if cls == "ipv4":
-                ip = addr
-                add_uri(obs, obj_uri("ip", addr), rdftype, type_uri("ip"))
-                add_string(obs, obj_uri("ip", addr), rdfslabel, addr)
-                add_string(obs, obj_uri("ip", addr), prop_uri("ip"), addr)
-
-    if "dest" in ev:
-        ip = None
-        for v in ev["dest"]:
-            if v.find(":") < 0:
-                cls = v
-                addr = ""
-            else:
-                cls = v[0:v.find(":")]
-                addr = v[v.find(":") + 1:]
-
-            if cls == "tcp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("dest"), obj_uri("tcp", fulladdr))
-                add_uri(obs, obj_uri("tcp", fulladdr), rdftype, type_uri("tcp"))
-                add_string(obs, obj_uri("tcp", fulladdr), rdfslabel,
-                           "TCP " + fulladdr)
-                add_uri(obs, obj_uri("tcp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("tcp", fulladdr), prop_uri("port"),
-                           addr)
-
-            if cls == "udp":
-                fulladdr = ip + ":" + addr
-                add_uri(obs, uri, prop_uri("dest"), obj_uri("udp", fulladdr))
-                add_uri(obs, obj_uri("udp", fulladdr), rdftype, type_uri("udp"))
-                add_string(obs, obj_uri("udp", fulladdr), rdfslabel,
-                           "UDP " + fulladdr)
-                add_uri(obs, obj_uri("udp", fulladdr), prop_uri("context"),
-                        obj_uri("ip", ip))
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("ip"), ip)
-                add_string(obs, obj_uri("udp", fulladdr), prop_uri("port"),
-                           addr)
-
-            if cls == "ipv4":
-                ip = addr
-                add_uri(obs, obj_uri("ip", addr), rdftype, type_uri("ip"))
-                add_string(obs, obj_uri("ip", addr), rdfslabel, addr)
-                add_string(obs, obj_uri("ip", addr), prop_uri("ip"), addr)
-
-    cass_output(obs)
-
-############################################################################
-
-cluster = Cluster(contacts)
-
-session = cluster.connect()
+    contacts = sys.argv[2].split(",")
+
+class Cassandra(q.EventAnalytic):
+
+    def __init__(self, binding, contacts):
+
+        self.binding = binding
+
+        cluster = Cluster(contacts)
+
+        self.session = cluster.connect()
+
+        self.session.execute("""
+            CREATE KEYSPACE IF NOT EXISTS cyberprobe WITH REPLICATION = {
+                'class': 'SimpleStrategy', 'replication_factor': '1'
+            }
+        """)
+
+        self.session.set_keyspace("cyberprobe")
+
+        self.session.execute("""
+            CREATE TYPE IF NOT EXISTS dns_query ( 
+                name text, type text, cls text 
+            )
+        """)
+
+        self.session.execute("""
+            CREATE TYPE IF NOT EXISTS dns_answer (
+                name text, type text, cls text, address inet
+            )
+        """)
+
+        self.session.execute("""
+            CREATE TYPE IF NOT EXISTS http_request ( method text )
+        """)
+
+        self.session.execute("""
+            CREATE TYPE IF NOT EXISTS http_response ( status text, code int )
+        """)
+
+        self.session.execute("""
+            CREATE TABLE IF NOT EXISTS event (
+                id text, time timestamp, action text, device text,
+                network text,
+                srcip inet, destip inet, srcport int, destport int,
+                protocol text, dns_type text, 
+                url text,
+                dns_query list<frozen<dns_query>>,
+                dns_answer list<frozen<dns_answer>>, 
+                http_request frozen<http_request>,
+                http_response frozen<http_response>,
+                header map<text, text>,
+                primary key(device, action, time, id)
+            )
+        """)
+
+        self.session.execute("""
+            CREATE INDEX IF NOT EXISTS event_srcip ON event (srcip)
+        """)
+
+        self.session.execute("""
+            CREATE INDEX IF NOT EXISTS event_destip ON event (destip)
+        """)
+
+        self.session.execute("""
+            CREATE INDEX IF NOT EXISTS event_srcport ON event (srcport)
+        """)
+
+        self.session.execute("""
+            CREATE INDEX IF NOT EXISTS event_destport ON event (destport)
+        """)
+
+        self.statement = self.session.prepare("""
+            INSERT INTO event (
+                id, time, action, device, network,
+                srcip, destip, srcport, destport, protocol, 
+                dns_type, dns_query, dns_answer, http_request,
+                http_response, url, header)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """)
+
+        super().__init__(binding)
+
+        print("Initialisation complete.")
+
+    def cass_output(self, obs):
+         self.session.execute(self.statement, obs)
+
+    def event(self, ev, properties):
+
+        if ev.action == pb.Action.connection_up:
+            return
+
+        if ev.action == pb.Action.connection_down:
+            return
+
+        sip = None
+        sport = None
+        dip = None
+        dport = None
+        proto = None
+
+        for v in ev.src:
+            if v.protocol == pb.Protocol.ipv4 and sip == None:
+                sip = str(ipaddress.ip_address(v.address.ipv4))
+            if v.protocol == pb.Protocol.ipv6 and sip == None:
+                sip = str(ipaddress.ip_address(v.address.ipv6))
+            if v.protocol == pb.Protocol.tcp and sport == None:
+                sport = v.address.port
+                proto = "tcp"
+            if v.protocol == pb.Protocol.udp and sport == None:
+                sport = v.address.port
+                proto = "udp"
+
+        for v in ev.dest:
+            if v.protocol == pb.Protocol.ipv4 and dip == None:
+                dip = str(ipaddress.ip_address(v.address.ipv4))
+            if v.protocol == pb.Protocol.ipv6 and dip == None:
+                dip = str(ipaddress.ip_address(v.address.ipv6))
+            if v.protocol == pb.Protocol.tcp and dport == None:
+                dport = v.address.port
+            if v.protocol == pb.Protocol.udp and dport == None:
+                dport = v.address.port
+
+        # id, time, action, device, network, srcip, destip, srcport, destport,
+        # protocol, dns_type, dns_query, dns_answer, http_request,
+        # http_response, url, header)
+
+        header = None
+        if ev.action == pb.Action.http_request:
+            header = {k: ev.http_request.header[k]
+                      for k in ev.http_request.header}
+        elif ev.action == pb.Action.http_response:
+            header = {k: ev.http_response.header[k]
+                      for k in ev.http_response.header}
+
+        obs = [
+            ev.id,
+            ev.time.ToDatetime(),
+            pb.Action.Name(ev.action),
+            ev.device,
+            ev.network,
+
+            sip, dip, sport, dport, proto,
+
+            pb.DnsMessageType.Name(ev.dns_message.type)
+            if ev.action == pb.Action.dns_message
+            else None,
+
+            [[v.name, v.type, getattr(v, "class")]
+             for v in ev.dns_message.query]
+            if ev.action == pb.Action.dns_message
+            else None,
+            
+            [[v.name, v.type, getattr(v, "class"), self.to_ip(v.address)]
+             for v in ev.dns_message.answer]
+            if ev.action == pb.Action.dns_message
+            else None,
+
+            [ev.http_request.method]
+            if ev.action == pb.Action.http_request
+            else None,
+
+            [ev.http_response.status, ev.http_response.code]
+            if ev.action == pb.Action.http_response
+            else None,
+
+            ev.url if ev.url != "" else None,
+
+            header
+
+        ]
+
+        self.cass_output(obs)
+
+    def to_ip(self, addr):
+
+        return None
+
+        if addr.HasField("ipv4"):
+            return str(ipaddress.ip_address(addr.ipv4))
+
+        if addr.HasField("ipv6"):
+            return str(ipaddress.ip_address(addr.ipv6))
+
+        return None
 
 try:
-    session.execute("""
-    CREATE KEYSPACE rdf WITH REPLICATION = {
-    'class': 'SimpleStrategy', 'replication_factor': '1'
-    }""")
-except:
-    pass
-
-session.set_keyspace("rdf")
-
-try:
-    session.execute("""
-    CREATE TABLE spo (s text, p text, o text, primary key (s, p, o))
-    """)
-except:
-    pass
-
-try:
-    session.execute("""
-    CREATE TABLE pos (s text, p text, o text, primary key (p, o, s))
-    """)
-except:
-    pass
-
-try:
-    session.execute("""
-    CREATE TABLE osp (s text, p text, o text, primary key (o, s, p))
-    """)
-except:
-    pass
-
-insert_stmt = session.prepare("""
-BEGIN BATCH
-  INSERT INTO spo (s, p, o) VALUES (?, ?, ?);
-  INSERT INTO pos (s, p, o) VALUES (?, ?, ?);
-  INSERT INTO osp (s, p, o) VALUES (?, ?, ?);
-APPLY BATCH;
-""")
-
-try:
-    q.subscribe(binding, handle)
+    Cassandra(binding, contacts).run()
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
 

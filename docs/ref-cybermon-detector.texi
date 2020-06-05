@@ -7,7 +7,7 @@
 @cindex Indicator of compromise
 @cindex Indicator
 
-@command{cybermon-detector} subscribes to a RabbitMQ pub/sub queue for
+@command{cybermon-detector} subscribes to a pub/sub topic for
 @command{cybermon} events, inspects them for IOCs, and adds detection
 information if IOCs are observed before re-publishing
 the elaborated events.  This effectively creates a processing
@@ -34,11 +34,11 @@ cybermon-detector geo ioc
 @table @samp
 
 @item BINDING
-Specifies the RabbitMQ pub/sub queue to connect to.  If not specified, defaults
+Specifies the pub/sub topic to connect to.  If not specified, defaults
 to @samp{geo}.
 
 @item PUBLICATION
-Specifies the RabbitMQ pub/sub queue to publish to.  If not specified, defaults
+Specifies the pub/sub topic to publish to.  If not specified, defaults
 to @samp{ioc}.
 
 @end table

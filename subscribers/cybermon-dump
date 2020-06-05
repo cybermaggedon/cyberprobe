@@ -2,18 +2,23 @@
 
 import json
 import sys
-import cyberprobe.qcomms as q
+import cyberprobe.analytic as q
+from google.protobuf.json_format import MessageToJson
 
 if len(sys.argv) < 2:
     binding = "cyberprobe"
 else:
     binding = sys.argv[1]
-    
-def handle(msg, output):
-    print(msg.decode("utf-8"))
 
-try:
-    q.subscribe(binding, handle)
-except Exception as e:
-    sys.stderr.write("Exception: %s\n" % str(e))
+class Dumper(q.EventAnalytic):
+
+    def __init__(self, binding, outputs=[]):
+        super().__init__(binding, outputs)
+
+    def event(self, ev, properties):
+        data = MessageToJson(ev)
+        data = json.dumps(json.loads(data))
+        print(data)
+        
+Dumper(binding).run()
 

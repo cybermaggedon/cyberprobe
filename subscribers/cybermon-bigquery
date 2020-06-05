@@ -450,7 +450,7 @@ def bq_output(obs, id):
     r = requests.put(u, data=json.dumps(obs),
                      headers={"Content-Type": "application/json"})
     if r.status_code != 201:
-        print("Error sending to ElasticSearch")
+        print("Error sending to BQ")
         print("HTTP code: " + str(r.status_code))
 
 ############################################################################

@@ -12,7 +12,8 @@ local os = require("os")
 local json = require("json")
 local string = require("string")
 local socket = require("socket")
-local websocket = require "http.websocket"
+local websocket = require("http.websocket")
+local mime = require("mime")
 
 -- Config ------------------------------------------------------------------
 
@@ -53,7 +54,7 @@ print("Persistency: " .. pers)
 print("Namespace: " .. ns)
 print("Topic: " .. topic)
 
-url = string.format("%s/ws/v2/producer/persistent/%s/%s/%s", broker, tenant, ns, topic)
+url = string.format("%s/ws/v2/producer/%s/%s/%s/%s", broker, pers, tenant, ns, topic)
 
 -- Initialise.
 local init = function()
@@ -96,15 +97,13 @@ local b64 = function(x)
 end
 
 -- Object submission function - just pushes the object onto the queue.
-local submit = function(obs)
-  pay = b64(obs)
+local submit = function(data, props)
   msg = json.encode({
-    payload = pay,
-    properties = { device = obs["device"], network = obs["network"] },
+    payload = b64(data),
+    properties = props,
     context = "1"
   })
   while true do
-    print("Attempting...")
     local ok, err = ws:send(msg)
     if not ok then
       ws:close()
@@ -113,16 +112,14 @@ local submit = function(obs)
       init()
     else
       -- Receive result and ignore.
-      print("Sent.")
       ws:receive()
-      print("Response received.")
       return
     end
   end
 end
 
 observer.event = function(e)
-  submit(e:json())
+  submit(e:protobuf(), {device = e["device"], network = e["network"]})
 end
 
 -- Initialise

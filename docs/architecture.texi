@@ -32,37 +32,30 @@ runs events past an IOC list, searching for
 cyber threat indicators. When these indicators are observed, the indicator
 meta-data is also added to the JSON events.
 
-@item zeromq.lua
-@cindex @file{amqp-topic.lua} configuration file
-@cindex @code{cybermon}, @file{amqp-topic.lua} configuration file
+@item pulsar.lua
+@cindex @file{pulsar.lua} configuration file
+@cindex @code{cybermon}, @file{pulsar.lua} configuration file
 is a cybermon configuration file we provide which publishes data to a
-RabbitMQ pub/sub queue.  It allows connection of consumers to the
+Pulsar pub/sub exchange.  It allows connection of consumers to the
 @command{cybermon} event stream.
-
-@item cybermon-bigquery
-@cindex @command{cybermon-bigquery}
-@cindex Google BigQuery
-@cindex BigQuery
-is a RabbitMQ subscriber which output @command{cybermon} events to a
-Google BigQuery table.
 
 @item cybermon-cassandra
 @cindex @command{cybermon-cassandra}
 @cindex Cassandra
 @cindex Apache Cassandra
-is a RabbitMQ subscriber which output @command{cybermon} events to a
+is an event subscriber which output @command{cybermon} events to a
 Cassandra store.
 
 @item cybermon-elasticsearch
 @cindex @command{cybermon-elasticsearch}
 @cindex ElasticSearch
-is a RabbitMQ subscriber which output @command{cybermon} events to a
+is an event subscriber which output @command{cybermon} events to a
 ElasticSearch store.
 
 @item cybermon-gaffer
 @cindex @command{cybermon-gaffer}
 @cindex Gaffer
-is a RabbitMQ subscriber which output @command{cybermon} events to a
+is an event subscriber which output @command{cybermon} events to a
 Gaffer store.
 
 @item taxii-server

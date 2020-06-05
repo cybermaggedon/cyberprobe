@@ -48,7 +48,7 @@ add your own custom event handling.
 
 @item
 a set of subscribers which can be used to do things with the captured data
-e.g. store to ElasticSearch, BigQuery or Gaffer.
+e.g. store to ElasticSearch, Cassandra or Gaffer.
 
 @end itemize
 
