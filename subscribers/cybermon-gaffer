@@ -6,7 +6,9 @@ import json
 import sys
 import requests
 import time
-import cyberprobe.qcomms as q
+import cyberprobe.analytic as q
+import cyberprobe.cyberprobe_pb2 as pb
+import ipaddress
 
 ############################################################################
 
@@ -16,193 +18,172 @@ else:
     binding = sys.argv[1]
 
 if len(sys.argv) < 3:
-    gaffer = "http://gaffer:8080/rest/v1"
+    gaffer = "http://gaffer:8080/rest/v2"
 else:
     gaffer = sys.argv[2]
 
-############################################################################
+class Gaffer(q.EventAnalytic):
 
-session = requests.session()
+    def __init__(self, binding, gaffer):
+        self.session = requests.session()
+        self.gaffer = gaffer
+        super().__init__(binding)
 
-############################################################################
+        print("Connecting to Gaffer...")
+        while True:
+            url = self.gaffer + "/graph/status"
+            try:
+                r = requests.get(url)
+            except:
+                print("Not connected, will retry...")
+                time.sleep(2)
+                continue
 
-def add_edge(edges, group, s, d):
-    edges.append((group, s, d))
+            if r.status_code == 200: break
 
-def add_vertex(vertices, group, v):
-    vertices.append((group, v))
+            print("Not connected, will retry...")
+            time.sleep(10)
 
-############################################################################
+        print("Connected.")
 
-def init():
-    pass
+    def add_edge(self, edges, group, s, d):
+        edges.append((group, s, d))
 
-def gaffer_output(vertices, edges):
+    def add_vertex(self, vertices, group, v):
+        vertices.append((group, v))
 
-    body = {}
-    body["input"] = []
-    body["class"] = "uk.gov.gchq.gaffer.operation.impl.add.AddElements"
-    body["validate"] = True
-    body["skipInvalidElements"] = False
+    def gaffer_output(self, vertices, edges):
 
-    for v in vertices:
+        body = {}
+        body["input"] = []
+        body["class"] = "uk.gov.gchq.gaffer.operation.impl.add.AddElements"
+        body["validate"] = True
+        body["skipInvalidElements"] = False
 
-        elt = {}
-        elt["class"] = "uk.gov.gchq.gaffer.data.element.Entity"
-        elt["group"] = v[0]
-        elt["vertex"] = v[1]
-        elt["properties"] = { "count": 1 }
+        for v in vertices:
 
-        body["input"].append(elt)
+            elt = {}
+            elt["class"] = "uk.gov.gchq.gaffer.data.element.Entity"
+            elt["group"] = v[0]
+            elt["vertex"] = v[1]
+            elt["properties"] = { "count": 1 }
 
-    for v in edges:
+            body["input"].append(elt)
 
-        elt = {}
-        elt["directed"] = True
-        elt["class"] = "uk.gov.gchq.gaffer.data.element.Edge"
-        elt["group"] = v[0]
-        elt["source"] = v[1]
-        elt["destination"] = v[2]
-        elt["properties"] = { "count": 1 }
+        for v in edges:
 
-        body["input"].append(elt)
+            elt = {}
+            elt["directed"] = True
+            elt["class"] = "uk.gov.gchq.gaffer.data.element.Edge"
+            elt["group"] = v[0]
+            elt["source"] = v[1]
+            elt["destination"] = v[2]
+            elt["properties"] = { "count": 1 }
 
-    while True:
-        try:
-            url = gaffer + "/graph/doOperation/add/elements"
-            r = requests.put(url,
-                             data=json.dumps(body),
-                             headers={"Content-Type": "application/json"})
+            body["input"].append(elt)
 
-            # Ignore a valid HTTP response.  Errors are probably bugs in my
-            # code.
-            if r.status_code < 200 or r.status_code > 299:
-                sys.stderr.write("gaffer: Error sending to Gaffer\n")
-                sys.stderr.write("gaffer: HTTP code: %s\n" % str(r.status_code))
-                sys.stderr.write(r.text + "\n")
-            break
-        except Exception as e:
-            # Keep retrying for transport errors
-            sys.stderr.write("gaffer: Could not deliver to Gaffer...\n")
-            sys.stderr.write("gaffer: Exception: %s\n" % str(e))
-            time.sleep(1)
+        while True:
+            try:
+                url = self.gaffer + "/graph/operations/execute"
+                hdr = {"Content-Type": "application/json"}
+                r = self.session.post(url,
+                                      data=json.dumps(body),
+                                      headers=hdr)
+
+                # Ignore a valid HTTP response.  Errors are probably bugs
+                # in my code.
+                if r.status_code < 200 or r.status_code > 299:
+                    sys.stderr.write("gaffer: Error sending to Gaffer\n")
+                    sys.stderr.write("gaffer: HTTP code: %s\n" % str(r.status_code))
+                    sys.stderr.write(r.text + "\n")
+                break
+            except Exception as e:
+                # Keep retrying for transport errors
+                sys.stderr.write("gaffer: Could not deliver to Gaffer...\n")
+                sys.stderr.write("gaffer: Exception: %s\n" % str(e))
+                time.sleep(1)
   
-############################################################################
-def handle(msg, output):
+    def event(self, ev, properties):
 
-    obj = json.loads(msg)
+        if ev.action == pb.Action.connection_up:
+            return
 
-    if obj["action"] == "connected_up":
-        return
+        if ev.action == pb.Action.connection_down:
+            return
 
-    if obj["action"] == "connected_down":
-        return
+        vertices = []
+        edges = []
 
-    vertices = []
-    edges = []
+        sip = None
+        sport = None
+        dip = None
+        dport = None
+        proto = None
 
-    sip = None
-    sport = None
-    dip = None
-    dport = None
-    proto = None
-
-    if "src" in obj:
-        ip = None
-        for v in obj["src"]:
-            if v.find(":") < 0:
-                cls = v
-                addr = ""
-            else:
-                cls = v[0:v.find(":")]
-                addr = v[v.find(":") + 1:]
-
-            if cls == "ipv4":
-                sip = addr
-
-            if cls == "tcp":
-                sport = addr
+        for v in ev.src:
+            if v.protocol == pb.Protocol.ipv4 and sip == None:
+                sip = str(ipaddress.ip_address(v.address.ipv4))
+            if v.protocol == pb.Protocol.ipv6 and sip == None:
+                sip = str(ipaddress.ip_address(v.address.ipv6))
+            if v.protocol == pb.Protocol.tcp and sport == None:
+                sport = str(v.address.port)
                 proto = "tcp"
-
-            if cls == "udp":
-                sport = addr
+            if v.protocol == pb.Protocol.udp and sport == None:
+                sport = str(v.address.port)
                 proto = "udp"
 
-    if "dest" in obj:
-        ip = None
-        for v in obj["dest"]:
-            if v.find(":") < 0:
-                cls = v
-                addr = ""
-            else:
-                cls = v[0:v.find(":")]
-                addr = v[v.find(":") + 1:]
+        for v in ev.dest:
+            if v.protocol == pb.Protocol.ipv4 and dip == None:
+                dip = str(ipaddress.ip_address(v.address.ipv4))
+            if v.protocol == pb.Protocol.ipv6 and dip == None:
+                dip = str(ipaddress.ip_address(v.address.ipv6))
+            if v.protocol == pb.Protocol.tcp and dport == None:
+                dport = str(v.address.port)
+            if v.protocol == pb.Protocol.udp and dport == None:
+                dport = str(v.address.port)
 
-            if cls == "ipv4":
-                dip = addr
+        if sip != None and sport != None and dip != None and \
+           dport != None and proto == "tcp":
+            src = sip + ":" + sport
+            dest = dip + ":" + dport
+            self.add_vertex(vertices, "ip", sip)
+            self.add_vertex(vertices, "ip", dip)
+            self.add_edge(edges, "ipflow", sip, dip)
+            self.add_vertex(vertices, "tcp", src)
+            self.add_vertex(vertices, "tcp", dest)
+            self.add_edge(edges, "tcpflow", src, dest)
 
-            if cls == "tcp":
-                dport = addr
-                proto = "tcp"
+            if ev.url != "" and ev.action == pb.Action.http_request:
+                self.add_edge(edges, "httprequest", src, ev.url)
 
-            if cls == "udp":
-                dport = addr
-                proto = "udp"
+            if ev.action == pb.Action.dns_message:
+                for v in ev.dns_message.query:
+                    if v.name != "":
+                        self.add_edge(edges, "dnsrequest", src, v.name)
 
-    if sip != None and sport != None and dip != None and dport != None and \
-       proto == "tcp":
-        src = sip + ":" + sport
-        dest = dip + ":" + dport
-        add_vertex(vertices, "ip", sip)
-        add_vertex(vertices, "ip", dip)
-        add_edge(edges, "ipflow", sip, dip)
-        add_vertex(vertices, "tcp", src)
-        add_vertex(vertices, "tcp", dest)
-        add_edge(edges, "tcpflow", src, dest)
+        if sip != None and sport != None and dip != None and \
+           dport != None and proto == "udp":
+            src = sip + ":" + sport
+            dest = dip + ":" + dport
+            self.add_vertex(vertices, "ip", sip)
+            self.add_vertex(vertices, "ip", dip)
+            self.add_edge(edges, "ipflow", sip, dip)
+            self.add_vertex(vertices, "udp", src)
+            self.add_vertex(vertices, "udp", dest)
+            self.add_edge(edges, "udpflow", src, dest)
 
-        if "url" in obj and obj["action"] == "http_request":
-            add_edge(edges, "httprequest", src, obj["url"])
+            if ev.action == pb.Action.dns_message:
+                for v in ev.dns_message.query:
+                    if v.name != "":
+                        self.add_edge(edges, "dnsrequest", src, v.name)
 
-    if sip != None and sport != None and dip != None and dport != None and \
-       proto == "udp":
-        src = sip + ":" + sport
-        dest = dip + ":" + dport
-        add_vertex(vertices, "ip", sip)
-        add_vertex(vertices, "ip", dip)
-        add_edge(edges, "ipflow", sip, dip)
-        add_vertex(vertices, "udp", src)
-        add_vertex(vertices, "udp", dest)
-        add_edge(edges, "udpflow", src, dest)
-
-        if obj["action"] == "dns_message" and "query" in obj["dns_message"]:
-            for v in obj["dns_message"]["query"]:
-                if "name" in v:
-                    add_edge(edges, "dnsrequest", src, v["name"])
-
-    gaffer_output(vertices, edges)
-
-############################################################################
-
-print("Connecting to Gaffer...")
-while True:
-    url = gaffer + "/status"
-    try:
-        r = requests.get(url)
-    except:
-        print("Not connected, will retry...")
-        time.sleep(10)
-        continue
-
-    if r.status_code == 200: break
-
-    print("Not connected, will retry...")
-    time.sleep(10)
-
-print("Connected.")
+        # Skip output if nothing to do
+        if len(vertices) == 0 or len(edges) == 0: return
+        
+        self.gaffer_output(vertices, edges)
 
 try:
-    q.subscribe(binding, handle)
+    Gaffer(binding, gaffer).run()
 except Exception as e:
     sys.stderr.write("Exception: %s\n" % str(e))
-
 
