@@ -126,7 +126,7 @@ namespace cyberprobe {
         static void protobufify(proto_addr& addr,
                                 cyberprobe::ProtocolAddress* pa) {
 
-            cyberprobe::Protocol prot;
+            cyberprobe::Protocol prot = cyberprobe::Protocol::unknown;
             cyberprobe::Protocol_Parse(addr.first, &prot);
             pa->set_protocol(prot);
 
