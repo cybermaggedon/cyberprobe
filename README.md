@@ -76,17 +76,16 @@ The monitor tool, cybermon has the following features:
 
 The event stream from cybermon can be presented to RabbitMQ in a JSON form,
 which can then be delivered to further analytics:
-- cybermon-alert reports indicator hits in events to standard output.
-- cybermon-bigquery loads events into GCP BigQuery.
-- cybermon-cassandra loads events into Cassandra.
-- cybermon-detector studies events for the presence of indicators. Events are
+- evs-alert reports indicator hits in events to standard output.
+- evs-cassandra loads events into Cassandra.
+- evs-detector studies events for the presence of indicators. Events are
   annotated with indicator hits of any are observed.
-- cybermon-dump dumps raw event JSON to standard output.
-- cybermon-elasticsearch loads events into ElasticSearch.
-- cybermon-gaffer loads network information into Gaffer (a graph database).
-- cybermon-geoip looks up IP addresses in GeoIP and annotates events with
+- evs-dump dumps raw event JSON to standard output.
+- evs-elasticsearch loads events into ElasticSearch.
+- evs-gaffer loads network information into Gaffer (a graph database).
+- evs-geoip looks up IP addresses in GeoIP and annotates events with
   location information.
-- cybermon-monitor outputs event information to standard output.
+- evs-monitor outputs event information to standard output.
 
 ## Scaling
 
