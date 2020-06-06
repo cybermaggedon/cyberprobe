@@ -841,15 +841,14 @@ namespace cyberprobe {
                                      ke.dhrsa->sig.size());
                 return;
             }
-
-            // dhanon
-            pe->set_key_exchange_algorithm("dh-anon");
-            auto dhanon = pe->mutable_dhanon();
-            dhanon->set_prime(ke.dhanon->p.data(), ke.dhanon->p.size());
-            dhanon->set_generator(ke.dhanon->g.data(), ke.dhanon->g.size());
-            dhanon->set_pubkey(ke.dhanon->pubKey.data(),
-                               ke.dhanon->pubKey.size());
-
+            if (ke.dhanon) {
+                pe->set_key_exchange_algorithm("dh-anon");
+                auto dhanon = pe->mutable_dhanon();
+                dhanon->set_prime(ke.dhanon->p.data(), ke.dhanon->p.size());
+                dhanon->set_generator(ke.dhanon->g.data(), ke.dhanon->g.size());
+                dhanon->set_pubkey(ke.dhanon->pubKey.data(),
+                                   ke.dhanon->pubKey.size());
+            }
         }
             
 
