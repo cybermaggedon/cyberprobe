@@ -105,22 +105,22 @@ To use zeromq.lua:
   luarocks install lzmq
   luarocks install uuid
 
-To use cybermon-monitor:
+To use evs-monitor:
 
   dnf install -y python-zmq
 
-To use cybermon-bigquery:
+To use evs-bigquery:
   
   pip install --upgrade google-api-python-client
   dnf install -y python-zmq
   dnf install -y python-requests python-httplib2
 
-To use cybermon-cassandra:
+To use evs-cassandra:
 
   dnf install -y python-zmq
   pip install cassandra-driver
 
-To use cybermon-elasticsearch:
+To use evs-elasticsearch:
 
   dnf install -y python-zmq python-requests python-httplib2
 

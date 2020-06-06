@@ -8,8 +8,8 @@
 server to acquire cyber threat information.  @command{taxii-sync-json}
 uses a TAXII poll request, and reformats all STIX information into a single
 JSON file which is written to the current directory.  This JSON form is
-intended to be used with @command{cybermon-detector}.
-See @ref{@command{cybermon-detector} invocation}.
+intended to be used with @command{evs-detector}.
+See @ref{@command{evs-detector} invocation}.
 
 TAXII/STIX implementation is experimental and incomplete.
 

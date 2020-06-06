@@ -8,8 +8,8 @@
 
 @heading Overview
 
-The @command{cybermon-detector} subscriber implements detection against a
-set of indicators (see @ref{@command{cybermon-detector} invocation}.  The
+The @command{evs-detector} subscriber implements detection against a
+set of indicators (see @ref{@command{evs-detector} invocation}.  The
 indicators are presented in a file containing JSON describing the
 indicators.
 
@@ -33,7 +33,7 @@ The indicators file consists of a simple header containing the
 intended to record a revision history identified for the indicators, and
 should be changed to a unique value when an update occurs.
 
-These fields are not used by @command{cybermon-detect}.  
+These fields are not used by @command{evs-detector}.  
 
 @example
 @{

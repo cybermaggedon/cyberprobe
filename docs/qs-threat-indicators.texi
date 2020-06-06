@@ -11,7 +11,7 @@ Cyberprobe includes a subscriber which apply indicators to events.  When
 an event matches an indicator, information about the indicator is tagged
 into the event.
 
-Indicator support is present in the @command{cybermon-detector} subscriber
+Indicator support is present in the @command{evs-detector} subscriber
 which reads indicators from a JSON file.
 
 @heading Indicator files
@@ -23,7 +23,7 @@ at @file{@value{PREFIX}/share/doc/cyberprobe}.
 @heading Deploying theat information to @command{cybermon}
 
 To run using your existing processing pipeline, stop any running
-@command{cybermon} and @command{cybermon-elasticsearch} processes.  Then run
+@command{cybermon} and @command{evs-elasticsearch} processes.  Then run
 @command{cybermon} to publish to a topic on Pulsar:
 
 @example
@@ -34,7 +34,7 @@ Next run @command{cyberprobe-detector} to apply indicator rules.  By default,
 this will subscribe to @samp{cyberprobe} and publish to @samp{ioc}:
 
 @example
-env INDICATORS=/path/to/indicators.json cybermon-detector \
+env INDICATORS=/path/to/indicators.json evs-detector \
     cyberprobe ioc
 @end example
 
@@ -42,14 +42,14 @@ Finally, in order to look at the output, we need to subscribe to
 @samp{ioc}:
 
 @example
-cybermon-dump ioc
+evs-dump ioc
 @end example
 
 If you have @command{jq} installed, this will make it easier to see
 when indicators hit:
 
 @example
-cybermon-dump ioc | jq --unbuffered .indicators
+evs-dump ioc | jq --unbuffered .indicators
 @end example
 
 This activity should trigger a theat:
@@ -79,20 +79,20 @@ both the DNS query and response. Also, the URL
 @code{http://www.malware.org/malware.dat} is in a threat indicator and it is
 detected in both the HTTP request and response.
 
-@command{cybermon-detector} updates its state if
+@command{evs-detector} updates its state if
 the JSON configuration file has changed.
 
-If you want to load the output of @command{cybermon-detector} into
+If you want to load the output of @command{evs-detector} into
 ElasticSearch, you can, but you need to subscribe to @samp{ioc}:
 
 @example
-cybermon-elasticsearch ioc
+evs-elasticsearch ioc
 @end example
 
 This results in indicator hit information being loaded into ES.
 
 For more information on indicators, see
-@ref{@command{cybermon-detector} invocation} and
+@ref{@command{evs-detector} invocation} and
 @ref{Cyberprobe indicator format}.
 
 See @url{https://github.com/cybermaggedon/threat-exchanges} for code which

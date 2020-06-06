@@ -1,11 +1,11 @@
 
-@node @command{cybermon-geoip} invocation
-@section @command{cybermon-geoip} invocation
+@node @command{evs-geoip} invocation
+@section @command{evs-geoip} invocation
 
-@cindex @command{cybermon-geoip}, invocation
+@cindex @command{evs-geoip}, invocation
 @cindex GeoIP
 
-@command{cybermon-geoip} subscribes to a pub/sub topic for
+@command{evs-geoip} subscribes to a pub/sub topic for
 @command{cybermon} events, adds location information from GeoIP, and
 re-publishes the elaborated events.  This effectively creates a processing
 chain.  The event subscription and publishing events should be different in
@@ -14,13 +14,13 @@ order to avoid creating an infinite loop.
 Synopsis:
 
 @example
-cybermon-geoip [BINDING [PUBLICATION] ]
+evs-geoip [BINDING [PUBLICATION] ]
 @end example
 
 Example:
 @example
-cybermon-geoip
-cybermon-geoip cyberprobe geo
+evs-geoip
+evs-geoip cyberprobe geo
 @end example
 
 @table @samp

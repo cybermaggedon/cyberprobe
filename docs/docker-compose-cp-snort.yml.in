@@ -78,17 +78,17 @@ services:
       PULSAR_BROKER: ws://exchange:8080/
 
   # GeoIP: Adds location information to cybermon events and republishes.
-  cybermon-geoip:
+  evs-geoip:
     image: docker.io/cybermaggedon/cybermon:@VERSION@
-    command: cybermon-geoip
+    command: evs-geoip
     restart: always
     environment:
       PULSAR_BROKER: pulsar://exchange:6650
 
-  # Detector: Adds IOC information to output from cybermon-geoip
-  cybermon-detector:
+  # Detector: Adds IOC information to output from evs-geoip
+  evs-detector:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon-detector
+    command: evs-detector
     volumes:
     - .:/etc/iocs
     environment:
@@ -97,17 +97,17 @@ services:
     restart: always
 
   # ElasticSearch loader
-  cybermon-elasticsearch:
+  evs-elasticsearch:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon-elasticsearch ioc http://elasticsearch:9200/
+    command: evs-elasticsearch ioc http://elasticsearch:9200/
     environment:
       PULSAR_BROKER: pulsar://exchange:6650
     restart: always
 
   # Gaffer loader
-  cybermon-gaffer:
+  evs-gaffer:
     image: docker.io/cybermaggedon/cyberprobe:@VERSION@
-    command: cybermon-gaffer
+    command: evs-gaffer
     environment:
       PULSAR_BROKER: pulsar://exchange:6650
     restart: always

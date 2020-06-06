@@ -24,18 +24,18 @@ can be used to start:
 A @command{cybermon}, listening on port 9000.
 
 @item
-A @command{cybermon-geoip} container, adding GeoIP information to events.
+A @command{evs-geoip} container, adding GeoIP information to events.
 
 @item
-A @command{cybermon-detector} container, adding IOC information to events
+A @command{evs-detector} container, adding IOC information to events
 from a sample STIX data set.
 
 @item
-A @command{cybermon-elasticsearch} container, to load information into
+A @command{evs-elasticsearch} container, to load information into
 ElasticSearch.
 
 @item
-A @command{cybermon-gaffer} container, to load information into Gaffer.
+A @command{evs-gaffer} container, to load information into Gaffer.
 
 @item
 An @command{elasticsearch} container to store events.

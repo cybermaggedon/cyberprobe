@@ -1,13 +1,13 @@
 
-@node @command{cybermon-detector} invocation
-@section @command{cybermon-detector} invocation
+@node @command{evs-detector} invocation
+@section @command{evs-detector} invocation
 
-@cindex @command{cybermon-detector}, invocation
+@cindex @command{evs-detector}, invocation
 @cindex IOC
 @cindex Indicator of compromise
 @cindex Indicator
 
-@command{cybermon-detector} subscribes to a pub/sub topic for
+@command{evs-detector} subscribes to a pub/sub topic for
 @command{cybermon} events, inspects them for IOCs, and adds detection
 information if IOCs are observed before re-publishing
 the elaborated events.  This effectively creates a processing
@@ -17,18 +17,18 @@ order to avoid creating an infinite loop.
 The indicator file is specified by the @samp{INDICATORS} environment variable,
 the default is @file{indicators.json}.  The file format is the
 @ref{Cyberprobe indicator format}.  When the file changes, the indicators are
-reloaded without the needed to restart @command{cybermon-detector}.
+reloaded without the needed to restart @command{evs-detector}.
 
 Synopsis:
 
 @example
-cybermon-detector [BINDING [PUBLICATION] ]
+evs-detector [BINDING [PUBLICATION] ]
 @end example
 
 Example:
 @example
-cybermon-detector
-cybermon-detector geo ioc
+evs-detector
+evs-detector geo ioc
 @end example
 
 @table @samp

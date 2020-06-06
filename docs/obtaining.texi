@@ -239,13 +239,13 @@ sudo docker -it --rm -p 9000:9000 -v \
 @end example
 
 @item
-Run @command{cybermon-cassandra}.  You need to know the IP address
+Run @command{evs-cassandra}.  You need to know the IP address
 of the host side of the Docker bridge network, and provide addresses
 of the Cassandra servers.
 @example
 sudo docker -it --rm -v \
   docker.io/cybermaggedon/cybermon \
-  cybermon-cassandra cyberprobe \
+  evs-cassandra cyberprobe \
   10.142.146.6,10.142.146.8
 @end example
 

@@ -15,15 +15,15 @@
 * @command{cybermon} example configurations::
 * Cybermon JSON message format::
 * Cybermon protobuf event format::
-* @command{cybermon-monitor} invocation::
-* @command{cybermon-elasticsearch} invocation::
-* @command{cybermon-gaffer} invocation::
-* @command{cybermon-cassandra} invocation::
-* @command{cybermon-geoip} invocation::
-* @command{cybermon-detector} invocation::
+* @command{evs-monitor} invocation::
+* @command{evs-elasticsearch} invocation::
+* @command{evs-gaffer} invocation::
+* @command{evs-cassandra} invocation::
+* @command{evs-geoip} invocation::
+* @command{evs-detector} invocation::
 * Cyberprobe indicator format::
-* @command{cybermon-dump} invocation::
-* @command{cybermon-alert} invocation::
+* @command{evs-dump} invocation::
+* @command{evs-alert} invocation::
 * @command{taxii-client} invocation::
 * @command{taxii-sync-json} invocation::
 * @command{taxii-server} invocation::

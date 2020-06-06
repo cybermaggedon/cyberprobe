@@ -1,24 +1,24 @@
 
-@node @command{cybermon-alert} invocation
-@section @command{cybermon-alert} invocation
+@node @command{evs-alert} invocation
+@section @command{evs-alert} invocation
 
-@cindex @command{cybermon-alert}, invocation
+@cindex @command{evs-alert}, invocation
 @cindex Alert
 
-@command{cybermon-alert} subscribes to a pub/sub topic for
+@command{evs-alert} subscribes to a pub/sub topic for
 @command{cybermon} events, and outputs a human-readable message
 when an IOC hits.
 
 Synopsis:
 
 @example
-cybermon-alert [BINDING]
+evs-alert [BINDING]
 @end example
 
 Example:
 @example
-cybermon-alert
-cybermon-alert ioc
+evs-alert
+evs-alert ioc
 @end example
 
 @table @samp

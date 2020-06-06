@@ -49,15 +49,15 @@ chained.  e.g.
 events to Pulsar topic @samp{cyberprobe}.
 
 @item
-@command{cybermon-geoip} can subscribe to @samp{cyberprobe}, and push
+@command{evs-geoip} can subscribe to @samp{cyberprobe}, and push
 events containing information to @samp{geo}.
 
 @item
-@command{cybermon-detector} can do lookup for IOCs and push events with IOC
+@command{evs-detector} can do lookup for IOCs and push events with IOC
 detection information to @samp{ioc}.
 
 @item
-@command{cybermon-elasticsearch} can subscribe to @samp{ioc} and write events to
+@command{evs-elasticsearch} can subscribe to @samp{ioc} and write events to
 ElasticSearch.
 
 @end itemize
@@ -72,7 +72,7 @@ The Cassandra subscriber doesn't do much useful.  I recommend skipping this
 bit.
 @end quotation
 
-@cindex @command{cybermon-cassandra}, invocation
+@cindex @command{evs-cassandra}, invocation
 @cindex Cassandra
 @cindex Apache Cassandra
 @cindex Graph store
@@ -88,10 +88,10 @@ On the command-line you need to tell the subscriber the location
 of the Cassandra contact points e.g.
 
 @example
-cybermon-cassandra ioc cas1,cas2,cas3
+evs-cassandra ioc cas1,cas2,cas3
 @end example
 
-See @ref{@command{cybermon-cassandra} invocation}.
+See @ref{@command{evs-cassandra} invocation}.
 
 
 @comment ----------------------------------------------------------------------
@@ -99,7 +99,7 @@ See @ref{@command{cybermon-cassandra} invocation}.
 @node The ElasticSearch subscriber
 @section The ElasticSearch subscriber
 
-@cindex @command{cybermon-elasticsearch}, invocation
+@cindex @command{evs-elasticsearch}, invocation
 @cindex ElasticSearch
 
 This suscriber extracts events from pub/sub and formats them for delivery
@@ -107,17 +107,17 @@ to ElasticSearch.  The only piece of information you need is the ElasticSearch
 base URI, which is used as a command-line parameter e.g.
 
 @example
-cybermon-elasticsearch ioc http://es-host1:9200
+evs-elasticsearch ioc http://es-host1:9200
 @end example
 
-See @ref{@command{cybermon-elasticsearch} invocation}.
+See @ref{@command{evs-elasticsearch} invocation}.
 
 @comment ----------------------------------------------------------------------
 
 @node The Gaffer subscriber
 @section The Gaffer subscriber
 
-@cindex @command{cybermon-gaffer}, invocation
+@cindex @command{evs-gaffer}, invocation
 @cindex Gaffer
 @cindex Graph store
 
@@ -201,22 +201,22 @@ On the command-line you need to tell the subscriber the location
 of the Gaffer REST API. e.g.
 
 @example
-cybermon-gaffer ioc \
+evs-gaffer ioc \
     http://localhost:8080/rest/v1
 @end example
 
-See @ref{@command{cybermon-gaffer} invocation}.
+See @ref{@command{evs-gaffer} invocation}.
 
 @comment ----------------------------------------------------------------------
 
 @node The debug monitor subscriber
 @section The debug monitor subscriber
 
-@cindex @command{cybermon-monitor}, invocation
+@cindex @command{evs-monitor}, invocation
 
-The @command{cybermon-monitor} subscriber is a subscriber which takes
+The @command{evs-monitor} subscriber is a subscriber which takes
 events and writes human-readable output on standard output.  This is a
 useful means to verify that @command{cyberprobe}, @command{cybermon} and
 pub/sub are configured correctly.
 
-See @ref{@command{cybermon-monitor} invocation}.
+See @ref{@command{evs-monitor} invocation}.

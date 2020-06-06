@@ -1,17 +1,19 @@
 
 if HAVE_SYSTEMD
-systemdsystemunit_DATA=cyberprobe.service cybermon.service \
-	cybermon-bigquery.service cybermon-cassandra.service \
-	cybermon-elasticsearch.service cybermon-gaffer.service
+systemdsystemunit_DATA=cyberprobe.service cybermon.service	\
+	evs-detector.service evs-cassandra.service		\
+	evs-elasticsearch.service evs-gaffer.service		\
+	evs-geoip.service
 endif
 
-EXTRA_DIST=cyberprobe.service.in cybermon.service.in \
-	cybermon-bigquery.service.in cybermon-cassandra.service.in \
-	cybermon-elasticsearch.service.in cybermon-gaffer.service.in
+EXTRA_DIST=cyberprobe.service.in cybermon.service.in		\
+	evs-detector.service.in evs-cassandra.service.in	\
+	evs-elasticsearch.service.in evs-gaffer.service.in	\
+	evs-geoip.service.in
 
-CLEANFILES = cyberprobe.service cybermon.service \
-	cybermon-bigquery.service cybermon-cassandra.service \
-	cybermon-elasticsearch.service cybermon-gaffer.service
+CLEANFILES = cyberprobe.service cybermon.service evs-detector.service	\
+	evs-cassandra.service evs-elasticsearch.service			\
+	evs-gaffer.service evs-geoip.service
 
 do_substitution = sed \
 	-e 's,[@]bindir[@],$(bindir),g' \
@@ -24,14 +26,17 @@ cyberprobe.service: cyberprobe.service.in Makefile
 cybermon.service: cybermon.service.in Makefile
 	$(do_substitution) < $(srcdir)/cybermon.service.in > $@
 
-cybermon-bigquery.service: cybermon-bigquery.service.in Makefile
-	$(do_substitution) < $(srcdir)/cybermon-bigquery.service.in > $@
+evs-detector.service: evs-detector.service.in Makefile
+	$(do_substitution) < $(srcdir)/evs-detector.service.in > $@
 
-cybermon-cassandra.service: cybermon-cassandra.service.in Makefile
-	$(do_substitution) < $(srcdir)/cybermon-cassandra.service.in > $@
+evs-geoip.service: evs-geoip.service.in Makefile
+	$(do_substitution) < $(srcdir)/evs-geoip.service.in > $@
 
-cybermon-elasticsearch.service: cybermon-elasticsearch.service.in Makefile
-	$(do_substitution) < $(srcdir)/cybermon-elasticsearch.service.in > $@
+evs-cassandra.service: evs-cassandra.service.in Makefile
+	$(do_substitution) < $(srcdir)/evs-cassandra.service.in > $@
 
-cybermon-gaffer.service: cybermon-gaffer.service.in Makefile
-	$(do_substitution) < $(srcdir)/cybermon-gaffer.service.in > $@
+evs-elasticsearch.service: evs-elasticsearch.service.in Makefile
+	$(do_substitution) < $(srcdir)/evs-elasticsearch.service.in > $@
+
+evs-gaffer.service: evs-gaffer.service.in Makefile
+	$(do_substitution) < $(srcdir)/evs-gaffer.service.in > $@

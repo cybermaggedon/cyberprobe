@@ -26,8 +26,8 @@ session/transport level events which result in user-configurable
 actions. For each event, a call is made to a Lua script which the caller
 provides.
 
-@item cybermon-detector
-@cindex @command{cybermon-detector} invocation
+@item evs-detector
+@cindex @command{evs-detector} invocation
 runs events past an IOC list, searching for
 cyber threat indicators. When these indicators are observed, the indicator
 meta-data is also added to the JSON events.
@@ -39,21 +39,21 @@ is a cybermon configuration file we provide which publishes data to a
 Pulsar pub/sub exchange.  It allows connection of consumers to the
 @command{cybermon} event stream.
 
-@item cybermon-cassandra
-@cindex @command{cybermon-cassandra}
+@item evs-cassandra
+@cindex @command{evs-cassandra}
 @cindex Cassandra
 @cindex Apache Cassandra
 is an event subscriber which output @command{cybermon} events to a
 Cassandra store.
 
-@item cybermon-elasticsearch
-@cindex @command{cybermon-elasticsearch}
+@item evs-elasticsearch
+@cindex @command{evs-elasticsearch}
 @cindex ElasticSearch
 is an event subscriber which output @command{cybermon} events to a
 ElasticSearch store.
 
-@item cybermon-gaffer
-@cindex @command{cybermon-gaffer}
+@item evs-gaffer
+@cindex @command{evs-gaffer}
 @cindex Gaffer
 is an event subscriber which output @command{cybermon} events to a
 Gaffer store.

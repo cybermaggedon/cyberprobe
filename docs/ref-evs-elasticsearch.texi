@@ -1,10 +1,10 @@
 
-@node @command{cybermon-elasticsearch} invocation
-@section @command{cybermon-elasticsearch} invocation
+@node @command{evs-elasticsearch} invocation
+@section @command{evs-elasticsearch} invocation
 
-@cindex @command{cybermon-elasticsearch}, invocation
+@cindex @command{evs-elasticsearch}, invocation
 
-@command{cybermon-elasticsearch} subscribes to a pub/sub topic for
+@command{evs-elasticsearch} subscribes to a pub/sub topic for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to an
 ElasticSearch store.
@@ -12,13 +12,13 @@ ElasticSearch store.
 Synopsis:
 
 @example
-cybermon-elasticsearch [BINDING [ELASTICSEARCH-URL] ]
+evs-elasticsearch [BINDING [ELASTICSEARCH-URL] ]
 @end example
 
 Example:
 @example
-cybermon-elasticsearch
-cybermon-elasticsearch ioc http://elastic-store:9200/
+evs-elasticsearch
+evs-elasticsearch ioc http://elastic-store:9200/
 @end example
 
 @table @samp

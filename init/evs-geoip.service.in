@@ -1,11 +1,11 @@
 
 [Unit]
-Description=cybermon bigquery service
+Description=cyberprobe IP-to-geo service
 Documentation=https://cybermaggedon.github.io/cyberprobe-docs/
 
 [Service]
-PIDFile=/var/run/cybermon-bigquery.pid
-ExecStart=@bindir@/cybermon-bigquery
+PIDFile=/var/run/cybermon-geoip.pid
+ExecStart=@bindir@/cybermon-geoip
 
 [Install]
 WantedBy=multi-user.target

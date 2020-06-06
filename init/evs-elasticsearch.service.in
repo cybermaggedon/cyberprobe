@@ -1,6 +1,6 @@
 
 [Unit]
-Description=cybermon ElasticSearch service
+Description=cyberprobe ElasticSearch loader service
 Documentation=https://cybermaggedon.github.io/cyberprobe-docs/
 
 [Service]

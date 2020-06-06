@@ -1,10 +1,10 @@
 
-@node @command{cybermon-monitor} invocation
-@section @command{cybermon-monitor} invocation
+@node @command{evs-monitor} invocation
+@section @command{evs-monitor} invocation
 
-@cindex @command{cybermon-monitor}, invocation
+@cindex @command{evs-monitor}, invocation
 
-@command{cybermon-monitor} subscribes to a pub/sub topic for
+@command{evs-monitor} subscribes to a pub/sub topic for
 @command{cybermon}
 events, and upon receipt of events, formats them for output in a human-readable
 manner.
@@ -12,13 +12,13 @@ manner.
 Synopsis:
 
 @example
-cybermon-monitor [BINDING]
+evs-monitor [BINDING]
 @end example
 
 Example:
 @example
-cybermon-monitor
-cybermon-monitor cyberprobe
+evs-monitor
+evs-monitor cyberprobe
 @end example
 
 @table @samp
