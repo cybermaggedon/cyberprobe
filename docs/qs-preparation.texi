@@ -37,34 +37,34 @@ Test decoder for ETSI format data.
 @item cyberprobe-cli
 Cyberprobe control command-line client.
 
-@cindex @command{cybermon-cassandra}
-@item cybermon-cassandra
+@cindex @command{evs-cassandra}
+@item evs-cassandra
 Pub/sub subscriber, delivers events to Cassandra.
 
-@cindex @command{cybermon-elasticsearch}
-@item cybermon-elasticsearch
+@cindex @command{evs-elasticsearch}
+@item evs-elasticsearch
 Pub/sub subscriber, delivers events to ElasticSearch.
 
-@cindex @command{cybermon-gaffer}
-@item cybermon-gaffer
+@cindex @command{evs-gaffer}
+@item evs-gaffer
 Pub/sub subscriber, delivers events to Gaffer.
 
-@cindex @command{cybermon-geoip}
-@item cybermon-geoip
+@cindex @command{evs-geoip}
+@item evs-geoip
 Pub/sub subscriber, uses GeoIP to add location information to events, and
 then republishes them.
 
-@cindex @command{cybermon-detector}
-@item cybermon-detector
+@cindex @command{evs-detector}
+@item evs-detector
 Pub/sub subscriber, looks for matches for STIX IOCs, adds IOC information
 to events, and then republishes them.
 
-@cindex @command{cybermon-dump}
-@item cybermon-dump
+@cindex @command{evs-dump}
+@item evs-dump
 Pub/sub subscriber, dumps out raw JSON messages.
 
-@cindex @command{cybermon-alert}
-@item cybermon-dump
+@cindex @command{evs-alert}
+@item evs-dump
 Pub/sub subscriber, alerts on matching IOCs.
 
 @end table

@@ -1,0 +1,12 @@
+
+[Unit]
+Description=cyberprobe indicator detection service
+Documentation=https://cybermaggedon.github.io/cyberprobe-docs/
+
+[Service]
+PIDFile=/var/run/cybermon-detector.pid
+ExecStart=@bindir@/cybermon-detector
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,11 +1,11 @@
 
 [Unit]
-Description=cybermon Cassandra service
+Description=cyberprobe Gaffer loader service
 Documentation=https://cybermaggedon.github.io/cyberprobe-docs/
 
 [Service]
-PIDFile=/var/run/cybermon-cassandra.pid
-ExecStart=@bindir@/cybermon-cassandra
+PIDFile=/var/run/cybermon-gaffer.pid
+ExecStart=@bindir@/cybermon-gaffer
 
 [Install]
 WantedBy=multi-user.target

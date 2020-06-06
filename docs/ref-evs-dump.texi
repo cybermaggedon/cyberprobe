@@ -1,24 +1,24 @@
 
-@node @command{cybermon-dump} invocation
-@section @command{cybermon-dump} invocation
+@node @command{evs-dump} invocation
+@section @command{evs-dump} invocation
 
-@cindex @command{cybermon-dump}, invocation
+@cindex @command{evs-dump}, invocation
 @cindex JSON
 @cindex Cybermon JSON message format
 
-@command{cybermon-dump} subscribes to a pub/sub topic for
+@command{evs-dump} subscribes to a pub/sub topic for
 @command{cybermon} events, and dumps the raw JSON to standard output.
 
 Synopsis:
 
 @example
-cybermon-dump [BINDING]
+evs-dump [BINDING]
 @end example
 
 Example:
 @example
-cybermon-dump
-cybermon-dump cyberprobe
+evs-dump
+evs-dump cyberprobe
 @end example
 
 @table @samp

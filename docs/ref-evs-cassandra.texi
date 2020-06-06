@@ -1,13 +1,13 @@
 
-@node @command{cybermon-cassandra} invocation
-@section @command{cybermon-cassandra} invocation
+@node @command{evs-cassandra} invocation
+@section @command{evs-cassandra} invocation
 
-@cindex @command{cybermon-cassandra}, invocation
+@cindex @command{evs-cassandra}, invocation
 @cindex Apache Cassandra
 @cindex Cassandra
 @cindex Graph store
 
-@command{cybermon-cassandra} subscribes to a Pulsar pub/sub topic for
+@command{evs-cassandra} subscribes to a Pulsar pub/sub topic for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to a
 Cassandra store.  The format used is intended to allow Cassandra to be used
@@ -17,13 +17,13 @@ Cassandra, see @url{https://github.com/cybermaggedon/cassandra-redland}.
 Synopsis:
 
 @example
-cybermon-cassandra [BINDING [CASSANDRA-HOSTS] ]
+evs-cassandra [BINDING [CASSANDRA-HOSTS] ]
 @end example
 
 Example:
 @example
-cybermon-cassandra
-cybermon-cassandra ioc cassandra1,cassandra2
+evs-cassandra
+evs-cassandra ioc cassandra1,cassandra2
 @end example
 
 @table @samp

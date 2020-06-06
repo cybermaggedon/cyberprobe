@@ -6,12 +6,12 @@
 
 @heading Overview
 
-When @command{cybermon-elasticsearch} is used
+When @command{evs-elasticsearch} is used
 observations are created in an ElasticSearch database.
 These configuration files call the @file{elastic.lua} utility module.
 This section describes the data model used in the ElasticSearch database.
 
-ElasticSearch accepts data in JSON form.  @command{cybermon-elasticsearch}
+ElasticSearch accepts data in JSON form.  @command{evs-elasticsearch}
 uses an
 index called @command{cyberprobe} and an object type @command{observation}.
 

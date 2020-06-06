@@ -933,9 +933,9 @@ The length of the message being sent.
 
 @item location
 @cindex GeoIP
-@cindex @command{cybermon-geoip}
+@cindex @command{evs-geoip}
 Not emitted by @command{cybermon}, but can be added to the message by
-@command{cybermon-geoip}.  See @ref{@command{cybermon-geoip} invocation}.
+@command{evs-geoip}.  See @ref{@command{evs-geoip} invocation}.
 
 The @code{location} object contains potentially two child-objects:
 @code{src} and @code{dest}.  Both @code{src} and @code{dest} may contain the
@@ -964,9 +964,9 @@ Longitude, degrees east of Greenwich.
 @item indicators
 @cindex IOC
 @cindex Indicator of compromise
-@cindex @command{cybermon-detector}
+@cindex @command{evs-detector}
 Not emitted by @command{cybermon}, but can be added to the message by
-@command{cybermon-detector}.  See @ref{@command{cybermon-detector} invocation}.
+@command{evs-detector}.  See @ref{@command{evs-detector} invocation}.
 
 The @code{indicators} object is an array of IOC hits, if any have been
 detected.  Each array element is an object with the following fields:

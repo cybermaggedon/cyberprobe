@@ -1,12 +1,12 @@
 
-@node @command{cybermon-gaffer} invocation
-@section @command{cybermon-gaffer} invocation
+@node @command{evs-gaffer} invocation
+@section @command{evs-gaffer} invocation
 
-@cindex @command{cybermon-gaffer}, invocation
+@cindex @command{evs-gaffer}, invocation
 @cindex Gaffer
 @cindex Graph store
 
-@command{cybermon-gaffer} subscribes to a pub/sub topic for
+@command{evs-gaffer} subscribes to a pub/sub topic for
 @command{cybermon}
 events, and upon receipt of events, formats them for delivery to a
 Gaffer store.  The format used is intended to allow Gaffer to be used
@@ -19,13 +19,13 @@ can be found at
 Synopsis:
 
 @example
-cybermon-gaffer [BINDING [GAFFER-URL] ]
+evs-gaffer [BINDING [GAFFER-URL] ]
 @end example
 
 Example:
 @example
-cybermon-gaffer
-cybermon-gaffer ioc \
+evs-gaffer
+evs-gaffer ioc \
     http://gaffer-store:8080/rest/v1
 @end example
 

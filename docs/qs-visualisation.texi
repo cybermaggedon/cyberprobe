@@ -86,7 +86,7 @@ cybermon -p 10000 -c @value{SYSCONFDIR}/cyberprobe/pulsar.lua
 While that's running, we can start the ElasticSearch loader:
 
 @example
-cybermon-elasticsearch cyberprobe
+evs-elasticsearch cyberprobe
 @end example
 
 After some network data has been observed, you should be able to see results
@@ -128,7 +128,7 @@ results.
 
 If you see a lot of information scrolling past on the screen, that's good.
 
-@command{cybermon-elasticsearch} maps the @command{cybermon}
+@command{evs-elasticsearch} maps the @command{cybermon}
 observations into a form which is appropriate to store in
 ElasticSearch. 
 

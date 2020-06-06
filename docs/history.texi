@@ -9,6 +9,7 @@ Cyberprobe release highlights:
 @item 2.5
 Pulsar and protobuf support added, permits events from cybermon to be
 described in protobuf form, and delivered to a Pulsar pub/sub exchange.
+Renamed cybermon- subscribers to evs- (Event Stream).
 
 @item 2.4
 @command{cybermon-detector} refactored to use FSM-based evaluation of

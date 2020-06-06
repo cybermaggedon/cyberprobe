@@ -162,27 +162,27 @@ Texts.
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-monitor.texi
+@include ref-evs-monitor.texi
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-elasticsearch.texi
+@include ref-evs-elasticsearch.texi
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-gaffer.texi
+@include ref-evs-gaffer.texi
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-cassandra.texi
+@include ref-evs-cassandra.texi
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-geoip.texi
+@include ref-evs-geoip.texi
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-detector.texi
+@include ref-evs-detector.texi
 
 @comment ----------------------------------------------------------------------
 
@@ -190,11 +190,11 @@ Texts.
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-dump.texi
+@include ref-evs-dump.texi
 
 @comment ----------------------------------------------------------------------
 
-@include ref-cybermon-alert.texi
+@include ref-evs-alert.texi
 
 @comment ----------------------------------------------------------------------
 

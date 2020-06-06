@@ -129,31 +129,31 @@ exchange in protobuf form, which can then be delivered to further analytics:
 @itemize @bullet
 
 @item
-@command{cybermon-alert} reports indicator hits in events to standard output.
+@command{evs-alert} reports indicator hits in events to standard output.
 
 @item
-@command{cybermon-cassandra} loads events into Cassandra.
+@command{evs-cassandra} loads events into Cassandra.
 
 @item
-@command{cybermon-detector} studies events for the presence of indicators.
+@command{evs-detector} studies events for the presence of indicators.
 Events are annotated with indicator hits of any are observed.
 
 @item
-@command{cybermon-dump} dumps raw event JSON to standard output.
+@command{evs-dump} dumps raw event JSON to standard output.
 
 @item
-@command{cybermon-elasticsearch} loads events into ElasticSearch.
+@command{evs-elasticsearch} loads events into ElasticSearch.
 
 @item
-@command{cybermon-gaffer} loads network information into Gaffer (a graph
+@command{evs-gaffer} loads network information into Gaffer (a graph
 database).
 
 @item
-@command{cybermon-geoip} looks up IP addresses in GeoIP and annotates
+@command{evs-geoip} looks up IP addresses in GeoIP and annotates
 events with location information.
 
 @item
-@command{cybermon-monitor} outputs event information to standard output.
+@command{evs-monitor} outputs event information to standard output.
 
 @end itemize
 
