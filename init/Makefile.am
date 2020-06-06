@@ -9,7 +9,7 @@ endif
 EXTRA_DIST=cyberprobe.service.in cybermon.service.in		\
 	evs-detector.service.in evs-cassandra.service.in	\
 	evs-elasticsearch.service.in evs-gaffer.service.in	\
-	evs-geoip.service
+	evs-geoip.service.in
 
 CLEANFILES = cyberprobe.service cybermon.service evs-detector.service	\
 	evs-cassandra.service evs-elasticsearch.service			\
