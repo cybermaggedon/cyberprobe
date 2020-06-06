@@ -9,7 +9,7 @@
 #include <thread>
 
 #include <cyberprobe/event/event.h>
-#include <cyberprobe/analyser/lua.h>
+#include <cyberprobe/analyser/grpc.h>
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>

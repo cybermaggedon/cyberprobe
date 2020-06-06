@@ -179,7 +179,7 @@ endif
 if WITH_PROTOBUF
 if WITH_GRPC
 
-libcybermon_la_SOURCES += event/event_grpc.C
+libcybermon_la_SOURCES += analyser/grpc.C
 
 eventstream_service_SOURCES = eventstream-service.C network/socket.C	\
 	../include/cyberprobe/network/socket.h

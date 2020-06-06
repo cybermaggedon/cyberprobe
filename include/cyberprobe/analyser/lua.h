@@ -32,6 +32,10 @@ extern "C" {
 #include <cyberprobe/protocol/tls_handshake_protocol.h>
 #include <cyberprobe/event/event.h>
 
+#ifdef WITH_GRPC
+#include <cyberprobe/analyser/grpc.h>
+#endif
+
 namespace cyberprobe {
 
 namespace analyser {
@@ -441,18 +445,6 @@ delete[] buf;
     };
 
 #ifdef WITH_GRPC
-
-    class eventstream_client;
-
-    class grpc_manager {
-    public:
-        grpc_manager() {}
-        std::map<std::string, std::shared_ptr<eventstream_client> > client;
-        static std::shared_ptr<grpc_manager> create();
-        void observe(std::shared_ptr<event::event>, const std::string& svc);
-        void close();
-        virtual ~grpc_manager();
-    };
 
     class grpc_userdata {
     public:
