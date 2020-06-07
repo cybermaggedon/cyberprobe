@@ -18,7 +18,7 @@ info=Info('configuration', 'Configuration settings')
 class Analytic:
     def __init__(self, binding, outputs=[]):
 
-        metrication = os.getenv("METRICATION_PORT")
+        metrication = os.getenv("METRICS_PORT")
         if metrication != None:
             port = int(metrication)
             start_http_server(port)
