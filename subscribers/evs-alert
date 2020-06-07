@@ -11,18 +11,15 @@ else:
 
 class Alerter(q.EventAnalytic):
     def event(self, ev, properties):
-        try:
 
-            tm = ev.time.ToDatetime()
+        tm = ev.time.ToDatetime()
 
-            if len(ev.indicators) > 0:
-                print("%s, %s, %s" %
-                      (tm, ev.device, pb.Action.Name(ev.action)))
-                for v in ev.indicators:
-                    print("  %s: %s" % (v.value, v.description))
-                print()
-        except Exception as e:
-            print(e)
+        if len(ev.indicators) > 0:
+            print("%s, %s, %s" %
+                  (tm, ev.device, pb.Action.Name(ev.action)))
+            for v in ev.indicators:
+                print("  %s: %s" % (v.value, v.description))
+            print()
 
 try:
     Alerter(binding).run()
