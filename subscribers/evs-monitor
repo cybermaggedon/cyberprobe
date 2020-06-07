@@ -13,88 +13,83 @@ class Monitor(q.EventAnalytic):
 
     def event(self, ev, properties):
 
-        try:
+        tm = ev.time.ToDatetime()
 
-            tm = ev.time.ToDatetime()
+        print()
+        print("Action: %s" % pb.Action.Name(ev.action))
+        print("Device: %s" % ev.device)
 
-            print()
-            print("Action: %s" % pb.Action.Name(ev.action))
-            print("Device: %s" % ev.device)
+        print("Time: %s" % tm)
 
-            print("Time: %s" % tm)
+        if ev.url != "":
+            print("URL: %s" % ev.url)
 
-            if ev.url != "":
-                print("URL: %s" % ev.url)
+        if ev.HasField("icmp"):
+            print("ICMP type: %d" % ev.icmp.type)
+            print("ICMP code: %d" % ev.icmp.code)
 
-            if ev.HasField("icmp"):
-                print("ICMP type: %d" % ev.icmp.type)
-                print("ICMP code: %d" % ev.icmp.code)
+        if ev.HasField("dns_message"):
+            detail = ev.dns_message
+            print("Type: %s" % pb.DnsMessageType.Name(detail.type))
+            if detail.type == pb.DnsMessageType.query:
+                for v in detail.query:
+                    print("Query name: %s" % v.name)
+                    print("Query type: %s" % v.type)
+                    print("Query class: %s" % getattr(v, "class"))
+            else:
+                for v in detail.answer:
+                    print("Answer name: %s" % v.name)
+                    print("Answer type: %s" % v.type)
+                    print("Answer class: %s" % getattr(v, "class"))
+                    print("Answer address: %s" % v.address)
 
-            if ev.HasField("dns_message"):
-                detail = ev.dns_message
-                print("Type: %s" % pb.DnsMessageType.Name(detail.type))
-                if detail.type == pb.DnsMessageType.query:
-                    for v in detail.query:
-                        print("Query name: %s" % v.name)
-                        print("Query type: %s" % v.type)
-                        print("Query class: %s" % getattr(v, "class"))
-                else:
-                    for v in detail.answer:
-                        print("Answer name: %s" % v.name)
-                        print("Answer type: %s" % v.type)
-                        print("Answer class: %s" % getattr(v, "class"))
-                        print("Answer address: %s" % v.address)
+        if ev.HasField("http_request"):
+            detail = ev.http_request
+            print("Method: %s" % detail.method)
+            for k in detail.header:
+                print("%s: %s" % (k, detail.header[k]))
 
-            if ev.HasField("http_request"):
-                detail = ev.http_request
-                print("Method: %s" % detail.method)
-                for k in detail.header:
-                    print("%s: %s" % (k, detail.header[k]))
+        if ev.HasField("http_response"):
+            detail = ev.http_response
+            print("Code: %d" % detail.code)
+            print("Status: %s" % detail.status)
+            for k in detail.header:
+                print("%s: %s" % (k, detail.header[k]))
 
-            if ev.HasField("http_response"):
-                detail = ev.http_response
-                print("Code: %d" % detail.code)
-                print("Status: %s" % detail.status)
-                for k in detail.header:
-                    print("%s: %s" % (k, detail.header[k]))
+        if ev.HasField("ftp_command"):
+            detail = ev.ftp_command
+            print("Command: %s" % detail.command)
 
-            if ev.HasField("ftp_command"):
-                detail = ev.ftp_command
-                print("Command: %s" % detail.command)
+        if ev.HasField("ftp_response"):
+            detail = ev.ftp_response
+            print("Status: %d" % detail.status)
+            for v in detail.text:
+                print("Text: %s" % v)
 
-            if ev.HasField("ftp_response"):
-                detail = ev.ftp_response
-                print("Status: %d" % detail.status)
-                for v in detail.text:
-                    print("Text: %s" % v)
+        if ev.HasField("sip_request"):
+            detail = ev.sip_request
+            print("Method: %s" % detail.method)
+            print("From: %s" % getattr(detail, "from"))
+            print("To: %s" % detail.to)
+            for k in detail.header:
+                print("%s: %s" % (k, detail.header[k]))
 
-            if ev.HasField("sip_request"):
-                detail = ev.sip_request
-                print("Method: %s" % detail.method)
-                print("From: %s" % getattr(detail, "from"))
-                print("To: %s" % detail.to)
-                for k in detail.header:
-                    print("%s: %s" % (k, detail.header[k]))
+        if ev.HasField("sip_response"):
+            detail = ev.sip_response
+            print("Code: %d" % detail.code)
+            print("Status: %s" % detail.status)
+            print("From: %s" % getattr(detail, "from"))
+            print("To: %s" % detail.to)
 
-            if ev.HasField("sip_response"):
-                detail = ev.sip_response
-                print("Code: %d" % detail.code)
-                print("Status: %s" % detail.status)
-                print("From: %s" % getattr(detail, "from"))
-                print("To: %s" % detail.to)
+        if ev.HasField("smtp_command"):
+            detail = ev.smtp_command
+            print("Command: %s" % detail.command)
 
-            if ev.HasField("smtp_command"):
-                detail = ev.smtp_command
-                print("Command: %s" % detail.command)
-
-            if ev.HasField("smtp_response"):
-                detail = ev.smtp_response
-                print("Status: %d" % detail.status)
-                for v in detail.text:
-                    print("Text: %s" % v)
-
-        except Exception as e:
-            print(e)
+        if ev.HasField("smtp_response"):
+            detail = ev.smtp_response
+            print("Status: %d" % detail.status)
+            for v in detail.text:
+                print("Text: %s" % v)
 
 try:
     Monitor(binding).run()
