@@ -6,6 +6,7 @@ import os
 import cyberprobe.analytic as q
 import cyberprobe.cyberprobe_pb2 as pb
 import ipaddress
+from prometheus_client import Counter, Info
 
 try:
     db = os.getenv("GEOIP_DB", "/usr/share/GeoIP/GeoLite2-City.mmdb")
@@ -24,6 +25,15 @@ except Exception as e:
     print("GeoIP2 ASN data could not be configured.")
     print("No ASN data will be generated.")
     geo2 = None
+
+match_cases = Counter('geo_matches', 'Match cases', ['case'])
+countries = Counter('geo_country', 'Identified countries', ['country'])
+
+info = Info('geoip', 'GeoIP configuration')
+info.info({
+    'geoip_city_loaded': 'true' if geo else 'false',
+    'geoip_asn_loaded': 'true' if geo2 else 'false',
+})
 
 if len(sys.argv) < 2:
     binding = "cyberprobe"
@@ -77,46 +87,60 @@ class GeoIP(q.EventAnalytic):
     
     def event(self, ev, properties):
 
-        try:
+        sip = None
+        dip = None
 
-            sip = None
-            dip = None
+        # Get IP src address.  If there's more than one, assumption is
+        # that the outer address (lower in the stack) is the right one
+        # to use for geo.
+        for v in ev.src:
+            if v.protocol == pb.Protocol.ipv4:
+                sip = str(ipaddress.ip_address(v.address.ipv4))
+                break
+            if v.protocol == pb.Protocol.ipv6:
+                sip = str(ipaddress.ip_address(v.address.ipv6))
+                break
 
-            # Get IP src address.  If there's more than one, assumption is
-            # that the outer address (lower in the stack) is the right one
-            # to use for geo.
-            for v in ev.src:
-                if v.protocol == pb.Protocol.ipv4:
-                    sip = str(ipaddress.ip_address(v.address.ipv4))
-                    break
-                if v.protocol == pb.Protocol.ipv6:
-                    sip = str(ipaddress.ip_address(v.address.ipv6))
-                    break
+        # Get IP dest address.
+        for v in ev.dest:
+            if v.protocol == pb.Protocol.ipv4:
+                dip = str(ipaddress.ip_address(v.address.ipv4))
+                break
+            if v.protocol == pb.Protocol.ipv6:
+                dip = str(ipaddress.ip_address(v.address.ipv6))
+                break
 
-            # Get IP dest address.
-            for v in ev.dest:
-                if v.protocol == pb.Protocol.ipv4:
-                    dip = str(ipaddress.ip_address(v.address.ipv4))
-                    break
-                if v.protocol == pb.Protocol.ipv6:
-                    dip = str(ipaddress.ip_address(v.address.ipv6))
-                    break
+        smatch = False
+        dmatch = False
+        
+        if sip != None:
+            g = self.lookup(sip)
+            if g != None:
+                smatch = True
+                if g.iso != "": countries.labels(g.iso).inc()
+                ev.location.src.CopyFrom(g)
 
-            if sip != None:
-                g = self.lookup(sip)
-                if g != None:
-                    ev.location.src.CopyFrom(g)
+        if dip != None:
+            g = self.lookup(dip)
+            if g != None:
+                dmatch = True
+                if g.iso != "": countries.labels(g.iso).inc()
+                ev.location.dest.CopyFrom(g)
 
-            if dip != None:
-                g = self.lookup(dip)
-                if g != None:
-                    ev.location.dest.CopyFrom(g)
+        if smatch == False:
+            if dmatch == False:
+                cas = 'neither'
+            else:
+                cas = 'dest'
+        else:
+            if dmatch == False:
+                cas = 'src'
+            else:
+                cas = 'both'
+        print(cas)
+        match_cases.labels(cas).inc()
 
-            self.output_event(ev, properties)
-
-        except Exception as e:
-            print(e)
-            pass
+        self.output_event(ev, properties)
 
 try:
     GeoIP(binding, output).run()
