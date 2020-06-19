@@ -482,6 +482,7 @@ message Indicator {
     string source = 5;
     string author = 6;
     string description = 7;
+    float probability = 8;
 };
 
 message TriggerUp {
@@ -560,6 +561,7 @@ message Event {
 
     Locations location = 57;
     repeated Indicator indicators = 58;
+    float risk = 59;
 }
 
 service EventStream {
