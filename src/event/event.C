@@ -140,6 +140,11 @@ int event::lua_protobuf(lua_State* lua) {
 int event::get_lua_value(lua& state, const std::string& key)
 {
 
+    if (key == "id") {
+        state.push(id);
+	return 1;
+    }
+
     if (key == "device") {
 	state.push(get_device());
 	return 1;
