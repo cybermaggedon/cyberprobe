@@ -64,6 +64,7 @@ class Descriptor:
         self.source = source
         self.type = type
         self.value = value
+        self.probability = prob
 
     def dump(self):
         """
@@ -82,6 +83,7 @@ class Descriptor:
             rval["source"] = self.source
         rval["type"] = self.type
         rval["value"] = self.value
+        rval["probability"] = self.probability
         return rval
         
 class Indicator:
@@ -121,7 +123,10 @@ def load_descriptor(obj):
     if "category" in obj: des.category = obj["category"]
     if "author" in obj: des.author = obj["author"]
     if "source" in obj: des.source = obj["source"]
-    if "prob" in obj: des.prob = obj["prob"]
+    if "probability" in obj:
+        des.probability = obj["probability"]
+    else:
+        des.probability = 1.0
     if "type" in obj: des.type = obj["type"]
     if "value" in obj: des.value = obj["value"]
     return des
