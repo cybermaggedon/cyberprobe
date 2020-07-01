@@ -33,7 +33,7 @@ end
 if os.getenv("PULSAR_PERSISTENCY") then
   pers = os.getenv("PULSAR_PERSISTENCY")
 else
-  pers = 'persistent'
+  pers = 'non-persistent'
 end
 
 if os.getenv("PULSAR_NAMESPACE") then
