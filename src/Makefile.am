@@ -49,7 +49,7 @@ cybermon_LDADD = libcybermon.la -lssl
 
 if WITH_PROTOBUF
 if WITH_GRPC
-cybermon_LDADD += -lgrpc++ -lgrpc
+cybermon_LDADD += -lgrpc++ -lgrpc -lgpr
 endif
 cybermon_LDADD += -lprotobuf
 endif
@@ -183,7 +183,8 @@ libcybermon_la_SOURCES += analyser/grpc.C ../include/cyberprobe/analyser/grpc.h
 
 eventstream_service_SOURCES = eventstream-service.C network/socket.C	\
 	../include/cyberprobe/network/socket.h
-eventstream_service_LDADD = libcybermon.la -lssl -lgrpc++ -lgrpc -lprotobuf
+eventstream_service_LDADD = libcybermon.la -lssl -lgrpc++ -lgrpc -lgpr \
+	-lprotobuf
 
 endif
 endif

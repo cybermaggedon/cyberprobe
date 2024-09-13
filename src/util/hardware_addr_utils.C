@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <stdint.h>
 
 using namespace cyberprobe::util;
 
