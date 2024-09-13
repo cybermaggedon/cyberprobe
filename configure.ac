@@ -120,10 +120,10 @@ AC_CHECK_LIB([dag], [main],
 AC_SEARCH_LIBS([luaL_register], [lua lua5.1],
 		    [AC_DEFINE([HAVE_LUAL_REGISTER], 1,
 		    [Set if luaL_register is supported (removed in 5.2)])])
-AC_SEARCH_LIBS([luaL_setfuncs], [lua lua5.2],
+AC_SEARCH_LIBS([luaL_setfuncs], [lua lua5.2 lua5.3 lua5.4 lua5.5 lua5.6],
 		    [AC_DEFINE([HAVE_LUAL_SETFUNCS], 1,
 		    [Set if luaL_setfuncs is supported (added in 5.2)])])
-AC_SEARCH_LIBS([lua_rawlen], [lua lua5.2],
+AC_SEARCH_LIBS([lua_rawlen], [lua lua5.2 lua5.3 lua5.4 lua5.5 lua5.6],
 		    [AC_DEFINE([HAVE_LUA_RAWLEN], 1,
 		    [Set if lua_rawlen is supported (added in 5.2)])])
 
