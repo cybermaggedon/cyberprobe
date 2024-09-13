@@ -3,6 +3,7 @@
 #define HARDWARE_ADDR_UTILS_H
 
 #include <string>
+#include <stdint.h>
 
 namespace cyberprobe {
     namespace util {
